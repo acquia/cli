@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Acquia\Cli\Command;
 
 use Symfony\Component\Console\Command\Command;
@@ -8,6 +10,10 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class HelloWorldCommand extends CommandBase {
 
+  /**
+   * @var string
+   * @phpcsSuppress SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint
+   */
   protected static $defaultName = 'hello-world';
 
   protected function configure(): void {

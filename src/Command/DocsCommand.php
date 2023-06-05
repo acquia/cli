@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Acquia\Cli\Command;
 
 use Symfony\Component\Console\Command\Command;
@@ -10,12 +12,16 @@ use Symfony\Component\Console\Question\ChoiceQuestion;
 
 class DocsCommand extends CommandBase {
 
+  /**
+   * @var string
+   * @phpcsSuppress SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint
+   */
   protected static $defaultName = 'docs';
 
   protected function configure(): void {
     $this->setDescription('Open Acquia product documentation in a web browser')
       ->addArgument('product', InputArgument::OPTIONAL, 'Acquia Product Name')
-      ->addUsage(self::getDefaultName() . ' acli');
+      ->addUsage('acli');
   }
 
   protected function commandRequiresAuthentication(): bool {

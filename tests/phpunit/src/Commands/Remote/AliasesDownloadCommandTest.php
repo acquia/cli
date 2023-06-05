@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Acquia\Cli\Tests\Commands\Remote;
 
 use Acquia\Cli\Command\Remote\AliasesDownloadCommand;
@@ -19,7 +21,7 @@ class AliasesDownloadCommandTest extends CommandTestBase {
     return $this->injectCommand(AliasesDownloadCommand::class);
   }
 
-  public function setUp($output = NULL): void {
+  public function setUp(mixed $output = NULL): void {
     parent::setUp($output);
     $this->setupFsFixture();
     $this->command = $this->createCommand();
@@ -27,6 +29,8 @@ class AliasesDownloadCommandTest extends CommandTestBase {
 
   /**
    * Test all Drush alias versions.
+   *
+   * @return array<array<mixed>>
    */
   public function providerTestRemoteAliasesDownloadCommand(): array {
     return [

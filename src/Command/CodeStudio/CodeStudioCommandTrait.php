@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Acquia\Cli\Command\CodeStudio;
 
 use Acquia\Cli\Exception\AcquiaCliException;
@@ -21,7 +23,7 @@ trait CodeStudioCommandTrait {
   protected Client $gitLabClient;
 
   /**
-   * @var array
+   * @var array<mixed>
    */
   protected array $gitLabAccount;
 
@@ -153,7 +155,7 @@ trait CodeStudioCommandTrait {
   }
 
   /**
-   * @return array
+   * @return array<mixed>
    */
   private function determineGitLabProject(ApplicationResponse $cloudApplication): array {
     // Use command option.
@@ -197,7 +199,7 @@ trait CodeStudioCommandTrait {
   }
 
   /**
-   * @return array
+   * @return array<mixed>
    */
   private function createGitLabProject(ApplicationResponse $cloudApplication): array {
     $userGroups = $this->gitLabClient->groups()->all([
@@ -212,7 +214,7 @@ trait CodeStudioCommandTrait {
     }
 
     $slugger = new AsciiSlugger();
-    $projectName = $slugger->slug($cloudApplication->name);
+    $projectName = (string) $slugger->slug($cloudApplication->name);
     $project = $this->gitLabClient->projects()->create($projectName, $parameters);
     try {
       $this->gitLabClient->projects()
@@ -226,12 +228,12 @@ trait CodeStudioCommandTrait {
     return $project;
   }
 
-  private function setGitLabProjectDescription($cloudApplicationUuid): void {
+  private function setGitLabProjectDescription(mixed $cloudApplicationUuid): void {
     $this->gitLabProjectDescription = "Source repository for Acquia Cloud Platform application <comment>$cloudApplicationUuid</comment>";
   }
 
   /**
-   * @return array
+   * @return array<mixed>
    */
   private function getGitLabProjectDefaults(): array {
     return [

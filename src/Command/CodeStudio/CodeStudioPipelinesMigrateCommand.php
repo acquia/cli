@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Acquia\Cli\Command\CodeStudio;
 
 use Acquia\Cli\Command\CommandBase;
@@ -17,6 +19,10 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
 
   use CodeStudioCommandTrait;
 
+  /**
+   * @var string
+   * @phpcsSuppress SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint
+   */
   protected static $defaultName = 'codestudio:pipelines-migrate';
 
   protected function configure(): void {
@@ -97,7 +103,7 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
    * Check acquia-pipeline.yml file exists in the root repo and remove ci_config_path from codestudio project.
    *
    * @param array $project
-   * @return array
+   * @return array<mixed>
    */
   private function getAcquiaPipelinesFileContents(array $project): array {
     $pipelinesFilepathYml = Path::join($this->projectDir, 'acquia-pipelines.yml');
@@ -125,7 +131,7 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
   /**
    * Migrating standard template to .gitlab-ci.yml file.
    *
-   * @return array
+   * @return array<mixed>
    */
   private function getGitLabCiFileTemplate(): array {
     return [
@@ -136,7 +142,7 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
   /**
    * Migrating `variables` section to .gitlab-ci.yml file.
    */
-  private function migrateVariablesSection($acquiaPipelinesFileContents, &$gitlabCiFileContents): void {
+  private function migrateVariablesSection(mixed $acquiaPipelinesFileContents, mixed &$gitlabCiFileContents): void {
     if (array_key_exists('variables', $acquiaPipelinesFileContents)) {
       $variablesDump = Yaml::dump(['variables' => $acquiaPipelinesFileContents['variables']]);
       $removeGlobal = preg_replace('/global:/', '', $variablesDump);
@@ -301,7 +307,7 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
   /**
    * Creating .gitlab-ci.yml file.
    */
-  private function createGitLabCiFile(array $contents,$acquiaPipelinesFileName): void {
+  private function createGitLabCiFile(array $contents, string|iterable $acquiaPipelinesFileName): void {
     $gitlabCiFilepath = Path::join($this->projectDir, '.gitlab-ci.yml');
     $this->localMachineHelper->getFilesystem()->dumpFile($gitlabCiFilepath, Yaml::dump($contents, Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK));
     $this->localMachineHelper->getFilesystem()->remove($acquiaPipelinesFileName);

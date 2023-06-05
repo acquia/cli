@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Acquia\Cli\Command\Ssh;
 
 use AcquiaCloudApi\Endpoints\SshKeys;
@@ -10,6 +12,10 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class SshKeyListCommand extends SshKeyCommandBase {
 
+  /**
+   * @var string
+   * @phpcsSuppress SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint
+   */
   protected static $defaultName = 'ssh-key:list';
 
   protected function configure(): void {

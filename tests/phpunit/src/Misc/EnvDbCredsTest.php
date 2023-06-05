@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Acquia\Cli\Tests\Misc;
 
 use Acquia\Cli\Command\Self\ClearCacheCommand;
@@ -17,7 +19,7 @@ class EnvDbCredsTest extends CommandTestBase {
 
   private string $dbHost;
 
-  public function setUp($output = NULL): void {
+  public function setUp(mixed $output = NULL): void {
     $this->dbUser = 'myuserisgood';
     $this->dbPassword = 'mypasswordisgreat';
     $this->dbName = 'mynameisgrand';
@@ -31,6 +33,9 @@ class EnvDbCredsTest extends CommandTestBase {
     TestBase::unsetEnvVars($this->getEnvVars());
   }
 
+  /**
+   * @return array<string>
+   */
   protected function getEnvVars(): array {
     return [
       'ACLI_DB_HOST' => $this->dbHost,

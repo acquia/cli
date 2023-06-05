@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Acquia\Cli\Command\Email;
 
 use Acquia\Cli\Command\CommandBase;
@@ -24,6 +26,10 @@ use Symfony\Component\Yaml\Yaml;
 
 class ConfigurePlatformEmailCommand extends CommandBase {
 
+  /**
+   * @var string
+   * @phpcsSuppress SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint
+   */
   protected static $defaultName = 'email:configure';
 
   protected function configure(): void {
@@ -95,7 +101,6 @@ class ConfigurePlatformEmailCommand extends CommandBase {
   /**
    * Generates Zone File for DNS records of the registered domain.
    *
-   * @param string $baseDomain
    * @param array $records
    */
   private function generateZoneFile(string $baseDomain, array $records): void {
@@ -109,7 +114,7 @@ class ConfigurePlatformEmailCommand extends CommandBase {
       switch ($record->type) {
         case 'MX':
           $mxPriorityValueArr = explode(' ', $record->value);
-          $recordToAdd->getRecordAppender()->appendMxRecord($mxPriorityValueArr[0], $mxPriorityValueArr[1] . '.', 3600);
+          $recordToAdd->getRecordAppender()->appendMxRecord((int) $mxPriorityValueArr[0], $mxPriorityValueArr[1] . '.', 3600);
           break;
         case 'TXT':
           $recordToAdd->getRecordAppender()->appendTxtRecord($record->value, 3600);
@@ -129,9 +134,7 @@ class ConfigurePlatformEmailCommand extends CommandBase {
    * Determines the applications for domain association and environment
    * enablement of Platform Email.
    *
-   * @param \AcquiaCloudApi\Connector\Client $client
-   * @param \AcquiaCloudApi\Response\SubscriptionResponse $subscription
-   * @return array
+   * @return array<mixed>
    */
   private function determineApplications(Client $client, SubscriptionResponse $subscription): array {
     $subscriptionApplications = $this->getSubscriptionApplications($client, $subscription);
@@ -153,7 +156,7 @@ class ConfigurePlatformEmailCommand extends CommandBase {
    * exit.
    */
   private function domainAlreadyAssociated(object $application, ApiErrorException $exception): ?bool {
-    if (!str_contains($exception, 'is already associated with this application')) {
+    if (!str_contains($exception->getMessage(), 'is already associated with this application')) {
       $this->io->error($exception->getMessage());
       return FALSE;
     }
@@ -169,7 +172,7 @@ class ConfigurePlatformEmailCommand extends CommandBase {
    * API, the setup will exit.
    */
   private function environmentAlreadyEnabled(object $environment, ApiErrorException $exception): ?bool {
-    if (!str_contains($exception, 'is already enabled on this environment')) {
+    if (!str_contains($exception->getMessage(), 'is already enabled on this environment')) {
       $this->io->error($exception->getMessage());
       return FALSE;
     }

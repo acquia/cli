@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Acquia\Cli\Command\Ide;
 
 use Acquia\Cli\Exception\AcquiaCliException;
@@ -11,6 +13,10 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class IdePhpVersionCommand extends IdeCommandBase {
 
+  /**
+   * @var string
+   * @phpcsSuppress SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint
+   */
   protected static $defaultName = 'ide:php-version';
 
   private string $idePhpFilePathPrefix;

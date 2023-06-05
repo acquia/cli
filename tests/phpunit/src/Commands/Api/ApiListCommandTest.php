@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Acquia\Cli\Tests\Commands\Api;
 
 use Acquia\Cli\Command\Api\ApiListCommand;
@@ -10,7 +12,7 @@ use Symfony\Component\Console\Command\Command;
 
 class ApiListCommandTest extends CommandTestBase {
 
-  public function setUp($output = NULL): void {
+  public function setUp(mixed $output = NULL): void {
     parent::setUp($output);
     $this->application->addCommands($this->getApiCommands());
   }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Acquia\Cli\Tests\Commands\App;
 
 use Acquia\Cli\Command\App\TaskWaitCommand;
@@ -24,7 +26,7 @@ class TaskWaitCommandTest extends CommandTestBase {
     $this->mockNotificationResponse($notificationUuid, $status);
     $this->executeCommand([
       'notification-uuid' => $notificationUuid,
-    ], []);
+    ]);
 
     // Assert.
     $this->prophet->checkPredictions();
@@ -36,6 +38,9 @@ class TaskWaitCommandTest extends CommandTestBase {
     $this->assertStringContainsString('Duration: 0 seconds', $output);
   }
 
+  /**
+   * @return array<mixed>
+   */
   public function providerTestTaskWaitCommand(): array {
     return [
       [
@@ -53,7 +58,7 @@ class TaskWaitCommandTest extends CommandTestBase {
     $taskResponse = $this->getMockResponseFromSpec('/environments/{environmentId}/domains/{domain}/actions/clear-caches', 'post', 202);
     $this->mockNotificationResponseFromObject($taskResponse->{'Clearing cache'}->value);
     $json = json_encode($taskResponse->{'Clearing cache'}->value);
-    $this->executeCommand(['notification-uuid' => $json], []);
+    $this->executeCommand(['notification-uuid' => $json]);
 
     // Assert.
     $this->prophet->checkPredictions();
@@ -61,7 +66,7 @@ class TaskWaitCommandTest extends CommandTestBase {
 
   public function testTaskWaitCommandWithInvalidInput(): void {
     $this->expectException(AcquiaCliException::class);
-    $this->executeCommand(['notification-uuid' => '{}'], []);
+    $this->executeCommand(['notification-uuid' => '{}']);
 
     // Assert.
     $this->prophet->checkPredictions();

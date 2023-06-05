@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Acquia\Cli\Command\Env;
 
 use Acquia\Cli\Command\CommandBase;
@@ -16,6 +18,10 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class EnvMirrorCommand extends CommandBase {
 
+  /**
+   * @var string
+   * @phpcsSuppress SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint
+   */
   protected static $defaultName = 'env:mirror';
 
   private Checklist $checklist;
@@ -23,13 +29,13 @@ class EnvMirrorCommand extends CommandBase {
   protected function configure(): void {
     $this->setDescription('Makes one environment identical to another in terms of code, database, files, and configuration.');
     $this->addArgument('source-environment', InputArgument::REQUIRED, 'The Cloud Platform source environment ID or alias')
-      ->addUsage(self::getDefaultName() . ' [<environmentAlias>]')
-      ->addUsage(self::getDefaultName() . ' myapp.dev')
-      ->addUsage(self::getDefaultName() . ' 12345-abcd1234-1111-2222-3333-0e02b2c3d470');
+      ->addUsage('[<environmentAlias>]')
+      ->addUsage('myapp.dev')
+      ->addUsage('12345-abcd1234-1111-2222-3333-0e02b2c3d470');
     $this->addArgument('destination-environment', InputArgument::REQUIRED, 'The Cloud Platform destination environment ID or alias')
-      ->addUsage(self::getDefaultName() . ' [<environmentAlias>]')
-      ->addUsage(self::getDefaultName() . ' myapp.dev')
-      ->addUsage(self::getDefaultName() . ' 12345-abcd1234-1111-2222-3333-0e02b2c3d470');
+      ->addUsage('[<environmentAlias>]')
+      ->addUsage('myapp.dev')
+      ->addUsage('12345-abcd1234-1111-2222-3333-0e02b2c3d470');
     $this->addOption('no-code', 'c');
     $this->addOption('no-databases', 'd');
     $this->addOption('no-files', 'f');

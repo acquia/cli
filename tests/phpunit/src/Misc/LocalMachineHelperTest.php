@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Acquia\Cli\Tests\Misc;
 
 use Acquia\Cli\Tests\TestBase;
@@ -15,7 +17,7 @@ class LocalMachineHelperTest extends TestBase {
   }
 
   /**
-   * @return array
+   * @return array<mixed>
    */
   public function providerTestExecuteFromCmd(): array {
     return [
@@ -31,7 +33,7 @@ class LocalMachineHelperTest extends TestBase {
    * @param $isTty
    * @param $printOutput
    */
-  public function testExecuteFromCmd($interactive, $isTty, $printOutput): void {
+  public function testExecuteFromCmd(mixed $interactive, mixed $isTty, mixed $printOutput): void {
     $localMachineHelper = $this->localMachineHelper;
     $localMachineHelper->setIsTty($isTty);
     $this->input->setInteractive($interactive);

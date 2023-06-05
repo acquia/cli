@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Acquia\Cli\Tests\Commands\Ide\Wizard;
 
 use Acquia\Cli\Command\Ide\Wizard\IdeWizardCreateSshKeyCommand;
@@ -15,7 +17,7 @@ class IdeWizardCreateSshKeyCommandTest extends IdeWizardTestBase {
 
   protected IdeResponse $ide;
 
-  public function setUp($output = NULL): void {
+  public function setUp(mixed $output = NULL): void {
     parent::setUp($output);
     $applicationResponse = $this->mockApplicationRequest();
     $this->mockListSshKeysRequest();

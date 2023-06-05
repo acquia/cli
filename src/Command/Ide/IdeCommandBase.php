@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Acquia\Cli\Command\Ide;
 
 use Acquia\Cli\Command\CommandBase;
@@ -17,7 +19,7 @@ abstract class IdeCommandBase extends CommandBase {
   protected function promptIdeChoice(
     string $questionText,
     Ides $idesResource,
-    $cloudApplicationUuid
+    string $cloudApplicationUuid
   ): ?IdeResponse {
     $ides = iterator_to_array($idesResource->getAll($cloudApplicationUuid));
     if (empty($ides)) {

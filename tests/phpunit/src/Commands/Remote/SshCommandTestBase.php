@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Acquia\Cli\Tests\Commands\Remote;
 
 use Acquia\Cli\Helpers\LocalMachineHelper;
@@ -16,7 +18,7 @@ abstract class SshCommandTestBase extends CommandTestBase {
   }
 
   /**
-   * @return array
+   * @return array<mixed>
    */
   protected function mockForExecuteCommand(): array {
     $process = $this->prophet->prophesize(Process::class);

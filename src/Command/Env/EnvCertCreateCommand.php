@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Acquia\Cli\Command\Env;
 
 use Acquia\Cli\Command\CommandBase;
@@ -12,6 +14,10 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class EnvCertCreateCommand extends CommandBase {
 
+  /**
+   * @var string
+   * @phpcsSuppress SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint
+   */
   protected static $defaultName = 'env:certificate-create';
 
   protected function configure(): void {

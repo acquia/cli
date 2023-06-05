@@ -1,18 +1,17 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Acquia\Cli\AcsfApi;
 
 use AcquiaCloudApi\Connector\Connector;
 use GuzzleHttp\Client as GuzzleClient;
 use Psr\Http\Message\ResponseInterface;
 
-/**
- * AcsfConnector class.
- */
 class AcsfConnector extends Connector {
 
   /**
-   * @param array $config
+   * @param array<string> $config
    * @param string|null $baseUri
    * @param string|null $urlAccessToken
    */
@@ -28,7 +27,10 @@ class AcsfConnector extends Connector {
     ]);
   }
 
-  public function sendRequest($verb, $path, $options): ResponseInterface {
+  /**
+   * @param array<string> $options
+   */
+  public function sendRequest(string $verb, string $path, array $options): ResponseInterface {
     return $this->client->request($verb, $path, $options);
   }
 

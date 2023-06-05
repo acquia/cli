@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Acquia\Cli\Tests\Commands\Auth;
 
 use Acquia\Cli\Command\Auth\AuthLogoutCommand;
@@ -17,6 +19,9 @@ class AuthLogoutCommandTest extends CommandTestBase {
     return $this->injectCommand(AuthLogoutCommand::class);
   }
 
+  /**
+   * @return array<mixed>
+   */
   public function providerTestAuthLogoutCommand(): array {
     return [
       [FALSE, []],

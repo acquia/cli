@@ -24,12 +24,6 @@
 
   <rule ref="AcquiaPHP" />
 
-  <rule ref="Drupal.Classes.ClassDeclaration" />
-  <rule ref="Drupal.Classes.UnusedUseStatement" />
-  <rule ref="Drupal.ControlStructures.ControlSignature" />
-  <rule ref="Drupal.Functions.FunctionDeclaration" />
-  <rule ref="PSR12.Functions.ReturnTypeDeclaration" />
-
   <rule ref="SlevomatCodingStandard.Arrays.AlphabeticallySortedByKeys" />
   <rule ref="SlevomatCodingStandard.Arrays.DisallowImplicitArrayCreation"/>
   <rule ref="SlevomatCodingStandard.Arrays.MultiLineArrayEndBracketPlacement"/>
@@ -54,5 +48,8 @@
   <rule ref="SlevomatCodingStandard.Commenting.InlineDocCommentDeclaration" />
   <rule ref="SlevomatCodingStandard.Commenting.UselessFunctionDocComment" />
   <rule ref="SlevomatCodingStandard.Commenting.UselessInheritDocComment" />
-
+  <rule ref="SlevomatCodingStandard.TypeHints.ParameterTypeHint">
+    <exclude name="SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingTraversableTypeHintSpecification"/>
+  </rule>
+  <rule ref="SlevomatCodingStandard.TypeHints.DeclareStrictTypes" />
 </ruleset>

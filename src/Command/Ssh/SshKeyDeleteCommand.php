@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Acquia\Cli\Command\Ssh;
 
 use Acquia\Cli\Helpers\SshCommandTrait;
@@ -11,6 +13,10 @@ class SshKeyDeleteCommand extends SshKeyCommandBase {
 
   use SshCommandTrait;
 
+  /**
+   * @var string
+   * @phpcsSuppress SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint
+   */
   protected static $defaultName = 'ssh-key:delete';
 
   protected function configure(): void {

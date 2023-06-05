@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Acquia\Cli\Command\App;
 
 use Acquia\Cli\Command\CommandBase;
@@ -13,12 +15,16 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class AppVcsInfo extends CommandBase {
 
+  /**
+   * @var string
+   * @phpcsSuppress SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint
+   */
   protected static $defaultName = 'app:vcs:info';
 
   protected function configure(): void {
     $this->setDescription('Get all branches and tags of the application with the deployment status')
       ->addOption('deployed', NULL, InputOption::VALUE_OPTIONAL, 'Show only deployed branches and tags')
-      ->addUsage(self::getDefaultName() . ' [<applicationAlias>] --deployed');
+      ->addUsage('[<applicationAlias>] --deployed');
     $this->acceptApplicationUuid();
   }
 

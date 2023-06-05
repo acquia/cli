@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Acquia\Cli\Tests\Commands;
 
 use Acquia\Cli\Command\App\LinkCommand;
@@ -18,7 +20,7 @@ class InferApplicationTest extends CommandTestBase {
     return $this->injectCommand(LinkCommand::class);
   }
 
-  public function setUp($output = NULL): void {
+  public function setUp(mixed $output = NULL): void {
     parent::setUp();
     $this->createMockGitConfigFile();
   }

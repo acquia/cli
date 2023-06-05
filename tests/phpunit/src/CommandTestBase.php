@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Acquia\Cli\Tests;
 
 use Acquia\Cli\Command\Acsf\AcsfCommandBase;
@@ -244,7 +246,10 @@ abstract class CommandTestBase extends TestBase {
     return $environmentsResponse;
   }
 
-  protected function mockGetAcsfSites($sshHelper): array {
+  /**
+   * @return array<mixed>
+   */
+  protected function mockGetAcsfSites(mixed $sshHelper): array {
     $acsfMultisiteFetchProcess = $this->mockProcess();
     $multisiteConfig = file_get_contents(Path::join($this->realFixtureDir, '/multisite-config.json'));
     $acsfMultisiteFetchProcess->getOutput()->willReturn($multisiteConfig)->shouldBeCalled();
@@ -256,7 +261,7 @@ abstract class CommandTestBase extends TestBase {
     return json_decode($multisiteConfig, TRUE);
   }
 
-  protected function mockGetCloudSites($sshHelper, $environment): void {
+  protected function mockGetCloudSites(mixed $sshHelper, mixed $environment): void {
     $cloudMultisiteFetchProcess = $this->mockProcess();
     $cloudMultisiteFetchProcess->getOutput()->willReturn("\nbar\ndefault\nfoo\n")->shouldBeCalled();
     $sitegroup = CommandBase::getSiteGroupFromSshUrl($environment->ssh_url);
@@ -288,7 +293,7 @@ abstract class CommandTestBase extends TestBase {
   ): array {
     $databasesResponseJson = json_decode(file_get_contents(Path::join($this->realFixtureDir, '/acsf_db_response.json')), FALSE, 512, JSON_THROW_ON_ERROR);
     $databasesResponse = array_map(
-      static function ($databaseResponse) {
+      static function (mixed $databaseResponse) {
         return new DatabaseResponse($databaseResponse);
       },
       $databasesResponseJson
@@ -303,8 +308,8 @@ abstract class CommandTestBase extends TestBase {
 
   protected function mockDatabaseBackupsResponse(
     object $environmentsResponse,
-    $dbName,
-    $backupId
+    mixed $dbName,
+    mixed $backupId
   ): object {
     $databaseBackupsResponse = $this->getMockResponseFromSpec('/environments/{environmentId}/databases/{databaseName}/backups', 'get', 200);
     foreach ($databaseBackupsResponse->_embedded->items as $backup) {
@@ -322,9 +327,9 @@ abstract class CommandTestBase extends TestBase {
   }
 
   protected function mockDownloadBackupResponse(
-    $environmentsResponse,
-    $dbName,
-    $backupId
+    mixed $environmentsResponse,
+    mixed $dbName,
+    mixed $backupId
   ): void {
     $stream = $this->prophet->prophesize(StreamInterface::class);
     $this->clientProphecy->stream('get', "/environments/{$environmentsResponse->id}/databases/{$dbName}/backups/{$backupId}/actions/download", [])
@@ -333,9 +338,9 @@ abstract class CommandTestBase extends TestBase {
   }
 
   protected function mockDatabaseBackupCreateResponse(
-    $environmentsResponse,
-    $dbName
-  ) {
+    mixed $environmentsResponse,
+    mixed $dbName
+  ): mixed {
     $backupCreateResponse = $this->getMockResponseFromSpec('/environments/{environmentId}/databases/{databaseName}/backups', 'post', 202)->{'Creating backup'}->value;
     $this->clientProphecy->request('post', "/environments/$environmentsResponse->id/databases/{$dbName}/backups")
       ->willReturn($backupCreateResponse)
@@ -344,11 +349,11 @@ abstract class CommandTestBase extends TestBase {
     return $backupCreateResponse;
   }
 
-  protected function mockNotificationResponseFromObject(object $responseWithNotificationLink) {
+  protected function mockNotificationResponseFromObject(object $responseWithNotificationLink): mixed {
     return $this->mockNotificationResponse(substr($responseWithNotificationLink->_links->notification->href, -36));
   }
 
-  protected function mockNotificationResponse(string $notificationUuid, string $status = NULL) {
+  protected function mockNotificationResponse(string $notificationUuid, string $status = NULL): mixed {
     $notificationResponse = $this->getMockResponseFromSpec('/notifications/{notificationUuid}', 'get', 200);
     if ($status) {
       $notificationResponse->status = $status;
@@ -439,7 +444,7 @@ abstract class CommandTestBase extends TestBase {
     return $sshHelper;
   }
 
-  protected function mockGetLocalSshKey($localMachineHelper, $fileSystem, $publicKey): string {
+  protected function mockGetLocalSshKey(mixed $localMachineHelper, mixed $fileSystem, mixed $publicKey): string {
     $fileSystem->exists(Argument::type('string'))->willReturn(TRUE);
     /** @var \Symfony\Component\Finder\Finder|\Prophecy\Prophecy\ObjectProphecy $finder */
     $finder = $this->prophet->prophesize(Finder::class);
@@ -479,7 +484,7 @@ abstract class CommandTestBase extends TestBase {
   }
 
   /**
-   * @return array
+   * @return array<mixed>
    */
   protected function getApiCommands(): array {
     $apiCommandHelper = new ApiCommandHelper($this->logger);
@@ -498,7 +503,10 @@ abstract class CommandTestBase extends TestBase {
     return NULL;
   }
 
-  protected function getMockedGitLabProject($projectId): array {
+  /**
+   * @return array<mixed>
+   */
+  protected function getMockedGitLabProject(mixed $projectId): array {
     return [
       'default_branch' => 'master',
       'description' => '',
@@ -518,7 +526,7 @@ abstract class CommandTestBase extends TestBase {
   /**
    * @return \Prophecy\Prophecy\ObjectProphecy|\Gitlab\Client
    */
-  protected function mockGitLabAuthenticate(ObjectProphecy|LocalMachineHelper $localMachineHelper, $gitlabHost, $gitlabToken): ObjectProphecy|\Gitlab\Client {
+  protected function mockGitLabAuthenticate(ObjectProphecy|LocalMachineHelper $localMachineHelper, string $gitlabHost, string $gitlabToken): ObjectProphecy|\Gitlab\Client {
     $this->mockGitlabGetHost($localMachineHelper, $gitlabHost);
     $this->mockGitlabGetToken($localMachineHelper, $gitlabToken, $gitlabHost);
     $gitlabClient = $this->prophet->prophesize(\Gitlab\Client::class);
@@ -526,7 +534,7 @@ abstract class CommandTestBase extends TestBase {
     return $gitlabClient;
   }
 
-  protected function mockGitlabGetToken($localMachineHelper, string $gitlabToken, string $gitlabHost, bool $success = TRUE): void {
+  protected function mockGitlabGetToken(mixed $localMachineHelper, string $gitlabToken, string $gitlabHost, bool $success = TRUE): void {
     $process = $this->mockProcess($success);
     $process->getOutput()->willReturn($gitlabToken);
     $localMachineHelper->execute([
@@ -538,7 +546,7 @@ abstract class CommandTestBase extends TestBase {
     ], NULL, NULL, FALSE)->willReturn($process->reveal());
   }
 
-  protected function mockGitlabGetHost($localMachineHelper, string $gitlabHost): void {
+  protected function mockGitlabGetHost(mixed $localMachineHelper, string $gitlabHost): void {
     $process = $this->mockProcess();
     $process->getOutput()->willReturn($gitlabHost);
     $localMachineHelper->execute([
@@ -598,9 +606,9 @@ abstract class CommandTestBase extends TestBase {
 
   /**
    * @param $applicationUuid
-   * @return array
+   * @return array<mixed>
    */
-  protected function mockGitLabPermissionsRequest($applicationUuid): array {
+  protected function mockGitLabPermissionsRequest(mixed $applicationUuid): array {
     $permissionsResponse = $this->getMockResponseFromSpec('/applications/{applicationUuid}/permissions', 'get', 200);
     $permissions = $permissionsResponse->_embedded->items;
     $permission = clone reset($permissions);
@@ -612,7 +620,7 @@ abstract class CommandTestBase extends TestBase {
     return $permissions;
   }
 
-  protected function mockGetGitLabProjects($applicationUuid, $gitlabProjectId, $mockedGitlabProjects): Projects|ObjectProphecy {
+  protected function mockGetGitLabProjects(mixed $applicationUuid, mixed $gitlabProjectId, mixed $mockedGitlabProjects): Projects|ObjectProphecy {
     $projects = $this->prophet->prophesize(Projects::class);
     $projects->all(['search' => $applicationUuid])
       ->willReturn($mockedGitlabProjects);
@@ -622,7 +630,7 @@ abstract class CommandTestBase extends TestBase {
   }
 
   /**
-   * @return array[]
+   * @return array<mixed>
    */
   protected function getMockGitLabVariables(): array {
     return [

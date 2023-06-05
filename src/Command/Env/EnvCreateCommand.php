@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Acquia\Cli\Command\Env;
 
 use Acquia\Cli\Command\CommandBase;
@@ -15,6 +17,10 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class EnvCreateCommand extends CommandBase {
 
+  /**
+   * @var string
+   * @phpcsSuppress SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint
+   */
   protected static $defaultName = 'env:create';
 
   private Checklist $checklist;
@@ -87,7 +93,7 @@ class EnvCreateCommand extends CommandBase {
   }
 
   /**
-   * @return array
+   * @return array<mixed>
    */
   private function getDatabaseNames(Client $acquiaCloudClient, ?string $cloudAppUuid): array {
     $this->checklist->addItem("Determining default database");

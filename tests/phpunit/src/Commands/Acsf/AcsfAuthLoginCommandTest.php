@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Acquia\Cli\Tests\Commands\Acsf;
 
 use Acquia\Cli\AcsfApi\AcsfCredentials;
@@ -18,6 +20,9 @@ class AcsfAuthLoginCommandTest extends AcsfCommandTestBase {
     return $this->injectCommand(AcsfApiAuthLoginCommand::class);
   }
 
+  /**
+   * @return array<mixed>
+   */
   public function providerTestAuthLoginCommand(): array {
     return [
       // Data set 0.
@@ -90,7 +95,7 @@ class AcsfAuthLoginCommandTest extends AcsfCommandTestBase {
    * @param array $config
    * @requires OS linux|darwin
    */
-  public function testAcsfAuthLoginCommand($machineIsAuthenticated, $inputs, $args, $outputToAssert, array $config = []): void {
+  public function testAcsfAuthLoginCommand(mixed $machineIsAuthenticated, mixed $inputs, mixed $args, mixed $outputToAssert, array $config = []): void {
     if (!$machineIsAuthenticated) {
       $this->clientServiceProphecy->isMachineAuthenticated()->willReturn(FALSE);
       $this->removeMockCloudConfigFile();

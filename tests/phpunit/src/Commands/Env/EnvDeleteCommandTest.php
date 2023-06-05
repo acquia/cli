@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Acquia\Cli\Tests\Commands\Env;
 
 use Acquia\Cli\Command\Env\EnvDeleteCommand;
@@ -17,7 +19,7 @@ class EnvDeleteCommandTest extends CommandTestBase {
   }
 
   /**
-   * @return array
+   * @return array<mixed>
    */
   public function providerTestDeleteCde(): array {
     $environmentResponse = $this->getMockEnvironmentsResponse();
@@ -31,7 +33,7 @@ class EnvDeleteCommandTest extends CommandTestBase {
   /**
    * @dataProvider providerTestDeleteCde
    */
-  public function testDeleteCde($environmentId): void {
+  public function testDeleteCde(mixed $environmentId): void {
     $applicationsResponse = $this->mockApplicationsRequest();
     $this->mockApplicationRequest();
     $this->mockEnvironmentsRequest($applicationsResponse);

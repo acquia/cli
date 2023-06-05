@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Acquia\Cli\Tests\Commands\Ssh;
 
 use Acquia\Cli\Command\Ssh\SshKeyCreateCommand;
@@ -20,7 +22,7 @@ class SshKeyCreateCommandTest extends CommandTestBase {
   }
 
   /**
-   * @return array[]
+   * @return array<mixed>
    */
   public function providerTestCreate(): array {
     return [
@@ -64,7 +66,7 @@ class SshKeyCreateCommandTest extends CommandTestBase {
   /**
    * @dataProvider providerTestCreate
    */
-  public function testCreate($sshAddSuccess, $args, $inputs): void {
+  public function testCreate(mixed $sshAddSuccess, mixed $args, mixed $inputs): void {
     $sshKeyFilepath = Path::join($this->sshDir, '/' . $this->filename);
     $this->fs->remove($sshKeyFilepath);
     $localMachineHelper = $this->mockLocalMachineHelper();

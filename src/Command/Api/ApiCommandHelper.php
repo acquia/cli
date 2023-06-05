@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Acquia\Cli\Command\Api;
 
 use Acquia\Cli\Command\CommandBase;
@@ -21,7 +23,7 @@ class ApiCommandHelper {
   }
 
   /**
-   * @return array
+   * @return array<mixed>
    */
   public function getApiCommands(string $acquiaCloudSpecFilePath, string $commandPrefix, CommandFactoryInterface $commandFactory): array {
     $acquiaCloudSpec = $this->getCloudApiSpec($acquiaCloudSpecFilePath);
@@ -39,7 +41,7 @@ class ApiCommandHelper {
       if (is_array($paramDefinition['example'])) {
         $usage = reset($paramDefinition['example']);
       }
-      elseif (str_contains($paramDefinition['example'], ' ')) {
+      elseif (is_string($paramDefinition['example']) && str_contains($paramDefinition['example'], ' ')) {
         $usage .= '"' . $paramDefinition['example'] . '" ';
       }
       else {
@@ -113,7 +115,7 @@ class ApiCommandHelper {
   /**
    * @param array $schema
    * @param array $acquiaCloudSpec
-   * @return array
+   * @return array<mixed>
    */
   private function addApiCommandParametersForRequestBody(array $schema, array $acquiaCloudSpec): array {
     $usage = '';
@@ -164,14 +166,7 @@ class ApiCommandHelper {
     return [$inputDefinition, $usage];
   }
 
-  /**
-   * @param $requestBody
-   * @param $propKey
-   * @param $paramDefinition
-   * @param $type
-   * @param $usage
-   */
-  private function addPostArgumentUsageToExample($requestBody, $propKey, $paramDefinition, $type, $usage): string {
+  private function addPostArgumentUsageToExample(mixed $requestBody, mixed $propKey, mixed $paramDefinition, string $type, string $usage): string {
     $requestBodyContent = $this->getRequestBodyContent($requestBody);
 
     if (array_key_exists('example', $requestBodyContent)) {
@@ -219,7 +214,7 @@ class ApiCommandHelper {
   /**
    * @param array $schema
    * @param array $acquiaCloudSpec
-   * @return array
+   * @return array<mixed>
    */
   private function addApiCommandParametersForPathAndQuery(array $schema, array $acquiaCloudSpec): array {
     $usage = '';
@@ -265,7 +260,7 @@ class ApiCommandHelper {
    * @param array $acquiaCloudSpec
    * @param $schema
    */
-  private function getParameterDefinitionFromSpec(string $paramKey, array $acquiaCloudSpec, $schema): mixed {
+  private function getParameterDefinitionFromSpec(string $paramKey, array $acquiaCloudSpec, mixed $schema): mixed {
     $uppercaseKey = ucfirst($paramKey);
     if (array_key_exists('parameters', $acquiaCloudSpec['components'])
       && array_key_exists($uppercaseKey, $acquiaCloudSpec['components']['parameters'])) {
@@ -283,7 +278,7 @@ class ApiCommandHelper {
     return $acquiaCloudSpec['components']['schemas'][$paramKey];
   }
 
-  private function isApiSpecChecksumCacheValid($cacheItem, string $acquiaCloudSpecFileChecksum): bool {
+  private function isApiSpecChecksumCacheValid(\Symfony\Component\Cache\CacheItem $cacheItem, string $acquiaCloudSpecFileChecksum): bool {
     // If the spec file doesn't exist, assume cache is valid.
     if ($cacheItem->isHit() && !$acquiaCloudSpecFileChecksum) {
       return TRUE;
@@ -297,7 +292,7 @@ class ApiCommandHelper {
   }
 
   /**
-   * @return array
+   * @return array<mixed>
    */
   private function getCloudApiSpec(string $specFilePath): array {
     $cacheKey = basename($specFilePath);
@@ -377,7 +372,7 @@ class ApiCommandHelper {
   }
 
   /**
-   * @return array
+   * @return array<mixed>
    */
   protected function getSkippedApiCommands(): array {
     return [
@@ -414,7 +409,7 @@ class ApiCommandHelper {
     }
   }
 
-  private function addAliasParameterDescriptions(&$paramDefinition): void {
+  private function addAliasParameterDescriptions(mixed &$paramDefinition): void {
     if ($paramDefinition['name'] === 'applicationUuid') {
       $paramDefinition['description'] .= ' You may also use an application alias or omit the argument if you run the command in a linked directory.';
     }
@@ -425,10 +420,10 @@ class ApiCommandHelper {
 
   /**
    * @param array $schema
-   * @param $acquiaCloudSpec
-   * @return array
+   * @param array $acquiaCloudSpec
+   * @return array<mixed>
    */
-  private function getRequestBodyFromParameterSchema(array $schema, $acquiaCloudSpec): array {
+  private function getRequestBodyFromParameterSchema(array $schema, array $acquiaCloudSpec): array {
     $requestBodyContent = $this->getRequestBodyContent($schema['requestBody']);
     $requestBodySchema = $requestBodyContent['schema'];
 
@@ -446,12 +441,12 @@ class ApiCommandHelper {
    * @param array $requestBodySchema
    * @param $parameterDefinition
    */
-  private function getPropertySpecFromRequestBodyParam(array $requestBodySchema, $parameterDefinition): mixed {
+  private function getPropertySpecFromRequestBodyParam(array $requestBodySchema, mixed $parameterDefinition): mixed {
     return $requestBodySchema['properties'][$parameterDefinition->getName()] ?? NULL;
   }
 
-  /*
-   * @return array
+  /**
+   * @return array<mixed>
    */
   protected static function getParameterRenameMap(): array {
     // Format should be ['original => new'].
@@ -463,7 +458,7 @@ class ApiCommandHelper {
     ];
   }
 
-  public static function renameParameter($propKey): mixed {
+  public static function renameParameter(mixed $propKey): mixed {
     $parameterRenameMap = self::getParameterRenameMap();
     if (array_key_exists($propKey, $parameterRenameMap)) {
       $propKey = $parameterRenameMap[$propKey];
@@ -507,9 +502,9 @@ class ApiCommandHelper {
 
   /**
    * @param $requestBody
-   * @return array
+   * @return array<mixed>
    */
-  private function getRequestBodyContent($requestBody): array {
+  private function getRequestBodyContent(mixed $requestBody): array {
     $content = $requestBody['content'];
     $knownContentTypes = [
       'application/json',

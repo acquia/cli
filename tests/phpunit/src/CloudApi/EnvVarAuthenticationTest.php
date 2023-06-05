@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Acquia\Cli\Tests\CloudApi;
 
 use Acquia\Cli\Tests\TestBase;
@@ -8,7 +10,7 @@ class EnvVarAuthenticationTest extends TestBase {
 
   protected string $cloudApiBaseUri = 'https://www.acquia.com';
 
-  public function setUp($output = NULL): void {
+  public function setUp(mixed $output = NULL): void {
     parent::setUp();
     putenv('ACLI_KEY=' . $this->key);
     putenv('ACLI_SECRET=' . $this->secret);

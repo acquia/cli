@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Acquia\Cli\Command\Api;
 
 use Acquia\Cli\Command\CommandBase;
@@ -7,9 +9,6 @@ use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * ApiListCommandBase class.
- */
 class ApiListCommandBase extends CommandBase {
 
   protected string $namespace;

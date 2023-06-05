@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Acquia\Cli\Command\Pull;
 
 use Symfony\Component\Console\Command\Command;
@@ -8,6 +10,10 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class PullFilesCommand extends PullCommandBase {
 
+  /**
+   * @var string
+   * @phpcsSuppress SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint
+   */
   protected static $defaultName = 'pull:files';
 
   protected function configure(): void {

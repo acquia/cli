@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Acquia\Cli\Command;
 
 use Acquia\Cli\ApiCredentialsInterface;
@@ -264,10 +266,10 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    */
   protected function acceptApplicationUuid(): static {
     $this->addArgument('applicationUuid', InputArgument::OPTIONAL, 'The Cloud Platform application UUID or alias (i.e. an application name optionally prefixed with the realm)')
-      ->addUsage(self::getDefaultName() . ' [<applicationAlias>]')
-      ->addUsage(self::getDefaultName() . ' myapp')
-      ->addUsage(self::getDefaultName() . ' prod:myapp')
-      ->addUsage(self::getDefaultName() . ' abcd1234-1111-2222-3333-0e02b2c3d470');
+      ->addUsage('[<applicationAlias>]')
+      ->addUsage('myapp')
+      ->addUsage('prod:myapp')
+      ->addUsage('abcd1234-1111-2222-3333-0e02b2c3d470');
 
     return $this;
   }
@@ -277,10 +279,10 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    */
   protected function acceptEnvironmentId(): static {
     $this->addArgument('environmentId', InputArgument::OPTIONAL, 'The Cloud Platform environment ID or alias (i.e. an application and environment name optionally prefixed with the realm)')
-      ->addUsage(self::getDefaultName() . ' [<environmentAlias>]')
-      ->addUsage(self::getDefaultName() . ' myapp.dev')
-      ->addUsage(self::getDefaultName() . ' prod:myapp.dev')
-      ->addUsage(self::getDefaultName() . ' 12345-abcd1234-1111-2222-3333-0e02b2c3d470');
+      ->addUsage('[<environmentAlias>]')
+      ->addUsage('myapp.dev')
+      ->addUsage('prod:myapp.dev')
+      ->addUsage('12345-abcd1234-1111-2222-3333-0e02b2c3d470');
 
     return $this;
   }
@@ -295,7 +297,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   protected function acceptSite(): self {
     // Do not set a default site in order to force a user prompt.
     $this->addArgument('site', InputArgument::OPTIONAL, 'For a multisite application, the directory name of the site')
-      ->addUsage(self::getDefaultName() . ' myapp.dev default');
+      ->addUsage('myapp.dev default');
 
     return $this;
   }
@@ -378,7 +380,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * Prompts the user to choose from a list of logs for a given Cloud Platform environment.
    */
   protected function promptChooseLogs(): object|array|null {
-    $logs = array_map(static function ($logType, $logLabel) {
+    $logs = array_map(static function (mixed $logType, mixed $logLabel): array {
       return [
         'label' => $logLabel,
         'type' => $logType,
@@ -454,7 +456,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   /**
    * Load configuration from .git/config.
    *
-   * @return array|null
+   * @return array<mixed>|null
    */
   private function getGitConfig(): ?array {
     $filePath = $this->projectDir . '/.git/config';
@@ -469,7 +471,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * Gets an array of git remotes from a .git/config array.
    *
    * @param array $gitConfig
-   * @return array
+   * @return array<mixed>
    *   A flat array of git remote urls.
    */
   private function getGitRemotes(array $gitConfig): array {
@@ -529,13 +531,13 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     return NULL;
   }
 
-  protected function createTable(OutputInterface $output, string $title, $headers, $widths): Table {
+  protected function createTable(OutputInterface $output, string $title, array $headers, mixed $widths): Table {
     $terminalWidth = (new Terminal())->getWidth();
     $terminalWidth *= .90;
     $table = new Table($output);
     $table->setHeaders($headers);
     $table->setHeaderTitle($title);
-    $setWidths = static function ($width) use ($terminalWidth) {
+    $setWidths = static function (mixed $width) use ($terminalWidth) {
       return (int) ($terminalWidth * $width);
     };
     $table->setColumnWidths(array_map($setWidths, $widths));
@@ -612,9 +614,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   }
 
   /**
-   * @param \AcquiaCloudApi\Connector\Client $client
-   * @param \AcquiaCloudApi\Response\SubscriptionResponse $subscription
-   * @return array
+   * @return array<mixed>
    */
   protected function getSubscriptionApplications(Client $client, SubscriptionResponse $subscription): array {
     $applicationsResource = new Applications($client);
@@ -775,9 +775,9 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   /**
    * Get the Cloud Application UUID from a Cloud IDE's environmental variable.
    *
-   * This command assumes it is being run inside of a Cloud IDE.
+   * This command assumes it is being run inside a Cloud IDE.
    *
-   * @return array|false|string
+   * @return array<string>|false|string
    */
   protected static function getThisCloudIdeCloudAppUuid(): bool|array|string {
     return getenv('ACQUIA_APPLICATION_UUID');
@@ -824,13 +824,13 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     return $this->getEnvFromAlias($alias);
   }
 
-  private function getEnvFromAlias($alias): EnvironmentResponse {
-    return self::getAliasCache()->get($alias, function () use ($alias) {
+  private function getEnvFromAlias(string $alias): EnvironmentResponse {
+    return self::getAliasCache()->get($alias, function () use ($alias): \AcquiaCloudApi\Response\EnvironmentResponse {
       return $this->doGetEnvFromAlias($alias);
     });
   }
 
-  private function doGetEnvFromAlias($alias): EnvironmentResponse {
+  private function doGetEnvFromAlias(string $alias): EnvironmentResponse {
     $siteEnvParts = explode('.', $alias);
     [$applicationAlias, $environmentAlias] = $siteEnvParts;
     $this->logger->debug("Searching for an environment matching alias $applicationAlias.$environmentAlias.");
@@ -863,7 +863,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     return new AliasCache('acli_aliases');
   }
 
-  private function doGetApplicationFromAlias($applicationAlias): mixed {
+  private function doGetApplicationFromAlias(string $applicationAlias): mixed {
     if (!strpos($applicationAlias, ':')) {
       $applicationAlias = '*:' . $applicationAlias;
     }
@@ -883,7 +883,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
       throw new AcquiaCliException("No applications match the alias {applicationAlias}", ['applicationAlias' => $applicationAlias]);
     }
     if (count($customerApplications) > 1) {
-      $callback = static function ($element) {
+      $callback = static function (mixed $element) {
         return $element->hosting->id;
       };
       $aliases = array_map($callback, (array) $customerApplications);
@@ -962,7 +962,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
       return FALSE;
     }
 
-    $releases = json_decode($response->getBody(), FALSE, 512, JSON_THROW_ON_ERROR);
+    $releases = json_decode((string) $response->getBody(), FALSE, 512, JSON_THROW_ON_ERROR);
     if (!isset($releases[0])) {
       $this->logger->debug('No releases found at GitHub repository acquia/cli');
       return FALSE;
@@ -1085,7 +1085,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     }
   }
 
-  protected function convertEnvironmentAliasToUuid(InputInterface $input, $argumentName): void {
+  protected function convertEnvironmentAliasToUuid(InputInterface $input, mixed $argumentName): void {
     if ($input->hasArgument($argumentName) && $input->getArgument($argumentName)) {
       $envUuidArgument = $input->getArgument($argumentName);
       $environmentUuid = $this->validateEnvironmentUuid($envUuidArgument, $argumentName);
@@ -1104,11 +1104,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     return reset($sshUrlParts);
   }
 
-  /**
-   * @param $cloudEnvironment
-   * @return bool
-   */
-  protected function isAcsfEnv($cloudEnvironment): bool {
+  protected function isAcsfEnv(mixed $cloudEnvironment): bool {
     if (str_contains($cloudEnvironment->sshUrl, 'enterprise-g1')) {
       return TRUE;
     }
@@ -1122,8 +1118,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   }
 
   /**
-   * @param \AcquiaCloudApi\Response\EnvironmentResponse $cloudEnvironment
-   * @return array
+   * @return array<mixed>
    */
   protected function getAcsfSites(EnvironmentResponse $cloudEnvironment): array {
     $sitegroup = self::getSiteGroupFromSshUrl($cloudEnvironment->sshUrl);
@@ -1136,7 +1131,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   }
 
   /**
-   * @return array
+   * @return array<mixed>
    */
   private function getCloudSites(EnvironmentResponse $cloudEnvironment): array {
     $sitegroup = self::getSiteGroupFromSshUrl($cloudEnvironment->sshUrl);
@@ -1150,7 +1145,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     throw new AcquiaCliException("Could not get Cloud sites for " . $cloudEnvironment->name);
   }
 
-  protected function getCloudSitesPath($cloudEnvironment, $sitegroup): string {
+  protected function getCloudSitesPath(mixed $cloudEnvironment, mixed $sitegroup): string {
     if ($cloudEnvironment->platform === 'cloud-next') {
       $path = "/home/clouduser/{$cloudEnvironment->name}/sites";
     }
@@ -1228,7 +1223,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   }
 
   protected function getOutputCallback(OutputInterface $output, Checklist $checklist): Closure {
-    return static function ($type, $buffer) use ($checklist, $output): void {
+    return static function (mixed $type, mixed $buffer) use ($checklist, $output): void {
       if (!$output->isVerbose() && $checklist->getItems()) {
         $checklist->updateProgressBar($buffer);
       }
@@ -1305,7 +1300,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     return $this->determineOption('key', FALSE, Closure::fromCallable([$this, 'validateApiKey']));
   }
 
-  private function validateApiKey($key): string {
+  private function validateApiKey(mixed $key): string {
     $violations = Validation::createValidator()->validate($key, [
       new Length(['min' => 10]),
       new NotBlank(),
@@ -1328,15 +1323,8 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * because Symfony does not make a distinction between an option value set
    * explicitly or by default. In other words, we can't prompt for the value of
    * an option that already has a default value.
-   *
-   * @param string $optionName
-   * @param bool $hidden
-   * @param \Closure|null $validator
-   * @param \Closure|null $normalizer
-   * @param string|null $default
-   * @return string|null
    */
-  protected function determineOption(string $optionName, bool $hidden = FALSE, ?Closure $validator = NULL, ?Closure $normalizer = NULL, ?string $default = NULL): ?string {
+  protected function determineOption(string $optionName, bool $hidden = FALSE, ?Closure $validator = NULL, ?Closure $normalizer = NULL, ?string $default = NULL): string|int|null {
     if ($optionValue = $this->input->getOption($optionName)) {
       if (isset($normalizer)) {
         $optionValue = $normalizer($optionValue);
@@ -1391,7 +1379,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * Get the first non-prod environment for a given Cloud application.
    */
   protected function getAnyNonProdAhEnvironment(string $cloudAppUuid): EnvironmentResponse|false {
-    return $this->getAnyAhEnvironment($cloudAppUuid, function ($environment) {
+    return $this->getAnyAhEnvironment($cloudAppUuid, function (mixed $environment) {
       return !$environment->flags->production;
     });
   }
@@ -1400,7 +1388,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * Get the first prod environment for a given Cloud application.
    */
   protected function getAnyProdAhEnvironment(string $cloudAppUuid): EnvironmentResponse|false {
-    return $this->getAnyAhEnvironment($cloudAppUuid, function ($environment) {
+    return $this->getAnyAhEnvironment($cloudAppUuid, function (mixed $environment) {
       return $environment->flags->production;
     });
   }
@@ -1409,13 +1397,13 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * Get the first VCS URL for a given Cloud application.
    */
   protected function getAnyVcsUrl(string $cloudAppUuid): string {
-    $environment = $this->getAnyAhEnvironment($cloudAppUuid, function () {
+    $environment = $this->getAnyAhEnvironment($cloudAppUuid, function (): bool {
       return TRUE;
     });
     return $environment->vcs->url;
   }
 
-  protected function validateApplicationUuid($applicationUuidArgument): mixed {
+  protected function validateApplicationUuid(string $applicationUuidArgument): mixed {
     try {
       self::validateUuid($applicationUuidArgument);
     }
@@ -1427,7 +1415,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     return $applicationUuidArgument;
   }
 
-  protected function validateEnvironmentUuid($envUuidArgument, $argumentName): string {
+  protected function validateEnvironmentUuid(mixed $envUuidArgument, mixed $argumentName): string {
     if (is_null($envUuidArgument)) {
       throw new AcquiaCliException("{{$argumentName}} must not be null");
     }
@@ -1462,7 +1450,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   protected function waitForNotificationToComplete(Client $acquiaCloudClient, string $uuid, string $message, callable $success = NULL): void {
     $notificationsResource = new Notifications($acquiaCloudClient);
     $notification = NULL;
-    $checkNotificationStatus = static function () use ($notificationsResource, &$notification, $uuid) {
+    $checkNotificationStatus = static function () use ($notificationsResource, &$notification, $uuid): bool {
       $notification = $notificationsResource->get($uuid);
       return $notification->status !== 'in-progress';
     };

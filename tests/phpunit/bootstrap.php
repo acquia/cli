@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 use Symfony\Component\Filesystem\Filesystem;
 
 // ensure a fresh cache when debug mode is disabled

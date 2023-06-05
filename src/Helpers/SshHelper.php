@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Acquia\Cli\Helpers;
 
 use Acquia\Cli\Exception\AcquiaCliException;
@@ -28,11 +30,8 @@ class SshHelper implements LoggerAwareInterface {
   /**
    * Execute the command in a remote environment.
    *
-   * @param \AcquiaCloudApi\Response\EnvironmentResponse|string $target
    * @param array $commandArgs
-   * @param bool $printOutput
    * @param int|null $timeout
-   * @return \Symfony\Component\Process\Process
    */
   public function executeCommand(EnvironmentResponse|string $target, array $commandArgs, bool $printOutput = TRUE, int $timeout = NULL): Process {
     $commandSummary = $this->getCommandSummary($commandArgs);
@@ -58,7 +57,7 @@ class SshHelper implements LoggerAwareInterface {
     return $process;
   }
 
-  private function sendCommand($url, $command, $printOutput, $timeout = NULL): Process {
+  private function sendCommand(?string $url, array $command, bool $printOutput, ?int $timeout = NULL): Process {
     $command = array_values($this->getSshCommand($url, $command));
     $this->localMachineHelper->checkRequiredBinariesExist(['ssh']);
 
@@ -69,7 +68,6 @@ class SshHelper implements LoggerAwareInterface {
    * Return the first item of the $commandArgs that is not an option.
    *
    * @param array $commandArgs
-   * @return string
    */
   private function firstArguments(array $commandArgs): string {
     $result = '';
@@ -88,12 +86,12 @@ class SshHelper implements LoggerAwareInterface {
     if ($this->localMachineHelper->useTty() === FALSE) {
       $output = $this->output;
 
-      return static function ($type, $buffer) use ($output): void {
+      return static function (mixed $type, mixed $buffer) use ($output): void {
         $output->write($buffer);
       };
     }
 
-    return static function ($type, $buffer): void {};
+    return static function (mixed $type, mixed $buffer): void {};
   }
 
   /**
@@ -102,13 +100,15 @@ class SshHelper implements LoggerAwareInterface {
    * CI scripts.
    *
    * @param array $commandArgs
-   * @return string
    */
   private function getCommandSummary(array $commandArgs): string {
     return $this->firstArguments($commandArgs);
   }
 
-  private function getConnectionArgs($url): array {
+  /**
+   * @return array<mixed>
+   */
+  private function getConnectionArgs(string $url): array {
     return [
       'ssh',
       $url,
@@ -119,7 +119,10 @@ class SshHelper implements LoggerAwareInterface {
     ];
   }
 
-  private function getSshCommand(string $url, $command): array {
+  /**
+   * @return array<mixed>
+   */
+  private function getSshCommand(string $url, array $command): array {
     return array_merge($this->getConnectionArgs($url), $command);
   }
 

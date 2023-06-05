@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Acquia\Cli\Tests\Commands;
 
 use Acquia\Cli\Command\DocsCommand;
@@ -8,7 +10,7 @@ use Prophecy\Argument;
 use Symfony\Component\Console\Command\Command;
 
 /**
- * @property \Acquia\Cli\Command\DocsCommandTest $command
+ * @property \Acquia\Cli\Command\DocsCommand $command
  */
 class DocsCommandTest extends CommandTestBase {
 
@@ -19,7 +21,7 @@ class DocsCommandTest extends CommandTestBase {
   /**
    * @dataProvider providerTestDocsCommand
    */
-  public function testDocsCommand($input, $expectedOutput): void {
+  public function testDocsCommand(mixed $input, mixed $expectedOutput): void {
     $localMachineHelper = $this->mockLocalMachineHelper();
     $localMachineHelper->startBrowser(Argument::any())->shouldBeCalled();
     $this->command->localMachineHelper = $localMachineHelper->reveal();
@@ -29,6 +31,9 @@ class DocsCommandTest extends CommandTestBase {
     $this->assertStringContainsString($expectedOutput, $output);
   }
 
+  /**
+   * @return array<mixed>
+   */
   public function providerTestDocsCommand(): array {
     return [
       [

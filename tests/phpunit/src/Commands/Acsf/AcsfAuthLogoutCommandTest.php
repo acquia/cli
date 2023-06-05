@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Acquia\Cli\Tests\Commands\Acsf;
 
 use Acquia\Cli\AcsfApi\AcsfCredentials;
@@ -19,7 +21,7 @@ class AcsfAuthLogoutCommandTest extends AcsfCommandTestBase {
   }
 
   /**
-   * @return array[]
+   * @return array<mixed>
    */
   public function providerTestAuthLogoutCommand(): array {
     return [

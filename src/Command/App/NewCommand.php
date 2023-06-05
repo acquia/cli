@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Acquia\Cli\Command\App;
 
 use Acquia\Cli\Command\CommandBase;
@@ -13,6 +15,10 @@ use Symfony\Component\Filesystem\Path;
 
 class NewCommand extends CommandBase {
 
+  /**
+   * @var string
+   * @phpcsSuppress SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint
+   */
   protected static $defaultName = 'app:new:local';
 
   protected function configure(): void {
@@ -80,7 +86,7 @@ class NewCommand extends CommandBase {
     }
   }
 
-  private function createDrupalProject($project, string $dir): void {
+  private function createDrupalProject(string $project, string $dir): void {
     $process = $this->localMachineHelper->execute([
       'composer',
       'create-project',

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Acquia\Cli\Command\Ide;
 
 use Acquia\Cli\Command\CommandBase;
@@ -13,10 +15,14 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class IdeShareCommand extends CommandBase {
 
+  /**
+   * @var string
+   * @phpcsSuppress SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint
+   */
   protected static $defaultName = 'ide:share';
 
   /**
-   * @var array
+   * @var array<mixed>
    */
   private array $shareCodeFilepaths;
 
@@ -53,7 +59,7 @@ class IdeShareCommand extends CommandBase {
   }
 
   /**
-   * @return array
+   * @return array<mixed>
    */
   private function getShareCodeFilepaths(): array {
     if (!isset($this->shareCodeFilepaths)) {
@@ -66,7 +72,7 @@ class IdeShareCommand extends CommandBase {
   }
 
   private function regenerateShareCode(): void {
-    $newShareCode = Uuid::uuid4();
+    $newShareCode = (string) Uuid::uuid4();
     foreach ($this->getShareCodeFilepaths() as $path) {
       $this->localMachineHelper->writeFile($path, $newShareCode);
     }

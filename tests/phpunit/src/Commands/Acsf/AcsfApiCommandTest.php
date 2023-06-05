@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Acquia\Cli\Tests\Commands\Acsf;
 
 use Acquia\Cli\AcsfApi\AcsfClient;
@@ -21,7 +23,7 @@ class AcsfApiCommandTest extends AcsfCommandTestBase {
   protected string $apiSpecFixtureFilePath = __DIR__ . '/../../../../../assets/acsf-spec.yaml';
   protected string $apiCommandPrefix = 'acsf';
 
-  public function setUp($output = NULL): void {
+  public function setUp(mixed $output = NULL): void {
     parent::setUp($output);
     $this->clientProphecy->addOption('headers', ['Accept' => 'application/json']);
     putenv('ACQUIA_CLI_USE_CLOUD_API_SPEC_CACHE=1');
@@ -83,7 +85,10 @@ class AcsfApiCommandTest extends AcsfCommandTestBase {
     $this->assertArrayHasKey('count', $contents);
   }
 
-  public function providerTestAcsfCommandExecutionForHttpGetMultiple() {
+  /**
+   * @return array<mixed>
+   */
+  public function providerTestAcsfCommandExecutionForHttpGetMultiple(): array {
     return [
       ['get', '/api/v1/audit', '/api/v1/audit', 'acsf:info:audit-events-find', [], []],
       ['post', '/api/v1/sites', '/api/v1/sites', 'acsf:sites:create', ['site_name' => 'foobar', '--stack_id' => '1', '--group_ids' => ['91,81']], ['site_name' => 'foobar', 'stack_id' => '1', 'group_ids' => [91, 81]]],
@@ -97,7 +102,7 @@ class AcsfApiCommandTest extends AcsfCommandTestBase {
   /**
    * @dataProvider providerTestAcsfCommandExecutionForHttpGetMultiple
    */
-  public function testAcsfCommandExecutionForHttpGetMultiple($method, $specPath, $path, $command, $arguments = [], $jsonArguments = []): void {
+  public function testAcsfCommandExecutionForHttpGetMultiple(mixed $method, mixed $specPath, mixed $path, mixed $command, mixed $arguments = [], mixed $jsonArguments = []): void {
     $mockBody = $this->getMockResponseFromSpec($specPath, $method, '200');
     $this->clientProphecy->request($method, $path)->willReturn($mockBody)->shouldBeCalled();
     foreach ($jsonArguments as $argumentName => $value) {
@@ -114,7 +119,7 @@ class AcsfApiCommandTest extends AcsfCommandTestBase {
     $contents = json_decode($output, TRUE);
   }
 
-  protected function setClientProphecies($clientServiceClass = ClientService::class): void {
+  protected function setClientProphecies(mixed $clientServiceClass = ClientService::class): void {
     $this->clientProphecy = $this->prophet->prophesize(AcsfClient::class);
     $this->clientProphecy->addOption('headers', ['User-Agent' => 'acli/UNKNOWN']);
     $this->clientProphecy->addOption('debug', Argument::type(OutputInterface::class));

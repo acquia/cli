@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Acquia\Cli\Command\App;
 
 use Acquia\Cli\Command\CommandBase;
@@ -11,6 +13,10 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class AppOpenCommand extends CommandBase {
 
+  /**
+   * @var string
+   * @phpcsSuppress SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint
+   */
   protected static $defaultName = 'app:open';
 
   protected function configure(): void {

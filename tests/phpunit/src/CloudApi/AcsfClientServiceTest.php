@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Acquia\Cli\Tests\CloudApi;
 
 use Acquia\Cli\AcsfApi\AcsfClientService;
@@ -11,7 +13,7 @@ use Acquia\Cli\Tests\TestBase;
 class AcsfClientServiceTest extends TestBase {
 
   /**
-   * @return array[]
+   * @return array<mixed>
    */
   public function providerTestIsMachineAuthenticated(): array {
     return [

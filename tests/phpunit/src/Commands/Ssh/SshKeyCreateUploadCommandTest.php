@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Acquia\Cli\Tests\Commands\Ssh;
 
 use Acquia\Cli\Command\Ssh\SshKeyCreateCommand;
@@ -14,7 +16,7 @@ use Symfony\Component\Filesystem\Filesystem;
  */
 class SshKeyCreateUploadCommandTest extends CommandTestBase {
 
-  public function setUp($output = NULL): void {
+  public function setUp(mixed $output = NULL): void {
     parent::setUp();
 
     $this->getCommandTester();

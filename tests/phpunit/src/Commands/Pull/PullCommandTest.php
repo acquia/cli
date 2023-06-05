@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Acquia\Cli\Tests\Commands\Pull;
 
 use Acquia\Cli\Command\Pull\PullCommand;
@@ -11,7 +13,7 @@ use Symfony\Component\Console\Command\Command;
  */
 class PullCommandTest extends PullCommandTestBase {
 
-  public function setUp($output = NULL): void {
+  public function setUp(mixed $output = NULL): void {
     parent::setUp($output);
     $this->setupFsFixture();
   }

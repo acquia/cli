@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Acquia\Cli\Command\Self;
 
 use Acquia\Cli\Command\CommandBase;
@@ -11,6 +13,10 @@ use Symfony\Component\Filesystem\Path;
 
 class ClearCacheCommand extends CommandBase {
 
+  /**
+   * @var string
+   * @phpcsSuppress SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint
+   */
   protected static $defaultName = 'self:clear-caches';
 
   protected function configure(): void {

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Acquia\Cli\Command\Api;
 
 use Acquia\Cli\Command\CommandBase;
@@ -20,33 +22,39 @@ use Symfony\Component\Validator\Validation;
 
 class ApiBaseCommand extends CommandBase {
 
+  /**
+   * @var string
+   * @phpcsSuppress SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint
+   */
   protected static $defaultName = 'api:base';
 
   protected string $method;
 
   /**
-   * @var array
+   * @var array<mixed>
    */
   protected array $responses;
 
   /**
-   * @var array
+   * @var array<mixed>
    */
   protected array $servers;
 
   protected string $path;
 
   /**
-   * @var array
+   * @var array<mixed>
    */
   private array $queryParams = [];
 
   /**
-   * @var array
+   * @var array<mixed>
    */
   private array $postParams = [];
 
-  /** @var array  */
+  /**
+   * @var array<mixed>
+   */
   private array $pathParams = [];
 
   protected function configure(): void {
@@ -149,19 +157,11 @@ class ApiBaseCommand extends CommandBase {
     return $this->method;
   }
 
-  /**
-   * @param $paramName
-   * @param $value
-   */
-  public function addPostParameter($paramName, $value): void {
+  public function addPostParameter(mixed $paramName, mixed $value): void {
     $this->postParams[$paramName] = $value;
   }
 
-  /**
-   * @param $paramName
-   * @param $value
-   */
-  public function addQueryParameter($paramName, $value): void {
+  public function addQueryParameter(mixed $paramName, mixed $value): void {
     $this->queryParams[$paramName] = $value;
   }
 
@@ -169,14 +169,11 @@ class ApiBaseCommand extends CommandBase {
     return $this->path;
   }
 
-  public function addPathParameter(string $paramName, $value): void {
+  public function addPathParameter(string $paramName, mixed $value): void {
     $this->pathParams[$paramName] = $value;
   }
 
-  /**
-   * @return bool|string|string[]|null
-   */
-  private function getParamFromInput(InputInterface $input, string $paramName): array|bool|string|null {
+  private function getParamFromInput(InputInterface $input, string $paramName): array|bool|string|int|null {
     if ($input->hasArgument($paramName)) {
       return $input->getArgument($paramName);
     }
@@ -187,7 +184,7 @@ class ApiBaseCommand extends CommandBase {
     return NULL;
   }
 
-  private function castParamType(array $paramSpec, array|string $value): array|bool|int|string {
+  private function castParamType(array $paramSpec, array|string|bool|int $value): array|bool|int|string {
     $oneOf = $this->getParamTypeOneOf($paramSpec);
     if (isset($oneOf)) {
       $types = [];
@@ -228,7 +225,7 @@ class ApiBaseCommand extends CommandBase {
     };
   }
 
-  public function castBool($val): bool {
+  public function castBool(mixed $val): bool {
     return (bool) (is_string($val) ? filter_var($val, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) : $val);
   }
 
@@ -276,7 +273,7 @@ class ApiBaseCommand extends CommandBase {
   /**
    * @param array $schema
    * @param array $constraints
-   * @return array
+   * @return array<mixed>
    */
   private function createLengthConstraint(array $schema, array $constraints): array {
     if (array_key_exists('minLength', $schema) || array_key_exists('maxLength', $schema)) {
@@ -295,7 +292,7 @@ class ApiBaseCommand extends CommandBase {
   /**
    * @param array $schema
    * @param array $constraints
-   * @return array
+   * @return array<mixed>
    */
   protected function createRegexConstraint(array $schema, array $constraints): array {
     if (array_key_exists('format', $schema)) {
@@ -313,7 +310,7 @@ class ApiBaseCommand extends CommandBase {
   }
 
   private function createValidatorFromConstraints(array $constraints): Closure {
-    return static function ($value) use ($constraints) {
+    return static function (mixed $value) use ($constraints) {
       $violations = Validation::createValidator()
         ->validate($value, $constraints);
       if (count($violations)) {
@@ -376,14 +373,14 @@ class ApiBaseCommand extends CommandBase {
     switch ($argument->getName()) {
       case 'applicationUuid':
         // @todo Provide a list of application UUIDs.
-        $question->setValidator(function ($value) {
+        $question->setValidator(function (mixed $value) {
           return $this->validateApplicationUuid($value);
         });
         break;
       case 'environmentId':
         // @todo Provide a list of environment IDs.
       case 'source':
-        $question->setValidator(function ($value) use ($argument) {
+        $question->setValidator(function (mixed $value) use ($argument): string {
           return $this->validateEnvironmentUuid($value, $argument->getName());
         });
         break;
@@ -401,7 +398,7 @@ class ApiBaseCommand extends CommandBase {
 
   /**
    * @param array $paramSpec
-   * @return null|array
+   * @return null|array<mixed>
    */
   private function getParamTypeOneOf(array $paramSpec): ?array {
     $oneOf = $paramSpec['oneOf'] ?? NULL;

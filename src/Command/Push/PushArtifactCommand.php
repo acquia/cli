@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Acquia\Cli\Command\Push;
 
 use Acquia\Cli\Command\Pull\PullCommandBase;
@@ -15,15 +17,23 @@ use Symfony\Component\Filesystem\Path;
 
 class PushArtifactCommand extends PullCommandBase {
 
+  /**
+   * @var string
+   * @phpcsSuppress SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint
+   */
   protected static $defaultName = 'push:artifact';
 
   /**
    * Composer vendor directories.
+   *
+   * @var array<mixed>
    */
   protected array $vendorDirs;
 
   /**
    * Composer scaffold files.
+   *
+   * @var array<mixed>
    */
   protected array $scaffoldFiles;
 
@@ -121,7 +131,7 @@ class PushArtifactCommand extends PullCommandBase {
     return Command::SUCCESS;
   }
 
-  private function determineDestinationGitUrls($applicationUuid): mixed {
+  private function determineDestinationGitUrls(?string $applicationUuid): mixed {
     if ($this->input->getOption('destination-git-urls')) {
       return $this->input->getOption('destination-git-urls');
     }
@@ -342,7 +352,7 @@ class PushArtifactCommand extends PullCommandBase {
   /**
    * Get a list of scaffold files from Drupal core's composer.json.
    *
-   * @return array
+   * @return array<mixed>
    */
   private function scaffoldFiles(string $artifactDir): array {
     if (!empty($this->scaffoldFiles)) {
@@ -416,7 +426,7 @@ class PushArtifactCommand extends PullCommandBase {
     return $this->destinationGitRef;
   }
 
-  private function createTag($tagName, Closure $outputCallback, string $artifactDir): void {
+  private function createTag(mixed $tagName, Closure $outputCallback, string $artifactDir): void {
     $this->localMachineHelper->checkRequiredBinariesExist(['git']);
     $process = $this->localMachineHelper->execute([
       'git',

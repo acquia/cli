@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Acquia\Cli\Tests\Commands\Pull;
 
 use Acquia\Cli\Tests\Commands\Ide\IdeRequiredTestTrait;
@@ -13,7 +15,7 @@ abstract class PullCommandTestBase extends CommandTestBase {
 
   use IdeRequiredTestTrait;
 
-  public function setUp($output = NULL): void {
+  public function setUp(mixed $output = NULL): void {
     parent::setUp();
   }
 
@@ -28,7 +30,7 @@ abstract class PullCommandTestBase extends CommandTestBase {
 
   protected function mockExecuteDrushStatus(
     ObjectProphecy $localMachineHelper,
-    $hasConnection,
+    mixed $hasConnection,
     string $dir = NULL
   ): void {
     $drushStatusProcess = $this->prophet->prophesize(Process::class);
@@ -113,9 +115,9 @@ abstract class PullCommandTestBase extends CommandTestBase {
   }
 
   protected function mockExecuteGitStatus(
-    $failed,
+    mixed $failed,
     ObjectProphecy $localMachineHelper,
-    $cwd
+    mixed $cwd
   ): void {
     $process = $this->prophet->prophesize(Process::class);
     $process->isSuccessful()->willReturn(!$failed)->shouldBeCalled();
@@ -124,8 +126,8 @@ abstract class PullCommandTestBase extends CommandTestBase {
 
   protected function mockGetLocalCommitHash(
     ObjectProphecy $localMachineHelper,
-    $cwd,
-    $commitHash
+    mixed $cwd,
+    mixed $commitHash
   ): void {
     $process = $this->prophet->prophesize(Process::class);
     $process->isSuccessful()->willReturn(TRUE)->shouldBeCalled();

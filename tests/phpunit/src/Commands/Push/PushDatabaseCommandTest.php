@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Acquia\Cli\Tests\Commands\Push;
 
 use Acquia\Cli\Command\Push\PushDatabaseCommand;
@@ -89,7 +91,7 @@ class PushDatabaseCommandTest extends CommandTestBase {
   protected function mockImportDatabaseDumpOnRemote(
     ObjectProphecy $sshHelper,
     object $environmentsResponse,
-    $process
+    mixed $process
   ): void {
     $sshHelper->executeCommand(
       new EnvironmentResponse($environmentsResponse),

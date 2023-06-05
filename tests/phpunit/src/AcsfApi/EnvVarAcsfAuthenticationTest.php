@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Acquia\Cli\Tests\AcsfApi;
 
 use Acquia\Cli\AcsfApi\AcsfCredentials;
@@ -9,7 +11,7 @@ class EnvVarAcsfAuthenticationTest extends TestBase {
 
   private string $acsfCurrentFactoryUrl = 'https://www.test-something.com';
 
-  public function setUp($output = NULL): void {
+  public function setUp(mixed $output = NULL): void {
     parent::setUp();
     $this->cloudCredentials = new AcsfCredentials($this->datastoreCloud);
     putenv('ACSF_USERNAME=' . $this->key);

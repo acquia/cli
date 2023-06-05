@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Acquia\Cli\Command\Ide;
 
 use Acquia\Cli\Exception\AcquiaCliException;
@@ -10,6 +12,10 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class IdeXdebugToggleCommand extends IdeCommandBase {
 
+  /**
+   * @var string
+   * @phpcsSuppress SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint
+   */
   protected static $defaultName = 'ide:xdebug-toggle';
 
   private ?bool $xDebugEnabled;

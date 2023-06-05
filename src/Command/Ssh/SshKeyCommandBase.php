@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Acquia\Cli\Command\Ssh;
 
 use Acquia\Cli\Command\CommandBase;
@@ -46,7 +48,6 @@ abstract class SshKeyCommandBase extends CommandBase {
   /**
    * @param string|null $label
    *   The label to normalize.
-   * @return string|null
    */
   public static function normalizeSshKeyLabel(?string $label): string|null {
     if (is_null($label)) {
@@ -177,6 +178,9 @@ EOT
     $loop->run();
   }
 
+  /**
+   * @return array<mixed>
+   */
   private function checkPermissions(array $userPerms, string $cloudAppUuid, OutputInterface $output): array {
     $mappings = [];
     $requiredPerms = ['add ssh key to git', 'add ssh key to non-prod', 'add ssh key to prod'];
@@ -249,7 +253,7 @@ EOT
       'filename',
       FALSE,
       Closure::fromCallable([$this, 'validateFilename']),
-      static function ($value) {
+      static function (mixed $value) {
         return $value ? trim($value) : '';},
       'id_rsa_acquia'
     );
@@ -273,7 +277,7 @@ EOT
       'password',
       TRUE,
       Closure::fromCallable([$this, 'validatePassword']),
-      static function ($value) {
+      static function (mixed $value) {
         return $value ? trim($value) : '';
       }
     );
@@ -301,6 +305,9 @@ EOT
     return FALSE;
   }
 
+  /**
+   * @return array<mixed>
+   */
   protected function determinePublicSshKey(string $filepath = NULL): array {
     if ($filepath) {
       $filepath = $this->localMachineHelper->getLocalFilepath($filepath);
@@ -345,7 +352,7 @@ EOT
     return $this->determineOption('label', FALSE, Closure::fromCallable([$this, 'validateSshKeyLabel']), Closure::fromCallable([$this, 'normalizeSshKeyLabel']));
   }
 
-  private function validateSshKeyLabel($label): mixed {
+  private function validateSshKeyLabel(mixed $label): mixed {
     if (trim($label) === '') {
       throw new RuntimeException('The label cannot be empty');
     }
@@ -382,7 +389,7 @@ EOT
     }
   }
 
-  protected static function getFingerprint($sshPublicKey): string {
+  protected static function getFingerprint(mixed $sshPublicKey): string {
     if (!str_starts_with($sshPublicKey, 'ssh-rsa ')) {
       throw new AcquiaCliException('SSH keys must start with "ssh-rsa ".');
     }

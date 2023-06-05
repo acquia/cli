@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Acquia\Cli\Command\Self;
 
 use Acquia\Cli\Command\CommandBase;
@@ -10,6 +12,10 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class TelemetryDisableCommand extends CommandBase {
 
+  /**
+   * @var string
+   * @phpcsSuppress SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint
+   */
   protected static $defaultName = 'self:telemetry:disable';
 
   protected function commandRequiresAuthentication(): bool {

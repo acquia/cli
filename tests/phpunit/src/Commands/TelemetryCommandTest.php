@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Acquia\Cli\Tests\Commands;
 
 use Acquia\Cli\Command\App\LinkCommand;
@@ -16,7 +18,7 @@ class TelemetryCommandTest extends CommandTestBase {
 
   protected string $legacyAcliConfigFilepath;
 
-  public function setUp($output = NULL): void {
+  public function setUp(mixed $output = NULL): void {
     parent::setUp($output);
     $this->legacyAcliConfigFilepath = Path::join($this->dataDir, 'acquia-cli.json');
     $this->fs->remove($this->legacyAcliConfigFilepath);
@@ -38,6 +40,9 @@ class TelemetryCommandTest extends CommandTestBase {
     $this->assertStringContainsString('Telemetry has been disabled.', $output);
   }
 
+  /**
+   * @return string[][]
+   */
   public function providerTestTelemetryPrompt(): array {
     return [
       [
@@ -55,7 +60,7 @@ class TelemetryCommandTest extends CommandTestBase {
    * @param array $inputs
    * @param $message
    */
-  public function testTelemetryPrompt(array $inputs, $message): void {
+  public function testTelemetryPrompt(array $inputs, mixed $message): void {
     $this->cloudConfig = [DataStoreContract::SEND_TELEMETRY => NULL];
     $this->createMockConfigFiles();
     $this->createMockAcliConfigFile('a47ac10b-58cc-4372-a567-0e02b2c3d470');

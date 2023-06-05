@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Acquia\Cli\Tests\Commands\App;
 
 use Acquia\Cli\Command\App\NewCommand;
@@ -16,7 +18,7 @@ class NewCommandTest extends CommandTestBase {
 
   protected string $newProjectDir;
 
-  public function setUp($output = NULL): void {
+  public function setUp(mixed $output = NULL): void {
     parent::setUp($output);
     $this->setupFsFixture();
   }
@@ -25,6 +27,9 @@ class NewCommandTest extends CommandTestBase {
     return $this->injectCommand(NewCommand::class);
   }
 
+  /**
+   * @return array<mixed>
+   */
   public function provideTestNewDrupalCommand(): array {
     return [
       [['acquia_drupal_recommended' => 'acquia/drupal-recommended-project']],
@@ -32,6 +37,9 @@ class NewCommandTest extends CommandTestBase {
     ];
   }
 
+  /**
+   * @return array<mixed>
+   */
   public function provideTestNewNextJsAppCommand(): array {
     return [
       [['acquia_next_acms' => 'acquia/next-acms']],

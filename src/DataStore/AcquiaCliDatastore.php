@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Acquia\Cli\DataStore;
 
 use Acquia\Cli\Config\AcquiaCliConfig;
@@ -7,6 +9,9 @@ use Acquia\Cli\Helpers\LocalMachineHelper;
 
 class AcquiaCliDatastore extends YamlStore {
 
+  /**
+   * @var array<mixed>
+   */
   protected array $config;
 
   public function __construct(

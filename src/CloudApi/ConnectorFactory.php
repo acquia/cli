@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Acquia\Cli\CloudApi;
 
 use Acquia\Cli\ConnectorFactoryInterface;
@@ -8,6 +10,9 @@ use League\OAuth2\Client\Token\AccessToken;
 
 class ConnectorFactory implements ConnectorFactoryInterface {
 
+  /**
+   * @param array<string> $config
+   */
   public function __construct(protected array $config, protected ?string $baseUri = NULL, protected ?string $accountsUri = NULL) {
   }
 

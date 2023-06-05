@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Acquia\Cli\Command\Ide\Wizard;
 
 use Acquia\Cli\Command\CommandBase;
@@ -11,6 +13,10 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
 
+  /**
+   * @var string
+   * @phpcsSuppress SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint
+   */
   protected static $defaultName = 'ide:wizard:ssh-key:create-upload';
 
   protected function configure(): void {

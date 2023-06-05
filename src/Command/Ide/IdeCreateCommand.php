@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Acquia\Cli\Command\Ide;
 
 use Acquia\Cli\Helpers\LoopHelper;
@@ -19,6 +21,10 @@ use Symfony\Component\Validator\Validation;
 
 class IdeCreateCommand extends IdeCommandBase {
 
+  /**
+   * @var string
+   * @phpcsSuppress SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint
+   */
   protected static $defaultName = 'ide:create';
 
   private IdeResponse $ide;
@@ -73,7 +79,7 @@ class IdeCreateCommand extends IdeCommandBase {
     return $label;
   }
 
-  private function waitForDnsPropagation($ideUrl): int {
+  private function waitForDnsPropagation(mixed $ideUrl): int {
     $ideCreated = FALSE;
     if (!$this->getClient()) {
       $this->setClient(new Client(['base_uri' => $ideUrl]));

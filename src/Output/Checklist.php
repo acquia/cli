@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Acquia\Cli\Output;
 
 use Acquia\Cli\Output\Spinner\Spinner;
@@ -7,8 +9,10 @@ use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class Checklist {
+
   /**
-   * @var array*/
+   * @var array<mixed>
+   */
   private array $items = [];
 
   private int $indentLength = 4;
@@ -44,11 +48,11 @@ class Checklist {
     }
   }
 
-  private function getLastItem() {
+  private function getLastItem(): mixed {
     return end($this->items);
   }
 
-  public function updateProgressBar($updateMessage): void {
+  public function updateProgressBar(mixed $updateMessage): void {
     $item = $this->getLastItem();
     if (!$item) {
       return;
@@ -80,7 +84,7 @@ class Checklist {
   }
 
   /**
-   * @return array
+   * @return array<mixed>
    */
   public function getItems(): array {
     return $this->items;

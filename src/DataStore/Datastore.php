@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Acquia\Cli\DataStore;
 
 use Acquia\Cli\Exception\AcquiaCliException;
@@ -57,7 +59,7 @@ abstract class Datastore implements DataStoreInterface {
    * @param array $config
    * @param string $path
    *   Path to the datastore on disk.
-   * @return array
+   * @return array<mixed>
    */
   protected function processConfig(array $config, ConfigurationInterface $definition, string $path): array {
     try {

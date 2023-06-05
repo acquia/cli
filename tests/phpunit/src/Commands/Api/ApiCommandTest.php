@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Acquia\Cli\Tests\Commands\Api;
 
 use Acquia\Cli\Command\Api\ApiBaseCommand;
@@ -17,7 +19,7 @@ use Symfony\Component\Yaml\Yaml;
  */
 class ApiCommandTest extends CommandTestBase {
 
-  public function setUp($output = NULL): void {
+  public function setUp(mixed $output = NULL): void {
     parent::setUp($output);
     $this->clientProphecy->addOption('headers', ['Accept' => 'application/json']);
     putenv('ACQUIA_CLI_USE_CLOUD_API_SPEC_CACHE=1');
@@ -142,7 +144,10 @@ class ApiCommandTest extends CommandTestBase {
     $this->assertEquals(0, $this->getStatusCode());
   }
 
-  public function providerTestConvertApplicationAliasToUuidArgument() {
+  /**
+   * @return bool[][]
+   */
+  public function providerTestConvertApplicationAliasToUuidArgument(): array {
     return [
       [FALSE],
       [TRUE],
@@ -155,7 +160,7 @@ class ApiCommandTest extends CommandTestBase {
    */
   public function testConvertApplicationAliasToUuidArgument(bool $support): void {
     ClearCacheCommand::clearCaches();
-    $tamper = function (&$response) {
+    $tamper = function (&$response): void {
       unset($response[1]);
     };
     $applications = $this->mockRequest('getApplications', NULL, NULL, NULL, $tamper);
@@ -166,7 +171,7 @@ class ApiCommandTest extends CommandTestBase {
     $tamper = NULL;
     if ($support) {
       $this->clientProphecy->addQuery('all', 'true')->shouldBeCalled();
-      $tamper = function ($response) {
+      $tamper = function (mixed $response): void {
         $response->flags->support = TRUE;
       };
     }
@@ -323,6 +328,9 @@ class ApiCommandTest extends CommandTestBase {
     $this->assertStringContainsString('The environment configuration is being updated.', $output);
   }
 
+  /**
+   * @return array<mixed>
+   */
   public function providerTestApiCommandDefinitionParameters(): array {
     $apiAccountsSshKeysListUsage = '--from="-7d" --to="-1d" --sort="field1,-field2" --limit="10" --offset="10"';
     return [
@@ -342,7 +350,7 @@ class ApiCommandTest extends CommandTestBase {
    * @param $method
    * @param $usage
    */
-  public function testApiCommandDefinitionParameters($useSpecCache, $commandName, $method, $usage): void {
+  public function testApiCommandDefinitionParameters(mixed $useSpecCache, mixed $commandName, mixed $method, mixed $usage): void {
     putenv('ACQUIA_CLI_USE_CLOUD_API_SPEC_CACHE=' . $useSpecCache);
 
     $this->command = $this->getApiCommandByName($commandName);
@@ -374,6 +382,9 @@ class ApiCommandTest extends CommandTestBase {
     $this->assertStringContainsString('You may also use an application alias or omit the argument', $this->command->getDefinition()->getArgument('applicationUuid')->getDescription());
   }
 
+  /**
+   * @return string[][]
+   */
   public function providerTestApiCommandDefinitionRequestBody(): array {
     return [
       ['api:accounts:ssh-key-create', 'post', 'api:accounts:ssh-key-create "mykey" "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQChwPHzTTDKDpSbpa2+d22LcbQmsw92eLsUK3Fmei1fiGDkd34NsYCN8m7lsi3NbvdMS83CtPQPWiCveYPzFs1/hHc4PYj8opD2CNnr5iWVVbyaulCYHCgVv4aB/ojcexg8q483A4xJeF15TiCr/gu34rK6ucTvC/tn/rCwJBudczvEwt0klqYwv8Cl/ytaQboSuem5KgSjO3lMrb6CWtfSNhE43ZOw+UBFBqxIninN868vGMkIv9VY34Pwj54rPn/ItQd6Ef4B0KHHaGmzK0vfP+AK7FxNMoHnj3iYT33KZNqtDozdn5tYyH/bThPebEtgqUn+/w5l6wZIC/8zzvls/127ngHk+jNa0PlNyS2TxhPUK4NaPHIEnnrlp07JEYC4ImcBjaYCWAdcTcUkcJjwZQkN4bGmyO9cjICH98SdLD/HxqzTHeaYDbAX/Hu9HfaBb5dXLWsjw3Xc6hoVnUUZbMQyfgb0KgxDLh92eNGxJkpZiL0VDNOWCxDWsNpzwhLNkLqCvI6lyxiLaUzvJAk6dPaRhExmCbU1lDO2eR0FdSwC1TEhJOT9eDIK1r2hztZKs2oa5FNFfB/IFHVWasVFC9N2h/r/egB5zsRxC9MqBLRBq95NBxaRSFng6ML5WZSw41Qi4C/JWVm89rdj2WqScDHYyAdwyyppWU4T5c9Fmw== example@example.com"'],
@@ -387,7 +398,7 @@ class ApiCommandTest extends CommandTestBase {
    * @param $method
    * @param $usage
    */
-  public function testApiCommandDefinitionRequestBody($commandName, $method, $usage): void {
+  public function testApiCommandDefinitionRequestBody(mixed $commandName, mixed $method, mixed $usage): void {
     $this->command = $this->getApiCommandByName($commandName);
     $resource = $this->getResourceFromSpec($this->command->getPath(), $method);
     foreach ($resource['requestBody']['content']['application/json']['example'] as $propKey => $value) {

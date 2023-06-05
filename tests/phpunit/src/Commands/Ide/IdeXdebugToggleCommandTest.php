@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Acquia\Cli\Tests\Commands\Ide;
 
 use Acquia\Cli\Command\Ide\IdeXdebugToggleCommand;
@@ -41,7 +43,7 @@ class IdeXdebugToggleCommandTest extends CommandTestBase {
   }
 
   /**
-   * @return array
+   * @return array<mixed>
    */
   public function providerTestXdebugCommandEnable(): array {
     return [
@@ -54,7 +56,7 @@ class IdeXdebugToggleCommandTest extends CommandTestBase {
   /**
    * @dataProvider providerTestXdebugCommandEnable
    */
-  public function testXdebugCommandEnable($phpVersion): void {
+  public function testXdebugCommandEnable(mixed $phpVersion): void {
     $this->setUpXdebug($phpVersion);
     $this->executeCommand();
     $this->prophet->checkPredictions();
@@ -67,7 +69,7 @@ class IdeXdebugToggleCommandTest extends CommandTestBase {
   /**
    * @dataProvider providerTestXdebugCommandEnable
    */
-  public function testXdebugCommandDisable($phpVersion): void {
+  public function testXdebugCommandDisable(mixed $phpVersion): void {
     $this->setUpXdebug($phpVersion);
     // Modify fixture to disable xdebug.
     file_put_contents($this->xdebugFilePath, str_replace(';zend_extension=xdebug.so', 'zend_extension=xdebug.so', file_get_contents($this->xdebugFilePath)));

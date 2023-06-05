@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Acquia\Cli\Tests\CloudApi;
 
 use Acquia\Cli\CloudApi\AccessTokenConnector;
@@ -26,7 +28,7 @@ class AccessTokenConnectorTest extends TestBase {
     self::unsetAccessTokenEnvVars();
   }
 
-  public static function setAccessTokenEnvVars($expired = FALSE): void {
+  public static function setAccessTokenEnvVars(mixed $expired = FALSE): void {
     if ($expired) {
       $accessTokenExpiry = time() - 300;
     }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Acquia\Cli\Tests\Commands\Pull;
 
 use Acquia\Cli\Command\Ide\IdePhpVersionCommand;
@@ -143,6 +145,9 @@ class PullCodeCommandTest extends PullCommandTestBase {
     $this->assertStringContainsString('[0] Dev, dev (vcs: master)', $output);
   }
 
+  /**
+   * @return string[][]
+   */
   public function providerTestMatchPhpVersion(): array {
     return [
       ['7.1'],
@@ -209,7 +214,7 @@ class PullCodeCommandTest extends PullCommandTestBase {
     ObjectProphecy $localMachineHelper,
     object $environmentsResponse,
     ObjectProphecy $process,
-                   $dir
+                   mixed $dir
   ): void {
     $command = [
       'git',
@@ -225,8 +230,8 @@ class PullCodeCommandTest extends PullCommandTestBase {
   protected function mockExecuteGitFetchAndCheckout(
     ObjectProphecy $localMachineHelper,
     ObjectProphecy $process,
-    $cwd,
-    $vcsPath
+    mixed $cwd,
+    mixed $vcsPath
   ): void {
     $localMachineHelper->execute([
       'git',
@@ -238,7 +243,7 @@ class PullCodeCommandTest extends PullCommandTestBase {
     $this->mockExecuteGitCheckout($localMachineHelper, $vcsPath, $cwd, $process);
   }
 
-  protected function mockExecuteGitCheckout(ObjectProphecy $localMachineHelper, $vcsPath, $cwd, ObjectProphecy $process): void {
+  protected function mockExecuteGitCheckout(ObjectProphecy $localMachineHelper, mixed $vcsPath, mixed $cwd, ObjectProphecy $process): void {
     $localMachineHelper->execute([
       'git',
       'checkout',

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Acquia\Cli\Tests\Commands\Ide;
 
 use Acquia\Cli\Command\Ide\IdePhpVersionCommand;
@@ -24,7 +26,7 @@ class IdePhpVersionCommandTest extends CommandTestBase {
   }
 
   /**
-   * @return array
+   * @return array<mixed>
    */
   public function providerTestIdePhpVersionCommand(): array {
     return [
@@ -57,7 +59,7 @@ class IdePhpVersionCommandTest extends CommandTestBase {
   }
 
   /**
-   * @return array
+   * @return array<mixed>
    */
   public function providerTestIdePhpVersionCommandFailure(): array {
     return [

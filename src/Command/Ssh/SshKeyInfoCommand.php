@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Acquia\Cli\Command\Ssh;
 
 use Acquia\Cli\Exception\AcquiaCliException;
@@ -12,6 +14,10 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class SshKeyInfoCommand extends SshKeyCommandBase {
 
+  /**
+   * @var string
+   * @phpcsSuppress SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint
+   */
   protected static $defaultName = 'ssh-key:info';
 
   protected function configure(): void {
@@ -46,7 +52,10 @@ class SshKeyInfoCommand extends SshKeyCommandBase {
     return Command::SUCCESS;
   }
 
-  private function determineSshKey($acquiaCloudClient): array {
+  /**
+   * @return array<mixed>
+   */
+  private function determineSshKey(mixed $acquiaCloudClient): array {
     $cloudKeysResponse = new SshKeys($acquiaCloudClient);
     $cloudKeys = $cloudKeysResponse->getAll();
     $localKeys = $this->findLocalSshKeys();

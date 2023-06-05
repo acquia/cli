@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Acquia\Cli\Command\App;
 
 use Acquia\Cli\Command\CommandBase;
@@ -10,6 +12,10 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class LogTailCommand extends CommandBase {
 
+  /**
+   * @var string
+   * @phpcsSuppress SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint
+   */
   protected static $defaultName = 'app:log:tail';
 
   protected function configure(): void {
@@ -22,7 +28,7 @@ class LogTailCommand extends CommandBase {
     $environmentId = $this->determineCloudEnvironment();
     $acquiaCloudClient = $this->cloudApiClientService->getClient();
     $logs = $this->promptChooseLogs();
-    $logTypes = array_map(static function ($log) {
+    $logTypes = array_map(static function (mixed $log) {
       return $log['type'];
     }, $logs);
     $logsResource = new Logs($acquiaCloudClient);

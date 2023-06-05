@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Acquia\Cli\Tests\Commands\Acsf;
 
 use Acquia\Cli\Helpers\DataStoreContract;
@@ -20,7 +22,7 @@ abstract class AcsfCommandTestBase extends CommandTestBase {
   protected string $acsfKey = 'h@x0r';
 
   /**
-   * @return array
+   * @return array<mixed>
    */
   protected function getAcsfCredentialsFileContents(): array {
     return [

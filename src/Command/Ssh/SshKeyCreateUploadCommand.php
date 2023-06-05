@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Acquia\Cli\Command\Ssh;
 
 use Symfony\Component\Console\Command\Command;
@@ -9,6 +11,10 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class SshKeyCreateUploadCommand extends SshKeyCreateCommand {
 
+  /**
+   * @var string
+   * @phpcsSuppress SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint
+   */
   protected static $defaultName = 'ssh-key:create-upload';
 
   protected function configure(): void {

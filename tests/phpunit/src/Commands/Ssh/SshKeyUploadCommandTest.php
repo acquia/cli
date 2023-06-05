@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Acquia\Cli\Tests\Commands\Ssh;
 
 use Acquia\Cli\Command\Ssh\SshKeyUploadCommand;
@@ -16,6 +18,9 @@ class SshKeyUploadCommandTest extends CommandTestBase {
     return $this->injectCommand(SshKeyUploadCommand::class);
   }
 
+  /**
+   * @return array<mixed>
+   */
   public function providerTestUpload(): array {
     $sshKeysRequestBody = $this->getMockRequestBodyFromSpec('/account/ssh-keys');
     return [
@@ -58,7 +63,7 @@ class SshKeyUploadCommandTest extends CommandTestBase {
   /**
    * @dataProvider providerTestUpload
    */
-  public function testUpload($args, $inputs, $perms): void {
+  public function testUpload(mixed $args, mixed $inputs, mixed $perms): void {
     $sshKeysRequestBody = $this->getMockRequestBodyFromSpec('/account/ssh-keys');
     $body = [
       'json' => [

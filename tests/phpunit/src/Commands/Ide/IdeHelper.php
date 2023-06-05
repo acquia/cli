@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Acquia\Cli\Tests\Commands\Ide;
 
 use Acquia\Cli\Tests\TestBase;
@@ -16,6 +18,9 @@ class IdeHelper {
     TestBase::unsetEnvVars(self::getEnvVars());
   }
 
+  /**
+   * @return array<string>
+   */
   public static function getEnvVars(): array {
     return [
       'ACQUIA_USER_UUID' => '4acf8956-45df-3cf4-5106-065b62cf1ac8',

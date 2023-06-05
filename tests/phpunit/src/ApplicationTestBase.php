@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Acquia\Cli\Tests;
 
 use Acquia\Cli\Application;
@@ -18,9 +20,9 @@ class ApplicationTestBase extends TestBase {
    */
   protected Kernel $kernel;
 
-  public function setUp($output = NULL): void {
+  public function setUp(mixed $output = NULL): void {
     parent::setUp($output);
-    $this->kernel = new Kernel('dev', 0);
+    $this->kernel = new Kernel('dev', FALSE);
     $this->kernel->boot();
     $this->kernel->getContainer()->set(CloudDataStore::class, $this->datastoreCloud);
     $this->kernel->getContainer()->set(ClientService::class, $this->clientServiceProphecy->reveal());

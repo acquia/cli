@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Acquia\Cli\Tests\Commands\Remote;
 
 use Acquia\Cli\Command\Remote\DrushCommand;
@@ -17,6 +19,9 @@ class DrushCommandTest extends SshCommandTestBase {
     return $this->injectCommand(DrushCommand::class);
   }
 
+  /**
+   * @return array<array<array<string>>>
+   */
   public function providerTestRemoteDrushCommand(): array {
     return [
       [

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Acquia\Cli;
 
 use Symfony\Component\Config\FileLocator;
@@ -23,6 +25,9 @@ use Symfony\Component\HttpKernel\Kernel as BaseKernel;
  */
 class Kernel extends BaseKernel {
 
+  /**
+   * @return array<mixed>
+   */
   public function registerBundles(): iterable {
     return [];
   }
@@ -32,7 +37,7 @@ class Kernel extends BaseKernel {
     $this->registerExtensionConfiguration($loader);
   }
 
-  protected function registerExtensionConfiguration($loader): void {
+  protected function registerExtensionConfiguration(mixed $loader): void {
     // Search for plugins.
     $finder = new Finder();
     $extensions = $finder->files()
@@ -71,7 +76,7 @@ class Kernel extends BaseKernel {
   private function createCollectingCompilerPass(): CompilerPassInterface {
     return new class implements CompilerPassInterface {
 
-      public function process(ContainerBuilder $containerBuilder) {
+      public function process(ContainerBuilder $containerBuilder): void {
         $appDefinition = $containerBuilder->findDefinition(Application::class);
         $dispatcherDefinition = $containerBuilder->findDefinition(EventDispatcher::class);
 

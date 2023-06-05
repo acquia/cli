@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Acquia\Cli\Tests\Commands\Push;
 
 use Acquia\Cli\Command\CommandBase;
@@ -95,7 +97,7 @@ class PushFilesCommandTest extends CommandTestBase {
   protected function mockExecuteCloudRsync(
     ObjectProphecy $localMachineHelper,
     ObjectProphecy $process,
-    $environment
+    mixed $environment
   ): void {
     $localMachineHelper->checkRequiredBinariesExist(['rsync'])->shouldBeCalled();
     $sitegroup = CommandBase::getSiteGroupFromSshUrl($environment->ssh_url);

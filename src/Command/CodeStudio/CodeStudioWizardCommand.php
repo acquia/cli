@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Acquia\Cli\Command\CodeStudio;
 
 use Acquia\Cli\Command\WizardCommandBase;
@@ -16,6 +18,10 @@ class CodeStudioWizardCommand extends WizardCommandBase {
 
   use CodeStudioCommandTrait;
 
+  /**
+   * @var string
+   * @phpcsSuppress SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint
+   */
   protected static $defaultName = 'codestudio:wizard';
 
   private Checklist $checklist;
@@ -111,7 +117,7 @@ class CodeStudioWizardCommand extends WizardCommandBase {
 
   /**
    * @param array $project
-   * @return array|null
+   * @return array<mixed>|null
    */
   private function getGitLabScheduleByDescription(array $project, string $scheduledPipelineDescription): ?array {
     $existingSchedules = $this->gitLabClient->schedules()->showAll($project['id']);
@@ -125,7 +131,7 @@ class CodeStudioWizardCommand extends WizardCommandBase {
 
   /**
    * @param array $project
-   * @return array|null ?
+   * @return array<mixed>|null ?
    */
   private function getGitLabProjectAccessTokenByName(array $project, string $name): ?array {
     $existingProjectAccessTokens = $this->gitLabClient->projects()->projectAccessTokens($project['id']);

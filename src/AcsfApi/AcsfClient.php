@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Acquia\Cli\AcsfApi;
 
 use AcquiaCloudApi\Connector\Client;

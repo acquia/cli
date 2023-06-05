@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Acquia\Cli\Tests\Commands\Env;
 
 use Acquia\Cli\Command\Env\EnvCreateCommand;
@@ -68,7 +70,7 @@ class EnvCreateCommandTest extends CommandTestBase {
   }
 
   /**
-   * @return array
+   * @return array<mixed>
    */
   public function providerTestCreateCde(): array {
     $application = $this->getApplication();
@@ -86,7 +88,7 @@ class EnvCreateCommandTest extends CommandTestBase {
   /**
    * @dataProvider providerTestCreateCde
    */
-  public function testCreateCde($args, $input): void {
+  public function testCreateCde(mixed $args, mixed $input): void {
     $domain = $this->setupCdeTest(self::$validLabel);
 
     $this->executeCommand(

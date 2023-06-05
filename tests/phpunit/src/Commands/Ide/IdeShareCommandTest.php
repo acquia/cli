@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Acquia\Cli\Tests\Commands\Ide;
 
 use Acquia\Cli\Command\Ide\IdeShareCommand;
@@ -16,7 +18,7 @@ class IdeShareCommandTest extends CommandTestBase {
   use IdeRequiredTestTrait;
 
   /**
-   * @var array
+   * @var array<mixed>
    */
   private array $shareCodeFilepaths;
 

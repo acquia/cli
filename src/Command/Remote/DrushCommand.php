@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Acquia\Cli\Command\Remote;
 
 use Symfony\Component\Console\Input\InputArgument;
@@ -11,6 +13,10 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class DrushCommand extends SshBaseCommand {
 
+  /**
+   * @var string
+   * @phpcsSuppress SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint
+   */
   protected static $defaultName = 'remote:drush';
 
   protected function configure(): void {

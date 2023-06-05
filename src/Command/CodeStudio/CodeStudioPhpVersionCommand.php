@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Acquia\Cli\Command\CodeStudio;
 
 use Acquia\Cli\Command\CommandBase;
@@ -12,13 +14,17 @@ class CodeStudioPhpVersionCommand extends CommandBase {
 
   use CodeStudioCommandTrait;
 
+  /**
+   * @var string
+   * @phpcsSuppress SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint
+   */
   protected static $defaultName = 'codestudio:php-version';
 
   protected function configure(): void {
     $this->setDescription('Change the PHP version in Code Studio')
       ->addArgument('php-version', InputArgument::REQUIRED, 'The PHP version that needs to configured or updated')
-      ->addUsage(self::getDefaultName() . ' 8.1 myapp')
-      ->addUsage(self::getDefaultName() . ' 8.1 abcd1234-1111-2222-3333-0e02b2c3d470');
+      ->addUsage('8.1 myapp')
+      ->addUsage('8.1 abcd1234-1111-2222-3333-0e02b2c3d470');
     $this->acceptApplicationUuid();
     $this->acceptGitlabOptions();
   }

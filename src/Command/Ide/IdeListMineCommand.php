@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Acquia\Cli\Command\Ide;
 
 use AcquiaCloudApi\Endpoints\Applications;
@@ -12,6 +14,10 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class IdeListMineCommand extends IdeCommandBase {
 
+  /**
+   * @var string
+   * @phpcsSuppress SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint
+   */
   protected static $defaultName = 'ide:list:mine';
 
   protected function configure(): void {

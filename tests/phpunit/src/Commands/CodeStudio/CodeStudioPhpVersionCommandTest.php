@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Acquia\Cli\Tests\Commands\CodeStudio;
 
 use Acquia\Cli\Command\CodeStudio\CodeStudioPhpVersionCommand;
@@ -25,7 +27,7 @@ class CodeStudioPhpVersionCommandTest extends CommandTestBase {
   }
 
   /**
-   * @return array
+   * @return array<mixed>
    */
   public function providerTestPhpVersionFailure(): array {
     return [
@@ -41,7 +43,7 @@ class CodeStudioPhpVersionCommandTest extends CommandTestBase {
    *
    * @dataProvider providerTestPhpVersionFailure
    */
-  public function testPhpVersionFailure($phpVersion): void {
+  public function testPhpVersionFailure(mixed $phpVersion): void {
     $this->expectException(ValidatorException::class);
     $this->executeCommand([
       'applicationUuid' => self::$applicationUuid,

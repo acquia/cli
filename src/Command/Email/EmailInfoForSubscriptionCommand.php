@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Acquia\Cli\Command\Email;
 
 use Acquia\Cli\Command\CommandBase;
@@ -17,6 +19,10 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class EmailInfoForSubscriptionCommand extends CommandBase {
 
+  /**
+   * @var string
+   * @phpcsSuppress SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint
+   */
   protected static $defaultName = 'email:info';
 
   protected function configure(): void {
@@ -60,8 +66,6 @@ class EmailInfoForSubscriptionCommand extends CommandBase {
    * Renders tables showing email domain verification statuses,
    * as well as exports these statuses to respective CSV files.
    *
-   * @param \Symfony\Component\Console\Output\OutputInterface $output
-   * @param \AcquiaCloudApi\Response\SubscriptionResponse $subscription
    * @param array $domainList
    */
   private function writeDomainsToTables(OutputInterface $output, SubscriptionResponse $subscription, array $domainList): void {
@@ -167,9 +171,7 @@ class EmailInfoForSubscriptionCommand extends CommandBase {
   /**
    * Verifies the number of applications present in a subscription.
    *
-   * @param \AcquiaCloudApi\Connector\Client $client
-   * @param \AcquiaCloudApi\Response\SubscriptionResponse $subscription
-   * @return array|null
+   * @return array<mixed>|null
    */
   private function validateSubscriptionApplicationCount(Client $client, SubscriptionResponse $subscription): ?array {
     $subscriptionApplications = $this->getSubscriptionApplications($client, $subscription);
@@ -188,12 +190,10 @@ class EmailInfoForSubscriptionCommand extends CommandBase {
    * Renders a table of applications in a subscription and the email domains
    * associated or dissociated with each application.
    *
-   * @param \Symfony\Component\Console\Output\OutputInterface $output
-   * @param \AcquiaCloudApi\Connector\Client $client
    * @param $subscription
    * @param $subscriptionApplications
    */
-  private function renderApplicationAssociations(OutputInterface $output, Client $client, $subscription, $subscriptionApplications): void {
+  private function renderApplicationAssociations(OutputInterface $output, Client $client, \AcquiaCloudApi\Response\SubscriptionResponse $subscription, array $subscriptionApplications): void {
     $appsDomainsTable = $this->createApplicationDomainsTable($output);
     $writerAppsDomains = Writer::createFromPath("./subscription-$subscription->uuid-domains/apps-domain-associations.csv", 'w+');
 

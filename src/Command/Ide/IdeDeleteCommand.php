@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Acquia\Cli\Command\Ide;
 
 use Acquia\Cli\Helpers\SshCommandTrait;
@@ -12,6 +14,10 @@ class IdeDeleteCommand extends IdeCommandBase {
 
   use SshCommandTrait;
 
+  /**
+   * @var string
+   * @phpcsSuppress SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint
+   */
   protected static $defaultName = 'ide:delete';
 
   protected function configure(): void {

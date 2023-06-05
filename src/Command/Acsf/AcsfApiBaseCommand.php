@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Acquia\Cli\Command\Acsf;
 
 use Acquia\Cli\Command\Api\ApiBaseCommand;
@@ -7,6 +9,10 @@ use Acquia\Cli\Exception\AcquiaCliException;
 use Symfony\Component\Console\Input\InputInterface;
 
 class AcsfApiBaseCommand extends ApiBaseCommand {
+  /**
+   * @var string
+   * @phpcsSuppress SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint
+   */
   protected static $defaultName = 'acsf:base';
 
   protected function checkAuthentication(): void {
