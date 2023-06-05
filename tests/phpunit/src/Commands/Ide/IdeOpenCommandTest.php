@@ -17,21 +17,14 @@ class IdeOpenCommandTest extends CommandTestBase {
     return $this->injectCommand(IdeOpenCommand::class);
   }
 
-  public function setUp(mixed $output = NULL): void {
-    parent::setUp();
-    putenv('DISPLAY=1');
-  }
-
-  public function tearDown(): void {
-    parent::tearDown();
-    putenv('DISPLAY');
-  }
-
   public function testIdeOpenCommand(): void {
-
-    $this->mockRequest('getApplications');
-    $this->mockApplicationRequest();
-    $this->mockIdeListRequest();
+    $applications = $this->mockRequest('getApplications');
+    $this->mockRequest('getApplicationByUuid', $applications[0]->uuid);
+    $this->mockRequest('getApplicationIdes', $applications[0]->uuid);
+    $localMachineHelper = $this->mockLocalMachineHelper();
+    $localMachineHelper->isBrowserAvailable()->willReturn(TRUE);
+    $localMachineHelper->startBrowser('https://9a83c081-ef78-4dbd-8852-11cc3eb248f7.ides.acquia.com')->willReturn(TRUE);
+    $this->command->localMachineHelper = $localMachineHelper->reveal();
 
     $inputs = [
       // Would you like Acquia CLI to search for a Cloud application that matches your local git config?

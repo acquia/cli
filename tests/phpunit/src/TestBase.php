@@ -547,23 +547,6 @@ abstract class TestBase extends TestCase {
     return $response;
   }
 
-  public function mockApplicationCodeRequest(
-    object $applicationsResponse
-  ): object {
-    $response = $this->getApplicationCodeResponse();
-    $this->clientProphecy->request('get',
-      "/applications/{$applicationsResponse->{'_embedded'}->items[0]->uuid}/code")
-      ->willReturn($response->_embedded->items)
-      ->shouldBeCalled();
-
-    return $response;
-  }
-
-  protected function getApplicationCodeResponse(): object {
-    return $this->getMockResponseFromSpec('/applications/{applicationUuid}/code',
-      'get', 200);
-  }
-
   protected function getMockEnvironmentResponse(string $method = 'get', string $httpCode = '200'): object {
     return $this->getMockResponseFromSpec('/environments/{environmentId}',
       $method, $httpCode);
@@ -572,31 +555,6 @@ abstract class TestBase extends TestCase {
   protected function getMockEnvironmentsResponse(): object {
     return $this->getMockResponseFromSpec('/applications/{applicationUuid}/environments',
       'get', 200);
-  }
-
-  protected function mockIdeListRequest(): object {
-    $response = $this->getMockResponseFromSpec('/applications/{applicationUuid}/ides',
-      'get', '200');
-    $this->clientProphecy->request('get',
-      '/applications/a47ac10b-58cc-4372-a567-0e02b2c3d470/ides')
-      ->willReturn($response->{'_embedded'}->items)
-      ->shouldBeCalled();
-
-    return $response;
-  }
-
-  protected function mockGetIdeRequest(string $ideUuid): object {
-    $ideResponse = $this->getMockResponseFromSpec('/ides/{ideUuid}', 'get', '200');
-    $this->clientProphecy->request('get', '/ides/' . $ideUuid)->willReturn($ideResponse)->shouldBeCalled();
-    return $ideResponse;
-  }
-
-  protected function mockIdeDeleteRequest(string $ideUuid): object {
-    $ideDeleteResponse = $this->getMockResponseFromSpec('/ides/{ideUuid}', 'delete', '202');
-    $this->clientProphecy->request('delete', '/ides/' . $ideUuid)
-      ->willReturn($ideDeleteResponse->{'De-provisioning IDE'}->value)
-      ->shouldBeCalled();
-    return $ideDeleteResponse;
   }
 
   protected function mockLogStreamRequest(): object {

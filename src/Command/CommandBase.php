@@ -87,7 +87,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   protected string $localDbPassword = 'drupal';
   protected string $localDbName = 'drupal';
   protected string $localDbHost = 'localhost';
-
   protected bool $drushHasActiveDatabaseConnection;
   protected \GuzzleHttp\Client $updateClient;
 
@@ -111,6 +110,19 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     $this->setLocalDbName();
     $this->setLocalDbHost();
     parent::__construct();
+    if ($this->commandRequiresAuthentication()) {
+      $this->appendHelp('This command requires authentication via the Cloud Platform API.');
+    }
+    if ($this->commandRequiresDatabase()) {
+      $this->appendHelp('This command requires an active database connection. Set the following environment variables prior to running this command: '
+        . 'ACLI_DB_HOST, ACLI_DB_NAME, ACLI_DB_USER, ACLI_DB_PASSWORD');
+    }
+  }
+
+  public function appendHelp(string $helpText): void {
+    $currentHelp = $this->getHelp();
+    $helpText = $currentHelp ? $currentHelp . "\n" . $helpText : $currentHelp . $helpText;
+    $this->setHelp($helpText);
   }
 
   protected static function getUuidRegexConstraint(): Regex {
@@ -201,7 +213,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     $this->convertEnvironmentAliasToUuid($input, 'source');
 
     if ($latest = $this->checkForNewVersion()) {
-      $this->output->writeln("Acquia CLI {$latest} is available. Run <options=bold>acli self-update</> to update.");
+      $this->output->writeln("Acquia CLI $latest is available. Run <options=bold>acli self-update</> to update.");
     }
   }
 
@@ -296,6 +308,10 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   protected function commandRequiresAuthentication(): bool {
     // Assume commands require authentication unless they opt out by overriding this method.
     return TRUE;
+  }
+
+  protected function commandRequiresDatabase(): bool {
+    return FALSE;
   }
 
   /**

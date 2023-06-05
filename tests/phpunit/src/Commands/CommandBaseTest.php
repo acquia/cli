@@ -39,16 +39,8 @@ class CommandBaseTest extends CommandTestBase {
 
   public function testCloudAppFromLocalConfig(): void {
     $this->command = $this->injectCommand(IdeListCommand::class);
-    $this->mockApplicationRequest();
-    $this->mockIdeListRequest();
-    $inputs = [
-      // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
-      'n',
-      // Select the application.
-      0,
-      // Would you like to link the project at ... ?
-      'y',
-    ];
+    $application = $this->mockRequest('getApplicationByUuid', 'a47ac10b-58cc-4372-a567-0e02b2c3d470');
+    $this->mockRequest('getApplicationIdes', $application->uuid);
     $this->createMockAcliConfigFile('a47ac10b-58cc-4372-a567-0e02b2c3d470');
     $this->executeCommand();
     $this->prophet->checkPredictions();

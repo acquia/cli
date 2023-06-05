@@ -41,7 +41,7 @@ class IdeShareCommandTest extends CommandTestBase {
   }
 
   public function testIdeShareCommand(): void {
-    $ideGetResponse = $this->mockGetIdeRequest(IdeHelper::$remoteIdeUuid);
+    $ideGetResponse = $this->mockRequest('getIde', IdeHelper::$remoteIdeUuid);
     $ide = new IdeResponse((object) $ideGetResponse);
     $this->executeCommand();
 
@@ -53,7 +53,7 @@ class IdeShareCommandTest extends CommandTestBase {
   }
 
   public function testIdeShareRegenerateCommand(): void {
-    $ideGetResponse = $this->mockGetIdeRequest(IdeHelper::$remoteIdeUuid);
+    $ideGetResponse = $this->mockRequest('getIde', IdeHelper::$remoteIdeUuid);
     $ide = new IdeResponse((object) $ideGetResponse);
     $this->executeCommand(['--regenerate' => TRUE], []);
 

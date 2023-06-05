@@ -5,7 +5,6 @@ declare(strict_types = 1);
 namespace Acquia\Cli\Command\CodeStudio;
 
 use Acquia\Cli\Command\WizardCommandBase;
-use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Output\Checklist;
 use AcquiaCloudApi\Endpoints\Account;
 use Gitlab\Exception\ValidationFailedException;
@@ -225,22 +224,6 @@ class CodeStudioWizardCommand extends WizardCommandBase {
         $this->io->warning("Failed to upload project avatar");
       }
     }
-  }
-
-  /**
-   * Gets the default branch name for the deployment artifact.
-   */
-  protected function getCurrentBranchName(): string {
-    $process = $this->localMachineHelper->execute([
-      'git',
-      'rev-parse',
-      '--abbrev-ref',
-      'HEAD',
-    ], NULL, NULL, FALSE);
-    if (!$process->isSuccessful()) {
-      throw new AcquiaCliException("Could not determine current git branch");
-    }
-    return trim($process->getOutput());
   }
 
 }

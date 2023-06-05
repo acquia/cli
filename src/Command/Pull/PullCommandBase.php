@@ -767,7 +767,7 @@ abstract class PullCommandBase extends CommandBase {
     $databaseBackups = new DatabaseBackups($acquiaCloudClient);
     $backupsResponse = $databaseBackups->getAll($environment->uuid, $database->name);
     if (!count($backupsResponse)) {
-      $this->logger->warning('No existing backups found, creating an on-demand backup now. This will take some time depending on the size of the database.');
+      $this->io->warning('No existing backups found, creating an on-demand backup now. This will take some time depending on the size of the database.');
       $this->createBackup($environment, $database, $acquiaCloudClient);
       $backupsResponse = $databaseBackups->getAll($environment->uuid,
         $database->name);

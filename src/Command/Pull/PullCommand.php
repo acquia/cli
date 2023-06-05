@@ -4,7 +4,6 @@ declare(strict_types = 1);
 
 namespace Acquia\Cli\Command\Pull;
 
-use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -18,6 +17,10 @@ class PullCommand extends PullCommandBase {
    * @phpcsSuppress SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint
    */
   protected static $defaultName = 'pull:all';
+
+  protected function commandRequiresDatabase(): bool {
+    return TRUE;
+  }
 
   protected function configure(): void {
     $this->setAliases(['refresh', 'pull'])
@@ -33,8 +36,7 @@ class PullCommand extends PullCommandBase {
             NULL,
             InputOption::VALUE_NONE,
             'Do not run any additional scripts after code and database are copied. E.g., composer install , drush cache-rebuild, etc.'
-        )
-      ->setHidden(!AcquiaDrupalEnvironmentDetector::isAhIdeEnv() && !self::isLandoEnv());
+        );
   }
 
   protected function execute(InputInterface $input, OutputInterface $output): int {

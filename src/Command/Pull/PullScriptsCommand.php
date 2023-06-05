@@ -4,7 +4,6 @@ declare(strict_types = 1);
 
 namespace Acquia\Cli\Command\Pull;
 
-use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -21,8 +20,7 @@ class PullScriptsCommand extends PullCommandBase {
   protected function configure(): void {
     $this->setDescription('Execute post pull scripts')
       ->acceptEnvironmentId()
-      ->addOption('dir', NULL, InputArgument::OPTIONAL, 'The directory containing the Drupal project to be refreshed')
-      ->setHidden(!AcquiaDrupalEnvironmentDetector::isAhIdeEnv() && !self::isLandoEnv());
+      ->addOption('dir', NULL, InputArgument::OPTIONAL, 'The directory containing the Drupal project to be refreshed');
   }
 
   protected function commandRequiresAuthentication(): bool {

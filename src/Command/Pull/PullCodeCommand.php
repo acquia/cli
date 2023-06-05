@@ -4,7 +4,6 @@ declare(strict_types = 1);
 
 namespace Acquia\Cli\Command\Pull;
 
-use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -19,13 +18,16 @@ class PullCodeCommand extends PullCommandBase {
    */
   protected static $defaultName = 'pull:code';
 
+  protected function commandRequiresDatabase(): bool {
+    return TRUE;
+  }
+
   protected function configure(): void {
     $this->setDescription('Copy code from a Cloud Platform environment')
       ->acceptEnvironmentId()
       ->addOption('dir', NULL, InputArgument::OPTIONAL, 'The directory containing the Drupal project to be refreshed')
       ->addOption('no-scripts', NULL, InputOption::VALUE_NONE,
-        'Do not run any additional scripts after code is pulled. E.g., composer install , drush cache-rebuild, etc.')
-      ->setHidden(!AcquiaDrupalEnvironmentDetector::isAhIdeEnv() && !self::isLandoEnv());
+        'Do not run any additional scripts after code is pulled. E.g., composer install , drush cache-rebuild, etc.');
   }
 
   protected function execute(InputInterface $input, OutputInterface $output): int {

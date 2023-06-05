@@ -30,15 +30,17 @@ class ArchiveExportCommand extends CommandBase {
 
   private const PUBLIC_FILES_DIR = '/docroot/sites/default/files';
 
+  protected function commandRequiresDatabase(): bool {
+    return TRUE;
+  }
+
   protected function configure(): void {
     $this->setName('archive:export');
-    $this->setDescription('Generate an archive of the Drupal application')
+    $this->setDescription('Export an archive of the Drupal application including code, files, and database')
       ->addArgument('destination-dir', InputArgument::REQUIRED, 'The destination directory for the archive file')
       ->addOption('source-dir', 'dir', InputOption::VALUE_REQUIRED, 'The directory containing the Drupal project to be pushed')
       ->addOption('no-files', NULL, InputOption::VALUE_NONE, 'Exclude public files directory from archive')
-      ->addOption('no-database', 'no-db', InputOption::VALUE_NONE, 'Exclude database dump from archive')
-      ->setHidden(!AcquiaDrupalEnvironmentDetector::isAhIdeEnv())
-      ->setHelp('Export an archive of the current Drupal application, including code, files, and database');
+      ->addOption('no-database', 'no-db', InputOption::VALUE_NONE, 'Exclude database dump from archive');
   }
 
   protected function initialize(InputInterface $input, OutputInterface $output): void {

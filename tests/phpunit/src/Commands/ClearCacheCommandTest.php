@@ -37,7 +37,7 @@ class ClearCacheCommandTest extends CommandTestBase {
 
     $this->clientProphecy->addQuery('filter', 'hosting=@*:devcloud2')->shouldBeCalled();
     $this->mockApplicationRequest();
-    $this->mockIdeListRequest();
+    $this->mockRequest('getApplicationIdes', 'a47ac10b-58cc-4372-a567-0e02b2c3d470');
     $this->mockRequest('getAccount');
 
     $alias = 'devcloud2';
