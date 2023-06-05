@@ -6,7 +6,6 @@ namespace Acquia\Cli\Command\App;
 
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Exception\AcquiaCliException;
-use Acquia\Cli\Helpers\LocalMachineHelper;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -26,7 +25,7 @@ class AppOpenCommand extends CommandBase {
   }
 
   protected function execute(InputInterface $input, OutputInterface $output): int {
-    if (!LocalMachineHelper::isBrowserAvailable()) {
+    if (!$this->localMachineHelper->isBrowserAvailable()) {
       throw new AcquiaCliException('No browser is available on this machine');
     }
     $applicationUuid = $this->determineCloudApplication();

@@ -334,7 +334,7 @@ class LocalMachineHelper {
    * @return bool
    *   TRUE if a browser is available.
    */
-  public static function isBrowserAvailable(): bool {
+  public function isBrowserAvailable(): bool {
     if (AcquiaDrupalEnvironmentDetector::isAhIdeEnv()) {
       return FALSE;
     }
@@ -363,7 +363,7 @@ class LocalMachineHelper {
   public function startBrowser(mixed $uri = NULL, string $browser = NULL): bool {
     // We can only open a browser if we have a DISPLAY environment variable on
     // POSIX or are running Windows or OS X.
-    if (!self::isBrowserAvailable()) {
+    if (!$this->isBrowserAvailable()) {
       $this->logger->info('No graphical display appears to be available, not starting browser.');
       return FALSE;
     }
