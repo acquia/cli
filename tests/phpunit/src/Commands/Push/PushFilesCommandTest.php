@@ -94,6 +94,44 @@ class PushFilesCommandTest extends CommandTestBase {
     $this->assertStringContainsString('[0] Dev, dev (vcs: master)', $output);
   }
 
+  public function testPushFilesNoOverwrite(): void {
+    $applicationsResponse = $this->mockApplicationsRequest();
+    $this->mockApplicationRequest();
+    $environmentsResponse = $this->mockEnvironmentsRequest($applicationsResponse);
+    $selectedEnvironment = $environmentsResponse->_embedded->items[0];
+    $sshHelper = $this->mockSshHelper();
+    $this->mockGetCloudSites($sshHelper, $selectedEnvironment);
+    $localMachineHelper = $this->mockLocalMachineHelper();
+
+    $this->command->localMachineHelper = $localMachineHelper->reveal();
+    $this->command->sshHelper = $sshHelper->reveal();
+
+    $inputs = [
+      // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
+      'n',
+      // Select a Cloud Platform application:
+      0,
+      // Would you like to link the project at ... ?
+      'n',
+      // Choose a Cloud Platform environment
+      0,
+      // Choose a site
+      0,
+      // Overwrite the public files directory
+      'n',
+    ];
+
+    $this->executeCommand([], $inputs);
+    $this->prophet->checkPredictions();
+    $output = $this->getDisplay();
+
+    $this->assertStringContainsString('Select a Cloud Platform application:', $output);
+    $this->assertStringContainsString('[0] Sample application 1', $output);
+    $this->assertStringContainsString('Choose a Cloud Platform environment', $output);
+    $this->assertStringContainsString('[0] Dev, dev (vcs: master)', $output);
+    $this->assertStringNotContainsString('Pushing public files', $output);
+  }
+
   protected function mockExecuteCloudRsync(
     ObjectProphecy $localMachineHelper,
     ObjectProphecy $process,
