@@ -21,7 +21,8 @@ class KernelTest extends ApplicationTestBase {
   }
 
   private function getStart(): string {
-    return "Console Tool
+    return <<<EOD
+Console Tool
 
 Usage:
   command [options] [arguments]
@@ -45,13 +46,17 @@ Available commands:
  app
   app:link                 [link] Associate your project with a Cloud Platform application
   app:log:tail             [tail|log:tail] Tail the logs from your environments
-  app:new:local            [new] Create a new Drupal or Next.js project";
+  app:new:local            [new] Create a new Drupal or Next.js project
+EOD;
   }
 
   private function getEnd(): string {
-    return "app:task-wait            Wait for a task to complete
+    return <<<EOD
+  app:task-wait            Wait for a task to complete
   app:unlink               [unlink] Remove local association between your project and a Cloud Platform application
   app:vcs:info             Get all branches and tags of the application with the deployment status
+ archive
+  archive:export           Export an archive of the Drupal application including code, files, and database
  auth
   auth:acsf-login          Register your Site Factory API key and secret to use API functionality
   auth:acsf-logout         Remove your Site Factory key and secret from your local machine.
@@ -76,8 +81,16 @@ Available commands:
   ide:list:app             [ide:list] List available Cloud IDEs belonging to a given application
   ide:list:mine            List Cloud IDEs belonging to you
   ide:open                 Open a Cloud IDE in your browser
+ pull
+  pull:all                 [refresh|pull] Copy code, database, and files from a Cloud Platform environment
+  pull:code                Copy code from a Cloud Platform environment
+  pull:database            [pull:db] Import database backup from a Cloud Platform environment
+  pull:files               Copy files from a Cloud Platform environment
+  pull:run-scripts         Execute post pull scripts
  push
   push:artifact            Build and push a code artifact to a Cloud Platform environment
+  push:database            [push:db] Push a database from your local environment to a Cloud Platform environment
+  push:files               Push Drupal files from your local environment to a Cloud Platform environment
  remote
   remote:aliases:download  Download Drush aliases for the Cloud Platform
   remote:aliases:list      [aliases|sa] List all aliases for the Cloud Platform environments
@@ -96,7 +109,8 @@ Available commands:
   ssh-key:info             Print information about an SSH key
   ssh-key:list             List your local and remote SSH keys
   ssh-key:upload           Upload a local SSH key to the Cloud Platform
-";
+
+EOD;
   }
 
 }
