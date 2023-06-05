@@ -10,7 +10,6 @@
         convertNoticesToExceptions="true"
         convertWarningsToExceptions="true"
         convertDeprecationsToExceptions="true"
-        bootstrap="tests/phpunit/bootstrap.php"
 >
   <php>
     <env name="AMPLITUDE_KEY" value=""/>
