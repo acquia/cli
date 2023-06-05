@@ -18,6 +18,7 @@ class AppOpenCommandTest extends CommandTestBase {
   }
 
   public function testAppOpenCommand(): void {
+    putenv('DISPLAY=1');
     $applicationUuid = 'a47ac10b-58cc-4372-a567-0e02b2c3d470';
     $localMachineHelper = $this->mockLocalMachineHelper();
     $localMachineHelper->startBrowser('https://cloud.acquia.com/a/applications/' . $applicationUuid)->shouldBeCalled();
@@ -29,6 +30,7 @@ class AppOpenCommandTest extends CommandTestBase {
     // Assert.
     $this->prophet->checkPredictions();
     $this->getDisplay();
+    putenv('DISPLAY');
   }
 
 }
