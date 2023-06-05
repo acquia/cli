@@ -32,14 +32,11 @@ class IdeDeleteCommandTest extends CommandTestBase {
   }
 
   public function testIdeDeleteCommand(): void {
-
-    $this->mockRequest('getApplications');
-    $this->mockApplicationRequest();
-    $this->mockIdeListRequest();
-
-    $ideUuid = '9a83c081-ef78-4dbd-8852-11cc3eb248f7';
-    $ideDeleteResponse = $this->mockIdeDeleteRequest($ideUuid);
-    $ideGetResponse = $this->mockGetIdeRequest($ideUuid);
+    $applications = $this->mockRequest('getApplications');
+    $this->mockRequest('getApplicationByUuid', $applications[0]->uuid);
+    $ides = $this->mockRequest('getApplicationIdes', $applications[0]->uuid);
+    $this->mockRequest('deleteIde', $ides[0]->uuid, NULL, 'De-provisioning IDE');
+    $ideGetResponse = $this->mockRequest('getIde', $ides[0]->uuid);
     $ide = new IdeResponse((object) $ideGetResponse);
     $sshKeyGetResponse = $this->mockListSshKeysRequestWithIdeKey($ide);
 
@@ -63,7 +60,7 @@ class IdeDeleteCommandTest extends CommandTestBase {
     // Assert.
     $this->prophet->checkPredictions();
     $output = $this->getDisplay();
-    $this->assertStringContainsString($ideDeleteResponse->{'De-provisioning IDE'}->value->message, $output);
+    $this->assertStringContainsString('The Cloud IDE is being deleted.', $output);
   }
 
 }

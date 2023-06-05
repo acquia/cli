@@ -22,13 +22,13 @@ class AppVcsInfoTest extends CommandTestBase {
    * Test when no environment available for the app.
    */
   public function testNoEnvAvailableCommand(): void {
-    $applicationsResponse = $this->mockApplicationsRequest();
-    $this->mockApplicationRequest();
+    $applications = $this->mockRequest('getApplications');
+    $application = $this->mockRequest('getApplicationByUuid', $applications[self::$INPUT_DEFAULT_CHOICE]->uuid);
     $this->clientProphecy->request('get',
-      "/applications/{$applicationsResponse->{'_embedded'}->items[0]->uuid}/environments")
+      "/applications/{$application->uuid}/environments")
       ->willReturn([])
       ->shouldBeCalled();
-    $this->mockApplicationCodeRequest($applicationsResponse);
+    $this->mockRequest('getCodeByApplicationUuid', $application->uuid);
 
     $this->expectException(AcquiaCliException::class);
     $this->expectExceptionMessage('There are no environments available with this application.');
@@ -66,10 +66,10 @@ class AppVcsInfoTest extends CommandTestBase {
    * Test the list of the VCS details of the application.
    */
   public function testShowVcsListCommand(): void {
-    $applicationsResponse = $this->mockApplicationsRequest();
-    $this->mockApplicationRequest();
-    $this->mockEnvironmentsRequest($applicationsResponse);
-    $this->mockApplicationCodeRequest($applicationsResponse);
+    $applications = $this->mockRequest('getApplications');
+    $application = $this->mockRequest('getApplicationByUuid', $applications[self::$INPUT_DEFAULT_CHOICE]->uuid);
+    $this->mockRequest('getApplicationEnvironments', $application->uuid);
+    $this->mockRequest('getCodeByApplicationUuid', $application->uuid);
 
     $this->executeCommand(
       [
@@ -110,7 +110,7 @@ EOD;
       "/applications/{$applicationsResponse->{'_embedded'}->items[0]->uuid}/environments")
       ->willReturn($response->_embedded->items)
       ->shouldBeCalled();
-    $this->mockApplicationCodeRequest($applicationsResponse);
+    $this->mockRequest('getCodeByApplicationUuid', $applicationsResponse->{'_embedded'}->items[0]->uuid);
 
     $this->expectException(AcquiaCliException::class);
     $this->expectExceptionMessage('No branch or tag is deployed on any of the environment of this application.');
@@ -126,10 +126,10 @@ EOD;
    * Test the list of the only deployed VCS.
    */
   public function testListOnlyDeployedVcs(): void {
-    $applicationsResponse = $this->mockApplicationsRequest();
-    $this->mockApplicationRequest();
-    $this->mockEnvironmentsRequest($applicationsResponse);
-    $this->mockApplicationCodeRequest($applicationsResponse);
+    $applications = $this->mockRequest('getApplications');
+    $application = $this->mockRequest('getApplicationByUuid', $applications[self::$INPUT_DEFAULT_CHOICE]->uuid);
+    $this->mockRequest('getApplicationEnvironments', $application->uuid);
+    $this->mockRequest('getCodeByApplicationUuid', $application->uuid);
 
     $this->executeCommand(
       [
