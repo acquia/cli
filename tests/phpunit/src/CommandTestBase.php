@@ -308,20 +308,30 @@ abstract class CommandTestBase extends TestBase {
 
   protected function mockDatabaseBackupsResponse(
     object $environmentsResponse,
-    mixed $dbName,
-    mixed $backupId
+    string $dbName,
+    int $backupId,
+    bool $existingBackups = TRUE
   ): object {
     $databaseBackupsResponse = $this->getMockResponseFromSpec('/environments/{environmentId}/databases/{databaseName}/backups', 'get', 200);
     foreach ($databaseBackupsResponse->_embedded->items as $backup) {
-      $backup->_links->download->href = "/environments/{$environmentsResponse->id}/databases/{$dbName}/backups/{$backupId}/actions/download";
+      $backup->_links->download->href = "/environments/$environmentsResponse->id/databases/$dbName/backups/$backupId/actions/download";
       $backup->database->name = $dbName;
       // Acquia PHP SDK mutates the property name. Gross workaround, is there a better way?
       $backup->completedAt = $backup->completed_at;
     }
-    $this->clientProphecy->request('get',
-      "/environments/{$environmentsResponse->id}/databases/{$dbName}/backups")
-      ->willReturn($databaseBackupsResponse->_embedded->items)
-      ->shouldBeCalled();
+
+    if ($existingBackups) {
+      $this->clientProphecy->request('get',
+        "/environments/{$environmentsResponse->id}/databases/$dbName/backups")
+        ->willReturn($databaseBackupsResponse->_embedded->items)
+        ->shouldBeCalled();
+    }
+    else {
+      $this->clientProphecy->request('get',
+        "/environments/{$environmentsResponse->id}/databases/$dbName/backups")
+        ->willReturn([], $databaseBackupsResponse->_embedded->items)
+        ->shouldBeCalled();
+    }
 
     return $databaseBackupsResponse;
   }

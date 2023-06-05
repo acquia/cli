@@ -111,6 +111,25 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     $this->assertStringContainsString('jxr5000596dev (oracletest1.dev-profserv2.acsitefactory.com)', $output);
   }
 
+  public function testPullDatabasesNoExistingBackup(): void {
+    $this->setupPullDatabase(TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, FALSE, 0, FALSE);
+    $inputs = $this->getInputs();
+
+    $this->executeCommand([
+      '--no-scripts' => TRUE,
+    ], $inputs);
+    $this->prophet->checkPredictions();
+    $output = $this->getDisplay();
+
+    $this->assertStringContainsString('Select a Cloud Platform application', $output);
+    $this->assertStringContainsString('[0] Sample application 1', $output);
+    $this->assertStringContainsString('Choose a Cloud Platform environment', $output);
+    $this->assertStringContainsString('[0] Dev, dev (vcs: master)', $output);
+    $this->assertStringContainsString('Choose a site [jxr5000596dev (oracletest1.dev-profserv2.acsitefactory.com)]:', $output);
+    $this->assertStringContainsString('jxr5000596dev (oracletest1.dev-profserv2.acsitefactory.com)', $output);
+    $this->assertStringContainsString('No existing backups found, creating an on-demand backup now.', $output);
+  }
+
   public function testPullDatabasesSiteArgument(): void {
     $this->setupPullDatabase(TRUE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE);
     $inputs = $this->getInputs();
@@ -168,7 +187,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     $this->assertStringContainsString('Trying alternative host other.example.com', $output);
   }
 
-  protected function setupPullDatabase(mixed $mysqlConnectSuccessful, mixed $mysqlDropSuccessful, mixed $mysqlCreateSuccessful, mixed $mysqlImportSuccessful, mixed $mockIdeFs = FALSE, mixed $onDemand = FALSE, mixed $mockGetAcsfSites = TRUE, mixed $multidb = FALSE, int $curlCode = 0): void {
+  protected function setupPullDatabase(bool $mysqlConnectSuccessful, bool $mysqlDropSuccessful, bool $mysqlCreateSuccessful, bool $mysqlImportSuccessful, bool $mockIdeFs = FALSE, bool $onDemand = FALSE, bool $mockGetAcsfSites = TRUE, bool $multidb = FALSE, int $curlCode = 0, bool $existingBackups = TRUE): void {
     $applicationsResponse = $this->mockApplicationsRequest();
     $this->mockApplicationRequest();
     $environmentsResponse = $this->mockAcsfEnvironmentsRequest($applicationsResponse);
@@ -177,11 +196,13 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
 
     $databasesResponse = $this->mockAcsfDatabasesResponse($selectedEnvironment);
     $databaseResponse = $databasesResponse[array_search('jxr5000596dev', array_column($databasesResponse, 'name'), TRUE)];
-    $selectedDatabase = $this->mockDownloadBackup($databaseResponse, $selectedEnvironment, $curlCode);
+    $databaseBackupsResponse = $this->mockDatabaseBackupsResponse($selectedEnvironment, $databaseResponse->name, 1, $existingBackups);
+    $selectedDatabase = $this->mockDownloadBackup($databaseResponse, $selectedEnvironment, $databaseBackupsResponse->_embedded->items[0], $curlCode);
 
     if ($multidb) {
       $databaseResponse2 = $databasesResponse[array_search('profserv2', array_column($databasesResponse, 'name'), TRUE)];
-      $this->mockDownloadBackup($databaseResponse2, $selectedEnvironment, $curlCode);
+      $databaseBackupsResponse2 = $this->mockDatabaseBackupsResponse($selectedEnvironment, $databaseResponse2->name, 1, $existingBackups);
+      $this->mockDownloadBackup($databaseResponse2, $selectedEnvironment, $databaseBackupsResponse2->_embedded->items[0], $curlCode);
     }
 
     $sshHelper = $this->mockSshHelper();
@@ -329,9 +350,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     $this->assertStringContainsString('100/100 [============================] 100%', $output->fetch());
   }
 
-  protected function mockDownloadBackup(DatabaseResponse $selectedDatabase, object $selectedEnvironment, int $curlCode = 0): DatabaseResponse {
-    $databaseBackupsResponse = $this->mockDatabaseBackupsResponse($selectedEnvironment, $selectedDatabase->name, 1);
-    $selectedBackup = $databaseBackupsResponse->_embedded->items[0];
+  protected function mockDownloadBackup(DatabaseResponse $selectedDatabase, object $selectedEnvironment, object $selectedBackup, int $curlCode = 0): DatabaseResponse {
     if ($curlCode) {
       $this->prophet->prophesize(StreamInterface::class);
       /** @var RequestException|ObjectProphecy $requestException */
