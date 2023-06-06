@@ -3,11 +3,4 @@ updates:
   - package-ecosystem: "composer"
     directory: "/"
     schedule:
-      interval: "weekly"
-    groups:
-      dependencies:
-        patterns:
-          - "*"
-    ignore:
-      - dependency-name: "acquia/coding-standards"
-        update-types: ["version-update:semver-major"]
+      interval: "daily"
