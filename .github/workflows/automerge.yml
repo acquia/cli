@@ -24,7 +24,7 @@ jobs:
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
         sourceRunId: ${{ github.event.workflow_run.id }}
-    - run: 'gh pr merge --squash https://github.com/$GITHUB_REPOSITORY/pull/$GITHUB_PR'
+    - run: 'gh pr merge --auto --squash https://github.com/$GITHUB_REPOSITORY/pull/$GITHUB_PR'
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         GITHUB_PR: ${{ steps.source-run-info.outputs.pullRequestNumber }}
