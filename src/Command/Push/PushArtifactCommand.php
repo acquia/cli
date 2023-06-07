@@ -79,6 +79,10 @@ class PushArtifactCommand extends PullCommandBase {
     $destinationGitRef = $this->determineDestinationGitRef();
     $sourceGitBranch = $this->determineSourceGitRef();
 
+    if ($destinationGitRef === $sourceGitBranch) {
+      throw new AcquiaCliException('Source and destination Git branches must be different');
+    }
+
     $destinationGitUrlsString = implode(',', $destinationGitUrls);
     $refType = $this->input->getOption('destination-git-tag') ? 'tag' : 'branch';
     $this->io->note([
