@@ -450,19 +450,18 @@ class ApiCommandTest extends CommandTestBase {
   public function testOrganizationMemberDeleteByUserEmail(): void {
     $membersResponse = $this->getMockResponseFromSpec('/organizations/{organizationUuid}/members', 'get', 200);
     $orgId = 'bfafd31a-83a6-4257-b0ec-afdeff83117a';
-    $memberUuid = $membersResponse->_embedded->items[0]->mail;
+    $memberMail = $membersResponse->_embedded->items[0]->mail;
+    $memberUuid = $membersResponse->_embedded->items[0]->uuid;
     $this->clientProphecy->request('get', '/organizations/' . $orgId . '/members')
       ->willReturn($membersResponse->_embedded->items)->shouldBeCalled();
 
-    $response = $this->getMockResponseFromSpec('/organizations/{organizationUuid}/members/{userUuid}', 'delete', 200);
-    $this->clientProphecy->request('delete', '/organizations/' . $orgId . '/members/' . $membersResponse->_embedded->items[0]->uuid)
-      ->willReturn($response->{'Member removed'}->value)->shouldBeCalled();
+    $this->mockRequest('postOrganizationMemberDelete', [$orgId, $memberUuid], NULL, 'Member removed');
 
     $this->command = $this->getApiCommandByName('api:organizations:member-delete');
     $this->executeCommand(
       [
         'organizationUuid' => $orgId,
-        'userUuid' => $memberUuid,
+        'userUuid' => $memberMail,
       ],
     );
 
@@ -470,6 +469,47 @@ class ApiCommandTest extends CommandTestBase {
     $output = $this->getDisplay();
     $this->assertEquals(0, $this->getStatusCode());
     $this->assertStringContainsString("Organization member removed", $output);
+  }
+
+  public function testOrganizationMemberDeleteInvalidEmail(): void {
+    $membersResponse = $this->getMockResponseFromSpec('/organizations/{organizationUuid}/members', 'get', 200);
+    $orgId = 'bfafd31a-83a6-4257-b0ec-afdeff83117a';
+    $memberUuid = $membersResponse->_embedded->items[0]->mail . 'INVALID';
+    $this->clientProphecy->request('get', '/organizations/' . $orgId . '/members')
+      ->willReturn($membersResponse->_embedded->items)->shouldBeCalled();
+
+    $this->mockRequest('postOrganizationMemberDelete', [$orgId, $memberUuid], NULL, 'Member removed');
+
+    $this->command = $this->getApiCommandByName('api:organizations:member-delete');
+    $this->expectException(AcquiaCliException::class);
+    $this->expectExceptionMessage('No matching user found in this organization');
+    $this->executeCommand(
+      [
+        'organizationUuid' => $orgId,
+        'userUuid' => $memberUuid,
+      ],
+    );
+  }
+
+  /**
+   * Test of deletion of the user from organization by user email.
+   */
+  public function testOrganizationMemberDeleteNoMembers(): void {
+    $membersResponse = $this->getMockResponseFromSpec('/organizations/{organizationUuid}/members', 'get', 200);
+    $orgId = 'bfafd31a-83a6-4257-b0ec-afdeff83117a';
+    $memberUuid = $membersResponse->_embedded->items[0]->mail;
+    $this->clientProphecy->request('get', '/organizations/' . $orgId . '/members')
+      ->willReturn([])->shouldBeCalled();
+
+    $this->command = $this->getApiCommandByName('api:organizations:member-delete');
+    $this->expectException(AcquiaCliException::class);
+    $this->expectExceptionMessage('Organization has no members');
+    $this->executeCommand(
+      [
+        'organizationUuid' => $orgId,
+        'userUuid' => $memberUuid,
+      ],
+    );
   }
 
 }
