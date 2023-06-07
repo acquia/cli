@@ -15,7 +15,7 @@ abstract class PullCommandTestBase extends CommandTestBase {
 
   use IdeRequiredTestTrait;
 
-  public function setUp(mixed $output = NULL): void {
+  public function setUp(): void {
     parent::setUp();
   }
 

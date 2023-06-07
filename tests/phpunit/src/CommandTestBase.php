@@ -62,7 +62,7 @@ abstract class CommandTestBase extends TestBase {
   /**
    * This method is called before each test.
    */
-  protected function setUp(OutputInterface $output = NULL): void {
+  protected function setUp(): void {
     parent::setUp();
     if (!isset($this->command)) {
       $this->command = $this->createCommand();

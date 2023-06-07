@@ -32,8 +32,8 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
   private int $gitLabProjectId = 33;
   private int $gitLabTokenId = 118;
 
-  public function setUp(mixed $output = NULL): void {
-    parent::setUp($output);
+  public function setUp(): void {
+    parent::setUp();
     $this->mockApplicationRequest();
     TestBase::setEnvVars(['GITLAB_HOST' => 'code.cloudservices.acquia.io']);
   }

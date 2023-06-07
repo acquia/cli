@@ -608,6 +608,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
 
     $applicationUuid = $this->determineCloudApplication();
     $acquiaCloudClient = $this->cloudApiClientService->getClient();
+    /** @var EnvironmentResponse $environment */
     $environment = $this->promptChooseEnvironment($acquiaCloudClient, $applicationUuid);
 
     return $environment->uuid;
@@ -701,9 +702,12 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
       return $cloudApplication->uuid;
     }
 
-    // Finally, just ask.
-    if ($this->input->isInteractive() && $application = $this->promptChooseApplication($acquiaCloudClient)) {
-      return $application->uuid;
+    if ($this->input->isInteractive()) {
+      /** @var ApplicationResponse $application */
+      $application = $this->promptChooseApplication($acquiaCloudClient);
+      if ($application) {
+        return $application->uuid;
+      }
     }
 
     return NULL;

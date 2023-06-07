@@ -9,12 +9,11 @@ use Acquia\Cli\AcsfApi\AcsfConnectorFactory;
 use Acquia\Cli\AcsfApi\AcsfCredentials;
 use Acquia\Cli\Application;
 use Acquia\Cli\Tests\TestBase;
-use Symfony\Component\Console\Output\OutputInterface;
 
 class AcsfServiceTest extends TestBase {
 
-  protected function setUp(OutputInterface $output = NULL): void {
-    parent::setUp($output);
+  protected function setUp(): void {
+    parent::setUp();
     $this->cloudCredentials = new AcsfCredentials($this->datastoreCloud);
 
   }

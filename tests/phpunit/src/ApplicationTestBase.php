@@ -20,8 +20,8 @@ class ApplicationTestBase extends TestBase {
    */
   protected Kernel $kernel;
 
-  public function setUp(mixed $output = NULL): void {
-    parent::setUp($output);
+  public function setUp(): void {
+    parent::setUp();
     $this->kernel = new Kernel('dev', FALSE);
     $this->kernel->boot();
     $this->kernel->getContainer()->set(CloudDataStore::class, $this->datastoreCloud);

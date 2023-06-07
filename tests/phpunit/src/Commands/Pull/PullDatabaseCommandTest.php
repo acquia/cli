@@ -29,7 +29,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
   protected string $dbName = 'drupal';
 
   /**
-   * @return \int[][]
+   * @return int[][]
    */
   public function providerTestPullDatabaseWithInvalidSslCertificate(): array {
     return [[51], [60]];

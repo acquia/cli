@@ -39,15 +39,15 @@ class CommandBaseTest extends CommandTestBase {
 
   public function testCloudAppFromLocalConfig(): void {
     $this->command = $this->injectCommand(IdeListCommand::class);
-    $application = $this->mockRequest('getApplicationByUuid', 'a47ac10b-58cc-4372-a567-0e02b2c3d470');
-    $this->mockRequest('getApplicationIdes', $application->uuid);
+    $this->mockRequest('getApplicationByUuid', 'a47ac10b-58cc-4372-a567-0e02b2c3d470');
+    $this->mockRequest('getApplicationIdes', 'a47ac10b-58cc-4372-a567-0e02b2c3d470');
     $this->createMockAcliConfigFile('a47ac10b-58cc-4372-a567-0e02b2c3d470');
     $this->executeCommand();
     $this->prophet->checkPredictions();
   }
 
   /**
-   * @return array<mixed>
+   * @return string[][]
    */
   public function providerTestCloudAppUuidArg(): array {
     return [

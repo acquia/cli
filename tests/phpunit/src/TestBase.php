@@ -162,12 +162,10 @@ abstract class TestBase extends TestCase {
 
   /**
    * This method is called before each test.
-   *
-   * @param \Symfony\Component\Console\Output\OutputInterface|null $output
    */
-  protected function setUp(OutputInterface $output = NULL): void {
+  protected function setUp(): void {
     putenv('COLUMNS=85');
-    $this->output = $output ?: new BufferedOutput();
+    $this->output = new BufferedOutput();
     $this->input = new ArrayInput([]);
 
     $this->application = new Application();

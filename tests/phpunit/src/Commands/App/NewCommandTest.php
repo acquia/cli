@@ -18,8 +18,8 @@ class NewCommandTest extends CommandTestBase {
 
   protected string $newProjectDir;
 
-  public function setUp(mixed $output = NULL): void {
-    parent::setUp($output);
+  public function setUp(): void {
+    parent::setUp();
     $this->setupFsFixture();
   }
 

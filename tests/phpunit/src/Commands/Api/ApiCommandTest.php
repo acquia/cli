@@ -19,8 +19,8 @@ use Symfony\Component\Yaml\Yaml;
  */
 class ApiCommandTest extends CommandTestBase {
 
-  public function setUp(mixed $output = NULL): void {
-    parent::setUp($output);
+  public function setUp(): void {
+    parent::setUp();
     $this->clientProphecy->addOption('headers', ['Accept' => 'application/json']);
     putenv('ACQUIA_CLI_USE_CLOUD_API_SPEC_CACHE=1');
   }

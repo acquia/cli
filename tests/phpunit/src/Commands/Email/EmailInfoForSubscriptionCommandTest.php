@@ -18,8 +18,8 @@ class EmailInfoForSubscriptionCommandTest extends CommandTestBase {
     return $this->injectCommand(EmailInfoForSubscriptionCommand::class);
   }
 
-  public function setUp(mixed $output = NULL): void {
-    parent::setUp($output);
+  public function setUp(): void {
+    parent::setUp();
     $this->setupFsFixture();
     $this->command = $this->createCommand();
   }

@@ -71,7 +71,6 @@ class SshKeyCreateCommandTest extends CommandTestBase {
     $this->fs->remove($sshKeyFilepath);
     $localMachineHelper = $this->mockLocalMachineHelper();
     $localMachineHelper->getLocalFilepath('~/.passphrase')->willReturn('~/.passphrase');
-    /** @var Filesystem|ObjectProphecy $fileSystem */
     $fileSystem = $this->prophet->prophesize(Filesystem::class);
     $this->mockAddSshKeyToAgent($localMachineHelper, $fileSystem);
     $this->mockSshAgentList($localMachineHelper, $sshAddSuccess);

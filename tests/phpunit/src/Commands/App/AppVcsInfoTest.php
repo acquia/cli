@@ -23,9 +23,10 @@ class AppVcsInfoTest extends CommandTestBase {
    */
   public function testNoEnvAvailableCommand(): void {
     $applications = $this->mockRequest('getApplications');
+    /** @var \AcquiaCloudApi\Response\ApplicationResponse $application */
     $application = $this->mockRequest('getApplicationByUuid', $applications[self::$INPUT_DEFAULT_CHOICE]->uuid);
     $this->clientProphecy->request('get',
-      "/applications/{$application->uuid}/environments")
+      "/applications/$application->uuid/environments")
       ->willReturn([])
       ->shouldBeCalled();
     $this->mockRequest('getCodeByApplicationUuid', $application->uuid);
@@ -67,6 +68,7 @@ class AppVcsInfoTest extends CommandTestBase {
    */
   public function testShowVcsListCommand(): void {
     $applications = $this->mockRequest('getApplications');
+    /** @var \AcquiaCloudApi\Response\ApplicationResponse $application */
     $application = $this->mockRequest('getApplicationByUuid', $applications[self::$INPUT_DEFAULT_CHOICE]->uuid);
     $this->mockRequest('getApplicationEnvironments', $application->uuid);
     $this->mockRequest('getCodeByApplicationUuid', $application->uuid);
@@ -127,6 +129,7 @@ EOD;
    */
   public function testListOnlyDeployedVcs(): void {
     $applications = $this->mockRequest('getApplications');
+    /** @var \AcquiaCloudApi\Response\ApplicationResponse $application */
     $application = $this->mockRequest('getApplicationByUuid', $applications[self::$INPUT_DEFAULT_CHOICE]->uuid);
     $this->mockRequest('getApplicationEnvironments', $application->uuid);
     $this->mockRequest('getCodeByApplicationUuid', $application->uuid);

@@ -10,13 +10,16 @@ use Acquia\Cli\Command\Self\ListCommand;
 use Acquia\Cli\Tests\CommandTestBase;
 use Symfony\Component\Console\Command\Command;
 
+/**
+ * @property AcsfListCommandBase $command
+ */
 class AcsfListCommandTest extends CommandTestBase {
 
   protected string $apiSpecFixtureFilePath = __DIR__ . '/../../../../../assets/acsf-spec.yaml';
   protected string $apiCommandPrefix = 'acsf';
 
-  public function setUp(mixed $output = NULL): void {
-    parent::setUp($output);
+  public function setUp(): void {
+    parent::setUp();
     $this->application->addCommands($this->getApiCommands());
   }
 

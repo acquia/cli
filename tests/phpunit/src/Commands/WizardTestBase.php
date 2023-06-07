@@ -11,7 +11,6 @@ use Acquia\Cli\Tests\CommandTestBase;
 use Acquia\Cli\Tests\TestBase;
 use Prophecy\Argument;
 use Psr\Http\Message\ResponseInterface;
-use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Path;
 
@@ -24,7 +23,7 @@ abstract class WizardTestBase extends CommandTestBase {
   /**
    * This method is called before each test.
    */
-  public function setUp(OutputInterface $output = NULL): void {
+  public function setUp(): void {
     TestBase::setEnvVars(self::getEnvVars());
     parent::setUp();
     $this->getCommandTester();
@@ -131,7 +130,6 @@ abstract class WizardTestBase extends CommandTestBase {
     $sshHelper = $this->mockPollCloudViaSsh($environmentsResponse);
     $this->command->sshHelper = $sshHelper->reveal();
 
-    /** @var Filesystem|ObjectProphecy $fileSystem */
     $fileSystem = $this->prophet->prophesize(Filesystem::class);
     $this->mockGenerateSshKey($localMachineHelper, $mockRequestArgs['public_key']);
     $fileSystem->remove(Argument::size(2))->shouldBeCalled();

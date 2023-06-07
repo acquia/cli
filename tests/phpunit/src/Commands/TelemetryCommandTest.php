@@ -18,8 +18,8 @@ class TelemetryCommandTest extends CommandTestBase {
 
   protected string $legacyAcliConfigFilepath;
 
-  public function setUp(mixed $output = NULL): void {
-    parent::setUp($output);
+  public function setUp(): void {
+    parent::setUp();
     $this->legacyAcliConfigFilepath = Path::join($this->dataDir, 'acquia-cli.json');
     $this->fs->remove($this->legacyAcliConfigFilepath);
   }

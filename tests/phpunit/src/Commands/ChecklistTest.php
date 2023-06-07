@@ -13,13 +13,13 @@ class ChecklistTest extends TestBase {
 
   protected OutputInterface $output;
 
-  public function setUp(OutputInterface $output = NULL): void {
+  public function setUp(): void {
     // Unfortunately this prints to screen. Not sure how else to
     // get the spinner and checklist to work. They require the $output->section()
     // method which is only available for ConsoleOutput. Could make a custom testing
     // output class with the method.
+    parent::setUp();
     $this->output = new ConsoleOutput();
-    parent::setUp($this->output);
   }
 
   public function testSpinner(): void {

@@ -89,7 +89,8 @@ class EnvCreateCommand extends CommandBase {
       }
       return $branch;
     }
-    return $this->promptChooseFromObjectsOrArrays($branchesAndTags, 'name', 'name', "Choose a branch or tag to deploy to the new environment")->name;
+    $branchOrTag = $this->promptChooseFromObjectsOrArrays($branchesAndTags, 'name', 'name', "Choose a branch or tag to deploy to the new environment");
+    return $branchOrTag->name;
   }
 
   /**
