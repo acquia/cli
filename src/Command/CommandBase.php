@@ -5,7 +5,7 @@ declare(strict_types = 1);
 namespace Acquia\Cli\Command;
 
 use Acquia\Cli\ApiCredentialsInterface;
-use Acquia\Cli\ClientServiceInterface;
+use Acquia\Cli\CloudApi\ClientService;
 use Acquia\Cli\Command\Ssh\SshKeyCommandBase;
 use Acquia\Cli\DataStore\AcquiaCliDatastore;
 use Acquia\Cli\DataStore\CloudDataStore;
@@ -97,7 +97,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     protected ApiCredentialsInterface $cloudCredentials,
     protected TelemetryHelper $telemetryHelper,
     protected string $projectDir,
-    protected ClientServiceInterface $cloudApiClientService,
+    protected ClientService $cloudApiClientService,
     protected LogstreamManager $logstreamManager,
     public SshHelper $sshHelper,
     protected string $sshDir,
@@ -1030,9 +1030,9 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   }
 
   /**
-   * @param String $userAlias
+   * @param string $userUuidArgument
    *   User alias like uuid or email.
-   * @param String $orgUuidArgument
+   * @param string $orgUuidArgument
    *   Organization uuid.
    * @return string
    *   User uuid from alias

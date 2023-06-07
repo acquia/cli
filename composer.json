@@ -58,6 +58,7 @@
         "dealerdirect/phpcodesniffer-composer-installer": "^1.0.0",
         "dominikb/composer-license-checker": "^2.4",
         "infection/infection": "^0.26.15",
+        "jangregor/phpstan-prophecy": "^1.0",
         "mikey179/vfsstream": "^1.6",
         "overtrue/phplint": "^9.0",
         "phpro/grumphp": "^1.13.0",

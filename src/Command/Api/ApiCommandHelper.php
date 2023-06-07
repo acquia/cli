@@ -4,7 +4,6 @@ declare(strict_types = 1);
 
 namespace Acquia\Cli\Command\Api;
 
-use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\CommandFactoryInterface;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Symfony\Component\Cache\Adapter\NullAdapter;
@@ -64,7 +63,7 @@ class ApiCommandHelper {
    * @param array $schema
    * @param array $acquiaCloudSpec
    */
-  private function addApiCommandParameters(array $schema, array $acquiaCloudSpec, CommandBase $command): void {
+  private function addApiCommandParameters(array $schema, array $acquiaCloudSpec, ApiBaseCommand $command): void {
     $inputDefinition = [];
     $usage = '';
 

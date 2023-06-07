@@ -68,7 +68,6 @@ abstract class WizardTestBase extends CommandTestBase {
     $sshHelper = $this->mockPollCloudViaSsh($environmentsResponse);
     $this->command->sshHelper = $sshHelper->reveal();
 
-    /** @var Filesystem|ObjectProphecy $fileSystem */
     $fileSystem = $this->prophet->prophesize(Filesystem::class);
     $this->mockGenerateSshKey($localMachineHelper, $request['public_key']);
     $localMachineHelper->getLocalFilepath($this->passphraseFilepath)->willReturn($this->passphraseFilepath);

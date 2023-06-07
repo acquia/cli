@@ -6,7 +6,6 @@ namespace Acquia\Cli\CloudApi;
 
 use Acquia\Cli\ApiCredentialsInterface;
 use Acquia\Cli\Application;
-use Acquia\Cli\ClientServiceInterface;
 use Acquia\Cli\ConnectorFactoryInterface;
 use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Connector\ConnectorInterface;
@@ -18,7 +17,7 @@ use AcquiaCloudApi\Connector\ConnectorInterface;
  * client queries. Consumers could otherwise just call
  * Client::factory($connector) directly.
  */
-class ClientService implements ClientServiceInterface {
+class ClientService {
 
   protected ConnectorInterface $connector;
   protected ConnectorFactoryInterface|ConnectorFactory $connectorFactory;
