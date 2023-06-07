@@ -1064,7 +1064,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
 
     // If there are no members.
     if (count($orgMembers) === 0) {
-      return $userAlias;
+      throw new AcquiaCliException('Organization has no members');
     }
 
     foreach ($orgMembers as $member) {
@@ -1074,7 +1074,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
       }
     }
 
-    return $userAlias;
+    throw new AcquiaCliException('No matching user found in this organization');
   }
 
   protected function convertApplicationAliasToUuid(InputInterface $input): void {
