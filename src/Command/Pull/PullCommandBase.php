@@ -109,6 +109,7 @@ abstract class PullCommandBase extends CommandBase {
    * @param bool $noImport Skip import.
    */
   protected function pullDatabase(InputInterface $input, OutputInterface $output, bool $onDemand = FALSE, bool $noImport = FALSE, bool $multipleDbs = FALSE): void {
+    $this->setDirAndRequireProjectCwd($input);
     if (!$noImport) {
       // Verify database connection.
       $this->connectToLocalDatabase($this->getLocalDbHost(), $this->getLocalDbUser(), $this->getLocalDbName(), $this->getLocalDbPassword(), $this->getOutputCallback($output, $this->checklist));
