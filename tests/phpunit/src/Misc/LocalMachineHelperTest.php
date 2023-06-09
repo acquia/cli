@@ -5,6 +5,7 @@ declare(strict_types = 1);
 namespace Acquia\Cli\Tests\Misc;
 
 use Acquia\Cli\Tests\TestBase;
+use Symfony\Component\Console\Output\BufferedOutput;
 
 class LocalMachineHelperTest extends TestBase {
 
@@ -17,7 +18,7 @@ class LocalMachineHelperTest extends TestBase {
   }
 
   /**
-   * @return array<mixed>
+   * @return bool[][]
    */
   public function providerTestExecuteFromCmd(): array {
     return [
@@ -29,16 +30,14 @@ class LocalMachineHelperTest extends TestBase {
 
   /**
    * @dataProvider providerTestExecuteFromCmd()
-   * @param $interactive
-   * @param $isTty
-   * @param $printOutput
    */
-  public function testExecuteFromCmd(mixed $interactive, mixed $isTty, mixed $printOutput): void {
+  public function testExecuteFromCmd(bool $interactive, bool|NULL $isTty, bool|NULL $printOutput): void {
     $localMachineHelper = $this->localMachineHelper;
     $localMachineHelper->setIsTty($isTty);
     $this->input->setInteractive($interactive);
     $process = $localMachineHelper->executeFromCmd('echo "hello world"', NULL, NULL, $printOutput);
     $this->assertTrue($process->isSuccessful());
+    assert(is_a($this->output, BufferedOutput::class));
     $buffer = $this->output->fetch();
     if ($printOutput === FALSE) {
       $this->assertEmpty($buffer);

@@ -75,9 +75,15 @@ abstract class WizardTestBase extends CommandTestBase {
     $this->mockSshAgentList($localMachineHelper);
     $localMachineHelper->getFilesystem()->willReturn($fileSystem->reveal())->shouldBeCalled();
     $this->command->localMachineHelper = $localMachineHelper->reveal();
-    $this->application->find(SshKeyCreateCommand::getDefaultName())->localMachineHelper = $this->command->localMachineHelper;
-    $this->application->find(SshKeyUploadCommand::getDefaultName())->localMachineHelper = $this->command->localMachineHelper;
-    $this->application->find(SshKeyDeleteCommand::getDefaultName())->localMachineHelper = $this->command->localMachineHelper;
+    /** @var SshKeyCreateCommand $sshKeyCreateCommand */
+    $sshKeyCreateCommand = $this->application->find(SshKeyCreateCommand::getDefaultName());
+    $sshKeyCreateCommand->localMachineHelper = $this->command->localMachineHelper;
+    /** @var SshKeyUploadCommand $sshKeyUploadCommand */
+    $sshKeyUploadCommand = $this->application->find(SshKeyUploadCommand::getDefaultName());
+    $sshKeyUploadCommand->localMachineHelper = $this->command->localMachineHelper;
+    /** @var SshKeyDeleteCommand $sshKeyDeleteCommand */
+    $sshKeyDeleteCommand = $this->application->find(SshKeyDeleteCommand::getDefaultName());
+    $sshKeyDeleteCommand->localMachineHelper = $this->command->localMachineHelper;
 
     // Remove SSH key if it exists.
     $this->fs->remove(Path::join(sys_get_temp_dir(), $this->sshKeyFileName));

@@ -52,8 +52,13 @@ class SshKeyCreateUploadCommandTest extends CommandTestBase {
 
     $localMachineHelper->getFilesystem()->willReturn($fileSystem->reveal())->shouldBeCalled();
     $this->command->localMachineHelper = $localMachineHelper->reveal();
-    $this->application->find(SshKeyCreateCommand::getDefaultName())->localMachineHelper = $this->command->localMachineHelper;
-    $this->application->find(SshKeyUploadCommand::getDefaultName())->localMachineHelper = $this->command->localMachineHelper;
+
+    /** @var SshKeyCreateCommand $sshKeyCreateCommand */
+    $sshKeyCreateCommand = $this->application->find(SshKeyCreateCommand::getDefaultName());
+    $sshKeyCreateCommand->localMachineHelper = $this->command->localMachineHelper;
+    /** @var SshKeyUploadCommand $sshKeyUploadCommand */
+    $sshKeyUploadCommand = $this->application->find(SshKeyUploadCommand::getDefaultName());
+    $sshKeyUploadCommand->localMachineHelper = $this->command->localMachineHelper;
 
     $inputs = [
       // Enter a filename for your new local SSH key:
