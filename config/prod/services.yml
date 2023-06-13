@@ -31,6 +31,7 @@ services:
       - ../../src/DataStore/YamlStore.php
       - ../../src/DataStore/JsonDataStore.php
       - ../../src/CloudApi/AccessTokenConnector.php
+      - ../../src/Command/App/From/**
     public: true
     resource: ../../src
 
@@ -53,6 +54,7 @@ services:
       - ../../src/Command/Api/ApiBaseCommand.php
       - ../../src/Command/Api/ApiListCommand.php
       - ../../src/Command/Api/ApiListCommandBase.php
+      - ../../src/Command/App/From/**
   Acquia\Cli\Command\CommandBase:
     abstract: true
 
