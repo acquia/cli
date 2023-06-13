@@ -2,10 +2,7 @@
 
 declare(strict_types=1);
 
-namespace AcquiaMigrate\SourceSite;
-
-use AcquiaMigrate\ExtensionInterface;
-use AcquiaMigrate\SiteInspectorInterface;
+namespace Acquia\Cli\Command\App\From\SourceSite;
 
 /**
  * Class SiteInspectorBase.
@@ -33,7 +30,7 @@ abstract class SiteInspectorBase implements SiteInspectorInterface {
   /**
    * Returns a list of extensions discovered on the inspected site.
    *
-   * @return \AcquiaMigrate\ExtensionInterface[]
+   * @return \Acquia\Cli\Command\App\From\SourceSite\ExtensionInterface[]
    *   An array of extensions discovered on the inspected source site.
    */
   abstract protected function readExtensions(): array;

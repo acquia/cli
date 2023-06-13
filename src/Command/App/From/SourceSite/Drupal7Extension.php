@@ -2,9 +2,7 @@
 
 declare(strict_types=1);
 
-namespace AcquiaMigrate\SourceSite;
-
-use AcquiaMigrate\ExtensionInterface;
+namespace Acquia\Cli\Command\App\From\SourceSite;
 
 /**
  * Represents a Drupal 7 extension.
@@ -76,7 +74,7 @@ final class Drupal7Extension implements ExtensionInterface {
    * @param object $extension
    *   An extension object as returned by drush_get_extensions().
    *
-   * @return \AcquiaMigrate\SourceSite\Drupal7Extension
+   * @return \Acquia\Cli\Command\App\From\SourceSite\Drupal7Extension
    *   A new extension.
    */
   public static function createFromStdClass(object $extension) : Drupal7Extension {

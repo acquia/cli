@@ -2,9 +2,7 @@
 
 declare(strict_types=1);
 
-namespace AcquiaMigrate\SourceSite;
-
-use AcquiaMigrate\JsonResourceParserTrait;
+namespace Acquia\Cli\Command\App\From\SourceSite;
 
 /**
  * Class SerializedExtensionsInspector.
@@ -18,14 +16,14 @@ class SerializedExtensionsInspector extends SiteInspectorBase {
   /**
    * A resource containing exported extension information.
    *
-   * @var \AcquiaMigrate\SourceSite\Drupal7Extension[]
+   * @var \Acquia\Cli\Command\App\From\SourceSite\Drupal7Extension[]
    */
   protected $extensions;
 
   /**
    * SerializedExtensionsInspector constructor.
    *
-   * @param \AcquiaMigrate\SourceSite\Drupal7Extension[] $extensions
+   * @param \Acquia\Cli\Command\App\From\SourceSite\Drupal7Extension[] $extensions
    *   An array of extensions.
    */
   protected function __construct(array $extensions) {
@@ -76,7 +74,7 @@ class SerializedExtensionsInspector extends SiteInspectorBase {
    * @param $extensions_resource
    *   A serialized extensions resource from which to parse extensions.
    *
-   * @return \AcquiaMigrate\SourceSite\Drupal7Extension[]
+   * @return \Acquia\Cli\Command\App\From\SourceSite\Drupal7Extension[]
    *   An array of extensions.
    *
    * @throws \JsonException

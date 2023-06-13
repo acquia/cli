@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace AcquiaMigrate\SourceSite;
+namespace Acquia\Cli\Command\App\From\SourceSite;
 
 /**
  * Inspects a Drupal 7 site.

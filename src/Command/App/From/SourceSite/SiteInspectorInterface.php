@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace AcquiaMigrate;
+namespace Acquia\Cli\Command\App\From\SourceSite;
 
 /**
  * Interface for a class which can inspect a Drupal 7 site.
@@ -11,25 +11,25 @@ interface SiteInspectorInterface {
   /**
    * Flag adding disabled extensions.
    *
-   * @see \AcquiaMigrate\SiteInspectorInterface::getExtensions()
+   * @see \Acquia\Cli\Command\App\From\SourceSite\SiteInspectorInterface::getExtensions()
    */
   public const FLAG_EXTENSION_DISABLED = 1 << 1;
   /**
    * Flag adding themes.
    *
-   * @see \AcquiaMigrate\SiteInspectorInterface::getExtensions()
+   * @see \Acquia\Cli\Command\App\From\SourceSite\SiteInspectorInterface::getExtensions()
    */
   public const FLAG_EXTENSION_THEME = 1 << 3;
   /**
    * Flag adding modules.
    *
-   * @see \AcquiaMigrate\SiteInspectorInterface::getExtensions()
+   * @see \Acquia\Cli\Command\App\From\SourceSite\SiteInspectorInterface::getExtensions()
    */
   public const FLAG_EXTENSION_MODULE = 1 << 2;
   /**
    * Flag adding enabled extensions.
    *
-   * @see \AcquiaMigrate\SiteInspectorInterface::getExtensions()
+   * @see \Acquia\Cli\Command\App\From\SourceSite\SiteInspectorInterface::getExtensions()
    */
   public const FLAG_EXTENSION_ENABLED = 1 << 0;
 
@@ -48,7 +48,7 @@ interface SiteInspectorInterface {
    *   $inspector->getExtensions(Drupal7SiteInspector::FLAG_EXTENSION_ENABLED|Drupal7SiteInspector::FLAG_EXTENSION_MODULE);
    * @endcode
    *
-   * @return \AcquiaMigrate\ExtensionInterface[]
+   * @return \Acquia\Cli\Command\App\From\SourceSite\ExtensionInterface[]
    *   An array of identified extensions, filtered to contain only those
    *   included by the given flags.
    */
