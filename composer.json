@@ -22,7 +22,6 @@
         "dflydev/dot-access-data": "^3",
         "grasmash/expander": "^3",
         "guzzlehttp/guzzle": "^7.4",
-        "guzzlehttp/promises": "2.0.0",
         "http-interop/http-factory-guzzle": "^1.0",
         "kevinrob/guzzle-cache-middleware": "^4",
         "laminas/laminas-validator": "^2.20.0",
