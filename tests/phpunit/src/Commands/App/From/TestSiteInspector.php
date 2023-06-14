@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace AcquiaMigrate\Tests;
+namespace Acquia\Cli\Tests\Commands\App\From;
 
-use AcquiaMigrate\SourceSite\SiteInspectorBase;
+use Acquia\Cli\Command\App\From\SourceSite\SiteInspectorBase;
 
 /**
  * Mock site inspector.
@@ -13,7 +13,7 @@ use AcquiaMigrate\SourceSite\SiteInspectorBase;
 final class TestSiteInspector extends SiteInspectorBase {
 
   /**
-   * @var \AcquiaMigrate\ExtensionInterface[]
+   * @var \Acquia\Cli\Command\App\From\SourceSite\ExtensionInterface[]
    */
   protected $extensions;
 
@@ -30,7 +30,7 @@ final class TestSiteInspector extends SiteInspectorBase {
   /**
    * TestSiteInspector constructor.
    *
-   * @param \AcquiaMigrate\ExtensionInterface[] $extensions
+   * @param \Acquia\Cli\Command\App\From\SourceSite\ExtensionInterface[] $extensions
    *   An array of extensions.
    */
   public function __construct(array $extensions = [], $file_public_path = 'sites/default/files', $file_private_path = NULL) {

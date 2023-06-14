@@ -1,13 +1,13 @@
 <?php declare(strict_types=1);
 
-namespace AcquiaMigrate\Tests;
+namespace Acquia\Cli\Tests\Commands\App\From;
 
-use AcquiaMigrate\ExtensionInterface;
-use AcquiaMigrate\Recommendation\AbandonmentRecommendation;
-use AcquiaMigrate\Recommendation\NoRecommendation;
-use AcquiaMigrate\Recommendation\DefinedRecommendation;
-use AcquiaMigrate\Recommendation\UniversalRecommendation;
-use AcquiaMigrate\RecommendationInterface;
+use Acquia\Cli\Command\App\From\Recommendation\AbandonmentRecommendation;
+use Acquia\Cli\Command\App\From\Recommendation\DefinedRecommendation;
+use Acquia\Cli\Command\App\From\Recommendation\NoRecommendation;
+use Acquia\Cli\Command\App\From\Recommendation\RecommendationInterface;
+use Acquia\Cli\Command\App\From\Recommendation\UniversalRecommendation;
+use Acquia\Cli\Command\App\From\SourceSite\ExtensionInterface;
 use PHPUnit\Framework\TestCase;
 use Prophecy\PhpUnit\ProphecyTrait;
 
@@ -17,7 +17,7 @@ class DefinedRecommendationTest extends TestCase {
 
   /**
    * @param $configuration
-   * @param \AcquiaMigrate\RecommendationInterface $expected
+   * @param \Acquia\Cli\Command\App\From\Recommendation\RecommendationInterface $expected
    * @dataProvider getTestConfigurations
    */
   public function test($configuration, RecommendationInterface $expected) {

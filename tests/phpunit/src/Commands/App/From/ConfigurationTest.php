@@ -1,8 +1,8 @@
 <?php
 
-namespace AcquiaMigrate\Tests;
+namespace Acquia\Cli\Tests\Commands\App\From;
 
-use AcquiaMigrate\Configuration;
+use Acquia\Cli\Command\App\From\Configuration;
 use DomainException;
 use Exception;
 use JsonException;

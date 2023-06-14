@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace AcquiaMigrate\Tests;
+namespace Acquia\Cli\Tests\Commands\App\From;
 
-use AcquiaMigrate\ExtensionInterface;
-use AcquiaMigrate\RecommendationInterface;
+use Acquia\Cli\Command\App\From\Recommendation\RecommendationInterface;
+use Acquia\Cli\Command\App\From\SourceSite\ExtensionInterface;
 
 /**
  * Mock recommendation object.

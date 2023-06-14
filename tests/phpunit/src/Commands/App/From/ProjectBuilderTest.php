@@ -1,11 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace AcquiaMigrate\Tests;
+namespace Acquia\Cli\Tests\Commands\App\From;
 
-use AcquiaMigrate\Composer\ProjectBuilder;
-use AcquiaMigrate\Configuration;
-use AcquiaMigrate\Recommendation\Recommendations;
-use AcquiaMigrate\Recommendation\Resolver;
+use Acquia\Cli\Command\App\From\Composer\ProjectBuilder;
+use Acquia\Cli\Command\App\From\Configuration;
+use Acquia\Cli\Command\App\From\Recommendation\Recommendations;
+use Acquia\Cli\Command\App\From\Recommendation\Resolver;
 use PHPUnit\Framework\TestCase;
 
 final class ProjectBuilderTest extends TestCase {

@@ -1,10 +1,10 @@
 <?php
 
-namespace AcquiaMigrate\Tests;
+namespace Acquia\Cli\Tests\Commands\App\From;
 
-use AcquiaMigrate\ExtensionInterface;
-use AcquiaMigrate\Recommendation\Recommendations;
-use AcquiaMigrate\RecommendationInterface;
+use Acquia\Cli\Command\App\From\Recommendation\RecommendationInterface;
+use Acquia\Cli\Command\App\From\Recommendation\Recommendations;
+use Acquia\Cli\Command\App\From\SourceSite\ExtensionInterface;
 use PHPUnit\Framework\TestCase;
 use Prophecy\PhpUnit\ProphecyTrait;
 
@@ -19,7 +19,7 @@ class RecommendationsTest extends TestCase {
   /**
    * @param string $configuration
    *   A JSON string from which to create a configuration object.
-   * @param \AcquiaMigrate\RecommendationInterface|\JsonException $expectation
+   * @param \Acquia\Cli\Command\App\From\Recommendation\RecommendationInterface|\JsonException $expectation
    *   An expected recommendation or a JSON exception in the case that the given
    *   $configuration is malformed.
    *
