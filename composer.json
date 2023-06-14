@@ -63,6 +63,7 @@
         "overtrue/phplint": "^9.0",
         "phpro/grumphp": "^1.13.0",
         "phpspec/prophecy": "^1.10",
+        "phpspec/prophecy-phpunit": "^2.0",
         "phpstan/extension-installer": "^1.1",
         "phpstan/phpstan": "^1.0",
         "phpstan/phpstan-deprecation-rules": "^1.0",
