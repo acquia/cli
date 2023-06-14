@@ -1124,16 +1124,16 @@
         },
         {
             "name": "kevinrob/guzzle-cache-middleware",
-            "version": "v4.1.1",
+            "version": "v4.1.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Kevinrob/guzzle-cache-middleware.git",
-                "reference": "0e12dccf3c811a18bb2f6c93882c5b5727e1b859"
+                "reference": "2546d1035e844da378b03e1fb42d3d1cf53187e2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Kevinrob/guzzle-cache-middleware/zipball/0e12dccf3c811a18bb2f6c93882c5b5727e1b859",
-                "reference": "0e12dccf3c811a18bb2f6c93882c5b5727e1b859",
+                "url": "https://api.github.com/repos/Kevinrob/guzzle-cache-middleware/zipball/2546d1035e844da378b03e1fb42d3d1cf53187e2",
+                "reference": "2546d1035e844da378b03e1fb42d3d1cf53187e2",
                 "shasum": ""
             },
             "require": {
@@ -1203,9 +1203,9 @@
             ],
             "support": {
                 "issues": "https://github.com/Kevinrob/guzzle-cache-middleware/issues",
-                "source": "https://github.com/Kevinrob/guzzle-cache-middleware/tree/v4.1.1"
+                "source": "https://github.com/Kevinrob/guzzle-cache-middleware/tree/v4.1.2"
             },
-            "time": "2023-05-31T07:04:24+00:00"
+            "time": "2023-06-14T11:19:21+00:00"
         },
         {
             "name": "laminas/laminas-servicemanager",
