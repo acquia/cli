@@ -2,7 +2,9 @@
 
 declare(strict_types=1);
 
-namespace AcquiaMigrate;
+namespace Acquia\Cli\Command\App\From\Recommendation;
+
+use Acquia\Cli\Command\App\From\SourceSite\ExtensionInterface;
 
 /**
  * Interface for package recommendations.
@@ -12,7 +14,7 @@ interface RecommendationInterface {
   /**
    * Whether this recommendation applies to the given extension.
    *
-   * @param \AcquiaMigrate\ExtensionInterface $extension
+   * @param \Acquia\Cli\Command\App\From\SourceSite\ExtensionInterface $extension
    *   The extension to evaluate.
    *
    * @return bool

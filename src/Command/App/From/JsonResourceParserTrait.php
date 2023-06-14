@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Acquia\Cli\Command\App\From\SourceSite;
+namespace Acquia\Cli\Command\App\From;
 
 /**
  * Trait for parsing JSON from a PHP resource.

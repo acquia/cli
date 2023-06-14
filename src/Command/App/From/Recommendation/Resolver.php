@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace AcquiaMigrate\Recommendation;
+namespace Acquia\Cli\Command\App\From\Recommendation;
 
-use AcquiaMigrate\ExtensionInterface;
-use AcquiaMigrate\SiteInspectorInterface;
+use Acquia\Cli\Command\App\From\SourceSite\ExtensionInterface;
+use Acquia\Cli\Command\App\From\SourceSite\SiteInspectorInterface;
 
 /**
  * Resolves Drupal 7 extension information into a Drupal 9+ recommendation.
@@ -15,32 +15,32 @@ final class Resolver {
   /**
    * A Drupal 7 site inspector.
    *
-   * @var \AcquiaMigrate\SiteInspectorInterface
+   * @var \Acquia\Cli\Command\App\From\SourceSite\SiteInspectorInterface
    *
-   * @see \AcquiaMigrate\SourceSite\Drupal7SiteInspector
+   * @see \Acquia\Cli\Command\App\From\SourceSite\Drupal7SiteInspector
    */
   protected $inspector;
 
   /**
    * A list of defined recommendations that apply no matter the context.
    *
-   * @var \AcquiaMigrate\Recommendation\Recommendations
+   * @var \Acquia\Cli\Command\App\From\Recommendation\Recommendations
    */
   protected $universalRecommendations;
 
   /**
    * A list of defined recommendations that depend on context.
    *
-   * @var \AcquiaMigrate\Recommendation\Recommendations
+   * @var\Acquia\Cli\Command\App\From\Recommendation\Recommendations
    */
   protected $conditionalRecommendations;
 
   /**
    * Resolver constructor.
    *
-   * @param \AcquiaMigrate\SiteInspectorInterface $inspector
+   * @param \Acquia\Cli\Command\App\From\SourceSite\SiteInspectorInterface $inspector
    *   A site inspector.
-   * @param \AcquiaMigrate\Recommendation\Recommendations $recommendations
+   * @param \Acquia\Cli\Command\App\From\Recommendation\Recommendations $recommendations
    *   A set of defined recommendations. These are *all possible*
    *   recommendations. It is the resolves job to narrow these down by using the
    *   site inspector to retrieve information about the source site.
@@ -62,7 +62,7 @@ final class Resolver {
   /**
    * Gets a recommendation for the given extension.
    *
-   * @return \AcquiaMigrate\Recommendation\Recommendations
+   * @return \Acquia\Cli\Command\App\From\Recommendation\Recommendations
    *   A resolved suite of recommendations.
    */
   public function getRecommendations() : Recommendations {
@@ -81,11 +81,11 @@ final class Resolver {
   /**
    * Gets a recommendation for the given extension.
    *
-   * @param \AcquiaMigrate\ExtensionInterface $extension
+   * @param \Acquia\Cli\Command\App\From\SourceSite\ExtensionInterface $extension
    *   A Drupal 7 extension for which a package recommendation should be
    *   resolved.
    *
-   * @return \AcquiaMigrate\Recommendation\Recommendations
+   * @return \Acquia\Cli\Command\App\From\Recommendation\Recommendations
    *   A resolved recommendation.
    */
   protected function getRecommendationsForExtension(ExtensionInterface $extension) : Recommendations {

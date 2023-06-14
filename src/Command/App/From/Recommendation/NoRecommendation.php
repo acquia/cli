@@ -2,10 +2,9 @@
 
 declare(strict_types=1);
 
-namespace AcquiaMigrate\Recommendation;
+namespace Acquia\Cli\Command\App\From\Recommendation;
 
-use AcquiaMigrate\ExtensionInterface;
-use AcquiaMigrate\RecommendationInterface;
+use Acquia\Cli\Command\App\From\SourceSite\ExtensionInterface;
 use LogicException;
 
 /**

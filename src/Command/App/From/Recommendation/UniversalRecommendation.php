@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace AcquiaMigrate\Recommendation;
+namespace Acquia\Cli\Command\App\From\Recommendation;
 
 use Closure;
 use LogicException;

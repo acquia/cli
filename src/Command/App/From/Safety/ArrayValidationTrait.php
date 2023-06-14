@@ -1,8 +1,8 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
-namespace AcquiaMigrate\Safety;
+namespace Acquia\Cli\Command\App\From\Safety;
 
 use Closure;
 use DomainException;
@@ -19,8 +19,7 @@ trait ArrayValidationTrait {
    *   The schema definition for the array to be validated.
    * @param array $defaults
    *   Defaults for the array to be validated.
-   *
-   * @return \AcquiaMigrate\Safety\StructuredArrayValidator
+   * @return \Acquia\Cli\Command\App\From\Safety\StructuredArrayValidator
    *   An array validator.
    */
   protected static function schema(array $schema, array $defaults = []) : StructuredArrayValidator {
@@ -38,8 +37,7 @@ trait ArrayValidationTrait {
    *   be omitted from the final validated array.
    * @param array $defaults
    *   Defaults for the array to be validated.
-   *
-   * @return \AcquiaMigrate\Safety\StructuredArrayValidator
+   * @return \Acquia\Cli\Command\App\From\Safety\StructuredArrayValidator
    *   An array validator.
    */
   protected static function conditionalSchema(array $schema, callable $conditional, array $defaults = []) : StructuredArrayValidator {

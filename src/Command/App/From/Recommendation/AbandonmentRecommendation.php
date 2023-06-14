@@ -2,12 +2,10 @@
 
 declare(strict_types=1);
 
-namespace AcquiaMigrate\Recommendation;
+namespace Acquia\Cli\Command\App\From\Recommendation;
 
-use AcquiaMigrate\ExtensionInterface;
-use AcquiaMigrate\NormalizableInterface;
-use AcquiaMigrate\RecommendationInterface;
-use AcquiaMigrate\Safety\ArrayValidationTrait;
+use Acquia\Cli\Command\App\From\SourceSite\ExtensionInterface;
+use Acquia\Cli\Command\App\From\Safety\ArrayValidationTrait;
 use Closure;
 use Exception;
 use LogicException;
@@ -36,7 +34,7 @@ class AbandonmentRecommendation implements RecommendationInterface, Normalizable
   /**
    * An array of extensions to which this recommendation applied.
    *
-   * @var \AcquiaMigrate\ExtensionInterface[]
+   * @var \Acquia\Cli\Command\App\From\SourceSite\ExtensionInterface[]
    */
   protected $appliedTo = [];
 
@@ -62,7 +60,7 @@ class AbandonmentRecommendation implements RecommendationInterface, Normalizable
    *   value types are accepted because this method performs validation on the
    *   given value.
    *
-   * @return \AcquiaMigrate\RecommendationInterface
+   * @return \Acquia\Cli\Command\App\From\Recommendation\RecommendationInterface
    *   A new AbandonmentRecommendation object if the given definition is valid or
    *   a new NoRecommendation object otherwise.
    */

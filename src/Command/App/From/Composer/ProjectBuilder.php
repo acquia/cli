@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace AcquiaMigrate\Composer;
+namespace Acquia\Cli\Command\App\From\Composer;
 
-use AcquiaMigrate\Configuration;
-use AcquiaMigrate\ExtensionInterface;
-use AcquiaMigrate\NormalizableInterface;
-use AcquiaMigrate\Recommendation\AbandonmentRecommendation;
-use AcquiaMigrate\Recommendation\Resolver;
-use AcquiaMigrate\RecommendationInterface;
-use AcquiaMigrate\SiteInspectorInterface;
+use Acquia\Cli\Command\App\From\Configuration;
+use Acquia\Cli\Command\App\From\Recommendation\AbandonmentRecommendation;
+use Acquia\Cli\Command\App\From\Recommendation\NormalizableInterface;
+use Acquia\Cli\Command\App\From\Recommendation\RecommendationInterface;
+use Acquia\Cli\Command\App\From\Recommendation\Resolver;
+use Acquia\Cli\Command\App\From\SourceSite\ExtensionInterface;
+use Acquia\Cli\Command\App\From\SourceSite\SiteInspectorInterface;
 
 /**
  * Builds a new Drupal 9 project definition.
@@ -20,32 +20,32 @@ final class ProjectBuilder {
   /**
    * The current configuration.
    *
-   * @var \AcquiaMigrate\Configuration
+   * @var \Acquia\Cli\Command\App\From\Configuration
    */
   protected $configuration;
 
   /**
    * The recommendation resolver.
    *
-   * @var \AcquiaMigrate\Recommendation\Resolver
+   * @var \Acquia\Cli\Command\App\From\Recommendation\Resolver
    */
   protected $resolver;
 
   /**
    * The site inspector.
    *
-   * @var \AcquiaMigrate\SiteInspectorInterface
+   * @var \Acquia\Cli\Command\App\From\SourceSite\SiteInspectorInterface
    */
   protected $siteInspector;
 
   /**
    * ProjectBuilder constructor.
    *
-   * @param \AcquiaMigrate\Configuration $configuration
+   * @param \Acquia\Cli\Command\App\From\Configuration $configuration
    *   A configuration object.
-   * @param \AcquiaMigrate\Recommendation\Resolver $recommendation_resolver
+   * @param \Acquia\Cli\Command\App\From\Recommendation\Resolver $recommendation_resolver
    *   A recommendation resolver.
-   * @param \AcquiaMigrate\SiteInspectorInterface $site_inspector
+   * @param \Acquia\Cli\Command\App\From\SourceSite\SiteInspectorInterface $site_inspector
    *   A site inspector.
    */
   public function __construct(Configuration $configuration, Resolver $recommendation_resolver, SiteInspectorInterface $site_inspector) {

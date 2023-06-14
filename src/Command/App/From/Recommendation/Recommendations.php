@@ -2,10 +2,9 @@
 
 declare(strict_types=1);
 
-namespace AcquiaMigrate\Recommendation;
+namespace Acquia\Cli\Command\App\From\Recommendation;
 
-use AcquiaMigrate\JsonResourceParserTrait;
-use AcquiaMigrate\RecommendationInterface;
+use Acquia\Cli\Command\App\From\JsonResourceParserTrait;
 use ArrayIterator;
 use Exception;
 
@@ -22,7 +21,7 @@ final class Recommendations extends ArrayIterator {
    * @param resource $recommendations_resource
    *   Configuration to be parse; given as a PHP resource.
    *
-   * @return \AcquiaMigrate\Recommendation\Recommendations
+   * @return \Acquia\Cli\Command\App\From\Recommendation\Recommendations
    *   A defined set of *all possible* recommendations. These are not limited
    *   to any particular site.
    */

@@ -1,10 +1,10 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
-namespace AcquiaMigrate;
+namespace Acquia\Cli\Command\App\From;
 
-use AcquiaMigrate\Safety\ArrayValidationTrait;
+use Acquia\Cli\Command\App\From\Safety\ArrayValidationTrait;
 
 /**
  * Represents contextual and environmental information.
@@ -40,8 +40,7 @@ final class Configuration {
    *
    * @param resource $configuration_resource
    *   Configuration to be parse; given as a PHP resource.
-   *
-   * @return \AcquiaMigrate\Configuration
+   * @return \Acquia\Cli\Command\App\From\Configuration
    *   A new configuration object.
    *
    * @throws \JsonException
