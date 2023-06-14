@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace Acquia\Cli\Command\App\From;
 
@@ -14,14 +14,10 @@ trait JsonResourceParserTrait {
    *
    * @param resource $resource
    *   The resource from which to read and decode JSON.
-   *
    * @return mixed
    *   The decoded JSON, usually an array.
-   *
-   * @throws \JsonException
-   *   Thrown if the given resource contains malformed JSON.
    */
-  protected static function parseJsonResource($resource) {
+  protected static function parseJsonResource($resource): mixed {
     assert(is_resource($resource));
     $json = stream_get_contents($resource);
     return json_decode($json, TRUE, 512, JSON_OBJECT_AS_ARRAY | JSON_THROW_ON_ERROR);

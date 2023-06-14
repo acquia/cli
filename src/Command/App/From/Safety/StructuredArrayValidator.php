@@ -21,16 +21,16 @@ final class StructuredArrayValidator {
   /**
    * A schema definition for the array to be validated.
    *
-   * @var array
+   * @var array<mixed>
    */
-  protected $schema;
+  protected array $schema;
 
   /**
    * A set of defaults for the array to be validated.
    *
-   * @var array
+   * @var array<mixed>
    */
-  protected $defaults;
+  protected array $defaults;
 
   /**
    * Whether the schema is conditional or not.
@@ -49,7 +49,7 @@ final class StructuredArrayValidator {
    * @param bool|\Closure $conditional
    *   A callable or FALSE. See self::createChildValidator().
    */
-  protected function __construct(array $schema, array $defaults, $conditional) {
+  protected function __construct(array $schema, array $defaults, bool|\Closure $conditional) {
     assert(!isset($schema[static::KEYS_ARE_STRINGS]) || empty(array_diff_key($schema, array_flip([static::KEYS_ARE_STRINGS]))), 'A schema must contain either the KEYS_ARE_STRINGS constant or validations for specific array keys, but not both.');
     assert($conditional === FALSE || $conditional instanceof Closure);
     $this->schema = $schema;
@@ -64,11 +64,10 @@ final class StructuredArrayValidator {
    *   A schema definition for the array to be validated.
    * @param array $defaults
    *   A set of defaults for the array to be validated.
-   *
    * @return static
    *   A new Array validator.
    */
-  public static function create(array $schema, array $defaults = []) {
+  public static function create(array $schema, array $defaults = []): static {
     return new static($schema, $defaults, FALSE);
   }
 
@@ -87,11 +86,10 @@ final class StructuredArrayValidator {
    *   array.
    * @param array $defaults
    *   A set of defaults for the array to be validated.
-   *
    * @return static
    *   A new Array validator.
    */
-  public static function createConditionalValidator(array $schema, Closure $conditional, array $defaults = []) {
+  public static function createConditionalValidator(array $schema, Closure $conditional, array $defaults = []): static {
     return new static($schema, $defaults, $conditional);
   }
 
@@ -100,16 +98,11 @@ final class StructuredArrayValidator {
    *
    * @param mixed $arr
    *   An array to validate.
-   *
-   * @return array
+   * @return array<mixed>
    *   If the given $arr is valid, the given $arr value. Array keys not defined
    *   in the schema definition will be stripped from return value.
-   *
-   * @throws \DomainException
-   *   Thrown if the given $arr is not array or does not validate against the
-   *   schema.
    */
-  public function __invoke($arr) {
+  public function __invoke(mixed $arr): array {
     if (!is_array($arr)) {
       throw new DomainException('Validated value is not an array.');
     }
@@ -146,11 +139,10 @@ final class StructuredArrayValidator {
    *
    * @param mixed $arr
    *   An array to be validated.
-   *
    * @return bool
    *   TRUE if the argument is valid; FALSE otherwise.
    */
-  public function isValid($arr) : bool {
+  public function isValid(mixed $arr): bool {
     try {
       $this($arr);
     }
@@ -167,7 +159,7 @@ final class StructuredArrayValidator {
    *   TRUE if the validator may or not be applied, depending on context. FALSE
    *   if the validator will be applied unconditionally.
    */
-  public function isConditional() : bool {
+  public function isConditional(): bool {
     return (bool) $this->conditional;
   }
 

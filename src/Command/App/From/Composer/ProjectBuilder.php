@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace Acquia\Cli\Command\App\From\Composer;
 
@@ -19,24 +19,18 @@ final class ProjectBuilder {
 
   /**
    * The current configuration.
-   *
-   * @var \Acquia\Cli\Command\App\From\Configuration
    */
-  protected $configuration;
+  protected Configuration $configuration;
 
   /**
    * The recommendation resolver.
-   *
-   * @var \Acquia\Cli\Command\App\From\Recommendation\Resolver
    */
-  protected $resolver;
+  protected Resolver $resolver;
 
   /**
    * The site inspector.
-   *
-   * @var \Acquia\Cli\Command\App\From\SourceSite\SiteInspectorInterface
    */
-  protected $siteInspector;
+  protected SiteInspectorInterface $siteInspector;
 
   /**
    * ProjectBuilder constructor.
@@ -57,14 +51,14 @@ final class ProjectBuilder {
   /**
    * Gets an array representing a D9+ composer.json file for the current site.
    *
-   * @return array
+   * @return array<mixed>
    *   An array that can be encoded as JSON and written to a file. Calling
    *   `composer install` in the same directory as that file should yield a new
    *   Drupal project with Drupal 9+ installed, in addition to the Acquia
    *   Migrate module, and some of all of the D9 replacements for the current
    *   site's Drupal 7 modules.
    */
-  public function buildProject() : array {
+  public function buildProject(): array {
     $modules_to_install = [];
     $recommendations = [];
     $composer_json = $this->configuration->getRootPackageDefinition();
@@ -130,11 +124,13 @@ final class ProjectBuilder {
     }
 
     $source_modules = array_values(array_map(function (ExtensionInterface $module) {
+      // phpcs:disable SlevomatCodingStandard.Arrays.AlphabeticallySortedByKeys
       return [
         'name' => $module->getName(),
         'humanName' => $module->getHumanName(),
         'version' => $module->getVersion(),
       ];
+      // phpcs:enable
     }, $this->siteInspector->getExtensions(SiteInspectorInterface::FLAG_EXTENSION_MODULE | SiteInspectorInterface::FLAG_EXTENSION_ENABLED)));
     $module_names = array_column($source_modules, 'name');
     array_multisort($module_names, SORT_STRING, $source_modules);
@@ -142,6 +138,7 @@ final class ProjectBuilder {
     $recommendation_ids = array_column($recommendations, 'id');
     array_multisort($recommendation_ids, SORT_STRING, $recommendations);
 
+    // phpcs:disable SlevomatCodingStandard.Arrays.AlphabeticallySortedByKeys
     return [
       'installModules' => $modules_to_install,
       'filePaths' => [
@@ -152,6 +149,7 @@ final class ProjectBuilder {
       'recommendations' => $recommendations,
       'rootPackageDefinition' => $composer_json,
     ];
+    // phpcs:enable
   }
 
 }

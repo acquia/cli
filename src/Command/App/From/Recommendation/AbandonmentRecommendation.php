@@ -1,11 +1,11 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace Acquia\Cli\Command\App\From\Recommendation;
 
-use Acquia\Cli\Command\App\From\SourceSite\ExtensionInterface;
 use Acquia\Cli\Command\App\From\Safety\ArrayValidationTrait;
+use Acquia\Cli\Command\App\From\SourceSite\ExtensionInterface;
 use Closure;
 use Exception;
 use LogicException;
@@ -19,24 +19,22 @@ class AbandonmentRecommendation implements RecommendationInterface, Normalizable
 
   /**
    * An anonymous function that determines if this recommendation is applicable.
-   *
-   * @var \Closure
    */
-  protected $evaluateExtension;
+  protected \Closure $evaluateExtension;
 
   /**
    * The original decoded definition.
    *
-   * @var array
+   * @var array<mixed>
    */
-  protected $definition;
+  protected array $definition;
 
   /**
    * An array of extensions to which this recommendation applied.
    *
    * @var \Acquia\Cli\Command\App\From\SourceSite\ExtensionInterface[]
    */
-  protected $appliedTo = [];
+  protected array $appliedTo = [];
 
   /**
    * AbandonmentRecommendation constructor.
@@ -59,12 +57,12 @@ class AbandonmentRecommendation implements RecommendationInterface, Normalizable
    *   A static recommendation definition. This must be an array. However, other
    *   value types are accepted because this method performs validation on the
    *   given value.
-   *
    * @return \Acquia\Cli\Command\App\From\Recommendation\RecommendationInterface
    *   A new AbandonmentRecommendation object if the given definition is valid or
    *   a new NoRecommendation object otherwise.
    */
-  public static function createFromDefinition($definition): RecommendationInterface {
+  public static function createFromDefinition(mixed $definition): RecommendationInterface {
+    // phpcs:disable SlevomatCodingStandard.Arrays.AlphabeticallySortedByKeys
     $validator = static::schema([
       'package' => 'is_null',
       'note' => 'is_string',
@@ -73,6 +71,7 @@ class AbandonmentRecommendation implements RecommendationInterface, Normalizable
       ]),
       'vetted' => 'is_bool',
     ]);
+    // phpcs:enable
     try {
       $validated = $validator($definition);
     }
@@ -83,14 +82,11 @@ class AbandonmentRecommendation implements RecommendationInterface, Normalizable
       // than to fail to create one at all.
       return new NoRecommendation();
     }
-    return new static(Closure::fromCallable(function (ExtensionInterface $extension) use ($validated) : bool {
+    return new static(Closure::fromCallable(function (ExtensionInterface $extension) use ($validated): bool {
       return $extension->getName() === $validated['replaces']['name'];
     }), $validated);
   }
 
-  /**
-   * {@inheritDoc}
-   */
   public function applies(ExtensionInterface $extension): bool {
     if (($this->evaluateExtension)($extension)) {
       array_push($this->appliedTo, $extension);
@@ -99,52 +95,37 @@ class AbandonmentRecommendation implements RecommendationInterface, Normalizable
     return FALSE;
   }
 
-  /**
-   * {@inheritdoc}
-   */
-  public function getPackageName() : string {
+  public function getPackageName(): string {
     throw new LogicException(sprintf('It is nonsensical to call the %s() method on a % class instance.', __FUNCTION__, __CLASS__));
   }
 
-  /**
-   * {@inheritdoc}
-   */
-  public function getVersionConstraint() : string {
+  public function getVersionConstraint(): string {
+    throw new LogicException(sprintf('It is nonsensical to call the %s() method on a %s class instance.', __FUNCTION__, __CLASS__));
+  }
+
+  public function hasModulesToInstall(): bool {
     throw new LogicException(sprintf('It is nonsensical to call the %s() method on a %s class instance.', __FUNCTION__, __CLASS__));
   }
 
   /**
    * {@inheritdoc}
    */
-  public function hasModulesToInstall() : bool {
+  public function getModulesToInstall(): array {
+    throw new LogicException(sprintf('It is nonsensical to call the %s() method on a %s class instance.', __FUNCTION__, __CLASS__));
+  }
+
+  public function hasPatches(): bool {
+    throw new LogicException(sprintf('It is nonsensical to call the %s() method on a %s class instance.', __FUNCTION__, __CLASS__));
+  }
+
+  public function isVetted(): bool {
     throw new LogicException(sprintf('It is nonsensical to call the %s() method on a %s class instance.', __FUNCTION__, __CLASS__));
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getModulesToInstall() : array {
-    throw new LogicException(sprintf('It is nonsensical to call the %s() method on a %s class instance.', __FUNCTION__, __CLASS__));
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function hasPatches() : bool {
-    throw new LogicException(sprintf('It is nonsensical to call the %s() method on a %s class instance.', __FUNCTION__, __CLASS__));
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function isVetted() : bool {
-    throw new LogicException(sprintf('It is nonsensical to call the %s() method on a %s class instance.', __FUNCTION__, __CLASS__));
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getPatches() : array {
+  public function getPatches(): array {
     throw new LogicException(sprintf('It is nonsensical to call the %s() method on a %s class instance.', __FUNCTION__, __CLASS__));
   }
 
@@ -152,6 +133,7 @@ class AbandonmentRecommendation implements RecommendationInterface, Normalizable
    * {@inheritDoc}
    */
   public function normalize(): array {
+    // phpcs:disable SlevomatCodingStandard.Arrays.AlphabeticallySortedByKeys
     $normalized = [
       'type' => 'abandonmentRecommendation',
       'id' => "abandon:{$this->definition['replaces']['name']}",
@@ -168,6 +150,7 @@ class AbandonmentRecommendation implements RecommendationInterface, Normalizable
         ];
       }, $this->appliedTo),
     ];
+    // phpcs:enable
     if (!empty($recommended_for['data'])) {
       $normalized['relationships']['recommendedFor'] = $recommended_for;
     }

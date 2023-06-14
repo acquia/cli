@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace Acquia\Cli\Command\App\From\Recommendation;
 
@@ -15,25 +15,19 @@ final class Resolver {
   /**
    * A Drupal 7 site inspector.
    *
-   * @var \Acquia\Cli\Command\App\From\SourceSite\SiteInspectorInterface
-   *
    * @see \Acquia\Cli\Command\App\From\SourceSite\Drupal7SiteInspector
    */
-  protected $inspector;
+  protected SiteInspectorInterface $inspector;
 
   /**
    * A list of defined recommendations that apply no matter the context.
-   *
-   * @var \Acquia\Cli\Command\App\From\Recommendation\Recommendations
    */
-  protected $universalRecommendations;
+  protected Recommendations $universalRecommendations;
 
   /**
    * A list of defined recommendations that depend on context.
-   *
-   * @var\Acquia\Cli\Command\App\From\Recommendation\Recommendations
    */
-  protected $conditionalRecommendations;
+  protected Recommendations $conditionalRecommendations;
 
   /**
    * Resolver constructor.
@@ -65,7 +59,7 @@ final class Resolver {
    * @return \Acquia\Cli\Command\App\From\Recommendation\Recommendations
    *   A resolved suite of recommendations.
    */
-  public function getRecommendations() : Recommendations {
+  public function getRecommendations(): Recommendations {
     $enabled_modules = $this->inspector->getExtensions(SiteInspectorInterface::FLAG_EXTENSION_ENABLED | SiteInspectorInterface::FLAG_EXTENSION_MODULE);
     return array_reduce($enabled_modules, function (Recommendations $recommendations, ExtensionInterface $extension) {
       $resolutions = $this->getRecommendationsForExtension($extension);
@@ -84,11 +78,10 @@ final class Resolver {
    * @param \Acquia\Cli\Command\App\From\SourceSite\ExtensionInterface $extension
    *   A Drupal 7 extension for which a package recommendation should be
    *   resolved.
-   *
    * @return \Acquia\Cli\Command\App\From\Recommendation\Recommendations
    *   A resolved recommendation.
    */
-  protected function getRecommendationsForExtension(ExtensionInterface $extension) : Recommendations {
+  protected function getRecommendationsForExtension(ExtensionInterface $extension): Recommendations {
     $recommendations = new Recommendations();
     foreach ($this->conditionalRecommendations as $recommendation) {
       if ($recommendation->applies($extension)) {

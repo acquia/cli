@@ -1,18 +1,15 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace Acquia\Cli\Command\App\From\SourceSite;
 
-/**
- * Class SiteInspectorBase.
- */
 abstract class SiteInspectorBase implements SiteInspectorInterface {
 
   /**
    * {@inheritDoc}
    */
-  public function getExtensions(int $flags) : array {
+  public function getExtensions(int $flags): array {
     $state_flags = $flags & (SiteInspectorInterface::FLAG_EXTENSION_ENABLED | SiteInspectorInterface::FLAG_EXTENSION_DISABLED);
     $type_flags = $flags & (SiteInspectorInterface::FLAG_EXTENSION_MODULE | SiteInspectorInterface::FLAG_EXTENSION_THEME);
     return array_filter($this->readExtensions(), function (ExtensionInterface $extension) use ($state_flags, $type_flags) {

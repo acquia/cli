@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace Acquia\Cli\Command\App\From\Recommendation;
 
@@ -20,12 +20,11 @@ final class Recommendations extends ArrayIterator {
    *
    * @param resource $recommendations_resource
    *   Configuration to be parse; given as a PHP resource.
-   *
    * @return \Acquia\Cli\Command\App\From\Recommendation\Recommendations
    *   A defined set of *all possible* recommendations. These are not limited
    *   to any particular site.
    */
-  public static function createFromResource($recommendations_resource) : Recommendations {
+  public static function createFromResource($recommendations_resource): Recommendations {
     try {
       $parsed = static::parseJsonResource($recommendations_resource);
     }

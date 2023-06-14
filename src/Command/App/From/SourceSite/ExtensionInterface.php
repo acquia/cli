@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace Acquia\Cli\Command\App\From\SourceSite;
 
@@ -39,7 +39,7 @@ interface ExtensionInterface {
    * @return bool
    *   TRUE if the extension is a module; FALSE otherwise.
    */
-  public function isModule() : bool;
+  public function isModule(): bool;
 
   /**
    * Whether the extension is a theme or not.
@@ -47,7 +47,7 @@ interface ExtensionInterface {
    * @return bool
    *   TRUE if the extension is a theme; FALSE otherwise.
    */
-  public function isTheme() : bool;
+  public function isTheme(): bool;
 
   /**
    * Whether the extension is enabled or not.
@@ -55,6 +55,6 @@ interface ExtensionInterface {
    * @return bool
    *   TRUE if the extension is enabled; FALSE otherwise.
    */
-  public function isEnabled() : bool;
+  public function isEnabled(): bool;
 
 }

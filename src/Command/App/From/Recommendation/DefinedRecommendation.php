@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace Acquia\Cli\Command\App\From\Recommendation;
 
@@ -27,45 +27,35 @@ class DefinedRecommendation implements RecommendationInterface, NormalizableInte
 
   /**
    * An anonymous function that determines if this recommendation is applicable.
-   *
-   * @var \Closure
    */
-  protected $evaluateExtension;
+  protected \Closure $evaluateExtension;
 
   /**
    * The name of a recommended package.
-   *
-   * @var string
    */
-  protected $packageName;
+  protected string $packageName;
 
   /**
    * A recommended composer version constraint.
-   *
-   * @var string
    */
-  protected $versionConstraint;
+  protected string $versionConstraint;
 
   /**
    * A list of recommended modules to install.
    *
    * @var string[]
    */
-  protected $install;
+  protected array $install;
 
   /**
    * Whether this is a vetted recommendation.
-   *
-   * @var bool
    */
-  protected $vetted;
+  protected bool $vetted;
 
   /**
    * A note about the recommendation.
-   *
-   * @var string
    */
-  protected $note;
+  protected string $note;
 
   /**
    * A list of recommended patches.
@@ -73,16 +63,16 @@ class DefinedRecommendation implements RecommendationInterface, NormalizableInte
    * The keys of the array should be descriptions of the patch contents and the
    * values should be URLs where the recommended patch can be downloaded.
    *
-   * @var array
+   * @var array<mixed>
    */
-  protected $patches;
+  protected array $patches;
 
   /**
    * An array of extensions to which this recommendation applied.
    *
    * @var \Acquia\Cli\Command\App\From\SourceSite\ExtensionInterface[]
    */
-  protected $appliedTo = [];
+  protected array $appliedTo = [];
 
   /**
    * DefinedRecommendation constructor.
@@ -120,12 +110,12 @@ class DefinedRecommendation implements RecommendationInterface, NormalizableInte
    *   A static recommendation definition. This must be an array. However, other
    *   value types are accepted because this method performs validation on the
    *   given value.
-   *
    * @return \Acquia\Cli\Command\App\From\Recommendation\RecommendationInterface
    *   A new DefinedRecommendation object if the given definition is valid or
    *   a new NoRecommendation object otherwise.
    */
-  public static function createFromDefinition($definition) : RecommendationInterface {
+  public static function createFromDefinition(mixed $definition): RecommendationInterface {
+    // phpcs:disable SlevomatCodingStandard.Arrays.AlphabeticallySortedByKeys
     $defaults = [
       'universal' => FALSE,
       'patches' => [],
@@ -153,6 +143,7 @@ class DefinedRecommendation implements RecommendationInterface, NormalizableInte
       'patches' => static::dictionaryOf('is_string'),
       'vetted' => 'is_bool',
     ], $defaults);
+    // phpcs:enable
     try {
       $validated = $validator($definition);
     }
@@ -172,14 +163,11 @@ class DefinedRecommendation implements RecommendationInterface, NormalizableInte
     if ($validated['universal']) {
       return new UniversalRecommendation($package_name, $version_constraint, $install, $vetted, $note, $patches);
     }
-    return new static(Closure::fromCallable(function (ExtensionInterface $extension) use ($validated) : bool {
+    return new static(Closure::fromCallable(function (ExtensionInterface $extension) use ($validated): bool {
       return $extension->getName() === $validated['replaces']['name'];
     }), $package_name, $version_constraint, $install, $vetted, $note, $patches);
   }
 
-  /**
-   * {@inheritDoc}
-   */
   public function applies(ExtensionInterface $extension): bool {
     if (($this->evaluateExtension)($extension)) {
       array_push($this->appliedTo, $extension);
@@ -188,45 +176,30 @@ class DefinedRecommendation implements RecommendationInterface, NormalizableInte
     return FALSE;
   }
 
-  /**
-   * {@inheritDoc}
-   */
-  public function getPackageName() : string {
+  public function getPackageName(): string {
     return $this->packageName;
   }
 
-  /**
-   * {@inheritDoc}
-   */
-  public function getVersionConstraint() : string {
+  public function getVersionConstraint(): string {
     return $this->versionConstraint;
   }
 
-  /**
-   * {@inheritDoc}
-   */
-  public function hasModulesToInstall() : bool {
+  public function hasModulesToInstall(): bool {
     return !empty($this->install);
   }
 
   /**
    * {@inheritDoc}
    */
-  public function getModulesToInstall() : array {
+  public function getModulesToInstall(): array {
     return $this->install;
   }
 
-  /**
-   * {@inheritDoc}
-   */
-  public function isVetted() : bool {
+  public function isVetted(): bool {
     return $this->vetted;
   }
 
-  /**
-   * {@inheritDoc}
-   */
-  public function hasPatches() : bool {
+  public function hasPatches(): bool {
     return !empty($this->patches);
   }
 
@@ -237,14 +210,18 @@ class DefinedRecommendation implements RecommendationInterface, NormalizableInte
     return $this->patches;
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function normalize(): array {
+    // phpcs:disable SlevomatCodingStandard.Arrays.AlphabeticallySortedByKeys
     $normalized = [
       'type' => 'packageRecommendation',
       'id' => "{$this->packageName}:{$this->versionConstraint}",
       'attributes' => [
         'requirePackage' => [
           'name' => $this->packageName,
-          'versionConstraint' => $this->versionConstraint
+          'versionConstraint' => $this->versionConstraint,
         ],
         'installModules' => $this->install,
         'vetted' => $this->vetted,
@@ -263,6 +240,7 @@ class DefinedRecommendation implements RecommendationInterface, NormalizableInte
         ];
       }, $this->appliedTo),
     ];
+    // phpcs:enable
     if (!empty($recommended_for['data'])) {
       $normalized['relationships']['recommendedFor'] = $recommended_for;
     }

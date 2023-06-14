@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace Acquia\Cli\Command\App\From\Recommendation;
 
@@ -16,11 +16,10 @@ interface RecommendationInterface {
    *
    * @param \Acquia\Cli\Command\App\From\SourceSite\ExtensionInterface $extension
    *   The extension to evaluate.
-   *
    * @return bool
    *   TRUE if the recommendation applies, FALSE otherwise.
    */
-  public function applies(ExtensionInterface $extension) : bool;
+  public function applies(ExtensionInterface $extension): bool;
 
   /**
    * The recommended composer package name to replace the applicable extension.
@@ -28,7 +27,7 @@ interface RecommendationInterface {
    * @return string
    *   The recommended package's name.
    */
-  public function getPackageName() : string;
+  public function getPackageName(): string;
 
   /**
    * The recommended version constraint to replace the applicable extension.
@@ -36,7 +35,7 @@ interface RecommendationInterface {
    * @return string
    *   The recommended version constraint for the recommended package.
    */
-  public function getVersionConstraint() : string;
+  public function getVersionConstraint(): string;
 
   /**
    * Whether this recommendation contains modules to install.
@@ -44,7 +43,7 @@ interface RecommendationInterface {
    * @return bool
    *   TRUE if the recommendation includes modules to install, FALSE otherwise.
    */
-  public function hasModulesToInstall() : bool;
+  public function hasModulesToInstall(): bool;
 
   /**
    * Gets a list of recommended modules to install.
@@ -56,14 +55,12 @@ interface RecommendationInterface {
    * @return string[]
    *   A list of module names that should be installed.
    */
-  public function getModulesToInstall() : array;
+  public function getModulesToInstall(): array;
 
   /**
    * Whether the recommendation is vetted or not.
-   *
-   * @return bool
    */
-  public function isVetted() : bool;
+  public function isVetted(): bool;
 
   /**
    * Whether the recommendation contains patches or not.
@@ -71,15 +68,15 @@ interface RecommendationInterface {
    * @return bool
    *   TRUE if the recommendation contains patches; FALSE otherwise.
    */
-  public function hasPatches() : bool;
+  public function hasPatches(): bool;
 
   /**
    * Gets an array of recommended patches for the recommended package.
    *
-   * @return array
+   * @return array<mixed>
    *   An associative array whose keys are a description of the patch's contents
    *   and whose values are URLs or relative paths to a patch file.
    */
-  public function getPatches() : array;
+  public function getPatches(): array;
 
 }

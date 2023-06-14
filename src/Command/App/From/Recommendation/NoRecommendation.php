@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace Acquia\Cli\Command\App\From\Recommendation;
 
@@ -12,59 +12,41 @@ use LogicException;
  */
 final class NoRecommendation implements RecommendationInterface {
 
-  /**
-   * {@inheritdoc}
-   */
-  public function applies(ExtensionInterface $extension) : bool {
+  public function applies(ExtensionInterface $extension): bool {
     throw new LogicException(sprintf('It is nonsensical to call the %s() method on a %s class instance.', __FUNCTION__, __CLASS__));
   }
 
-  /**
-   * {@inheritdoc}
-   */
-  public function getPackageName() : string {
+  public function getPackageName(): string {
     throw new LogicException(sprintf('It is nonsensical to call the %s() method on a % class instance.', __FUNCTION__, __CLASS__));
   }
 
-  /**
-   * {@inheritdoc}
-   */
-  public function getVersionConstraint() : string {
+  public function getVersionConstraint(): string {
+    throw new LogicException(sprintf('It is nonsensical to call the %s() method on a %s class instance.', __FUNCTION__, __CLASS__));
+  }
+
+  public function hasModulesToInstall(): bool {
     throw new LogicException(sprintf('It is nonsensical to call the %s() method on a %s class instance.', __FUNCTION__, __CLASS__));
   }
 
   /**
    * {@inheritdoc}
    */
-  public function hasModulesToInstall() : bool {
+  public function getModulesToInstall(): array {
+    throw new LogicException(sprintf('It is nonsensical to call the %s() method on a %s class instance.', __FUNCTION__, __CLASS__));
+  }
+
+  public function isVetted(): bool {
+    throw new LogicException(sprintf('It is nonsensical to call the %s() method on a %s class instance.', __FUNCTION__, __CLASS__));
+  }
+
+  public function hasPatches(): bool {
     throw new LogicException(sprintf('It is nonsensical to call the %s() method on a %s class instance.', __FUNCTION__, __CLASS__));
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getModulesToInstall() : array {
-    throw new LogicException(sprintf('It is nonsensical to call the %s() method on a %s class instance.', __FUNCTION__, __CLASS__));
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function isVetted() : bool {
-    throw new LogicException(sprintf('It is nonsensical to call the %s() method on a %s class instance.', __FUNCTION__, __CLASS__));
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function hasPatches() : bool {
-    throw new LogicException(sprintf('It is nonsensical to call the %s() method on a %s class instance.', __FUNCTION__, __CLASS__));
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getPatches() : array {
+  public function getPatches(): array {
     throw new LogicException(sprintf('It is nonsensical to call the %s() method on a %s class instance.', __FUNCTION__, __CLASS__));
   }
 

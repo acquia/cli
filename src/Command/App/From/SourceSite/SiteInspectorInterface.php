@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace Acquia\Cli\Command\App\From\SourceSite;
 
@@ -43,23 +43,19 @@ interface SiteInspectorInterface {
    *   flag, then only enabled extensions will be returned. In the example
    *   below, all enabled modules will be returned. Themes and disabled modules
    *   will be excluded.
-   *
    * @code
    *   $inspector->getExtensions(Drupal7SiteInspector::FLAG_EXTENSION_ENABLED|Drupal7SiteInspector::FLAG_EXTENSION_MODULE);
    * @endcode
-   *
    * @return \Acquia\Cli\Command\App\From\SourceSite\ExtensionInterface[]
    *   An array of identified extensions, filtered to contain only those
    *   included by the given flags.
    */
-  public function getExtensions(int $flags) : array;
+  public function getExtensions(int $flags): array;
 
   /**
    * Gets the public file path relative to the Drupal root.
-   *
-   * @return string
    */
-  public function getPublicFilePath() : string;
+  public function getPublicFilePath(): string;
 
   /**
    * Gets the private file path relative to the Drupal root, if it exists.
@@ -68,6 +64,6 @@ interface SiteInspectorInterface {
    *   NULL if the the inspected site does not use private files, a string
    *   otherwise.
    */
-  public function getPrivateFilePath() : ?string;
+  public function getPrivateFilePath(): ?string;
 
 }

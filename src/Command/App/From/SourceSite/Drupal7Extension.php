@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace Acquia\Cli\Command\App\From\SourceSite;
 
@@ -15,35 +15,27 @@ final class Drupal7Extension implements ExtensionInterface {
    * @var string
    *   Either 'module' or 'theme'.
    */
-  protected $type;
+  protected string $type;
 
   /**
    * The name of the extension.
-   *
-   * @var string
    */
-  protected $name;
+  protected string $name;
 
   /**
    * Whether the extension is enabled or not.
-   *
-   * @var bool
    */
-  protected $enabled;
+  protected bool $enabled;
 
   /**
    * The human-readable name of the extension.
-   *
-   * @var string
    */
-  protected $humanName;
+  protected string $humanName;
 
   /**
    * The extension's version.
-   *
-   * @var string
    */
-  protected $version;
+  protected string $version;
 
   /**
    * Extension constructor.
@@ -73,11 +65,10 @@ final class Drupal7Extension implements ExtensionInterface {
    *
    * @param object $extension
    *   An extension object as returned by drush_get_extensions().
-   *
    * @return \Acquia\Cli\Command\App\From\SourceSite\Drupal7Extension
    *   A new extension.
    */
-  public static function createFromStdClass(object $extension) : Drupal7Extension {
+  public static function createFromStdClass(object $extension): Drupal7Extension {
     return new static(
       $extension->type,
       $extension->name,
@@ -87,45 +78,27 @@ final class Drupal7Extension implements ExtensionInterface {
     );
   }
 
-  /**
-   * {@inheritDoc}
-   */
   public function getName(): string {
     return $this->name;
   }
 
-  /**
-   * {@inheritDoc}
-   */
   public function getHumanName(): string {
     return $this->humanName;
   }
 
-  /**
-   * {@inheritDoc}
-   */
   public function getVersion(): string {
     return $this->version;
   }
 
-  /**
-   * {@inheritDoc}
-   */
-  public function isModule() : bool {
+  public function isModule(): bool {
     return $this->type === 'module';
   }
 
-  /**
-   * {@inheritDoc}
-   */
-  public function isTheme() : bool {
+  public function isTheme(): bool {
     return $this->type === 'theme';
   }
 
-  /**
-   * {@inheritDoc}
-   */
-  public function isEnabled() : bool {
+  public function isEnabled(): bool {
     return $this->enabled;
   }
 

@@ -22,7 +22,7 @@ trait ArrayValidationTrait {
    * @return \Acquia\Cli\Command\App\From\Safety\StructuredArrayValidator
    *   An array validator.
    */
-  protected static function schema(array $schema, array $defaults = []) : StructuredArrayValidator {
+  protected static function schema(array $schema, array $defaults = []): StructuredArrayValidator {
     return StructuredArrayValidator::create($schema, $defaults);
   }
 
@@ -40,7 +40,7 @@ trait ArrayValidationTrait {
    * @return \Acquia\Cli\Command\App\From\Safety\StructuredArrayValidator
    *   An array validator.
    */
-  protected static function conditionalSchema(array $schema, callable $conditional, array $defaults = []) : StructuredArrayValidator {
+  protected static function conditionalSchema(array $schema, callable $conditional, array $defaults = []): StructuredArrayValidator {
     return StructuredArrayValidator::createConditionalValidator($schema, $conditional, $defaults);
   }
 
@@ -49,11 +49,10 @@ trait ArrayValidationTrait {
    *
    * @param callable $item_validator
    *   A validator to apply to each item in a validated array.
-   *
    * @return \Closure
    *   A validation function.
    */
-  protected static function listOf(callable $item_validator) : Closure {
+  protected static function listOf(callable $item_validator): Closure {
     return static::arrayOf('is_int', $item_validator);
   }
 
@@ -62,11 +61,10 @@ trait ArrayValidationTrait {
    *
    * @param callable $entry_validator
    *   A validator to apply to each entry in a validated array.
-   *
    * @return \Closure
    *   A validation function.
    */
-  protected static function dictionaryOf(callable $entry_validator) : Closure {
+  protected static function dictionaryOf(callable $entry_validator): Closure {
     return static::arrayOf('is_string', $entry_validator);
   }
 
@@ -78,11 +76,10 @@ trait ArrayValidationTrait {
    *   the given array.
    * @param callable $value_validator
    *   A callable to evaluate against each value in the given array.
-   *
    * @return \Closure
    *   A validation function.
    */
-  private static function arrayOf(callable $key_validator, callable $value_validator) {
+  private static function arrayOf(callable $key_validator, callable $value_validator): \Closure {
     assert(in_array($key_validator, ['is_int', 'is_string'], TRUE));
     return Closure::fromCallable(function ($values) use ($key_validator, $value_validator) {
       if (!is_array($values)) {

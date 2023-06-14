@@ -17,9 +17,9 @@ final class Configuration {
   /**
    * The current configuration, usually parsed from a file.
    *
-   * @var array
+   * @var array<mixed>
    */
-  protected $array;
+  protected array $array;
 
   /**
    * Configuration constructor.
@@ -42,24 +42,21 @@ final class Configuration {
    *   Configuration to be parse; given as a PHP resource.
    * @return \Acquia\Cli\Command\App\From\Configuration
    *   A new configuration object.
-   *
-   * @throws \JsonException
-   *   Thrown if the given configuration resource contains JSON syntax errors.
    */
-  public static function createFromResource($configuration_resource) {
+  public static function createFromResource($configuration_resource): Configuration {
     return new static(static::parseJsonResource($configuration_resource));
   }
 
   /**
    * Gets an basic root composer package definition for a Drupal 9+ project.
    *
-   * @return array
+   * @return array<mixed>
    *   An array representing a root composer package definition. From this
    *   starting point, additional dependencies and metadata can be added until
    *   an acceptable project is defined for migrating a source site to Drupal
    *   9+.
    */
-  public function getRootPackageDefinition() : array {
+  public function getRootPackageDefinition(): array {
     return $this->array['rootPackageDefinition'];
   }
 
