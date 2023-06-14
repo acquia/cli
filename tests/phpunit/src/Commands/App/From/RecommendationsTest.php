@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Acquia\Cli\Tests\Commands\App\From;
 
 use Acquia\Cli\Command\App\From\Recommendation\RecommendationInterface;
@@ -14,18 +16,15 @@ class RecommendationsTest extends TestCase {
 
   const NO_RECOMMENDATIONS = [];
 
-  protected $sut;
-
   /**
    * @param string $configuration
    *   A JSON string from which to create a configuration object.
    * @param \Acquia\Cli\Command\App\From\Recommendation\RecommendationInterface|\JsonException $expectation
    *   An expected recommendation or a JSON exception in the case that the given
    *   $configuration is malformed.
-   *
    * @dataProvider getTestConfigurations
    */
-  public function test(string $configuration, $expectation) {
+  public function test(string $configuration, mixed $expectation): void {
     $test_stream = fopen('php://memory', 'rw');
     fwrite($test_stream, $configuration);
     rewind($test_stream);
@@ -46,7 +45,11 @@ class RecommendationsTest extends TestCase {
     }
   }
 
-  public function getTestConfigurations() {
+  /**
+   * @return array<mixed>
+   */
+  public function getTestConfigurations(): array {
+    // phpcs:disable SlevomatCodingStandard.Arrays.AlphabeticallySortedByKeys
     return [
       'bad JSON in configuration file' => [
         '{,}',
@@ -57,7 +60,7 @@ class RecommendationsTest extends TestCase {
         static::NO_RECOMMENDATIONS,
       ],
       'unexpected recommendations value' => [
-        json_encode(['data' => true]),
+        json_encode(['data' => TRUE]),
         static::NO_RECOMMENDATIONS,
       ],
       'empty recommendations key' => [
@@ -70,17 +73,20 @@ class RecommendationsTest extends TestCase {
       ],
       'populated recommendations key with valid item' => [
         json_encode([
-          'data' => [[
-            'package' => 'foo',
-            'constraint' => '^1.42',
-            'replaces' => [
-              'name' => 'foo',
+          'data' => [
+            [
+              'package' => 'foo',
+              'constraint' => '^1.42',
+              'replaces' => [
+                'name' => 'foo',
+              ],
             ],
-          ]],
+          ],
         ]),
         new TestRecommendation(TRUE, 'foo', '^1.42'),
       ],
     ];
+    // phpcs:enable
   }
 
 }

@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types = 1);
 
 namespace Acquia\Cli\Tests\Commands\App\From;
 
@@ -16,11 +18,9 @@ class DefinedRecommendationTest extends TestCase {
   use ProphecyTrait;
 
   /**
-   * @param $configuration
-   * @param \Acquia\Cli\Command\App\From\Recommendation\RecommendationInterface $expected
    * @dataProvider getTestConfigurations
    */
-  public function test($configuration, RecommendationInterface $expected) {
+  public function test(mixed $configuration, RecommendationInterface $expected): void {
     $actual = DefinedRecommendation::createFromDefinition($configuration);
     if ($expected instanceof NoRecommendation) {
       $this->assertInstanceOf(NoRecommendation::class, $actual);
@@ -45,7 +45,11 @@ class DefinedRecommendationTest extends TestCase {
     }
   }
 
-  public function getTestConfigurations() {
+  /**
+   * @return array<mixed>
+   */
+  public function getTestConfigurations(): array {
+    // phpcs:disable SlevomatCodingStandard.Arrays.AlphabeticallySortedByKeys
     return [
       'config is not array' => [42, new NoRecommendation()],
       'empty array' => [[], new NoRecommendation()],
@@ -79,7 +83,7 @@ class DefinedRecommendationTest extends TestCase {
           'package' => 'foo',
           'constraint' => '^1.42',
           'patches' => [
-            'A patch description' => true,
+            'A patch description' => TRUE,
           ],
           'replaces' => [
             'name' => 'foo',
@@ -108,7 +112,7 @@ class DefinedRecommendationTest extends TestCase {
           'constraint' => '^1.42',
           'replaces' => [
             'name' => 'foo',
-          ]
+          ],
         ],
         new TestRecommendation(FALSE, 'foo', '^1.42'),
       ],
@@ -126,7 +130,7 @@ class DefinedRecommendationTest extends TestCase {
           'constraint' => '^1.42',
           'replaces' => [
             'name' => 'bar',
-          ]
+          ],
         ],
         new TestRecommendation(TRUE, 'foo', '^1.42'),
       ],
@@ -151,7 +155,7 @@ class DefinedRecommendationTest extends TestCase {
           'install' => ['foo'],
           'replaces' => [
             'name' => 'bar',
-          ]
+          ],
         ],
         new TestRecommendation(TRUE, 'foo', '^1.42', ['foo'], FALSE, [
           'A patch description' => 'https://example.com/example.patch',
@@ -169,6 +173,7 @@ class DefinedRecommendationTest extends TestCase {
         new TestRecommendation(TRUE, TestRecommendation::ABANDON),
       ],
     ];
+    // phpcs:enable
   }
 
 }

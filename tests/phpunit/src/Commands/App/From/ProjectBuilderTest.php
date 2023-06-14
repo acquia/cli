@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types = 1);
 
 namespace Acquia\Cli\Tests\Commands\App\From;
 
@@ -12,11 +14,10 @@ final class ProjectBuilderTest extends TestCase {
 
   /**
    * @dataProvider getTestResources
-   * @param $configuration_resource
-   * @param $recommendations_resource
-   * @throws \JsonException
+   * @param resource $configuration_resource
+   * @param resource $recommendations_resource
    */
-  public function test($configuration_resource, $recommendations_resource, array $expected_project_definition) {
+  public function test($configuration_resource, $recommendations_resource, array $expected_project_definition): void {
     assert(is_resource($configuration_resource));
     assert(is_resource($recommendations_resource));
     $configuration = Configuration::createFromResource($configuration_resource);
@@ -26,7 +27,11 @@ final class ProjectBuilderTest extends TestCase {
     $this->assertSame($project_builder->buildProject(), $expected_project_definition);
   }
 
-  public function getTestResources() {
+  /**
+   * @return array<mixed>
+   */
+  public function getTestResources(): array {
+    // phpcs:disable SlevomatCodingStandard.Arrays.AlphabeticallySortedByKeys
     $test_cases = [
       'simplest case, sanity check' => [
         json_encode([
@@ -38,7 +43,7 @@ final class ProjectBuilderTest extends TestCase {
           'rootPackageDefinition' => [],
         ]),
         json_encode([
-          'data' => []
+          'data' => [],
         ]),
         [
           'installModules' => [],
@@ -52,6 +57,7 @@ final class ProjectBuilderTest extends TestCase {
         ],
       ],
     ];
+    // phpcs:enable
     return array_map(function (array $data) {
       [$configuration_json, $recommendation_json, $expectation] = $data;
       $config_resource = fopen('php://memory', 'rw');

@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types = 1);
 
 namespace Acquia\Cli\Tests\Commands\App\From;
 
@@ -13,31 +15,16 @@ use Acquia\Cli\Command\App\From\SourceSite\SiteInspectorBase;
 final class TestSiteInspector extends SiteInspectorBase {
 
   /**
-   * @var \Acquia\Cli\Command\App\From\SourceSite\ExtensionInterface[]
-   */
-  protected $extensions;
-
-  /**
-   * @var string
-   */
-  protected $filePublicPath;
-
-  /**
-   * @var string|null
-   */
-  protected $filePrivatePath;
-
-  /**
    * TestSiteInspector constructor.
    *
    * @param \Acquia\Cli\Command\App\From\SourceSite\ExtensionInterface[] $extensions
    *   An array of extensions.
    */
-  public function __construct(array $extensions = [], $file_public_path = 'sites/default/files', $file_private_path = NULL) {
-    $this->extensions = $extensions;
-    $this->filePublicPath = $file_public_path;
-    $this->filePrivatePath = $file_private_path;
-  }
+  public function __construct(
+    protected array $extensions = [],
+    protected string $filePublicPath = 'sites/default/files',
+    protected ?string $filePrivatePath = NULL
+  ) {}
 
   /**
    * {@inheritDoc}
@@ -46,16 +33,10 @@ final class TestSiteInspector extends SiteInspectorBase {
     return $this->extensions;
   }
 
-  /**
-   * {@inheritDoc}
-   */
   public function getPublicFilePath(): string {
     return $this->filePublicPath;
   }
 
-  /**
-   * {@inheritDoc}
-   */
   public function getPrivateFilePath(): ?string {
     return $this->filePrivatePath;
   }
