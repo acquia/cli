@@ -46,6 +46,7 @@ Available commands:
  app
   app:link                 [link] Associate your project with a Cloud Platform application
   app:log:tail             [tail|log:tail] Tail the logs from your environments
+  app:new:from:drupal7     [from:d7|ama] Generate a new Drupal 9+ project from a Drupal 7 application using the default Acquia Migrate Accelerate recommendations.
   app:new:local            [new] Create a new Drupal or Next.js project
 EOD;
   }
