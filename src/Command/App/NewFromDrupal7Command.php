@@ -9,6 +9,7 @@ use Acquia\Cli\Command\App\From\Configuration;
 use Acquia\Cli\Command\App\From\Recommendation\Recommendations;
 use Acquia\Cli\Command\App\From\Recommendation\Resolver;
 use Acquia\Cli\Command\App\From\SourceSite\Drupal7SiteInspector;
+use Acquia\Cli\Command\App\From\SourceSite\ExtensionInterface;
 use Acquia\Cli\Command\App\From\SourceSite\SiteInspectorInterface;
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Exception\AcquiaCliException;
@@ -196,8 +197,14 @@ class NewFromDrupal7Command extends CommandBase {
 
     // Now the Drupal 7 site can be inspected. Inform the user.
     $output->writeln('<info>🤖 Scanning Drupal 7 site.</info>');
-    $module_count = count($inspector->getExtensions(SiteInspectorInterface::FLAG_EXTENSION_MODULE | SiteInspectorInterface::FLAG_EXTENSION_ENABLED));
-    $output->writeln(sprintf("<info>👍 Found Drupal 7 site (%s to be precise) at %s, with %d modules enabled!</info>", VERSION, "sites/$uri", $module_count));
+    $extensions = $inspector->getExtensions(SiteInspectorInterface::FLAG_EXTENSION_MODULE | SiteInspectorInterface::FLAG_EXTENSION_ENABLED);
+    $module_count = count($extensions);
+    $system_module_version = array_reduce(
+      array_filter($extensions, fn (ExtensionInterface $extension) => $extension->isModule() && $extension->getName() === 'system'),
+      fn (mixed $carry, ExtensionInterface $extension) => $extension->getVersion()
+    );
+    $site_location = property_exists($inspector, 'uri') ? 'sites/' . $inspector->uri : '<location unknown>';
+    $output->writeln(sprintf("<info>👍 Found Drupal 7 site (%s to be precise) at %s, with %d modules enabled!</info>", $system_module_version, $site_location, $module_count));
 
     // Parse config for project builder.
     $configuration_location = __DIR__ . '/../../../config/from_d7_config.json';

@@ -17,7 +17,7 @@ final class Drupal7SiteInspector extends SiteInspectorBase {
   /**
    * The host name to use in order to resolve the appropriate settings.php.
    */
-  protected string $uri;
+  public readonly string $uri;
 
   /**
    * Drupal7SiteInspector constructor.
