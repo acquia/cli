@@ -38,6 +38,11 @@ class NewFromDrupal7Command extends CommandBase {
   public const ERR_INDETERMINATE_SITE = 4;
 
   /**
+   * @see \Acquia\Cli\Tests\Commands\App\NewFromDrupal7CommandTest::testNewDrupalCommand()
+   */
+  private ?SiteInspectorInterface $overriddenInspector = NULL;
+
+  /**
    * @var string
    * @phpcsSuppress SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint
    */
@@ -155,7 +160,12 @@ class NewFromDrupal7Command extends CommandBase {
     );
   }
 
-  protected function execute(InputInterface $input, OutputInterface $output): int {
+  private function getInspector(InputInterface $input): SiteInspectorInterface {
+    // Allow inspector to be overridden for testing using reflection.
+    if ($this->overriddenInspector) {
+      return $this->overriddenInspector;
+    }
+
     // First: Determine the Drupal 7 root.
     if ($input->getOption('drupal7-directory') === NULL) {
       $answer = $this->io->ask(
@@ -168,8 +178,14 @@ class NewFromDrupal7Command extends CommandBase {
     $d7_root = $input->getOption('drupal7-directory');
 
     // Second, determine which "sites" subdirectory is being assessed.
+    $uri = static::getSiteUri($input, $d7_root);
+
+    return new Drupal7SiteInspector($d7_root, $uri);
+  }
+
+  protected function execute(InputInterface $input, OutputInterface $output): int {
     try {
-      $uri = static::getSiteUri($input, $d7_root);
+      $inspector = $this->getInspector($input);
     }
     catch (\InvalidArgumentException $e) {
       $this->io->error($e->getMessage());
@@ -180,7 +196,6 @@ class NewFromDrupal7Command extends CommandBase {
 
     // Now the Drupal 7 site can be inspected. Inform the user.
     $output->writeln('<info>🤖 Scanning Drupal 7 site.</info>');
-    $inspector = new Drupal7SiteInspector($d7_root, $uri);
     $module_count = count($inspector->getExtensions(SiteInspectorInterface::FLAG_EXTENSION_MODULE | SiteInspectorInterface::FLAG_EXTENSION_ENABLED));
     $output->writeln(sprintf("<info>👍 Found Drupal 7 site (%s to be precise) at %s, with %d modules enabled!</info>", VERSION, "sites/$uri", $module_count));
 
