@@ -113,6 +113,21 @@
       "vetted": true
     },
     {
+      "package": "drupal/acquia_search",
+      "constraint": "3.1.0-beta1",
+      "patches": {
+        "[AMA_KEEP] Issue #3218089: Could not retrieve data definition for field": "https://www.drupal.org/files/issues/2021-06-09/acquia_search-could_not_find_field-3218089-fix-only.patch"
+      },
+      "note": "Acquia Search will migrate configuration and search indexes. User will have to re-index site data once migration is done.  See https://docs.acquia.com/acquia-search/activate/indexing/#re-indexing-your-website.",
+      "install": [
+        "acquia_search"
+      ],
+      "replaces": {
+        "name": "acquia_search"
+      },
+      "vetted": true
+    },
+    {
       "universal": true,
       "package": "drupal/core",
       "constraint": "9.3.5",
