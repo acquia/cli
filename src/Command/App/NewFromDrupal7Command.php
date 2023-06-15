@@ -119,6 +119,7 @@ class NewFromDrupal7Command extends CommandBase {
       // @see https://git.drupalcode.org/project/drupal/-/blob/7.x/includes/bootstrap.inc#L563
       include $sites_location;
 
+      // @phpstan-ignore-next-line
       if (!empty($sites)) {
         // If the URI corresponds to a configuration in sites.php, then ensure
         // that the identified directory also has a settings.php file. If it

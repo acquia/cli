@@ -17,7 +17,7 @@ final class UniversalRecommendation extends DefinedRecommendation {
    */
   protected function __construct(string $package_name, string $version_constraint, array $install, bool $vetted, string $note, array $patches = []) {
     parent::__construct(Closure::fromCallable(function (): void {
-      throw new LogicException(sprintf('It is nonsensical to call the applies() method on a % class instance.', __FUNCTION__, __CLASS__));
+      throw new LogicException(sprintf('It is nonsensical to call the applies() method on a % class instance.', __CLASS__));
     }), $package_name, $version_constraint, $install, $vetted, $note, $patches);
   }
 

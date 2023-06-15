@@ -82,7 +82,7 @@ class AbandonmentRecommendation implements RecommendationInterface, Normalizable
       // than to fail to create one at all.
       return new NoRecommendation();
     }
-    return new static(Closure::fromCallable(function (ExtensionInterface $extension) use ($validated): bool {
+    return new AbandonmentRecommendation(Closure::fromCallable(function (ExtensionInterface $extension) use ($validated): bool {
       return $extension->getName() === $validated['replaces']['name'];
     }), $validated);
   }

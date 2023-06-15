@@ -17,7 +17,7 @@ final class Drupal7SiteInspector extends SiteInspectorBase {
   /**
    * The host name to use in order to resolve the appropriate settings.php.
    */
-  public readonly string $uri;
+  public string $uri;
 
   /**
    * Drupal7SiteInspector constructor.
@@ -40,6 +40,7 @@ final class Drupal7SiteInspector extends SiteInspectorBase {
    */
   protected function readExtensions(): array {
     $this->bootstrap();
+    // @phpstan-ignore-next-line
     $enabled = system_list('module_enabled');
     // Special case to remove 'standard' from the module's list.
     unset($enabled['standard']);
@@ -60,11 +61,13 @@ final class Drupal7SiteInspector extends SiteInspectorBase {
   public function getPublicFilePath(): string {
     $this->bootstrap();
     // @see https://git.drupalcode.org/project/drupal/-/blob/7.x/includes/stream_wrappers.inc#L919
+    // @phpstan-ignore-next-line
     return variable_get('file_public_path', conf_path() . '/files');
   }
 
   public function getPrivateFilePath(): ?string {
     $this->bootstrap();
+    // @phpstan-ignore-next-line
     return variable_get('file_private_path', NULL);
   }
 
@@ -92,6 +95,7 @@ final class Drupal7SiteInspector extends SiteInspectorBase {
     $_SERVER['SCRIPT_FILENAME'] = DRUPAL_ROOT . '/index.php';
     // phpcs:enable SlevomatCodingStandard.Variables.DisallowSuperGlobalVariable
     require_once DRUPAL_ROOT . '/includes/bootstrap.inc';
+    // @phpstan-ignore-next-line
     drupal_bootstrap(DRUPAL_BOOTSTRAP_VARIABLES);
     chdir($previous_directory);
     $bootstrapped = TRUE;

@@ -163,7 +163,7 @@ class DefinedRecommendation implements RecommendationInterface, NormalizableInte
     if ($validated['universal']) {
       return new UniversalRecommendation($package_name, $version_constraint, $install, $vetted, $note, $patches);
     }
-    return new static(Closure::fromCallable(function (ExtensionInterface $extension) use ($validated): bool {
+    return new DefinedRecommendation(Closure::fromCallable(function (ExtensionInterface $extension) use ($validated): bool {
       return $extension->getName() === $validated['replaces']['name'];
     }), $package_name, $version_constraint, $install, $vetted, $note, $patches);
   }

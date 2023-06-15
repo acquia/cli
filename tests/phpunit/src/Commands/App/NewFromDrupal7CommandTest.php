@@ -85,7 +85,7 @@ class NewFromDrupal7CommandTest extends CommandTestBase {
     try {
       $inspector = ExportedDrupal7ExtensionsInspector::createFromResource($extensions_resource);
     }
-    catch (JsonException $e) {
+    catch (\JsonException $e) {
       $this->fail("$extensions_json contains malformed JSON.");
       return;
     }

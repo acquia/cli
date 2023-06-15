@@ -56,7 +56,7 @@ final class Drupal7Extension implements ExtensionInterface {
     $this->type = $type;
     $this->name = $name;
     $this->enabled = $enabled;
-    $this->humanName = $human_name ?? $name;
+    $this->humanName = !empty($human_name) ? $human_name : $name;
     $this->version = $version;
   }
 
