@@ -1,0 +1,821 @@
+[
+  {
+    "name": "aggregator",
+    "humanName": "Aggregator",
+    "type": "module",
+    "enabled": false,
+    "version": "7.67"
+  },
+  {
+    "name": "az_standards",
+    "humanName": "Arizona Standards",
+    "type": "module",
+    "enabled": false,
+    "version": "1.0-for-D7-HS-stuff-only"
+  },
+  {
+    "name": "bartik",
+    "humanName": "Bartik",
+    "type": "theme",
+    "enabled": false,
+    "version": "7.67"
+  },
+  {
+    "name": "block",
+    "humanName": "Block",
+    "type": "module",
+    "enabled": true,
+    "version": "7.67"
+  },
+  {
+    "name": "blog",
+    "humanName": "Blog",
+    "type": "module",
+    "enabled": false,
+    "version": "7.67"
+  },
+  {
+    "name": "book",
+    "humanName": "Book",
+    "type": "module",
+    "enabled": false,
+    "version": "7.67"
+  },
+  {
+    "name": "bulk_export",
+    "humanName": "Bulk Export",
+    "type": "module",
+    "enabled": false,
+    "version": null
+  },
+  {
+    "name": "cdn",
+    "humanName": "CDN",
+    "type": "module",
+    "enabled": false,
+    "version": null
+  },
+  {
+    "name": "color",
+    "humanName": "Color",
+    "type": "module",
+    "enabled": false,
+    "version": "7.67"
+  },
+  {
+    "name": "comment",
+    "humanName": "Comment",
+    "type": "module",
+    "enabled": true,
+    "version": "7.67"
+  },
+  {
+    "name": "comment_notify",
+    "humanName": "Comment Notify",
+    "type": "module",
+    "enabled": true,
+    "version": null
+  },
+  {
+    "name": "contact",
+    "humanName": "Contact",
+    "type": "module",
+    "enabled": true,
+    "version": "7.67"
+  },
+  {
+    "name": "contextual",
+    "humanName": "Contextual links",
+    "type": "module",
+    "enabled": true,
+    "version": "7.67"
+  },
+  {
+    "name": "cpn",
+    "humanName": "Code per Node",
+    "type": "module",
+    "enabled": false,
+    "version": null
+  },
+  {
+    "name": "ctools",
+    "humanName": "Chaos tools",
+    "type": "module",
+    "enabled": true,
+    "version": null
+  },
+  {
+    "name": "ctools_access_ruleset",
+    "humanName": "Custom rulesets",
+    "type": "module",
+    "enabled": false,
+    "version": null
+  },
+  {
+    "name": "ctools_ajax_sample",
+    "humanName": "Chaos Tools (CTools) AJAX Example",
+    "type": "module",
+    "enabled": false,
+    "version": null
+  },
+  {
+    "name": "ctools_custom_content",
+    "humanName": "Custom content panes",
+    "type": "module",
+    "enabled": false,
+    "version": null
+  },
+  {
+    "name": "ctools_plugin_example",
+    "humanName": "Chaos Tools (CTools) Plugin Example",
+    "type": "module",
+    "enabled": false,
+    "version": null
+  },
+  {
+    "name": "dashboard",
+    "humanName": "Dashboard",
+    "type": "module",
+    "enabled": false,
+    "version": "7.67"
+  },
+  {
+    "name": "date",
+    "humanName": "Date",
+    "type": "module",
+    "enabled": true,
+    "version": null
+  },
+  {
+    "name": "date_all_day",
+    "humanName": "Date All Day",
+    "type": "module",
+    "enabled": true,
+    "version": null
+  },
+  {
+    "name": "date_api",
+    "humanName": "Date API",
+    "type": "module",
+    "enabled": true,
+    "version": null
+  },
+  {
+    "name": "date_context",
+    "humanName": "Date Context",
+    "type": "module",
+    "enabled": false,
+    "version": null
+  },
+  {
+    "name": "date_migrate_example",
+    "humanName": "Date Migration Example",
+    "type": "module",
+    "enabled": false,
+    "version": "7.x-2.0"
+  },
+  {
+    "name": "date_popup",
+    "humanName": "Date Popup",
+    "type": "module",
+    "enabled": false,
+    "version": null
+  },
+  {
+    "name": "date_repeat",
+    "humanName": "Date Repeat API",
+    "type": "module",
+    "enabled": false,
+    "version": null
+  },
+  {
+    "name": "date_repeat_field",
+    "humanName": "Date Repeat Field",
+    "type": "module",
+    "enabled": false,
+    "version": null
+  },
+  {
+    "name": "date_tools",
+    "humanName": "Date Tools",
+    "type": "module",
+    "enabled": false,
+    "version": null
+  },
+  {
+    "name": "date_views",
+    "humanName": "Date Views",
+    "type": "module",
+    "enabled": false,
+    "version": null
+  },
+  {
+    "name": "dblog",
+    "humanName": "Database logging",
+    "type": "module",
+    "enabled": true,
+    "version": "7.67"
+  },
+  {
+    "name": "diff",
+    "humanName": "Diff",
+    "type": "module",
+    "enabled": true,
+    "version": null
+  },
+  {
+    "name": "drupad",
+    "humanName": "Drupad",
+    "type": "module",
+    "enabled": false,
+    "version": null
+  },
+  {
+    "name": "duo",
+    "humanName": "Duo",
+    "type": "module",
+    "enabled": false,
+    "version": null
+  },
+  {
+    "name": "field",
+    "humanName": "Field",
+    "type": "module",
+    "enabled": true,
+    "version": "7.67"
+  },
+  {
+    "name": "field_sql_storage",
+    "humanName": "Field SQL storage",
+    "type": "module",
+    "enabled": true,
+    "version": "7.67"
+  },
+  {
+    "name": "field_ui",
+    "humanName": "Field UI",
+    "type": "module",
+    "enabled": true,
+    "version": "7.67"
+  },
+  {
+    "name": "file",
+    "humanName": "File",
+    "type": "module",
+    "enabled": true,
+    "version": "7.67"
+  },
+  {
+    "name": "filefield_sources",
+    "humanName": "File Field Sources",
+    "type": "module",
+    "enabled": true,
+    "version": null
+  },
+  {
+    "name": "filter",
+    "humanName": "Filter",
+    "type": "module",
+    "enabled": true,
+    "version": "7.67"
+  },
+  {
+    "name": "forcejs",
+    "humanName": "Force JS",
+    "type": "module",
+    "enabled": true,
+    "version": null
+  },
+  {
+    "name": "forum",
+    "humanName": "Forum",
+    "type": "module",
+    "enabled": false,
+    "version": "7.67"
+  },
+  {
+    "name": "garland",
+    "humanName": "Garland",
+    "type": "theme",
+    "enabled": false,
+    "version": "7.67"
+  },
+  {
+    "name": "git_deploy",
+    "humanName": "Git Deploy",
+    "type": "module",
+    "enabled": false,
+    "version": null
+  },
+  {
+    "name": "globalredirect",
+    "humanName": "Global Redirect",
+    "type": "module",
+    "enabled": true,
+    "version": null
+  },
+  {
+    "name": "googleanalytics",
+    "humanName": "Google Analytics",
+    "type": "module",
+    "enabled": true,
+    "version": null
+  },
+  {
+    "name": "gravatar",
+    "humanName": "Gravatar",
+    "type": "module",
+    "enabled": true,
+    "version": null
+  },
+  {
+    "name": "help",
+    "humanName": "Help",
+    "type": "module",
+    "enabled": false,
+    "version": "7.67"
+  },
+  {
+    "name": "hierarchical_select",
+    "humanName": "Hierarchical Select",
+    "type": "module",
+    "enabled": false,
+    "version": null
+  },
+  {
+    "name": "honeypot",
+    "humanName": "Honeypot",
+    "type": "module",
+    "enabled": true,
+    "version": null
+  },
+  {
+    "name": "hs_flatlist",
+    "humanName": "Hierarchical Select Flat List",
+    "type": "module",
+    "enabled": false,
+    "version": null
+  },
+  {
+    "name": "hs_menu",
+    "humanName": "Hierarchical Select Menu",
+    "type": "module",
+    "enabled": false,
+    "version": null
+  },
+  {
+    "name": "hs_smallhierarchy",
+    "humanName": "Hierarchical Select Small Hierarchy",
+    "type": "module",
+    "enabled": false,
+    "version": null
+  },
+  {
+    "name": "hs_taxonomy",
+    "humanName": "Hierarchical Select Taxonomy",
+    "type": "module",
+    "enabled": false,
+    "version": null
+  },
+  {
+    "name": "hsdemo",
+    "humanName": "Hierarchical Select Demos",
+    "type": "module",
+    "enabled": false,
+    "version": null
+  },
+  {
+    "name": "hser",
+    "humanName": "Hierarchical Select Entity Reference",
+    "type": "module",
+    "enabled": false,
+    "version": null
+  },
+  {
+    "name": "image",
+    "humanName": "Image",
+    "type": "module",
+    "enabled": false,
+    "version": "7.67"
+  },
+  {
+    "name": "image_resize_filter",
+    "humanName": "Image resize filter",
+    "type": "module",
+    "enabled": true,
+    "version": null
+  },
+  {
+    "name": "insert",
+    "humanName": "Insert",
+    "type": "module",
+    "enabled": true,
+    "version": null
+  },
+  {
+    "name": "libraries",
+    "humanName": "Libraries",
+    "type": "module",
+    "enabled": false,
+    "version": null
+  },
+  {
+    "name": "link",
+    "humanName": "Link",
+    "type": "module",
+    "enabled": true,
+    "version": null
+  },
+  {
+    "name": "list",
+    "humanName": "List",
+    "type": "module",
+    "enabled": true,
+    "version": "7.67"
+  },
+  {
+    "name": "locale",
+    "humanName": "Locale",
+    "type": "module",
+    "enabled": false,
+    "version": "7.67"
+  },
+  {
+    "name": "markdown",
+    "humanName": "Markdown filter",
+    "type": "module",
+    "enabled": true,
+    "version": null
+  },
+  {
+    "name": "menu",
+    "humanName": "Menu",
+    "type": "module",
+    "enabled": true,
+    "version": "7.67"
+  },
+  {
+    "name": "module_filter",
+    "humanName": "Module filter",
+    "type": "module",
+    "enabled": false,
+    "version": null
+  },
+  {
+    "name": "mollom",
+    "humanName": "Mollom",
+    "type": "module",
+    "enabled": false,
+    "version": null
+  },
+  {
+    "name": "navbar",
+    "humanName": "Navbar",
+    "type": "module",
+    "enabled": false,
+    "version": null
+  },
+  {
+    "name": "node",
+    "humanName": "Node",
+    "type": "module",
+    "enabled": true,
+    "version": "7.67"
+  },
+  {
+    "name": "node_reference",
+    "humanName": "Node Reference",
+    "type": "module",
+    "enabled": true,
+    "version": null
+  },
+  {
+    "name": "number",
+    "humanName": "Number",
+    "type": "module",
+    "enabled": true,
+    "version": "7.67"
+  },
+  {
+    "name": "openid",
+    "humanName": "OpenID",
+    "type": "module",
+    "enabled": false,
+    "version": "7.67"
+  },
+  {
+    "name": "openidurl",
+    "humanName": "OpenID URL",
+    "type": "module",
+    "enabled": false,
+    "version": null
+  },
+  {
+    "name": "options",
+    "humanName": "Options",
+    "type": "module",
+    "enabled": true,
+    "version": "7.67"
+  },
+  {
+    "name": "overlay",
+    "humanName": "Overlay",
+    "type": "module",
+    "enabled": false,
+    "version": "7.67"
+  },
+  {
+    "name": "page_manager",
+    "humanName": "Page manager",
+    "type": "module",
+    "enabled": false,
+    "version": null
+  },
+  {
+    "name": "path",
+    "humanName": "Path",
+    "type": "module",
+    "enabled": true,
+    "version": "7.67"
+  },
+  {
+    "name": "php",
+    "humanName": "PHP filter",
+    "type": "module",
+    "enabled": false,
+    "version": "7.67"
+  },
+  {
+    "name": "poll",
+    "humanName": "Poll",
+    "type": "module",
+    "enabled": false,
+    "version": "7.67"
+  },
+  {
+    "name": "rdf",
+    "humanName": "RDF",
+    "type": "module",
+    "enabled": true,
+    "version": "7.67"
+  },
+  {
+    "name": "references",
+    "humanName": "References",
+    "type": "module",
+    "enabled": true,
+    "version": null
+  },
+  {
+    "name": "references_uuid",
+    "humanName": "References UUID",
+    "type": "module",
+    "enabled": false,
+    "version": null
+  },
+  {
+    "name": "search",
+    "humanName": "Search",
+    "type": "module",
+    "enabled": true,
+    "version": "7.67"
+  },
+  {
+    "name": "seven",
+    "humanName": "Seven",
+    "type": "theme",
+    "enabled": false,
+    "version": "7.67"
+  },
+  {
+    "name": "shortcut",
+    "humanName": "Shortcut",
+    "type": "module",
+    "enabled": true,
+    "version": "7.67"
+  },
+  {
+    "name": "simpletest",
+    "humanName": "Testing",
+    "type": "module",
+    "enabled": false,
+    "version": "7.67"
+  },
+  {
+    "name": "stark",
+    "humanName": "Stark",
+    "type": "theme",
+    "enabled": false,
+    "version": "7.67"
+  },
+  {
+    "name": "statistics",
+    "humanName": "Statistics",
+    "type": "module",
+    "enabled": false,
+    "version": "7.67"
+  },
+  {
+    "name": "stylizer",
+    "humanName": "Stylizer",
+    "type": "module",
+    "enabled": false,
+    "version": null
+  },
+  {
+    "name": "syslog",
+    "humanName": "Syslog",
+    "type": "module",
+    "enabled": false,
+    "version": "7.67"
+  },
+  {
+    "name": "system",
+    "humanName": "System",
+    "type": "module",
+    "enabled": true,
+    "version": "7.67"
+  },
+  {
+    "name": "taxonomy",
+    "humanName": "Taxonomy",
+    "type": "module",
+    "enabled": true,
+    "version": "7.67"
+  },
+  {
+    "name": "term_depth",
+    "humanName": "Term Depth access",
+    "type": "module",
+    "enabled": false,
+    "version": null
+  },
+  {
+    "name": "text",
+    "humanName": "Text",
+    "type": "module",
+    "enabled": true,
+    "version": "7.67"
+  },
+  {
+    "name": "token",
+    "humanName": "Token",
+    "type": "module",
+    "enabled": true,
+    "version": null
+  },
+  {
+    "name": "toolbar",
+    "humanName": "Toolbar",
+    "type": "module",
+    "enabled": true,
+    "version": "7.67"
+  },
+  {
+    "name": "tracker",
+    "humanName": "Tracker",
+    "type": "module",
+    "enabled": false,
+    "version": "7.67"
+  },
+  {
+    "name": "translation",
+    "humanName": "Content translation",
+    "type": "module",
+    "enabled": false,
+    "version": "7.67"
+  },
+  {
+    "name": "trigger",
+    "humanName": "Trigger",
+    "type": "module",
+    "enabled": false,
+    "version": "7.67"
+  },
+  {
+    "name": "typogrify",
+    "humanName": "Typogrify",
+    "type": "module",
+    "enabled": true,
+    "version": null
+  },
+  {
+    "name": "update",
+    "humanName": "Update manager",
+    "type": "module",
+    "enabled": true,
+    "version": "7.67"
+  },
+  {
+    "name": "user",
+    "humanName": "User",
+    "type": "module",
+    "enabled": true,
+    "version": "7.67"
+  },
+  {
+    "name": "user_reference",
+    "humanName": "User Reference",
+    "type": "module",
+    "enabled": false,
+    "version": null
+  },
+  {
+    "name": "view_unpublished",
+    "humanName": "View Unpublished",
+    "type": "module",
+    "enabled": true,
+    "version": "7.x-1.x-dev"
+  },
+  {
+    "name": "views",
+    "humanName": "Views",
+    "type": "module",
+    "enabled": true,
+    "version": null
+  },
+  {
+    "name": "views_content",
+    "humanName": "Views content panes",
+    "type": "module",
+    "enabled": false,
+    "version": null
+  },
+  {
+    "name": "views_ui",
+    "humanName": "Views UI",
+    "type": "module",
+    "enabled": true,
+    "version": null
+  },
+  {
+    "name": "wimleers_v1",
+    "humanName": "wimleers.com v1",
+    "type": "theme",
+    "enabled": true,
+    "version": null
+  },
+  {
+    "name": "wimleers_v2",
+    "humanName": "wimleers.com v2",
+    "type": "theme",
+    "enabled": true,
+    "version": null
+  },
+  {
+    "name": "xmlsitemap",
+    "humanName": "XML sitemap",
+    "type": "module",
+    "enabled": true,
+    "version": null
+  },
+  {
+    "name": "xmlsitemap_custom",
+    "humanName": "XML sitemap custom",
+    "type": "module",
+    "enabled": true,
+    "version": null
+  },
+  {
+    "name": "xmlsitemap_engines",
+    "humanName": "XML sitemap engines",
+    "type": "module",
+    "enabled": true,
+    "version": null
+  },
+  {
+    "name": "xmlsitemap_i18n",
+    "humanName": "XML sitemap internationalization",
+    "type": "module",
+    "enabled": false,
+    "version": null
+  },
+  {
+    "name": "xmlsitemap_menu",
+    "humanName": "XML sitemap menu",
+    "type": "module",
+    "enabled": false,
+    "version": null
+  },
+  {
+    "name": "xmlsitemap_node",
+    "humanName": "XML sitemap node",
+    "type": "module",
+    "enabled": true,
+    "version": null
+  },
+  {
+    "name": "xmlsitemap_taxonomy",
+    "humanName": "XML sitemap taxonomy",
+    "type": "module",
+    "enabled": false,
+    "version": null
+  },
+  {
+    "name": "xmlsitemap_user",
+    "humanName": "XML sitemap user",
+    "type": "module",
+    "enabled": false,
+    "version": null
+  }
+]

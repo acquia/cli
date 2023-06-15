@@ -1,0 +1,373 @@
+[
+  {
+    "name": "aggregator",
+    "humanName": "Aggregator",
+    "type": "module",
+    "enabled": false,
+    "version": "7.68-dev"
+  },
+  {
+    "name": "alpha",
+    "humanName": "Alpha",
+    "type": "theme",
+    "enabled": false,
+    "version": "7.x-3.0"
+  },
+  {
+    "name": "antibot",
+    "humanName": "Antibot",
+    "type": "module",
+    "enabled": true,
+    "version": "7.x-1.2"
+  },
+  {
+    "name": "bartik",
+    "humanName": "Bartik",
+    "type": "theme",
+    "enabled": false,
+    "version": "7.68-dev"
+  },
+  {
+    "name": "block",
+    "humanName": "Block",
+    "type": "module",
+    "enabled": true,
+    "version": "7.68-dev"
+  },
+  {
+    "name": "blog",
+    "humanName": "Blog",
+    "type": "module",
+    "enabled": false,
+    "version": "7.68-dev"
+  },
+  {
+    "name": "book",
+    "humanName": "Book",
+    "type": "module",
+    "enabled": false,
+    "version": "7.68-dev"
+  },
+  {
+    "name": "color",
+    "humanName": "Color",
+    "type": "module",
+    "enabled": true,
+    "version": "7.68-dev"
+  },
+  {
+    "name": "comment",
+    "humanName": "Comment",
+    "type": "module",
+    "enabled": true,
+    "version": "7.68-dev"
+  },
+  {
+    "name": "contact",
+    "humanName": "Contact",
+    "type": "module",
+    "enabled": true,
+    "version": "7.68-dev"
+  },
+  {
+    "name": "contextual",
+    "humanName": "Contextual links",
+    "type": "module",
+    "enabled": false,
+    "version": "7.68-dev"
+  },
+  {
+    "name": "dashboard",
+    "humanName": "Dashboard",
+    "type": "module",
+    "enabled": false,
+    "version": "7.68-dev"
+  },
+  {
+    "name": "dblog",
+    "humanName": "Database logging",
+    "type": "module",
+    "enabled": true,
+    "version": "7.68-dev"
+  },
+  {
+    "name": "field",
+    "humanName": "Field",
+    "type": "module",
+    "enabled": true,
+    "version": "7.68-dev"
+  },
+  {
+    "name": "field_sql_storage",
+    "humanName": "Field SQL storage",
+    "type": "module",
+    "enabled": true,
+    "version": "7.68-dev"
+  },
+  {
+    "name": "field_ui",
+    "humanName": "Field UI",
+    "type": "module",
+    "enabled": true,
+    "version": "7.68-dev"
+  },
+  {
+    "name": "file",
+    "humanName": "File",
+    "type": "module",
+    "enabled": true,
+    "version": "7.68-dev"
+  },
+  {
+    "name": "filter",
+    "humanName": "Filter",
+    "type": "module",
+    "enabled": true,
+    "version": "7.68-dev"
+  },
+  {
+    "name": "forum",
+    "humanName": "Forum",
+    "type": "module",
+    "enabled": false,
+    "version": "7.68-dev"
+  },
+  {
+    "name": "garland",
+    "humanName": "Garland",
+    "type": "theme",
+    "enabled": true,
+    "version": "7.68-dev"
+  },
+  {
+    "name": "help",
+    "humanName": "Help",
+    "type": "module",
+    "enabled": true,
+    "version": "7.68-dev"
+  },
+  {
+    "name": "honeypot",
+    "humanName": "Honeypot",
+    "type": "module",
+    "enabled": false,
+    "version": "7.x-1.24"
+  },
+  {
+    "name": "image",
+    "humanName": "Image",
+    "type": "module",
+    "enabled": false,
+    "version": "7.68-dev"
+  },
+  {
+    "name": "list",
+    "humanName": "List",
+    "type": "module",
+    "enabled": true,
+    "version": "7.68-dev"
+  },
+  {
+    "name": "locale",
+    "humanName": "Locale",
+    "type": "module",
+    "enabled": false,
+    "version": "7.68-dev"
+  },
+  {
+    "name": "menu",
+    "humanName": "Menu",
+    "type": "module",
+    "enabled": true,
+    "version": "7.68-dev"
+  },
+  {
+    "name": "node",
+    "humanName": "Node",
+    "type": "module",
+    "enabled": true,
+    "version": "7.68-dev"
+  },
+  {
+    "name": "number",
+    "humanName": "Number",
+    "type": "module",
+    "enabled": true,
+    "version": "7.68-dev"
+  },
+  {
+    "name": "omega",
+    "humanName": "Omega",
+    "type": "theme",
+    "enabled": false,
+    "version": "7.x-3.0"
+  },
+  {
+    "name": "openid",
+    "humanName": "OpenID",
+    "type": "module",
+    "enabled": false,
+    "version": "7.68-dev"
+  },
+  {
+    "name": "options",
+    "humanName": "Options",
+    "type": "module",
+    "enabled": true,
+    "version": "7.68-dev"
+  },
+  {
+    "name": "overlay",
+    "humanName": "Overlay",
+    "type": "module",
+    "enabled": false,
+    "version": "7.68-dev"
+  },
+  {
+    "name": "path",
+    "humanName": "Path",
+    "type": "module",
+    "enabled": true,
+    "version": "7.68-dev"
+  },
+  {
+    "name": "php",
+    "humanName": "PHP filter",
+    "type": "module",
+    "enabled": true,
+    "version": "7.68-dev"
+  },
+  {
+    "name": "poll",
+    "humanName": "Poll",
+    "type": "module",
+    "enabled": false,
+    "version": "7.68-dev"
+  },
+  {
+    "name": "rdf",
+    "humanName": "RDF",
+    "type": "module",
+    "enabled": true,
+    "version": "7.68-dev"
+  },
+  {
+    "name": "search",
+    "humanName": "Search",
+    "type": "module",
+    "enabled": true,
+    "version": "7.68-dev"
+  },
+  {
+    "name": "seven",
+    "humanName": "Seven",
+    "type": "theme",
+    "enabled": false,
+    "version": "7.68-dev"
+  },
+  {
+    "name": "shortcut",
+    "humanName": "Shortcut",
+    "type": "module",
+    "enabled": false,
+    "version": "7.68-dev"
+  },
+  {
+    "name": "simpletest",
+    "humanName": "Testing",
+    "type": "module",
+    "enabled": false,
+    "version": "7.68-dev"
+  },
+  {
+    "name": "stark",
+    "humanName": "Stark",
+    "type": "theme",
+    "enabled": false,
+    "version": "7.68-dev"
+  },
+  {
+    "name": "statistics",
+    "humanName": "Statistics",
+    "type": "module",
+    "enabled": true,
+    "version": "7.68-dev"
+  },
+  {
+    "name": "syslog",
+    "humanName": "Syslog",
+    "type": "module",
+    "enabled": false,
+    "version": "7.68-dev"
+  },
+  {
+    "name": "system",
+    "humanName": "System",
+    "type": "module",
+    "enabled": true,
+    "version": "7.68-dev"
+  },
+  {
+    "name": "taxonomy",
+    "humanName": "Taxonomy",
+    "type": "module",
+    "enabled": true,
+    "version": "7.68-dev"
+  },
+  {
+    "name": "text",
+    "humanName": "Text",
+    "type": "module",
+    "enabled": true,
+    "version": "7.68-dev"
+  },
+  {
+    "name": "toolbar",
+    "humanName": "Toolbar",
+    "type": "module",
+    "enabled": false,
+    "version": "7.68-dev"
+  },
+  {
+    "name": "tracker",
+    "humanName": "Tracker",
+    "type": "module",
+    "enabled": false,
+    "version": "7.68-dev"
+  },
+  {
+    "name": "translation",
+    "humanName": "Content translation",
+    "type": "module",
+    "enabled": false,
+    "version": "7.68-dev"
+  },
+  {
+    "name": "trigger",
+    "humanName": "Trigger",
+    "type": "module",
+    "enabled": false,
+    "version": "7.68-dev"
+  },
+  {
+    "name": "update",
+    "humanName": "Update manager",
+    "type": "module",
+    "enabled": true,
+    "version": "7.68-dev"
+  },
+  {
+    "name": "user",
+    "humanName": "User",
+    "type": "module",
+    "enabled": true,
+    "version": "7.68-dev"
+  },
+  {
+    "name": "webchick",
+    "humanName": "Webchick",
+    "type": "theme",
+    "enabled": true,
+    "version": "7.x-3.0"
+  }
+]
