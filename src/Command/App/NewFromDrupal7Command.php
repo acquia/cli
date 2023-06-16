@@ -214,12 +214,11 @@ class NewFromDrupal7Command extends CommandBase {
     fclose($config_resource);
 
     // Parse recommendations for project builder.
+    $recommendations_location = __DIR__ . '/../../../config/from_d7_recommendations.json';
     // @todo Make this a required option.
     if ($input->getOption('recommendations') !== NULL) {
-      $this->io->warning('The --recommendations option is not yet supported.');
-      return Command::FAILURE;
+      $recommendations_location = $input->getOption('recommendations');
     }
-    $recommendations_location = __DIR__ . '/../../../config/from_d7_recommendations.json';
     $recommendations_resource = fopen($recommendations_location, 'r');
     $recommendations = Recommendations::createFromResource($recommendations_resource);
     fclose($recommendations_resource);
