@@ -9,6 +9,7 @@ use Acquia\Cli\Command\App\From\Configuration;
 use Acquia\Cli\Command\App\From\Recommendation\Recommendations;
 use Acquia\Cli\Command\App\From\Recommendation\Resolver;
 use Acquia\Cli\Command\App\From\SourceSite\Drupal7SiteInspector;
+use Acquia\Cli\Command\App\From\SourceSite\ExportedDrupal7ExtensionsInspector;
 use Acquia\Cli\Command\App\From\SourceSite\ExtensionInterface;
 use Acquia\Cli\Command\App\From\SourceSite\SiteInspectorInterface;
 use Acquia\Cli\Command\CommandBase;
@@ -39,11 +40,6 @@ class NewFromDrupal7Command extends CommandBase {
   public const ERR_INDETERMINATE_SITE = 4;
 
   /**
-   * @see \Acquia\Cli\Tests\Commands\App\NewFromDrupal7CommandTest::testNewDrupalCommand()
-   */
-  private ?SiteInspectorInterface $overriddenInspector = NULL;
-
-  /**
    * @var string
    * @phpcsSuppress SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint
    */
@@ -53,6 +49,7 @@ class NewFromDrupal7Command extends CommandBase {
     $this->setDescription('Generate a new Drupal 9+ project from a Drupal 7 application using the default Acquia Migrate Accelerate recommendations.')
       ->addOption('drupal7-directory', 'source', InputOption::VALUE_OPTIONAL, 'The root of the Drupal 7 application.')
       ->addOption('drupal7-uri', 'uri', InputOption::VALUE_OPTIONAL, 'Only necessary in case of a multisite. If a single site, this will be computed automatically.')
+      ->addOption('stored-analysis', 'analysis', InputOption::VALUE_OPTIONAL, 'As an alternative to drupal7-directory, it is possible to pass a stored analysis.')
       ->addOption('recommendations', 'recommendations', InputOption::VALUE_OPTIONAL, 'Overrides the default recommendations.')
       ->addOption('directory', 'destination', InputOption::VALUE_OPTIONAL, 'The directory where to generate the new application.')
       ->setAliases([
@@ -163,9 +160,12 @@ class NewFromDrupal7Command extends CommandBase {
   }
 
   private function getInspector(InputInterface $input): SiteInspectorInterface {
-    // Allow inspector to be overridden for testing using reflection.
-    if ($this->overriddenInspector) {
-      return $this->overriddenInspector;
+    if ($input->getOption('stored-analysis') !== NULL) {
+      $analysis_json = $input->getOption('stored-analysis');
+      $extensions_resource = fopen($analysis_json, 'r');
+      $inspector = ExportedDrupal7ExtensionsInspector::createFromResource($extensions_resource);
+      fclose($extensions_resource);
+      return $inspector;
     }
 
     // First: Determine the Drupal 7 root.
@@ -206,7 +206,7 @@ class NewFromDrupal7Command extends CommandBase {
     try {
       $inspector = $this->getInspector($input);
     }
-    catch (\InvalidArgumentException $e) {
+    catch (\Exception $e) {
       $this->io->error($e->getMessage());
       // Important: ensure that the unique error code that ::getSiteUri()
       // computed is passed on, to enable scripting this command.

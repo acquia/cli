@@ -2,11 +2,9 @@
 
 declare(strict_types = 1);
 
-namespace Acquia\Cli\Tests\Commands\App\From;
+namespace Acquia\Cli\Command\App\From\SourceSite;
 
 use Acquia\Cli\Command\App\From\JsonResourceParserTrait;
-use Acquia\Cli\Command\App\From\SourceSite\Drupal7Extension;
-use Acquia\Cli\Command\App\From\SourceSite\SiteInspectorBase;
 
 final class ExportedDrupal7ExtensionsInspector extends SiteInspectorBase {
 

@@ -5,7 +5,6 @@ declare(strict_types = 1);
 namespace Acquia\Cli\Tests\Commands\App;
 
 use Acquia\Cli\Command\App\NewFromDrupal7Command;
-use Acquia\Cli\Tests\Commands\App\From\ExportedDrupal7ExtensionsInspector;
 use Acquia\Cli\Tests\CommandTestBase;
 use Prophecy\Prophecy\ObjectProphecy;
 use Symfony\Component\Console\Command\Command;
@@ -81,21 +80,6 @@ class NewFromDrupal7CommandTest extends CommandTestBase {
     $process->isSuccessful()->willReturn(TRUE);
     $process->getExitCode()->willReturn(0);
 
-    $extensions_resource = fopen($extensions_json, 'r');
-    try {
-      $inspector = ExportedDrupal7ExtensionsInspector::createFromResource($extensions_resource);
-    }
-    catch (\JsonException $e) {
-      $this->fail("$extensions_json contains malformed JSON.");
-      return;
-    }
-    fclose($extensions_resource);
-
-    // Use reflection to inject the overridden inspector.
-    $property = new \ReflectionProperty(NewFromDrupal7Command::class, 'overriddenInspector');
-    $property->setAccessible(TRUE);
-    $property->setValue($this->command, $inspector);
-
     $localMachineHelper = $this->mockLocalMachineHelper();
 
     $mockFileSystem = $this->mockGetFilesystem($localMachineHelper);
@@ -109,6 +93,7 @@ class NewFromDrupal7CommandTest extends CommandTestBase {
     $this->command->localMachineHelper = $localMachineHelper->reveal();
     $this->executeCommand([
       '--directory' => $race_condition_proof_tmpdir,
+      '--stored-analysis' => $extensions_json,
     ]);
     $this->prophet->checkPredictions();
     $output = $this->getDisplay();
