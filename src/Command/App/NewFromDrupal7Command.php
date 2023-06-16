@@ -53,7 +53,7 @@ class NewFromDrupal7Command extends CommandBase {
     $this->setDescription('Generate a new Drupal 9+ project from a Drupal 7 application using the default Acquia Migrate Accelerate recommendations.')
       ->addOption('drupal7-directory', 'source', InputOption::VALUE_OPTIONAL, 'The root of the Drupal 7 application.')
       ->addOption('drupal7-uri', 'uri', InputOption::VALUE_OPTIONAL, 'Only necessary in case of a multisite. If a single site, this will be computed automatically.')
-      ->addOption('recommendations', 'recommendations', InputOption::VALUE_OPTIONAL, 'Currently still optional, will become required.')
+      ->addOption('recommendations', 'recommendations', InputOption::VALUE_OPTIONAL, 'Overrides the default recommendations.')
       ->addOption('directory', 'destination', InputOption::VALUE_OPTIONAL, 'The directory where to generate the new application.')
       ->setAliases([
         // Currently only "from Drupal 7", more to potentially follow.
@@ -185,6 +185,23 @@ class NewFromDrupal7Command extends CommandBase {
     return new Drupal7SiteInspector($d7_root, $uri);
   }
 
+  private function getLocation(string $location, bool $should_exist = TRUE): string {
+    if (strpos($location, '://') === FALSE) {
+      $file_exists = file_exists($location);
+      if ($file_exists && !$should_exist) {
+        throw new ValidatorException(sprintf('The %s directory already exists.', $location));
+      }
+      elseif (!$file_exists && $should_exist) {
+        throw new ValidatorException(sprintf('%s could not be located. Check that the path is correct and try again.', $location));
+      }
+      if (strpos($location, '.') === 0 || strpos($location, '/') !== 0) {
+        $absolute = getcwd() . '/' . $location;
+        $location = $should_exist ? realpath($absolute) : $absolute;
+      }
+    }
+    return $location;
+  }
+
   protected function execute(InputInterface $input, OutputInterface $output): int {
     try {
       $inspector = $this->getInspector($input);
@@ -215,9 +232,15 @@ class NewFromDrupal7Command extends CommandBase {
 
     // Parse recommendations for project builder.
     $recommendations_location = __DIR__ . '/../../../config/from_d7_recommendations.json';
-    // @todo Make this a required option.
     if ($input->getOption('recommendations') !== NULL) {
-      $recommendations_location = $input->getOption('recommendations');
+      $raw_recommendations_location = $input->getOption('recommendations');
+      try {
+        $recommendations_location = $this->getLocation($raw_recommendations_location);
+      }
+      catch (\InvalidArgumentException $e) {
+        $this->io->error($e->getMessage());
+        return Command::FAILURE;
+      }
     }
     $recommendations_resource = fopen($recommendations_location, 'r');
     $recommendations = Recommendations::createFromResource($recommendations_resource);
