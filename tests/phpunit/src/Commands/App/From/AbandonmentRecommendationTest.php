@@ -10,7 +10,6 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * @coversDefaultClass \Acquia\Cli\Command\App\From\Recommendation\AbandonmentRecommendation
- * @group foo
  */
 class AbandonmentRecommendationTest extends TestCase {
 
@@ -32,7 +31,7 @@ class AbandonmentRecommendationTest extends TestCase {
   }
 
   /**
-   * @covers getPackageName
+   * @covers ::getPackageName
    */
   public function testPackageName(): void {
     $this->expectException(\LogicException::class);
@@ -40,7 +39,7 @@ class AbandonmentRecommendationTest extends TestCase {
   }
 
   /**
-   * @covers getVersionConstraint
+   * @covers ::getVersionConstraint
    */
   public function testVersionConstraint(): void {
     $this->expectException(\LogicException::class);
@@ -48,7 +47,7 @@ class AbandonmentRecommendationTest extends TestCase {
   }
 
   /**
-   * @covers hasModulesToInstall
+   * @covers ::hasModulesToInstall
    */
   public function testHasModulesToInstall(): void {
     $this->expectException(\LogicException::class);
@@ -56,7 +55,7 @@ class AbandonmentRecommendationTest extends TestCase {
   }
 
   /**
-   * @covers getModulesToInstall
+   * @covers ::getModulesToInstall
    */
   public function testGetModulesToInstall(): void {
     $this->expectException(\LogicException::class);
@@ -64,7 +63,7 @@ class AbandonmentRecommendationTest extends TestCase {
   }
 
   /**
-   * @covers hasPatches
+   * @covers ::hasPatches
    */
   public function testHasPatches(): void {
     $this->expectException(\LogicException::class);
@@ -72,7 +71,7 @@ class AbandonmentRecommendationTest extends TestCase {
   }
 
   /**
-   * @covers isVetted
+   * @covers ::isVetted
    */
   public function testIsVetted(): void {
     $this->expectException(\LogicException::class);
@@ -80,7 +79,7 @@ class AbandonmentRecommendationTest extends TestCase {
   }
 
   /**
-   * @covers getPatches
+   * @covers ::getPatches
    */
   public function testGetPatches(): void {
     $this->expectException(\LogicException::class);
