@@ -104,9 +104,6 @@ class NewFromDrupal7Command extends CommandBase {
   }
 
   private static function isAbsolutePath(string $path): bool {
-    if ($path === '') {
-      throw new \InvalidArgumentException();
-    }
     // @see https://stackoverflow.com/a/23570509
     return $path[0] === DIRECTORY_SEPARATOR || preg_match('~\A[A-Z]:(?![^/\\\\])~i', $path) > 0;
   }
