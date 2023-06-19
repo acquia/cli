@@ -30,11 +30,13 @@ class NewFromDrupal7CommandTest extends CommandTestBase {
    * @return array<mixed>
    */
   public function provideTestNewFromDrupal7Command(): array {
-    $case_directories = glob(dirname(dirname(dirname(dirname(dirname(__FILE__))))) . '/fixtures/drupal7/*', GLOB_ONLYDIR);
+    $repo_root = dirname(dirname(dirname(dirname(dirname(dirname(__FILE__))))));
+    $case_directories = glob($repo_root . '/tests/fixtures/drupal7/*', GLOB_ONLYDIR);
     $cases = [];
     foreach ($case_directories as $case_directory) {
       $cases[basename($case_directory)] = [
         "$case_directory/extensions.json",
+        "$repo_root/config/from_d7_recommendations.json",
         "$case_directory/expected.json",
       ];
     }
@@ -60,11 +62,14 @@ class NewFromDrupal7CommandTest extends CommandTestBase {
    * @endcode
    * @param string $extensions_file
    *   An extensions file. See above.
+   * @param string $recommendations_json
+   *   A recommendations file. The file should have the same format as a file
+   *   that would be provided to the --recommendations CLI option.
    * @param string $expected_output_file
    *   The expected output.
    * @dataProvider provideTestNewFromDrupal7Command
    */
-  public function testNewFromDrupal7Command(string $extensions_json, string $expected_json): void {
+  public function testNewFromDrupal7Command(string $extensions_json, string $recommendations_json, string $expected_json): void {
     foreach (func_get_args() as $file) {
       $this->assertTrue(file_exists($file), sprintf("The %s test file is missing.", basename($file)));
     }
@@ -93,6 +98,7 @@ class NewFromDrupal7CommandTest extends CommandTestBase {
     $this->command->localMachineHelper = $localMachineHelper->reveal();
     $this->executeCommand([
       '--directory' => $race_condition_proof_tmpdir,
+      '--recommendations' => $recommendations_json,
       '--stored-analysis' => $extensions_json,
     ]);
     $this->prophet->checkPredictions();
