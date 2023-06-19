@@ -95,12 +95,20 @@ class NewFromDrupal7Command extends CommandBase {
       elseif (!$file_exists && $should_exist) {
         throw new ValidatorException(sprintf('%s could not be located. Check that the path is correct and try again.', $location));
       }
-      if (strpos($location, '.') === 0 || strpos($location, '/') !== 0) {
+      if (strpos($location, '.') === 0 || !static::isAbsolutePath($location)) {
         $absolute = getcwd() . '/' . $location;
         $location = $should_exist ? realpath($absolute) : $absolute;
       }
     }
     return $location;
+  }
+
+  private static function isAbsolutePath(string $path): bool {
+    if ($path === '') {
+      throw new \InvalidArgumentException();
+    }
+    // @see https://stackoverflow.com/a/23570509
+    return $path[0] === DIRECTORY_SEPARATOR || preg_match('~\A[A-Z]:(?![^/\\\\])~i', $path) > 0;
   }
 
   protected function execute(InputInterface $input, OutputInterface $output): int {
