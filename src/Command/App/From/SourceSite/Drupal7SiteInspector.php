@@ -4,6 +4,10 @@ declare(strict_types = 1);
 
 namespace Acquia\Cli\Command\App\From\SourceSite;
 
+use Acquia\Cli\Command\App\NewFromDrupal7Command;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Validator\Exception\ValidatorException;
+
 /**
  * Inspects a Drupal 7 site.
  */
@@ -99,6 +103,105 @@ final class Drupal7SiteInspector extends SiteInspectorBase {
     drupal_bootstrap(DRUPAL_BOOTSTRAP_VARIABLES);
     chdir($previous_directory);
     $bootstrapped = TRUE;
+  }
+
+  /**
+   * Validates the given Drupal 7 application root.
+   *
+   * @param string $path
+   *   The path to validate.
+   * @return string
+   *   The received Drupal 7 path, if it is valid, without trailing slashes.
+   */
+  public static function validateDrupal7Root(string $path): string {
+    $path = rtrim($path, '/');
+    if (!file_exists($path)) {
+      throw new ValidatorException(sprintf("The path '%s' does not exist. Please enter the absolute path to a Drupal 7 application root.", $path));
+    }
+    if (!file_exists("$path/index.php")) {
+      throw new ValidatorException(sprintf("The '%s' directory does not seem to be the root of a Drupal 7 application. It does not contain a index.php file.", $path));
+    }
+    if (!file_exists("$path/sites/default/default.settings.php")) {
+      throw new ValidatorException(sprintf("The '%s' directory does not seem to be the root of a Drupal 7 application. It does not contain a sites/default/default.settings.php.", $path));
+    }
+    return $path;
+  }
+
+  /**
+   * Determines the best URI to use for bootstrapping the source site.
+   *
+   * @param \Symfony\Component\Console\Input\InputInterface $input
+   *   The input passed into this Symfony command.
+   * @param string $drupal_root
+   *   The root of the source site.
+   * @return string
+   *   A URI string corresponding to an installed site.
+   */
+  public static function getSiteUri(InputInterface $input, string $drupal_root): string {
+    // Construct a list of site directories which contain a settings.php file.
+    $site_dirs = array_map(function ($path) use ($drupal_root) {
+      return substr($path, strlen("$drupal_root/sites/"), -1 * strlen('/settings.php'));
+    }, glob("$drupal_root/sites/*/settings.php"));
+    // If the --drupal7-uri flag is defined, defer to it and attempt to ensure that it's
+    // valid.
+    if ($input->hasOption('drupal7-uri')) {
+      $uri = $input->getOption('drupal7-uri');
+      $sites_location = "$drupal_root/sites/sites.php";
+      // If there isn't a sites.php file and the URI does not correspond to a
+      // site directory, the site will be unable to bootstrap.
+      if (!file_exists($sites_location) && !in_array($uri, $site_dirs, TRUE)) {
+        throw new \InvalidArgumentException(
+          sprintf('The given --drupal7-uri value does not correspond to an installed sites directory and a sites.php file could not be located.'),
+          NewFromDrupal7Command::ERR_UNRECOGNIZED_HOST
+        );
+      }
+      // Parse the contents of sites.php.
+      $sites = [];
+      // This will override $sites.
+      // @see https://git.drupalcode.org/project/drupal/-/blob/7.x/includes/bootstrap.inc#L563
+      include $sites_location;
+
+      // @phpstan-ignore-next-line
+      if (!empty($sites)) {
+        // If the URI corresponds to a configuration in sites.php, then ensure
+        // that the identified directory also has a settings.php file. If it
+        // does not, then the site is probably not installed.
+        if (isset($sites[$uri])) {
+          if (!in_array($sites[$uri], $site_dirs, TRUE)) {
+            throw new \InvalidArgumentException(
+              sprintf('The given --drupal7-uri value corresponds to a site directory in sites.php, but that directory does not have a settings.php file. This typically means that the site has not been installed.'),
+              NewFromDrupal7Command::ERR_UNRECOGNIZED_HOST
+            );
+          }
+          // The URI is assumed to be valid.
+          return $uri;
+        }
+        // The given URI doesn't match anything in sites.php.
+        throw new \InvalidArgumentException(
+          sprintf('The given --drupal7-uri value does not correspond to any configuration in sites.php.'),
+          NewFromDrupal7Command::ERR_UNRECOGNIZED_HOST
+        );
+      }
+
+      if (in_array($uri, $site_dirs, TRUE)) {
+        return $uri;
+      }
+    }
+    // There was no --drupal7-uri flag specified, so attempt to determine a sane
+    // default. If there is only one possible site, use it. If there is more
+    // than one, but there is a default directory with a settings.php, use that.
+    if (count($site_dirs) === 1) {
+      return current($site_dirs);
+    }
+    elseif (in_array('default', $site_dirs, TRUE)) {
+      return 'default';
+    }
+    // A URI corresponding to a site directory could not be determined, rather
+    // than make a faulty assumption (e.g. use the first found), exit.
+    throw new \InvalidArgumentException(
+      sprintf('A Drupal 7 installation could not be located.'),
+      NewFromDrupal7Command::ERR_INDETERMINATE_SITE
+    );
   }
 
 }
