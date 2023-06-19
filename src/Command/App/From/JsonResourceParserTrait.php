@@ -20,7 +20,7 @@ trait JsonResourceParserTrait {
   protected static function parseJsonResource($resource): mixed {
     assert(is_resource($resource));
     $json = stream_get_contents($resource);
-    return json_decode($json, TRUE, 512, JSON_OBJECT_AS_ARRAY | JSON_THROW_ON_ERROR);
+    return json_decode($json, flags: JSON_OBJECT_AS_ARRAY | JSON_THROW_ON_ERROR);
   }
 
 }
