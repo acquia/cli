@@ -31,6 +31,13 @@ class NewFromDrupal7CommandTest extends CommandTestBase {
    */
   public function provideTestNewFromDrupal7Command(): array {
     $repo_root = dirname(dirname(dirname(dirname(dirname(dirname(__FILE__))))));
+    // Windows accepts paths with either slash (/) or backslash (\), but will
+    // not accept a path which contains both a slash and a backslash. Since this
+    // may run on any platform, sanitize everything to use slash which is
+    // supported on all platforms.
+    // @see \Drupal\Core\File\FileSystem::getTempDirectory()
+    // @see https://www.php.net/manual/en/function.dirname.php#123472
+    $repo_root = str_replace('\\', '/', $repo_root);
     $case_directories = glob($repo_root . '/tests/fixtures/drupal7/*', GLOB_ONLYDIR);
     $cases = [];
     foreach ($case_directories as $case_directory) {
