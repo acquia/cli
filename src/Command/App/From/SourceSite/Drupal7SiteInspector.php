@@ -144,7 +144,7 @@ final class Drupal7SiteInspector extends SiteInspectorBase {
     }, glob("$drupal_root/sites/*/settings.php"));
     // If the --drupal7-uri flag is defined, defer to it and attempt to ensure that it's
     // valid.
-    if ($input->hasOption('drupal7-uri')) {
+    if ($input->getOption('drupal7-uri') !== NULL) {
       $uri = $input->getOption('drupal7-uri');
       $sites_location = "$drupal_root/sites/sites.php";
       // If there isn't a sites.php file and the URI does not correspond to a
