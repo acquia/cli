@@ -457,8 +457,7 @@ abstract class TestBase extends TestCase {
   }
 
   /**
-   * @param int $count
-   *   The number of applications to return. Use this to simulate query filters.
+   * @param int $count The number of applications to return. Use this to simulate query filters.
    */
   public function mockApplicationsRequest(int $count = 2, bool $unique = TRUE): object {
     // Request for applications.

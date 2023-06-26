@@ -99,8 +99,7 @@ class TelemetryHelper {
   /**
    * Get telemetry user data.
    *
-   * @return array<mixed>
-   *   Telemetry user data.
+   * @return array<mixed> Telemetry user data.
    */
   private function getTelemetryUserData(): array {
     $data = [
@@ -124,12 +123,6 @@ class TelemetryHelper {
     return $data;
   }
 
-  /**
-   * Get user uuid.
-   *
-   * @return string|null
-   *   User UUID from Cloud.
-   */
   private function getUserId(): ?string {
     $user = $this->getUserData();
     if ($user && isset($user['uuid'])) {
@@ -142,8 +135,7 @@ class TelemetryHelper {
   /**
    * Get user data.
    *
-   * @return array<mixed>|null
-   *   User account data from Cloud.
+   * @return array<mixed>|null User account data from Cloud.
    */
   private function getUserData(): ?array {
     $user = $this->datastoreCloud->get(DataStoreContract::USER);

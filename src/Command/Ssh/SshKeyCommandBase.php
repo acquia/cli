@@ -45,10 +45,6 @@ abstract class SshKeyCommandBase extends CommandBase {
     return self::normalizeSshKeyLabel('IDE_' . $ide->label . '_' . $ide->uuid);
   }
 
-  /**
-   * @param string|null $label
-   *   The label to normalize.
-   */
   public static function normalizeSshKeyLabel(?string $label): string|null {
     if (is_null($label)) {
       throw new RuntimeException('The label cannot be empty');
@@ -86,8 +82,7 @@ abstract class SshKeyCommandBase extends CommandBase {
   /**
    * Adds a given password protected local SSH key to the local keychain.
    *
-   * @param string $filepath
-   *   The filepath of the private SSH key.
+   * @param string $filepath The filepath of the private SSH key.
    */
   protected function addSshKeyToAgent(string $filepath, string $password): void {
     // We must use a separate script to mimic user input due to the limitations of the `ssh-add` command.

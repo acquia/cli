@@ -45,8 +45,7 @@ class AliasesDownloadCommandTest extends CommandTestBase {
    * @param array $inputs
    * @param array $args
    * @param string|null $destinationDir
-   * @param bool $all
-   *   Download aliases for all applications.
+   * @param bool $all Download aliases for all applications.
    * @dataProvider providerTestRemoteAliasesDownloadCommand
    */
   public function testRemoteAliasesDownloadCommand(array $inputs, array $args, string $destinationDir = NULL, bool $all = FALSE): void {

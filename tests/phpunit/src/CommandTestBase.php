@@ -54,8 +54,7 @@ abstract class CommandTestBase extends TestBase {
   /**
    * Creates a command object to test.
    *
-   * @return \Symfony\Component\Console\Command\Command
-   *   A command object with mocked dependencies injected.
+   * @return \Symfony\Component\Console\Command\Command A command object with mocked dependencies injected.
    */
   abstract protected function createCommand(): Command;
 
@@ -115,9 +114,6 @@ abstract class CommandTestBase extends TestBase {
 
   /**
    * Gets the command tester.
-   *
-   * @return \Symfony\Component\Console\Tester\CommandTester
-   *   A command tester.
    */
   protected function getCommandTester(): CommandTester {
     if (isset($this->commandTester)) {
@@ -134,9 +130,6 @@ abstract class CommandTestBase extends TestBase {
 
   /**
    * Gets the display returned by the last execution of the command.
-   *
-   * @return string
-   *   The display.
    */
   protected function getDisplay(): string {
     return $this->getCommandTester()->getDisplay();
@@ -144,9 +137,6 @@ abstract class CommandTestBase extends TestBase {
 
   /**
    * Gets the status code returned by the last execution of the command.
-   *
-   * @return int
-   *   The status code.
    */
   protected function getStatusCode(): int {
     return $this->getCommandTester()->getStatusCode();
@@ -154,11 +144,6 @@ abstract class CommandTestBase extends TestBase {
 
   /**
    * Write full width line.
-   *
-   * @param string $message
-   *   Message.
-   * @param \Symfony\Component\Console\Output\OutputInterface $output
-   *   Output.
    */
   protected function writeFullWidthLine(string $message, OutputInterface $output): void {
     $terminalWidth = (new Terminal())->getWidth();
