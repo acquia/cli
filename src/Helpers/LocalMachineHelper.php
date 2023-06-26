@@ -72,10 +72,8 @@ class LocalMachineHelper {
   /**
    * Executes a buffered command.
    *
-   * @param array $cmd
-   *   The command to execute.
-   * @param null $callback
-   *   A function to run while waiting for the process to complete.
+   * @param array $cmd The command to execute.
+   * @param null $callback A function to run while waiting for the process to complete.
    */
   public function execute(array $cmd, callable $callback = NULL, string $cwd = NULL, ?bool $printOutput = TRUE, float $timeout = NULL, array $env = NULL): Process {
     $process = new Process($cmd);
@@ -159,10 +157,6 @@ class LocalMachineHelper {
 
   /**
    * Reads to a file from the local system.
-   *
-   * @param string $filename
-   *   Name of the file to read.
-   * @return string Content read from that file
    */
   public function readFile(string $filename): string {
     // @todo remove this blasphemy once upstream issue is fixed
@@ -204,11 +198,6 @@ class LocalMachineHelper {
 
   /**
    * Writes to a file on the local system.
-   *
-   * @param string $filename
-   *   Name of the file to write to.
-   * @param string $content
-   *   Content to write to the file.
    */
   public function writeFile(string $filename, string|StreamInterface $content): void {
     $this->getFilesystem()->dumpFile($this->getLocalFilepath($filename), $content);
@@ -258,9 +247,6 @@ class LocalMachineHelper {
    * Typically the root directory would also be a Git repository root, though it
    * doesn't have to be (such as for brand-new projects that haven't initialized
    * Git yet).
-   *
-   * @return null|string
-   *   Root.
    */
   public static function getProjectDir(): ?string {
     $possibleProjectRoots = [
@@ -285,15 +271,7 @@ class LocalMachineHelper {
    * Begins searching for $file in $workingDirectory and climbs up directories
    * $maxHeight times, repeating search.
    *
-   * @param string $workingDirectory
-   *   Working directory.
-   * @param array $files
-   *   Files.
-   * @param int $maxHeight
-   *   Max Height.
-   * @return bool|string
-   *   FALSE if file was not found. Otherwise, the directory path containing the
-   *   file.
+   * @return bool|string FALSE if file was not found. Otherwise, the directory path containing the file.
    */
   private static function findDirectoryContainingFiles(string $workingDirectory, array $files, int $maxHeight = 10): bool|string {
     $filePath = $workingDirectory;
@@ -309,14 +287,7 @@ class LocalMachineHelper {
   }
 
   /**
-   * Determines if an array of files exist in a particular directory.
-   *
-   * @param string $dir
-   *   Dir.
-   * @param array $files
-   *   Files.
-   * @return bool
-   *   Exists.
+   * Determines if an array of files exists in a particular directory.
    */
   private static function filesExist(string $dir, array $files): bool {
     foreach ($files as $file) {
@@ -330,9 +301,6 @@ class LocalMachineHelper {
 
   /**
    * Determines if a browser is available on the local machine.
-   *
-   * @return bool
-   *   TRUE if a browser is available.
    */
   public function isBrowserAvailable(): bool {
     if (AcquiaDrupalEnvironmentDetector::isAhIdeEnv()) {
@@ -351,16 +319,14 @@ class LocalMachineHelper {
   /**
    * Starts a background browser/tab for the current site or a specified URL.
    *
-   * @param $uri
-   *   Optional URI or site path to open in browser. If omitted, or if a site path
+   * @param string|null $uri Optional URI or site path to open in browser. If omitted, or if a site path
    *   is specified, the current site home page uri will be prepended if the site's
    *   hostname resolves.
    * @param string|null $browser The command to run to launch a browser.
-   * @return bool
-   *   TRUE if browser was opened. FALSE if browser was disabled by the user or a
+   * @return bool TRUE if browser was opened. FALSE if browser was disabled by the user or a
    *   default browser could not be found.
    */
-  public function startBrowser(mixed $uri = NULL, string $browser = NULL): bool {
+  public function startBrowser(string $uri = NULL, string $browser = NULL): bool {
     // We can only open a browser if we have a DISPLAY environment variable on
     // POSIX or are running Windows or OS X.
     if (!$this->isBrowserAvailable()) {

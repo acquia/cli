@@ -12,10 +12,8 @@ class AcquiaCliException extends Exception {
   /**
    * Object constructor. Sets context array as replacements property.
    *
-   * @param array $replacements
-   *   Context array to interpolate into message.
-   * @param int $code
-   *   Exit code.
+   * @param array $replacements Context array to interpolate into message.
+   * @param int $code Exit code.
    */
   public function __construct(
     private ?string $rawMessage = NULL,
@@ -43,10 +41,8 @@ class AcquiaCliException extends Exception {
   /**
    * Replace the variables into the message string.
    *
-   * @param string $message
-   *   The raw, uninterpolated message string.
-   * @param array $replacements
-   *   The values to replace into the message.
+   * @param string $message The raw, uninterpolated message string.
+   * @param array $replacements The values to replace into the message.
    */
   protected function interpolateString(string $message, array $replacements): string {
     $tr = [];

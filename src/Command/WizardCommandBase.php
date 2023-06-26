@@ -38,10 +38,6 @@ abstract class WizardCommandBase extends SshKeyCommandBase {
     ]);
   }
 
-  /**
-   * @param string $passphrase
-   *   The passphrase.
-   */
   protected function savePassPhraseToFile(string $passphrase): bool|int {
     return file_put_contents($this->passphraseFilepath, $passphrase);
   }

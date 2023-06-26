@@ -182,11 +182,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
 
   /**
    * Initializes the command just after the input has been validated.
-   *
-   * @param InputInterface $input
-   *   An InputInterface instance.
-   * @param OutputInterface $output
-   *   An OutputInterface instance.
    */
   protected function initialize(InputInterface $input, OutputInterface $output): void {
     $this->input = $input;
@@ -594,8 +589,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   /**
    * Determine the Cloud environment.
    *
-   * @return string
-   *   The environment UUID.
+   * @return string The environment UUID.
    */
   protected function determineCloudEnvironment(): string {
     if ($this->input->hasArgument('environmentId') && $this->input->getArgument('environmentId')) {
@@ -769,8 +763,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   /**
    * Determines if Acquia CLI is being run from within a Cloud IDE.
    *
-   * @return bool
-   *   TRUE if Acquia CLI is being run from within a Cloud IDE.
+   * @return bool TRUE if Acquia CLI is being run from within a Cloud IDE.
    */
   public static function isAcquiaCloudIde(): bool {
     return AcquiaDrupalEnvironmentDetector::isAhIdeEnv();
@@ -1034,12 +1027,9 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   }
 
   /**
-   * @param string $userUuidArgument
-   *   User alias like uuid or email.
-   * @param string $orgUuidArgument
-   *   Organization uuid.
-   * @return string
-   *   User uuid from alias
+   * @param string $userUuidArgument User alias like uuid or email.
+   * @param string $orgUuidArgument Organization uuid.
+   * @return string User uuid from alias
    */
   private function validateUserUuid(string $userUuidArgument, string $orgUuidArgument): string {
     try {
@@ -1054,12 +1044,9 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   }
 
   /**
-   * @param String $userAlias
-   *   User alias like uuid or email.
-   * @param String $orgUuidArgument
-   *   Organization uuid.
-   * @return string
-   *   User uuid from alias
+   * @param String $userAlias User alias like uuid or email.
+   * @param String $orgUuidArgument Organization uuid.
+   * @return string User uuid from alias
    */
   private function getUserUuidFromUserAlias(string $userAlias, string $orgUuidArgument): string {
     $acquiaCloudClient = $this->cloudApiClientService->getClient();
@@ -1098,10 +1085,8 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   }
 
   /**
-   * @param string $sshUrl
-   *   The SSH URL to the server.
-   * @return string
-   *   The sitegroup. E.g., eemgrasmick.
+   * @param string $sshUrl The SSH URL to the server.
+   * @return string The sitegroup. E.g., eemgrasmick.
    */
   public static function getSiteGroupFromSshUrl(string $sshUrl): string {
     $sshUrlParts = explode('.', $sshUrl);

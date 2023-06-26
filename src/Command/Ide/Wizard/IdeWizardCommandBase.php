@@ -21,11 +21,6 @@ abstract class IdeWizardCommandBase extends WizardCommandBase {
 
   /**
    * Initializes the command just after the input has been validated.
-   *
-   * @param \Symfony\Component\Console\Input\InputInterface $input
-   *   An InputInterface instance.
-   * @param \Symfony\Component\Console\Output\OutputInterface $output
-   *   An OutputInterface instance.
    */
   protected function initialize(InputInterface $input, OutputInterface $output): void {
     parent::initialize($input, $output);
