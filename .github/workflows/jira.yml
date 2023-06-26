@@ -67,6 +67,12 @@ jobs:
     permissions:
       issues: write
     steps:
+      - name: Get project key
+        id: project_key
+        env:
+          GITHUB_REPOSITORY_NAME: ${{ github.event.repository.name }}
+        run: |
+          echo "key=${GITHUB_REPOSITORY_NAME^^}" >> $GITHUB_OUTPUT
       - name: Get Jira issue
         id: get-issue
         run: |
