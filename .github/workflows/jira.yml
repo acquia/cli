@@ -39,11 +39,17 @@ jobs:
           esac
       env:
         ISSUE_LABEL: ${{ github.event.issue.labels[0].name }}
+    - name: Get project key
+      id: project_key
+      env:
+        GITHUB_REPOSITORY_NAME: ${{ github.event.repository.name }}
+      run: |
+        echo "key=${GITHUB_REPOSITORY_NAME^^}" >> $GITHUB_OUTPUT
     - name: Create
       id: create
       uses: acquia/gajira-create@bearer
       with:
-        project: CLI
+        project: ${{ steps.project_key.outputs.key }}
         issuetype: ${{ steps.issue_type.outputs.type }}
         summary: ${{ github.event.issue.title }}
         description: ${{ github.event.issue.html_url }}
@@ -64,11 +70,12 @@ jobs:
       - name: Get Jira issue
         id: get-issue
         run: |
-          if [[ "$ISSUE_TITLE" =~ ^(CLI-[0-9]+): ]]; then
+          if [[ "$ISSUE_TITLE" =~ ^($PROJECT_KEY-[0-9]+): ]]; then
               echo "issue=${BASH_REMATCH[1]}" >> $GITHUB_OUTPUT
           fi
         env:
           ISSUE_TITLE: ${{ github.event.issue.title }}
+          PROJECT_KEY: ${{ steps.project_key.outputs.key }}
       - name: Login
         if: steps.get-issue.outputs.issue
         uses: acquia/gajira-login@bearer
