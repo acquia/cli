@@ -12,10 +12,11 @@ jobs:
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       GITHUB_PR: ${{ github.event.pull_request.number }}
+      GITHUB_REPOSITORY_NAME: ${{ github.event.repository.name }}
     steps:
       - name: Get linked issue label
         run: |
-          ISSUE_LABEL=$(gh api graphql -F owner=$GITHUB_REPOSITORY_OWNER -F name='cli' -F number=$GITHUB_PR -f query='
+          ISSUE_LABEL=$(gh api graphql -F owner=$GITHUB_REPOSITORY_OWNER -F name=$GITHUB_REPOSITORY_NAME -F number=$GITHUB_PR -f query='
             query($owner:String!, $name:String!, $number:Int!){
               repository(owner:$owner, name:$name) {
                 pullRequest(number:$number) {
