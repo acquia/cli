@@ -11,3 +11,5 @@ permissions:
 jobs:
   automerge:
     uses: acquia/.github/.github/workflows/automerge.yml@main
+    secrets:
+      github-token: ${{ secrets.GITHUB_TOKEN }}

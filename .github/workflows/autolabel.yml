@@ -7,3 +7,5 @@ permissions:
 jobs:
   autolabel:
     uses: acquia/.github/.github/workflows/autolabel.yml@main
+    secrets:
+      github-token: ${{ secrets.GITHUB_TOKEN }}
