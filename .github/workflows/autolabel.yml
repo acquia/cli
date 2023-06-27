@@ -6,4 +6,4 @@ permissions:
   pull-requests: write
 jobs:
   autolabel:
-    uses: acquia/.github/.github/workflows/automerge.yml@main
+    uses: acquia/.github/.github/workflows/autolabel.yml@main
