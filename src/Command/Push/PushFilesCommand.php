@@ -20,7 +20,7 @@ class PushFilesCommand extends PullCommandBase {
   protected static $defaultName = 'push:files';
 
   protected function configure(): void {
-    $this->setDescription('Push Drupal files from your local environment to a Cloud Platform environment')
+    $this->setDescription('Copy Drupal public files from your local environment to a Cloud Platform environment')
       ->acceptEnvironmentId()
       ->acceptSite();
   }
