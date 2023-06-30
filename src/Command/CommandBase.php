@@ -451,7 +451,8 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   /**
    * Load configuration from .git/config.
    *
-   * @return array<mixed>|null
+   * @return string[][]|null
+   *   A multidimensional array keyed by file section.
    */
   private function getGitConfig(): ?array {
     $filePath = $this->projectDir . '/.git/config';
@@ -465,14 +466,15 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   /**
    * Gets an array of git remotes from a .git/config array.
    *
-   * @param array $gitConfig
-   * @return array<mixed>
+   * @param string[][] $gitConfig
+   * @return string[]
    *   A flat array of git remote urls.
    */
   private function getGitRemotes(array $gitConfig): array {
     $localVcsRemotes = [];
     foreach ($gitConfig as $sectionName => $section) {
       if ((str_contains($sectionName, 'remote ')) &&
+        array_key_exists('url', $section) &&
         (strpos($section['url'], 'acquia.com') || strpos($section['url'], 'acquia-sites.com'))
       ) {
         $localVcsRemotes[] = $section['url'];
