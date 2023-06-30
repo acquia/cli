@@ -1436,7 +1436,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     }
   }
 
-  protected function waitForNotificationToComplete(Client $acquiaCloudClient, string $uuid, string $message, callable $success = NULL): void {
+  protected function waitForNotificationToComplete(Client $acquiaCloudClient, string $uuid, string $message, callable $success = NULL): bool {
     $notificationsResource = new Notifications($acquiaCloudClient);
     $notification = NULL;
     $checkNotificationStatus = static function () use ($notificationsResource, &$notification, $uuid): bool {
@@ -1449,6 +1449,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
       };
     }
     LoopHelper::getLoopy($this->output, $this->io, $this->logger, $message, $checkNotificationStatus, $success);
+    return $notification->status === 'completed';
   }
 
   private function writeCompletedMessage(NotificationResponse $notification): void {

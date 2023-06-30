@@ -21,7 +21,7 @@ class TaskWaitCommandTest extends CommandTestBase {
   /**
    * @dataProvider providerTestTaskWaitCommand
    */
-  public function testTaskWaitCommand(string $status, string $message): void {
+  public function testTaskWaitCommand(string $status, string $message, int $statusCode): void {
     $notificationUuid = '94835c3e-b112-4660-a14d-d541906c205b';
     $this->mockNotificationResponse($notificationUuid, $status);
     $this->executeCommand([
@@ -36,6 +36,7 @@ class TaskWaitCommandTest extends CommandTestBase {
     $this->assertStringContainsString('Completed: Mon Jul 29 20:47:13 UTC 2019', $output);
     $this->assertStringContainsString('Task type: Application added to recents list', $output);
     $this->assertStringContainsString('Duration: 0 seconds', $output);
+    $this->assertEquals($statusCode, $this->getStatusCode());
   }
 
   /**
@@ -46,10 +47,12 @@ class TaskWaitCommandTest extends CommandTestBase {
       [
         'completed',
         ' [OK] The task with notification uuid 1bd3487e-71d1-4fca-a2d9-5f969b3d35c1 completed',
+        Command::SUCCESS,
       ],
       [
         'failed',
         ' [ERROR] The task with notification uuid 1bd3487e-71d1-4fca-a2d9-5f969b3d35c1 failed',
+        Command::FAILURE,
       ],
     ];
   }
