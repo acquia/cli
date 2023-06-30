@@ -17,7 +17,7 @@ class PullFilesCommand extends PullCommandBase {
   protected static $defaultName = 'pull:files';
 
   protected function configure(): void {
-    $this->setDescription('Copy files from a Cloud Platform environment')
+    $this->setDescription('Copy Drupal public files from a Cloud Platform environment to your local environment')
       ->acceptEnvironmentId()
       ->acceptSite();
   }
