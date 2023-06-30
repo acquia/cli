@@ -28,8 +28,13 @@ class TaskWaitCommand extends CommandBase {
 
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $notificationUuid = $this->getNotificationUuid($input);
-    $this->waitForNotificationToComplete($this->cloudApiClientService->getClient(), $notificationUuid, "Waiting for task $notificationUuid to complete");
-    return Command::SUCCESS;
+    $success = $this->waitForNotificationToComplete($this->cloudApiClientService->getClient(), $notificationUuid, "Waiting for task $notificationUuid to complete");
+    if ($success) {
+      return Command::SUCCESS;
+    }
+    else {
+      return Command::FAILURE;
+    }
   }
 
   private function getNotificationUuid(InputInterface $input): string {
