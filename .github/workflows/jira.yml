@@ -13,3 +13,6 @@ jobs:
       jira-base-url: ${{ secrets.JIRA_BASE_URL }}
       jira-api-token: ${{ secrets.JIRA_API_TOKEN }}
       github-token: ${{ secrets.GITHUB_TOKEN }}
+    with:
+      issue_label: grooming
+    
