@@ -5,7 +5,6 @@ declare(strict_types = 1);
 namespace Acquia\Cli\Command\App;
 
 use Acquia\Cli\Command\CommandBase;
-use Acquia\Cli\Exception\AcquiaCliException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -23,31 +22,13 @@ class TaskWaitCommand extends CommandBase {
     $this->setDescription('Wait for a task to complete')
       ->addArgument('notification-uuid', InputArgument::REQUIRED, 'The task notification UUID or Cloud Platform API response containing a linked notification')
       ->setHelp('Accepts either a notification UUID or Cloud Platform API response as JSON string. The JSON string must contain the _links->notification->href property.')
-      ->addUsage('"$(api:environments:domain-clear-caches [environmentId] [domain])"');
+      ->addUsage('"$(acli api:environments:domain-clear-caches [environmentId] [domain])"');
   }
 
   protected function execute(InputInterface $input, OutputInterface $output): int {
-    $notificationUuid = $this->getNotificationUuid($input);
-    $success = $this->waitForNotificationToComplete($this->cloudApiClientService->getClient(), $notificationUuid, "Waiting for task $notificationUuid to complete");
-    if ($success) {
-      return Command::SUCCESS;
-    }
-    else {
-      return Command::FAILURE;
-    }
-  }
-
-  private function getNotificationUuid(InputInterface $input): string {
     $notificationUuid = $input->getArgument('notification-uuid');
-    $json = json_decode($notificationUuid, FALSE);
-    if (json_last_error() === JSON_ERROR_NONE) {
-      if (is_object($json) && property_exists($json, '_links') && property_exists($json->_links, 'notification') && property_exists($json->_links->notification, 'href')) {
-        return $this->getNotificationUuidFromResponse($json);
-      }
-      throw new AcquiaCliException("Input JSON must contain the _links.notification.href property.");
-    }
-
-    return self::validateUuid($input->getArgument('notification-uuid'));
+    $success = $this->waitForNotificationToComplete($this->cloudApiClientService->getClient(), $notificationUuid, "Waiting for task $notificationUuid to complete");
+    return $success ? Command::SUCCESS : Command::FAILURE;
   }
 
 }

@@ -206,6 +206,8 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     $this->convertEnvironmentAliasToUuid($input, 'source-environment');
     $this->convertEnvironmentAliasToUuid($input, 'destination-environment');
     $this->convertEnvironmentAliasToUuid($input, 'source');
+    $this->convertNotificationToUuid($input, 'notificationUuid');
+    $this->convertNotificationToUuid($input, 'notification-uuid');
 
     if ($latest = $this->checkForNewVersion()) {
       $this->output->writeln("Acquia CLI $latest is available. Run <options=bold>acli self-update</> to update.");
@@ -1045,6 +1047,33 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     return $userUuidArgument;
   }
 
+  private function validateNotificationUuid(string $notification): string {
+    try {
+      self::validateUuid($notification);
+      return $notification;
+    }
+    catch (ValidatorException) {
+      // This isn't a UUID, let's see what else it might be.
+    }
+    $json = json_decode($notification, FALSE);
+    if (json_last_error() === JSON_ERROR_NONE) {
+      if (is_object($json) && property_exists($json, '_links') && property_exists($json->_links, 'notification') && property_exists($json->_links->notification, 'href')) {
+        return $this->getNotificationUuidFromResponse($json);
+      }
+      throw new AcquiaCliException("Input JSON must contain the _links.notification.href property.");
+    }
+    // It's not a JSON object either, maybe a URL?
+    try {
+      $urlParts = explode('/', $notification);
+      $notificationUuid = $urlParts[5];
+      self::validateUuid($notificationUuid);
+      return $notificationUuid;
+    }
+    catch (ValidatorException) {
+    }
+    throw new AcquiaCliException('Notification format is not one of UUID, JSON response, or URL');
+  }
+
   /**
    * @param String $userAlias User alias like uuid or email.
    * @param String $orgUuidArgument Organization uuid.
@@ -1078,11 +1107,19 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     }
   }
 
-  protected function convertEnvironmentAliasToUuid(InputInterface $input, mixed $argumentName): void {
+  protected function convertEnvironmentAliasToUuid(InputInterface $input, string $argumentName): void {
     if ($input->hasArgument($argumentName) && $input->getArgument($argumentName)) {
       $envUuidArgument = $input->getArgument($argumentName);
       $environmentUuid = $this->validateEnvironmentUuid($envUuidArgument, $argumentName);
       $input->setArgument($argumentName, $environmentUuid);
+    }
+  }
+
+  protected function convertNotificationToUuid(InputInterface $input, string $argumentName): void {
+    if ($input->hasArgument($argumentName) && $input->getArgument($argumentName)) {
+      $notificationArgument = $input->getArgument($argumentName);
+      $notificationUuid = $this->validateNotificationUuid($notificationArgument);
+      $input->setArgument($argumentName, $notificationUuid);
     }
   }
 
