@@ -1048,7 +1048,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     return $userUuidArgument;
   }
 
-  private function getNotificationUuid(string $notification): string {
+  private static function getNotificationUuid(string $notification): string {
     // Greedily hope this is already a UUID.
     try {
       self::validateUuid($notification);
@@ -1120,7 +1120,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   protected function convertNotificationToUuid(InputInterface $input, string $argumentName): void {
     if ($input->hasArgument($argumentName) && $input->getArgument($argumentName)) {
       $notificationArgument = $input->getArgument($argumentName);
-      $notificationUuid = $this->getNotificationUuid($notificationArgument);
+      $notificationUuid = CommandBase::getNotificationUuid($notificationArgument);
       $input->setArgument($argumentName, $notificationUuid);
     }
   }
