@@ -52,7 +52,7 @@ class EnvCertCreateCommand extends CommandBase {
       $csrId,
       $legacy
     );
-    $notificationUuid = $this->getNotificationUuidFromResponse($response);
+    $notificationUuid = CommandBase::getNotificationUuidFromResponse($response);
     $this->waitForNotificationToComplete($acquiaCloudClient, $notificationUuid, 'Installing certificate');
     return Command::SUCCESS;
   }

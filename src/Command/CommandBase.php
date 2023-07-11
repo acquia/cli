@@ -40,6 +40,7 @@ use Composer\Semver\Comparator;
 use Composer\Semver\VersionParser;
 use Exception;
 use GuzzleHttp\HandlerStack;
+use JsonException;
 use Kevinrob\GuzzleCache\CacheMiddleware;
 use Kevinrob\GuzzleCache\Storage\Psr6CacheStorage;
 use Kevinrob\GuzzleCache\Strategy\PrivateCacheStrategy;
@@ -1047,30 +1048,31 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     return $userUuidArgument;
   }
 
-  private function validateNotificationUuid(string $notification): string {
+  private function getNotificationUuid(string $notification): string {
+    // Greedily hope this is already a UUID.
     try {
       self::validateUuid($notification);
       return $notification;
     }
     catch (ValidatorException) {
-      // This isn't a UUID, let's see what else it might be.
     }
-    $json = json_decode($notification, FALSE);
-    if (json_last_error() === JSON_ERROR_NONE) {
-      if (is_object($json) && property_exists($json, '_links') && property_exists($json->_links, 'notification') && property_exists($json->_links->notification, 'href')) {
-        return $this->getNotificationUuidFromResponse($json);
-      }
-      throw new AcquiaCliException("Input JSON must contain the _links.notification.href property.");
-    }
-    // It's not a JSON object either, maybe a URL?
+
+    // Not a UUID, maybe a JSON object?
     try {
-      $urlParts = explode('/', $notification);
-      $notificationUuid = $urlParts[5];
-      self::validateUuid($notificationUuid);
-      return $notificationUuid;
+      $json = json_decode($notification, FALSE, 512, JSON_THROW_ON_ERROR);
+      return CommandBase::getNotificationUuidFromResponse($json);
     }
-    catch (ValidatorException) {
+    catch (JsonException | AcquiaCliException) {
     }
+
+    // Last chance, maybe a URL?
+    try {
+      return self::getNotificationUuidFromUrl($notification);
+    }
+    catch (ValidatorException | AcquiaCliException) {
+    }
+
+    // Womp womp.
     throw new AcquiaCliException('Notification format is not one of UUID, JSON response, or URL');
   }
 
@@ -1118,7 +1120,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   protected function convertNotificationToUuid(InputInterface $input, string $argumentName): void {
     if ($input->hasArgument($argumentName) && $input->getArgument($argumentName)) {
       $notificationArgument = $input->getArgument($argumentName);
-      $notificationUuid = $this->validateNotificationUuid($notificationArgument);
+      $notificationUuid = $this->getNotificationUuid($notificationArgument);
       $input->setArgument($argumentName, $notificationUuid);
     }
   }
@@ -1509,16 +1511,29 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     $this->io->writeln("Duration: $duration seconds");
   }
 
-  protected function getNotificationUuidFromResponse(object $response): string {
+  protected static function getNotificationUuidFromResponse(object $response): string {
     if (property_exists($response, 'links')) {
       $links = $response->links;
     }
-    else {
+    elseif (property_exists($response, '_links')) {
       $links = $response->_links;
     }
-    $notificationUrl = $links->notification->href;
-    $urlParts = explode('/', $notificationUrl);
-    return $urlParts[5];
+    else {
+      throw new AcquiaCliException('JSON object must contain the _links.notification.href property');
+    }
+    if (property_exists($links, 'notification') && property_exists($links->notification, 'href')) {
+      return self::getNotificationUuidFromUrl($links->notification->href);
+    }
+    throw new AcquiaCliException('JSON object must contain the _links.notification.href property');
+  }
+
+  public static function getNotificationUuidFromUrl(string $notificationUrl): string {
+    $notificationUrlPattern = '/^https:\/\/cloud.acquia.com\/api\/notifications\/([\w-]*)$/';
+    if (preg_match($notificationUrlPattern, $notificationUrl, $matches)) {
+      self::validateUuid($matches[1]);
+      return $matches[1];
+    }
+    throw new AcquiaCliException('Notification UUID not found in URL: {url}', ['url' => $notificationUrl]);
   }
 
   protected function validateRequiredCloudPermissions(Client $acquiaCloudClient, ?string $cloudApplicationUuid, AccountResponse $account, array $requiredPermissions): void {
