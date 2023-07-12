@@ -1059,7 +1059,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
 
     // Not a UUID, maybe a JSON object?
     try {
-      $json = json_decode($notification, FALSE, 512, JSON_THROW_ON_ERROR);
+      $json = json_decode($notification, NULL, 4, JSON_THROW_ON_ERROR);
       return CommandBase::getNotificationUuidFromResponse($json);
     }
     catch (JsonException | AcquiaCliException) {
@@ -1274,7 +1274,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
         '--no-interaction',
       ], $outputCallback, $this->dir, FALSE);
       if ($process->isSuccessful()) {
-        $drushStatusReturnOutput = json_decode($process->getOutput(), TRUE, 512);
+        $drushStatusReturnOutput = json_decode($process->getOutput(), TRUE);
         if (is_array($drushStatusReturnOutput) && array_key_exists('db-status', $drushStatusReturnOutput) && $drushStatusReturnOutput['db-status'] === 'Connected') {
           $this->drushHasActiveDatabaseConnection = TRUE;
           return $this->drushHasActiveDatabaseConnection;

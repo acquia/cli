@@ -344,20 +344,9 @@ abstract class CommandTestBase extends TestBase {
     return $backupCreateResponse;
   }
 
-  protected function mockNotificationResponseFromObject(object $responseWithNotificationLink): mixed {
-    return $this->mockNotificationResponse(substr($responseWithNotificationLink->_links->notification->href, -36));
-  }
-
-  protected function mockNotificationResponse(string $notificationUuid, string $status = NULL): mixed {
-    $notificationResponse = $this->getMockResponseFromSpec('/notifications/{notificationUuid}', 'get', 200);
-    if ($status) {
-      $notificationResponse->status = $status;
-    }
-    $this->clientProphecy->request('get', "/notifications/$notificationUuid")
-      ->willReturn($notificationResponse)
-      ->shouldBeCalled();
-
-    return $notificationResponse;
+  protected function mockNotificationResponseFromObject(object $responseWithNotificationLink): array|object {
+    $uuid = substr($responseWithNotificationLink->_links->notification->href, -36);
+    return $this->mockRequest('getNotificationByUuid', $uuid);
   }
 
   protected function mockCreateMySqlDumpOnLocal(ObjectProphecy $localMachineHelper): void {
