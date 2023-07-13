@@ -84,12 +84,35 @@ EOT,
     ];
   }
 
-  public function testTaskWaitCommandWithInvalidInput(): void {
+  public function testTaskWaitCommandWithEmptyJson(): void {
     $this->expectException(AcquiaCliException::class);
+    $this->expectExceptionMessage('Notification format is not one of UUID, JSON response, or URL');
     $this->executeCommand(['notification-uuid' => '{}']);
 
     // Assert.
     $this->prophet->checkPredictions();
+  }
+
+  public function testTaskWaitCommandWithInvalidJson(): void {
+    $this->expectException(AcquiaCliException::class);
+    $this->executeCommand([
+      'notification-uuid' => <<<'EOT'
+{
+  "message": "Caches are being cleared.",
+  "_links": {
+    "self": {
+      "href": "https://cloud.acquia.com/api/environments/12-d314739e-296f-11e9-b210-d663bd873d93/domains/example.com/actions/clear-caches",
+      "invalid": {
+        "too-deep": "5"
+      }
+    },
+    "notification": {
+      "href": "https://cloud.acquia.com/api/notifications/1bd3487e-71d1-4fca-a2d9-5f969b3d35c1"
+    }
+  }
+}
+EOT,
+    ]);
   }
 
 }
