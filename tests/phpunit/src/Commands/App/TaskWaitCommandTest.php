@@ -56,6 +56,8 @@ class TaskWaitCommandTest extends CommandTestBase {
   }
 
   /**
+   * Valid notifications.
+   *
    * @return (string|int)[][]
    */
   public function providerTestTaskWaitCommand(): array {
@@ -93,10 +95,32 @@ EOT,
     $this->prophet->checkPredictions();
   }
 
-  public function testTaskWaitCommandWithInvalidJson(): void {
+  public function testTaskWaitCommandWithInvalidUrl(): void {
+    $this->expectException(AcquiaCliException::class);
+    $this->expectExceptionMessage('Notification format is not one of UUID, JSON response, or URL');
+    $this->executeCommand(['notification-uuid' => 'https://cloud.acquia.com/api/notifications/foo']);
+
+    // Assert.
+    $this->prophet->checkPredictions();
+  }
+
+  /**
+   * @dataProvider providerTestTaskWaitCommandWithInvalidJson
+   */
+  public function testTaskWaitCommandWithInvalidJson(string $notification): void {
     $this->expectException(AcquiaCliException::class);
     $this->executeCommand([
-      'notification-uuid' => <<<'EOT'
+      'notification-uuid' => $notification,
+    ]);
+  }
+
+  /**
+   * @return string[]
+   */
+  public function providerTestTaskWaitCommandWithInvalidJson(): array {
+    return [
+      [
+      <<<'EOT'
 {
   "message": "Caches are being cleared.",
   "_links": {
@@ -112,7 +136,18 @@ EOT,
   }
 }
 EOT,
-    ]);
+      <<<'EOT'
+{
+  "message": "Caches are being cleared.",
+  "_links": {
+    "self": {
+      "href": "https://cloud.acquia.com/api/environments/12-d314739e-296f-11e9-b210-d663bd873d93/domains/example.com/actions/clear-caches"
+    }
+  }
+}
+EOT,
+        ],
+    ];
   }
 
 }

@@ -1527,7 +1527,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     throw new AcquiaCliException('JSON object must contain the _links.notification.href property');
   }
 
-  public static function getNotificationUuidFromUrl(string $notificationUrl): string {
+  private static function getNotificationUuidFromUrl(string $notificationUrl): string {
     $notificationUrlPattern = '/^https:\/\/cloud.acquia.com\/api\/notifications\/([\w-]*)$/';
     if (preg_match($notificationUrlPattern, $notificationUrl, $matches)) {
       self::validateUuid($matches[1]);
