@@ -79,7 +79,7 @@ class AcsfAuthLoginCommandTest extends AcsfCommandTestBase {
         // Arguments.
         [],
         // Output to assert.
-        "Acquia CLI is now logged in to {$this->acsfCurrentFactoryUrl} as {$this->acsfUsername}",
+        "Acquia CLI is now logged in to $this->acsfCurrentFactoryUrl as $this->acsfUsername",
         // $config.
         $this->getAcsfCredentialsFileContents(),
       ],
@@ -88,14 +88,9 @@ class AcsfAuthLoginCommandTest extends AcsfCommandTestBase {
 
   /**
    * @dataProvider providerTestAuthLoginCommand
-   * @param $machineIsAuthenticated
-   * @param $inputs
-   * @param $args
-   * @param $outputToAssert
-   * @param array $config
    * @requires OS linux|darwin
    */
-  public function testAcsfAuthLoginCommand(mixed $machineIsAuthenticated, mixed $inputs, mixed $args, mixed $outputToAssert, array $config = []): void {
+  public function testAcsfAuthLoginCommand(bool $machineIsAuthenticated, array $inputs, array $args, string $outputToAssert, array $config = []): void {
     if (!$machineIsAuthenticated) {
       $this->clientServiceProphecy->isMachineAuthenticated()->willReturn(FALSE);
       $this->removeMockCloudConfigFile();

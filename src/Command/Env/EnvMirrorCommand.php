@@ -80,16 +80,16 @@ class EnvMirrorCommand extends CommandBase {
     }
 
     if (isset($codeCopyResponse)) {
-      $this->waitForNotificationToComplete($acquiaCloudClient, $this->getNotificationUuidFromResponse($codeCopyResponse), 'Waiting for code copy to complete');
+      $this->waitForNotificationToComplete($acquiaCloudClient, CommandBase::getNotificationUuidFromResponse($codeCopyResponse), 'Waiting for code copy to complete');
     }
     if (isset($dbCopyResponse)) {
-      $this->waitForNotificationToComplete($acquiaCloudClient, $this->getNotificationUuidFromResponse($dbCopyResponse), 'Waiting for database copy to complete');
+      $this->waitForNotificationToComplete($acquiaCloudClient, CommandBase::getNotificationUuidFromResponse($dbCopyResponse), 'Waiting for database copy to complete');
     }
     if (isset($filesCopyResponse)) {
-      $this->waitForNotificationToComplete($acquiaCloudClient, $this->getNotificationUuidFromResponse($filesCopyResponse), 'Waiting for files copy to complete');
+      $this->waitForNotificationToComplete($acquiaCloudClient, CommandBase::getNotificationUuidFromResponse($filesCopyResponse), 'Waiting for files copy to complete');
     }
     if (isset($configCopyResponse)) {
-      $this->waitForNotificationToComplete($acquiaCloudClient, $this->getNotificationUuidFromResponse($configCopyResponse), 'Waiting for config copy to complete');
+      $this->waitForNotificationToComplete($acquiaCloudClient, CommandBase::getNotificationUuidFromResponse($configCopyResponse), 'Waiting for config copy to complete');
     }
 
     $this->io->success([
