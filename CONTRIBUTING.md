@@ -78,6 +78,16 @@ Any changes to the `acli update` command should be manually tested using the fol
 1. Build acli.phar as described above.
 1. Now test: `./build/acli.phar self:update`
 
+### Writing tests
+
+New code should be covered at 100% (or as close to it as reasonably possible) by PHPUnit tests. It should also minimize the number of escaped mutants (as close to 0% as reasonably possible), which will appear as annotations on your PR after unit tests run.
+
+Every class / command has a corresponding test file. The first test case in each file should be the "default" passing workflow for that command. Additional test cases should cover any possible inputs for that command as well as any possible error cases.
+
+PHPUnit data providers may be used to fuzz input for a test case as long as the output remains the same. However, if the output of a command varies non-trivially based on input, it should probably be broken into different test cases rather than using a data provider.
+
+Test cases are declarative specifications. They should not implement or utilize any logic, especially not as provided by the covered source code itself.
+
 ## Updating Cloud Platform API spec
 
 Acquia CLI stores a local copy of the Cloud Platform API spec in the `assets` directory. To update the Cloud Platform API spec, run:
