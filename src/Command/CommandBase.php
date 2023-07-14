@@ -1533,7 +1533,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
       self::validateUuid($matches[1]);
       return $matches[1];
     }
-    throw new AcquiaCliException('Notification UUID not found in URL: {url}', ['url' => $notificationUrl]);
+    throw new AcquiaCliException('Notification UUID not found in URL');
   }
 
   protected function validateRequiredCloudPermissions(Client $acquiaCloudClient, ?string $cloudApplicationUuid, AccountResponse $account, array $requiredPermissions): void {

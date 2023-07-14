@@ -120,7 +120,7 @@ EOT,
   public function providerTestTaskWaitCommandWithInvalidJson(): array {
     return [
       [
-      <<<'EOT'
+        <<<'EOT'
 {
   "message": "Caches are being cleared.",
   "_links": {
@@ -136,7 +136,9 @@ EOT,
   }
 }
 EOT,
-      <<<'EOT'
+      ],
+      [
+        <<<'EOT'
 {
   "message": "Caches are being cleared.",
   "_links": {
@@ -146,7 +148,7 @@ EOT,
   }
 }
 EOT,
-        ],
+      ],
     ];
   }
 
