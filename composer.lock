@@ -1845,16 +1845,16 @@
         },
         {
             "name": "m4tthumphrey/php-gitlab-api",
-            "version": "11.10.0",
+            "version": "11.11.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/GitLabPHP/Client.git",
-                "reference": "f80b11fdce64f9fcf8f34f7be45651c4e27ab518"
+                "reference": "7cd35efcce8a5ca22710bda3b56b918b5542d9f5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/GitLabPHP/Client/zipball/f80b11fdce64f9fcf8f34f7be45651c4e27ab518",
-                "reference": "f80b11fdce64f9fcf8f34f7be45651c4e27ab518",
+                "url": "https://api.github.com/repos/GitLabPHP/Client/zipball/7cd35efcce8a5ca22710bda3b56b918b5542d9f5",
+                "reference": "7cd35efcce8a5ca22710bda3b56b918b5542d9f5",
                 "shasum": ""
             },
             "require": {
@@ -1923,7 +1923,7 @@
             ],
             "support": {
                 "issues": "https://github.com/GitLabPHP/Client/issues",
-                "source": "https://github.com/GitLabPHP/Client/tree/11.10.0"
+                "source": "https://github.com/GitLabPHP/Client/tree/11.11.0"
             },
             "funding": [
                 {
@@ -1931,7 +1931,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2023-04-30T19:50:08+00:00"
+            "time": "2023-07-17T09:38:04+00:00"
         },
         {
             "name": "marc-mabe/php-enum",
@@ -2181,16 +2181,16 @@
         },
         {
             "name": "php-http/discovery",
-            "version": "1.19.0",
+            "version": "1.19.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-http/discovery.git",
-                "reference": "1856a119a0b0ba8da8b5c33c080aa7af8fac25b4"
+                "reference": "57f3de01d32085fea20865f9b16fb0e69347c39e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-http/discovery/zipball/1856a119a0b0ba8da8b5c33c080aa7af8fac25b4",
-                "reference": "1856a119a0b0ba8da8b5c33c080aa7af8fac25b4",
+                "url": "https://api.github.com/repos/php-http/discovery/zipball/57f3de01d32085fea20865f9b16fb0e69347c39e",
+                "reference": "57f3de01d32085fea20865f9b16fb0e69347c39e",
                 "shasum": ""
             },
             "require": {
@@ -2253,9 +2253,9 @@
             ],
             "support": {
                 "issues": "https://github.com/php-http/discovery/issues",
-                "source": "https://github.com/php-http/discovery/tree/1.19.0"
+                "source": "https://github.com/php-http/discovery/tree/1.19.1"
             },
-            "time": "2023-06-19T08:45:36+00:00"
+            "time": "2023-07-11T07:02:26+00:00"
         },
         {
             "name": "php-http/httplug",
