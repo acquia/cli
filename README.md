@@ -86,10 +86,10 @@ Several tools compliment or duplicate Acquia CLI functionality. Acquia CLI can s
 - [Typhonius Acquia CLI](https://github.com/typhonius/acquia_cli): Provides just an interface for Cloud API. Acquia CLI (acquia/cli) is a superset of this functionality, with access to the Cloud API as well as Acquia services not part of Cloud API.
 - [ACSF tools](https://github.com/acquia/acsf-tools): Provides Drush commands for interacting with ACSF. Duplicates some functionality of Acquia CLI, but in the form of Drush commands rather than a standalone CLI.
 
-## Development / contribution
+## Supported Versions
 
-Contributions to Acquia CLI are welcome subject to the [contributions policy](CONTRIBUTING.md), which also has more detailed information on how to develop Acquia CLI.
-
-## Support
-
-Please refer to our [Support Users Guide](https://docs.acquia.com/support/guide/) for more information on products and services we officially support.
+| Version | Supported                     |
+| ------- | ------------------            |
+| 2.x     | :white_check_mark: Supported  |
+| 1.x     | :warning: Minimally supported |
+| < 1.x   | :x: Not supported             |
