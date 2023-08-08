@@ -40,6 +40,7 @@ use Composer\Semver\Comparator;
 use Composer\Semver\VersionParser;
 use Exception;
 use GuzzleHttp\HandlerStack;
+use JsonException;
 use Kevinrob\GuzzleCache\CacheMiddleware;
 use Kevinrob\GuzzleCache\Storage\Psr6CacheStorage;
 use Kevinrob\GuzzleCache\Strategy\PrivateCacheStrategy;
@@ -182,11 +183,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
 
   /**
    * Initializes the command just after the input has been validated.
-   *
-   * @param InputInterface $input
-   *   An InputInterface instance.
-   * @param OutputInterface $output
-   *   An OutputInterface instance.
    */
   protected function initialize(InputInterface $input, OutputInterface $output): void {
     $this->input = $input;
@@ -211,6 +207,8 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     $this->convertEnvironmentAliasToUuid($input, 'source-environment');
     $this->convertEnvironmentAliasToUuid($input, 'destination-environment');
     $this->convertEnvironmentAliasToUuid($input, 'source');
+    $this->convertNotificationToUuid($input, 'notificationUuid');
+    $this->convertNotificationToUuid($input, 'notification-uuid');
 
     if ($latest = $this->checkForNewVersion()) {
       $this->output->writeln("Acquia CLI $latest is available. Run <options=bold>acli self-update</> to update.");
@@ -456,7 +454,8 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   /**
    * Load configuration from .git/config.
    *
-   * @return array<mixed>|null
+   * @return string[][]|null
+   *   A multidimensional array keyed by file section.
    */
   private function getGitConfig(): ?array {
     $filePath = $this->projectDir . '/.git/config';
@@ -470,14 +469,15 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   /**
    * Gets an array of git remotes from a .git/config array.
    *
-   * @param array $gitConfig
-   * @return array<mixed>
+   * @param string[][] $gitConfig
+   * @return string[]
    *   A flat array of git remote urls.
    */
   private function getGitRemotes(array $gitConfig): array {
     $localVcsRemotes = [];
     foreach ($gitConfig as $sectionName => $section) {
       if ((str_contains($sectionName, 'remote ')) &&
+        array_key_exists('url', $section) &&
         (strpos($section['url'], 'acquia.com') || strpos($section['url'], 'acquia-sites.com'))
       ) {
         $localVcsRemotes[] = $section['url'];
@@ -594,8 +594,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   /**
    * Determine the Cloud environment.
    *
-   * @return string
-   *   The environment UUID.
+   * @return string The environment UUID.
    */
   protected function determineCloudEnvironment(): string {
     if ($this->input->hasArgument('environmentId') && $this->input->getArgument('environmentId')) {
@@ -769,8 +768,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   /**
    * Determines if Acquia CLI is being run from within a Cloud IDE.
    *
-   * @return bool
-   *   TRUE if Acquia CLI is being run from within a Cloud IDE.
+   * @return bool TRUE if Acquia CLI is being run from within a Cloud IDE.
    */
   public static function isAcquiaCloudIde(): bool {
     return AcquiaDrupalEnvironmentDetector::isAhIdeEnv();
@@ -1034,12 +1032,9 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   }
 
   /**
-   * @param string $userUuidArgument
-   *   User alias like uuid or email.
-   * @param string $orgUuidArgument
-   *   Organization uuid.
-   * @return string
-   *   User uuid from alias
+   * @param string $userUuidArgument User alias like uuid or email.
+   * @param string $orgUuidArgument Organization uuid.
+   * @return string User uuid from alias
    */
   private function validateUserUuid(string $userUuidArgument, string $orgUuidArgument): string {
     try {
@@ -1053,13 +1048,38 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     return $userUuidArgument;
   }
 
+  private static function getNotificationUuid(string $notification): string {
+    // Greedily hope this is already a UUID.
+    try {
+      self::validateUuid($notification);
+      return $notification;
+    }
+    catch (ValidatorException) {
+    }
+
+    // Not a UUID, maybe a JSON object?
+    try {
+      $json = json_decode($notification, NULL, 4, JSON_THROW_ON_ERROR);
+      return CommandBase::getNotificationUuidFromResponse($json);
+    }
+    catch (JsonException | AcquiaCliException) {
+    }
+
+    // Last chance, maybe a URL?
+    try {
+      return self::getNotificationUuidFromUrl($notification);
+    }
+    catch (ValidatorException | AcquiaCliException) {
+    }
+
+    // Womp womp.
+    throw new AcquiaCliException('Notification format is not one of UUID, JSON response, or URL');
+  }
+
   /**
-   * @param String $userAlias
-   *   User alias like uuid or email.
-   * @param String $orgUuidArgument
-   *   Organization uuid.
-   * @return string
-   *   User uuid from alias
+   * @param String $userAlias User alias like uuid or email.
+   * @param String $orgUuidArgument Organization uuid.
+   * @return string User uuid from alias
    */
   private function getUserUuidFromUserAlias(string $userAlias, string $orgUuidArgument): string {
     $acquiaCloudClient = $this->cloudApiClientService->getClient();
@@ -1089,7 +1109,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     }
   }
 
-  protected function convertEnvironmentAliasToUuid(InputInterface $input, mixed $argumentName): void {
+  protected function convertEnvironmentAliasToUuid(InputInterface $input, string $argumentName): void {
     if ($input->hasArgument($argumentName) && $input->getArgument($argumentName)) {
       $envUuidArgument = $input->getArgument($argumentName);
       $environmentUuid = $this->validateEnvironmentUuid($envUuidArgument, $argumentName);
@@ -1097,11 +1117,17 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     }
   }
 
+  protected function convertNotificationToUuid(InputInterface $input, string $argumentName): void {
+    if ($input->hasArgument($argumentName) && $input->getArgument($argumentName)) {
+      $notificationArgument = $input->getArgument($argumentName);
+      $notificationUuid = CommandBase::getNotificationUuid($notificationArgument);
+      $input->setArgument($argumentName, $notificationUuid);
+    }
+  }
+
   /**
-   * @param string $sshUrl
-   *   The SSH URL to the server.
-   * @return string
-   *   The sitegroup. E.g., eemgrasmick.
+   * @param string $sshUrl The SSH URL to the server.
+   * @return string The sitegroup. E.g., eemgrasmick.
    */
   public static function getSiteGroupFromSshUrl(string $sshUrl): string {
     $sshUrlParts = explode('.', $sshUrl);
@@ -1248,7 +1274,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
         '--no-interaction',
       ], $outputCallback, $this->dir, FALSE);
       if ($process->isSuccessful()) {
-        $drushStatusReturnOutput = json_decode($process->getOutput(), TRUE, 512);
+        $drushStatusReturnOutput = json_decode($process->getOutput(), TRUE);
         if (is_array($drushStatusReturnOutput) && array_key_exists('db-status', $drushStatusReturnOutput) && $drushStatusReturnOutput['db-status'] === 'Connected') {
           $this->drushHasActiveDatabaseConnection = TRUE;
           return $this->drushHasActiveDatabaseConnection;
@@ -1451,7 +1477,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     }
   }
 
-  protected function waitForNotificationToComplete(Client $acquiaCloudClient, string $uuid, string $message, callable $success = NULL): void {
+  protected function waitForNotificationToComplete(Client $acquiaCloudClient, string $uuid, string $message, callable $success = NULL): bool {
     $notificationsResource = new Notifications($acquiaCloudClient);
     $notification = NULL;
     $checkNotificationStatus = static function () use ($notificationsResource, &$notification, $uuid): bool {
@@ -1464,6 +1490,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
       };
     }
     LoopHelper::getLoopy($this->output, $this->io, $this->logger, $message, $checkNotificationStatus, $success);
+    return $notification->status === 'completed';
   }
 
   private function writeCompletedMessage(NotificationResponse $notification): void {
@@ -1484,16 +1511,29 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     $this->io->writeln("Duration: $duration seconds");
   }
 
-  protected function getNotificationUuidFromResponse(object $response): string {
+  protected static function getNotificationUuidFromResponse(object $response): string {
     if (property_exists($response, 'links')) {
       $links = $response->links;
     }
-    else {
+    elseif (property_exists($response, '_links')) {
       $links = $response->_links;
     }
-    $notificationUrl = $links->notification->href;
-    $urlParts = explode('/', $notificationUrl);
-    return $urlParts[5];
+    else {
+      throw new AcquiaCliException('JSON object must contain the _links.notification.href property');
+    }
+    if (property_exists($links, 'notification') && property_exists($links->notification, 'href')) {
+      return self::getNotificationUuidFromUrl($links->notification->href);
+    }
+    throw new AcquiaCliException('JSON object must contain the _links.notification.href property');
+  }
+
+  private static function getNotificationUuidFromUrl(string $notificationUrl): string {
+    $notificationUrlPattern = '/^https:\/\/cloud.acquia.com\/api\/notifications\/([\w-]*)$/';
+    if (preg_match($notificationUrlPattern, $notificationUrl, $matches)) {
+      self::validateUuid($matches[1]);
+      return $matches[1];
+    }
+    throw new AcquiaCliException('Notification UUID not found in URL');
   }
 
   protected function validateRequiredCloudPermissions(Client $acquiaCloudClient, ?string $cloudApplicationUuid, AccountResponse $account, array $requiredPermissions): void {

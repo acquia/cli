@@ -46,7 +46,7 @@ class EnvCreateCommand extends CommandBase {
 
     $this->checklist->addItem("Initiating environment creation");
     $response = $environmentsResource->create($cloudAppUuid, $label, $branch, $databaseNames);
-    $notificationUuid = $this->getNotificationUuidFromResponse($response);
+    $notificationUuid = CommandBase::getNotificationUuidFromResponse($response);
     $this->checklist->completePreviousItem();
 
     $success = function () use ($environmentsResource, $cloudAppUuid, $label): void {

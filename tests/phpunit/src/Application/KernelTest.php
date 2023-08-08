@@ -86,12 +86,12 @@ EOD;
   pull:all                 [refresh|pull] Copy code, database, and files from a Cloud Platform environment
   pull:code                Copy code from a Cloud Platform environment
   pull:database            [pull:db] Import database backup from a Cloud Platform environment
-  pull:files               Copy files from a Cloud Platform environment
+  pull:files               Copy Drupal public files from a Cloud Platform environment to your local environment
   pull:run-scripts         Execute post pull scripts
  push
   push:artifact            Build and push a code artifact to a Cloud Platform environment
   push:database            [push:db] Push a database from your local environment to a Cloud Platform environment
-  push:files               Push Drupal files from your local environment to a Cloud Platform environment
+  push:files               Copy Drupal public files from your local environment to a Cloud Platform environment
  remote
   remote:aliases:download  Download Drush aliases for the Cloud Platform
   remote:aliases:list      [aliases|sa] List all aliases for the Cloud Platform environments

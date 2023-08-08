@@ -53,8 +53,7 @@ class IdeXdebugToggleCommand extends IdeCommandBase {
   /**
    * Sets $this->xDebugEnabled.
    *
-   * @param string $contents
-   *   The contents of php.ini.
+   * @param string $contents The contents of php.ini.
    */
   private function setXDebugStatus(string $contents): void {
     if (str_contains($contents, ';zend_extension=xdebug.so')) {
@@ -68,12 +67,6 @@ class IdeXdebugToggleCommand extends IdeCommandBase {
     }
   }
 
-  /**
-   * Gets $this->xDebugEnabled.
-   *
-   * @return bool|null
-   *   $this->xDebugEnabled.
-   */
   private function getXDebugStatus(): ?bool {
     return $this->xDebugEnabled;
   }
@@ -81,8 +74,7 @@ class IdeXdebugToggleCommand extends IdeCommandBase {
   /**
    * Enables xDebug.
    *
-   * @param string $contents
-   *   The contents of php.ini.
+   * @param string $contents The contents of php.ini.
    */
   private function enableXDebug(string $destinationFile, string $contents): void {
     $this->logger->notice("Enabling Xdebug PHP extension in $destinationFile...");
@@ -97,8 +89,7 @@ class IdeXdebugToggleCommand extends IdeCommandBase {
   /**
    * Disables xDebug.
    *
-   * @param string $contents
-   *   The contents of php.ini.
+   * @param string $contents The contents of php.ini.
    */
   private function disableXDebug(string $destinationFile, string $contents): void {
     $this->logger->notice("Disabling Xdebug PHP extension in $destinationFile...");
