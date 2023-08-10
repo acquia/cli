@@ -1,15 +1,8 @@
 grumphp:
     tasks:
         phpcs: ~
-    parallel:
-        enabled: true
-        max_workers: 32
     fixer:
-        enabled: true
         fix_by_default: true
-    stop_on_failure: false
-    ignore_unstaged_changes: false
-    hide_circumvention_tip: false
     ascii:
         failed: ~
         succeeded: ~
