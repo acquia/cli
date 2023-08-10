@@ -1,0 +1,235 @@
+{
+  "data": [
+    {
+      "package": null,
+      "note": "Drupal 7's PHP module is not recommended because it poses a severe security risk without very careful configuration and trusted users.",
+      "replaces": {
+        "name": "php"
+      },
+      "vetted": true
+    },
+    {
+      "package": null,
+      "note": "Drupal core is now shipped with the JSON:API and REST modules. In most cases, these completely replace the functionality of the services module.",
+      "replaces": {
+        "name": "services"
+      },
+      "vetted": true
+    },
+    {
+      "package": null,
+      "note": "The trigger module was removed from Drupal core and does not have a recommended replacement at this time.",
+      "replaces": {
+        "name": "trigger"
+      },
+      "vetted": true
+    },
+    {
+      "universal": true,
+      "install": [
+        "acquia_migrate"
+      ],
+      "package": "acquia/acquia-migrate-accelerate",
+      "constraint": "^1@dev",
+      "vetted": true
+    },
+    {
+      "universal": true,
+      "package": "acquia/memcache-settings",
+      "constraint": "^1",
+      "replaces": {
+        "name": "memcache"
+      },
+      "vetted": true
+    },
+    {
+      "package": "drupal/acl",
+      "constraint": "1.0.0-beta1",
+      "patches": {
+        "Issue #3231034: Use DrupalSqlBase instead of SqlBase class": "https://www.drupal.org/files/issues/2021-09-02/drupalsqlbase_instead_of_sqlbase-3231034-2.patch"
+      },
+      "install": [
+        "acl"
+      ],
+      "replaces": {
+        "name": "acl"
+      },
+      "vetted": true
+    },
+    {
+      "package": "drupal/acquia_connector",
+      "constraint": "^3.0.2",
+      "install": [
+        "acquia_connector"
+      ],
+      "replaces": {
+        "name": "acquia_agent"
+      },
+      "vetted": true
+    },
+    {
+      "package": "drupal/acquia_connector",
+      "constraint": "^3.0.2",
+      "install": [
+        "acquia_connector"
+      ],
+      "replaces": {
+        "name": "acquia_connector"
+      },
+      "vetted": true
+    },
+    {
+      "package": "drupal/acquia_connector",
+      "constraint": "^3.0.2",
+      "install": [
+        "acquia_connector"
+      ],
+      "replaces": {
+        "name": "acquia_spi"
+      },
+      "vetted": true
+    },
+    {
+      "package": "drupal/acquia_purge",
+      "constraint": "^1.2",
+      "install": [
+        "acquia_purge_geoip"
+      ],
+      "replaces": {
+        "name": "acquia_geoip_vary_by_country"
+      },
+      "vetted": true
+    },
+    {
+      "package": "drupal/acquia_purge",
+      "constraint": "^1.2",
+      "note": "An automatic migration of settings does not make sense for this module. The Acquia Purge module is mostly 'zero configuration'; the only thing you have to do is add an 'Acquia Cloud' purger in the Purge module. See https://git.drupalcode.org/project/acquia_purge/raw/HEAD/INSTALL.md for detailed instructions.",
+      "install": [
+        "acquia_purge"
+      ],
+      "replaces": {
+        "name": "acquia_purge"
+      },
+      "vetted": true
+    },
+    {
+      "package": "drupal/acquia_search",
+      "constraint": "3.1.0-beta1",
+      "patches": {
+        "[AMA_KEEP] Issue #3218089: Could not retrieve data definition for field": "https://www.drupal.org/files/issues/2021-06-09/acquia_search-could_not_find_field-3218089-fix-only.patch"
+      },
+      "note": "Acquia Search will migrate configuration and search indexes. User will have to re-index site data once migration is done.  See https://docs.acquia.com/acquia-search/activate/indexing/#re-indexing-your-website.",
+      "install": [
+        "acquia_search"
+      ],
+      "replaces": {
+        "name": "acquia_search"
+      },
+      "vetted": true
+    },
+    {
+      "universal": true,
+      "package": "drupal/core",
+      "constraint": "9.3.5",
+      "patches": {
+        "Issue #3115073: Convert RDF mapping migration to derived migrations": "https://www.drupal.org/files/issues/2020-02-24/core-derived_rdf_mapping_migration-3115073-7.patch",
+        "Issue #3122649: Derive path alias migrations per entity type (and bundle)": "https://www.drupal.org/files/issues/2021-02-24/core-derive_path_alias_migrations-3122649-41.patch",
+        "Issue #3096972: The Drupal 7 ThemeSettings source plugin does not check that the destination site has a valid theme to migrate settings into": "https://www.drupal.org/files/issues/2020-05-18/core-theme_settings_migrate_requirement-3096972-36_0.patch",
+        "Issue #3204212: Convert remaining widget and formatter type migrations to MigrateField plugins": "https://www.drupal.org/files/issues/2021-12-27/3204212-field-migration-widget-formatter-mapping-41--fix-only.patch",
+        "Issue #3202462: Provide option for contrib modules to map their D6 / D7 field formatter and widget plugin IDs to the equivalent D9 plugin ID": "https://www.drupal.org/files/issues/2021-04-08/core-allow_map_formatter_migration-3202462-8--on-top-of-3204212.patch",
+        "Issue #3108302: Field formatter & widget settings: fall back to default if missing plugin": "https://www.drupal.org/files/issues/2021-06-10/core-migrate_field_formatter_widget_with_fallback-3108302-45--on-top-of-3202462-8_0.patch",
+        "Issue #3097336: Improve the DX for migrating content entities: view modes, fields, formatters, widgets etc should be migrated per entity type + bundle": "https://www.drupal.org/files/issues/2021-06-10/core-derived_field_and_field_display_migrations-3097336-85--compatible-with-3202462-6.patch",
+        "Issue #3198732: Migrating reference fields: target_bundles may never be empty array": "https://www.drupal.org/files/issues/2021-12-27/3198732-28.patch",
+        "Issue #3115938: Derive block migration per theme and per block plugin type": "https://www.drupal.org/files/issues/2021-06-10/core-derived_block_config_migrations-3115938-21.patch",
+        "Issue #3123775: Ensure that migrations of entities with file or image fields depend on private/public files migration": "https://www.drupal.org/files/issues/2021-12-27/core-add_file_migration_dependencies-3123775-12--fix-only--do-not-test.patch",
+        "Issue #2845340: migrate mapping & messages table names are truncated, can lead to incorrect mapping lookups": "https://www.drupal.org/files/issues/2020-06-16/2845340-16.patch",
+        "Issue #3151979: System file settings migration (d6_system_file and d7_system_file) assumes that allow_insecure_uploads variable is always set": "https://www.drupal.org/files/issues/2020-12-07/3151979-22.patch",
+        "Issue #3156083: Route migrate process plugin shouldn't assume that the $options variable is always an array": "https://www.drupal.org/files/issues/2020-07-01/core-route_migrate_process_plugin_options-3156083-2--complete.patch",
+        "Issue #3051251: Existing menu links show validation issues on migration": "https://www.drupal.org/files/issues/2022-01-10/core-derive_menu_link_migrations_per_entity_type-3051251-59.patch",
+        "Issue #3154156: Improve migration system performance: statically cache DrupalSqlBase::$systemData": "https://www.drupal.org/files/issues/2020-06-23/3154156-2.patch",
+        "Issue #3156730: Stubs should only be created if the referenced source row actually exists": "https://www.drupal.org/files/issues/2021-06-10/core-create_stub_only_when_matching_source_row_exists--9.2.x--3156730-41.patch",
+        "Issue #3156733: File migration's \"owner\" user reference should use migration_lookup": "https://www.drupal.org/files/issues/2020-07-03/3156733-2.patch",
+        "Issue #3165813: Undefined index: text_processing in Drupal\\text\\Plugin\\migrate\\field\\d7\\TextField": "https://www.drupal.org/files/issues/2020-08-18/3165813-2.patch",
+        "Issue #3166930: Migrated filters may have invalid/incomplete settings applied": "https://www.drupal.org/files/issues/2020-08-24/3166930-4.patch",
+        "Issue #3167267: MigrateExecutable should catch not only exceptions, but also fatal errors": "https://www.drupal.org/files/issues/2021-11-04/drupal-3167267-36.patch",
+        "Issue #3186449: ContentEntity source plugin shouldn't throw exception when the bundle key is missing": "https://www.drupal.org/files/issues/2020-12-08/core-content_entity_source_exception_when_bundle_is_missing-3186449-2.patch",
+        "Issue #3187334: Drupal 7 color settings migration assumes that theme machine names do not contain underscores": "https://www.drupal.org/files/issues/2020-12-10/core-fix_d7_color_migration-3187334-7.patch",
+        "Issue #3187419: d7/NodeComplete source plugin adds invalid source \"source_langcode\" for \"content_translation_source\" destination property": "https://www.drupal.org/files/issues/2020-12-09/core-nodecomplete_wrong_source_langcode-3187419-2.patch",
+        "Issue #3187474: Improve source record count of translation migrate source plugins which use the \"i18n_string\" table": "https://www.drupal.org/files/issues/2020-12-14/core-improve_source_record_count_i18n_string-3187474-9.patch",
+        "Issue #2985882: Workaround for \"Call to a member function getLabel() after enabling layout_builder\"": "https://www.drupal.org/files/issues/2020-04-08/2985882-field-85.patch",
+        "Issue #2859314: Highwater condition with unjoined maps skips unprocessed and NEEDS_UPDATE rows": "https://www.drupal.org/files/issues/2021-06-10/2859314-58.patch",
+        "Issue #3200949: Unpublished entity revisions get published because EntityContentComplete": "https://www.drupal.org/files/issues/2021-03-01/core-allow_migrating_forward_revisions-3200949-9.patch",
+        "Issue #3204343: Disabling the default search page can make the entire site inaccessible": "https://www.drupal.org/files/issues/2021-03-19/3204343-9.patch",
+        "Issue #3118262: Calling EntityConfig::import() with multiple destination IDs fails": "https://www.drupal.org/files/issues/2021-12-28/core-fix_entityconfigbase-3118262-52--complete.patch",
+        "Issue #3213636: Prevent data loss: migrate text fields with conflicting text_processing setting as formatter text fields": "https://gist.githubusercontent.com/zolhorvath/9b8d28df3dd45e3d8a8234e590016aa7/raw/cba7add887d8d20564b1fed45c52ce803575b58d/core-migrate_conflicting_text_fields-3213636-6--9.1.x--fix-and-db-fixture.patch",
+        "Issue #3218294: Allow altering field value query performed by FieldableEntity": "https://www.drupal.org/files/issues/2021-06-10/core-allow_altering_migrate_field_value_query-3218294-2.patch",
+        "Issue #3219078: Regression: multilingual taxonomy term migrations are failing if user tries to migrate from Drupal 7.81+ and Entity Translation 7.x-1.1": "https://www.drupal.org/files/issues/2021-11-19/core-fix_et_mapping_of_taxonomy_terms-3219078-13.patch",
+        "Issue #3226744: Derive statistics module migrations per node type": "https://www.drupal.org/files/issues/2021-10-13/core-derive_statistics_module_migrations-3226744-22.patch",
+        "Issue #3227361: Fix \\Drupal\\migrate\\Plugin\\migrate\\source\\SqlBase::initializeIterator()'s cross-database joining broken when using particular DB/table names": "https://www.drupal.org/files/issues/2021-08-11/3227361-13.patch",
+        "Issue #2329253: Allow the ChangedItem to skip updating": "https://www.drupal.org/files/issues/2021-09-29/2329253-drupal-allow-changeditem-skipping-78-9.3.patch",
+        "Issue #3052115: Mark an entity as 'syncing' during a migration 'update' and possibly test syncing semantics": "https://www.drupal.org/files/issues/2021-11-18/core-migrate_sync-3052115--31--content--fix-only.patch",
+        "Remove certain default content entity types (node, block_content, taxonomy_term, comment) from Drupal's Standard install profile": "https://gist.githubusercontent.com/narendra-drupal/85ba9ba92816cc53a0cad0caf2bcd079/raw/58572a11df2d30425b6ade68fb7c3030574beee3/standard-remove_default_content_entity_types.patch"
+      },
+      "vetted": true
+    },
+    {
+      "package": "drupal/core",
+      "constraint": "*",
+      "install": [
+        "media_library"
+      ],
+      "universal": true,
+      "vetted": true
+    },
+    {
+      "package": "drupal/core",
+      "constraint": "*",
+      "note": "This module overrides 'administrative listing' pages in Drupal 7 site with equivalent Views for superior usability. Drupal core now contains a superset of its functionality.",
+      "install": [
+        "views"
+      ],
+      "replaces": {
+        "name": "admin_views"
+      },
+      "vetted": true
+    },
+    {
+      "package": "drupal/core",
+      "constraint": "*",
+      "note": "This module overrides 'administrative listing' pages in Drupal 7 site with equivalent Views for superior usability. Drupal core now contains a superset of its functionality.",
+      "install": [
+        "views"
+      ],
+      "replaces": {
+        "name": "admin_views_system_display"
+      },
+      "vetted": true
+    },
+    {
+      "package": "drupal/core",
+      "constraint": "*",
+      "note": "This module is a little helper to maintain an administrator role which has all available permissions for a Drupal 7 site. Drupal core now contains a superset of its functionality.",
+      "replaces": {
+        "name": "adminrole"
+      },
+      "vetted": true
+    },
+    {
+      "package": "drupal/core",
+      "constraint": "*",
+      "install": [
+        "aggregator"
+      ],
+      "replaces": {
+        "name": "aggregator"
+      },
+      "vetted": true
+    },
+    {
+      "universal": true,
+      "package": "drupal/mysql56",
+      "constraint": "^1",
+      "vetted": true
+    }
+  ]
+}

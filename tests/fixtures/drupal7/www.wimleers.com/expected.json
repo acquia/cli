@@ -1,0 +1,642 @@
+{
+    "generated": "2023-06-14T17:30:31+00:00",
+    "installModules": [
+        "acquia_migrate",
+        "media_library"
+    ],
+    "filePaths": {
+        "public": "sites/default/files",
+        "private": null
+    },
+    "sourceModules": [
+        {
+            "name": "block",
+            "humanName": "Block",
+            "version": "7.67"
+        },
+        {
+            "name": "comment",
+            "humanName": "Comment",
+            "version": "7.67"
+        },
+        {
+            "name": "comment_notify",
+            "humanName": "Comment Notify",
+            "version": "Unknown"
+        },
+        {
+            "name": "contact",
+            "humanName": "Contact",
+            "version": "7.67"
+        },
+        {
+            "name": "contextual",
+            "humanName": "Contextual links",
+            "version": "7.67"
+        },
+        {
+            "name": "ctools",
+            "humanName": "Chaos tools",
+            "version": "Unknown"
+        },
+        {
+            "name": "date",
+            "humanName": "Date",
+            "version": "Unknown"
+        },
+        {
+            "name": "date_all_day",
+            "humanName": "Date All Day",
+            "version": "Unknown"
+        },
+        {
+            "name": "date_api",
+            "humanName": "Date API",
+            "version": "Unknown"
+        },
+        {
+            "name": "dblog",
+            "humanName": "Database logging",
+            "version": "7.67"
+        },
+        {
+            "name": "diff",
+            "humanName": "Diff",
+            "version": "Unknown"
+        },
+        {
+            "name": "field",
+            "humanName": "Field",
+            "version": "7.67"
+        },
+        {
+            "name": "field_sql_storage",
+            "humanName": "Field SQL storage",
+            "version": "7.67"
+        },
+        {
+            "name": "field_ui",
+            "humanName": "Field UI",
+            "version": "7.67"
+        },
+        {
+            "name": "file",
+            "humanName": "File",
+            "version": "7.67"
+        },
+        {
+            "name": "filefield_sources",
+            "humanName": "File Field Sources",
+            "version": "Unknown"
+        },
+        {
+            "name": "filter",
+            "humanName": "Filter",
+            "version": "7.67"
+        },
+        {
+            "name": "forcejs",
+            "humanName": "Force JS",
+            "version": "Unknown"
+        },
+        {
+            "name": "globalredirect",
+            "humanName": "Global Redirect",
+            "version": "Unknown"
+        },
+        {
+            "name": "googleanalytics",
+            "humanName": "Google Analytics",
+            "version": "Unknown"
+        },
+        {
+            "name": "gravatar",
+            "humanName": "Gravatar",
+            "version": "Unknown"
+        },
+        {
+            "name": "honeypot",
+            "humanName": "Honeypot",
+            "version": "Unknown"
+        },
+        {
+            "name": "image_resize_filter",
+            "humanName": "Image resize filter",
+            "version": "Unknown"
+        },
+        {
+            "name": "insert",
+            "humanName": "Insert",
+            "version": "Unknown"
+        },
+        {
+            "name": "link",
+            "humanName": "Link",
+            "version": "Unknown"
+        },
+        {
+            "name": "list",
+            "humanName": "List",
+            "version": "7.67"
+        },
+        {
+            "name": "markdown",
+            "humanName": "Markdown filter",
+            "version": "Unknown"
+        },
+        {
+            "name": "menu",
+            "humanName": "Menu",
+            "version": "7.67"
+        },
+        {
+            "name": "node",
+            "humanName": "Node",
+            "version": "7.67"
+        },
+        {
+            "name": "node_reference",
+            "humanName": "Node Reference",
+            "version": "Unknown"
+        },
+        {
+            "name": "number",
+            "humanName": "Number",
+            "version": "7.67"
+        },
+        {
+            "name": "options",
+            "humanName": "Options",
+            "version": "7.67"
+        },
+        {
+            "name": "path",
+            "humanName": "Path",
+            "version": "7.67"
+        },
+        {
+            "name": "rdf",
+            "humanName": "RDF",
+            "version": "7.67"
+        },
+        {
+            "name": "references",
+            "humanName": "References",
+            "version": "Unknown"
+        },
+        {
+            "name": "search",
+            "humanName": "Search",
+            "version": "7.67"
+        },
+        {
+            "name": "shortcut",
+            "humanName": "Shortcut",
+            "version": "7.67"
+        },
+        {
+            "name": "system",
+            "humanName": "System",
+            "version": "7.67"
+        },
+        {
+            "name": "taxonomy",
+            "humanName": "Taxonomy",
+            "version": "7.67"
+        },
+        {
+            "name": "text",
+            "humanName": "Text",
+            "version": "7.67"
+        },
+        {
+            "name": "token",
+            "humanName": "Token",
+            "version": "Unknown"
+        },
+        {
+            "name": "toolbar",
+            "humanName": "Toolbar",
+            "version": "7.67"
+        },
+        {
+            "name": "typogrify",
+            "humanName": "Typogrify",
+            "version": "Unknown"
+        },
+        {
+            "name": "update",
+            "humanName": "Update manager",
+            "version": "7.67"
+        },
+        {
+            "name": "user",
+            "humanName": "User",
+            "version": "7.67"
+        },
+        {
+            "name": "view_unpublished",
+            "humanName": "View Unpublished",
+            "version": "7.x-1.x-dev"
+        },
+        {
+            "name": "views",
+            "humanName": "Views",
+            "version": "Unknown"
+        },
+        {
+            "name": "views_ui",
+            "humanName": "Views UI",
+            "version": "Unknown"
+        },
+        {
+            "name": "xmlsitemap",
+            "humanName": "XML sitemap",
+            "version": "Unknown"
+        },
+        {
+            "name": "xmlsitemap_custom",
+            "humanName": "XML sitemap custom",
+            "version": "Unknown"
+        },
+        {
+            "name": "xmlsitemap_engines",
+            "humanName": "XML sitemap engines",
+            "version": "Unknown"
+        },
+        {
+            "name": "xmlsitemap_node",
+            "humanName": "XML sitemap node",
+            "version": "Unknown"
+        }
+    ],
+    "recommendations": [
+        {
+            "type": "packageRecommendation",
+            "id": "acquia/acquia-migrate-accelerate:^1@dev",
+            "attributes": {
+                "requirePackage": {
+                    "name": "acquia/acquia-migrate-accelerate",
+                    "versionConstraint": "^1@dev"
+                },
+                "installModules": [
+                    "acquia_migrate"
+                ],
+                "vetted": true
+            }
+        },
+        {
+            "type": "packageRecommendation",
+            "id": "acquia/memcache-settings:^1",
+            "attributes": {
+                "requirePackage": {
+                    "name": "acquia/memcache-settings",
+                    "versionConstraint": "^1"
+                },
+                "installModules": [],
+                "vetted": true
+            }
+        },
+        {
+            "type": "packageRecommendation",
+            "id": "drupal/core:*",
+            "attributes": {
+                "requirePackage": {
+                    "name": "drupal/core",
+                    "versionConstraint": "*"
+                },
+                "installModules": [
+                    "media_library"
+                ],
+                "vetted": true
+            }
+        },
+        {
+            "type": "packageRecommendation",
+            "id": "drupal/core:9.3.5",
+            "attributes": {
+                "requirePackage": {
+                    "name": "drupal/core",
+                    "versionConstraint": "9.3.5"
+                },
+                "installModules": [],
+                "vetted": true
+            },
+            "links": {
+                "patch-file--75a43db3b6a5349a3fd3654eb159aa2b": {
+                    "href": "https://www.drupal.org/files/issues/2020-02-24/core-derived_rdf_mapping_migration-3115073-7.patch",
+                    "rel": "https://github.com/acquia/acquia_migrate#link-rel-patch-file",
+                    "title": "Issue #3115073: Convert RDF mapping migration to derived migrations"
+                },
+                "patch-file--855158501ee84e5778f7b871520d2c99": {
+                    "href": "https://www.drupal.org/files/issues/2021-02-24/core-derive_path_alias_migrations-3122649-41.patch",
+                    "rel": "https://github.com/acquia/acquia_migrate#link-rel-patch-file",
+                    "title": "Issue #3122649: Derive path alias migrations per entity type (and bundle)"
+                },
+                "patch-file--28c9964df4bf88e75df960cb9dbe0b58": {
+                    "href": "https://www.drupal.org/files/issues/2020-05-18/core-theme_settings_migrate_requirement-3096972-36_0.patch",
+                    "rel": "https://github.com/acquia/acquia_migrate#link-rel-patch-file",
+                    "title": "Issue #3096972: The Drupal 7 ThemeSettings source plugin does not check that the destination site has a valid theme to migrate settings into"
+                },
+                "patch-file--7b014159ff0efeb2c571bb2311097b27": {
+                    "href": "https://www.drupal.org/files/issues/2021-12-27/3204212-field-migration-widget-formatter-mapping-41--fix-only.patch",
+                    "rel": "https://github.com/acquia/acquia_migrate#link-rel-patch-file",
+                    "title": "Issue #3204212: Convert remaining widget and formatter type migrations to MigrateField plugins"
+                },
+                "patch-file--5ce2ed3c598c61775d3667122b9642cf": {
+                    "href": "https://www.drupal.org/files/issues/2021-04-08/core-allow_map_formatter_migration-3202462-8--on-top-of-3204212.patch",
+                    "rel": "https://github.com/acquia/acquia_migrate#link-rel-patch-file",
+                    "title": "Issue #3202462: Provide option for contrib modules to map their D6 / D7 field formatter and widget plugin IDs to the equivalent D9 plugin ID"
+                },
+                "patch-file--eb4163cce835fbe70cef827b8d265794": {
+                    "href": "https://www.drupal.org/files/issues/2021-06-10/core-migrate_field_formatter_widget_with_fallback-3108302-45--on-top-of-3202462-8_0.patch",
+                    "rel": "https://github.com/acquia/acquia_migrate#link-rel-patch-file",
+                    "title": "Issue #3108302: Field formatter & widget settings: fall back to default if missing plugin"
+                },
+                "patch-file--6e759c727a8044ac59c8e992044fb8ba": {
+                    "href": "https://www.drupal.org/files/issues/2021-06-10/core-derived_field_and_field_display_migrations-3097336-85--compatible-with-3202462-6.patch",
+                    "rel": "https://github.com/acquia/acquia_migrate#link-rel-patch-file",
+                    "title": "Issue #3097336: Improve the DX for migrating content entities: view modes, fields, formatters, widgets etc should be migrated per entity type + bundle"
+                },
+                "patch-file--2f6f17eed12017578c871fa6292a977b": {
+                    "href": "https://www.drupal.org/files/issues/2021-12-27/3198732-28.patch",
+                    "rel": "https://github.com/acquia/acquia_migrate#link-rel-patch-file",
+                    "title": "Issue #3198732: Migrating reference fields: target_bundles may never be empty array"
+                },
+                "patch-file--e13ee44a7bf71256d6209b3ec74129ac": {
+                    "href": "https://www.drupal.org/files/issues/2021-06-10/core-derived_block_config_migrations-3115938-21.patch",
+                    "rel": "https://github.com/acquia/acquia_migrate#link-rel-patch-file",
+                    "title": "Issue #3115938: Derive block migration per theme and per block plugin type"
+                },
+                "patch-file--e46ddc5ebd7b4b005526c6a6bb60ef9e": {
+                    "href": "https://www.drupal.org/files/issues/2021-12-27/core-add_file_migration_dependencies-3123775-12--fix-only--do-not-test.patch",
+                    "rel": "https://github.com/acquia/acquia_migrate#link-rel-patch-file",
+                    "title": "Issue #3123775: Ensure that migrations of entities with file or image fields depend on private/public files migration"
+                },
+                "patch-file--f19eb4e05166b8e3819c110f9259ab05": {
+                    "href": "https://www.drupal.org/files/issues/2020-06-16/2845340-16.patch",
+                    "rel": "https://github.com/acquia/acquia_migrate#link-rel-patch-file",
+                    "title": "Issue #2845340: migrate mapping & messages table names are truncated, can lead to incorrect mapping lookups"
+                },
+                "patch-file--9fb7b468c36ea063076954c62e84974a": {
+                    "href": "https://www.drupal.org/files/issues/2020-12-07/3151979-22.patch",
+                    "rel": "https://github.com/acquia/acquia_migrate#link-rel-patch-file",
+                    "title": "Issue #3151979: System file settings migration (d6_system_file and d7_system_file) assumes that allow_insecure_uploads variable is always set"
+                },
+                "patch-file--f58cf56c97082bbefa3f290874cb4ae6": {
+                    "href": "https://www.drupal.org/files/issues/2020-07-01/core-route_migrate_process_plugin_options-3156083-2--complete.patch",
+                    "rel": "https://github.com/acquia/acquia_migrate#link-rel-patch-file",
+                    "title": "Issue #3156083: Route migrate process plugin shouldn't assume that the $options variable is always an array"
+                },
+                "patch-file--40dc3aa89ba747d3d141d23d7e76e617": {
+                    "href": "https://www.drupal.org/files/issues/2022-01-10/core-derive_menu_link_migrations_per_entity_type-3051251-59.patch",
+                    "rel": "https://github.com/acquia/acquia_migrate#link-rel-patch-file",
+                    "title": "Issue #3051251: Existing menu links show validation issues on migration"
+                },
+                "patch-file--a813581ee57b004dc3c9414492e9050a": {
+                    "href": "https://www.drupal.org/files/issues/2020-06-23/3154156-2.patch",
+                    "rel": "https://github.com/acquia/acquia_migrate#link-rel-patch-file",
+                    "title": "Issue #3154156: Improve migration system performance: statically cache DrupalSqlBase::$systemData"
+                },
+                "patch-file--ad21b2ea10bfb6371551a43d63ec4a4c": {
+                    "href": "https://www.drupal.org/files/issues/2021-06-10/core-create_stub_only_when_matching_source_row_exists--9.2.x--3156730-41.patch",
+                    "rel": "https://github.com/acquia/acquia_migrate#link-rel-patch-file",
+                    "title": "Issue #3156730: Stubs should only be created if the referenced source row actually exists"
+                },
+                "patch-file--e2f5ff6f6a35de6214df8caf97265f4b": {
+                    "href": "https://www.drupal.org/files/issues/2020-07-03/3156733-2.patch",
+                    "rel": "https://github.com/acquia/acquia_migrate#link-rel-patch-file",
+                    "title": "Issue #3156733: File migration's \"owner\" user reference should use migration_lookup"
+                },
+                "patch-file--40c1664e6defcf8fc4ca34628810a80d": {
+                    "href": "https://www.drupal.org/files/issues/2020-08-18/3165813-2.patch",
+                    "rel": "https://github.com/acquia/acquia_migrate#link-rel-patch-file",
+                    "title": "Issue #3165813: Undefined index: text_processing in Drupal\\text\\Plugin\\migrate\\field\\d7\\TextField"
+                },
+                "patch-file--ea225b6c4c2ef42ad77b751493be3290": {
+                    "href": "https://www.drupal.org/files/issues/2020-08-24/3166930-4.patch",
+                    "rel": "https://github.com/acquia/acquia_migrate#link-rel-patch-file",
+                    "title": "Issue #3166930: Migrated filters may have invalid/incomplete settings applied"
+                },
+                "patch-file--e2d7329f382bf408c076a8aba9b2725b": {
+                    "href": "https://www.drupal.org/files/issues/2021-11-04/drupal-3167267-36.patch",
+                    "rel": "https://github.com/acquia/acquia_migrate#link-rel-patch-file",
+                    "title": "Issue #3167267: MigrateExecutable should catch not only exceptions, but also fatal errors"
+                },
+                "patch-file--f78ebb2ac06ee02987036309ae7cc4a8": {
+                    "href": "https://www.drupal.org/files/issues/2020-12-08/core-content_entity_source_exception_when_bundle_is_missing-3186449-2.patch",
+                    "rel": "https://github.com/acquia/acquia_migrate#link-rel-patch-file",
+                    "title": "Issue #3186449: ContentEntity source plugin shouldn't throw exception when the bundle key is missing"
+                },
+                "patch-file--76b2c66358a3dd8e4a3d9f7e14dacc0c": {
+                    "href": "https://www.drupal.org/files/issues/2020-12-10/core-fix_d7_color_migration-3187334-7.patch",
+                    "rel": "https://github.com/acquia/acquia_migrate#link-rel-patch-file",
+                    "title": "Issue #3187334: Drupal 7 color settings migration assumes that theme machine names do not contain underscores"
+                },
+                "patch-file--e0fc30abb1a2ee88cd07dfe3130b58c1": {
+                    "href": "https://www.drupal.org/files/issues/2020-12-09/core-nodecomplete_wrong_source_langcode-3187419-2.patch",
+                    "rel": "https://github.com/acquia/acquia_migrate#link-rel-patch-file",
+                    "title": "Issue #3187419: d7/NodeComplete source plugin adds invalid source \"source_langcode\" for \"content_translation_source\" destination property"
+                },
+                "patch-file--52499638e0f34ec174769344fcbe18ab": {
+                    "href": "https://www.drupal.org/files/issues/2020-12-14/core-improve_source_record_count_i18n_string-3187474-9.patch",
+                    "rel": "https://github.com/acquia/acquia_migrate#link-rel-patch-file",
+                    "title": "Issue #3187474: Improve source record count of translation migrate source plugins which use the \"i18n_string\" table"
+                },
+                "patch-file--d470dacf6d606ba6fc05aaa1cb8d5206": {
+                    "href": "https://www.drupal.org/files/issues/2020-04-08/2985882-field-85.patch",
+                    "rel": "https://github.com/acquia/acquia_migrate#link-rel-patch-file",
+                    "title": "Issue #2985882: Workaround for \"Call to a member function getLabel() after enabling layout_builder\""
+                },
+                "patch-file--5fdba9a5db26be9823c33797ee8aa5a5": {
+                    "href": "https://www.drupal.org/files/issues/2021-06-10/2859314-58.patch",
+                    "rel": "https://github.com/acquia/acquia_migrate#link-rel-patch-file",
+                    "title": "Issue #2859314: Highwater condition with unjoined maps skips unprocessed and NEEDS_UPDATE rows"
+                },
+                "patch-file--d2f0e978062e949cf78605aa0759b23e": {
+                    "href": "https://www.drupal.org/files/issues/2021-03-01/core-allow_migrating_forward_revisions-3200949-9.patch",
+                    "rel": "https://github.com/acquia/acquia_migrate#link-rel-patch-file",
+                    "title": "Issue #3200949: Unpublished entity revisions get published because EntityContentComplete"
+                },
+                "patch-file--6c39fd386869d1d8d43defc2d5b08ab8": {
+                    "href": "https://www.drupal.org/files/issues/2021-03-19/3204343-9.patch",
+                    "rel": "https://github.com/acquia/acquia_migrate#link-rel-patch-file",
+                    "title": "Issue #3204343: Disabling the default search page can make the entire site inaccessible"
+                },
+                "patch-file--f5ee06a4dce76131911dc527da260c80": {
+                    "href": "https://www.drupal.org/files/issues/2021-12-28/core-fix_entityconfigbase-3118262-52--complete.patch",
+                    "rel": "https://github.com/acquia/acquia_migrate#link-rel-patch-file",
+                    "title": "Issue #3118262: Calling EntityConfig::import() with multiple destination IDs fails"
+                },
+                "patch-file--81e993a548a2918c3c280daad48ca19a": {
+                    "href": "https://gist.githubusercontent.com/zolhorvath/9b8d28df3dd45e3d8a8234e590016aa7/raw/cba7add887d8d20564b1fed45c52ce803575b58d/core-migrate_conflicting_text_fields-3213636-6--9.1.x--fix-and-db-fixture.patch",
+                    "rel": "https://github.com/acquia/acquia_migrate#link-rel-patch-file",
+                    "title": "Issue #3213636: Prevent data loss: migrate text fields with conflicting text_processing setting as formatter text fields"
+                },
+                "patch-file--85efb753b79ade17d8ed1d42758525de": {
+                    "href": "https://www.drupal.org/files/issues/2021-06-10/core-allow_altering_migrate_field_value_query-3218294-2.patch",
+                    "rel": "https://github.com/acquia/acquia_migrate#link-rel-patch-file",
+                    "title": "Issue #3218294: Allow altering field value query performed by FieldableEntity"
+                },
+                "patch-file--b94a4f22a15f176ad675ebe6a45dd56b": {
+                    "href": "https://www.drupal.org/files/issues/2021-11-19/core-fix_et_mapping_of_taxonomy_terms-3219078-13.patch",
+                    "rel": "https://github.com/acquia/acquia_migrate#link-rel-patch-file",
+                    "title": "Issue #3219078: Regression: multilingual taxonomy term migrations are failing if user tries to migrate from Drupal 7.81+ and Entity Translation 7.x-1.1"
+                },
+                "patch-file--937b7ad76943919fbed11f06d7f2875a": {
+                    "href": "https://www.drupal.org/files/issues/2021-10-13/core-derive_statistics_module_migrations-3226744-22.patch",
+                    "rel": "https://github.com/acquia/acquia_migrate#link-rel-patch-file",
+                    "title": "Issue #3226744: Derive statistics module migrations per node type"
+                },
+                "patch-file--e6e90aa93183929d64f67a7e1a43ab6a": {
+                    "href": "https://www.drupal.org/files/issues/2021-08-11/3227361-13.patch",
+                    "rel": "https://github.com/acquia/acquia_migrate#link-rel-patch-file",
+                    "title": "Issue #3227361: Fix \\Drupal\\migrate\\Plugin\\migrate\\source\\SqlBase::initializeIterator()'s cross-database joining broken when using particular DB/table names"
+                },
+                "patch-file--10a13a2f48dc4ddc625d69f4217710a7": {
+                    "href": "https://www.drupal.org/files/issues/2021-09-29/2329253-drupal-allow-changeditem-skipping-78-9.3.patch",
+                    "rel": "https://github.com/acquia/acquia_migrate#link-rel-patch-file",
+                    "title": "Issue #2329253: Allow the ChangedItem to skip updating"
+                },
+                "patch-file--261bc7e67af77a82d3708d513ba6d9e1": {
+                    "href": "https://www.drupal.org/files/issues/2021-11-18/core-migrate_sync-3052115--31--content--fix-only.patch",
+                    "rel": "https://github.com/acquia/acquia_migrate#link-rel-patch-file",
+                    "title": "Issue #3052115: Mark an entity as 'syncing' during a migration 'update' and possibly test syncing semantics"
+                },
+                "patch-file--ccf38435699b916d78848ef8e80b130b": {
+                    "href": "https://gist.githubusercontent.com/narendra-drupal/85ba9ba92816cc53a0cad0caf2bcd079/raw/58572a11df2d30425b6ade68fb7c3030574beee3/standard-remove_default_content_entity_types.patch",
+                    "rel": "https://github.com/acquia/acquia_migrate#link-rel-patch-file",
+                    "title": "Remove certain default content entity types (node, block_content, taxonomy_term, comment) from Drupal's Standard install profile"
+                }
+            }
+        },
+        {
+            "type": "packageRecommendation",
+            "id": "drupal/mysql56:^1",
+            "attributes": {
+                "requirePackage": {
+                    "name": "drupal/mysql56",
+                    "versionConstraint": "^1"
+                },
+                "installModules": [],
+                "vetted": true
+            }
+        }
+    ],
+    "rootPackageDefinition": {
+        "type": "project",
+        "description": "Generated by Acquia CLI's app:new:from:drupal7",
+        "repositories": [
+            {
+                "type": "composer",
+                "url": "https://packages.drupal.org/8"
+            }
+        ],
+        "require": {
+            "acquia/acquia-migrate-accelerate": "^1@dev",
+            "acquia/memcache-settings": "^1",
+            "composer/installers": "^1.9",
+            "cweagans/composer-patches": "^1.7",
+            "drupal/core-composer-scaffold": "9.3.5",
+            "drupal/core-project-message": "9.3.5",
+            "drupal/core-recommended": "9.3.5",
+            "drupal/mysql56": "^1",
+            "drush/drush": "*"
+        },
+        "config": {
+            "sort-packages": true,
+            "allow-plugins": {
+                "composer/installers": true,
+                "cweagans/composer-patches": true,
+                "drupal/core-composer-scaffold": true,
+                "drupal/core-project-message": true
+            }
+        },
+        "conflict": {
+            "drupal/drupal": "*"
+        },
+        "minimum-stability": "dev",
+        "prefer-stable": true,
+        "extra": {
+            "enable-patching": true,
+            "patchLevel": {
+                "drupal/core": "-p2"
+            },
+            "drupal-scaffold": {
+                "locations": {
+                    "web-root": "docroot/"
+                }
+            },
+            "installer-paths": {
+                "docroot/core": [
+                    "type:drupal-core"
+                ],
+                "docroot/libraries/{$name}": [
+                    "type:drupal-library"
+                ],
+                "docroot/modules/contrib/{$name}": [
+                    "type:drupal-module"
+                ],
+                "docroot/profiles/contrib/{$name}": [
+                    "type:drupal-profile"
+                ],
+                "docroot/themes/contrib/{$name}": [
+                    "type:drupal-theme"
+                ],
+                "drush/Commands/contrib/{$name}": [
+                    "type:drupal-drush"
+                ],
+                "docroot/modules/custom/{$name}": [
+                    "type:drupal-custom-module"
+                ],
+                "docroot/profiles/custom/{$name}": [
+                    "type:drupal-custom-profile"
+                ],
+                "docroot/themes/custom/{$name}": [
+                    "type:drupal-custom-theme"
+                ]
+            },
+            "patches": {
+                "drupal/core": {
+                    "Issue #3115073: Convert RDF mapping migration to derived migrations": "https://www.drupal.org/files/issues/2020-02-24/core-derived_rdf_mapping_migration-3115073-7.patch",
+                    "Issue #3122649: Derive path alias migrations per entity type (and bundle)": "https://www.drupal.org/files/issues/2021-02-24/core-derive_path_alias_migrations-3122649-41.patch",
+                    "Issue #3096972: The Drupal 7 ThemeSettings source plugin does not check that the destination site has a valid theme to migrate settings into": "https://www.drupal.org/files/issues/2020-05-18/core-theme_settings_migrate_requirement-3096972-36_0.patch",
+                    "Issue #3204212: Convert remaining widget and formatter type migrations to MigrateField plugins": "https://www.drupal.org/files/issues/2021-12-27/3204212-field-migration-widget-formatter-mapping-41--fix-only.patch",
+                    "Issue #3202462: Provide option for contrib modules to map their D6 / D7 field formatter and widget plugin IDs to the equivalent D9 plugin ID": "https://www.drupal.org/files/issues/2021-04-08/core-allow_map_formatter_migration-3202462-8--on-top-of-3204212.patch",
+                    "Issue #3108302: Field formatter & widget settings: fall back to default if missing plugin": "https://www.drupal.org/files/issues/2021-06-10/core-migrate_field_formatter_widget_with_fallback-3108302-45--on-top-of-3202462-8_0.patch",
+                    "Issue #3097336: Improve the DX for migrating content entities: view modes, fields, formatters, widgets etc should be migrated per entity type + bundle": "https://www.drupal.org/files/issues/2021-06-10/core-derived_field_and_field_display_migrations-3097336-85--compatible-with-3202462-6.patch",
+                    "Issue #3198732: Migrating reference fields: target_bundles may never be empty array": "https://www.drupal.org/files/issues/2021-12-27/3198732-28.patch",
+                    "Issue #3115938: Derive block migration per theme and per block plugin type": "https://www.drupal.org/files/issues/2021-06-10/core-derived_block_config_migrations-3115938-21.patch",
+                    "Issue #3123775: Ensure that migrations of entities with file or image fields depend on private/public files migration": "https://www.drupal.org/files/issues/2021-12-27/core-add_file_migration_dependencies-3123775-12--fix-only--do-not-test.patch",
+                    "Issue #2845340: migrate mapping & messages table names are truncated, can lead to incorrect mapping lookups": "https://www.drupal.org/files/issues/2020-06-16/2845340-16.patch",
+                    "Issue #3151979: System file settings migration (d6_system_file and d7_system_file) assumes that allow_insecure_uploads variable is always set": "https://www.drupal.org/files/issues/2020-12-07/3151979-22.patch",
+                    "Issue #3156083: Route migrate process plugin shouldn't assume that the $options variable is always an array": "https://www.drupal.org/files/issues/2020-07-01/core-route_migrate_process_plugin_options-3156083-2--complete.patch",
+                    "Issue #3051251: Existing menu links show validation issues on migration": "https://www.drupal.org/files/issues/2022-01-10/core-derive_menu_link_migrations_per_entity_type-3051251-59.patch",
+                    "Issue #3154156: Improve migration system performance: statically cache DrupalSqlBase::$systemData": "https://www.drupal.org/files/issues/2020-06-23/3154156-2.patch",
+                    "Issue #3156730: Stubs should only be created if the referenced source row actually exists": "https://www.drupal.org/files/issues/2021-06-10/core-create_stub_only_when_matching_source_row_exists--9.2.x--3156730-41.patch",
+                    "Issue #3156733: File migration's \"owner\" user reference should use migration_lookup": "https://www.drupal.org/files/issues/2020-07-03/3156733-2.patch",
+                    "Issue #3165813: Undefined index: text_processing in Drupal\\text\\Plugin\\migrate\\field\\d7\\TextField": "https://www.drupal.org/files/issues/2020-08-18/3165813-2.patch",
+                    "Issue #3166930: Migrated filters may have invalid/incomplete settings applied": "https://www.drupal.org/files/issues/2020-08-24/3166930-4.patch",
+                    "Issue #3167267: MigrateExecutable should catch not only exceptions, but also fatal errors": "https://www.drupal.org/files/issues/2021-11-04/drupal-3167267-36.patch",
+                    "Issue #3186449: ContentEntity source plugin shouldn't throw exception when the bundle key is missing": "https://www.drupal.org/files/issues/2020-12-08/core-content_entity_source_exception_when_bundle_is_missing-3186449-2.patch",
+                    "Issue #3187334: Drupal 7 color settings migration assumes that theme machine names do not contain underscores": "https://www.drupal.org/files/issues/2020-12-10/core-fix_d7_color_migration-3187334-7.patch",
+                    "Issue #3187419: d7/NodeComplete source plugin adds invalid source \"source_langcode\" for \"content_translation_source\" destination property": "https://www.drupal.org/files/issues/2020-12-09/core-nodecomplete_wrong_source_langcode-3187419-2.patch",
+                    "Issue #3187474: Improve source record count of translation migrate source plugins which use the \"i18n_string\" table": "https://www.drupal.org/files/issues/2020-12-14/core-improve_source_record_count_i18n_string-3187474-9.patch",
+                    "Issue #2985882: Workaround for \"Call to a member function getLabel() after enabling layout_builder\"": "https://www.drupal.org/files/issues/2020-04-08/2985882-field-85.patch",
+                    "Issue #2859314: Highwater condition with unjoined maps skips unprocessed and NEEDS_UPDATE rows": "https://www.drupal.org/files/issues/2021-06-10/2859314-58.patch",
+                    "Issue #3200949: Unpublished entity revisions get published because EntityContentComplete": "https://www.drupal.org/files/issues/2021-03-01/core-allow_migrating_forward_revisions-3200949-9.patch",
+                    "Issue #3204343: Disabling the default search page can make the entire site inaccessible": "https://www.drupal.org/files/issues/2021-03-19/3204343-9.patch",
+                    "Issue #3118262: Calling EntityConfig::import() with multiple destination IDs fails": "https://www.drupal.org/files/issues/2021-12-28/core-fix_entityconfigbase-3118262-52--complete.patch",
+                    "Issue #3213636: Prevent data loss: migrate text fields with conflicting text_processing setting as formatter text fields": "https://gist.githubusercontent.com/zolhorvath/9b8d28df3dd45e3d8a8234e590016aa7/raw/cba7add887d8d20564b1fed45c52ce803575b58d/core-migrate_conflicting_text_fields-3213636-6--9.1.x--fix-and-db-fixture.patch",
+                    "Issue #3218294: Allow altering field value query performed by FieldableEntity": "https://www.drupal.org/files/issues/2021-06-10/core-allow_altering_migrate_field_value_query-3218294-2.patch",
+                    "Issue #3219078: Regression: multilingual taxonomy term migrations are failing if user tries to migrate from Drupal 7.81+ and Entity Translation 7.x-1.1": "https://www.drupal.org/files/issues/2021-11-19/core-fix_et_mapping_of_taxonomy_terms-3219078-13.patch",
+                    "Issue #3226744: Derive statistics module migrations per node type": "https://www.drupal.org/files/issues/2021-10-13/core-derive_statistics_module_migrations-3226744-22.patch",
+                    "Issue #3227361: Fix \\Drupal\\migrate\\Plugin\\migrate\\source\\SqlBase::initializeIterator()'s cross-database joining broken when using particular DB/table names": "https://www.drupal.org/files/issues/2021-08-11/3227361-13.patch",
+                    "Issue #2329253: Allow the ChangedItem to skip updating": "https://www.drupal.org/files/issues/2021-09-29/2329253-drupal-allow-changeditem-skipping-78-9.3.patch",
+                    "Issue #3052115: Mark an entity as 'syncing' during a migration 'update' and possibly test syncing semantics": "https://www.drupal.org/files/issues/2021-11-18/core-migrate_sync-3052115--31--content--fix-only.patch",
+                    "Remove certain default content entity types (node, block_content, taxonomy_term, comment) from Drupal's Standard install profile": "https://gist.githubusercontent.com/narendra-drupal/85ba9ba92816cc53a0cad0caf2bcd079/raw/58572a11df2d30425b6ade68fb7c3030574beee3/standard-remove_default_content_entity_types.patch"
+                }
+            }
+        }
+    }
+}

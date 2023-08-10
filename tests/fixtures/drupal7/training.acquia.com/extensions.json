@@ -1,0 +1,1444 @@
+[
+  {
+    "name": "acquia_agent",
+    "humanName": "Acquia agent",
+    "type": "module",
+    "enabled": true,
+    "version": "7.x-3.6"
+  },
+  {
+    "name": "acquia_cookie_consent",
+    "humanName": "Acquia Cookie Consent",
+    "type": "module",
+    "enabled": true,
+    "version": null
+  },
+  {
+    "name": "acquia_search",
+    "humanName": "Acquia search",
+    "type": "module",
+    "enabled": true,
+    "version": "7.x-3.6"
+  },
+  {
+    "name": "acquia_spi",
+    "humanName": "Acquia Site Profile Information",
+    "type": "module",
+    "enabled": true,
+    "version": "7.x-3.6"
+  },
+  {
+    "name": "acquia_swiss",
+    "humanName": "Acquia Swiss",
+    "type": "theme",
+    "enabled": false,
+    "version": null
+  },
+  {
+    "name": "acquia_training",
+    "humanName": "Acquia Training",
+    "type": "theme",
+    "enabled": true,
+    "version": null
+  },
+  {
+    "name": "actions_permissions",
+    "humanName": "Actions permissions (VBO)",
+    "type": "module",
+    "enabled": false,
+    "version": "7.x-3.5"
+  },
+  {
+    "name": "admin_devel",
+    "humanName": "Administration Development tools",
+    "type": "module",
+    "enabled": false,
+    "version": "7.x-3.0-rc6"
+  },
+  {
+    "name": "admin_menu",
+    "humanName": "Administration menu",
+    "type": "module",
+    "enabled": true,
+    "version": "7.x-3.0-rc6"
+  },
+  {
+    "name": "admin_menu_toolbar",
+    "humanName": "Administration menu Toolbar style",
+    "type": "module",
+    "enabled": true,
+    "version": "7.x-3.0-rc6"
+  },
+  {
+    "name": "aggregator",
+    "humanName": "Aggregator",
+    "type": "module",
+    "enabled": false,
+    "version": "7.70"
+  },
+  {
+    "name": "apachesolr",
+    "humanName": "Apache Solr framework",
+    "type": "module",
+    "enabled": true,
+    "version": "7.x-1.11"
+  },
+  {
+    "name": "apachesolr_access",
+    "humanName": "Apache Solr Access",
+    "type": "module",
+    "enabled": false,
+    "version": "7.x-1.11"
+  },
+  {
+    "name": "apachesolr_search",
+    "humanName": "Apache Solr search",
+    "type": "module",
+    "enabled": true,
+    "version": "7.x-1.11"
+  },
+  {
+    "name": "auto_entitylabel",
+    "humanName": "Automatic Entity Labels",
+    "type": "module",
+    "enabled": true,
+    "version": "7.x-1.4"
+  },
+  {
+    "name": "bartik",
+    "humanName": "Bartik",
+    "type": "theme",
+    "enabled": false,
+    "version": "7.70"
+  },
+  {
+    "name": "block",
+    "humanName": "Block",
+    "type": "module",
+    "enabled": true,
+    "version": "7.70"
+  },
+  {
+    "name": "block_class",
+    "humanName": "Block Class",
+    "type": "module",
+    "enabled": true,
+    "version": "7.x-2.3"
+  },
+  {
+    "name": "blog",
+    "humanName": "Blog",
+    "type": "module",
+    "enabled": false,
+    "version": "7.70"
+  },
+  {
+    "name": "book",
+    "humanName": "Book",
+    "type": "module",
+    "enabled": false,
+    "version": "7.70"
+  },
+  {
+    "name": "bootstrap",
+    "humanName": "Bootstrap",
+    "type": "theme",
+    "enabled": false,
+    "version": "7.x-3.26"
+  },
+  {
+    "name": "bueditor",
+    "humanName": "BUEditor",
+    "type": "module",
+    "enabled": true,
+    "version": "7.x-1.8"
+  },
+  {
+    "name": "bulk_export",
+    "humanName": "Bulk Export",
+    "type": "module",
+    "enabled": false,
+    "version": "7.x-1.15"
+  },
+  {
+    "name": "bundle_copy",
+    "humanName": "Bundle copy",
+    "type": "module",
+    "enabled": true,
+    "version": "7.x-1.1"
+  },
+  {
+    "name": "charts",
+    "humanName": "Charts",
+    "type": "module",
+    "enabled": true,
+    "version": "7.x-2.0-rc1"
+  },
+  {
+    "name": "charts_google",
+    "humanName": "Google Charts",
+    "type": "module",
+    "enabled": true,
+    "version": "7.x-2.0-rc1"
+  },
+  {
+    "name": "charts_highcharts",
+    "humanName": "Highcharts",
+    "type": "module",
+    "enabled": false,
+    "version": "7.x-2.0-rc1"
+  },
+  {
+    "name": "clone",
+    "humanName": "Node clone",
+    "type": "module",
+    "enabled": true,
+    "version": "7.x-1.0"
+  },
+  {
+    "name": "color",
+    "humanName": "Color",
+    "type": "module",
+    "enabled": false,
+    "version": "7.70"
+  },
+  {
+    "name": "comment",
+    "humanName": "Comment",
+    "type": "module",
+    "enabled": false,
+    "version": "7.70"
+  },
+  {
+    "name": "contact",
+    "humanName": "Contact",
+    "type": "module",
+    "enabled": false,
+    "version": "7.70"
+  },
+  {
+    "name": "contextual",
+    "humanName": "Contextual links",
+    "type": "module",
+    "enabled": true,
+    "version": "7.70"
+  },
+  {
+    "name": "ctools",
+    "humanName": "Chaos tools",
+    "type": "module",
+    "enabled": true,
+    "version": "7.x-1.15"
+  },
+  {
+    "name": "ctools_access_ruleset",
+    "humanName": "Custom rulesets",
+    "type": "module",
+    "enabled": false,
+    "version": "7.x-1.15"
+  },
+  {
+    "name": "ctools_ajax_sample",
+    "humanName": "Chaos Tools (CTools) AJAX Example",
+    "type": "module",
+    "enabled": false,
+    "version": "7.x-1.15"
+  },
+  {
+    "name": "ctools_custom_content",
+    "humanName": "Custom content panes",
+    "type": "module",
+    "enabled": false,
+    "version": "7.x-1.15"
+  },
+  {
+    "name": "ctools_plugin_example",
+    "humanName": "Chaos Tools (CTools) Plugin Example",
+    "type": "module",
+    "enabled": false,
+    "version": "7.x-1.15"
+  },
+  {
+    "name": "dashboard",
+    "humanName": "Dashboard",
+    "type": "module",
+    "enabled": false,
+    "version": "7.70"
+  },
+  {
+    "name": "date",
+    "humanName": "Date",
+    "type": "module",
+    "enabled": true,
+    "version": "7.x-2.10"
+  },
+  {
+    "name": "date_all_day",
+    "humanName": "Date All Day",
+    "type": "module",
+    "enabled": false,
+    "version": "7.x-2.10"
+  },
+  {
+    "name": "date_api",
+    "humanName": "Date API",
+    "type": "module",
+    "enabled": true,
+    "version": "7.x-2.10"
+  },
+  {
+    "name": "date_context",
+    "humanName": "Date Context",
+    "type": "module",
+    "enabled": false,
+    "version": "7.x-2.10"
+  },
+  {
+    "name": "date_migrate_example",
+    "humanName": "Date Migration Example",
+    "type": "module",
+    "enabled": false,
+    "version": "7.x-2.10"
+  },
+  {
+    "name": "date_popup",
+    "humanName": "Date Popup",
+    "type": "module",
+    "enabled": true,
+    "version": "7.x-2.10"
+  },
+  {
+    "name": "date_repeat",
+    "humanName": "Date Repeat API",
+    "type": "module",
+    "enabled": false,
+    "version": "7.x-2.10"
+  },
+  {
+    "name": "date_repeat_field",
+    "humanName": "Date Repeat Field",
+    "type": "module",
+    "enabled": false,
+    "version": "7.x-2.10"
+  },
+  {
+    "name": "date_tools",
+    "humanName": "Date Tools",
+    "type": "module",
+    "enabled": false,
+    "version": "7.x-2.10"
+  },
+  {
+    "name": "date_views",
+    "humanName": "Date Views",
+    "type": "module",
+    "enabled": true,
+    "version": "7.x-2.10"
+  },
+  {
+    "name": "dblog",
+    "humanName": "Database logging",
+    "type": "module",
+    "enabled": true,
+    "version": "7.70"
+  },
+  {
+    "name": "devel",
+    "humanName": "Devel",
+    "type": "module",
+    "enabled": false,
+    "version": "7.x-1.7"
+  },
+  {
+    "name": "devel_generate",
+    "humanName": "Devel generate",
+    "type": "module",
+    "enabled": false,
+    "version": "7.x-1.7"
+  },
+  {
+    "name": "devel_node_access",
+    "humanName": "Devel node access",
+    "type": "module",
+    "enabled": false,
+    "version": "7.x-1.7"
+  },
+  {
+    "name": "draggableviews",
+    "humanName": "Draggableviews",
+    "type": "module",
+    "enabled": true,
+    "version": "7.x-2.1"
+  },
+  {
+    "name": "draggableviews_book",
+    "humanName": "Draggableviews Book",
+    "type": "module",
+    "enabled": false,
+    "version": "7.x-2.1"
+  },
+  {
+    "name": "entity",
+    "humanName": "Entity API",
+    "type": "module",
+    "enabled": true,
+    "version": "7.x-1.9"
+  },
+  {
+    "name": "entity_token",
+    "humanName": "Entity tokens",
+    "type": "module",
+    "enabled": true,
+    "version": "7.x-1.9"
+  },
+  {
+    "name": "feeds",
+    "humanName": "Feeds",
+    "type": "module",
+    "enabled": true,
+    "version": "7.x-2.0-beta4"
+  },
+  {
+    "name": "feeds_import",
+    "humanName": "Feeds Import",
+    "type": "module",
+    "enabled": false,
+    "version": "7.x-2.0-beta4"
+  },
+  {
+    "name": "feeds_news",
+    "humanName": "Feeds News",
+    "type": "module",
+    "enabled": false,
+    "version": "7.x-2.0-beta4"
+  },
+  {
+    "name": "feeds_ui",
+    "humanName": "Feeds Admin UI",
+    "type": "module",
+    "enabled": true,
+    "version": "7.x-2.0-beta4"
+  },
+  {
+    "name": "field",
+    "humanName": "Field",
+    "type": "module",
+    "enabled": true,
+    "version": "7.70"
+  },
+  {
+    "name": "field_formatter_class",
+    "humanName": "Field Formatter Class",
+    "type": "module",
+    "enabled": true,
+    "version": "7.x-1.1"
+  },
+  {
+    "name": "field_formatter_settings",
+    "humanName": "Field formatter settings API",
+    "type": "module",
+    "enabled": true,
+    "version": "7.x-1.1"
+  },
+  {
+    "name": "field_group",
+    "humanName": "Field Group",
+    "type": "module",
+    "enabled": true,
+    "version": "7.x-1.6"
+  },
+  {
+    "name": "field_sql_storage",
+    "humanName": "Field SQL storage",
+    "type": "module",
+    "enabled": true,
+    "version": "7.70"
+  },
+  {
+    "name": "field_ui",
+    "humanName": "Field UI",
+    "type": "module",
+    "enabled": true,
+    "version": "7.70"
+  },
+  {
+    "name": "file",
+    "humanName": "File",
+    "type": "module",
+    "enabled": true,
+    "version": "7.70"
+  },
+  {
+    "name": "filefield_sources",
+    "humanName": "File Field Sources",
+    "type": "module",
+    "enabled": true,
+    "version": "7.x-1.11"
+  },
+  {
+    "name": "fillpdf",
+    "humanName": "FillPDF",
+    "type": "module",
+    "enabled": true,
+    "version": "7.x-1.11"
+  },
+  {
+    "name": "fillpdf_token",
+    "humanName": "FillPDF Extra Tokens",
+    "type": "module",
+    "enabled": false,
+    "version": "7.x-1.11"
+  },
+  {
+    "name": "fillpdf_ubercart_starter",
+    "humanName": "FillPDF Ubercart Starter",
+    "type": "module",
+    "enabled": false,
+    "version": "7.x-1.11"
+  },
+  {
+    "name": "filter",
+    "humanName": "Filter",
+    "type": "module",
+    "enabled": true,
+    "version": "7.70"
+  },
+  {
+    "name": "fontawesome",
+    "humanName": "Font Awesome",
+    "type": "module",
+    "enabled": true,
+    "version": "7.x-2.6"
+  },
+  {
+    "name": "forum",
+    "humanName": "Forum",
+    "type": "module",
+    "enabled": false,
+    "version": "7.70"
+  },
+  {
+    "name": "garland",
+    "humanName": "Garland",
+    "type": "theme",
+    "enabled": false,
+    "version": "7.70"
+  },
+  {
+    "name": "globalredirect",
+    "humanName": "Global Redirect",
+    "type": "module",
+    "enabled": true,
+    "version": "7.x-1.5"
+  },
+  {
+    "name": "gmap",
+    "humanName": "GMap",
+    "type": "module",
+    "enabled": true,
+    "version": "7.x-2.11"
+  },
+  {
+    "name": "gmap_fields",
+    "humanName": "GMap Fields",
+    "type": "module",
+    "enabled": false,
+    "version": "7.x-2.11"
+  },
+  {
+    "name": "gmap_location",
+    "humanName": "GMap Location",
+    "type": "module",
+    "enabled": true,
+    "version": "7.x-2.11"
+  },
+  {
+    "name": "gmap_macro_builder",
+    "humanName": "GMap Macro Builder",
+    "type": "module",
+    "enabled": false,
+    "version": "7.x-2.11"
+  },
+  {
+    "name": "gmap_style_bubbles",
+    "humanName": "Gmap Style Bubbles",
+    "type": "module",
+    "enabled": false,
+    "version": "7.x-2.11"
+  },
+  {
+    "name": "gmap_taxonomy",
+    "humanName": "GMap Taxonomy Markers",
+    "type": "module",
+    "enabled": false,
+    "version": "7.x-2.11"
+  },
+  {
+    "name": "google_analytics_et",
+    "humanName": "Google Analytics Event Tracking",
+    "type": "module",
+    "enabled": true,
+    "version": "7.x-1.3 PATCHED"
+  },
+  {
+    "name": "google_analytics_et_example",
+    "humanName": "Google Analytics Event Tracking Example",
+    "type": "module",
+    "enabled": false,
+    "version": "7.x-1.3"
+  },
+  {
+    "name": "google_tag",
+    "humanName": "Google Tag Manager",
+    "type": "module",
+    "enabled": true,
+    "version": "7.x-1.3"
+  },
+  {
+    "name": "googleanalytics",
+    "humanName": "Google Analytics",
+    "type": "module",
+    "enabled": true,
+    "version": "7.x-2.3"
+  },
+  {
+    "name": "help",
+    "humanName": "Help",
+    "type": "module",
+    "enabled": false,
+    "version": "7.70"
+  },
+  {
+    "name": "image",
+    "humanName": "Image",
+    "type": "module",
+    "enabled": true,
+    "version": "7.70"
+  },
+  {
+    "name": "imce",
+    "humanName": "IMCE",
+    "type": "module",
+    "enabled": true,
+    "version": "7.x-1.11"
+  },
+  {
+    "name": "insert_block",
+    "humanName": "Insert Block",
+    "type": "module",
+    "enabled": false,
+    "version": "7.x-1.x-dev"
+  },
+  {
+    "name": "ip_geoloc",
+    "humanName": "IP Geolocation Views & Maps",
+    "type": "module",
+    "enabled": true,
+    "version": "7.x-1.30"
+  },
+  {
+    "name": "ip_geoloc_generator",
+    "humanName": "Geolocation Generator",
+    "type": "module",
+    "enabled": false,
+    "version": "7.x-1.30"
+  },
+  {
+    "name": "job_scheduler",
+    "humanName": "Job Scheduler",
+    "type": "module",
+    "enabled": true,
+    "version": "7.x-2.0-alpha3"
+  },
+  {
+    "name": "job_scheduler_trigger",
+    "humanName": "Job Scheduler Trigger",
+    "type": "module",
+    "enabled": false,
+    "version": "7.x-2.0-alpha3"
+  },
+  {
+    "name": "jquery_update",
+    "humanName": "jQuery Update",
+    "type": "module",
+    "enabled": true,
+    "version": "7.x-3.0-alpha5"
+  },
+  {
+    "name": "la",
+    "humanName": "Location autofill",
+    "type": "module",
+    "enabled": false,
+    "version": "7.x-3.7"
+  },
+  {
+    "name": "libraries",
+    "humanName": "Libraries",
+    "type": "module",
+    "enabled": false,
+    "version": "7.x-2.3"
+  },
+  {
+    "name": "link",
+    "humanName": "Link",
+    "type": "module",
+    "enabled": true,
+    "version": "7.x-1.7"
+  },
+  {
+    "name": "list",
+    "humanName": "List",
+    "type": "module",
+    "enabled": true,
+    "version": "7.70"
+  },
+  {
+    "name": "locale",
+    "humanName": "Locale",
+    "type": "module",
+    "enabled": true,
+    "version": "7.70"
+  },
+  {
+    "name": "location",
+    "humanName": "Location",
+    "type": "module",
+    "enabled": true,
+    "version": "7.x-3.7"
+  },
+  {
+    "name": "location_addanother",
+    "humanName": "Location Add Another",
+    "type": "module",
+    "enabled": false,
+    "version": "7.x-3.7"
+  },
+  {
+    "name": "location_cck",
+    "humanName": "Location CCK",
+    "type": "module",
+    "enabled": true,
+    "version": "7.x-3.7"
+  },
+  {
+    "name": "location_email",
+    "humanName": "Location Email",
+    "type": "module",
+    "enabled": false,
+    "version": "7.x-3.7"
+  },
+  {
+    "name": "location_entity",
+    "humanName": "Location Entity",
+    "type": "module",
+    "enabled": false,
+    "version": "7.x-3.7"
+  },
+  {
+    "name": "location_fax",
+    "humanName": "Location Fax",
+    "type": "module",
+    "enabled": false,
+    "version": "7.x-3.7"
+  },
+  {
+    "name": "location_feeds",
+    "humanName": "Location Feeds",
+    "type": "module",
+    "enabled": true,
+    "version": "7.x-1.6"
+  },
+  {
+    "name": "location_generate",
+    "humanName": "Location Generate",
+    "type": "module",
+    "enabled": false,
+    "version": "7.x-3.7"
+  },
+  {
+    "name": "location_gmap_find_address",
+    "humanName": "Location + Gmap 'Find Address' button",
+    "type": "module",
+    "enabled": false,
+    "version": "7.x-2.11"
+  },
+  {
+    "name": "location_node",
+    "humanName": "Node Locations",
+    "type": "module",
+    "enabled": false,
+    "version": "7.x-3.7"
+  },
+  {
+    "name": "location_phone",
+    "humanName": "Location Phone",
+    "type": "module",
+    "enabled": false,
+    "version": "7.x-3.7"
+  },
+  {
+    "name": "location_search",
+    "humanName": "Location Search",
+    "type": "module",
+    "enabled": false,
+    "version": "7.x-3.7"
+  },
+  {
+    "name": "location_taxonomy",
+    "humanName": "Location Taxonomy",
+    "type": "module",
+    "enabled": false,
+    "version": "7.x-3.7"
+  },
+  {
+    "name": "location_user",
+    "humanName": "User Locations",
+    "type": "module",
+    "enabled": false,
+    "version": "7.x-3.7"
+  },
+  {
+    "name": "location_www",
+    "humanName": "Location www",
+    "type": "module",
+    "enabled": false,
+    "version": "7.x-3.7"
+  },
+  {
+    "name": "menu",
+    "humanName": "Menu",
+    "type": "module",
+    "enabled": true,
+    "version": "7.70"
+  },
+  {
+    "name": "menu_position",
+    "humanName": "Menu position",
+    "type": "module",
+    "enabled": true,
+    "version": "7.x-1.2"
+  },
+  {
+    "name": "metatag",
+    "humanName": "Metatag",
+    "type": "module",
+    "enabled": true,
+    "version": "7.x-1.25"
+  },
+  {
+    "name": "metatag_app_links",
+    "humanName": "Metatag: App Links",
+    "type": "module",
+    "enabled": false,
+    "version": "7.x-1.25"
+  },
+  {
+    "name": "metatag_context",
+    "humanName": "Metatag: Context",
+    "type": "module",
+    "enabled": false,
+    "version": "7.x-1.25"
+  },
+  {
+    "name": "metatag_dc",
+    "humanName": "Metatag: Dublin Core",
+    "type": "module",
+    "enabled": false,
+    "version": "7.x-1.25"
+  },
+  {
+    "name": "metatag_dc_advanced",
+    "humanName": "Metatag: Dublin Core Advanced",
+    "type": "module",
+    "enabled": false,
+    "version": "7.x-1.25"
+  },
+  {
+    "name": "metatag_devel",
+    "humanName": "Metatag: Devel",
+    "type": "module",
+    "enabled": false,
+    "version": "7.x-1.25"
+  },
+  {
+    "name": "metatag_facebook",
+    "humanName": "Metatag: Facebook",
+    "type": "module",
+    "enabled": false,
+    "version": "7.x-1.25"
+  },
+  {
+    "name": "metatag_favicons",
+    "humanName": "Metatag: favicons",
+    "type": "module",
+    "enabled": false,
+    "version": "7.x-1.25"
+  },
+  {
+    "name": "metatag_google_cse",
+    "humanName": "Metatag: Google Custom Search Engine (CSE)",
+    "type": "module",
+    "enabled": false,
+    "version": "7.x-1.25"
+  },
+  {
+    "name": "metatag_google_plus",
+    "humanName": "Metatag: Google+",
+    "type": "module",
+    "enabled": false,
+    "version": "7.x-1.25"
+  },
+  {
+    "name": "metatag_hreflang",
+    "humanName": "Metatag: hreflang",
+    "type": "module",
+    "enabled": false,
+    "version": "7.x-1.25"
+  },
+  {
+    "name": "metatag_importer",
+    "humanName": "Metatag Importer",
+    "type": "module",
+    "enabled": false,
+    "version": "7.x-1.25"
+  },
+  {
+    "name": "metatag_mobile",
+    "humanName": "Metatag: Mobile & UI Adjustments",
+    "type": "module",
+    "enabled": false,
+    "version": "7.x-1.25"
+  },
+  {
+    "name": "metatag_opengraph",
+    "humanName": "Metatag: OpenGraph",
+    "type": "module",
+    "enabled": false,
+    "version": "7.x-1.25"
+  },
+  {
+    "name": "metatag_opengraph_products",
+    "humanName": "Metatag: OpenGraph Products",
+    "type": "module",
+    "enabled": false,
+    "version": "7.x-1.25"
+  },
+  {
+    "name": "metatag_panels",
+    "humanName": "Metatag: Panels",
+    "type": "module",
+    "enabled": false,
+    "version": "7.x-1.25"
+  },
+  {
+    "name": "metatag_twitter_cards",
+    "humanName": "Metatag: Twitter Cards",
+    "type": "module",
+    "enabled": false,
+    "version": "7.x-1.25"
+  },
+  {
+    "name": "metatag_verification",
+    "humanName": "Metatag: Verification",
+    "type": "module",
+    "enabled": false,
+    "version": "7.x-1.25"
+  },
+  {
+    "name": "metatag_views",
+    "humanName": "Metatag: Views",
+    "type": "module",
+    "enabled": true,
+    "version": "7.x-1.25"
+  },
+  {
+    "name": "module_filter",
+    "humanName": "Module filter",
+    "type": "module",
+    "enabled": true,
+    "version": "7.x-2.2"
+  },
+  {
+    "name": "mollom",
+    "humanName": "Mollom",
+    "type": "module",
+    "enabled": false,
+    "version": "7.x-2.15"
+  },
+  {
+    "name": "multiple_selects",
+    "humanName": "Multiple Selects",
+    "type": "module",
+    "enabled": true,
+    "version": "7.x-1.2"
+  },
+  {
+    "name": "node",
+    "humanName": "Node",
+    "type": "module",
+    "enabled": true,
+    "version": "7.70"
+  },
+  {
+    "name": "node_reference",
+    "humanName": "Node Reference",
+    "type": "module",
+    "enabled": true,
+    "version": "7.x-2.2"
+  },
+  {
+    "name": "number",
+    "humanName": "Number",
+    "type": "module",
+    "enabled": true,
+    "version": "7.70"
+  },
+  {
+    "name": "openid",
+    "humanName": "OpenID",
+    "type": "module",
+    "enabled": false,
+    "version": "7.70"
+  },
+  {
+    "name": "options",
+    "humanName": "Options",
+    "type": "module",
+    "enabled": true,
+    "version": "7.70"
+  },
+  {
+    "name": "overlay",
+    "humanName": "Overlay",
+    "type": "module",
+    "enabled": false,
+    "version": "7.70"
+  },
+  {
+    "name": "page_manager",
+    "humanName": "Page manager",
+    "type": "module",
+    "enabled": false,
+    "version": "7.x-1.15"
+  },
+  {
+    "name": "paranoia",
+    "humanName": "Paranoia",
+    "type": "module",
+    "enabled": true,
+    "version": "7.x-1.7"
+  },
+  {
+    "name": "paranoiasanitize",
+    "humanName": "Paranoia Sanitize",
+    "type": "module",
+    "enabled": false,
+    "version": "7.x-1.7"
+  },
+  {
+    "name": "path",
+    "humanName": "Path",
+    "type": "module",
+    "enabled": true,
+    "version": "7.70"
+  },
+  {
+    "name": "pathauto",
+    "humanName": "Pathauto",
+    "type": "module",
+    "enabled": true,
+    "version": "7.x-1.3"
+  },
+  {
+    "name": "php",
+    "humanName": "PHP filter",
+    "type": "module",
+    "enabled": false,
+    "version": "7.70"
+  },
+  {
+    "name": "poll",
+    "humanName": "Poll",
+    "type": "module",
+    "enabled": false,
+    "version": "7.70"
+  },
+  {
+    "name": "publishcontent",
+    "humanName": "Publish Content",
+    "type": "module",
+    "enabled": true,
+    "version": "7.x-1.4"
+  },
+  {
+    "name": "rdf",
+    "humanName": "RDF",
+    "type": "module",
+    "enabled": false,
+    "version": "7.70"
+  },
+  {
+    "name": "redirect",
+    "humanName": "Redirect",
+    "type": "module",
+    "enabled": true,
+    "version": "7.x-1.0-rc3"
+  },
+  {
+    "name": "references",
+    "humanName": "References",
+    "type": "module",
+    "enabled": true,
+    "version": "7.x-2.2"
+  },
+  {
+    "name": "references_uuid",
+    "humanName": "References UUID",
+    "type": "module",
+    "enabled": false,
+    "version": "7.x-2.2"
+  },
+  {
+    "name": "rest_server",
+    "humanName": "REST Server",
+    "type": "module",
+    "enabled": true,
+    "version": "7.x-3.25"
+  },
+  {
+    "name": "rules",
+    "humanName": "Rules",
+    "type": "module",
+    "enabled": false,
+    "version": "7.x-2.12"
+  },
+  {
+    "name": "rules_admin",
+    "humanName": "Rules UI",
+    "type": "module",
+    "enabled": true,
+    "version": "7.x-2.12"
+  },
+  {
+    "name": "rules_i18n",
+    "humanName": "Rules translation",
+    "type": "module",
+    "enabled": false,
+    "version": "7.x-2.12"
+  },
+  {
+    "name": "rules_scheduler",
+    "humanName": "Rules Scheduler",
+    "type": "module",
+    "enabled": false,
+    "version": "7.x-2.12"
+  },
+  {
+    "name": "search",
+    "humanName": "Search",
+    "type": "module",
+    "enabled": true,
+    "version": "7.70"
+  },
+  {
+    "name": "seckit",
+    "humanName": "Security Kit",
+    "type": "module",
+    "enabled": true,
+    "version": "7.x-1.9"
+  },
+  {
+    "name": "services",
+    "humanName": "Services",
+    "type": "module",
+    "enabled": true,
+    "version": "7.x-3.25"
+  },
+  {
+    "name": "services_oauth",
+    "humanName": "OAuth Authentication",
+    "type": "module",
+    "enabled": false,
+    "version": "7.x-3.25"
+  },
+  {
+    "name": "services_views",
+    "humanName": "Services Views",
+    "type": "module",
+    "enabled": true,
+    "version": "7.x-1.4"
+  },
+  {
+    "name": "seven",
+    "humanName": "Seven",
+    "type": "theme",
+    "enabled": false,
+    "version": "7.70"
+  },
+  {
+    "name": "shield",
+    "humanName": "Shield",
+    "type": "module",
+    "enabled": false,
+    "version": "7.x-1.3"
+  },
+  {
+    "name": "shiny",
+    "humanName": "Shiny",
+    "type": "theme",
+    "enabled": false,
+    "version": "7.x-1.7"
+  },
+  {
+    "name": "shortcut",
+    "humanName": "Shortcut",
+    "type": "module",
+    "enabled": false,
+    "version": "7.70"
+  },
+  {
+    "name": "simpletest",
+    "humanName": "Testing",
+    "type": "module",
+    "enabled": false,
+    "version": "7.70"
+  },
+  {
+    "name": "stage_file_proxy",
+    "humanName": "Stage File Proxy",
+    "type": "module",
+    "enabled": false,
+    "version": "7.x-1.9"
+  },
+  {
+    "name": "stark",
+    "humanName": "Stark",
+    "type": "theme",
+    "enabled": false,
+    "version": "7.70"
+  },
+  {
+    "name": "statistics",
+    "humanName": "Statistics",
+    "type": "module",
+    "enabled": false,
+    "version": "7.70"
+  },
+  {
+    "name": "stylizer",
+    "humanName": "Stylizer",
+    "type": "module",
+    "enabled": false,
+    "version": "7.x-1.15"
+  },
+  {
+    "name": "syslog",
+    "humanName": "Syslog",
+    "type": "module",
+    "enabled": true,
+    "version": "7.70"
+  },
+  {
+    "name": "system",
+    "humanName": "System",
+    "type": "module",
+    "enabled": true,
+    "version": "7.70"
+  },
+  {
+    "name": "taxonomy",
+    "humanName": "Taxonomy",
+    "type": "module",
+    "enabled": true,
+    "version": "7.70"
+  },
+  {
+    "name": "term_depth",
+    "humanName": "Term Depth access",
+    "type": "module",
+    "enabled": false,
+    "version": "7.x-1.15"
+  },
+  {
+    "name": "text",
+    "humanName": "Text",
+    "type": "module",
+    "enabled": true,
+    "version": "7.70"
+  },
+  {
+    "name": "token",
+    "humanName": "Token",
+    "type": "module",
+    "enabled": true,
+    "version": "7.x-1.7"
+  },
+  {
+    "name": "toolbar",
+    "humanName": "Toolbar",
+    "type": "module",
+    "enabled": false,
+    "version": "7.70"
+  },
+  {
+    "name": "tracker",
+    "humanName": "Tracker",
+    "type": "module",
+    "enabled": false,
+    "version": "7.70"
+  },
+  {
+    "name": "training_migrate",
+    "humanName": "Training D6 migration",
+    "type": "module",
+    "enabled": false,
+    "version": null
+  },
+  {
+    "name": "training_toolkit",
+    "humanName": "Training.acquia.com Toolkit",
+    "type": "module",
+    "enabled": true,
+    "version": "1.0"
+  },
+  {
+    "name": "training_tracking",
+    "humanName": "Training.acquia.com Google Analytics Tracking",
+    "type": "module",
+    "enabled": true,
+    "version": "1.0"
+  },
+  {
+    "name": "translation",
+    "humanName": "Content translation",
+    "type": "module",
+    "enabled": false,
+    "version": "7.70"
+  },
+  {
+    "name": "transliteration",
+    "humanName": "Transliteration",
+    "type": "module",
+    "enabled": true,
+    "version": "7.x-3.2"
+  },
+  {
+    "name": "trigger",
+    "humanName": "Trigger",
+    "type": "module",
+    "enabled": false,
+    "version": "7.70"
+  },
+  {
+    "name": "update",
+    "humanName": "Update manager",
+    "type": "module",
+    "enabled": true,
+    "version": "7.70"
+  },
+  {
+    "name": "user",
+    "humanName": "User",
+    "type": "module",
+    "enabled": true,
+    "version": "7.70"
+  },
+  {
+    "name": "user_reference",
+    "humanName": "User Reference",
+    "type": "module",
+    "enabled": true,
+    "version": "7.x-2.2"
+  },
+  {
+    "name": "username_enumeration_prevention",
+    "humanName": "Username Enumeration Prevention",
+    "type": "module",
+    "enabled": true,
+    "version": "7.x-1.2"
+  },
+  {
+    "name": "video_embed_brightcove",
+    "humanName": "Video Embed Brightcove",
+    "type": "module",
+    "enabled": false,
+    "version": "7.x-2.0-beta11"
+  },
+  {
+    "name": "video_embed_facebook",
+    "humanName": "Video Embed Facebook",
+    "type": "module",
+    "enabled": false,
+    "version": "7.x-2.0-beta11"
+  },
+  {
+    "name": "video_embed_field",
+    "humanName": "Video Embed Field",
+    "type": "module",
+    "enabled": false,
+    "version": "7.x-2.0-beta11"
+  },
+  {
+    "name": "views",
+    "humanName": "Views",
+    "type": "module",
+    "enabled": true,
+    "version": "7.x-3.23"
+  },
+  {
+    "name": "views_aggregator",
+    "humanName": "Views Aggregator Plus",
+    "type": "module",
+    "enabled": true,
+    "version": "7.x-1.4"
+  },
+  {
+    "name": "views_aggregator_more_functions",
+    "humanName": "Views Aggregator Plus More Functions",
+    "type": "module",
+    "enabled": false,
+    "version": "7.x-1.4"
+  },
+  {
+    "name": "views_bootstrap",
+    "humanName": "Views Bootstrap",
+    "type": "module",
+    "enabled": true,
+    "version": "7.x-3.1"
+  },
+  {
+    "name": "views_bulk_operations",
+    "humanName": "Views Bulk Operations",
+    "type": "module",
+    "enabled": true,
+    "version": "7.x-3.5"
+  },
+  {
+    "name": "views_content",
+    "humanName": "Views content panes",
+    "type": "module",
+    "enabled": false,
+    "version": "7.x-1.15"
+  },
+  {
+    "name": "views_ui",
+    "humanName": "Views UI",
+    "type": "module",
+    "enabled": true,
+    "version": "7.x-3.23"
+  },
+  {
+    "name": "webform",
+    "humanName": "Webform",
+    "type": "module",
+    "enabled": true,
+    "version": "7.x-4.21"
+  },
+  {
+    "name": "xmlrpc_server",
+    "humanName": "XMLRPC Server",
+    "type": "module",
+    "enabled": false,
+    "version": "7.x-3.25"
+  }
+]
