@@ -131,7 +131,12 @@ class LocalMachineHelper {
       };
     }
     $process->start();
-    $process->wait($callback);
+    set_error_handler(fn () => NULL);
+    while ($process->isRunning()) {
+      $process->checkTimeout();
+      usleep(1000);
+    }
+    restore_error_handler();
 
     $this->logger->notice('Command: {command} [Exit: {exit}]', [
       'command' => $process->getCommandLine(),
