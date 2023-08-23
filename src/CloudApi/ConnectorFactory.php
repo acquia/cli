@@ -34,7 +34,7 @@ class ConnectorFactory implements ConnectorFactoryInterface {
           'access_token' => $accessToken,
           'key' => NULL,
           'secret' => NULL,
-        ], $this->baseUri, $this->accountsUri, getenv('AH_ORGANIZATION_UUID'));
+        ], $this->baseUri, $this->accountsUri, 'organization:' . getenv('AH_ORGANIZATION_UUID'));
       }
     }
 
