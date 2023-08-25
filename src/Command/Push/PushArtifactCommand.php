@@ -63,6 +63,10 @@ class PushArtifactCommand extends PullCommandBase {
       ->addUsage('--destination-git-urls=example@svn-1.prod.hosting.acquia.com:example.git --destination-git-branch=main-build');
   }
 
+  protected function commandRequiresAuthentication(): bool {
+    return FALSE;
+  }
+
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $this->setDirAndRequireProjectCwd($input);
     $artifactDir = Path::join(sys_get_temp_dir(), 'acli-push-artifact');
@@ -76,21 +80,23 @@ class PushArtifactCommand extends PullCommandBase {
       throw new AcquiaCliException('Pushing code was aborted because your local Git repository has uncommitted changes. Either commit, reset, or stash your changes via git.');
     }
     $this->checklist = new Checklist($output);
-    $applicationUuid = $this->determineCloudApplication();
-    $destinationGitUrls = $this->determineDestinationGitUrls($applicationUuid);
-    $destinationGitRef = $this->determineDestinationGitRef();
-    $sourceGitBranch = $this->determineSourceGitRef();
 
-    $destinationGitUrlsString = implode(',', $destinationGitUrls);
-    $refType = $this->input->getOption('destination-git-tag') ? 'tag' : 'branch';
-    $this->io->note([
-      "Acquia CLI will:",
-      "- git clone $sourceGitBranch from $destinationGitUrls[0]",
-      "- Compile the contents of $this->dir into an artifact in a temporary directory",
-      "- Copy the artifact files into the checked out copy of $sourceGitBranch",
-      "- Commit changes and push the $destinationGitRef $refType to the following git remote(s):",
-      "  $destinationGitUrlsString",
-    ]);
+    if (!$input->getOption('no-clone') || !$input->getOption('dry-run')) {
+      $applicationUuid = $this->determineCloudApplication();
+      $destinationGitUrls = $this->determineDestinationGitUrls($applicationUuid);
+      $destinationGitRef = $this->determineDestinationGitRef();
+      $sourceGitBranch = $this->determineSourceGitRef();
+      $destinationGitUrlsString = implode(',', $destinationGitUrls);
+      $refType = $this->input->getOption('destination-git-tag') ? 'tag' : 'branch';
+      $this->io->note([
+        "Acquia CLI will:",
+        "- git clone $sourceGitBranch from $destinationGitUrls[0]",
+        "- Compile the contents of $this->dir into an artifact in a temporary directory",
+        "- Copy the artifact files into the checked out copy of $sourceGitBranch",
+        "- Commit changes and push the $destinationGitRef $refType to the following git remote(s):",
+        "  $destinationGitUrlsString",
+      ]);
+    }
 
     $outputCallback = $this->getOutputCallback($output, $this->checklist);
 
