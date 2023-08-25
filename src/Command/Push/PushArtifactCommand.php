@@ -48,6 +48,8 @@ class PushArtifactCommand extends PullCommandBase {
       ->addOption('dir', NULL, InputArgument::OPTIONAL, 'The directory containing the Drupal project to be pushed')
       ->addOption('no-sanitize', NULL, InputOption::VALUE_NONE, 'Do not sanitize the build artifact')
       ->addOption('dry-run', NULL, InputOption::VALUE_NONE, 'Do not push changes to Acquia Cloud')
+      ->addOption('no-clone', NULL, InputOption::VALUE_NONE)
+      ->addOption('no-commit', NULL, InputOption::VALUE_NONE)
       ->addOption('destination-git-urls', 'u', InputOption::VALUE_IS_ARRAY | InputOption::VALUE_REQUIRED, 'The URL(s) of your git repository to which the artifact branch will be pushed')
       ->addOption('destination-git-branch', 'b', InputOption::VALUE_REQUIRED, 'The destination branch to push the artifact to')
       ->addOption('destination-git-tag', 't', InputOption::VALUE_REQUIRED, 'The destination tag to push the artifact to. Using this option requires also using the --source-git-tag option')
@@ -92,9 +94,11 @@ class PushArtifactCommand extends PullCommandBase {
 
     $outputCallback = $this->getOutputCallback($output, $this->checklist);
 
-    $this->checklist->addItem('Preparing artifact directory');
-    $this->cloneSourceBranch($outputCallback, $artifactDir, $destinationGitUrls[0], $sourceGitBranch);
-    $this->checklist->completePreviousItem();
+    if (!$input->getOption('no-clone')) {
+      $this->checklist->addItem('Preparing artifact directory');
+      $this->cloneSourceBranch($outputCallback, $artifactDir, $destinationGitUrls[0], $sourceGitBranch);
+      $this->checklist->completePreviousItem();
+    }
 
     $this->checklist->addItem('Generating build artifact');
     $this->buildArtifact($outputCallback, $artifactDir);
@@ -106,9 +110,11 @@ class PushArtifactCommand extends PullCommandBase {
       $this->checklist->completePreviousItem();
     }
 
-    $this->checklist->addItem("Committing changes (commit hash: $commitHash)");
-    $this->commit($outputCallback, $artifactDir, $commitHash);
-    $this->checklist->completePreviousItem();
+    if (!$input->getOption('no-commit')) {
+      $this->checklist->addItem("Committing changes (commit hash: $commitHash)");
+      $this->commit($outputCallback, $artifactDir, $commitHash);
+      $this->checklist->completePreviousItem();
+    }
 
     if (!$input->getOption('dry-run')) {
       if ($tagName = $input->getOption('destination-git-tag')) {
@@ -305,8 +311,6 @@ class PushArtifactCommand extends PullCommandBase {
 
   /**
    * Push the artifact.
-   *
-   * @param array $vcsUrls
    */
   private function pushArtifact(Closure $outputCallback, string $artifactDir, array $vcsUrls, string $destGitBranch): void {
     $this->localMachineHelper->checkRequiredBinariesExist(['git']);
