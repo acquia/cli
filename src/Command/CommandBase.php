@@ -1222,7 +1222,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     $this->cloudApiClientService->setConnector(new Connector([
       'key' => $apiKey,
       'secret' => $apiSecret,
-    ], $baseUri, $accountsUri, 'organization:' . getenv('AH_ORGANIZATION_UUID')));
+    ], $baseUri, $accountsUri));
   }
 
   private function warnMultisite(): void {

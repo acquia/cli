@@ -21,9 +21,9 @@ class AccessTokenConnector extends Connector {
   /**
    * @param array<string> $config
    */
-  public function __construct(array $config, string $baseUri = NULL, string $urlAccessToken = NULL, string $scopes = '') {
+  public function __construct(array $config, string $baseUri = NULL, string $urlAccessToken = NULL) {
     $this->accessToken = new AccessToken(['access_token' => $config['access_token']]);
-    parent::__construct($config, $baseUri, $urlAccessToken, $scopes);
+    parent::__construct($config, $baseUri, $urlAccessToken);
   }
 
   public function createRequest(string $verb, string $path): RequestInterface {
