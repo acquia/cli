@@ -7221,12 +7221,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/typhonius/acquia-php-sdk-v2.git",
-                "reference": "f23bf361d57ca8e059212ae9ab300c2df02d802c"
+                "reference": "9f0bcb91ac2942af97a512b8b579f0fb895f1d80"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/typhonius/acquia-php-sdk-v2/zipball/f23bf361d57ca8e059212ae9ab300c2df02d802c",
-                "reference": "f23bf361d57ca8e059212ae9ab300c2df02d802c",
+                "url": "https://api.github.com/repos/typhonius/acquia-php-sdk-v2/zipball/9f0bcb91ac2942af97a512b8b579f0fb895f1d80",
+                "reference": "9f0bcb91ac2942af97a512b8b579f0fb895f1d80",
                 "shasum": ""
             },
             "require": {
@@ -7279,7 +7279,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2023-08-28T20:07:43+00:00"
+            "time": "2023-08-28T21:15:44+00:00"
         },
         {
             "name": "vlucas/phpdotenv",
