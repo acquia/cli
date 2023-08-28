@@ -10,12 +10,6 @@
             "role": "Maintainer"
         }
     ],
-    "repositories": {
-      "sdk": {
-        "type": "path",
-        "url": "../../typhonius/acquia-php-sdk-v2"
-      }
-    },
     "minimum-stability": "dev",
     "require": {
         "php": "^8.0",
