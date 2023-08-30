@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b1c21898baa020522b5f21519035fdcf",
+    "content-hash": "a75dcb24df6800a16c8a4f6282b61182",
     "packages": [
         {
             "name": "acquia/drupal-environment-detector",
@@ -7217,7 +7217,7 @@
         },
         {
             "name": "typhonius/acquia-php-sdk-v2",
-            "version": "dev-master",
+            "version": "3.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/typhonius/acquia-php-sdk-v2.git",
@@ -7248,7 +7248,6 @@
                 "slevomat/coding-standard": "^8.4",
                 "squizlabs/php_codesniffer": "3.*"
             },
-            "default-branch": true,
             "type": "library",
             "autoload": {
                 "psr-4": {
@@ -7271,7 +7270,7 @@
             "description": "A PHP SDK for Acquia CloudAPI v2",
             "support": {
                 "issues": "https://github.com/typhonius/acquia-php-sdk-v2/issues",
-                "source": "https://github.com/typhonius/acquia-php-sdk-v2/tree/master"
+                "source": "https://github.com/typhonius/acquia-php-sdk-v2/tree/3.1.0"
             },
             "funding": [
                 {
@@ -12492,18 +12491,9 @@
             "time": "2022-06-03T18:03:27+00:00"
         }
     ],
-    "aliases": [
-        {
-            "package": "typhonius/acquia-php-sdk-v2",
-            "version": "9999999-dev",
-            "alias": "3.0.8",
-            "alias_normalized": "3.0.8.0"
-        }
-    ],
+    "aliases": [],
     "minimum-stability": "dev",
-    "stability-flags": {
-        "typhonius/acquia-php-sdk-v2": 20
-    },
+    "stability-flags": [],
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
