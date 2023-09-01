@@ -137,7 +137,7 @@ class NewFromDrupal7Command extends CommandBase {
     fclose($config_resource);
 
     // Parse recommendations for project builder.
-    $recommendations_location = __DIR__ . '/../../../config/from_d7_recommendations.json';
+    $recommendations_location = "https://git.drupalcode.org/project/acquia_migrate/-/raw/recommendations/recommendations.json";
     if ($input->getOption('recommendations') !== NULL) {
       $raw_recommendations_location = $input->getOption('recommendations');
       try {
