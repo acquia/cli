@@ -148,6 +148,9 @@ class NewFromDrupal7Command extends CommandBase {
         return Command::FAILURE;
       }
     }
+    // PHP defaults to no user agent. (Drupal.org's) GitLab requires it.
+    // @see https://www.php.net/manual/en/filesystem.configuration.php#ini.user-agent
+    ini_set('user_agent', 'ACLI');
     $recommendations_resource = fopen($recommendations_location, 'r');
     $recommendations = Recommendations::createFromResource($recommendations_resource);
     fclose($recommendations_resource);
