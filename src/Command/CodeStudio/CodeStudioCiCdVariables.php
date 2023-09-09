@@ -20,7 +20,7 @@ class CodeStudioCiCdVariables {
     return [
       [
         'key' => 'ACQUIA_APPLICATION_UUID',
-        'masked' => FALSE,
+        'masked'  => FALSE,
         'protected' => FALSE,
         'value' => $cloudApplicationUuid,
         'variable_type' => 'env_var',
