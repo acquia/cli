@@ -20,28 +20,28 @@ class CodeStudioCiCdVariables {
     return [
       [
         'key' => 'ACQUIA_APPLICATION_UUID',
-        'masked'  => FALSE,
+        'masked' => TRUE,
         'protected' => FALSE,
         'value' => $cloudApplicationUuid,
         'variable_type' => 'env_var',
       ],
       [
         'key' => 'ACQUIA_CLOUD_API_TOKEN_KEY',
-        'masked' => FALSE,
+        'masked' => TRUE,
         'protected' => FALSE,
         'value' => $cloudKey,
         'variable_type' => 'env_var',
       ],
       [
         'key' => 'ACQUIA_CLOUD_API_TOKEN_SECRET',
-        'masked' => FALSE,
+        'masked' => TRUE,
         'protected' => FALSE,
         'value' => $cloudSecret,
         'variable_type' => 'env_var',
       ],
       [
         'key' => 'ACQUIA_GLAB_TOKEN_NAME',
-        'masked' => FALSE,
+        'masked' => TRUE,
         'protected' => FALSE,
         'value' => $projectAccessTokenName,
         'variable_type' => 'env_var',
