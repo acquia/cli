@@ -16,7 +16,7 @@ class CodeStudioCiCdVariables {
   /**
    * @return array<mixed>
    */
-  public static function getDefaults(?string $cloudApplicationUuid = NULL, ?string $cloudKey = NULL, ?string $cloudSecret = NULL, ?string $projectAccessTokenName = NULL, ?string $projectAccessToken = NULL): array {
+  public static function getDefaults(?string $cloudApplicationUuid = NULL, ?string $cloudKey = NULL, ?string $cloudSecret = NULL, ?string $projectAccessTokenName = NULL, ?string $projectAccessToken = NULL, int $phpVersion): array {
     return [
       [
         'key' => 'ACQUIA_APPLICATION_UUID',
@@ -51,6 +51,13 @@ class CodeStudioCiCdVariables {
         'masked' => TRUE,
         'protected' => FALSE,
         'value' => $projectAccessToken,
+        'variable_type' => 'env_var',
+      ],
+      [
+        'key' => 'PHP_VERSION',
+        'masked' => FALSE,
+        'protected' => FALSE,
+        'value' => $phpVersion,
         'variable_type' => 'env_var',
       ],
     ];
