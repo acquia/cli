@@ -48,8 +48,8 @@ class CodeStudioWizardCommand extends WizardCommandBase {
     $this->reAuthenticate($cloudKey, $cloudSecret, $this->cloudCredentials->getBaseUri(), $this->cloudCredentials->getAccountsUri());
 
     $phpVersions = [
-      'PHP_version_8.1' => 8.1,
-      'PHP_version_8.2' => 8.2,
+      'PHP_version_8.1' => "8.1",
+      'PHP_version_8.2' => "8.2",
     ];
     $project = $this->io->choice('Select a PHP version', array_values($phpVersions), $phpVersions['PHP_version_8.1']);
     $project = array_search($project, $phpVersions, TRUE);
