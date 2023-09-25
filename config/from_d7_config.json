@@ -9,7 +9,6 @@
       }
     ],
     "require": {
-      "acquia/acquia-migrate-accelerate": "^1@dev",
       "composer/installers": "^1.9",
       "cweagans/composer-patches": "^1.7",
       "drupal/core-composer-scaffold": "9.0.1",
