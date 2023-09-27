@@ -86,6 +86,8 @@ abstract class TestBase extends TestCase {
 
   protected string $secret = 'X1u\/PIQXtYaoeui.4RJSJpGZjwmWYmfl5AUQkAebYE=';
 
+  protected string $phpVersion = '8.1';
+
   protected string $dataDir;
 
   protected string $cloudConfigFilepath;

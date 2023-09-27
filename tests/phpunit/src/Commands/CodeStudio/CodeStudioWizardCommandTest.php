@@ -65,7 +65,7 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
         // Args.
         [
           '--key' => $this->key,
-          '--phpversion' => "8.1",
+          '--phpversion' => $this->phpVersion,
           '--secret' => $this->secret,
         ],
       ],
@@ -84,7 +84,7 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
         // Args.
         [
           '--key' => $this->key,
-          '--phpversion' => "8.1",
+          '--phpversion' => $this->phpVersion,
           '--secret' => $this->secret,
         ],
       ],
@@ -103,7 +103,7 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
         // Args.
         [
           '--key' => $this->key,
-          '--phpversion' => "8.1",
+          '--phpversion' => $this->phpVersion,
           '--secret' => $this->secret,
         ],
       ],
@@ -122,7 +122,7 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
         // Args
         [
           '--key' => $this->key,
-          '--phpversion' => "8.1",
+          '--phpVersion' => $this->phpVersion,
           '--secret' => $this->secret,
         ],
       ],
@@ -137,7 +137,7 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
           $this->key,
           // Enter Cloud secret,
           $this->secret,
-          '--phpversion' => "8.1",
+          '--phpversion' => $this->phpVersion,
           // Do you want to continue?
           'y',
         ],
