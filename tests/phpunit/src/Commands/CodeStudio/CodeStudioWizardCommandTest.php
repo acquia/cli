@@ -213,6 +213,7 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
     $this->expectExceptionMessage('Unable to authenticate with Code Studio');
     $this->executeCommand([
       '--key' => $this->key,
+      '--phpversion' => $this->phpVersion,
       '--secret' => $this->secret,
     ]);
   }
@@ -227,6 +228,7 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
     $this->expectExceptionMessage('Could not determine GitLab token');
     $this->executeCommand([
       '--key' => $this->key,
+      '--phpversion' => $this->phpVersion,
       '--secret' => $this->secret,
     ]);
   }
