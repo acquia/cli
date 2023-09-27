@@ -65,7 +65,7 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
         // Args.
         [
           '--key' => $this->key,
-          '--phpversion' => $this->phpVersion,
+          '--phpVersion' => $this->phpVersion,
           '--secret' => $this->secret,
         ],
       ],
@@ -84,7 +84,7 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
         // Args.
         [
           '--key' => $this->key,
-          '--phpversion' => $this->phpVersion,
+          '--phpVersion' => $this->phpVersion,
           '--secret' => $this->secret,
         ],
       ],
@@ -103,7 +103,7 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
         // Args.
         [
           '--key' => $this->key,
-          '--phpversion' => $this->phpVersion,
+          '--phpVersion' => $this->phpVersion,
           '--secret' => $this->secret,
         ],
       ],
@@ -137,7 +137,7 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
           $this->key,
           // Enter Cloud secret,
           $this->secret,
-          '--phpversion' => $this->phpVersion,
+          '--phpVersion' => $this->phpVersion,
           // Do you want to continue?
           'y',
         ],
@@ -213,7 +213,7 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
     $this->expectExceptionMessage('Unable to authenticate with Code Studio');
     $this->executeCommand([
       '--key' => $this->key,
-      '--phpversion' => $this->phpVersion,
+      '--phpVersion' => $this->phpVersion,
       '--secret' => $this->secret,
     ]);
   }
@@ -228,7 +228,7 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
     $this->expectExceptionMessage('Could not determine GitLab token');
     $this->executeCommand([
       '--key' => $this->key,
-      '--phpversion' => $this->phpVersion,
+      '--phpVersion' => $this->phpVersion,
       '--secret' => $this->secret,
     ]);
   }
