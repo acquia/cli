@@ -95,8 +95,29 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
         [
           // 'Would you like to create a new Code Studio project?
           'y',
-          // Select PHP version
+          // Select PHP version 8.1
           '0',
+          // Do you want to continue?
+          'y',
+          // Would you like to perform a one time push of code from Acquia Cloud to Code Studio now? (yes/no) [yes]:
+          'y',
+        ],
+        // Args.
+        [
+          '--key' => $this->key,
+          '--secret' => $this->secret,
+        ],
+        // '--phpVersion' => $this->phpVersion,
+      ],
+      [
+        // No projects.
+        [],
+        // Inputs.
+        [
+          // 'Would you like to create a new Code Studio project?
+          'y',
+          // Select PHP version 8.2
+          '1',
           // Do you want to continue?
           'y',
           // Would you like to perform a one time push of code from Acquia Cloud to Code Studio now? (yes/no) [yes]:
@@ -139,8 +160,28 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
           $this->key,
           // Enter Cloud secret,
           $this->secret,
-          // Select PHP version
+          // Select PHP version 8.1
           '0',
+          // Do you want to continue?
+          'y',
+        ],
+        // '--phpVersion' => $this->phpVersion,
+        // Args
+        [],
+      ],
+      [
+        // No projects.
+        [],
+        // Inputs
+        [
+          // 'Would you like to create a new Code Studio project?
+          'y',
+          // Enter Cloud Key
+          $this->key,
+          // Enter Cloud secret,
+          $this->secret,
+          // Select PHP version 8.2
+          '1',
           // Do you want to continue?
           'y',
         ],
