@@ -16,7 +16,7 @@
         "ext-json": "*",
         "acquia/drupal-environment-detector": "^1.2.0",
         "bugsnag/bugsnag": "^3.0",
-        "composer/composer": "2.6.3",
+        "composer/composer": "2.6.4",
         "composer/semver": "^3.3",
         "consolidation/self-update": "^2.1.0",
         "cweagans/composer-patches": "^1.7",
