@@ -67,7 +67,6 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
           '--key' => $this->key,
           '--secret' => $this->secret,
         ],
-        //'--phpVersion' => $this->phpVersion,
       ],
       // Two projects.
       [
@@ -86,7 +85,6 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
           '--key' => $this->key,
           '--secret' => $this->secret,
         ],
-        // '--phpVersion' => $this->phpVersion,
       ],
       [
         // No projects.
@@ -107,7 +105,6 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
           '--key' => $this->key,
           '--secret' => $this->secret,
         ],
-        // '--phpVersion' => $this->phpVersion,
       ],
       [
         // No projects.
@@ -128,7 +125,6 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
           '--key' => $this->key,
           '--secret' => $this->secret,
         ],
-        // '--phpVersion' => $this->phpVersion,
       ],
       [
         // No projects.
@@ -147,7 +143,6 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
           '--key' => $this->key,
           '--secret' => $this->secret,
         ],
-        // '--phpVersion' => $this->phpVersion,
       ],
       [
         // No projects.
@@ -165,7 +160,6 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
           // Do you want to continue?
           'y',
         ],
-        // '--phpVersion' => $this->phpVersion,
         // Args
         [],
       ],
@@ -185,7 +179,6 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
           // Do you want to continue?
           'y',
         ],
-        // '--phpVersion' => $this->phpVersion,
         // Args
         [],
       ],
@@ -259,7 +252,6 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
     $this->executeCommand([
       '--key' => $this->key,
       '--secret' => $this->secret,
-      // '--phpVersion' => $this->phpVersion,
     ]);
   }
 
@@ -274,7 +266,6 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
     $this->executeCommand([
       '--key' => $this->key,
       '--secret' => $this->secret,
-      // '--phpVersion' => $this->phpVersion,
     ]);
   }
 
