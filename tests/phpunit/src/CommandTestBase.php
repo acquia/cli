@@ -633,7 +633,7 @@ abstract class CommandTestBase extends TestBase {
           'protected' => FALSE,
           'value' => '111aae74-e81a-4052-b4b9-a27a62e6b6a6',
           'variable_type' => 'env_var',
-        ],
+      ],
     ];
   }
 
