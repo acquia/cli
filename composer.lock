@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "a7c76a03ae16bdd47baef035d3fad3bc",
+    "content-hash": "30883d9882c37c949a848b08581cb472",
     "packages": [
         {
             "name": "acquia/drupal-environment-detector",
@@ -394,16 +394,16 @@
         },
         {
             "name": "composer/composer",
-            "version": "2.6.4",
+            "version": "2.6.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/composer/composer.git",
-                "reference": "d75d17c16a863438027d1d96401cddcd6aa5bb60"
+                "reference": "4b0fe89db9e65b1e64df633a992e70a7a215ab33"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/composer/composer/zipball/d75d17c16a863438027d1d96401cddcd6aa5bb60",
-                "reference": "d75d17c16a863438027d1d96401cddcd6aa5bb60",
+                "url": "https://api.github.com/repos/composer/composer/zipball/4b0fe89db9e65b1e64df633a992e70a7a215ab33",
+                "reference": "4b0fe89db9e65b1e64df633a992e70a7a215ab33",
                 "shasum": ""
             },
             "require": {
@@ -488,7 +488,7 @@
                 "irc": "ircs://irc.libera.chat:6697/composer",
                 "issues": "https://github.com/composer/composer/issues",
                 "security": "https://github.com/composer/composer/security/policy",
-                "source": "https://github.com/composer/composer/tree/2.6.4"
+                "source": "https://github.com/composer/composer/tree/2.6.5"
             },
             "funding": [
                 {
@@ -504,7 +504,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2023-09-29T08:54:47+00:00"
+            "time": "2023-10-06T08:11:52+00:00"
         },
         {
             "name": "composer/metadata-minifier",
@@ -2388,16 +2388,16 @@
         },
         {
             "name": "m4tthumphrey/php-gitlab-api",
-            "version": "11.11.0",
+            "version": "11.12.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/GitLabPHP/Client.git",
-                "reference": "7cd35efcce8a5ca22710bda3b56b918b5542d9f5"
+                "reference": "b0d70a6142c52407a226d940ef2d0ae96e65c7e7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/GitLabPHP/Client/zipball/7cd35efcce8a5ca22710bda3b56b918b5542d9f5",
-                "reference": "7cd35efcce8a5ca22710bda3b56b918b5542d9f5",
+                "url": "https://api.github.com/repos/GitLabPHP/Client/zipball/b0d70a6142c52407a226d940ef2d0ae96e65c7e7",
+                "reference": "b0d70a6142c52407a226d940ef2d0ae96e65c7e7",
                 "shasum": ""
             },
             "require": {
@@ -2405,8 +2405,8 @@
                 "ext-xml": "*",
                 "php": "^7.4.15 || ^8.0.2",
                 "php-http/cache-plugin": "^1.8",
-                "php-http/client-common": "^2.6.1",
-                "php-http/discovery": "^1.17",
+                "php-http/client-common": "^2.7",
+                "php-http/discovery": "^1.19",
                 "php-http/httplug": "^2.4",
                 "php-http/multipart-stream-builder": "^1.3",
                 "psr/cache": "^1.0 || ^2.0 || ^3.0",
@@ -2418,8 +2418,8 @@
             },
             "require-dev": {
                 "bamarni/composer-bin-plugin": "^1.8.2",
-                "guzzlehttp/guzzle": "^7.5.1",
-                "http-interop/http-factory-guzzle": "^1.0"
+                "guzzlehttp/guzzle": "^7.8",
+                "http-interop/http-factory-guzzle": "^1.2"
             },
             "type": "library",
             "extra": {
@@ -2466,7 +2466,7 @@
             ],
             "support": {
                 "issues": "https://github.com/GitLabPHP/Client/issues",
-                "source": "https://github.com/GitLabPHP/Client/tree/11.11.0"
+                "source": "https://github.com/GitLabPHP/Client/tree/11.12.0"
             },
             "funding": [
                 {
@@ -2474,7 +2474,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2023-07-17T09:38:04+00:00"
+            "time": "2023-10-08T14:28:30+00:00"
         },
         {
             "name": "marc-mabe/php-enum",
@@ -3323,16 +3323,16 @@
         },
         {
             "name": "psr/http-client",
-            "version": "1.0.2",
+            "version": "1.0.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-fig/http-client.git",
-                "reference": "0955afe48220520692d2d09f7ab7e0f93ffd6a31"
+                "reference": "bb5906edc1c324c9a05aa0873d40117941e5fa90"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-fig/http-client/zipball/0955afe48220520692d2d09f7ab7e0f93ffd6a31",
-                "reference": "0955afe48220520692d2d09f7ab7e0f93ffd6a31",
+                "url": "https://api.github.com/repos/php-fig/http-client/zipball/bb5906edc1c324c9a05aa0873d40117941e5fa90",
+                "reference": "bb5906edc1c324c9a05aa0873d40117941e5fa90",
                 "shasum": ""
             },
             "require": {
@@ -3369,9 +3369,9 @@
                 "psr-18"
             ],
             "support": {
-                "source": "https://github.com/php-fig/http-client/tree/1.0.2"
+                "source": "https://github.com/php-fig/http-client"
             },
-            "time": "2023-04-10T20:12:12+00:00"
+            "time": "2023-09-23T14:17:50+00:00"
         },
         {
             "name": "psr/http-factory",
@@ -8041,16 +8041,16 @@
         },
         {
             "name": "brianium/paratest",
-            "version": "v6.10.0",
+            "version": "v6.10.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/paratestphp/paratest.git",
-                "reference": "c2243b20bcd99c3f651018d1447144372f39b4fa"
+                "reference": "d6f32a91302b74458e8ef5d132bb2215a5edb34b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/paratestphp/paratest/zipball/c2243b20bcd99c3f651018d1447144372f39b4fa",
-                "reference": "c2243b20bcd99c3f651018d1447144372f39b4fa",
+                "url": "https://api.github.com/repos/paratestphp/paratest/zipball/d6f32a91302b74458e8ef5d132bb2215a5edb34b",
+                "reference": "d6f32a91302b74458e8ef5d132bb2215a5edb34b",
                 "shasum": ""
             },
             "require": {
@@ -8117,7 +8117,7 @@
             ],
             "support": {
                 "issues": "https://github.com/paratestphp/paratest/issues",
-                "source": "https://github.com/paratestphp/paratest/tree/v6.10.0"
+                "source": "https://github.com/paratestphp/paratest/tree/v6.10.1"
             },
             "funding": [
                 {
@@ -8129,7 +8129,7 @@
                     "type": "paypal"
                 }
             ],
-            "time": "2023-05-25T13:47:58+00:00"
+            "time": "2023-10-04T13:33:07+00:00"
         },
         {
             "name": "colinodell/json5",
@@ -8372,16 +8372,16 @@
         },
         {
             "name": "doctrine/deprecations",
-            "version": "v1.1.1",
+            "version": "1.1.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/doctrine/deprecations.git",
-                "reference": "612a3ee5ab0d5dd97b7cf3874a6efe24325efac3"
+                "reference": "4f2d4f2836e7ec4e7a8625e75c6aa916004db931"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/deprecations/zipball/612a3ee5ab0d5dd97b7cf3874a6efe24325efac3",
-                "reference": "612a3ee5ab0d5dd97b7cf3874a6efe24325efac3",
+                "url": "https://api.github.com/repos/doctrine/deprecations/zipball/4f2d4f2836e7ec4e7a8625e75c6aa916004db931",
+                "reference": "4f2d4f2836e7ec4e7a8625e75c6aa916004db931",
                 "shasum": ""
             },
             "require": {
@@ -8413,9 +8413,9 @@
             "homepage": "https://www.doctrine-project.org/",
             "support": {
                 "issues": "https://github.com/doctrine/deprecations/issues",
-                "source": "https://github.com/doctrine/deprecations/tree/v1.1.1"
+                "source": "https://github.com/doctrine/deprecations/tree/1.1.2"
             },
-            "time": "2023-06-03T09:27:29+00:00"
+            "time": "2023-09-27T20:04:15+00:00"
         },
         {
             "name": "doctrine/instantiator",
@@ -8489,20 +8489,20 @@
         },
         {
             "name": "dominikb/composer-license-checker",
-            "version": "2.4.2",
+            "version": "2.4.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/dominikb/composer-license-checker.git",
-                "reference": "4fc65304aca94a454f0beba0b1d0f25055bc17c2"
+                "reference": "94a397b184653e5833069fdad3edca2679c9b641"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/dominikb/composer-license-checker/zipball/4fc65304aca94a454f0beba0b1d0f25055bc17c2",
-                "reference": "4fc65304aca94a454f0beba0b1d0f25055bc17c2",
+                "url": "https://api.github.com/repos/dominikb/composer-license-checker/zipball/94a397b184653e5833069fdad3edca2679c9b641",
+                "reference": "94a397b184653e5833069fdad3edca2679c9b641",
                 "shasum": ""
             },
             "require": {
-                "composer/composer": ">=1.10.22|>=2.0.13",
+                "composer/composer": "^1.10.27|~2.2.22|^2.6.4",
                 "guzzlehttp/guzzle": "^6.3|^7.2",
                 "php": "^7.3|^8.0",
                 "psr/simple-cache": "^1.0|^2.0|^3.0",
@@ -8546,9 +8546,9 @@
             ],
             "support": {
                 "issues": "https://github.com/dominikb/composer-license-checker/issues",
-                "source": "https://github.com/dominikb/composer-license-checker/tree/2.4.2"
+                "source": "https://github.com/dominikb/composer-license-checker/tree/2.4.3"
             },
-            "time": "2023-08-13T13:42:17+00:00"
+            "time": "2023-10-04T14:57:49+00:00"
         },
         {
             "name": "drupal/coder",
@@ -10280,16 +10280,16 @@
         },
         {
             "name": "phpstan/phpdoc-parser",
-            "version": "1.23.1",
+            "version": "1.24.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpstan/phpdoc-parser.git",
-                "reference": "846ae76eef31c6d7790fac9bc399ecee45160b26"
+                "reference": "bcad8d995980440892759db0c32acae7c8e79442"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpdoc-parser/zipball/846ae76eef31c6d7790fac9bc399ecee45160b26",
-                "reference": "846ae76eef31c6d7790fac9bc399ecee45160b26",
+                "url": "https://api.github.com/repos/phpstan/phpdoc-parser/zipball/bcad8d995980440892759db0c32acae7c8e79442",
+                "reference": "bcad8d995980440892759db0c32acae7c8e79442",
                 "shasum": ""
             },
             "require": {
@@ -10321,22 +10321,22 @@
             "description": "PHPDoc parser with support for nullable, intersection and generic types",
             "support": {
                 "issues": "https://github.com/phpstan/phpdoc-parser/issues",
-                "source": "https://github.com/phpstan/phpdoc-parser/tree/1.23.1"
+                "source": "https://github.com/phpstan/phpdoc-parser/tree/1.24.2"
             },
-            "time": "2023-08-03T16:32:59+00:00"
+            "time": "2023-09-26T12:28:12+00:00"
         },
         {
             "name": "phpstan/phpstan",
-            "version": "1.10.36",
+            "version": "1.10.38",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpstan/phpstan.git",
-                "reference": "ffa3089511121a672e62969404e4fddc753f9b15"
+                "reference": "5302bb402c57f00fb3c2c015bac86e0827e4b691"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/ffa3089511121a672e62969404e4fddc753f9b15",
-                "reference": "ffa3089511121a672e62969404e4fddc753f9b15",
+                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/5302bb402c57f00fb3c2c015bac86e0827e4b691",
+                "reference": "5302bb402c57f00fb3c2c015bac86e0827e4b691",
                 "shasum": ""
             },
             "require": {
@@ -10385,7 +10385,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2023-09-29T14:07:45+00:00"
+            "time": "2023-10-06T14:19:14+00:00"
         },
         {
             "name": "phpstan/phpstan-deprecation-rules",
@@ -12055,32 +12055,32 @@
         },
         {
             "name": "slevomat/coding-standard",
-            "version": "8.13.4",
+            "version": "8.14.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/slevomat/coding-standard.git",
-                "reference": "4b2af2fb17773656d02fbfb5d18024ebd19fe322"
+                "reference": "fea1fd6f137cc84f9cba0ae30d549615dbc6a926"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/slevomat/coding-standard/zipball/4b2af2fb17773656d02fbfb5d18024ebd19fe322",
-                "reference": "4b2af2fb17773656d02fbfb5d18024ebd19fe322",
+                "url": "https://api.github.com/repos/slevomat/coding-standard/zipball/fea1fd6f137cc84f9cba0ae30d549615dbc6a926",
+                "reference": "fea1fd6f137cc84f9cba0ae30d549615dbc6a926",
                 "shasum": ""
             },
             "require": {
                 "dealerdirect/phpcodesniffer-composer-installer": "^0.6.2 || ^0.7 || ^1.0",
                 "php": "^7.2 || ^8.0",
-                "phpstan/phpdoc-parser": "^1.23.0",
+                "phpstan/phpdoc-parser": "^1.23.1",
                 "squizlabs/php_codesniffer": "^3.7.1"
             },
             "require-dev": {
                 "phing/phing": "2.17.4",
                 "php-parallel-lint/php-parallel-lint": "1.3.2",
-                "phpstan/phpstan": "1.10.26",
-                "phpstan/phpstan-deprecation-rules": "1.1.3",
-                "phpstan/phpstan-phpunit": "1.3.13",
+                "phpstan/phpstan": "1.10.37",
+                "phpstan/phpstan-deprecation-rules": "1.1.4",
+                "phpstan/phpstan-phpunit": "1.3.14",
                 "phpstan/phpstan-strict-rules": "1.5.1",
-                "phpunit/phpunit": "7.5.20|8.5.21|9.6.8|10.2.6"
+                "phpunit/phpunit": "8.5.21|9.6.8|10.3.5"
             },
             "type": "phpcodesniffer-standard",
             "extra": {
@@ -12104,7 +12104,7 @@
             ],
             "support": {
                 "issues": "https://github.com/slevomat/coding-standard/issues",
-                "source": "https://github.com/slevomat/coding-standard/tree/8.13.4"
+                "source": "https://github.com/slevomat/coding-standard/tree/8.14.1"
             },
             "funding": [
                 {
@@ -12116,7 +12116,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2023-07-25T10:28:55+00:00"
+            "time": "2023-10-08T07:28:08+00:00"
         },
         {
             "name": "squizlabs/php_codesniffer",
