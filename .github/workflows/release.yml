@@ -27,19 +27,19 @@ jobs:
           echo "EOF" >> $GITHUB_ENV
         shell: bash
       - name: Login to Jira
-        uses: acquia/gajira-login@bearer
+        uses: atlassian/gajira-login@v3
         env:
           JIRA_BASE_URL: ${{ vars.JIRA_BASE_URL }}
           JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
       - name: Create CCB ticket in Jira
         id: create
-        uses: acquia/gajira-create@bearer
+        uses: atlassian/gajira-create@v3
         with:
           project: CLI
           issuetype: Release
           summary: "${{ env.FIX_VERSION }}"
           description: "${{ env.JIRA_DESCRIPTION }}"
-          fields: '{"components": [{"id": "25474"}], "labels": ["ccb_std_017"], "customfield_10004": {"id": "15710"}, "fixVersions": [{"name": "${{ env.FIX_VERSION }}"}]}'
+          fields: '{"components": [{"id": "11717"}], "labels": ["ccb_std_017"], "customfield_10387": {"id": "15710"}, "fixVersions": [{"name": "${{ env.FIX_VERSION }}"}]}'
         env:
           FIX_VERSION: Acquia CLI ${{ github.event.release.name }}
       - name: Log created issue
