@@ -40,7 +40,7 @@ jobs:
           issuetype: Release
           summary: "${{ env.FIX_VERSION }}"
           description: "${{ env.JIRA_DESCRIPTION }}"
-          fields: '{"components": [{"id": "11717"}], "labels": ["ccb_std_017"], "customfield_10004": {"id": "15710"}, "fixVersions": [{"name": "${{ env.FIX_VERSION }}"}]}'
+          fields: '{"components": [{"id": "25474"}], "labels": ["ccb_std_017"], "customfield_10004": {"id": "15710"}, "fixVersions": [{"name": "${{ env.FIX_VERSION }}"}]}'
         env:
           FIX_VERSION: Acquia CLI ${{ github.event.release.name }}
       - name: Log created issue
