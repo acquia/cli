@@ -137,7 +137,7 @@
             "rm -rf gardener"
         ],
         "box-install": [
-            "curl -f -L https://github.com/box-project/box/releases/download/4.3.7/box.phar -o build/box.phar"
+            "curl -f -L https://github.com/box-project/box/releases/download/4.4.0/box.phar -o build/box.phar"
         ],
         "box-compile": [
             "php build/box.phar compile"
