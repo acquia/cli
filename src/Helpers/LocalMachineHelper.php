@@ -223,7 +223,7 @@ class LocalMachineHelper {
     $home = getenv('HOME');
     if (!$home) {
       $system = '';
-      if (getenv('MSYSTEM') !== NULL) {
+      if (getenv('MSYSTEM')) {
         $system = strtoupper(substr(getenv('MSYSTEM'), 0, 4));
       }
       if ($system !== 'MING') {
