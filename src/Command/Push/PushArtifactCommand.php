@@ -72,7 +72,6 @@ class PushArtifactCommand extends PullCommandBase {
     $this->setDirAndRequireProjectCwd($input);
     if ($input->getOption('no-clone')) {
       $input->setOption('no-commit', TRUE);
-      $input->setOption('no-push', TRUE);
     }
     if ($input->getOption('no-commit')) {
       $input->setOption('no-push', TRUE);

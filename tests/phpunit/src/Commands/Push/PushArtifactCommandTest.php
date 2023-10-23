@@ -51,6 +51,20 @@ class PushArtifactCommandTest extends PullCommandTestBase {
     $this->assertStringContainsString('[0] Sample application 1', $output);
     $this->assertStringContainsString('Choose a Cloud Platform environment', $output);
     $this->assertStringContainsString('[0] Dev, dev (vcs: master)', $output);
+    $this->assertStringContainsString('Acquia CLI will:', $output);
+    $this->assertStringContainsString('- git clone master from site@svn-3.hosted.acquia-sites.com:site.git', $output);
+    $this->assertStringContainsString('- Compile the contents of vfs://root/project into an artifact', $output);
+    $this->assertStringContainsString('- Copy the artifact files into the checked out copy of master', $output);
+    $this->assertStringContainsString('- Commit changes and push the master branch', $output);
+    $this->assertStringContainsString('Removing', $output);
+    $this->assertStringContainsString('Initializing Git', $output);
+    $this->assertStringContainsString('Global .gitignore file', $output);
+    $this->assertStringContainsString('Removing vendor', $output);
+    $this->assertStringContainsString('Mirroring source', $output);
+    $this->assertStringContainsString('Installing Composer', $output);
+    $this->assertStringContainsString('Finding Drupal', $output);
+    $this->assertStringContainsString('Removing sensitive', $output);
+    $this->assertStringContainsString('Adding and committing', $output);
     $this->assertStringContainsString('Pushing changes to Acquia Git (site@svn-3.hosted.acquia-sites.com:site.git)', $output);
   }
 
@@ -81,6 +95,7 @@ class PushArtifactCommandTest extends PullCommandTestBase {
     $this->assertStringContainsString('Select a Cloud Platform application:', $output);
     $this->assertStringContainsString('[0] Sample application 1', $output);
     $this->assertStringContainsString('Pushing changes to Acquia Git (site@svn-3.hosted.acquia-sites.com:site.git)', $output);
+    $this->assertStringContainsString('Commit changes and push the 1.2.0-build tag', $output);
   }
 
   public function testPushArtifactWithAcquiaCliFile(): void {
