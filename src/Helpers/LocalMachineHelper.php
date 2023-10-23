@@ -215,9 +215,7 @@ class LocalMachineHelper {
   /**
    * Returns the appropriate home directory.
    *
-   * Adapted from Ads Package Manager by Ed Reel.
-   *
-   * @url https://github.com/uberhacker/tpm
+   * @see https://github.com/pantheon-systems/terminus/blob/1d89e20dd388dc08979a1bc52dfd142b26c03dcf/src/Config/DefaultsConfig.php#L99
    */
   public static function getHomeDir(): string {
     $home = getenv('HOME');

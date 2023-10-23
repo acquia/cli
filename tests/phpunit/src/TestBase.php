@@ -164,7 +164,10 @@ abstract class TestBase extends TestCase {
    * This method is called before each test.
    */
   protected function setUp(): void {
-    putenv('COLUMNS=85');
+    self::setEnvVars([
+      'COLUMNS' => '85',
+      'HOME' => '/home/test',
+    ]);
     $this->output = new BufferedOutput();
     $this->input = new ArrayInput([]);
 
@@ -241,9 +244,14 @@ abstract class TestBase extends TestCase {
     }
   }
 
-  public static function unsetEnvVars(mixed $envVars): void {
+  public static function unsetEnvVars(array $envVars): void {
     foreach ($envVars as $key => $value) {
-      putenv($key);
+      if (is_int($key)) {
+        putenv($value);
+      }
+      else {
+        putenv($key);
+      }
     }
   }
 
