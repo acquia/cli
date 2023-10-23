@@ -28,15 +28,11 @@ class PushArtifactCommandTest extends PullCommandTestBase {
   }
 
   public function testPushArtifact(): void {
-    touch(Path::join($this->projectDir, 'composer.json'));
-    mkdir(Path::join($this->projectDir, 'docroot'));
-    $this->mockRequest('getApplications');
-    $applicationsResponse = $this->mockApplicationsRequest();
-    $this->mockApplicationRequest();
-    $environmentsResponse = $this->mockEnvironmentsRequest($applicationsResponse);
-    $selectedEnvironment = $environmentsResponse->_embedded->items[0];
+    $applications = $this->mockRequest('getApplications');
+    $this->mockRequest('getApplicationByUuid', $applications[0]->uuid);
+    $environments = $this->mockRequest('getApplicationEnvironments', $applications[0]->uuid);
     $localMachineHelper = $this->mockLocalMachineHelper();
-    $this->setUpPushArtifact($localMachineHelper, $selectedEnvironment->vcs->path, [$selectedEnvironment->vcs->url]);
+    $this->setUpPushArtifact($localMachineHelper, $environments[0]->vcs->path, [$environments[0]->vcs->url]);
     $inputs = [
       // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
       'n',
@@ -59,15 +55,12 @@ class PushArtifactCommandTest extends PullCommandTestBase {
   }
 
   public function testPushTagArtifact(): void {
-    touch(Path::join($this->projectDir, 'composer.json'));
-    mkdir(Path::join($this->projectDir, 'docroot'));
-    $applicationsResponse = $this->mockApplicationsRequest();
-    $this->mockApplicationRequest();
-    $environmentsResponse = $this->mockEnvironmentsRequest($applicationsResponse);
-    $selectedEnvironment = $environmentsResponse->_embedded->items[0];
+    $applications = $this->mockRequest('getApplications');
+    $this->mockRequest('getApplicationByUuid', $applications[0]->uuid);
+    $environments = $this->mockRequest('getApplicationEnvironments', $applications[0]->uuid);
     $localMachineHelper = $this->mockLocalMachineHelper();
-    $this->setUpPushArtifact($localMachineHelper, '1.2.0', [$selectedEnvironment->vcs->url]);
     $gitTag = '1.2.0-build';
+    $this->setUpPushArtifact($localMachineHelper, '1.2.0', [$environments[0]->vcs->url], $gitTag);
     $artifactDir = Path::join(sys_get_temp_dir(), 'acli-push-artifact');
     $this->mockGitTag($localMachineHelper, $gitTag, $artifactDir);
     $inputs = [
@@ -91,12 +84,9 @@ class PushArtifactCommandTest extends PullCommandTestBase {
   }
 
   public function testPushArtifactWithAcquiaCliFile(): void {
-    touch(Path::join($this->projectDir, 'composer.json'));
-    mkdir(Path::join($this->projectDir, 'docroot'));
-    $this->mockRequest('getApplications');
-    $applicationsResponse = $this->mockApplicationsRequest();
-    $this->mockApplicationRequest();
-    $this->mockEnvironmentsRequest($applicationsResponse);
+    $applications = $this->mockRequest('getApplications');
+    $this->mockRequest('getApplicationByUuid', $applications[0]->uuid);
+    $this->mockRequest('getApplicationEnvironments', $applications[0]->uuid);
     $this->datastoreAcli->set('push.artifact.destination-git-urls', [
       'https://github.com/example1/cli.git',
       'https://github.com/example2/cli.git',
@@ -105,7 +95,7 @@ class PushArtifactCommandTest extends PullCommandTestBase {
     $this->setUpPushArtifact($localMachineHelper, 'master', $this->datastoreAcli->get('push.artifact.destination-git-urls'));
     $this->executeCommand([
       '--destination-git-branch' => 'master',
-    ], []);
+    ]);
     $this->prophet->checkPredictions();
     $output = $this->getDisplay();
 
@@ -114,12 +104,9 @@ class PushArtifactCommandTest extends PullCommandTestBase {
   }
 
   public function testPushArtifactWithArgs(): void {
-    touch(Path::join($this->projectDir, 'composer.json'));
-    mkdir(Path::join($this->projectDir, 'docroot'));
-    $this->mockRequest('getApplications');
-    $applicationsResponse = $this->mockApplicationsRequest();
-    $this->mockApplicationRequest();
-    $this->mockEnvironmentsRequest($applicationsResponse);
+    $applications = $this->mockRequest('getApplications');
+    $this->mockRequest('getApplicationByUuid', $applications[0]->uuid);
+    $this->mockRequest('getApplicationEnvironments', $applications[0]->uuid);
     $destinationGitUrls = [
       'https://github.com/example1/cli.git',
       'https://github.com/example2/cli.git',
@@ -129,7 +116,7 @@ class PushArtifactCommandTest extends PullCommandTestBase {
     $this->executeCommand([
       '--destination-git-branch' => 'master',
       '--destination-git-urls' => $destinationGitUrls,
-    ], []);
+    ]);
     $this->prophet->checkPredictions();
     $output = $this->getDisplay();
 
@@ -137,7 +124,81 @@ class PushArtifactCommandTest extends PullCommandTestBase {
     $this->assertStringContainsString('Pushing changes to Acquia Git (https://github.com/example2/cli.git)', $output);
   }
 
-  protected function setUpPushArtifact(mixed $localMachineHelper, mixed $vcsPath, mixed $vcsUrls): void {
+  public function testPushArtifactNoPush(): void {
+    $applications = $this->mockRequest('getApplications');
+    $this->mockRequest('getApplicationByUuid', $applications[0]->uuid);
+    $environments = $this->mockRequest('getApplicationEnvironments', $applications[0]->uuid);
+    $localMachineHelper = $this->mockLocalMachineHelper();
+    $this->setUpPushArtifact($localMachineHelper, $environments[0]->vcs->path, [$environments[0]->vcs->url], 'master:master', TRUE, TRUE, FALSE);
+    $inputs = [
+      // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
+      'n',
+      // Select a Cloud Platform application:
+      0,
+      // Would you like to link the project at ... ?
+      'y',
+      // Choose an Acquia environment:
+      0,
+    ];
+    $this->executeCommand(['--no-push' => TRUE], $inputs);
+    $this->prophet->checkPredictions();
+    $output = $this->getDisplay();
+
+    $this->assertStringContainsString('Initializing Git', $output);
+    $this->assertStringContainsString('Adding and committing changed files', $output);
+    $this->assertStringNotContainsString('Pushing changes to Acquia Git (site@svn-3.hosted.acquia-sites.com:site.git)', $output);
+  }
+
+  public function testPushArtifactNoCommit(): void {
+    $applications = $this->mockRequest('getApplications');
+    $this->mockRequest('getApplicationByUuid', $applications[0]->uuid);
+    $environments = $this->mockRequest('getApplicationEnvironments', $applications[0]->uuid);
+    $localMachineHelper = $this->mockLocalMachineHelper();
+    $this->setUpPushArtifact($localMachineHelper, $environments[0]->vcs->path, [$environments[0]->vcs->url], 'master:master', TRUE, FALSE, FALSE);
+    $inputs = [
+      // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
+      'n',
+      // Select a Cloud Platform application:
+      0,
+      // Would you like to link the project at ... ?
+      'y',
+      // Choose an Acquia environment:
+      0,
+    ];
+    $this->executeCommand(['--no-commit' => TRUE], $inputs);
+    $this->prophet->checkPredictions();
+    $output = $this->getDisplay();
+
+    $this->assertStringContainsString('Initializing Git', $output);
+    $this->assertStringNotContainsString('Adding and committing changed files', $output);
+    $this->assertStringNotContainsString('Pushing changes to Acquia Git (site@svn-3.hosted.acquia-sites.com:site.git)', $output);
+  }
+
+  public function testPushArtifactNoClone(): void {
+    $localMachineHelper = $this->mockLocalMachineHelper();
+    $this->setUpPushArtifact($localMachineHelper, 'nothing', [], 'something', FALSE, FALSE, FALSE);
+    $inputs = [
+      // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
+      'n',
+      // Select a Cloud Platform application:
+      0,
+      // Would you like to link the project at ... ?
+      'y',
+      // Choose an Acquia environment:
+      0,
+    ];
+    $this->executeCommand(['--no-clone' => TRUE], $inputs);
+    $this->prophet->checkPredictions();
+    $output = $this->getDisplay();
+
+    $this->assertStringNotContainsString('Initializing Git', $output);
+    $this->assertStringNotContainsString('Adding and committing changed files', $output);
+    $this->assertStringNotContainsString('Pushing changes to Acquia Git (site@svn-3.hosted.acquia-sites.com:site.git)', $output);
+  }
+
+  protected function setUpPushArtifact(ObjectProphecy $localMachineHelper, string $vcsPath, array $vcsUrls, string $destGitRef = 'master:master', bool $clone = TRUE, bool $commit = TRUE, bool $push = TRUE): void {
+    touch(Path::join($this->projectDir, 'composer.json'));
+    mkdir(Path::join($this->projectDir, 'docroot'));
     $artifactDir = Path::join(sys_get_temp_dir(), 'acli-push-artifact');
     $this->createMockGitConfigFile();
     $finder = $this->mockFinder();
@@ -146,21 +207,28 @@ class PushArtifactCommandTest extends PullCommandTestBase {
     $localMachineHelper->getFilesystem()->willReturn($fs)->shouldBeCalled();
     $this->command->localMachineHelper = $localMachineHelper->reveal();
 
-    $commitHash = 'abc123';
     $this->mockExecuteGitStatus(FALSE, $localMachineHelper, $this->projectDir);
+    $commitHash = 'abc123';
     $this->mockGetLocalCommitHash($localMachineHelper, $this->projectDir, $commitHash);
-    $this->mockCloneShallow($localMachineHelper, $vcsPath, $vcsUrls[0], $artifactDir);
-    $this->mockLocalGitConfig($localMachineHelper, $artifactDir);
     $this->mockComposerInstall($localMachineHelper, $artifactDir);
     $this->mockReadComposerJson($localMachineHelper, $artifactDir);
-    $this->mockGitAddCommit($localMachineHelper, $artifactDir, $commitHash);
-    $this->mockGitPush($vcsUrls, $localMachineHelper, $vcsPath, $artifactDir);
+    $localMachineHelper->checkRequiredBinariesExist(['git'])->shouldBeCalled();
+
+    if ($clone) {
+      $this->mockLocalGitConfig($localMachineHelper, $artifactDir);
+      $this->mockCloneShallow($localMachineHelper, $vcsPath, $vcsUrls[0], $artifactDir);
+    }
+    if ($commit) {
+      $this->mockGitAddCommit($localMachineHelper, $artifactDir, $commitHash);
+    }
+    if ($push) {
+      $this->mockGitPush($vcsUrls, $localMachineHelper, $artifactDir, $destGitRef);
+    }
   }
 
-  protected function mockCloneShallow(ObjectProphecy $localMachineHelper, mixed $vcsPath, mixed $vcsUrl, mixed $artifactDir): void {
+  protected function mockCloneShallow(ObjectProphecy $localMachineHelper, string $vcsPath, string $vcsUrl, mixed $artifactDir): void {
     $process = $this->prophet->prophesize(Process::class);
     $process->isSuccessful()->willReturn(TRUE)->shouldBeCalled();
-    $localMachineHelper->checkRequiredBinariesExist(['git'])->shouldBeCalled();
     $localMachineHelper->execute(['git', 'clone', '--depth=1', $vcsUrl, $artifactDir], Argument::type('callable'), NULL, TRUE)
       ->willReturn($process->reveal())->shouldBeCalled();
     $localMachineHelper->execute(['git', 'fetch', '--depth=1', $vcsUrl, $vcsPath . ':' . $vcsPath], Argument::type('callable'), Argument::type('string'), TRUE)
@@ -169,7 +237,7 @@ class PushArtifactCommandTest extends PullCommandTestBase {
       ->willReturn($process->reveal())->shouldBeCalled();
   }
 
-  protected function mockLocalGitConfig(ObjectProphecy $localMachineHelper, mixed $artifactDir): void {
+  protected function mockLocalGitConfig(ObjectProphecy $localMachineHelper, string $artifactDir): void {
     $process = $this->prophet->prophesize(Process::class);
     $localMachineHelper->execute(['git', 'config', '--local', 'core.excludesFile', 'false'], Argument::type('callable'), $artifactDir, TRUE)
       ->willReturn($process->reveal())->shouldBeCalled();
@@ -220,15 +288,15 @@ class PushArtifactCommandTest extends PullCommandTestBase {
       ->willReturn($composerJson);
   }
 
-  protected function mockGitPush(mixed $gitUrls, ObjectProphecy $localMachineHelper, mixed $gitBranch, mixed $artifactDir): void {
+  protected function mockGitPush(array $gitUrls, ObjectProphecy $localMachineHelper, string $artifactDir, string $destGitRef): void {
     $process = $this->mockProcess();
     foreach ($gitUrls as $gitUrl) {
-      $localMachineHelper->execute(Argument::containing($gitUrl), Argument::type('callable'), $artifactDir, TRUE)
+      $localMachineHelper->execute(['git', 'push', $gitUrl, $destGitRef], Argument::type('callable'), $artifactDir, TRUE)
         ->willReturn($process->reveal())->shouldBeCalled();
     }
   }
 
-  protected function mockGitTag(ObjectProphecy $localMachineHelper, mixed $gitTag, mixed $artifactDir): void {
+  protected function mockGitTag(ObjectProphecy $localMachineHelper, string $gitTag, string $artifactDir): void {
     $process = $this->mockProcess();
     $localMachineHelper->execute([
       'git',
