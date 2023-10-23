@@ -214,13 +214,13 @@ class PushArtifactCommand extends PullCommandBase {
     // @see https://git.drupalcode.org/project/drupal/-/blob/9.1.x/sites/default/default.settings.php#L295
     $outputCallback('out', "Mirroring source files from $this->dir to $artifactDir");
     $originFinder = $this->localMachineHelper->getFinder();
-    $originFinder->files()->in($this->dir)
+    $originFinder->in($this->dir)
       // Include dot files like .htaccess.
       ->ignoreDotFiles(FALSE)
       // Ignore VCS ignored files (e.g. vendor) to speed up the mirror (Composer will restore them later).
       ->ignoreVCSIgnored(TRUE);
     $targetFinder = $this->localMachineHelper->getFinder();
-    $targetFinder->files()->in($artifactDir)->ignoreDotFiles(FALSE);
+    $targetFinder->in($artifactDir)->ignoreDotFiles(FALSE);
     $this->localMachineHelper->getFilesystem()->mirror($this->dir, $artifactDir, $originFinder, ['override' => TRUE, 'delete' => TRUE], $targetFinder);
 
     $this->localMachineHelper->checkRequiredBinariesExist(['composer']);
