@@ -22,6 +22,11 @@ class PushArtifactCommandTest extends PullCommandTestBase {
     return $this->injectCommand(PushArtifactCommand::class);
   }
 
+  public function testNoAuthenticationRequired(): void {
+    $help = $this->command->getHelp();
+    $this->assertStringNotContainsString('This command requires authentication', $help);
+  }
+
   public function testPushArtifact(): void {
     touch(Path::join($this->projectDir, 'composer.json'));
     mkdir(Path::join($this->projectDir, 'docroot'));
