@@ -28,3 +28,4 @@ template: |
   ## What's new since $PREVIOUS_TAG
 
   $CHANGES
+prerelease: true
