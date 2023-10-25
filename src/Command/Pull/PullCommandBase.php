@@ -507,14 +507,21 @@ abstract class PullCommandBase extends CommandBase {
   }
 
   protected function runComposerScripts(callable $outputCallback = NULL): void {
-    if (file_exists($this->dir . '/composer.json') && $this->localMachineHelper->commandExists('composer')) {
-      $this->checklist->addItem("Installing Composer dependencies");
-      $this->composerInstall($outputCallback);
-      $this->checklist->completePreviousItem();
+    if (!file_exists(Path::join($this->dir, 'composer.json'))) {
+      $this->logger->notice('composer.json file not found. Skipping composer install.');
+      return;
     }
-    else {
-      $this->logger->notice('composer or composer.json file not found. Skipping composer install.');
+    if (!$this->localMachineHelper->commandExists('composer')) {
+      $this->logger->notice('Composer not found. Skipping composer install.');
+      return;
     }
+    if (file_exists(Path::join($this->dir, 'vendor'))) {
+      $this->logger->notice('Composer dependencies already installed. Skipping composer install.');
+      return;
+    }
+    $this->checklist->addItem("Installing Composer dependencies");
+    $this->composerInstall($outputCallback);
+    $this->checklist->completePreviousItem();
   }
 
   private function determineSite(string|\AcquiaCloudApi\Response\EnvironmentResponse|array $environment, InputInterface $input): mixed {
