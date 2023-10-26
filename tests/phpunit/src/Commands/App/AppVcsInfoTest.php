@@ -45,12 +45,12 @@ class AppVcsInfoTest extends CommandTestBase {
    * Test when no branch or tag available for the app.
    */
   public function testNoVcsAvailableCommand(): void {
-    $applicationsResponse = $this->mockApplicationsRequest();
-    $this->mockApplicationRequest();
-    $this->mockEnvironmentsRequest($applicationsResponse);
+    $applications = $this->mockRequest('getApplications');
+    $this->mockRequest('getApplicationByUuid', $applications[0]->uuid);
+    $this->mockRequest('getApplicationEnvironments', $applications[0]->uuid);
 
     $this->clientProphecy->request('get',
-      "/applications/{$applicationsResponse->{'_embedded'}->items[0]->uuid}/code")
+      "/applications/{$applications[0]->uuid}/code")
       ->willReturn([])
       ->shouldBeCalled();
 

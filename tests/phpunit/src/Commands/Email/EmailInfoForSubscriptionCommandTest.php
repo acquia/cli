@@ -85,7 +85,7 @@ class EmailInfoForSubscriptionCommandTest extends CommandTestBase {
     $getDomainsResponse = $this->getMockResponseFromSpec('/subscriptions/{subscriptionUuid}/domains', 'get', '200');
     $this->clientProphecy->request('get', "/subscriptions/{$subscriptions[0]->uuid}/domains")->willReturn($getDomainsResponse->_embedded->items);
 
-    $this->mockApplicationsRequest();
+    $this->mockRequest('getApplications');
 
     $this->expectException(AcquiaCliException::class);
     $this->expectExceptionMessage('You do not have access');
