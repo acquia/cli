@@ -99,20 +99,19 @@ EOD;
    * Test the list of deployed VCS but no deployed VCS available.
    */
   public function testNoDeployedVcs(): void {
-    $applicationsResponse = $this->mockApplicationsRequest();
-    $this->mockApplicationRequest();
-    $response = $this->getMockEnvironmentsResponse();
-    foreach ($response->_embedded->items as $key => $item) {
+    $applications = $this->mockRequest('getApplications');
+    $application = $this->mockRequest('getApplicationByUuid', $applications[self::$INPUT_DEFAULT_CHOICE]->uuid);
+    $environments = $this->mockRequest('getApplicationEnvironments', $applications[self::$INPUT_DEFAULT_CHOICE]->uuid);
+    foreach ($environments as $environment) {
       // Empty the VCS
-      $item->vcs = new \stdClass();
-      $response->_embedded->items[$key] = $item;
+      $environment->vcs = new \stdClass();
     }
 
     $this->clientProphecy->request('get',
-      "/applications/{$applicationsResponse->{'_embedded'}->items[0]->uuid}/environments")
-      ->willReturn($response->_embedded->items)
+      "/applications/{$application->uuid}/environments")
+      ->willReturn($environments)
       ->shouldBeCalled();
-    $this->mockRequest('getCodeByApplicationUuid', $applicationsResponse->{'_embedded'}->items[0]->uuid);
+    $this->mockRequest('getCodeByApplicationUuid', $application->uuid);
 
     $this->expectException(AcquiaCliException::class);
     $this->expectExceptionMessage('No branch or tag is deployed on any of the environment of this application.');

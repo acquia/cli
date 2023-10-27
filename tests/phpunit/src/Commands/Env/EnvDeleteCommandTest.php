@@ -104,19 +104,18 @@ class EnvDeleteCommandTest extends CommandTestBase {
    * Tests the case when multiple CDE available for application.
    */
   public function testNoEnvironmentArgumentPassed(): void {
-    $applicationsResponse = $this->mockApplicationsRequest();
-    $this->mockApplicationRequest();
-    $response = $this->getMockEnvironmentsResponse();
-    foreach ($response->{'_embedded'}->items as $key => $env) {
-      $env->flags->cde = TRUE;
-      $response->{'_embedded'}->items[$key] = $env;
+    $applications = $this->mockRequest('getApplications');
+    $application = $this->mockRequest('getApplicationByUuid', $applications[self::$INPUT_DEFAULT_CHOICE]->uuid);
+    $environments = $this->mockRequest('getApplicationEnvironments', $applications[self::$INPUT_DEFAULT_CHOICE]->uuid);
+    foreach ($environments as $environment) {
+      $environment->flags->cde = TRUE;
     }
     $this->clientProphecy->request('get',
-      "/applications/{$applicationsResponse->{'_embedded'}->items[0]->uuid}/environments")
-      ->willReturn($response->_embedded->items)
+      "/applications/{$application->uuid}/environments")
+      ->willReturn($environments)
       ->shouldBeCalled();
 
-    $cde = $response->_embedded->items[0];
+    $cde = $environments[0];
     $environmentsResponse = $this->getMockResponseFromSpec('/environments/{environmentId}',
       'delete', 202);
     $this->clientProphecy->request('delete', "/environments/" . $cde->id)
