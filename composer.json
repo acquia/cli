@@ -137,10 +137,10 @@
             "rm -rf gardener"
         ],
         "box-install": [
-            "curl -f -L https://github.com/box-project/box/releases/download/4.4.0/box.phar -o build/box.phar"
+            "curl -f -L https://github.com/box-project/box/releases/download/4.4.0/box.phar -o var/box.phar"
         ],
         "box-compile": [
-            "php build/box.phar compile"
+            "php var/box.phar compile"
         ],
         "infection": [
             "php -d pcov.enabled=1 vendor/bin/infection --threads=8"
@@ -153,7 +153,7 @@
         ],
         "unit-serial": "phpunit tests/phpunit -vvv --group serial",
         "unit-parallel": "paratest --exclude-group serial",
-        "coverage": "php -d pcov.enabled=1 vendor/bin/phpunit tests/phpunit --coverage-clover build/logs/clover.xml",
+        "coverage": "php -d pcov.enabled=1 vendor/bin/phpunit tests/phpunit --coverage-clover var/logs/clover.xml",
         "lint": "phplint",
         "test": [
             "@lint",
