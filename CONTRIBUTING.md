@@ -76,7 +76,7 @@ Any changes to the `acli update` command should be manually tested using the fol
 
 1. Replace `@package_version@` on this line with `1.0.0` or any older version string: https://github.com/acquia/cli/blob/v1.0.0/bin/acli#L84
 1. Build acli.phar as described above.
-1. Now test: `./build/acli.phar self:update`
+1. Now test: `./var/acli.phar self:update`
 
 ### Writing tests
 
