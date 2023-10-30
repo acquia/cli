@@ -270,12 +270,16 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
   }
 
   protected function mockGitLabProjectsTokens(ObjectProphecy $projects): void {
+    $d = new \DateTime('tomorrow');
+    $formattedDate = $d->format('Y-m-d\TH:i:s\Z');
+    $format = "Y-m-d\TH:i:s\Z";
+    $dateTime = \DateTime::createFromFormat($format, $formattedDate);
     $tokens = [
       0 => [
           'access_level' => 40,
           'active' => TRUE,
           'created_at' => '2021-12-28T20:08:21.629Z',
-          'expires_at' => NULL,
+          'expires_at' => $dateTime,
           'id' => $this->gitLabTokenId,
           'name' => 'acquia-codestudio',
           'revoked' => FALSE,
