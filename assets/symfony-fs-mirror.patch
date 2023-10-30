@@ -1,8 +1,18 @@
+From c5aaa3a3a6c83049dc31782a0cdfb6eba0151a6e Mon Sep 17 00:00:00 2001
+From: Dane Powell <git@danepowell.com>
+Date: Fri, 27 Oct 2023 10:42:00 -0700
+Subject: [PATCH] Fix #14068: [Filesystem] mirror() does not work correctly
+ with custom iterators
+
+---
+ src/Symfony/Component/Filesystem/Filesystem.php | 13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
+
 diff --git a/src/Symfony/Component/Filesystem/Filesystem.php b/src/Symfony/Component/Filesystem/Filesystem.php
-index 3498e7f9fb..4d68341136 100644
+index 78458d5b91..20639b1a29 100644
 --- a/src/Symfony/Component/Filesystem/Filesystem.php
 +++ b/src/Symfony/Component/Filesystem/Filesystem.php
-@@ -497,16 +497,17 @@ class Filesystem
+@@ -519,18 +519,19 @@ class Filesystem
       *  - existing files in the target directory will be overwritten, except if they are newer (see the `override` option)
       *  - files in the target directory that do not exist in the source directory will not be deleted (see the `delete` option)
       *
@@ -15,6 +25,8 @@ index 3498e7f9fb..4d68341136 100644
       *                                    - $options['delete'] Whether to delete files that are not in the source directory (defaults to false)
 +     * @param \Traversable|null $targetIterator Iterator that filters which files and directory in target directory to delete if not in source directory (if $options['delete'] is true)
       *
+      * @return void
+      *
       * @throws IOException When file type is unknown
       */
 -    public function mirror(string $originDir, string $targetDir, \Traversable $iterator = null, array $options = [])
@@ -22,7 +34,7 @@ index 3498e7f9fb..4d68341136 100644
      {
          $targetDir = rtrim($targetDir, '/\\');
          $originDir = rtrim($originDir, '/\\');
-@@ -518,7 +519,7 @@ class Filesystem
+@@ -542,7 +543,7 @@ class Filesystem
  
          // Iterate in destination folder to remove obsolete entries
          if ($this->exists($targetDir) && isset($options['delete']) && $options['delete']) {
@@ -31,7 +43,7 @@ index 3498e7f9fb..4d68341136 100644
              if (null === $deleteIterator) {
                  $flags = \FilesystemIterator::SKIP_DOTS;
                  $deleteIterator = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($targetDir, $flags), \RecursiveIteratorIterator::CHILD_FIRST);
-@@ -534,15 +535,15 @@ class Filesystem
+@@ -558,15 +559,15 @@ class Filesystem
  
          $copyOnWindows = $options['copy_on_windows'] ?? false;
  
@@ -50,3 +62,6 @@ index 3498e7f9fb..4d68341136 100644
              if ($file->getPathname() === $targetDir || $file->getRealPath() === $targetDir || isset($filesCreatedWhileMirroring[$file->getRealPath()])) {
                  continue;
              }
+-- 
+2.42.0
+
