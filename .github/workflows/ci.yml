@@ -28,7 +28,7 @@ jobs:
     strategy:
       matrix:
         os: ["ubuntu-22.04"]
-        php: ["8.0", "8.1", "8.2"]
+        php: ["8.1", "8.2"]
         coverage: ["none"]
         include:
           - os: "ubuntu-22.04"
@@ -110,12 +110,12 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: acli.phar
-          path: build/acli.phar
+          path: var/acli.phar
       - name: Release
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
         with:
-          files: build/acli.phar
+          files: var/acli.phar
   # Require all checks to pass without having to enumerate them in the branch protection UI.
   # @see https://github.community/t/is-it-possible-to-require-all-github-actions-tasks-to-pass-without-enumerating-them/117957
   check:

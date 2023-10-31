@@ -11,7 +11,7 @@
   <arg name="extensions" value="php,inc,test,css,txt,md,yml"/>
 
   <arg name="colors"/>
-  <arg name="cache" value="build/.phpcs-cache"/>
+  <arg name="cache" value="var/.phpcs-cache"/>
   <arg name="parallel" value="10"/>
 
   <file>src</file>
