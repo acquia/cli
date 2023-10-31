@@ -720,7 +720,7 @@ abstract class TestBase extends TestCase {
     return $guzzleClient;
   }
 
-  protected function setClientProphecies(mixed $clientServiceClass = ClientService::class): void {
+  protected function setClientProphecies(?string $clientServiceClass = ClientService::class): void {
     $this->clientProphecy = $this->prophet->prophesize(Client::class);
     $this->clientProphecy->addOption('headers', ['User-Agent' => 'acli/UNKNOWN']);
     $this->clientProphecy->addOption('debug', Argument::type(OutputInterface::class));
