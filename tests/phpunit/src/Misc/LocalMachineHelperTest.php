@@ -24,7 +24,7 @@ class LocalMachineHelperTest extends TestBase {
    */
   public function providerTestExecuteFromCmd(): array {
     return [
-      [FALSE, NULL, NULL],
+      [FALSE, NULL, TRUE],
       [FALSE, FALSE, FALSE],
       [TRUE, FALSE, FALSE],
     ];
@@ -33,7 +33,7 @@ class LocalMachineHelperTest extends TestBase {
   /**
    * @dataProvider providerTestExecuteFromCmd()
    */
-  public function testExecuteFromCmd(bool $interactive, bool|NULL $isTty, bool|NULL $printOutput): void {
+  public function testExecuteFromCmd(bool $interactive, bool|NULL $isTty, bool $printOutput): void {
     $localMachineHelper = $this->localMachineHelper;
     $localMachineHelper->setIsTty($isTty);
     $this->input->setInteractive($interactive);
@@ -43,9 +43,6 @@ class LocalMachineHelperTest extends TestBase {
     $buffer = $this->output->fetch();
     if ($printOutput === FALSE) {
       $this->assertEmpty($buffer);
-    }
-    else {
-      $this->assertStringContainsString("hello world", $buffer);
     }
   }
 

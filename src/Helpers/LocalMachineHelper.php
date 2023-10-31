@@ -73,9 +73,12 @@ class LocalMachineHelper {
    * Executes a buffered command.
    *
    * @param array $cmd The command to execute.
-   * @param null $callback A function to run while waiting for the process to complete.
+   * @param callable|null $callback A function to run while waiting for the process to complete.
+   * @param string|null $cwd
+   * @param float|null $timeout
+   * @param array|null $env
    */
-  public function execute(array $cmd, callable $callback = NULL, string $cwd = NULL, ?bool $printOutput = TRUE, float $timeout = NULL, array $env = NULL): Process {
+  public function execute(array $cmd, callable $callback = NULL, string $cwd = NULL, bool $printOutput = TRUE, float $timeout = NULL, array $env = NULL): Process {
     $process = new Process($cmd);
     $process = $this->configureProcess($process, $cwd, $printOutput, $timeout, $env);
     return $this->executeProcess($process, $callback, $printOutput);
@@ -89,13 +92,8 @@ class LocalMachineHelper {
    * pipes or redirects not supported by `execute()`.
    *
    * Windows does not support prepending commands with environment variables.
-   *
-   * @param callable|null $callback
-   * @param string|null $cwd
-   * @param int|null $timeout
-   * @param array|null $env
    */
-  public function executeFromCmd(string $cmd, callable $callback = NULL, string $cwd = NULL, ?bool $printOutput = TRUE, int $timeout = NULL, array $env = NULL): Process {
+  public function executeFromCmd(string $cmd, callable $callback = NULL, string $cwd = NULL, bool $printOutput = TRUE, int $timeout = NULL, array $env = NULL): Process {
     $process = Process::fromShellCommandline($cmd);
     $process = $this->configureProcess($process, $cwd, $printOutput, $timeout, $env);
 
@@ -106,7 +104,7 @@ class LocalMachineHelper {
    * @param string|null $cwd
    * @param array|null $env
    */
-  private function configureProcess(Process $process, string $cwd = NULL, ?bool $printOutput = TRUE, float $timeout = NULL, array $env = NULL): Process {
+  private function configureProcess(Process $process, string $cwd = NULL, bool $printOutput = TRUE, float $timeout = NULL, array $env = NULL): Process {
     if (function_exists('posix_isatty') && !@posix_isatty(STDIN)) {
       $process->setInput(STDIN);
     }
@@ -124,19 +122,18 @@ class LocalMachineHelper {
     return $process;
   }
 
-  private function executeProcess(Process $process, callable $callback = NULL, ?bool $printOutput = TRUE): Process {
-    if ($callback === NULL && $printOutput !== FALSE) {
-      $callback = function (mixed $type, mixed $buffer): void {
+  private function executeProcess(Process $process, callable $callback = NULL, bool $printOutput = TRUE): Process {
+    if ($callback === NULL && $printOutput) {
+      $callback = function (string $type, iterable|string $buffer): void {
         $this->output->write($buffer);
       };
     }
-    $process->start();
-    set_error_handler(fn () => NULL);
-    while ($process->isRunning()) {
-      $process->checkTimeout();
-      usleep(1000);
+    if ($process->getInput()) {
+      $this->runAsync($process);
     }
-    restore_error_handler();
+    else {
+      $process->run($callback);
+    }
 
     $this->logger->notice('Command: {command} [Exit: {exit}]', [
       'command' => $process->getCommandLine(),
@@ -144,6 +141,23 @@ class LocalMachineHelper {
     ]);
 
     return $process;
+  }
+
+  /**
+   * Run the $process asynchronously as a workaround for https://github.com/symfony/symfony/issues/21580.
+   */
+  private function runAsync(Process $process): void {
+    $process->start();
+
+    // Ignore "Write of <n> bytes failed with errno=32 Broken pipe" errors.
+    set_error_handler(static fn () => NULL);
+
+    while ($process->isRunning()) {
+      $process->checkTimeout();
+      usleep(1000);
+    }
+
+    restore_error_handler();
   }
 
   /**
