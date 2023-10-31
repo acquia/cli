@@ -96,4 +96,25 @@ class LocalMachineHelperTest extends TestBase {
     LocalMachineHelper::getHomeDir();
   }
 
+  public function testConfigDirLegacy(): void {
+    self::setEnvVars(['HOME' => 'vfs://root']);
+    $configDir = LocalMachineHelper::getConfigDir();
+    $this->assertEquals('vfs://root/.acquia', $configDir);
+  }
+
+  public function testConfigDirFromXdg(): void {
+    self::setEnvVars(['XDG_CONFIG_HOME' => 'vfs://root/.config']);
+    $configDir = LocalMachineHelper::getConfigDir();
+    $this->assertEquals('vfs://root/.config/acquia', $configDir);
+  }
+
+  public function testConfigDirDefault(): void {
+    self::setEnvVars(['HOME' => 'vfs://root']);
+    self::unsetEnvVars(['XDG_CONFIG_HOME']);
+    unlink('vfs://root/.acquia/cloud_api.conf');
+    rmdir('vfs://root/.acquia');
+    $configDir = LocalMachineHelper::getConfigDir();
+    $this->assertEquals('vfs://root/.config/acquia', $configDir);
+  }
+
 }
