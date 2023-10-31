@@ -9,6 +9,7 @@ use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Tests\Commands\Ide\IdeRequiredTestTrait;
 use Acquia\Cli\Tests\Commands\WizardTestBase;
 use Acquia\Cli\Tests\TestBase;
+use AcquiaCloudApi\Connector\Connector;
 use DateTime;
 use Gitlab\Api\Groups;
 use Gitlab\Api\ProjectNamespaces;
@@ -190,8 +191,7 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
    * @dataProvider providerTestCommand
    */
   public function testCommand(array $mockedGitlabProjects, array $inputs, array $args): void {
-    $environmentsResponse = $this->getMockEnvironmentsResponse();
-    $this->clientProphecy->request('get', "/applications/{$this::$applicationUuid}/environments")->willReturn($environmentsResponse->_embedded->items)->shouldBeCalled();
+    $this->clientServiceProphecy->setConnector(Argument::type(Connector::class))->shouldBeCalled();
     $this->mockRequest('getAccount');
     $this->mockGitLabPermissionsRequest($this::$applicationUuid);
 
@@ -214,7 +214,11 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
       'description' => 'Source repository for Acquia Cloud Platform application <comment>a47ac10b-58cc-4372-a567-0e02b2c3d470</comment>',
       'topics' => 'Acquia Cloud Application',
     ];
-    $projects->update($this->gitLabProjectId, $parameters);
+    $projects->update($this->gitLabProjectId, $parameters)->shouldBeCalled();
+    $projects->uploadAvatar(
+      33,
+      Argument::type('string'),
+    )->shouldBeCalled();
     $this->mockGitLabVariables($this->gitLabProjectId, $projects);
     $schedules = $this->prophet->prophesize(Schedules::class);
     $schedules->showAll($this->gitLabProjectId)->willReturn([]);
@@ -229,7 +233,11 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
     $schedules->addVariable($this->gitLabProjectId, $pipeline['id'], [
       'key' => 'ACQUIA_JOBS_DEPRECATED_UPDATE',
       'value' => 'true',
-    ]);
+    ])->shouldBeCalled();
+    $schedules->addVariable($this->gitLabProjectId, $pipeline['id'], [
+      'key' => 'ACQUIA_JOBS_COMPOSER_UPDATE',
+      'value' => 'true',
+    ])->shouldBeCalled();
     $gitlabClient->schedules()->willReturn($schedules->reveal());
     $gitlabClient->projects()->willReturn($projects);
 
@@ -248,14 +256,13 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
 
     /** @var Filesystem|ObjectProphecy $fileSystem */
     $fileSystem = $this->prophet->prophesize(Filesystem::class);
-    $localMachineHelper->getFilesystem()->willReturn($fileSystem->reveal())->shouldBeCalled();
     $this->command->localMachineHelper = $localMachineHelper->reveal();
 
     // Set properties and execute.
     $this->executeCommand($args, $inputs);
 
     // Assertions.
-    //$this->prophet->checkPredictions();
+    $this->prophet->checkPredictions();
     $this->assertEquals(0, $this->getStatusCode());
   }
 
@@ -305,7 +312,7 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
         ],
     ];
     $projects->projectAccessTokens($this->gitLabProjectId)->willReturn($tokens)->shouldBeCalled();
-    $projects->deleteProjectAccessToken($this->gitLabProjectId, $this->gitLabTokenId);
+    $projects->deleteProjectAccessToken($this->gitLabProjectId, $this->gitLabTokenId)->shouldBeCalled();
     $token = $tokens[0];
     $token['token'] = 'token';
     $projects->createProjectAccessToken($this->gitLabProjectId, Argument::type('array'))->willReturn($token);
@@ -404,9 +411,10 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
     $gitlabClient->namespaces()->willReturn($namespaces->reveal());
   }
 
-  protected function mockGitLabVariables(mixed $gitlabProjectId, ObjectProphecy $projects): void {
+  protected function mockGitLabVariables(int $gitlabProjectId, ObjectProphecy $projects): void {
     $projects->variables($gitlabProjectId)->willReturn($this->getMockGitLabVariables());
-    $projects->addVariable($gitlabProjectId, Argument::type('string'), Argument::type('string'), Argument::type('bool'), NULL, Argument::type('array'));
+    $projects->addVariable($gitlabProjectId, Argument::type('string'), Argument::type('string'), Argument::type('bool'), NULL, Argument::type('array'))->shouldBeCalled();
+    $projects->updateVariable($this->gitLabProjectId, Argument::type('string'), Argument::type('string'), FALSE, NULL, ["masked" => TRUE, "variable_type" => "env_var"])->shouldBeCalled();
   }
 
 }

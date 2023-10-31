@@ -119,7 +119,7 @@ class AcsfApiCommandTest extends AcsfCommandTestBase {
     $contents = json_decode($output, TRUE);
   }
 
-  protected function setClientProphecies(mixed $clientServiceClass = ClientService::class): void {
+  protected function setClientProphecies(?string $clientServiceClass = ClientService::class): void {
     $this->clientProphecy = $this->prophet->prophesize(AcsfClient::class);
     $this->clientProphecy->addOption('headers', ['User-Agent' => 'acli/UNKNOWN']);
     $this->clientProphecy->addOption('debug', Argument::type(OutputInterface::class));
