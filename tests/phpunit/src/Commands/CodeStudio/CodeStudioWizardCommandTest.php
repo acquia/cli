@@ -9,6 +9,7 @@ use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Tests\Commands\Ide\IdeRequiredTestTrait;
 use Acquia\Cli\Tests\Commands\WizardTestBase;
 use Acquia\Cli\Tests\TestBase;
+use DateTime;
 use Gitlab\Api\Groups;
 use Gitlab\Api\ProjectNamespaces;
 use Gitlab\Api\Schedules;
@@ -270,13 +271,12 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
   }
 
   protected function mockGitLabProjectsTokens(ObjectProphecy $projects): void {
-    $dateTime = new \DateTime('tomorrow');
     $tokens = [
       0 => [
           'access_level' => 40,
           'active' => TRUE,
           'created_at' => '2021-12-28T20:08:21.629Z',
-          'expires_at' => $dateTime,
+          'expires_at' => new DateTime('+365 days'),
           'id' => $this->gitLabTokenId,
           'name' => 'acquia-codestudio',
           'revoked' => FALSE,
@@ -287,7 +287,7 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
           'user_id' => 154,
         ],
     ];
-    $projects->projectAccessTokens($this->gitLabProjectId)->willReturn($tokens);
+    $projects->projectAccessTokens($this->gitLabProjectId)->willReturn($tokens)->shouldBeCalled();
     $projects->deleteProjectAccessToken($this->gitLabProjectId, $this->gitLabTokenId);
     $token = $tokens[0];
     $token['token'] = 'token';

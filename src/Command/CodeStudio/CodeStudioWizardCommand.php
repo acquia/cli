@@ -7,6 +7,7 @@ namespace Acquia\Cli\Command\CodeStudio;
 use Acquia\Cli\Command\WizardCommandBase;
 use Acquia\Cli\Output\Checklist;
 use AcquiaCloudApi\Endpoints\Account;
+use DateTime;
 use Gitlab\Exception\ValidationFailedException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -161,10 +162,9 @@ class CodeStudioWizardCommand extends WizardCommandBase {
       $this->checklist->completePreviousItem();
     }
     $this->checklist->addItem("Creating access token named <comment>$projectAccessTokenName</comment>");
-    $dateTime = new \DateTime('tomorrow');
     $projectAccessToken = $this->gitLabClient->projects()
           ->createProjectAccessToken($project['id'], [
-          'expires_at' => $dateTime,
+          'expires_at' => new DateTime('+365 days'),
           'name' => $projectAccessTokenName,
           'scopes' => ['api', 'write_repository'],
         ]);
