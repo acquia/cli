@@ -7,6 +7,7 @@ namespace Acquia\Cli\Command\CodeStudio;
 use Acquia\Cli\Command\WizardCommandBase;
 use Acquia\Cli\Output\Checklist;
 use AcquiaCloudApi\Endpoints\Account;
+use DateTime;
 use Gitlab\Exception\ValidationFailedException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -46,6 +47,15 @@ class CodeStudioWizardCommand extends WizardCommandBase {
     // But, we specifically need an API Token key-pair of Code Studio.
     // So we reauthenticate to be sure we're using the provided credentials.
     $this->reAuthenticate($cloudKey, $cloudSecret, $this->cloudCredentials->getBaseUri(), $this->cloudCredentials->getAccountsUri());
+
+    $phpVersions = [
+      'PHP_version_8.1' => "8.1",
+      'PHP_version_8.2' => "8.2",
+    ];
+    $project = $this->io->choice('Select a PHP version', array_values($phpVersions), $phpVersions['PHP_version_8.1']);
+    $project = array_search($project, $phpVersions, TRUE);
+    $phpVersion = $phpVersions[$project];
+
     $appUuid = $this->determineCloudApplication();
 
     // Get Cloud account.
@@ -92,7 +102,7 @@ class CodeStudioWizardCommand extends WizardCommandBase {
     $projectAccessTokenName = 'acquia-codestudio';
     $projectAccessToken = $this->createProjectAccessToken($project, $projectAccessTokenName);
     $this->updateGitLabProject($project);
-    $this->setGitLabCiCdVariables($project, $appUuid, $cloudKey, $cloudSecret, $projectAccessTokenName, $projectAccessToken);
+    $this->setGitLabCiCdVariables($project, $appUuid, $cloudKey, $cloudSecret, $projectAccessTokenName, $projectAccessToken, $phpVersion);
     $this->createScheduledPipeline($project);
 
     $this->io->success([
@@ -154,6 +164,7 @@ class CodeStudioWizardCommand extends WizardCommandBase {
     $this->checklist->addItem("Creating access token named <comment>$projectAccessTokenName</comment>");
     $projectAccessToken = $this->gitLabClient->projects()
           ->createProjectAccessToken($project['id'], [
+          'expires_at' => new DateTime('+365 days'),
           'name' => $projectAccessTokenName,
           'scopes' => ['api', 'write_repository'],
         ]);
@@ -161,9 +172,9 @@ class CodeStudioWizardCommand extends WizardCommandBase {
     return $projectAccessToken['token'];
   }
 
-  private function setGitLabCiCdVariables(array $project, string $cloudApplicationUuid, string $cloudKey, string $cloudSecret, string $projectAccessTokenName, string $projectAccessToken): void {
+  private function setGitLabCiCdVariables(array $project, string $cloudApplicationUuid, string $cloudKey, string $cloudSecret, string $projectAccessTokenName, string $projectAccessToken, string $phpVersion): void {
     $this->io->writeln("Setting GitLab CI/CD variables for {$project['path_with_namespace']}..");
-    $gitlabCicdVariables = CodeStudioCiCdVariables::getDefaults($cloudApplicationUuid, $cloudKey, $cloudSecret, $projectAccessTokenName, $projectAccessToken);
+    $gitlabCicdVariables = CodeStudioCiCdVariables::getDefaults($cloudApplicationUuid, $cloudKey, $cloudSecret, $projectAccessTokenName, $projectAccessToken, $phpVersion);
     $gitlabCicdExistingVariables = $this->gitLabClient->projects()
       ->variables($project['id']);
     $gitlabCicdExistingVariablesKeyed = [];

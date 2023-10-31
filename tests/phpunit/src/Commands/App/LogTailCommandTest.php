@@ -19,9 +19,9 @@ class LogTailCommandTest extends CommandTestBase {
 
   public function testLogTailCommand(): void {
 
-    $applicationsResponse = $this->mockApplicationsRequest();
-    $this->mockApplicationRequest();
-    $this->mockEnvironmentsRequest($applicationsResponse);
+    $applications = $this->mockRequest('getApplications');
+    $this->mockRequest('getApplicationByUuid', $applications[self::$INPUT_DEFAULT_CHOICE]->uuid);
+    $this->mockRequest('getApplicationEnvironments', $applications[self::$INPUT_DEFAULT_CHOICE]->uuid);
     $this->mockLogStreamRequest();
     $this->executeCommand([], [
       // Would you like Acquia CLI to search for a Cloud application that matches your local git config?

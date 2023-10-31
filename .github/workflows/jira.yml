@@ -12,3 +12,4 @@ jobs:
     secrets:
       jira-api-token: ${{ secrets.JIRA_API_TOKEN }}
       github-token: ${{ secrets.GITHUB_TOKEN }}
+      jira-user-email: ${{ secrets.JIRA_USER_EMAIL }}

@@ -164,7 +164,10 @@ abstract class TestBase extends TestCase {
    * This method is called before each test.
    */
   protected function setUp(): void {
-    putenv('COLUMNS=85');
+    self::setEnvVars([
+      'COLUMNS' => '85',
+      'HOME' => '/home/test',
+    ]);
     $this->output = new BufferedOutput();
     $this->input = new ArrayInput([]);
 
@@ -178,7 +181,7 @@ abstract class TestBase extends TestCase {
     $this->vfsRoot = vfsStream::setup();
     $this->projectDir = vfsStream::newDirectory('project')->at($this->vfsRoot)->url();
     $this->sshDir = vfsStream::newDirectory('ssh')->at($this->vfsRoot)->url();
-    $this->dataDir = vfsStream::newDirectory('data')->at($this->vfsRoot)->url();
+    $this->dataDir = vfsStream::newDirectory('.acquia')->at($this->vfsRoot)->url();
     $this->cloudConfigFilepath = Path::join($this->dataDir, 'cloud_api.conf');
     $this->acliConfigFilename = '.acquia-cli.yml';
     $this->acliConfigFilepath = Path::join($this->projectDir, $this->acliConfigFilename);
@@ -241,9 +244,14 @@ abstract class TestBase extends TestCase {
     }
   }
 
-  public static function unsetEnvVars(mixed $envVars): void {
+  public static function unsetEnvVars(array $envVars): void {
     foreach ($envVars as $key => $value) {
-      putenv($key);
+      if (is_int($key)) {
+        putenv($value);
+      }
+      else {
+        putenv($key);
+      }
     }
   }
 
@@ -712,7 +720,7 @@ abstract class TestBase extends TestCase {
     return $guzzleClient;
   }
 
-  protected function setClientProphecies(mixed $clientServiceClass = ClientService::class): void {
+  protected function setClientProphecies(?string $clientServiceClass = ClientService::class): void {
     $this->clientProphecy = $this->prophet->prophesize(Client::class);
     $this->clientProphecy->addOption('headers', ['User-Agent' => 'acli/UNKNOWN']);
     $this->clientProphecy->addOption('debug', Argument::type(OutputInterface::class));

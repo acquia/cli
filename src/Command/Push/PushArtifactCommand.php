@@ -47,7 +47,10 @@ class PushArtifactCommand extends PullCommandBase {
     $this->setDescription('Build and push a code artifact to a Cloud Platform environment')
       ->addOption('dir', NULL, InputArgument::OPTIONAL, 'The directory containing the Drupal project to be pushed')
       ->addOption('no-sanitize', NULL, InputOption::VALUE_NONE, 'Do not sanitize the build artifact')
-      ->addOption('dry-run', NULL, InputOption::VALUE_NONE, 'Do not push changes to Acquia Cloud')
+      ->addOption('dry-run', NULL, InputOption::VALUE_NONE, 'Deprecated: Use no-push instead')
+      ->addOption('no-push', NULL, InputOption::VALUE_NONE, 'Do not push changes to Acquia Cloud')
+      ->addOption('no-commit', NULL, InputOption::VALUE_NONE, 'Do not commit changes. Implies no-push')
+      ->addOption('no-clone', NULL, InputOption::VALUE_NONE, 'Do not clone repository. Implies no-commit and no-push')
       ->addOption('destination-git-urls', 'u', InputOption::VALUE_IS_ARRAY | InputOption::VALUE_REQUIRED, 'The URL(s) of your git repository to which the artifact branch will be pushed')
       ->addOption('destination-git-branch', 'b', InputOption::VALUE_REQUIRED, 'The destination branch to push the artifact to')
       ->addOption('destination-git-tag', 't', InputOption::VALUE_REQUIRED, 'The destination tag to push the artifact to. Using this option requires also using the --source-git-tag option')
@@ -61,8 +64,18 @@ class PushArtifactCommand extends PullCommandBase {
       ->addUsage('--destination-git-urls=example@svn-1.prod.hosting.acquia.com:example.git --destination-git-branch=main-build');
   }
 
+  protected function commandRequiresAuthentication(): bool {
+    return FALSE;
+  }
+
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $this->setDirAndRequireProjectCwd($input);
+    if ($input->getOption('no-clone')) {
+      $input->setOption('no-commit', TRUE);
+    }
+    if ($input->getOption('no-commit')) {
+      $input->setOption('no-push', TRUE);
+    }
     $artifactDir = Path::join(sys_get_temp_dir(), 'acli-push-artifact');
     $this->composerJsonPath = Path::join($this->dir, 'composer.json');
     $this->docrootPath = Path::join($this->dir, 'docroot');
@@ -74,27 +87,30 @@ class PushArtifactCommand extends PullCommandBase {
       throw new AcquiaCliException('Pushing code was aborted because your local Git repository has uncommitted changes. Either commit, reset, or stash your changes via git.');
     }
     $this->checklist = new Checklist($output);
-    $applicationUuid = $this->determineCloudApplication();
-    $destinationGitUrls = $this->determineDestinationGitUrls($applicationUuid);
-    $destinationGitRef = $this->determineDestinationGitRef();
-    $sourceGitBranch = $this->determineSourceGitRef();
-
-    $destinationGitUrlsString = implode(',', $destinationGitUrls);
-    $refType = $this->input->getOption('destination-git-tag') ? 'tag' : 'branch';
-    $this->io->note([
-      "Acquia CLI will:",
-      "- git clone $sourceGitBranch from $destinationGitUrls[0]",
-      "- Compile the contents of $this->dir into an artifact in a temporary directory",
-      "- Copy the artifact files into the checked out copy of $sourceGitBranch",
-      "- Commit changes and push the $destinationGitRef $refType to the following git remote(s):",
-      "  $destinationGitUrlsString",
-    ]);
-
     $outputCallback = $this->getOutputCallback($output, $this->checklist);
 
-    $this->checklist->addItem('Preparing artifact directory');
-    $this->cloneSourceBranch($outputCallback, $artifactDir, $destinationGitUrls[0], $sourceGitBranch);
-    $this->checklist->completePreviousItem();
+    $destinationGitUrls = [];
+    $destinationGitRef = '';
+    if (!$input->getOption('no-clone')) {
+      $applicationUuid = $this->determineCloudApplication();
+      $destinationGitUrls = $this->determineDestinationGitUrls($applicationUuid);
+      $destinationGitRef = $this->determineDestinationGitRef();
+      $sourceGitBranch = $this->determineSourceGitRef();
+      $destinationGitUrlsString = implode(',', $destinationGitUrls);
+      $refType = $this->input->getOption('destination-git-tag') ? 'tag' : 'branch';
+      $this->io->note([
+        "Acquia CLI will:",
+        "- git clone $sourceGitBranch from $destinationGitUrls[0]",
+        "- Compile the contents of $this->dir into an artifact in a temporary directory",
+        "- Copy the artifact files into the checked out copy of $sourceGitBranch",
+        "- Commit changes and push the $destinationGitRef $refType to the following git remote(s):",
+        "  $destinationGitUrlsString",
+      ]);
+
+      $this->checklist->addItem('Preparing artifact directory');
+      $this->cloneSourceBranch($outputCallback, $artifactDir, $destinationGitUrls[0], $sourceGitBranch);
+      $this->checklist->completePreviousItem();
+    }
 
     $this->checklist->addItem('Generating build artifact');
     $this->buildArtifact($outputCallback, $artifactDir);
@@ -106,11 +122,13 @@ class PushArtifactCommand extends PullCommandBase {
       $this->checklist->completePreviousItem();
     }
 
-    $this->checklist->addItem("Committing changes (commit hash: $commitHash)");
-    $this->commit($outputCallback, $artifactDir, $commitHash);
-    $this->checklist->completePreviousItem();
+    if (!$input->getOption('no-commit')) {
+      $this->checklist->addItem("Committing changes (commit hash: $commitHash)");
+      $this->commit($outputCallback, $artifactDir, $commitHash);
+      $this->checklist->completePreviousItem();
+    }
 
-    if (!$input->getOption('dry-run')) {
+    if (!$input->getOption('dry-run') && !$input->getOption('no-push')) {
       if ($tagName = $input->getOption('destination-git-tag')) {
         $this->checklist->addItem("Creating <options=bold>$tagName</> tag.");
         $this->createTag($tagName, $outputCallback, $artifactDir);
@@ -125,13 +143,16 @@ class PushArtifactCommand extends PullCommandBase {
       $this->checklist->completePreviousItem();
     }
     else {
-      $this->logger->warning("The <options=bold>--dry-run</> option prevented changes from being pushed to Acquia Cloud. The artifact has been built at <options=bold>$artifactDir</>");
+      $this->logger->warning("The <options=bold>--dry-run</> (deprecated) or <options=bold>--no-push</> option prevented changes from being pushed to Acquia Cloud. The artifact has been built at <options=bold>$artifactDir</>");
     }
 
     return Command::SUCCESS;
   }
 
-  private function determineDestinationGitUrls(?string $applicationUuid): mixed {
+  /**
+   * @return string[]
+   */
+  private function determineDestinationGitUrls(?string $applicationUuid): array {
     if ($this->input->getOption('destination-git-urls')) {
       return $this->input->getOption('destination-git-urls');
     }
@@ -192,13 +213,13 @@ class PushArtifactCommand extends PullCommandBase {
     // @see https://git.drupalcode.org/project/drupal/-/blob/9.1.x/sites/default/default.settings.php#L295
     $outputCallback('out', "Mirroring source files from $this->dir to $artifactDir");
     $originFinder = $this->localMachineHelper->getFinder();
-    $originFinder->files()->in($this->dir)
+    $originFinder->in($this->dir)
       // Include dot files like .htaccess.
       ->ignoreDotFiles(FALSE)
       // Ignore VCS ignored files (e.g. vendor) to speed up the mirror (Composer will restore them later).
       ->ignoreVCSIgnored(TRUE);
     $targetFinder = $this->localMachineHelper->getFinder();
-    $targetFinder->files()->in($artifactDir)->ignoreDotFiles(FALSE);
+    $targetFinder->in($artifactDir)->ignoreDotFiles(FALSE);
     $this->localMachineHelper->getFilesystem()->mirror($this->dir, $artifactDir, $originFinder, ['override' => TRUE, 'delete' => TRUE], $targetFinder);
 
     $this->localMachineHelper->checkRequiredBinariesExist(['composer']);
@@ -305,8 +326,6 @@ class PushArtifactCommand extends PullCommandBase {
 
   /**
    * Push the artifact.
-   *
-   * @param array $vcsUrls
    */
   private function pushArtifact(Closure $outputCallback, string $artifactDir, array $vcsUrls, string $destGitBranch): void {
     $this->localMachineHelper->checkRequiredBinariesExist(['git']);
@@ -383,7 +402,7 @@ class PushArtifactCommand extends PullCommandBase {
     }
   }
 
-  private function determineSourceGitRef(): mixed {
+  private function determineSourceGitRef(): string {
     if ($this->input->getOption('source-git-tag')) {
       return $this->input->getOption('source-git-tag');
     }
@@ -398,7 +417,7 @@ class PushArtifactCommand extends PullCommandBase {
     return $this->destinationGitRef;
   }
 
-  private function determineDestinationGitRef(): mixed {
+  private function determineDestinationGitRef(): string {
     if ($this->input->getOption('destination-git-tag')) {
       $this->destinationGitRef = $this->input->getOption('destination-git-tag');
       return $this->destinationGitRef;

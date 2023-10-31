@@ -220,15 +220,13 @@ class LocalMachineHelper {
   /**
    * Returns the appropriate home directory.
    *
-   * Adapted from Ads Package Manager by Ed Reel.
-   *
-   * @url https://github.com/uberhacker/tpm
+   * @see https://github.com/pantheon-systems/terminus/blob/1d89e20dd388dc08979a1bc52dfd142b26c03dcf/src/Config/DefaultsConfig.php#L99
    */
   public static function getHomeDir(): string {
     $home = getenv('HOME');
     if (!$home) {
       $system = '';
-      if (getenv('MSYSTEM') !== NULL) {
+      if (getenv('MSYSTEM')) {
         $system = strtoupper(substr(getenv('MSYSTEM'), 0, 4));
       }
       if ($system !== 'MING') {
@@ -241,6 +239,18 @@ class LocalMachineHelper {
     }
 
     return $home;
+  }
+
+  public static function getConfigDir(): string {
+    $home = self::getHomeDir();
+    $legacyDir = Path::join($home, '.acquia');
+    if (file_exists($legacyDir)) {
+      return $legacyDir;
+    }
+    if ($xdgHome = getenv('XDG_CONFIG_HOME')) {
+      return Path::join($xdgHome, 'acquia');
+    }
+    return Path::join($home, '.config', 'acquia');
   }
 
   /**

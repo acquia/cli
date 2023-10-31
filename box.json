@@ -2,7 +2,7 @@
     "$schema": "https://raw.githubusercontent.com/box-project/box/4.3.7/res/schema.json",
     "directories": [
         "config",
-        "var"
+        "var/cache"
     ],
     "files": [
         ".env"
@@ -11,7 +11,7 @@
         "KevinGH\\Box\\Compactor\\Php",
         "KevinGH\\Box\\Compactor\\Json"
     ],
-    "output": "build/acli.phar",
+    "output": "var/acli.phar",
     "exclude-composer-files": false,
     "force-autodiscovery": true
 }
