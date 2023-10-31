@@ -188,13 +188,9 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
 
   /**
    * @dataProvider providerTestCommand
-   * @param $mockedGitlabProjects
-   * @param $args
-   * @param $inputs
    */
-  public function testCommand(mixed $mockedGitlabProjects, mixed $inputs, mixed $args): void {
+  public function testCommand(array $mockedGitlabProjects, array $inputs, array $args): void {
     $environmentsResponse = $this->getMockEnvironmentsResponse();
-    $selectedEnvironment = $environmentsResponse->_embedded->items[0];
     $this->clientProphecy->request('get', "/applications/{$this::$applicationUuid}/environments")->willReturn($environmentsResponse->_embedded->items)->shouldBeCalled();
     $this->mockRequest('getAccount');
     $this->mockGitLabPermissionsRequest($this::$applicationUuid);
@@ -205,15 +201,35 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
     $this->mockGitLabNamespaces($gitlabClient);
 
     $projects = $this->mockGetGitLabProjects($this::$applicationUuid, $this->gitLabProjectId, $mockedGitlabProjects);
-    $projects->create(Argument::type('string'), Argument::type('array'))->willReturn($this->getMockedGitLabProject($this->gitLabProjectId));
+    $parameters = [
+      'container_registry_access_level' => 'disabled',
+      'description' => 'Source repository for Acquia Cloud Platform application <comment>a47ac10b-58cc-4372-a567-0e02b2c3d470</comment>',
+      'namespace_id' => 47,
+      'topics' => 'Acquia Cloud Application',
+    ];
+    $projects->create('Sample-application-1', $parameters)->willReturn($this->getMockedGitLabProject($this->gitLabProjectId));
     $this->mockGitLabProjectsTokens($projects);
-    $projects->update($this->gitLabProjectId, Argument::type('array'));
+    $parameters = [
+      'container_registry_access_level' => 'disabled',
+      'description' => 'Source repository for Acquia Cloud Platform application <comment>a47ac10b-58cc-4372-a567-0e02b2c3d470</comment>',
+      'topics' => 'Acquia Cloud Application',
+    ];
+    $projects->update($this->gitLabProjectId, $parameters);
     $this->mockGitLabVariables($this->gitLabProjectId, $projects);
     $schedules = $this->prophet->prophesize(Schedules::class);
     $schedules->showAll($this->gitLabProjectId)->willReturn([]);
     $pipeline = ['id' => 1];
-    $schedules->create($this->gitLabProjectId, Argument::type('array'))->willReturn($pipeline);
-    $schedules->addVariable($this->gitLabProjectId, $pipeline['id'], Argument::type('array'));
+    $parameters = [
+      # Every Thursday at midnight.
+      'cron' => '0 0 * * 4',
+      'description' => 'Code Studio Automatic Updates',
+      'ref' => 'master',
+    ];
+    $schedules->create($this->gitLabProjectId, $parameters)->willReturn($pipeline);
+    $schedules->addVariable($this->gitLabProjectId, $pipeline['id'], [
+      'key' => 'ACQUIA_JOBS_DEPRECATED_UPDATE',
+      'value' => 'true',
+    ]);
     $gitlabClient->schedules()->willReturn($schedules->reveal());
     $gitlabClient->projects()->willReturn($projects);
 
@@ -239,6 +255,7 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
     $this->executeCommand($args, $inputs);
 
     // Assertions.
+    //$this->prophet->checkPredictions();
     $this->assertEquals(0, $this->getStatusCode());
   }
 
