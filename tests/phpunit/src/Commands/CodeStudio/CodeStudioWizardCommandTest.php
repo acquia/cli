@@ -270,10 +270,7 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
   }
 
   protected function mockGitLabProjectsTokens(ObjectProphecy $projects): void {
-    $d = new \DateTime('tomorrow');
-    $formattedDate = $d->format('Y-m-d\TH:i:s\Z');
-    $format = "Y-m-d\TH:i:s\Z";
-    $dateTime = \DateTime::createFromFormat($format, $formattedDate);
+    $dateTime = new \DateTime('tomorrow');
     $tokens = [
       0 => [
           'access_level' => 40,

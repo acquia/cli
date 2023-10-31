@@ -161,10 +161,7 @@ class CodeStudioWizardCommand extends WizardCommandBase {
       $this->checklist->completePreviousItem();
     }
     $this->checklist->addItem("Creating access token named <comment>$projectAccessTokenName</comment>");
-    $d = new \DateTime('tomorrow');
-    $formattedDate = $d->format('Y-m-d\TH:i:s\Z');
-    $format = "Y-m-d\TH:i:s\Z";
-    $dateTime = \DateTime::createFromFormat($format, $formattedDate);
+    $dateTime = new \DateTime('tomorrow');
     $projectAccessToken = $this->gitLabClient->projects()
           ->createProjectAccessToken($project['id'], [
           'expires_at' => $dateTime,
