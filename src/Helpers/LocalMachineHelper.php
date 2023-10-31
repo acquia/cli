@@ -236,6 +236,18 @@ class LocalMachineHelper {
     return $home;
   }
 
+  public static function getConfigDir(): string {
+    $home = self::getHomeDir();
+    $legacyDir = Path::join($home, '.acquia');
+    if (file_exists($legacyDir)) {
+      return $legacyDir;
+    }
+    if ($xdgHome = getenv('XDG_CONFIG_HOME')) {
+      return Path::join($xdgHome, 'acquia');
+    }
+    return Path::join($home, '.config', 'acquia');
+  }
+
   /**
    * Get the project root directory for the working directory.
    *
