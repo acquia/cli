@@ -181,7 +181,7 @@ abstract class TestBase extends TestCase {
     $this->vfsRoot = vfsStream::setup();
     $this->projectDir = vfsStream::newDirectory('project')->at($this->vfsRoot)->url();
     $this->sshDir = vfsStream::newDirectory('ssh')->at($this->vfsRoot)->url();
-    $this->dataDir = vfsStream::newDirectory('data')->at($this->vfsRoot)->url();
+    $this->dataDir = vfsStream::newDirectory('.acquia')->at($this->vfsRoot)->url();
     $this->cloudConfigFilepath = Path::join($this->dataDir, 'cloud_api.conf');
     $this->acliConfigFilename = '.acquia-cli.yml';
     $this->acliConfigFilepath = Path::join($this->projectDir, $this->acliConfigFilename);

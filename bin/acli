@@ -60,6 +60,9 @@ $input = new ArgvInput();
 if (!getenv('HOME')) {
     putenv('HOME=' . LocalMachineHelper::getHomeDir());
 }
+if (!getenv('ACLI_HOME')) {
+  putenv('ACLI_HOME=' . LocalMachineHelper::getConfigDir());
+}
 $kernel = new Kernel('prod', false);
 
 // Handle a clear-kernel-cache pseudo command. This isn't implemented as a true console
