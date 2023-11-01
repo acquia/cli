@@ -10,6 +10,7 @@ use AcquiaCloudApi\Endpoints\Account;
 use PharData;
 use Psr\Http\Message\StreamInterface;
 use RecursiveIteratorIterator;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -19,15 +20,10 @@ use Symfony\Component\Filesystem\Path;
 /**
  * A command to proxy Drush commands on an environment using SSH.
  */
+#[AsCommand(name: 'remote:aliases:download')]
 class AliasesDownloadCommand extends SshCommand {
 
   private string $drushArchiveFilepath;
-
-  /**
-   * @var string
-   * @phpcsSuppress SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint
-   */
-  protected static $defaultName = 'remote:aliases:download';
 
   protected function configure(): void {
     $this->setDescription('Download Drush aliases for the Cloud Platform')

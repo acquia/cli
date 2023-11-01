@@ -7,19 +7,15 @@ namespace Acquia\Cli\Command\App;
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Path;
 
+#[AsCommand(name: 'app:new:local')]
 class NewCommand extends CommandBase {
-
-  /**
-   * @var string
-   * @phpcsSuppress SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint
-   */
-  protected static $defaultName = 'app:new:local';
 
   protected function configure(): void {
     $this->setDescription('Create a new Drupal or Next.js project')

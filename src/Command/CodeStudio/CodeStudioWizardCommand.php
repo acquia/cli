@@ -9,20 +9,16 @@ use Acquia\Cli\Output\Checklist;
 use AcquiaCloudApi\Endpoints\Account;
 use DateTime;
 use Gitlab\Exception\ValidationFailedException;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
+#[AsCommand(name: 'codestudio:wizard')]
 class CodeStudioWizardCommand extends WizardCommandBase {
 
   use CodeStudioCommandTrait;
-
-  /**
-   * @var string
-   * @phpcsSuppress SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint
-   */
-  protected static $defaultName = 'codestudio:wizard';
 
   private Checklist $checklist;
 

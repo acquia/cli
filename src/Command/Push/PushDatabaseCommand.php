@@ -9,17 +9,13 @@ use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Output\Checklist;
 use AcquiaCloudApi\Response\DatabaseResponse;
 use AcquiaCloudApi\Response\EnvironmentResponse;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+#[AsCommand(name: 'push:database')]
 class PushDatabaseCommand extends PullCommandBase {
-
-  /**
-   * @var string
-   * @phpcsSuppress SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint
-   */
-  protected static $defaultName = 'push:database';
 
   protected function commandRequiresDatabase(): bool {
     return TRUE;
