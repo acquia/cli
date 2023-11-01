@@ -6,19 +6,15 @@ namespace Acquia\Cli\Command\Ide;
 
 use Acquia\Cli\Helpers\SshCommandTrait;
 use AcquiaCloudApi\Endpoints\Ides;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+#[AsCommand(name: 'ide:delete')]
 class IdeDeleteCommand extends IdeCommandBase {
 
   use SshCommandTrait;
-
-  /**
-   * @var string
-   * @phpcsSuppress SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint
-   */
-  protected static $defaultName = 'ide:delete';
 
   protected function configure(): void {
     $this->setDescription('Delete a Cloud IDE');

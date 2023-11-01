@@ -9,6 +9,7 @@ use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Exception\ApiErrorException;
 use Closure;
 use GuzzleHttp\Psr7\Utils;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -20,13 +21,8 @@ use Symfony\Component\Validator\Constraints\Type;
 use Symfony\Component\Validator\Exception\ValidatorException;
 use Symfony\Component\Validator\Validation;
 
+#[AsCommand(name: 'api:base')]
 class ApiBaseCommand extends CommandBase {
-
-  /**
-   * @var string
-   * @phpcsSuppress SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint
-   */
-  protected static $defaultName = 'api:base';
 
   protected string $method;
 
@@ -58,7 +54,7 @@ class ApiBaseCommand extends CommandBase {
   private array $pathParams = [];
 
   protected function configure(): void {
-    $this->setHidden(TRUE);
+    $this->setHidden();
     parent::configure();
   }
 

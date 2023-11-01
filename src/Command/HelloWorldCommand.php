@@ -18,7 +18,7 @@ class HelloWorldCommand extends CommandBase {
 
   protected function configure(): void {
     $this->setDescription('Test command used for asserting core functionality')
-      ->setHidden(TRUE);
+      ->setHidden();
   }
 
   protected function execute(InputInterface $input, OutputInterface $output): int {

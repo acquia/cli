@@ -4,13 +4,11 @@ declare(strict_types = 1);
 
 namespace Acquia\Cli\Command\Acsf;
 
+use Symfony\Component\Console\Attribute\AsCommand;
+
+#[AsCommand(name: 'acsf:list')]
 class AcsfListCommand extends AcsfListCommandBase {
 
-  /**
-   * @var string
-   * @phpcsSuppress SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint
-   */
-  protected static $defaultName = 'acsf:list';
   protected string $namespace = 'acsf';
 
   protected function configure(): void {

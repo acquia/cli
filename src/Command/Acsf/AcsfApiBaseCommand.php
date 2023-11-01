@@ -6,14 +6,11 @@ namespace Acquia\Cli\Command\Acsf;
 
 use Acquia\Cli\Command\Api\ApiBaseCommand;
 use Acquia\Cli\Exception\AcquiaCliException;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Input\InputInterface;
 
+#[AsCommand(name: 'acsf:base')]
 class AcsfApiBaseCommand extends ApiBaseCommand {
-  /**
-   * @var string
-   * @phpcsSuppress SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint
-   */
-  protected static $defaultName = 'acsf:base';
 
   protected function checkAuthentication(): void {
     if ($this->commandRequiresAuthentication() && !$this->cloudApiClientService->isMachineAuthenticated()) {
