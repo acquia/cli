@@ -32,6 +32,22 @@ jobs:
           JIRA_BASE_URL: ${{ vars.JIRA_BASE_URL }}
           JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
           JIRA_USER_EMAIL: ${{ secrets.JIRA_USER_EMAIL }}
+      - name: Create fix version
+        run: |
+          curl --request POST \
+          --url '$JIRA_BASE_URL/rest/api/2/version' \
+          --user '$JIRA_USER_EMAIL:$JIRA_API_TOKEN' \
+          --header 'Accept: application/json' \
+          --header 'Content-Type: application/json' \
+          --data '{
+          "name": "$FIX_VERSION",
+          "projectId": 20084
+          }'
+        env:
+          JIRA_BASE_URL: ${{ vars.JIRA_BASE_URL }}
+          JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
+          JIRA_USER_EMAIL: ${{ secrets.JIRA_USER_EMAIL }}
+          FIX_VERSION: Acquia CLI ${{ github.event.release.name }}
       - name: Create CCB ticket in Jira
         id: create
         uses: atlassian/gajira-create@v3
