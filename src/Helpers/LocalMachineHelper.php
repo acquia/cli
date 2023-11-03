@@ -129,7 +129,7 @@ class LocalMachineHelper {
       };
     }
     if ($process->getInput()) {
-      $this->runAsync($process);
+      $this->runAsync($process, $callback);
     }
     else {
       $process->run($callback);
@@ -146,8 +146,8 @@ class LocalMachineHelper {
   /**
    * Run the $process asynchronously as a workaround for https://github.com/symfony/symfony/issues/21580.
    */
-  private function runAsync(Process $process): void {
-    $process->start();
+  private function runAsync(Process $process, callable $callback): void {
+    $process->start($callback);
 
     // Ignore "Write of <n> bytes failed with errno=32 Broken pipe" errors.
     set_error_handler(static fn () => NULL);
