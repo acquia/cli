@@ -8,18 +8,14 @@ use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Exception\AcquiaCliException;
 use AcquiaCloudApi\Endpoints\Code;
 use AcquiaCloudApi\Endpoints\Environments;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
+#[AsCommand(name: 'app:vcs:info')]
 class AppVcsInfo extends CommandBase {
-
-  /**
-   * @var string
-   * @phpcsSuppress SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint
-   */
-  protected static $defaultName = 'app:vcs:info';
 
   protected function configure(): void {
     $this->setDescription('Get all branches and tags of the application with the deployment status')

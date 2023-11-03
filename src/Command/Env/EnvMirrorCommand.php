@@ -11,18 +11,14 @@ use AcquiaCloudApi\Endpoints\Databases;
 use AcquiaCloudApi\Endpoints\Environments;
 use AcquiaCloudApi\Response\EnvironmentResponse;
 use AcquiaCloudApi\Response\OperationResponse;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+#[AsCommand(name: 'env:mirror')]
 class EnvMirrorCommand extends CommandBase {
-
-  /**
-   * @var string
-   * @phpcsSuppress SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint
-   */
-  protected static $defaultName = 'env:mirror';
 
   private Checklist $checklist;
 

@@ -8,17 +8,13 @@ use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Exception\AcquiaCliException;
 use AcquiaCloudApi\Endpoints\Environments;
 use AcquiaCloudApi\Response\EnvironmentResponse;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+#[AsCommand(name: 'env:delete')]
 class EnvDeleteCommand extends CommandBase {
-
-  /**
-   * @var string
-   * @phpcsSuppress SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint
-   */
-  protected static $defaultName = 'env:delete';
 
   protected function configure(): void {
     $this->setDescription('Delete a Continuous Delivery Environment (CDE)');

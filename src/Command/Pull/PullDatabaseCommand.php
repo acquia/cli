@@ -4,18 +4,14 @@ declare(strict_types = 1);
 
 namespace Acquia\Cli\Command\Pull;
 
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
+#[AsCommand(name: 'pull:database')]
 class PullDatabaseCommand extends PullCommandBase {
-
-  /**
-   * @var string
-   * @phpcsSuppress SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint
-   */
-  protected static $defaultName = 'pull:database';
 
   protected function commandRequiresDatabase(): bool {
     return TRUE;

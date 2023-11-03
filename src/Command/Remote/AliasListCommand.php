@@ -7,18 +7,14 @@ namespace Acquia\Cli\Command\Remote;
 use Acquia\Cli\Command\CommandBase;
 use AcquiaCloudApi\Endpoints\Applications;
 use AcquiaCloudApi\Endpoints\Environments;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+#[AsCommand(name: 'remote:aliases:list')]
 class AliasListCommand extends CommandBase {
-
-  /**
-   * @var string
-   * @phpcsSuppress SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint
-   */
-  protected static $defaultName = 'remote:aliases:list';
 
   protected function configure(): void {
     $this->setDescription('List all aliases for the Cloud Platform environments')

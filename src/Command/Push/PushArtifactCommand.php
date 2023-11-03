@@ -8,6 +8,7 @@ use Acquia\Cli\Command\Pull\PullCommandBase;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Output\Checklist;
 use Closure;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -15,13 +16,8 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Path;
 
+#[AsCommand(name: 'push:artifact')]
 class PushArtifactCommand extends PullCommandBase {
-
-  /**
-   * @var string
-   * @phpcsSuppress SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint
-   */
-  protected static $defaultName = 'push:artifact';
 
   /**
    * Composer vendor directories.

@@ -13,6 +13,7 @@ use AcquiaCloudApi\Exception\ApiErrorException;
 use AcquiaCloudApi\Response\SubscriptionResponse;
 use Closure;
 use LTDBeget\dns\configurator\Zone;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -24,13 +25,8 @@ use Symfony\Component\Validator\Exception\ValidatorException;
 use Symfony\Component\Validator\Validation;
 use Symfony\Component\Yaml\Yaml;
 
+#[AsCommand(name: 'email:configure')]
 class ConfigurePlatformEmailCommand extends CommandBase {
-
-  /**
-   * @var string
-   * @phpcsSuppress SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint
-   */
-  protected static $defaultName = 'email:configure';
 
   protected function configure(): void {
     $this->setDescription('Configure Platform email for one or more applications')

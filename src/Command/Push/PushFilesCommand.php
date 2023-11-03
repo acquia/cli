@@ -7,17 +7,13 @@ namespace Acquia\Cli\Command\Push;
 use Acquia\Cli\Command\Pull\PullCommandBase;
 use Acquia\Cli\Output\Checklist;
 use AcquiaCloudApi\Response\EnvironmentResponse;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+#[AsCommand(name: 'push:files')]
 class PushFilesCommand extends PullCommandBase {
-
-  /**
-   * @var string
-   * @phpcsSuppress SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint
-   */
-  protected static $defaultName = 'push:files';
 
   protected function configure(): void {
     $this->setDescription('Copy Drupal public files from your local environment to a Cloud Platform environment')
