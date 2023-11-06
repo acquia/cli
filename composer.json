@@ -34,7 +34,7 @@
         "react/event-loop": "^1.1",
         "symfony/cache": "^6.3",
         "symfony/config": "^6.3",
-        "symfony/console": "6.3.4",
+        "symfony/console": "6.3.2",
         "symfony/dependency-injection": "^6.3",
         "symfony/dotenv": "^6.3",
         "symfony/event-dispatcher": "^6.3",
