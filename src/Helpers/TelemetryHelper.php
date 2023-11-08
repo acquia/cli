@@ -11,6 +11,7 @@ use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
 use AcquiaCloudApi\Endpoints\Account;
 use Bugsnag\Client;
 use Bugsnag\Handler;
+use Bugsnag\Report;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use loophp\phposinfo\OsInfo;
 use Symfony\Component\Filesystem\Path;
@@ -45,15 +46,19 @@ class TelemetryHelper {
     $bugsnag = Client::make($this->bugSnagKey);
     $bugsnag->setAppVersion($this->application->getVersion());
     $bugsnag->setProjectRoot(Path::join(__DIR__, '..'));
-    $bugsnag->registerCallback(function (mixed $report): void {
+    $bugsnag->registerCallback(function (Report $report): bool {
+      // Exclude reports from app:from, which bootstraps Drupal.
+      // We aren't responsible for Drupal application errors.
+      if (str_starts_with($report->getContext(), 'GET')) {
+        return FALSE;
+      }
+      // Set user info.
       $userId = $this->getUserId();
       if (isset($userId)) {
         $report->setUser([
           'id' => $userId,
         ]);
       }
-    });
-    $bugsnag->registerCallback(function (mixed $report): void {
       $context = $report->getContext();
       // Strip working directory and binary from context.
       if (str_contains($context, 'acli ')) {
@@ -64,6 +69,7 @@ class TelemetryHelper {
         $context = substr($context, 0, strpos($context, "--password") + 10) . 'REDACTED';
       }
       $report->setContext($context);
+      return TRUE;
     });
     Handler::register($bugsnag);
   }
