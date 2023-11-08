@@ -2,11 +2,11 @@ name: Auto-merge dependency updates
 on:
   workflow_run:
     types:
-      - "completed"
+      - 'completed'
     workflows:
-      - "CI"
+      - 'CI'
     branches:
-      - "dependabot/**"
+      - 'dependabot/**'
 permissions:
   contents: write
   pull-requests: write

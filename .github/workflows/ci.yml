@@ -6,7 +6,7 @@ on:
       - 'dependabot/**'
   pull_request:
   schedule:
-    - cron: "0 2 * * *"
+    - cron: '0 2 * * *'
   release:
     types: [published]
 defaults:
@@ -27,17 +27,17 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: ["ubuntu-22.04"]
-        php: ["8.1", "8.2", "8.3"]
-        coverage: ["none"]
+        os: ['ubuntu-22.04']
+        php: ['8.1', '8.2', '8.3']
+        coverage: ['none']
         include:
-          - os: "ubuntu-22.04"
-            php: "8.2"
-            coverage: "pcov"
+          - os: 'ubuntu-22.04'
+            php: '8.2'
+            coverage: 'pcov'
           # Only test pre-installed (i.e. fast) versions of PHP on Windows.
-          - os: "windows-2022"
-            php: "8.2"
-            coverage: "none"
+          - os: 'windows-2022'
+            php: '8.2'
+            coverage: 'none'
     steps:
       - name: Prepare Git
         # Windows corrupts line endings on checkout, causing test failures.

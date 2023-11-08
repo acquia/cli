@@ -6,10 +6,10 @@ on:
       - main
   workflow_run:
     types:
-      - "completed"
+      - 'completed'
     workflows:
-      - "Auto-label pull requests"
-      - "Auto-merge dependency updates"
+      - 'Auto-label pull requests'
+      - 'Auto-merge dependency updates'
 
 jobs:
   update_release_draft:

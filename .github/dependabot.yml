@@ -1,11 +1,11 @@
 version: 2
 updates:
-  - package-ecosystem: "composer"
-    directory: "/"
+  - package-ecosystem: 'composer'
+    directory: '/'
     versioning-strategy: lockfile-only
     schedule:
-      interval: "weekly"
+      interval: 'weekly'
     groups:
       dependencies:
         patterns:
-          - "*"
+          - '*'
