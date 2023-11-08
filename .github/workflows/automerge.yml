@@ -5,6 +5,8 @@ on:
       - "completed"
     workflows:
       - "CI"
+    branches:
+      - "dependabot/**"
 permissions:
   contents: write
   pull-requests: write
