@@ -216,7 +216,8 @@ class PushArtifactCommand extends PullCommandBase {
       ->ignoreVCSIgnored(TRUE);
     $targetFinder = $this->localMachineHelper->getFinder();
     $targetFinder->in($artifactDir)->ignoreDotFiles(FALSE);
-    $this->localMachineHelper->getFilesystem()->mirror($this->dir, $artifactDir, $originFinder, ['override' => TRUE, 'delete' => TRUE], $targetFinder);
+    $this->localMachineHelper->getFilesystem()->remove($targetFinder);
+    $this->localMachineHelper->getFilesystem()->mirror($this->dir, $artifactDir, $originFinder, ['override' => TRUE]);
 
     $this->localMachineHelper->checkRequiredBinariesExist(['composer']);
     $outputCallback('out', 'Installing Composer production dependencies');
