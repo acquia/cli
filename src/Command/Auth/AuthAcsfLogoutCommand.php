@@ -22,11 +22,11 @@ class AuthAcsfLogoutCommand extends CommandBase {
   }
 
   protected function execute(InputInterface $input, OutputInterface $output): int {
-    if (!$this->cloudApiClientService->isMachineAuthenticated()) {
-      $this->io->error(['You are not logged into any factories.']);
-      return 1;
-    }
     $factories = $this->datastoreCloud->get('acsf_factories');
+    if (empty($factories)) {
+      $this->io->error(['You are not logged into any factories.']);
+      return Command::FAILURE;
+    }
     foreach ($factories as $url => $factory) {
       $factories[$url]['url'] = $url;
     }

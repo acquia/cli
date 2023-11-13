@@ -47,7 +47,6 @@ services:
     parent: Acquia\Cli\Command\CommandBase
     exclude:
       - ../../src/Command/CommandBase.php
-      - ../../src/Command/Acsf/AcsfCommandBase.php
       - ../../src/Command/Acsf/AcsfListCommand.php
       - ../../src/Command/Acsf/AcsfListCommandBase.php
       - ../../src/Command/Acsf/AcsfApiBaseCommand.php
