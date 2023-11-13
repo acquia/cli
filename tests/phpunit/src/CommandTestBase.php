@@ -4,7 +4,6 @@ declare(strict_types = 1);
 
 namespace Acquia\Cli\Tests;
 
-use Acquia\Cli\Command\Acsf\AcsfCommandBase;
 use Acquia\Cli\Command\Api\ApiBaseCommand;
 use Acquia\Cli\Command\Api\ApiCommandFactory;
 use Acquia\Cli\Command\Api\ApiCommandHelper;
@@ -476,7 +475,7 @@ abstract class CommandTestBase extends TestBase {
     return $apiCommandHelper->getApiCommands($this->apiSpecFixtureFilePath, $this->apiCommandPrefix, $commandFactory);
   }
 
-  protected function getApiCommandByName(string $name): ApiBaseCommand|AcsfCommandBase|null {
+  protected function getApiCommandByName(string $name): ApiBaseCommand|null {
     $apiCommands = $this->getApiCommands();
     foreach ($apiCommands as $apiCommand) {
       if ($apiCommand->getName() === $name) {

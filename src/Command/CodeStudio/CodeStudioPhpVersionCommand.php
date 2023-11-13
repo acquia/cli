@@ -6,19 +6,15 @@ namespace Acquia\Cli\Command\CodeStudio;
 
 use Acquia\Cli\Command\CommandBase;
 use Gitlab\Exception\RuntimeException;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+#[AsCommand(name: 'codestudio:php-version')]
 class CodeStudioPhpVersionCommand extends CommandBase {
 
   use CodeStudioCommandTrait;
-
-  /**
-   * @var string
-   * @phpcsSuppress SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint
-   */
-  protected static $defaultName = 'codestudio:php-version';
 
   protected function configure(): void {
     $this->setDescription('Change the PHP version in Code Studio')

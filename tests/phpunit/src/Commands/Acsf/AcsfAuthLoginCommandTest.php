@@ -5,7 +5,7 @@ declare(strict_types = 1);
 namespace Acquia\Cli\Tests\Commands\Acsf;
 
 use Acquia\Cli\AcsfApi\AcsfCredentials;
-use Acquia\Cli\Command\Acsf\AcsfApiAuthLoginCommand;
+use Acquia\Cli\Command\Auth\AuthAcsfLoginCommand;
 use Acquia\Cli\Config\CloudDataConfig;
 use Acquia\Cli\DataStore\CloudDataStore;
 use Symfony\Component\Console\Command\Command;
@@ -17,7 +17,7 @@ class AcsfAuthLoginCommandTest extends AcsfCommandTestBase {
 
   protected function createCommand(): Command {
     $this->cloudCredentials = new AcsfCredentials($this->datastoreCloud);
-    return $this->injectCommand(AcsfApiAuthLoginCommand::class);
+    return $this->injectCommand(AuthAcsfLoginCommand::class);
   }
 
   /**

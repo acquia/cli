@@ -4,18 +4,14 @@ declare(strict_types = 1);
 
 namespace Acquia\Cli\Command\Ssh;
 
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
+#[AsCommand(name: 'ssh-key:create')]
 class SshKeyCreateCommand extends SshKeyCommandBase {
-
-  /**
-   * @var string
-   * @phpcsSuppress SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint
-   */
-  protected static $defaultName = 'ssh-key:create';
 
   protected function configure(): void {
     $this->setDescription('Create an SSH key on your local machine')

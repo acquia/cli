@@ -7,19 +7,15 @@ namespace Acquia\Cli\Command\Ide\Wizard;
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Helpers\SshCommandTrait;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+#[AsCommand(name: 'ide:wizard:ssh-key:delete')]
 class IdeWizardDeleteSshKeyCommand extends IdeWizardCommandBase {
 
   use SshCommandTrait;
-
-  /**
-   * @var string
-   * @phpcsSuppress SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint
-   */
-  protected static $defaultName = 'ide:wizard:ssh-key:delete';
 
   protected function configure(): void {
     $this->setDescription('Wizard to delete SSH key for IDE from Cloud')

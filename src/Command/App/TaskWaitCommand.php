@@ -5,18 +5,14 @@ declare(strict_types = 1);
 namespace Acquia\Cli\Command\App;
 
 use Acquia\Cli\Command\CommandBase;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+#[AsCommand(name: 'app:task-wait')]
 class TaskWaitCommand extends CommandBase {
-
-  /**
-   * @var string
-   * @phpcsSuppress SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint
-   */
-  protected static $defaultName = 'app:task-wait';
 
   protected function configure(): void {
     $this->setDescription('Wait for a task to complete')

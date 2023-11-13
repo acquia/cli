@@ -124,10 +124,10 @@ services:
   Acquia\Cli\Command\Acsf\AcsfListCommandBase:
     class: Acquia\Cli\Command\Acsf\AcsfListCommandBase
     factory: [ '@Acquia\Cli\Command\Acsf\AcsfCommandFactory', 'createListCommand' ]
-  Acquia\Cli\Command\Acsf\AcsfApiAuthLoginCommand:
+  Acquia\Cli\Command\Auth\AuthAcsfLoginCommand:
     arguments:
       Acquia\Cli\ApiCredentialsInterface: '@acsf.credentials'
-  Acquia\Cli\Command\Acsf\AcsfApiAuthLogoutCommand:
+  Acquia\Cli\Command\Auth\AuthAcsfLogoutCommand:
     arguments:
       Acquia\Cli\ApiCredentialsInterface: '@acsf.credentials'
 

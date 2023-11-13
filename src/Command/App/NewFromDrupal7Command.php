@@ -14,6 +14,7 @@ use Acquia\Cli\Command\App\From\SourceSite\ExtensionInterface;
 use Acquia\Cli\Command\App\From\SourceSite\SiteInspectorInterface;
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Exception\AcquiaCliException;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -21,6 +22,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Validator\Exception\ValidatorException;
 
+#[AsCommand(name: 'app:new:from:drupal7')]
 class NewFromDrupal7Command extends CommandBase {
 
   /**
@@ -38,12 +40,6 @@ class NewFromDrupal7Command extends CommandBase {
    * determined.
    */
   public const ERR_INDETERMINATE_SITE = 4;
-
-  /**
-   * @var string
-   * @phpcsSuppress SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint
-   */
-  protected static $defaultName = 'app:new:from:drupal7';
 
   protected function configure(): void {
     $this->setDescription('Generate a new Drupal 9+ project from a Drupal 7 application using the default Acquia Migrate Accelerate recommendations.')

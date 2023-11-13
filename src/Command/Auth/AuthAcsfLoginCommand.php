@@ -2,20 +2,17 @@
 
 declare(strict_types = 1);
 
-namespace Acquia\Cli\Command\Acsf;
+namespace Acquia\Cli\Command\Auth;
 
+use Acquia\Cli\Command\CommandBase;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class AcsfApiAuthLoginCommand extends AcsfCommandBase {
-
-  /**
-   * @var string
-   * @phpcsSuppress SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint
-   */
-  protected static $defaultName = 'auth:acsf-login';
+#[AsCommand(name: 'auth:acsf-login')]
+class AuthAcsfLoginCommand extends CommandBase {
 
   protected function configure(): void {
     $this->setDescription('Register your Site Factory API key and secret to use API functionality')

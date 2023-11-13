@@ -7,18 +7,14 @@ namespace Acquia\Cli\Command\Env;
 use Acquia\Cli\Command\CommandBase;
 use AcquiaCloudApi\Endpoints\Crons;
 use Exception;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+#[AsCommand(name: 'env:cron-copy')]
 class EnvCopyCronCommand extends CommandBase {
-
-  /**
-   * @var string
-   * @phpcsSuppress SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint
-   */
-  protected static $defaultName = 'env:cron-copy';
 
   protected function configure(): void {
     $this->setDescription('Copy all cron tasks from one Acquia Cloud Platform environment to another')
