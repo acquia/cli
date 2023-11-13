@@ -1327,7 +1327,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   }
 
   protected function determineApiKey(): string {
-    return $this->determineOption('key', FALSE, Closure::fromCallable([$this, 'validateApiKey']));
+    return $this->determineOption('key', FALSE, $this->validateApiKey(...));
   }
 
   private function validateApiKey(mixed $key): string {
@@ -1343,7 +1343,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   }
 
   protected function determineApiSecret(): string {
-    return $this->determineOption('secret', TRUE, Closure::fromCallable([$this, 'validateApiKey']));
+    return $this->determineOption('secret', TRUE, $this->validateApiKey(...));
   }
 
   /**

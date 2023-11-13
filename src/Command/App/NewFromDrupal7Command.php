@@ -43,7 +43,7 @@ class NewFromDrupal7Command extends CommandBase {
 
   protected function configure(): void {
     $this->setDescription('Generate a new Drupal 9+ project from a Drupal 7 application using the default Acquia Migrate Accelerate recommendations.')
-      ->addOption('drupal7-directory', 'source', InputOption::VALUE_OPTIONAL, 'The root of the Drupal 7 application.')
+      ->addOption('drupal7-directory', 'source', InputOption::VALUE_OPTIONAL, 'The root of the Drupal 7 application')
       ->addOption('drupal7-uri', 'uri', InputOption::VALUE_OPTIONAL, 'Only necessary in case of a multisite. If a single site, this will be computed automatically.')
       ->addOption('stored-analysis', 'analysis', InputOption::VALUE_OPTIONAL, 'As an alternative to drupal7-directory, it is possible to pass a stored analysis.')
       ->addOption('recommendations', 'recommendations', InputOption::VALUE_OPTIONAL, 'Overrides the default recommendations.')
@@ -66,15 +66,7 @@ class NewFromDrupal7Command extends CommandBase {
     }
 
     // First: Determine the Drupal 7 root.
-    if ($input->getOption('drupal7-directory') === NULL) {
-      $answer = $this->io->ask(
-        'What is the root of the Drupal 7 application you want to generate a new Drupal project for?',
-        NULL,
-        [Drupal7SiteInspector::class, 'validateDrupal7Root'],
-      );
-      $input->setOption('drupal7-directory', $answer);
-    }
-    $d7_root = $input->getOption('drupal7-directory');
+    $d7_root = $this->determineOption('drupal7-directory', FALSE, Drupal7SiteInspector::validateDrupal7Root(...), NULL, '.');
 
     // Second, determine which "sites" subdirectory is being assessed.
     $uri = Drupal7SiteInspector::getSiteUri($input, $d7_root);

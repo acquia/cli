@@ -11,7 +11,6 @@ use Acquia\Cli\Output\Spinner\Spinner;
 use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Endpoints\SshKeys;
 use AcquiaCloudApi\Response\IdeResponse;
-use Closure;
 use React\EventLoop\Loop;
 use RuntimeException;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -247,7 +246,7 @@ EOT
     return $this->determineOption(
       'filename',
       FALSE,
-      Closure::fromCallable([$this, 'validateFilename']),
+      $this->validateFilename(...),
       static function (mixed $value) {
         return $value ? trim($value) : '';},
       'id_rsa_acquia'
@@ -271,7 +270,7 @@ EOT
     return $this->determineOption(
       'password',
       TRUE,
-      Closure::fromCallable([$this, 'validatePassword']),
+      $this->validatePassword(...),
       static function (mixed $value) {
         return $value ? trim($value) : '';
       }
@@ -344,7 +343,7 @@ EOT
   }
 
   protected function determineSshKeyLabel(): string {
-    return $this->determineOption('label', FALSE, Closure::fromCallable([$this, 'validateSshKeyLabel']), Closure::fromCallable([$this, 'normalizeSshKeyLabel']));
+    return $this->determineOption('label', FALSE, $this->validateSshKeyLabel(...), $this->normalizeSshKeyLabel(...));
   }
 
   private function validateSshKeyLabel(mixed $label): mixed {
