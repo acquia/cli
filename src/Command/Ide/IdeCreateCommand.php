@@ -40,7 +40,7 @@ class IdeCreateCommand extends IdeCommandBase {
     $accountResource = new Account($acquiaCloudClient);
     $account = $accountResource->get();
     $default = "$account->first_name $account->last_name's IDE";
-    $ideLabel = $this->determineOption('label', FALSE, \Closure::fromCallable([$this, 'validateIdeLabel']), NULL, $default);
+    $ideLabel = $this->determineOption('label', FALSE, $this->validateIdeLabel(...), NULL, $default);
 
     // Create it.
     $checklist->addItem('Creating your Cloud IDE');
