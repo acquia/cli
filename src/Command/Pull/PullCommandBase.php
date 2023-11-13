@@ -331,7 +331,7 @@ abstract class PullCommandBase extends CommandBase {
     ];
     $process = $this->localMachineHelper->execute($command, $outputCallback, NULL, FALSE, NULL, ['MYSQL_PWD' => $dbPassword]);
     if (!$process->isSuccessful()) {
-      throw new AcquiaCliException('Unable to connect to local database using credentials mysql:://{user}:{password}@{host}/{database}. {message}', [
+      throw new AcquiaCliException('Unable to connect to local database using credentials mysql://{user}:{password}@{host}/{database}. {message}', [
         'database' => $dbName,
         'host' => $dbHost,
         'message' => $process->getErrorOutput(),
