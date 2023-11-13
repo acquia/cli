@@ -56,8 +56,13 @@ jobs:
           issuetype: Release
           summary: "${{ env.FIX_VERSION }}"
           description: "${{ env.JIRA_DESCRIPTION }}"
-          fields: '{"components": [{"id": "25474"}], "labels": ["ccb_std_017"], "customfield_10004": {"id": "15710"}, "fixVersions": [{"name": "${{ env.FIX_VERSION }}"}]}'
+          fields: '{"components": [{"id": "25474"}], "labels": ["ccb_std_017"], "customfield_10004": {"id": "15710"}, "fixVersions": [{"name": "${{ env.FIX_VERSION }}"}], "assignee": {"accountId": "dane.powell"}}'
         env:
           FIX_VERSION: Acquia CLI ${{ github.event.release.name }}
+      - name: Send for review
+        uses: atlassian/gajira-transition@v3
+        with:
+          issue: ${{ steps.create.outputs.issue }}
+          transition: In Review
       - name: Log created issue
         run: echo "Issue ${{ steps.create.outputs.issue }} was created"
