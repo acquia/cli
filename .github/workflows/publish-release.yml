@@ -1,0 +1,49 @@
+name: Publish release on CCB approval
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 * * * *'
+jobs:
+  publish-release:
+    runs-on: ubuntu-22.04
+    name: Publish release on CCB approval
+    permissions:
+      contents: write
+    steps:
+      - name: Get reviewed release
+        run: |
+          ISSUES=$(curl --request GET \
+          --url "$JIRA_BASE_URL/rest/api/3/search?jql=project%20%3D%20CLI%20AND%20issuetype%20%3D%20Release%20AND%20status%20%3D%20Reviewed" \
+          --user "$JIRA_USER_EMAIL:$JIRA_API_TOKEN" \
+          --header 'Accept: application/json')
+          echo "FIX_VERSION=$(printf '%s' $ISSUES | jq -r '.issues[0].fields.fixVersions[0].name' | sed 's/AcquiaCLI//')" >> $GITHUB_ENV
+          echo "ISSUE_KEY=$(printf '%s' $ISSUES | jq -r '.issues[0].key')" >> $GITHUB_ENV
+        env:
+          JIRA_BASE_URL: ${{ vars.JIRA_BASE_URL }}
+          JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
+          JIRA_USER_EMAIL: ${{ secrets.JIRA_USER_EMAIL }}
+      - name: Login to Jira
+        if: env.FIX_VERSION != '' && env.ISSUE_KEY != ''
+        uses: atlassian/gajira-login@v3
+        env:
+          JIRA_BASE_URL: ${{ vars.JIRA_BASE_URL }}
+          JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
+          JIRA_USER_EMAIL: ${{ secrets.JIRA_USER_EMAIL }}
+      - name: Start release
+        if: env.FIX_VERSION != '' && env.ISSUE_KEY != ''
+        uses: atlassian/gajira-transition@v3
+        with:
+          issue: ${{ env.ISSUE_KEY }}
+          transition: Start Release
+      - name: Publish release
+        if: env.FIX_VERSION != '' && env.ISSUE_KEY != ''
+        run: |
+          gh release edit $FIX_VERSION --prerelease=false --latest --repo acquia/cli
+        env:
+          GH_TOKEN: ${{ github.token }}
+      - name: Close release
+        if: env.FIX_VERSION != '' && env.ISSUE_KEY != ''
+        uses: atlassian/gajira-transition@v3
+        with:
+          issue: ${{ env.ISSUE_KEY }}
+          transition: Released
