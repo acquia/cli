@@ -56,7 +56,7 @@ jobs:
           issuetype: Release
           summary: "${{ env.FIX_VERSION }}"
           description: "${{ env.JIRA_DESCRIPTION }}"
-          fields: '{"components": [{"id": "25474"}], "labels": ["ccb_std_017"], "customfield_10004": {"id": "15710"}, "fixVersions": [{"name": "${{ env.FIX_VERSION }}"}], "assignee": {"accountId": "dane.powell"}}'
+          fields: '{"components": [{"id": "25474"}], "labels": ["ccb_std_017"], "customfield_10004": {"id": "15710"}, "fixVersions": [{"name": "${{ env.FIX_VERSION }}"}], "assignee": {"accountId": "557058:df0e42b9-d76b-4ce6-9bee-144003450bff"}}'
         env:
           FIX_VERSION: Acquia CLI ${{ github.event.release.name }}
       - name: Send for review
