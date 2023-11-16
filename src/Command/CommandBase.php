@@ -672,12 +672,18 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     return $applicationUuid;
   }
 
-  protected function doDetermineCloudApplication(): mixed {
+  protected function doDetermineCloudApplication(): ?string {
     $acquiaCloudClient = $this->cloudApiClientService->getClient();
 
     if ($this->input->hasArgument('applicationUuid') && $this->input->getArgument('applicationUuid')) {
       $cloudApplicationUuid = $this->input->getArgument('applicationUuid');
       return self::validateUuid($cloudApplicationUuid);
+    }
+
+    if ($this->input->hasArgument('environmentId') && $this->input->getArgument('environmentId')) {
+      $environmentId = $this->input->getArgument('environmentId');
+      $environment = $this->getCloudEnvironment($environmentId);
+      return $environment->application->uuid;
     }
 
     // Try local project info.
@@ -745,14 +751,14 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     return TRUE;
   }
 
-  protected function getCloudUuidFromDatastore(): mixed {
+  protected function getCloudUuidFromDatastore(): ?string {
     return $this->datastoreAcli->get('cloud_app_uuid');
   }
 
   private function promptLinkApplication(
-    ?ApplicationResponse $cloudApplication
+    ApplicationResponse $cloudApplication
     ): bool {
-    $answer = $this->io->confirm("Would you like to link the Cloud application <bg=cyan;options=bold>{$cloudApplication->name}</> to this repository?");
+    $answer = $this->io->confirm("Would you like to link the Cloud application <bg=cyan;options=bold>$cloudApplication->name</> to this repository?");
     if ($answer) {
       return $this->saveCloudUuidToDatastore($cloudApplication);
     }
@@ -778,10 +784,8 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * Get the Cloud Application UUID from a Cloud IDE's environmental variable.
    *
    * This command assumes it is being run inside a Cloud IDE.
-   *
-   * @return array<string>|false|string
    */
-  protected static function getThisCloudIdeCloudAppUuid(): bool|array|string {
+  protected static function getThisCloudIdeCloudAppUuid(): false|string {
     return getenv('ACQUIA_APPLICATION_UUID');
   }
 
