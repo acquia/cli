@@ -5,6 +5,7 @@ declare(strict_types = 1);
 namespace Acquia\Cli\Tests\Commands;
 
 use Acquia\Cli\Command\App\LinkCommand;
+use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Tests\CommandTestBase;
 use Symfony\Component\Console\Command\Command;
 
@@ -20,13 +21,8 @@ class InferApplicationTest extends CommandTestBase {
     return $this->injectCommand(LinkCommand::class);
   }
 
-  public function setUp(mixed $output = NULL): void {
-    parent::setUp();
-    $this->createMockGitConfigFile();
-  }
-
   public function testInfer(): void {
-
+    $this->createMockGitConfigFile();
     $applicationsResponse = $this->mockApplicationsRequest();
     $this->mockApplicationRequest();
     $environmentResponse = $this->getMockEnvironmentResponse();
@@ -56,6 +52,7 @@ class InferApplicationTest extends CommandTestBase {
   }
 
   public function testInferFailure(): void {
+    $this->createMockGitConfigFile();
     $applicationsResponse = $this->mockApplicationsRequest();
     $this->mockApplicationRequest();
 
@@ -85,6 +82,13 @@ class InferApplicationTest extends CommandTestBase {
     $this->assertStringContainsString('Searching for a matching Cloud application...', $output);
     $this->assertStringContainsString('Could not find a matching Cloud application.', $output);
     $this->assertStringContainsString('The Cloud application Sample application 1 has been linked', $output);
+  }
+
+  public function testInferInvalidGitConfig(): void {
+    $this->expectException(AcquiaCliException::class);
+    $this->executeCommand([], [
+      'y',
+    ]);
   }
 
 }

@@ -36,7 +36,7 @@ class SshKeyUploadCommandTest extends CommandTestBase {
           // Would you like to wait until Cloud Platform is ready? (yes/no)
           'y',
           // Would you like Acquia CLI to search for a Cloud application that matches your local git config? (yes/no)
-          'y',
+          'n',
         ],
         // Perms.
         TRUE,
@@ -52,7 +52,7 @@ class SshKeyUploadCommandTest extends CommandTestBase {
           // Would you like to wait until Cloud Platform is ready? (yes/no)
           'y',
           // Would you like Acquia CLI to search for a Cloud application that matches your local git config? (yes/no)
-          'y',
+          'n',
         ],
         // Perms.
         FALSE,
@@ -63,7 +63,7 @@ class SshKeyUploadCommandTest extends CommandTestBase {
   /**
    * @dataProvider providerTestUpload
    */
-  public function testUpload(mixed $args, mixed $inputs, mixed $perms): void {
+  public function testUpload(array $args, array $inputs, bool $perms): void {
     $sshKeysRequestBody = $this->getMockRequestBodyFromSpec('/account/ssh-keys');
     $body = [
       'json' => [

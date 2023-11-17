@@ -48,6 +48,7 @@ use loophp\phposinfo\OsInfo;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\LoggerInterface;
+use Safe\Exceptions\FilesystemException;
 use stdClass;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\Console\Command\Command;
@@ -454,16 +455,12 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   /**
    * Load configuration from .git/config.
    *
-   * @return string[][]|null
+   * @return string[][]
    *   A multidimensional array keyed by file section.
    */
-  private function getGitConfig(): ?array {
+  private function getGitConfig(): array {
     $filePath = $this->projectDir . '/.git/config';
-    if (file_exists($filePath)) {
-      return parse_ini_file($filePath, TRUE);
-    }
-
-    return NULL;
+    return @\Safe\parse_ini_file($filePath, TRUE);
   }
 
   /**
@@ -574,7 +571,8 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
       $answer = $this->io->confirm('Would you like Acquia CLI to search for a Cloud application that matches your local git config?');
       if ($answer) {
         $this->output->writeln('Searching for a matching Cloud application...');
-        if ($gitConfig = $this->getGitConfig()) {
+        try {
+          $gitConfig = $this->getGitConfig();
           $localGitRemotes = $this->getGitRemotes($gitConfig);
           if ($cloudApplication = $this->findCloudApplicationByGitUrl($acquiaCloudClient,
             $localGitRemotes)) {
@@ -584,6 +582,9 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
 
           $this->output->writeln('<comment>Could not find a matching Cloud application.</comment>');
           return NULL;
+        }
+        catch (FilesystemException $e) {
+          throw new AcquiaCliException($e->getMessage());
         }
       }
     }
