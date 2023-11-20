@@ -1310,16 +1310,16 @@
         },
         {
             "name": "laminas/laminas-validator",
-            "version": "2.42.0",
+            "version": "2.43.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laminas/laminas-validator.git",
-                "reference": "a5221732b2ff6df59908bbf2eb274ed3688665bc"
+                "reference": "8f6c2f5753dec64df924a86d18036113f3140f2b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laminas/laminas-validator/zipball/a5221732b2ff6df59908bbf2eb274ed3688665bc",
-                "reference": "a5221732b2ff6df59908bbf2eb274ed3688665bc",
+                "url": "https://api.github.com/repos/laminas/laminas-validator/zipball/8f6c2f5753dec64df924a86d18036113f3140f2b",
+                "reference": "8f6c2f5753dec64df924a86d18036113f3140f2b",
                 "shasum": ""
             },
             "require": {
@@ -1390,7 +1390,7 @@
                     "type": "community_bridge"
                 }
             ],
-            "time": "2023-11-06T09:13:00+00:00"
+            "time": "2023-11-20T01:23:15+00:00"
         },
         {
             "name": "league/csv",
@@ -3491,24 +3491,24 @@
         },
         {
             "name": "react/promise",
-            "version": "v3.0.0",
+            "version": "v3.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/reactphp/promise.git",
-                "reference": "c86753c76fd3be465d93b308f18d189f01a22be4"
+                "reference": "e563d55d1641de1dea9f5e84f3cccc66d2bfe02c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/reactphp/promise/zipball/c86753c76fd3be465d93b308f18d189f01a22be4",
-                "reference": "c86753c76fd3be465d93b308f18d189f01a22be4",
+                "url": "https://api.github.com/repos/reactphp/promise/zipball/e563d55d1641de1dea9f5e84f3cccc66d2bfe02c",
+                "reference": "e563d55d1641de1dea9f5e84f3cccc66d2bfe02c",
                 "shasum": ""
             },
             "require": {
                 "php": ">=7.1.0"
             },
             "require-dev": {
-                "phpstan/phpstan": "1.10.20 || 1.4.10",
-                "phpunit/phpunit": "^9.5 || ^7.5"
+                "phpstan/phpstan": "1.10.39 || 1.4.10",
+                "phpunit/phpunit": "^9.6 || ^7.5"
             },
             "type": "library",
             "autoload": {
@@ -3552,7 +3552,7 @@
             ],
             "support": {
                 "issues": "https://github.com/reactphp/promise/issues",
-                "source": "https://github.com/reactphp/promise/tree/v3.0.0"
+                "source": "https://github.com/reactphp/promise/tree/v3.1.0"
             },
             "funding": [
                 {
@@ -3560,7 +3560,7 @@
                     "type": "open_collective"
                 }
             ],
-            "time": "2023-07-11T16:12:49+00:00"
+            "time": "2023-11-16T16:21:57+00:00"
         },
         {
             "name": "react/socket",
@@ -3818,16 +3818,16 @@
         },
         {
             "name": "symfony/cache-contracts",
-            "version": "v3.3.0",
+            "version": "v3.4.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/cache-contracts.git",
-                "reference": "ad945640ccc0ae6e208bcea7d7de4b39b569896b"
+                "reference": "1d74b127da04ffa87aa940abe15446fa89653778"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/cache-contracts/zipball/ad945640ccc0ae6e208bcea7d7de4b39b569896b",
-                "reference": "ad945640ccc0ae6e208bcea7d7de4b39b569896b",
+                "url": "https://api.github.com/repos/symfony/cache-contracts/zipball/1d74b127da04ffa87aa940abe15446fa89653778",
+                "reference": "1d74b127da04ffa87aa940abe15446fa89653778",
                 "shasum": ""
             },
             "require": {
@@ -3874,7 +3874,7 @@
                 "standards"
             ],
             "support": {
-                "source": "https://github.com/symfony/cache-contracts/tree/v3.3.0"
+                "source": "https://github.com/symfony/cache-contracts/tree/v3.4.0"
             },
             "funding": [
                 {
@@ -3890,7 +3890,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2023-05-23T14:45:45+00:00"
+            "time": "2023-09-25T12:52:38+00:00"
         },
         {
             "name": "symfony/config",
@@ -4140,7 +4140,7 @@
         },
         {
             "name": "symfony/deprecation-contracts",
-            "version": "v3.3.0",
+            "version": "v3.4.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/deprecation-contracts.git",
@@ -4187,7 +4187,7 @@
             "description": "A generic function and convention to trigger deprecation notices",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/deprecation-contracts/tree/v3.3.0"
+                "source": "https://github.com/symfony/deprecation-contracts/tree/v3.4.0"
             },
             "funding": [
                 {
@@ -5661,16 +5661,16 @@
         },
         {
             "name": "symfony/string",
-            "version": "v6.3.5",
+            "version": "v6.3.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/string.git",
-                "reference": "13d76d0fb049051ed12a04bef4f9de8715bea339"
+                "reference": "13880a87790c76ef994c91e87efb96134522577a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/string/zipball/13d76d0fb049051ed12a04bef4f9de8715bea339",
-                "reference": "13d76d0fb049051ed12a04bef4f9de8715bea339",
+                "url": "https://api.github.com/repos/symfony/string/zipball/13880a87790c76ef994c91e87efb96134522577a",
+                "reference": "13880a87790c76ef994c91e87efb96134522577a",
                 "shasum": ""
             },
             "require": {
@@ -5727,7 +5727,7 @@
                 "utf8"
             ],
             "support": {
-                "source": "https://github.com/symfony/string/tree/v6.3.5"
+                "source": "https://github.com/symfony/string/tree/v6.3.8"
             },
             "funding": [
                 {
@@ -5743,7 +5743,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2023-09-18T10:38:32+00:00"
+            "time": "2023-11-09T08:28:21+00:00"
         },
         {
             "name": "symfony/translation-contracts",
@@ -7985,16 +7985,16 @@
         },
         {
             "name": "composer/spdx-licenses",
-            "version": "1.5.7",
+            "version": "1.5.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/composer/spdx-licenses.git",
-                "reference": "c848241796da2abf65837d51dce1fae55a960149"
+                "reference": "560bdcf8deb88ae5d611c80a2de8ea9d0358cc0a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/composer/spdx-licenses/zipball/c848241796da2abf65837d51dce1fae55a960149",
-                "reference": "c848241796da2abf65837d51dce1fae55a960149",
+                "url": "https://api.github.com/repos/composer/spdx-licenses/zipball/560bdcf8deb88ae5d611c80a2de8ea9d0358cc0a",
+                "reference": "560bdcf8deb88ae5d611c80a2de8ea9d0358cc0a",
                 "shasum": ""
             },
             "require": {
@@ -8043,9 +8043,9 @@
                 "validator"
             ],
             "support": {
-                "irc": "irc://irc.freenode.org/composer",
+                "irc": "ircs://irc.libera.chat:6697/composer",
                 "issues": "https://github.com/composer/spdx-licenses/issues",
-                "source": "https://github.com/composer/spdx-licenses/tree/1.5.7"
+                "source": "https://github.com/composer/spdx-licenses/tree/1.5.8"
             },
             "funding": [
                 {
@@ -8061,7 +8061,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2022-05-23T07:37:50+00:00"
+            "time": "2023-11-20T07:44:33+00:00"
         },
         {
             "name": "composer/xdebug-handler",
@@ -8456,16 +8456,16 @@
         },
         {
             "name": "dominikb/composer-license-checker",
-            "version": "2.4.3",
+            "version": "2.5.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/dominikb/composer-license-checker.git",
-                "reference": "94a397b184653e5833069fdad3edca2679c9b641"
+                "reference": "02bb3c4942ff38ad213d2f85263aa195798721a4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/dominikb/composer-license-checker/zipball/94a397b184653e5833069fdad3edca2679c9b641",
-                "reference": "94a397b184653e5833069fdad3edca2679c9b641",
+                "url": "https://api.github.com/repos/dominikb/composer-license-checker/zipball/02bb3c4942ff38ad213d2f85263aa195798721a4",
+                "reference": "02bb3c4942ff38ad213d2f85263aa195798721a4",
                 "shasum": ""
             },
             "require": {
@@ -8473,14 +8473,14 @@
                 "guzzlehttp/guzzle": "^6.3|^7.2",
                 "php": "^7.3|^8.0",
                 "psr/simple-cache": "^1.0|^2.0|^3.0",
-                "symfony/cache": "^4.2.3|^5.2|^6.0",
-                "symfony/css-selector": "^4.2|^5.2|^6.0",
-                "symfony/dom-crawler": "^5.2|^6.0"
+                "symfony/cache": "^4.2.3|^5.2|^6.0|^7.0",
+                "symfony/css-selector": "^4.2|^5.2|^6.0|^7.0",
+                "symfony/dom-crawler": "^5.2|^6.0|^7.0"
             },
             "require-dev": {
                 "mockery/mockery": "^1.3.3",
                 "phpunit/phpunit": "^9.3",
-                "symfony/var-dumper": "^4.2|^5.2|^6.0"
+                "symfony/var-dumper": "^4.2|^5.2|^6.0|^7.0"
             },
             "bin": [
                 "composer-license-checker"
@@ -8513,9 +8513,9 @@
             ],
             "support": {
                 "issues": "https://github.com/dominikb/composer-license-checker/issues",
-                "source": "https://github.com/dominikb/composer-license-checker/tree/2.4.3"
+                "source": "https://github.com/dominikb/composer-license-checker/tree/2.5.0"
             },
-            "time": "2023-10-04T14:57:49+00:00"
+            "time": "2023-11-16T12:35:51+00:00"
         },
         {
             "name": "drupal/coder",
@@ -10664,16 +10664,16 @@
         },
         {
             "name": "phpstan/phpstan",
-            "version": "1.10.41",
+            "version": "1.10.43",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpstan/phpstan.git",
-                "reference": "c6174523c2a69231df55bdc65b61655e72876d76"
+                "reference": "2c4129f6ca8c7cfa870098884b8869b410a5a361"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/c6174523c2a69231df55bdc65b61655e72876d76",
-                "reference": "c6174523c2a69231df55bdc65b61655e72876d76",
+                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/2c4129f6ca8c7cfa870098884b8869b410a5a361",
+                "reference": "2c4129f6ca8c7cfa870098884b8869b410a5a361",
                 "shasum": ""
             },
             "require": {
@@ -10722,7 +10722,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2023-11-05T12:57:57+00:00"
+            "time": "2023-11-19T19:55:25+00:00"
         },
         {
             "name": "phpstan/phpstan-deprecation-rules",
