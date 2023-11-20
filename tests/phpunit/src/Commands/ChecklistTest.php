@@ -28,7 +28,7 @@ class ChecklistTest extends TestBase {
     $checklist->addItem('Testing!');
 
     // Make the spinner spin with some output.
-    $outputCallback = static function (mixed $type, mixed $buffer) use ($checklist): void {
+    $outputCallback = static function (string $type, string $buffer) use ($checklist): void {
       $checklist->updateProgressBar($buffer);
     };
     $this->localMachineHelper->execute(['echo', 'hello world'], $outputCallback, NULL, FALSE);
@@ -39,6 +39,11 @@ class ChecklistTest extends TestBase {
     /** @var \Symfony\Component\Console\Helper\ProgressBar $progressBar */
     $progressBar = $items[0]['spinner']->getProgressBar();
     $this->assertEquals('Testing!', $progressBar->getMessage());
+    $this->assertEquals('<info>✔</info>', $progressBar->getBarCharacter());
+    $this->assertEquals('[38;5;202m⢸[0m', $progressBar->getProgressCharacter());
+    $this->assertEquals('⌛', $progressBar->getEmptyBarCharacter());
+    $this->assertEquals(1, $progressBar->getBarWidth());
+    $this->assertEquals('', $progressBar->getMessage('detail'));
 
     putenv('PHPUNIT_RUNNING');
   }

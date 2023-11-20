@@ -52,7 +52,7 @@ class Checklist {
     return end($this->items);
   }
 
-  public function updateProgressBar(mixed $updateMessage): void {
+  public function updateProgressBar(string $updateMessage): void {
     $item = $this->getLastItem();
     if (!$item) {
       return;
