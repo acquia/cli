@@ -189,7 +189,7 @@ abstract class PullCommandBase extends CommandBase {
     string $localFilepath,
     Closure $outputCallback = NULL
   ): void {
-    $this->dropLocalDatabase($databaseHost, $databaseUser, $databaseName, $databasePassword, $outputCallback);
+    $this->dropDbTables($databaseHost, $databaseUser, $databaseName, $databasePassword, $outputCallback);
     $this->createLocalDatabase($databaseHost, $databaseUser, $databaseName, $databasePassword, $outputCallback);
     $this->importDatabaseDump($localFilepath, $databaseHost, $databaseUser, $databaseName, $databasePassword, $outputCallback);
     $this->localMachineHelper->getFilesystem()->remove($localFilepath);
@@ -341,9 +341,9 @@ abstract class PullCommandBase extends CommandBase {
     }
   }
 
-  private function dropLocalDatabase(string $dbHost, string $dbUser, string $dbName, string $dbPassword, ?\Closure $outputCallback = NULL): void {
+  private function dropDbTables(string $dbHost, string $dbUser, string $dbName, string $dbPassword, ?\Closure $outputCallback = NULL): void {
     if ($outputCallback) {
-      $outputCallback('out', "Dropping database $dbName");
+      $outputCallback('out', "Dropping tables from database $dbName");
     }
     $this->localMachineHelper->checkRequiredBinariesExist(['mysql']);
     $command = [
@@ -352,12 +352,30 @@ abstract class PullCommandBase extends CommandBase {
       $dbHost,
       '--user',
       $dbUser,
+      $dbName,
       '-e',
-      'DROP DATABASE IF EXISTS ' . $dbName,
+      'SHOW TABLES;',
+    ];
+    $process = $this->localMachineHelper->execute($command, $outputCallback, NULL, FALSE, NULL, ['MYSQL_PWD' => $dbPassword]);
+    $output = trim($process->getOutput());
+    $tables = explode(PHP_EOL, $output);
+    foreach ($tables as &$table) {
+      $table = "`$table`";
+    }
+    $sql = 'DROP TABLE ' . implode(', ', $tables);
+    $command = [
+      'mysql',
+      '--host',
+      $dbHost,
+      '--user',
+      $dbUser,
+      $dbName,
+      '-e',
+      $sql,
     ];
     $process = $this->localMachineHelper->execute($command, $outputCallback, NULL, FALSE, NULL, ['MYSQL_PWD' => $dbPassword]);
     if (!$process->isSuccessful()) {
-      throw new AcquiaCliException('Unable to drop a local database. {message}', ['message' => $process->getErrorOutput()]);
+      throw new AcquiaCliException('Unable to drop tables from database. {message}', ['message' => $process->getErrorOutput()]);
     }
   }
 
