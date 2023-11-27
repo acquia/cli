@@ -69,6 +69,15 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     ], $inputs);
   }
 
+  public function testPullDatabaseNoPv(): void {
+    $this->setupPullDatabase(TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, FALSE, 0, TRUE, FALSE);
+    $inputs = $this->getInputs();
+
+    $this->executeCommand(['--no-scripts' => TRUE], $inputs);
+    $output = $this->getDisplay();
+    $this->assertStringContainsString(' [WARNING] Install `pv` to see progress bar', $output);
+  }
+
   public function testPullMultipleDatabases(): void {
     $this->setupPullDatabase(TRUE, TRUE, TRUE, TRUE, TRUE, FALSE, TRUE, TRUE);
     $inputs = [
@@ -177,7 +186,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
   /**
    * @dataProvider providerTestPullDatabaseWithInvalidSslCertificate
    */
-  public function testPullDatabaseWithInvalidSslCertificate(mixed $errorCode): void {
+  public function testPullDatabaseWithInvalidSslCertificate(int $errorCode): void {
     $this->setupPullDatabase(TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, FALSE, $errorCode);
     $inputs = $this->getInputs();
 
@@ -187,7 +196,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     $this->assertStringContainsString('Trying alternative host other.example.com', $output);
   }
 
-  protected function setupPullDatabase(bool $mysqlConnectSuccessful, bool $mysqlDropSuccessful, bool $mysqlCreateSuccessful, bool $mysqlImportSuccessful, bool $mockIdeFs = FALSE, bool $onDemand = FALSE, bool $mockGetAcsfSites = TRUE, bool $multidb = FALSE, int $curlCode = 0, bool $existingBackups = TRUE): void {
+  protected function setupPullDatabase(bool $mysqlConnectSuccessful, bool $mysqlDropSuccessful, bool $mysqlCreateSuccessful, bool $mysqlImportSuccessful, bool $mockIdeFs = FALSE, bool $onDemand = FALSE, bool $mockGetAcsfSites = TRUE, bool $multidb = FALSE, int $curlCode = 0, bool $existingBackups = TRUE, bool $pvExists = TRUE): void {
     $applicationsResponse = $this->mockApplicationsRequest();
     $this->mockApplicationRequest();
     $environmentsResponse = $this->mockAcsfEnvironmentsRequest($applicationsResponse);
@@ -231,8 +240,10 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     // Database.
     $this->mockExecuteMySqlDropDb($localMachineHelper, $mysqlDropSuccessful);
     $this->mockExecuteMySqlCreateDb($localMachineHelper, $mysqlCreateSuccessful);
-    $this->mockExecuteMySqlImport($localMachineHelper, $mysqlImportSuccessful);
-
+    $this->mockExecuteMySqlImport($localMachineHelper, $mysqlImportSuccessful, $pvExists);
+    if ($multidb) {
+      $this->mockExecuteMySqlImport($localMachineHelper, $mysqlImportSuccessful, $pvExists, 'profserv2', 'profserv2dev', 'drupal');
+    }
     $this->command->localMachineHelper = $localMachineHelper->reveal();
     $this->command->sshHelper = $sshHelper->reveal();
   }
@@ -291,14 +302,20 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
 
   protected function mockExecuteMySqlImport(
     ObjectProphecy $localMachineHelper,
-    bool $success
+    bool $success,
+    bool $pvExists,
+    string $dbName = 'jxr5000596dev',
+    string $dbMachineName = 'db554675',
+    string $localDbName = 'jxr5000596dev'
   ): void {
     $localMachineHelper->checkRequiredBinariesExist(['gunzip', 'mysql'])->shouldBeCalled();
-    $this->mockExecutePvExists($localMachineHelper);
+    $this->mockExecutePvExists($localMachineHelper, $pvExists);
     $process = $this->mockProcess($success);
+    $tmpDir = sys_get_temp_dir();
+    $command = $pvExists ? "pv $tmpDir/dev-$dbName-$dbMachineName-2012-05-15T12:00:00Z.sql.gz --bytes --rate | gunzip | MYSQL_PWD=drupal mysql --host=localhost --user=drupal $localDbName" : "gunzip -c $tmpDir/dev-$dbName-$dbMachineName-2012-05-15T12:00:00Z.sql.gz | MYSQL_PWD=drupal mysql --host=localhost --user=drupal $localDbName";
     // MySQL import command.
     $localMachineHelper
-      ->executeFromCmd(Argument::type('string'), Argument::type('callable'),
+      ->executeFromCmd($command, Argument::type('callable'),
         NULL, TRUE, NULL)
       ->willReturn($process->reveal())
       ->shouldBeCalled();
