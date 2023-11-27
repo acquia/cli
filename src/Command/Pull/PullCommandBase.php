@@ -46,14 +46,36 @@ abstract class PullCommandBase extends CommandBase {
 
   private UriInterface $backupDownloadUrl;
 
+  /**
+   * @see https://github.com/drush-ops/drush/blob/c21a5a24a295cc0513bfdecead6f87f1a2cf91a2/src/Sql/SqlMysql.php#L168
+   * @return string[]
+   */
+  private function listTables(string $out): array {
+    $tables = [];
+    if ($out = trim($out)) {
+      $tables = explode(PHP_EOL, $out);
+    }
+    return $tables;
+  }
+
+  /**
+   * @see https://github.com/drush-ops/drush/blob/c21a5a24a295cc0513bfdecead6f87f1a2cf91a2/src/Sql/SqlMysql.php#L178
+   * @return string[]
+   */
+  private function listTablesQuoted(string $out): array {
+    $tables = $this->listTables($out);
+    foreach ($tables as &$table) {
+      $table = "`$table`";
+    }
+    return $tables;
+  }
+
   protected function getCloudFilesDir(EnvironmentResponse $chosenEnvironment, string $site): string {
     $sitegroup = self::getSiteGroupFromSshUrl($chosenEnvironment->sshUrl);
     if ($this->isAcsfEnv($chosenEnvironment)) {
       return '/mnt/files/' . $sitegroup . '.' . $chosenEnvironment->name . '/sites/g/files/' . $site . '/files';
     }
-    else {
-      return $this->getCloudSitesPath($chosenEnvironment, $sitegroup) . "/$site/files";
-    }
+    return $this->getCloudSitesPath($chosenEnvironment, $sitegroup) . "/$site/files";
   }
 
   protected function getLocalFilesDir(string $site): string {
@@ -190,7 +212,6 @@ abstract class PullCommandBase extends CommandBase {
     Closure $outputCallback = NULL
   ): void {
     $this->dropDbTables($databaseHost, $databaseUser, $databaseName, $databasePassword, $outputCallback);
-    $this->createLocalDatabase($databaseHost, $databaseUser, $databaseName, $databasePassword, $outputCallback);
     $this->importDatabaseDump($localFilepath, $databaseHost, $databaseUser, $databaseName, $databasePassword, $outputCallback);
     $this->localMachineHelper->getFilesystem()->remove($localFilepath);
   }
@@ -353,49 +374,28 @@ abstract class PullCommandBase extends CommandBase {
       '--user',
       $dbUser,
       $dbName,
+      '--silent',
       '-e',
       'SHOW TABLES;',
     ];
     $process = $this->localMachineHelper->execute($command, $outputCallback, NULL, FALSE, NULL, ['MYSQL_PWD' => $dbPassword]);
-    $output = trim($process->getOutput());
-    $tables = explode(PHP_EOL, $output);
-    foreach ($tables as &$table) {
-      $table = "`$table`";
-    }
-    $sql = 'DROP TABLE ' . implode(', ', $tables);
-    $command = [
-      'mysql',
-      '--host',
-      $dbHost,
-      '--user',
-      $dbUser,
-      $dbName,
-      '-e',
-      $sql,
-    ];
-    $process = $this->localMachineHelper->execute($command, $outputCallback, NULL, FALSE, NULL, ['MYSQL_PWD' => $dbPassword]);
-    if (!$process->isSuccessful()) {
-      throw new AcquiaCliException('Unable to drop tables from database. {message}', ['message' => $process->getErrorOutput()]);
-    }
-  }
-
-  private function createLocalDatabase(string $dbHost, string $dbUser, string $dbName, string $dbPassword, ?\Closure $outputCallback = NULL): void {
-    if ($outputCallback) {
-      $outputCallback('out', "Creating new empty database $dbName");
-    }
-    $this->localMachineHelper->checkRequiredBinariesExist(['mysql']);
-    $command = [
-      'mysql',
-      '--host',
-      $dbHost,
-      '--user',
-      $dbUser,
-      '-e',
-      'create database ' . $dbName,
-    ];
-    $process = $this->localMachineHelper->execute($command, $outputCallback, NULL, FALSE, NULL, ['MYSQL_PWD' => $dbPassword]);
-    if (!$process->isSuccessful()) {
-      throw new AcquiaCliException('Unable to create a local database. {message}', ['message' => $process->getErrorOutput()]);
+    $tables = $this->listTablesQuoted($process->getOutput());
+    if ($tables) {
+      $sql = 'DROP TABLE ' . implode(', ', $tables);
+      $command = [
+        'mysql',
+        '--host',
+        $dbHost,
+        '--user',
+        $dbUser,
+        $dbName,
+        '-e',
+        $sql,
+      ];
+      $process = $this->localMachineHelper->execute($command, $outputCallback, NULL, FALSE, NULL, ['MYSQL_PWD' => $dbPassword]);
+      if (!$process->isSuccessful()) {
+        throw new AcquiaCliException('Unable to drop tables from database. {message}', ['message' => $process->getErrorOutput()]);
+      }
     }
   }
 
