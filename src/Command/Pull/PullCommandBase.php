@@ -410,7 +410,7 @@ abstract class PullCommandBase extends CommandBase {
     }
     else {
       $this->io->warning('Install `pv` to see progress bar');
-      $command = "gunzip $localDumpFilepath | MYSQL_PWD=$dbPassword mysql --host=$dbHost --user=$dbUser $dbName";
+      $command = "gunzip -c $localDumpFilepath | MYSQL_PWD=$dbPassword mysql --host=$dbHost --user=$dbUser $dbName";
     }
 
     $process = $this->localMachineHelper->executeFromCmd($command, $outputCallback, NULL, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
