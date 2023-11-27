@@ -358,11 +358,12 @@ abstract class CommandTestBase extends TestBase {
   }
 
   protected function mockExecutePvExists(
-        ObjectProphecy $localMachineHelper
+        ObjectProphecy $localMachineHelper,
+        bool $pvExists = TRUE
     ): void {
     $localMachineHelper
             ->commandExists('pv')
-            ->willReturn(TRUE)
+            ->willReturn($pvExists)
             ->shouldBeCalled();
   }
 
