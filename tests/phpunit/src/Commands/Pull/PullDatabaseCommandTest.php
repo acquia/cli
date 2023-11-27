@@ -17,6 +17,7 @@ use Psr\Http\Message\StreamInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Filesystem\Path;
 
 /**
  * @property \Acquia\Cli\Command\Pull\PullDatabaseCommand $command
@@ -311,8 +312,8 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     $localMachineHelper->checkRequiredBinariesExist(['gunzip', 'mysql'])->shouldBeCalled();
     $this->mockExecutePvExists($localMachineHelper, $pvExists);
     $process = $this->mockProcess($success);
-    $tmpDir = sys_get_temp_dir();
-    $command = $pvExists ? "pv $tmpDir/dev-$dbName-$dbMachineName-2012-05-15T12:00:00Z.sql.gz --bytes --rate | gunzip | MYSQL_PWD=drupal mysql --host=localhost --user=drupal $localDbName" : "gunzip -c $tmpDir/dev-$dbName-$dbMachineName-2012-05-15T12:00:00Z.sql.gz | MYSQL_PWD=drupal mysql --host=localhost --user=drupal $localDbName";
+    $filePath = Path::join(sys_get_temp_dir(), "dev-$dbName-$dbMachineName-2012-05-15T12:00:00Z.sql.gz");
+    $command = $pvExists ? "pv $filePath --bytes --rate | gunzip | MYSQL_PWD=drupal mysql --host=localhost --user=drupal $localDbName" : "gunzip -c $filePath | MYSQL_PWD=drupal mysql --host=localhost --user=drupal $localDbName";
     // MySQL import command.
     $localMachineHelper
       ->executeFromCmd($command, Argument::type('callable'),
