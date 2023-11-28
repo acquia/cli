@@ -16,9 +16,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 #[AsCommand(name: 'ide:list:mine', description: 'List Cloud IDEs belonging to you')]
 class IdeListMineCommand extends IdeCommandBase {
 
-  protected function configure(): void {
-  }
-
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $acquiaCloudClient = $this->cloudApiClientService->getClient();
     $ides = new Ides($acquiaCloudClient);

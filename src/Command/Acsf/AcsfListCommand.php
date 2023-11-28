@@ -11,7 +11,4 @@ class AcsfListCommand extends AcsfListCommandBase {
 
   protected string $namespace = 'acsf';
 
-  protected function configure(): void {
-  }
-
 }

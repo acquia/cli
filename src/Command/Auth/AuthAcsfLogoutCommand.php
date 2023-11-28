@@ -13,9 +13,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 #[AsCommand(name: 'auth:acsf-logout', description: 'Remove your Site Factory key and secret from your local machine.')]
 class AuthAcsfLogoutCommand extends CommandBase {
 
-  protected function configure(): void {
-  }
-
   protected function commandRequiresAuthentication(): bool {
     return FALSE;
   }

@@ -11,7 +11,4 @@ class ApiListCommand extends ApiListCommandBase {
 
   protected string $namespace = 'api';
 
-  protected function configure(): void {
-  }
-
 }

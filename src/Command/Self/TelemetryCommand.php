@@ -18,9 +18,6 @@ class TelemetryCommand extends CommandBase {
     return FALSE;
   }
 
-  protected function configure(): void {
-  }
-
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $datastore = $this->datastoreCloud;
     if ($datastore->get(DataStoreContract::SEND_TELEMETRY)) {
