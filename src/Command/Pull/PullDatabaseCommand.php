@@ -4,23 +4,22 @@ declare(strict_types = 1);
 
 namespace Acquia\Cli\Command\Pull;
 
+use Acquia\Cli\Attribute\RequireAuth;
+use Acquia\Cli\Attribute\RequireDb;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-#[AsCommand(name: 'pull:database')]
-class PullDatabaseCommand extends PullCommandBase {
-
-  protected function commandRequiresDatabase(): bool {
-    return TRUE;
-  }
+#[RequireAuth]
+#[RequireDb]
+#[AsCommand(name: 'pull:database', description: 'Import database backup from a Cloud Platform environment', aliases: ['pull:db'])]
+final class PullDatabaseCommand extends PullCommandBase {
 
   protected function configure(): void {
-    $this->setDescription('Import database backup from a Cloud Platform environment')
+    $this
       ->setHelp('This uses the latest available database backup, which may be up to 24 hours old. If no backup exists, one will be created.')
-      ->setAliases(['pull:db'])
       ->acceptEnvironmentId()
       ->acceptSite()
       ->addOption('no-scripts', NULL, InputOption::VALUE_NONE,

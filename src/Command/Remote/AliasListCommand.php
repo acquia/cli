@@ -4,6 +4,7 @@ declare(strict_types = 1);
 
 namespace Acquia\Cli\Command\Remote;
 
+use Acquia\Cli\Attribute\RequireAuth;
 use Acquia\Cli\Command\CommandBase;
 use AcquiaCloudApi\Endpoints\Applications;
 use AcquiaCloudApi\Endpoints\Environments;
@@ -13,12 +14,11 @@ use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-#[AsCommand(name: 'remote:aliases:list')]
-class AliasListCommand extends CommandBase {
+#[RequireAuth]
+#[AsCommand(name: 'remote:aliases:list', description: 'List all aliases for the Cloud Platform environments', aliases: ['aliases', 'sa'])]
+final class AliasListCommand extends CommandBase {
 
   protected function configure(): void {
-    $this->setDescription('List all aliases for the Cloud Platform environments')
-      ->setAliases(['aliases', 'sa']);
     $this->acceptApplicationUuid();
   }
 

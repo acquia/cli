@@ -4,6 +4,7 @@ declare(strict_types = 1);
 
 namespace Acquia\Cli\Command\Ide;
 
+use Acquia\Cli\Attribute\RequireAuth;
 use AcquiaCloudApi\Endpoints\Applications;
 use AcquiaCloudApi\Endpoints\Ides;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -13,12 +14,9 @@ use Symfony\Component\Console\Helper\TableSeparator;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-#[AsCommand(name: 'ide:list:mine')]
-class IdeListMineCommand extends IdeCommandBase {
-
-  protected function configure(): void {
-    $this->setDescription('List Cloud IDEs belonging to you');
-  }
+#[RequireAuth]
+#[AsCommand(name: 'ide:list:mine', description: 'List Cloud IDEs belonging to you')]
+final class IdeListMineCommand extends IdeCommandBase {
 
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $acquiaCloudClient = $this->cloudApiClientService->getClient();

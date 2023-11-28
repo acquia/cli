@@ -11,17 +11,8 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-#[AsCommand(name: 'self:telemetry:disable')]
-class TelemetryDisableCommand extends CommandBase {
-
-  protected function commandRequiresAuthentication(): bool {
-    return FALSE;
-  }
-
-  protected function configure(): void {
-    $this->setDescription('Disable anonymous sharing of usage and performance data')
-      ->setAliases(['telemetry:disable']);
-  }
+#[AsCommand(name: 'self:telemetry:disable', description: 'Disable anonymous sharing of usage and performance data', aliases: ['telemetry:disable'])]
+final class TelemetryDisableCommand extends CommandBase {
 
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $datastore = $this->datastoreCloud;

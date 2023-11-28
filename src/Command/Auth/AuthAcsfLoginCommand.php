@@ -11,18 +11,14 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-#[AsCommand(name: 'auth:acsf-login')]
-class AuthAcsfLoginCommand extends CommandBase {
+#[AsCommand(name: 'auth:acsf-login', description: 'Register your Site Factory API key and secret to use API functionality')]
+final class AuthAcsfLoginCommand extends CommandBase {
 
   protected function configure(): void {
-    $this->setDescription('Register your Site Factory API key and secret to use API functionality')
+    $this
       ->addOption('username', 'u', InputOption::VALUE_REQUIRED, "Your Site Factory username")
       ->addOption('key', 'k', InputOption::VALUE_REQUIRED, "Your Site Factory key")
       ->addOption('factory-url', 'f', InputOption::VALUE_REQUIRED, "Your Site Factory URL");
-  }
-
-  protected function commandRequiresAuthentication(): bool {
-    return FALSE;
   }
 
   protected function execute(InputInterface $input, OutputInterface $output): int {

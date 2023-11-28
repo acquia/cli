@@ -4,6 +4,7 @@ declare(strict_types = 1);
 
 namespace Acquia\Cli\Command\Ide\Wizard;
 
+use Acquia\Cli\Attribute\RequireAuth;
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Output\Checklist;
 use AcquiaCloudApi\Endpoints\Account;
@@ -12,12 +13,12 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-#[AsCommand(name: 'ide:wizard:ssh-key:create-upload')]
-class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
+#[RequireAuth]
+#[AsCommand(name: 'ide:wizard:ssh-key:create-upload', description: 'Wizard to perform first time setup tasks within an IDE', aliases: ['ide:wizard'])]
+final class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
 
   protected function configure(): void {
-    $this->setDescription('Wizard to perform first time setup tasks within an IDE')
-      ->setAliases(['ide:wizard'])
+    $this
       ->setHidden(!CommandBase::isAcquiaCloudIde());
   }
 

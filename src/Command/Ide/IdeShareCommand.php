@@ -14,20 +14,16 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-#[AsCommand(name: 'ide:share')]
-class IdeShareCommand extends CommandBase {
+#[AsCommand(name: 'ide:share', description: 'Get the share URL for a Cloud IDE')]
+final class IdeShareCommand extends CommandBase {
 
   /**
    * @var array<mixed>
    */
   private array $shareCodeFilepaths;
 
-  protected function commandRequiresAuthentication(): bool {
-    return FALSE;
-  }
-
   protected function configure(): void {
-    $this->setDescription('Get the share URL for a Cloud IDE')
+    $this
       ->addOption('regenerate', '', InputOption::VALUE_NONE, 'regenerate the share code')
       ->setHidden(!AcquiaDrupalEnvironmentDetector::isAhIdeEnv());
   }

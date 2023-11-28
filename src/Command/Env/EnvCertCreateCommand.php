@@ -4,6 +4,7 @@ declare(strict_types = 1);
 
 namespace Acquia\Cli\Command\Env;
 
+use Acquia\Cli\Attribute\RequireAuth;
 use Acquia\Cli\Command\CommandBase;
 use AcquiaCloudApi\Endpoints\SslCertificates;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -13,11 +14,12 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-#[AsCommand(name: 'env:certificate-create')]
-class EnvCertCreateCommand extends CommandBase {
+#[RequireAuth]
+#[AsCommand(name: 'env:certificate-create', description: 'Install an SSL certificate.')]
+final class EnvCertCreateCommand extends CommandBase {
 
   protected function configure(): void {
-    $this->setDescription('Install an SSL certificate.')
+    $this
       ->addArgument('certificate', InputArgument::REQUIRED, 'Filename of the SSL certificate being installed')
       ->addArgument('private-key', InputArgument::REQUIRED, 'Filename of the SSL private key')
       ->addOption('legacy', '', InputOption::VALUE_OPTIONAL, 'True for legacy certificates', FALSE)

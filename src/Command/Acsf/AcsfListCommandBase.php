@@ -17,14 +17,6 @@ class AcsfListCommandBase extends CommandBase {
     $this->namespace = $namespace;
   }
 
-  /**
-   * Indicates whether the command requires the machine to be authenticated with the Cloud Platform.
-   */
-  protected function commandRequiresAuthentication(): bool {
-    // Assume commands require authentication unless they opt out by overriding this method.
-    return FALSE;
-  }
-
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $commands = $this->getApplication()->all();
     foreach ($commands as $command) {

@@ -4,6 +4,7 @@ declare(strict_types = 1);
 
 namespace Acquia\Cli\Command\Ssh;
 
+use Acquia\Cli\Attribute\RequireAuth;
 use Acquia\Cli\Exception\AcquiaCliException;
 use AcquiaCloudApi\Endpoints\SshKeys;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -13,11 +14,12 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-#[AsCommand(name: 'ssh-key:info')]
-class SshKeyInfoCommand extends SshKeyCommandBase {
+#[RequireAuth]
+#[AsCommand(name: 'ssh-key:info', description: 'Print information about an SSH key')]
+final class SshKeyInfoCommand extends SshKeyCommandBase {
 
   protected function configure(): void {
-    $this->setDescription('Print information about an SSH key')
+    $this
       ->addOption('fingerprint', NULL, InputOption::VALUE_REQUIRED, 'sha256 fingerprint')
       ->addUsage('--fingerprint=pyarUa1mt2ln4fmrp7alWKpv1IPneqFwE+ErTC71IvY=');
   }

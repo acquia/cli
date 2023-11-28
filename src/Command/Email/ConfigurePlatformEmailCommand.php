@@ -4,6 +4,7 @@ declare(strict_types = 1);
 
 namespace Acquia\Cli\Command\Email;
 
+use Acquia\Cli\Attribute\RequireAuth;
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Output\Checklist;
@@ -25,14 +26,14 @@ use Symfony\Component\Validator\Exception\ValidatorException;
 use Symfony\Component\Validator\Validation;
 use Symfony\Component\Yaml\Yaml;
 
-#[AsCommand(name: 'email:configure')]
-class ConfigurePlatformEmailCommand extends CommandBase {
+#[RequireAuth]
+#[AsCommand(name: 'email:configure', description: 'Configure Platform email for one or more applications', aliases: ['ec'])]
+final class ConfigurePlatformEmailCommand extends CommandBase {
 
   protected function configure(): void {
-    $this->setDescription('Configure Platform email for one or more applications')
+    $this
       ->addArgument('subscriptionUuid', InputArgument::OPTIONAL, 'The subscription UUID to register the domain with.')
-      ->setHelp('This command configures Platform Email for a domain in a subscription. It registers the domain with the subscription, associates the domain with an application or set of applications, and enables Platform Email for selected environments of these applications.')
-      ->setAliases(['ec']);
+      ->setHelp('This command configures Platform Email for a domain in a subscription. It registers the domain with the subscription, associates the domain with an application or set of applications, and enables Platform Email for selected environments of these applications.');
   }
 
   protected function execute(InputInterface $input, OutputInterface $output): int {

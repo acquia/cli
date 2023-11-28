@@ -4,6 +4,7 @@ declare(strict_types = 1);
 
 namespace Acquia\Cli\Command\Push;
 
+use Acquia\Cli\Attribute\RequireAuth;
 use Acquia\Cli\Command\Pull\PullCommandBase;
 use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -11,11 +12,12 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-#[AsCommand(name: 'push:code')]
-class PushCodeCommand extends PullCommandBase {
+#[RequireAuth]
+#[AsCommand(name: 'push:code', description: 'Push code from your IDE to a Cloud Platform environment')]
+final class PushCodeCommand extends PullCommandBase {
 
   protected function configure(): void {
-    $this->setDescription('Push code from your IDE to a Cloud Platform environment')
+    $this
       ->setHidden(!AcquiaDrupalEnvironmentDetector::isAhIdeEnv() && !self::isLandoEnv());
   }
 

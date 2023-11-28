@@ -11,17 +11,13 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
 
-#[AsCommand(name: 'docs')]
-class DocsCommand extends CommandBase {
+#[AsCommand(name: 'docs', description: 'Open Acquia product documentation in a web browser')]
+final class DocsCommand extends CommandBase {
 
   protected function configure(): void {
-    $this->setDescription('Open Acquia product documentation in a web browser')
+    $this
       ->addArgument('product', InputArgument::OPTIONAL, 'Acquia Product Name')
       ->addUsage('acli');
-  }
-
-  protected function commandRequiresAuthentication(): bool {
-    return FALSE;
   }
 
   protected function execute(InputInterface $input, OutputInterface $output): int {

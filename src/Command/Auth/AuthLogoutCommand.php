@@ -10,17 +10,8 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-#[AsCommand(name: 'auth:logout')]
-class AuthLogoutCommand extends CommandBase {
-
-  protected function configure(): void {
-    $this->setDescription('Remove Cloud API key and secret from local machine.')
-      ->setAliases(['logout']);
-  }
-
-  protected function commandRequiresAuthentication(): bool {
-    return FALSE;
-  }
+#[AsCommand(name: 'auth:logout', description: 'Remove Cloud API key and secret from local machine.', aliases: ['logout'])]
+final class AuthLogoutCommand extends CommandBase {
 
   protected function execute(InputInterface $input, OutputInterface $output): int {
     if ($this->cloudApiClientService->isMachineAuthenticated()) {

@@ -10,17 +10,13 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-#[AsCommand(name: 'pull:run-scripts')]
-class PullScriptsCommand extends PullCommandBase {
+#[AsCommand(name: 'pull:run-scripts', description: 'Execute post pull scripts')]
+final class PullScriptsCommand extends PullCommandBase {
 
   protected function configure(): void {
-    $this->setDescription('Execute post pull scripts')
+    $this
       ->acceptEnvironmentId()
       ->addOption('dir', NULL, InputArgument::OPTIONAL, 'The directory containing the Drupal project to be refreshed');
-  }
-
-  protected function commandRequiresAuthentication(): bool {
-    return FALSE;
   }
 
   protected function execute(InputInterface $input, OutputInterface $output): int {

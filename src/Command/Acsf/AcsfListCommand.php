@@ -4,16 +4,13 @@ declare(strict_types = 1);
 
 namespace Acquia\Cli\Command\Acsf;
 
+use Acquia\Cli\Attribute\RequireAuth;
 use Symfony\Component\Console\Attribute\AsCommand;
 
-#[AsCommand(name: 'acsf:list')]
-class AcsfListCommand extends AcsfListCommandBase {
+#[RequireAuth]
+#[AsCommand(name: 'acsf:list', description: 'List all Acquia Cloud Site Factory commands', aliases: ['acsf'])]
+final class AcsfListCommand extends AcsfListCommandBase {
 
   protected string $namespace = 'acsf';
-
-  protected function configure(): void {
-    $this->setDescription("List all Acquia Cloud Site Factory commands")
-      ->setAliases(['acsf']);
-  }
 
 }

@@ -4,6 +4,7 @@ declare(strict_types = 1);
 
 namespace Acquia\Cli\Command\App;
 
+use Acquia\Cli\Attribute\RequireAuth;
 use Acquia\Cli\Command\CommandBase;
 use AcquiaCloudApi\Endpoints\Logs;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -11,13 +12,13 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-#[AsCommand(name: 'app:log:tail')]
-class LogTailCommand extends CommandBase {
+#[RequireAuth]
+#[AsCommand(name: 'app:log:tail', description: 'Tail the logs from your environments', aliases: ['tail', 'log:tail'])]
+final class LogTailCommand extends CommandBase {
 
   protected function configure(): void {
-    $this->setDescription('Tail the logs from your environments')
-      ->acceptEnvironmentId()
-      ->setAliases(['tail', 'log:tail']);
+    $this
+      ->acceptEnvironmentId();
   }
 
   protected function execute(InputInterface $input, OutputInterface $output): int {

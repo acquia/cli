@@ -4,6 +4,7 @@ declare(strict_types = 1);
 
 namespace Acquia\Cli\Command\Self;
 
+use Acquia\Cli\Attribute\RequireAuth;
 use Acquia\Cli\Command\CommandBase;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -12,13 +13,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Path;
 
-#[AsCommand(name: 'self:clear-caches')]
-class ClearCacheCommand extends CommandBase {
-
-  protected function configure(): void {
-    $this->setDescription('Clears local Acquia CLI caches')
-      ->setAliases(['cc', 'cr']);
-  }
+#[RequireAuth]
+#[AsCommand(name: 'self:clear-caches', description: 'Clears local Acquia CLI caches', aliases: ['cc', 'cr'])]
+final class ClearCacheCommand extends CommandBase {
 
   protected function execute(InputInterface $input, OutputInterface $output): int {
     self::clearCaches();
