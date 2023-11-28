@@ -48,17 +48,17 @@ class NewFromDrupal7Command extends CommandBase {
 
   protected function configure(): void {
     $this
-      ->addOption('drupal7-directory', 'source', InputOption::VALUE_OPTIONAL, 'The root of the Drupal 7 application')
-      ->addOption('drupal7-uri', 'uri', InputOption::VALUE_OPTIONAL, 'Only necessary in case of a multisite. If a single site, this will be computed automatically.')
-      ->addOption('stored-analysis', 'analysis', InputOption::VALUE_OPTIONAL, 'As an alternative to drupal7-directory, it is possible to pass a stored analysis.')
-      ->addOption('recommendations', 'recommendations', InputOption::VALUE_OPTIONAL, 'Overrides the default recommendations.')
-      ->addOption('directory', 'destination', InputOption::VALUE_OPTIONAL, 'The directory where to generate the new application.')
       ->setAliases([
         // Currently only "from Drupal 7", more to potentially follow.
         'from:d7',
         // A nod to its roots.
         'ama',
-      ]);
+      ])
+      ->addOption('drupal7-directory', 'source', InputOption::VALUE_OPTIONAL, 'The root of the Drupal 7 application')
+      ->addOption('drupal7-uri', 'uri', InputOption::VALUE_OPTIONAL, 'Only necessary in case of a multisite. If a single site, this will be computed automatically.')
+      ->addOption('stored-analysis', 'analysis', InputOption::VALUE_OPTIONAL, 'As an alternative to drupal7-directory, it is possible to pass a stored analysis.')
+      ->addOption('recommendations', 'recommendations', InputOption::VALUE_OPTIONAL, 'Overrides the default recommendations.')
+      ->addOption('directory', 'destination', InputOption::VALUE_OPTIONAL, 'The directory where to generate the new application.');
   }
 
   private function getInspector(InputInterface $input): SiteInspectorInterface {

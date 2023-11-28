@@ -36,9 +36,9 @@ class ConfigurePlatformEmailCommand extends CommandBase {
 
   protected function configure(): void {
     $this
+      ->setAliases(['ec'])
       ->addArgument('subscriptionUuid', InputArgument::OPTIONAL, 'The subscription UUID to register the domain with.')
-      ->setHelp('This command configures Platform Email for a domain in a subscription. It registers the domain with the subscription, associates the domain with an application or set of applications, and enables Platform Email for selected environments of these applications.')
-      ->setAliases(['ec']);
+      ->setHelp('This command configures Platform Email for a domain in a subscription. It registers the domain with the subscription, associates the domain with an application or set of applications, and enables Platform Email for selected environments of these applications.');
   }
 
   protected function execute(InputInterface $input, OutputInterface $output): int {

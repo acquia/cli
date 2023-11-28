@@ -25,8 +25,8 @@ class PullDatabaseCommand extends PullCommandBase {
 
   protected function configure(): void {
     $this
-      ->setHelp('This uses the latest available database backup, which may be up to 24 hours old. If no backup exists, one will be created.')
       ->setAliases(['pull:db'])
+      ->setHelp('This uses the latest available database backup, which may be up to 24 hours old. If no backup exists, one will be created.')
       ->acceptEnvironmentId()
       ->acceptSite()
       ->addOption('no-scripts', NULL, InputOption::VALUE_NONE,

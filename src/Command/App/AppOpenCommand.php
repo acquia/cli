@@ -22,8 +22,8 @@ class AppOpenCommand extends CommandBase {
 
   protected function configure(): void {
     $this
-      ->acceptApplicationUuid()
-      ->setAliases(['open', 'o']);
+      ->setAliases(['open', 'o'])
+      ->acceptApplicationUuid();
   }
 
   protected function execute(InputInterface $input, OutputInterface $output): int {

@@ -28,11 +28,11 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
 
   protected function configure(): void {
     $this
+      ->setAliases(['cs:pipelines-migrate'])
       ->addOption('key', NULL, InputOption::VALUE_REQUIRED, 'The Cloud Platform API token that Code Studio will use')
       ->addOption('secret', NULL, InputOption::VALUE_REQUIRED, 'The Cloud Platform API secret that Code Studio will use')
       ->addOption('gitlab-token', NULL, InputOption::VALUE_REQUIRED, 'The GitLab personal access token that will be used to communicate with the GitLab instance')
-      ->addOption('gitlab-project-id', NULL, InputOption::VALUE_REQUIRED, 'The project ID (an integer) of the GitLab project to configure.')
-      ->setAliases(['cs:pipelines-migrate']);
+      ->addOption('gitlab-project-id', NULL, InputOption::VALUE_REQUIRED, 'The project ID (an integer) of the GitLab project to configure.');
     $this->acceptApplicationUuid();
     $this->setHidden(!AcquiaDrupalEnvironmentDetector::isAhIdeEnv());
   }

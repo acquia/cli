@@ -22,8 +22,8 @@ class LogTailCommand extends CommandBase {
 
   protected function configure(): void {
     $this
-      ->acceptEnvironmentId()
-      ->setAliases(['tail', 'log:tail']);
+      ->setAliases(['tail', 'log:tail'])
+      ->acceptEnvironmentId();
   }
 
   protected function execute(InputInterface $input, OutputInterface $output): int {

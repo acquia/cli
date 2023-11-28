@@ -25,8 +25,8 @@ class NewCommand extends CommandBase {
 
   protected function configure(): void {
     $this
-      ->addArgument('directory', InputArgument::OPTIONAL, 'The destination directory')
-      ->setAliases(['new']);
+      ->setAliases(['new'])
+      ->addArgument('directory', InputArgument::OPTIONAL, 'The destination directory');
   }
 
   protected function execute(InputInterface $input, OutputInterface $output): int {
