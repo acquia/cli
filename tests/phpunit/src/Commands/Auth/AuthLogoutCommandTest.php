@@ -27,6 +27,8 @@ class AuthLogoutCommandTest extends CommandTestBase {
     $config = new CloudDataStore($this->localMachineHelper, new CloudDataConfig(), $this->cloudConfigFilepath);
     $this->assertFalse($config->exists('acli_key'));
     $this->assertEmpty($config->get('keys'));
+    $this->assertStringContainsString('The active key 17feaf34-5d04-402b-9a67-15d5161d24e1 will be unset.', $output);
+    $this->assertStringContainsString('Do you want to delete the active Acquia Cloud API credentials (option --delete)? (yes/no) [yes]:', $output);
     $this->assertStringContainsString('The active Acquia Cloud API credentials were deleted', $output);
   }
 
