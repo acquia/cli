@@ -114,11 +114,10 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     $this->setLocalDbName();
     $this->setLocalDbHost();
     parent::__construct();
-    $reflectionClass = new \ReflectionClass($this);
-    if ($reflectionClass->getAttributes(RequireAuth::class)) {
+    if ((new \ReflectionClass(static::class))->getAttributes(RequireAuth::class)) {
       $this->appendHelp('This command requires authentication via the Cloud Platform API.');
     }
-    if ($reflectionClass->getAttributes(RequireDb::class)) {
+    if ((new \ReflectionClass(static::class))->getAttributes(RequireDb::class)) {
       $this->appendHelp('This command requires an active database connection. Set the following environment variables prior to running this command: '
         . 'ACLI_DB_HOST, ACLI_DB_NAME, ACLI_DB_USER, ACLI_DB_PASSWORD');
     }
@@ -1468,8 +1467,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   }
 
   protected function checkAuthentication(): void {
-    $reflectionClass = new \ReflectionClass($this);
-    if ($reflectionClass->getAttributes(RequireAuth::class) && !$this->cloudApiClientService->isMachineAuthenticated()) {
+    if ((new \ReflectionClass(static::class))->getAttributes(RequireAuth::class) && !$this->cloudApiClientService->isMachineAuthenticated()) {
       throw new AcquiaCliException('This machine is not yet authenticated with the Cloud Platform. Run `acli auth:login`');
     }
   }

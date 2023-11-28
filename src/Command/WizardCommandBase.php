@@ -17,8 +17,7 @@ abstract class WizardCommandBase extends SshKeyCommandBase {
   abstract protected function validateEnvironment(): void;
 
   protected function initialize(InputInterface $input, OutputInterface $output): void {
-    $reflectionClass = new \ReflectionClass($this);
-    if ($reflectionClass->getAttributes(RequireAuth::class) && !$this->cloudApiClientService->isMachineAuthenticated()) {
+    if ((new \ReflectionClass(static::class))->getAttributes(RequireAuth::class) && !$this->cloudApiClientService->isMachineAuthenticated()) {
       $commandName = 'auth:login';
       $command = $this->getApplication()->find($commandName);
       $arguments = ['command' => $commandName];
