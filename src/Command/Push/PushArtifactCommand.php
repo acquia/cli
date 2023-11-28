@@ -60,10 +60,6 @@ class PushArtifactCommand extends PullCommandBase {
       ->addUsage('--destination-git-urls=example@svn-1.prod.hosting.acquia.com:example.git --destination-git-branch=main-build');
   }
 
-  protected function commandRequiresAuthentication(): bool {
-    return FALSE;
-  }
-
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $this->setDirAndRequireProjectCwd($input);
     if ($input->getOption('no-clone')) {

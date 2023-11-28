@@ -20,10 +20,6 @@ class DocsCommand extends CommandBase {
       ->addUsage('acli');
   }
 
-  protected function commandRequiresAuthentication(): bool {
-    return FALSE;
-  }
-
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $acquiaProducts = [
       'Acquia CLI' => [

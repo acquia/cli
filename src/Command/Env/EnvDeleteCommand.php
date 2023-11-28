@@ -4,6 +4,7 @@ declare(strict_types = 1);
 
 namespace Acquia\Cli\Command\Env;
 
+use Acquia\Cli\Attribute\RequireAuth;
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Exception\AcquiaCliException;
 use AcquiaCloudApi\Endpoints\Environments;
@@ -13,6 +14,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+#[RequireAuth]
 #[AsCommand(name: 'env:delete', description: 'Delete a Continuous Delivery Environment (CDE)')]
 class EnvDeleteCommand extends CommandBase {
 

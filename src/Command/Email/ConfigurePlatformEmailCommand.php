@@ -4,6 +4,7 @@ declare(strict_types = 1);
 
 namespace Acquia\Cli\Command\Email;
 
+use Acquia\Cli\Attribute\RequireAuth;
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Output\Checklist;
@@ -25,6 +26,7 @@ use Symfony\Component\Validator\Exception\ValidatorException;
 use Symfony\Component\Validator\Validation;
 use Symfony\Component\Yaml\Yaml;
 
+#[RequireAuth]
 #[AsCommand(name: 'email:configure', description: 'Configure Platform email for one or more applications', aliases: ['ec'])]
 class ConfigurePlatformEmailCommand extends CommandBase {
 

@@ -4,6 +4,7 @@ declare(strict_types = 1);
 
 namespace Acquia\Cli\Command\Email;
 
+use Acquia\Cli\Attribute\RequireAuth;
 use Acquia\Cli\Command\CommandBase;
 use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Response\SubscriptionResponse;
@@ -18,6 +19,7 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+#[RequireAuth]
 #[AsCommand(name: 'email:info', description: 'Print information related to Platform Email set up in a subscription.')]
 class EmailInfoForSubscriptionCommand extends CommandBase {
 

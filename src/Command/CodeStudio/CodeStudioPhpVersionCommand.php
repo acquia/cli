@@ -4,6 +4,7 @@ declare(strict_types = 1);
 
 namespace Acquia\Cli\Command\CodeStudio;
 
+use Acquia\Cli\Attribute\RequireAuth;
 use Acquia\Cli\Command\CommandBase;
 use Gitlab\Exception\RuntimeException;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -11,6 +12,7 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+#[RequireAuth]
 #[AsCommand(name: 'codestudio:php-version', description: 'Change the PHP version in Code Studio')]
 class CodeStudioPhpVersionCommand extends CommandBase {
 

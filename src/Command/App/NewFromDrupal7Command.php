@@ -214,10 +214,6 @@ class NewFromDrupal7Command extends CommandBase {
     return Command::SUCCESS;
   }
 
-  protected function commandRequiresAuthentication(): bool {
-    return FALSE;
-  }
-
   private function initializeGitRepository(string $dir): void {
     if ($this->localMachineHelper->getFilesystem()->exists(Path::join($dir, '.git'))) {
       $this->logger->debug('.git directory detected, skipping Git repo initialization');

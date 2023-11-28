@@ -14,10 +14,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 #[AsCommand(name: 'app:unlink', description: 'Remove local association between your project and a Cloud Platform application', aliases: ['unlink'])]
 class UnlinkCommand extends CommandBase {
 
-  protected function commandRequiresAuthentication(): bool {
-    return FALSE;
-  }
-
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $this->validateCwdIsValidDrupalProject();
 

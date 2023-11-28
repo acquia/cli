@@ -4,6 +4,7 @@ declare(strict_types = 1);
 
 namespace Acquia\Cli\Command;
 
+use Acquia\Cli\Attribute\RequireAuth;
 use Acquia\Cli\Command\Ssh\SshKeyCommandBase;
 use Acquia\Cli\Exception\AcquiaCliException;
 use AcquiaCloudApi\Endpoints\SshKeys;
@@ -16,7 +17,8 @@ abstract class WizardCommandBase extends SshKeyCommandBase {
   abstract protected function validateEnvironment(): void;
 
   protected function initialize(InputInterface $input, OutputInterface $output): void {
-    if ($this->commandRequiresAuthentication() && !$this->cloudApiClientService->isMachineAuthenticated()) {
+    $reflectionClass = new \ReflectionClass($this);
+    if ($reflectionClass->getAttributes(RequireAuth::class) && !$this->cloudApiClientService->isMachineAuthenticated()) {
       $commandName = 'auth:login';
       $command = $this->getApplication()->find($commandName);
       $arguments = ['command' => $commandName];

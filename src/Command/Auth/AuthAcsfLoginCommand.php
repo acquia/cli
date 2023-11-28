@@ -21,10 +21,6 @@ class AuthAcsfLoginCommand extends CommandBase {
       ->addOption('factory-url', 'f', InputOption::VALUE_REQUIRED, "Your Site Factory URL");
   }
 
-  protected function commandRequiresAuthentication(): bool {
-    return FALSE;
-  }
-
   protected function execute(InputInterface $input, OutputInterface $output): int {
     if ($input->getOption('factory-url')) {
       $factoryUrl = $input->getOption('factory-url');

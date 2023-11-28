@@ -115,10 +115,6 @@ class CodeStudioWizardCommand extends WizardCommandBase {
     return Command::SUCCESS;
   }
 
-  protected function commandRequiresAuthentication(): bool {
-    return FALSE;
-  }
-
   /**
    * @param array $project
    * @return array<mixed>|null

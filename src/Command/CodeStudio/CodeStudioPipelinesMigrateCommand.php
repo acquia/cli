@@ -74,10 +74,6 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
     return Command::SUCCESS;
   }
 
-  protected function commandRequiresAuthentication(): bool {
-    return FALSE;
-  }
-
   /**
    * Check whether wizard command is executed by checking the env variable of codestudio project.
    *

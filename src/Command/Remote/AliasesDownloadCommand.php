@@ -4,6 +4,7 @@ declare(strict_types = 1);
 
 namespace Acquia\Cli\Command\Remote;
 
+use Acquia\Cli\Attribute\RequireAuth;
 use Acquia\Cli\Exception\AcquiaCliException;
 use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Endpoints\Account;
@@ -20,6 +21,7 @@ use Symfony\Component\Filesystem\Path;
 /**
  * A command to proxy Drush commands on an environment using SSH.
  */
+#[RequireAuth]
 #[AsCommand(name: 'remote:aliases:download', description: 'Download Drush aliases for the Cloud Platform')]
 class AliasesDownloadCommand extends SshCommand {
 

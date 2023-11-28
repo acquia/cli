@@ -17,10 +17,6 @@ use Symfony\Component\Validator\Validation;
 #[AsCommand(name: 'ide:service-start', description: 'Start a service in the Cloud IDE')]
 class IdeServiceStartCommand extends IdeCommandBase {
 
-  protected function commandRequiresAuthentication(): bool {
-    return FALSE;
-  }
-
   protected function configure(): void {
     $this
       ->addArgument('service', InputArgument::REQUIRED, 'The name of the service to start')

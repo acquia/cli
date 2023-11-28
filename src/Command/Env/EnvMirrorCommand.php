@@ -4,6 +4,7 @@ declare(strict_types = 1);
 
 namespace Acquia\Cli\Command\Env;
 
+use Acquia\Cli\Attribute\RequireAuth;
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Output\Checklist;
 use AcquiaCloudApi\Connector\Client;
@@ -17,6 +18,7 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+#[RequireAuth]
 #[AsCommand(name: 'env:mirror', description: 'Makes one environment identical to another in terms of code, database, files, and configuration.')]
 class EnvMirrorCommand extends CommandBase {
 

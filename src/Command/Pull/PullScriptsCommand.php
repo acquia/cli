@@ -19,10 +19,6 @@ class PullScriptsCommand extends PullCommandBase {
       ->addOption('dir', NULL, InputArgument::OPTIONAL, 'The directory containing the Drupal project to be refreshed');
   }
 
-  protected function commandRequiresAuthentication(): bool {
-    return FALSE;
-  }
-
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $this->executeAllScripts($input, $this->getOutputCallback($output, $this->checklist));
 

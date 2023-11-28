@@ -64,10 +64,6 @@ class NewCommand extends CommandBase {
     return Command::SUCCESS;
   }
 
-  protected function commandRequiresAuthentication(): bool {
-    return FALSE;
-  }
-
   private function createNextJsProject(string $dir): void {
     $process = $this->localMachineHelper->execute([
       'npx',

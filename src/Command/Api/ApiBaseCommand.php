@@ -4,6 +4,7 @@ declare(strict_types = 1);
 
 namespace Acquia\Cli\Command\Api;
 
+use Acquia\Cli\Attribute\RequireAuth;
 use Acquia\Cli\Command\CommandBase;
 use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Exception\ApiErrorException;
@@ -21,6 +22,7 @@ use Symfony\Component\Validator\Constraints\Type;
 use Symfony\Component\Validator\Exception\ValidatorException;
 use Symfony\Component\Validator\Validation;
 
+#[RequireAuth]
 #[AsCommand(name: 'api:base')]
 class ApiBaseCommand extends CommandBase {
 

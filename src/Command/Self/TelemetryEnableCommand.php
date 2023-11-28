@@ -14,10 +14,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 #[AsCommand(name: 'self:telemetry:enable', description: 'Enable anonymous sharing of usage and performance data', aliases: ['telemetry:enable'])]
 class TelemetryEnableCommand extends CommandBase {
 
-  protected function commandRequiresAuthentication(): bool {
-    return FALSE;
-  }
-
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $datastore = $this->datastoreCloud;
     $datastore->set(DataStoreContract::SEND_TELEMETRY, TRUE);

@@ -4,6 +4,7 @@ declare(strict_types = 1);
 
 namespace Acquia\Cli\Command\Remote;
 
+use Acquia\Cli\Attribute\RequireAuth;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Input\InputArgument;
@@ -13,6 +14,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * A command to proxy Drush commands on an environment using SSH.
  */
+#[RequireAuth]
 #[AsCommand(name: 'remote:ssh', description: 'Use SSH to open a shell or run a command in a Cloud Platform environment', aliases: ['ssh'])]
 class SshCommand extends SshBaseCommand {
 

@@ -4,6 +4,7 @@ declare(strict_types = 1);
 
 namespace Acquia\Cli\Command\Env;
 
+use Acquia\Cli\Attribute\RequireAuth;
 use Acquia\Cli\Command\CommandBase;
 use AcquiaCloudApi\Endpoints\Crons;
 use Exception;
@@ -13,6 +14,7 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+#[RequireAuth]
 #[AsCommand(name: 'env:cron-copy', description: 'Copy all cron tasks from one Acquia Cloud Platform environment to another')]
 class EnvCopyCronCommand extends CommandBase {
 

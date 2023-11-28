@@ -4,6 +4,7 @@ declare(strict_types = 1);
 
 namespace Acquia\Cli\Command\Env;
 
+use Acquia\Cli\Attribute\RequireAuth;
 use Acquia\Cli\Command\CommandBase;
 use AcquiaCloudApi\Endpoints\SslCertificates;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -13,6 +14,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
+#[RequireAuth]
 #[AsCommand(name: 'env:certificate-create', description: 'Install an SSL certificate.')]
 class EnvCertCreateCommand extends CommandBase {
 

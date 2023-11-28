@@ -22,10 +22,6 @@ class IdeShareCommand extends CommandBase {
    */
   private array $shareCodeFilepaths;
 
-  protected function commandRequiresAuthentication(): bool {
-    return FALSE;
-  }
-
   protected function configure(): void {
     $this
       ->addOption('regenerate', '', InputOption::VALUE_NONE, 'regenerate the share code')

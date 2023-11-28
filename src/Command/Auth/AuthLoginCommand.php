@@ -20,10 +20,6 @@ class AuthLoginCommand extends CommandBase {
       ->addOption('secret', 's', InputOption::VALUE_REQUIRED, 'Your Cloud API secret');
   }
 
-  protected function commandRequiresAuthentication(): bool {
-    return FALSE;
-  }
-
   protected function execute(InputInterface $input, OutputInterface $output): int {
     if ($this->cloudApiClientService->isMachineAuthenticated()) {
       $answer = $this->io->confirm('Your machine has already been authenticated with the Cloud Platform API, would you like to re-authenticate?');
