@@ -10,14 +10,8 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-#[AsCommand(name: 'ssh-key:upload')]
+#[AsCommand(name: 'ssh-key:upload', 'Upload a local SSH key to the Cloud Platform')]
 class SshKeyUploadCommand extends SshKeyCommandBase {
-
-  /**
-   * @var string
-   */
-  // phpcs:ignore
-  protected static $defaultDescription = 'Upload a local SSH key to the Cloud Platform';
 
   protected function configure(): void {
     $this

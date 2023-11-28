@@ -22,14 +22,14 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Validator\Exception\ValidatorException;
 
-#[AsCommand(name: 'app:new:from:drupal7')]
+#[AsCommand(name: 'app:new:from:drupal7', 'Generate a new Drupal 9+ project from a Drupal 7 application using the default Acquia Migrate Accelerate recommendations.', [
+  // Currently only "from Drupal 7", more to potentially follow.
+  'from:d7',
+  // A nod to its roots.
+  'ama',
+])]
 class NewFromDrupal7Command extends CommandBase {
 
-  /**
-   * @var string
-   */
-  // phpcs:ignore
-  protected static $defaultDescription = 'Generate a new Drupal 9+ project from a Drupal 7 application using the default Acquia Migrate Accelerate recommendations.';
   /**
    * Exit code raised when the URI flag does not correspond to configuration.
    *
@@ -48,12 +48,6 @@ class NewFromDrupal7Command extends CommandBase {
 
   protected function configure(): void {
     $this
-      ->setAliases([
-        // Currently only "from Drupal 7", more to potentially follow.
-        'from:d7',
-        // A nod to its roots.
-        'ama',
-      ])
       ->addOption('drupal7-directory', 'source', InputOption::VALUE_OPTIONAL, 'The root of the Drupal 7 application')
       ->addOption('drupal7-uri', 'uri', InputOption::VALUE_OPTIONAL, 'Only necessary in case of a multisite. If a single site, this will be computed automatically.')
       ->addOption('stored-analysis', 'analysis', InputOption::VALUE_OPTIONAL, 'As an alternative to drupal7-directory, it is possible to pass a stored analysis.')

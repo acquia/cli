@@ -16,14 +16,9 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-#[AsCommand(name: 'env:create')]
+#[AsCommand(name: 'env:create', 'Create a new Continuous Delivery Environment (CDE)')]
 class EnvCreateCommand extends CommandBase {
 
-  /**
-   * @var string
-   */
-  // phpcs:ignore
-  protected static $defaultDescription = 'Create a new Continuous Delivery Environment (CDE)';
   private Checklist $checklist;
 
   protected function configure(): void {

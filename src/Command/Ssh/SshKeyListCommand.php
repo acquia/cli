@@ -11,14 +11,8 @@ use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-#[AsCommand(name: 'ssh-key:list')]
+#[AsCommand(name: 'ssh-key:list', 'List your local and remote SSH keys')]
 class SshKeyListCommand extends SshKeyCommandBase {
-
-  /**
-   * @var string
-   */
-  // phpcs:ignore
-  protected static $defaultDescription = 'List your local and remote SSH keys';
 
   protected function configure(): void {
   }

@@ -10,14 +10,8 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-#[AsCommand(name: 'pull:run-scripts')]
+#[AsCommand(name: 'pull:run-scripts', 'Execute post pull scripts')]
 class PullScriptsCommand extends PullCommandBase {
-
-  /**
-   * @var string
-   */
-  // phpcs:ignore
-  protected static $defaultDescription = 'Execute post pull scripts';
 
   protected function configure(): void {
     $this

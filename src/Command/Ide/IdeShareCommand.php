@@ -14,14 +14,9 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-#[AsCommand(name: 'ide:share')]
+#[AsCommand(name: 'ide:share', 'Get the share URL for a Cloud IDE')]
 class IdeShareCommand extends CommandBase {
 
-  /**
-   * @var string
-   */
-  // phpcs:ignore
-  protected static $defaultDescription = 'Get the share URL for a Cloud IDE';
   /**
    * @var array<mixed>
    */

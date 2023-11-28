@@ -16,14 +16,9 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Path;
 
-#[AsCommand(name: 'push:artifact')]
+#[AsCommand(name: 'push:artifact', 'Build and push a code artifact to a Cloud Platform environment')]
 class PushArtifactCommand extends PullCommandBase {
 
-  /**
-   * @var string
-   */
-  // phpcs:ignore
-  protected static $defaultDescription = 'Build and push a code artifact to a Cloud Platform environment';
   /**
    * Composer vendor directories.
    *

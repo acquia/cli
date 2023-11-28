@@ -11,22 +11,15 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-#[AsCommand(name: 'self:telemetry:enable')]
+#[AsCommand(name: 'self:telemetry:enable', 'Enable anonymous sharing of usage and performance data', ['telemetry:enable'])]
 class TelemetryEnableCommand extends CommandBase {
-
-  /**
-   * @var string
-   */
-  // phpcs:ignore
-  protected static $defaultDescription = 'Enable anonymous sharing of usage and performance data';
 
   protected function commandRequiresAuthentication(): bool {
     return FALSE;
   }
 
-  protected function configure(): void {
-    $this
-      ->setAliases(['telemetry:enable']);
+  protected function configure(): void
+  {
   }
 
   protected function execute(InputInterface $input, OutputInterface $output): int {

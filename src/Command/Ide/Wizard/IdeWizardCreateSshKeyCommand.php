@@ -12,18 +12,11 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-#[AsCommand(name: 'ide:wizard:ssh-key:create-upload')]
+#[AsCommand(name: 'ide:wizard:ssh-key:create-upload', 'Wizard to perform first time setup tasks within an IDE', ['ide:wizard'])]
 class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
-
-  /**
-   * @var string
-   */
-  // phpcs:ignore
-  protected static $defaultDescription = 'Wizard to perform first time setup tasks within an IDE';
 
   protected function configure(): void {
     $this
-      ->setAliases(['ide:wizard'])
       ->setHidden(!CommandBase::isAcquiaCloudIde());
   }
 

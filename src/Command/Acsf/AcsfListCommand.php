@@ -6,19 +6,13 @@ namespace Acquia\Cli\Command\Acsf;
 
 use Symfony\Component\Console\Attribute\AsCommand;
 
-#[AsCommand(name: 'acsf:list')]
+#[AsCommand(name: 'acsf:list', 'List all Acquia Cloud Site Factory commands', ['acsf'])]
 class AcsfListCommand extends AcsfListCommandBase {
 
-  /**
-   * @var string
-   */
-  // phpcs:ignore
-  protected static $defaultDescription = "List all Acquia Cloud Site Factory commands";
   protected string $namespace = 'acsf';
 
-  protected function configure(): void {
-    $this
-      ->setAliases(['acsf']);
+  protected function configure(): void
+  {
   }
 
 }

@@ -10,14 +10,8 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-#[AsCommand(name: 'auth:acsf-logout')]
+#[AsCommand(name: 'auth:acsf-logout', 'Remove your Site Factory key and secret from your local machine.')]
 class AuthAcsfLogoutCommand extends CommandBase {
-
-  /**
-   * @var string
-   */
-  // phpcs:ignore
-  protected static $defaultDescription = 'Remove your Site Factory key and secret from your local machine.';
 
   protected function configure(): void {
   }

@@ -13,14 +13,8 @@ use Symfony\Component\Console\Helper\TableSeparator;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-#[AsCommand(name: 'ide:list:mine')]
+#[AsCommand(name: 'ide:list:mine', 'List Cloud IDEs belonging to you')]
 class IdeListMineCommand extends IdeCommandBase {
-
-  /**
-   * @var string
-   */
-  // phpcs:ignore
-  protected static $defaultDescription = 'List Cloud IDEs belonging to you';
 
   protected function configure(): void {
   }

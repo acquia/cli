@@ -11,21 +11,15 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-#[AsCommand(name: 'pull:all')]
+#[AsCommand(name: 'pull:all', 'Copy code, database, and files from a Cloud Platform environment', ['refresh', 'pull'])]
 class PullCommand extends PullCommandBase {
-
-  /**
-   * @var string
-   */
-  // phpcs:ignore
-  protected static $defaultDescription = 'Copy code, database, and files from a Cloud Platform environment';
 
   protected function commandRequiresDatabase(): bool {
     return TRUE;
   }
 
   protected function configure(): void {
-    $this->setAliases(['refresh', 'pull'])
+    $this
       ->acceptEnvironmentId()
       ->acceptSite()
       ->addOption('dir', NULL, InputArgument::OPTIONAL, 'The directory containing the Drupal project to be refreshed')

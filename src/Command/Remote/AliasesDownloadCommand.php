@@ -20,14 +20,9 @@ use Symfony\Component\Filesystem\Path;
 /**
  * A command to proxy Drush commands on an environment using SSH.
  */
-#[AsCommand(name: 'remote:aliases:download')]
+#[AsCommand(name: 'remote:aliases:download', 'Download Drush aliases for the Cloud Platform')]
 class AliasesDownloadCommand extends SshCommand {
 
-  /**
-   * @var string
-   */
-  // phpcs:ignore
-  protected static $defaultDescription = 'Download Drush aliases for the Cloud Platform';
   private string $drushArchiveFilepath;
 
   protected function configure(): void {

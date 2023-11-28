@@ -10,18 +10,10 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-#[AsCommand(name: 'app:link')]
+#[AsCommand(name: 'app:link', 'Associate your project with a Cloud Platform application', ['link'])]
 class LinkCommand extends CommandBase {
 
-  /**
-   * @var string
-   */
-  // phpcs:ignore
-  protected static $defaultDescription = 'Associate your project with a Cloud Platform application';
-
   protected function configure(): void {
-    $this
-      ->setAliases(['link']);
     $this->acceptApplicationUuid();
   }
 

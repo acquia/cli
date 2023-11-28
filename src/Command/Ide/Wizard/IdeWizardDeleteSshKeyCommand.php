@@ -12,14 +12,9 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-#[AsCommand(name: 'ide:wizard:ssh-key:delete')]
+#[AsCommand(name: 'ide:wizard:ssh-key:delete', 'Wizard to delete SSH key for IDE from Cloud')]
 class IdeWizardDeleteSshKeyCommand extends IdeWizardCommandBase {
 
-  /**
-   * @var string
-   */
-  // phpcs:ignore
-  protected static $defaultDescription = 'Wizard to delete SSH key for IDE from Cloud';
   use SshCommandTrait;
 
   protected function configure(): void {

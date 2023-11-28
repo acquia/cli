@@ -12,18 +12,11 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Path;
 
-#[AsCommand(name: 'self:clear-caches')]
+#[AsCommand(name: 'self:clear-caches', 'Clears local Acquia CLI caches', ['cc', 'cr'])]
 class ClearCacheCommand extends CommandBase {
 
-  /**
-   * @var string
-   */
-  // phpcs:ignore
-  protected static $defaultDescription = 'Clears local Acquia CLI caches';
-
-  protected function configure(): void {
-    $this
-      ->setAliases(['cc', 'cr']);
+  protected function configure(): void
+  {
   }
 
   protected function execute(InputInterface $input, OutputInterface $output): int {

@@ -9,14 +9,8 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-#[AsCommand(name: 'hello-world')]
+#[AsCommand(name: 'hello-world', 'Test command used for asserting core functionality')]
 class HelloWorldCommand extends CommandBase {
-
-  /**
-   * @var string
-   */
-  // phpcs:ignore
-  protected static $defaultDescription = 'Test command used for asserting core functionality';
 
   protected function configure(): void {
     $this

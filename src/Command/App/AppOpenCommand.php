@@ -11,18 +11,11 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-#[AsCommand(name: 'app:open')]
+#[AsCommand(name: 'app:open', 'Opens your browser to view a given Cloud application', ['open', 'o'])]
 class AppOpenCommand extends CommandBase {
-
-  /**
-   * @var string
-   */
-  // phpcs:ignore
-  protected static $defaultDescription = 'Opens your browser to view a given Cloud application';
 
   protected function configure(): void {
     $this
-      ->setAliases(['open', 'o'])
       ->acceptApplicationUuid();
   }
 

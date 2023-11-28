@@ -10,14 +10,8 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-#[AsCommand(name: 'ssh-key:create')]
+#[AsCommand(name: 'ssh-key:create', 'Create an SSH key on your local machine')]
 class SshKeyCreateCommand extends SshKeyCommandBase {
-
-  /**
-   * @var string
-   */
-  // phpcs:ignore
-  protected static $defaultDescription = 'Create an SSH key on your local machine';
 
   protected function configure(): void {
     $this

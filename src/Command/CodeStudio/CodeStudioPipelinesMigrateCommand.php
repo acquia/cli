@@ -16,19 +16,13 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Yaml\Yaml;
 
-#[AsCommand(name: 'codestudio:pipelines-migrate')]
+#[AsCommand(name: 'codestudio:pipelines-migrate', 'Migrate .acquia-pipeline.yml file to .gitlab-ci.yml file for a given Acquia Cloud application', ['cs:pipelines-migrate'])]
 class CodeStudioPipelinesMigrateCommand extends CommandBase {
 
-  /**
-   * @var string
-   */
-  // phpcs:ignore
-  protected static $defaultDescription = 'Migrate .acquia-pipeline.yml file to .gitlab-ci.yml file for a given Acquia Cloud application';
   use CodeStudioCommandTrait;
 
   protected function configure(): void {
     $this
-      ->setAliases(['cs:pipelines-migrate'])
       ->addOption('key', NULL, InputOption::VALUE_REQUIRED, 'The Cloud Platform API token that Code Studio will use')
       ->addOption('secret', NULL, InputOption::VALUE_REQUIRED, 'The Cloud Platform API secret that Code Studio will use')
       ->addOption('gitlab-token', NULL, InputOption::VALUE_REQUIRED, 'The GitLab personal access token that will be used to communicate with the GitLab instance')

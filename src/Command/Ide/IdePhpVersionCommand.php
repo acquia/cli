@@ -12,14 +12,9 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-#[AsCommand(name: 'ide:php-version')]
+#[AsCommand(name: 'ide:php-version', 'Change the PHP version in the current IDE')]
 class IdePhpVersionCommand extends IdeCommandBase {
 
-  /**
-   * @var string
-   */
-  // phpcs:ignore
-  protected static $defaultDescription = 'Change the PHP version in the current IDE';
   private string $idePhpFilePathPrefix;
 
   /*

@@ -6,19 +6,13 @@ namespace Acquia\Cli\Command\Api;
 
 use Symfony\Component\Console\Attribute\AsCommand;
 
-#[AsCommand(name: 'api:list')]
+#[AsCommand(name: 'api:list', 'List all API commands', ['api'])]
 class ApiListCommand extends ApiListCommandBase {
 
-  /**
-   * @var string
-   */
-  // phpcs:ignore
-  protected static $defaultDescription = "List all API commands";
   protected string $namespace = 'api';
 
-  protected function configure(): void {
-    $this
-      ->setAliases(['api']);
+  protected function configure(): void
+  {
   }
 
 }

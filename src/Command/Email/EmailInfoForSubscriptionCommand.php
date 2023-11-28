@@ -18,14 +18,8 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-#[AsCommand(name: 'email:info')]
+#[AsCommand(name: 'email:info', 'Print information related to Platform Email set up in a subscription.')]
 class EmailInfoForSubscriptionCommand extends CommandBase {
-
-  /**
-   * @var string
-   */
-  // phpcs:ignore
-  protected static $defaultDescription = 'Print information related to Platform Email set up in a subscription.';
 
   protected function configure(): void {
     $this

@@ -13,18 +13,11 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * A command to proxy Drush commands on an environment using SSH.
  */
-#[AsCommand(name: 'remote:ssh')]
+#[AsCommand(name: 'remote:ssh', 'Use SSH to open a shell or run a command in a Cloud Platform environment', ['ssh'])]
 class SshCommand extends SshBaseCommand {
-
-  /**
-   * @var string
-   */
-  // phpcs:ignore
-  protected static $defaultDescription = 'Use SSH to open a shell or run a command in a Cloud Platform environment';
 
   protected function configure(): void {
     $this
-      ->setAliases(['ssh'])
       ->addArgument('alias', InputArgument::REQUIRED, 'Alias for application & environment in the format `app-name.env`')
       ->addArgument('ssh_command', InputArgument::IS_ARRAY, 'Command to run via SSH (if not provided, opens a shell in the site directory)')
       ->addUsage("myapp.dev # open a shell in the myapp.dev environment")

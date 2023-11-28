@@ -11,14 +11,8 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-#[AsCommand(name: 'push:code')]
+#[AsCommand(name: 'push:code', 'Push code from your IDE to a Cloud Platform environment')]
 class PushCodeCommand extends PullCommandBase {
-
-  /**
-   * @var string
-   */
-  // phpcs:ignore
-  protected static $defaultDescription = 'Push code from your IDE to a Cloud Platform environment';
 
   protected function configure(): void {
     $this

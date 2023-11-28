@@ -11,14 +11,8 @@ use Symfony\Component\Console\Helper\TableSeparator;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-#[AsCommand(name: 'ide:info')]
+#[AsCommand(name: 'ide:info', 'Print information about a Cloud IDE')]
 class IdeInfoCommand extends IdeCommandBase {
-
-  /**
-   * @var string
-   */
-  // phpcs:ignore
-  protected static $defaultDescription = 'Print information about a Cloud IDE';
 
   protected function configure(): void {
     $this->acceptApplicationUuid();

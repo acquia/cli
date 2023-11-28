@@ -13,14 +13,8 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-#[AsCommand(name: 'env:delete')]
+#[AsCommand(name: 'env:delete', 'Delete a Continuous Delivery Environment (CDE)')]
 class EnvDeleteCommand extends CommandBase {
-
-  /**
-   * @var string
-   */
-  // phpcs:ignore
-  protected static $defaultDescription = 'Delete a Continuous Delivery Environment (CDE)';
 
   protected function configure(): void {
     $this->acceptEnvironmentId();

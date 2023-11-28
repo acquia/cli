@@ -14,18 +14,11 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Path;
 
-#[AsCommand(name: 'app:new:local')]
+#[AsCommand(name: 'app:new:local', 'Create a new Drupal or Next.js project', ['new'])]
 class NewCommand extends CommandBase {
-
-  /**
-   * @var string
-   */
-  // phpcs:ignore
-  protected static $defaultDescription = 'Create a new Drupal or Next.js project';
 
   protected function configure(): void {
     $this
-      ->setAliases(['new'])
       ->addArgument('directory', InputArgument::OPTIONAL, 'The destination directory');
   }
 

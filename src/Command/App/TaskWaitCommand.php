@@ -11,14 +11,8 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-#[AsCommand(name: 'app:task-wait')]
+#[AsCommand(name: 'app:task-wait', 'Wait for a task to complete')]
 class TaskWaitCommand extends CommandBase {
-
-  /**
-   * @var string
-   */
-  // phpcs:ignore
-  protected static $defaultDescription = 'Wait for a task to complete';
 
   protected function configure(): void {
     $this

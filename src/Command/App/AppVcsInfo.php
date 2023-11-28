@@ -14,14 +14,8 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-#[AsCommand(name: 'app:vcs:info')]
+#[AsCommand(name: 'app:vcs:info', 'Get all branches and tags of the application with the deployment status')]
 class AppVcsInfo extends CommandBase {
-
-  /**
-   * @var string
-   */
-  // phpcs:ignore
-  protected static $defaultDescription = 'Get all branches and tags of the application with the deployment status';
 
   protected function configure(): void {
     $this

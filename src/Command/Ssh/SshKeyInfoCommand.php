@@ -13,14 +13,8 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-#[AsCommand(name: 'ssh-key:info')]
+#[AsCommand(name: 'ssh-key:info', 'Print information about an SSH key')]
 class SshKeyInfoCommand extends SshKeyCommandBase {
-
-  /**
-   * @var string
-   */
-  // phpcs:ignore
-  protected static $defaultDescription = 'Print information about an SSH key';
 
   protected function configure(): void {
     $this

@@ -11,14 +11,8 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-#[AsCommand(name: 'auth:acsf-login')]
+#[AsCommand(name: 'auth:acsf-login', 'Register your Site Factory API key and secret to use API functionality')]
 class AuthAcsfLoginCommand extends CommandBase {
-
-  /**
-   * @var string
-   */
-  // phpcs:ignore
-  protected static $defaultDescription = 'Register your Site Factory API key and secret to use API functionality';
 
   protected function configure(): void {
     $this

@@ -17,14 +17,9 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-#[AsCommand(name: 'env:mirror')]
+#[AsCommand(name: 'env:mirror', 'Makes one environment identical to another in terms of code, database, files, and configuration.')]
 class EnvMirrorCommand extends CommandBase {
 
-  /**
-   * @var string
-   */
-  // phpcs:ignore
-  protected static $defaultDescription = 'Makes one environment identical to another in terms of code, database, files, and configuration.';
   private Checklist $checklist;
 
   protected function configure(): void {

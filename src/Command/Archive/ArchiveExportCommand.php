@@ -18,14 +18,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Path;
 
-#[AsCommand(name: 'archive:export')]
+#[AsCommand(name: 'archive:export', 'Export an archive of the Drupal application including code, files, and database')]
 class ArchiveExportCommand extends CommandBase {
 
-  /**
-   * @var string
-   */
-  // phpcs:ignore
-  protected static $defaultDescription = 'Export an archive of the Drupal application including code, files, and database';
   protected Checklist $checklist;
 
   private Filesystem $fs;

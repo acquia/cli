@@ -14,14 +14,8 @@ use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Exception\ValidatorException;
 use Symfony\Component\Validator\Validation;
 
-#[AsCommand(name: 'ide:service-start')]
+#[AsCommand(name: 'ide:service-start', 'Start a service in the Cloud IDE')]
 class IdeServiceStartCommand extends IdeCommandBase {
-
-  /**
-   * @var string
-   */
-  // phpcs:ignore
-  protected static $defaultDescription = 'Start a service in the Cloud IDE';
 
   protected function commandRequiresAuthentication(): bool {
     return FALSE;

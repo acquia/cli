@@ -13,14 +13,8 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-#[AsCommand(name: 'env:cron-copy')]
+#[AsCommand(name: 'env:cron-copy', 'Copy all cron tasks from one Acquia Cloud Platform environment to another')]
 class EnvCopyCronCommand extends CommandBase {
-
-  /**
-   * @var string
-   */
-  // phpcs:ignore
-  protected static $defaultDescription = 'Copy all cron tasks from one Acquia Cloud Platform environment to another';
 
   protected function configure(): void {
     $this

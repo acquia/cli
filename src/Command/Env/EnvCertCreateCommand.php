@@ -13,14 +13,8 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-#[AsCommand(name: 'env:certificate-create')]
+#[AsCommand(name: 'env:certificate-create', 'Install an SSL certificate.')]
 class EnvCertCreateCommand extends CommandBase {
-
-  /**
-   * @var string
-   */
-  // phpcs:ignore
-  protected static $defaultDescription = 'Install an SSL certificate.';
 
   protected function configure(): void {
     $this

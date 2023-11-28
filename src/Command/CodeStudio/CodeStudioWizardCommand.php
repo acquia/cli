@@ -15,21 +15,15 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-#[AsCommand(name: 'codestudio:wizard')]
+#[AsCommand(name: 'codestudio:wizard', 'Create and/or configure a new Code Studio project for a given Acquia Cloud application', ['cs:wizard'])]
 class CodeStudioWizardCommand extends WizardCommandBase {
 
-  /**
-   * @var string
-   */
-  // phpcs:ignore
-  protected static $defaultDescription = 'Create and/or configure a new Code Studio project for a given Acquia Cloud application';
   use CodeStudioCommandTrait;
 
   private Checklist $checklist;
 
   protected function configure(): void {
     $this
-      ->setAliases(['cs:wizard'])
       ->addOption('key', NULL, InputOption::VALUE_REQUIRED, 'The Cloud Platform API token that Code Studio will use')
       ->addOption('secret', NULL, InputOption::VALUE_REQUIRED, 'The Cloud Platform API secret that Code Studio will use')
       ->addOption('gitlab-token', NULL, InputOption::VALUE_REQUIRED, 'The GitLab personal access token that will be used to communicate with the GitLab instance')

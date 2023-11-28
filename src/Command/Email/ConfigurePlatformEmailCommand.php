@@ -25,18 +25,11 @@ use Symfony\Component\Validator\Exception\ValidatorException;
 use Symfony\Component\Validator\Validation;
 use Symfony\Component\Yaml\Yaml;
 
-#[AsCommand(name: 'email:configure')]
+#[AsCommand(name: 'email:configure', 'Configure Platform email for one or more applications', ['ec'])]
 class ConfigurePlatformEmailCommand extends CommandBase {
-
-  /**
-   * @var string
-   */
-  // phpcs:ignore
-  protected static $defaultDescription = 'Configure Platform email for one or more applications';
 
   protected function configure(): void {
     $this
-      ->setAliases(['ec'])
       ->addArgument('subscriptionUuid', InputArgument::OPTIONAL, 'The subscription UUID to register the domain with.')
       ->setHelp('This command configures Platform Email for a domain in a subscription. It registers the domain with the subscription, associates the domain with an application or set of applications, and enables Platform Email for selected environments of these applications.');
   }

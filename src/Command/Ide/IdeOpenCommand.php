@@ -11,14 +11,8 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-#[AsCommand(name: 'ide:open')]
+#[AsCommand(name: 'ide:open', 'Open a Cloud IDE in your browser')]
 class IdeOpenCommand extends IdeCommandBase {
-
-  /**
-   * @var string
-   */
-  // phpcs:ignore
-  protected static $defaultDescription = 'Open a Cloud IDE in your browser';
 
   protected function configure(): void {
     $this

@@ -11,18 +11,11 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-#[AsCommand(name: 'app:unlink')]
+#[AsCommand(name: 'app:unlink', 'Remove local association between your project and a Cloud Platform application', ['unlink'])]
 class UnlinkCommand extends CommandBase {
 
-  /**
-   * @var string
-   */
-  // phpcs:ignore
-  protected static $defaultDescription = 'Remove local association between your project and a Cloud Platform application';
-
-  protected function configure(): void {
-    $this
-      ->setAliases(['unlink']);
+  protected function configure(): void
+  {
   }
 
   protected function commandRequiresAuthentication(): bool {

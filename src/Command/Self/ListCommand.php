@@ -12,13 +12,11 @@ use Symfony\Component\Console\Helper\DescriptorHelper;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-#[AsCommand(name: 'list')]
+#[AsCommand(name: 'list', null, ['self:list'])]
 class ListCommand extends \Symfony\Component\Console\Command\ListCommand {
 
   protected function configure(): void {
     parent::configure();
-    $this
-      ->setAliases(['self:list']);
   }
 
   protected function execute(InputInterface $input, OutputInterface $output): int {

@@ -12,17 +12,10 @@ use Symfony\Component\Console\Helper\TableSeparator;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-#[AsCommand(name: 'ide:list:app')]
+#[AsCommand(name: 'ide:list:app', 'List available Cloud IDEs belonging to a given application', ['ide:list'])]
 class IdeListCommand extends IdeCommandBase {
 
-  /**
-   * @var string
-   */
-  // phpcs:ignore
-  protected static $defaultDescription = 'List available Cloud IDEs belonging to a given application';
-
   protected function configure(): void {
-    $this->setAliases(['ide:list']);
     $this->acceptApplicationUuid();
   }
 

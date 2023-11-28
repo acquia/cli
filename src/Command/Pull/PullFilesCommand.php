@@ -9,14 +9,8 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-#[AsCommand(name: 'pull:files')]
+#[AsCommand(name: 'pull:files', 'Copy Drupal public files from a Cloud Platform environment to your local environment')]
 class PullFilesCommand extends PullCommandBase {
-
-  /**
-   * @var string
-   */
-  // phpcs:ignore
-  protected static $defaultDescription = 'Copy Drupal public files from a Cloud Platform environment to your local environment';
 
   protected function configure(): void {
     $this

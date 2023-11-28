@@ -11,14 +11,9 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-#[AsCommand(name: 'codestudio:php-version')]
+#[AsCommand(name: 'codestudio:php-version', 'Change the PHP version in Code Studio')]
 class CodeStudioPhpVersionCommand extends CommandBase {
 
-  /**
-   * @var string
-   */
-  // phpcs:ignore
-  protected static $defaultDescription = 'Change the PHP version in Code Studio';
   use CodeStudioCommandTrait;
 
   protected function configure(): void {
