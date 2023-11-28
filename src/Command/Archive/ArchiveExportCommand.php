@@ -21,6 +21,11 @@ use Symfony\Component\Filesystem\Path;
 #[AsCommand(name: 'archive:export')]
 class ArchiveExportCommand extends CommandBase {
 
+  /**
+   * @var string
+   */
+  // phpcs:ignore
+  protected static $defaultDescription = 'Export an archive of the Drupal application including code, files, and database';
   protected Checklist $checklist;
 
   private Filesystem $fs;
@@ -37,7 +42,7 @@ class ArchiveExportCommand extends CommandBase {
   }
 
   protected function configure(): void {
-    $this->setDescription('Export an archive of the Drupal application including code, files, and database')
+    $this
       ->addArgument('destination-dir', InputArgument::REQUIRED, 'The destination directory for the archive file')
       ->addOption('source-dir', 'dir', InputOption::VALUE_REQUIRED, 'The directory containing the Drupal project to be pushed')
       ->addOption('no-files', NULL, InputOption::VALUE_NONE, 'Exclude public files directory from archive')

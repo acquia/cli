@@ -14,8 +14,14 @@ use Symfony\Component\Console\Output\OutputInterface;
 #[AsCommand(name: 'auth:acsf-login')]
 class AuthAcsfLoginCommand extends CommandBase {
 
+  /**
+   * @var string
+   */
+  // phpcs:ignore
+  protected static $defaultDescription = 'Register your Site Factory API key and secret to use API functionality';
+
   protected function configure(): void {
-    $this->setDescription('Register your Site Factory API key and secret to use API functionality')
+    $this
       ->addOption('username', 'u', InputOption::VALUE_REQUIRED, "Your Site Factory username")
       ->addOption('key', 'k', InputOption::VALUE_REQUIRED, "Your Site Factory key")
       ->addOption('factory-url', 'f', InputOption::VALUE_REQUIRED, "Your Site Factory URL");

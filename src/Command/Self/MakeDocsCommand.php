@@ -14,8 +14,14 @@ use Symfony\Component\Console\Output\OutputInterface;
 #[AsCommand(name: 'self:make-docs')]
 class MakeDocsCommand extends CommandBase {
 
+  /**
+   * @var string
+   */
+  // phpcs:ignore
+  protected static $defaultDescription = 'Generate documentation for all ACLI commands';
+
   protected function configure(): void {
-    $this->setDescription('Generate documentation for all ACLI commands')
+    $this
       ->setHidden();
   }
 

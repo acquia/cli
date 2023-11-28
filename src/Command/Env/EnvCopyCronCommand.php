@@ -16,8 +16,14 @@ use Symfony\Component\Console\Output\OutputInterface;
 #[AsCommand(name: 'env:cron-copy')]
 class EnvCopyCronCommand extends CommandBase {
 
+  /**
+   * @var string
+   */
+  // phpcs:ignore
+  protected static $defaultDescription = 'Copy all cron tasks from one Acquia Cloud Platform environment to another';
+
   protected function configure(): void {
-    $this->setDescription('Copy all cron tasks from one Acquia Cloud Platform environment to another')
+    $this
       ->addArgument('source_env', InputArgument::REQUIRED, 'Alias of the source environment in the format `app-name.env` or the environment uuid')
       ->addArgument('dest_env', InputArgument::REQUIRED, 'Alias of the destination environment in the format `app-name.env` or the environment uuid')
       ->addUsage('<srcEnvironmentAlias> <destEnvironmentAlias>')

@@ -14,8 +14,14 @@ use Symfony\Component\Console\Question\ChoiceQuestion;
 #[AsCommand(name: 'docs')]
 class DocsCommand extends CommandBase {
 
+  /**
+   * @var string
+   */
+  // phpcs:ignore
+  protected static $defaultDescription = 'Open Acquia product documentation in a web browser';
+
   protected function configure(): void {
-    $this->setDescription('Open Acquia product documentation in a web browser')
+    $this
       ->addArgument('product', InputArgument::OPTIONAL, 'Acquia Product Name')
       ->addUsage('acli');
   }

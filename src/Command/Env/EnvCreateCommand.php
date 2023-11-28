@@ -19,10 +19,14 @@ use Symfony\Component\Console\Output\OutputInterface;
 #[AsCommand(name: 'env:create')]
 class EnvCreateCommand extends CommandBase {
 
+  /**
+   * @var string
+   */
+  // phpcs:ignore
+  protected static $defaultDescription = 'Create a new Continuous Delivery Environment (CDE)';
   private Checklist $checklist;
 
   protected function configure(): void {
-    $this->setDescription('Create a new Continuous Delivery Environment (CDE)');
     $this->addArgument('label', InputArgument::REQUIRED, 'The label of the new environment');
     $this->addArgument('branch', InputArgument::OPTIONAL, 'The vcs path (git branch name) to deploy to the new environment');
     $this->acceptApplicationUuid();

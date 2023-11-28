@@ -17,12 +17,18 @@ use Symfony\Component\Console\Output\OutputInterface;
 #[AsCommand(name: 'push:database')]
 class PushDatabaseCommand extends PullCommandBase {
 
+  /**
+   * @var string
+   */
+  // phpcs:ignore
+  protected static $defaultDescription = 'Push a database from your local environment to a Cloud Platform environment';
+
   protected function commandRequiresDatabase(): bool {
     return TRUE;
   }
 
   protected function configure(): void {
-    $this->setDescription('Push a database from your local environment to a Cloud Platform environment')
+    $this
       ->setAliases(['push:db'])
       ->acceptEnvironmentId()
       ->acceptSite();

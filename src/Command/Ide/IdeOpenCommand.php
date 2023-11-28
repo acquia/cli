@@ -14,8 +14,14 @@ use Symfony\Component\Console\Output\OutputInterface;
 #[AsCommand(name: 'ide:open')]
 class IdeOpenCommand extends IdeCommandBase {
 
+  /**
+   * @var string
+   */
+  // phpcs:ignore
+  protected static $defaultDescription = 'Open a Cloud IDE in your browser';
+
   protected function configure(): void {
-    $this->setDescription('Open a Cloud IDE in your browser')
+    $this
       ->setHidden(AcquiaDrupalEnvironmentDetector::isAhIdeEnv());
     $this->acceptApplicationUuid();
     // @todo Add option to accept an ide UUID.

@@ -15,10 +15,15 @@ use Symfony\Component\Console\Output\OutputInterface;
 #[AsCommand(name: 'ide:wizard:ssh-key:delete')]
 class IdeWizardDeleteSshKeyCommand extends IdeWizardCommandBase {
 
+  /**
+   * @var string
+   */
+  // phpcs:ignore
+  protected static $defaultDescription = 'Wizard to delete SSH key for IDE from Cloud';
   use SshCommandTrait;
 
   protected function configure(): void {
-    $this->setDescription('Wizard to delete SSH key for IDE from Cloud')
+    $this
       ->setHidden(!CommandBase::isAcquiaCloudIde());
   }
 

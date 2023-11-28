@@ -14,8 +14,14 @@ use Symfony\Component\Console\Output\OutputInterface;
 #[AsCommand(name: 'app:unlink')]
 class UnlinkCommand extends CommandBase {
 
+  /**
+   * @var string
+   */
+  // phpcs:ignore
+  protected static $defaultDescription = 'Remove local association between your project and a Cloud Platform application';
+
   protected function configure(): void {
-    $this->setDescription('Remove local association between your project and a Cloud Platform application')
+    $this
       ->setAliases(['unlink']);
   }
 

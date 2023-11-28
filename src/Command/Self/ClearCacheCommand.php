@@ -15,8 +15,14 @@ use Symfony\Component\Filesystem\Path;
 #[AsCommand(name: 'self:clear-caches')]
 class ClearCacheCommand extends CommandBase {
 
+  /**
+   * @var string
+   */
+  // phpcs:ignore
+  protected static $defaultDescription = 'Clears local Acquia CLI caches';
+
   protected function configure(): void {
-    $this->setDescription('Clears local Acquia CLI caches')
+    $this
       ->setAliases(['cc', 'cr']);
   }
 

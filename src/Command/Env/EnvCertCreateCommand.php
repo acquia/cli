@@ -16,8 +16,14 @@ use Symfony\Component\Console\Output\OutputInterface;
 #[AsCommand(name: 'env:certificate-create')]
 class EnvCertCreateCommand extends CommandBase {
 
+  /**
+   * @var string
+   */
+  // phpcs:ignore
+  protected static $defaultDescription = 'Install an SSL certificate.';
+
   protected function configure(): void {
-    $this->setDescription('Install an SSL certificate.')
+    $this
       ->addArgument('certificate', InputArgument::REQUIRED, 'Filename of the SSL certificate being installed')
       ->addArgument('private-key', InputArgument::REQUIRED, 'Filename of the SSL private key')
       ->addOption('legacy', '', InputOption::VALUE_OPTIONAL, 'True for legacy certificates', FALSE)

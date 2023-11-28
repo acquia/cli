@@ -23,12 +23,16 @@ use Symfony\Component\Validator\Validation;
 #[AsCommand(name: 'ide:create')]
 class IdeCreateCommand extends IdeCommandBase {
 
+  /**
+   * @var string
+   */
+  // phpcs:ignore
+  protected static $defaultDescription = 'Create a Cloud IDE';
   private IdeResponse $ide;
 
   private Client $client;
 
   protected function configure(): void {
-    $this->setDescription('Create a Cloud IDE');
     $this->acceptApplicationUuid();
     $this->addOption('label', NULL, InputOption::VALUE_REQUIRED, 'The label for the IDE');
   }

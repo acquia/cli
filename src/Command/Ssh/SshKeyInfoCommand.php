@@ -16,8 +16,14 @@ use Symfony\Component\Console\Output\OutputInterface;
 #[AsCommand(name: 'ssh-key:info')]
 class SshKeyInfoCommand extends SshKeyCommandBase {
 
+  /**
+   * @var string
+   */
+  // phpcs:ignore
+  protected static $defaultDescription = 'Print information about an SSH key';
+
   protected function configure(): void {
-    $this->setDescription('Print information about an SSH key')
+    $this
       ->addOption('fingerprint', NULL, InputOption::VALUE_REQUIRED, 'sha256 fingerprint')
       ->addUsage('--fingerprint=pyarUa1mt2ln4fmrp7alWKpv1IPneqFwE+ErTC71IvY=');
   }

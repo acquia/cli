@@ -14,8 +14,13 @@ use Symfony\Component\Console\Output\OutputInterface;
 #[AsCommand(name: 'ide:info')]
 class IdeInfoCommand extends IdeCommandBase {
 
+  /**
+   * @var string
+   */
+  // phpcs:ignore
+  protected static $defaultDescription = 'Print information about a Cloud IDE';
+
   protected function configure(): void {
-    $this->setDescription('Print information about a Cloud IDE');
     $this->acceptApplicationUuid();
   }
 

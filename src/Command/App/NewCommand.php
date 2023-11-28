@@ -17,8 +17,14 @@ use Symfony\Component\Filesystem\Path;
 #[AsCommand(name: 'app:new:local')]
 class NewCommand extends CommandBase {
 
+  /**
+   * @var string
+   */
+  // phpcs:ignore
+  protected static $defaultDescription = 'Create a new Drupal or Next.js project';
+
   protected function configure(): void {
-    $this->setDescription('Create a new Drupal or Next.js project')
+    $this
       ->addArgument('directory', InputArgument::OPTIONAL, 'The destination directory')
       ->setAliases(['new']);
   }

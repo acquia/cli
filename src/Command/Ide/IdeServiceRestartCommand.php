@@ -17,12 +17,18 @@ use Symfony\Component\Validator\Validation;
 #[AsCommand(name: 'ide:service-restart')]
 class IdeServiceRestartCommand extends IdeCommandBase {
 
+  /**
+   * @var string
+   */
+  // phpcs:ignore
+  protected static $defaultDescription = 'Restart a service in the Cloud IDE';
+
   protected function commandRequiresAuthentication(): bool {
     return FALSE;
   }
 
   protected function configure(): void {
-    $this->setDescription('Restart a service in the Cloud IDE')
+    $this
       ->addArgument('service', InputArgument::REQUIRED, 'The name of the service to restart')
       ->addUsage('php')
       ->addUsage('apache')

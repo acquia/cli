@@ -13,8 +13,14 @@ use Symfony\Component\Console\Output\OutputInterface;
 #[AsCommand(name: 'app:link')]
 class LinkCommand extends CommandBase {
 
+  /**
+   * @var string
+   */
+  // phpcs:ignore
+  protected static $defaultDescription = 'Associate your project with a Cloud Platform application';
+
   protected function configure(): void {
-    $this->setDescription('Associate your project with a Cloud Platform application')
+    $this
       ->setAliases(['link']);
     $this->acceptApplicationUuid();
   }

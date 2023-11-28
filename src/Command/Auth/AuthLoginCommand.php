@@ -14,8 +14,14 @@ use Symfony\Component\Console\Output\OutputInterface;
 #[AsCommand(name: 'auth:login')]
 class AuthLoginCommand extends CommandBase {
 
+  /**
+   * @var string
+   */
+  // phpcs:ignore
+  protected static $defaultDescription = 'Register your Cloud API key and secret to use API functionality';
+
   protected function configure(): void {
-    $this->setDescription('Register your Cloud API key and secret to use API functionality')
+    $this
       ->setAliases(['login'])
       ->addOption('key', 'k', InputOption::VALUE_REQUIRED, 'Your Cloud API key')
       ->addOption('secret', 's', InputOption::VALUE_REQUIRED, 'Your Cloud API secret');

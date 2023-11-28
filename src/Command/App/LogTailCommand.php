@@ -14,8 +14,14 @@ use Symfony\Component\Console\Output\OutputInterface;
 #[AsCommand(name: 'app:log:tail')]
 class LogTailCommand extends CommandBase {
 
+  /**
+   * @var string
+   */
+  // phpcs:ignore
+  protected static $defaultDescription = 'Tail the logs from your environments';
+
   protected function configure(): void {
-    $this->setDescription('Tail the logs from your environments')
+    $this
       ->acceptEnvironmentId()
       ->setAliases(['tail', 'log:tail']);
   }

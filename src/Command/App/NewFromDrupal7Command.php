@@ -26,6 +26,11 @@ use Symfony\Component\Validator\Exception\ValidatorException;
 class NewFromDrupal7Command extends CommandBase {
 
   /**
+   * @var string
+   */
+  // phpcs:ignore
+  protected static $defaultDescription = 'Generate a new Drupal 9+ project from a Drupal 7 application using the default Acquia Migrate Accelerate recommendations.';
+  /**
    * Exit code raised when the URI flag does not correspond to configuration.
    *
    * This typically indicates the value of the --drupal7-uri flag does not
@@ -42,7 +47,7 @@ class NewFromDrupal7Command extends CommandBase {
   public const ERR_INDETERMINATE_SITE = 4;
 
   protected function configure(): void {
-    $this->setDescription('Generate a new Drupal 9+ project from a Drupal 7 application using the default Acquia Migrate Accelerate recommendations.')
+    $this
       ->addOption('drupal7-directory', 'source', InputOption::VALUE_OPTIONAL, 'The root of the Drupal 7 application')
       ->addOption('drupal7-uri', 'uri', InputOption::VALUE_OPTIONAL, 'Only necessary in case of a multisite. If a single site, this will be computed automatically.')
       ->addOption('stored-analysis', 'analysis', InputOption::VALUE_OPTIONAL, 'As an alternative to drupal7-directory, it is possible to pass a stored analysis.')

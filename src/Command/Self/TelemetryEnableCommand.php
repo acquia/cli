@@ -14,12 +14,18 @@ use Symfony\Component\Console\Output\OutputInterface;
 #[AsCommand(name: 'self:telemetry:enable')]
 class TelemetryEnableCommand extends CommandBase {
 
+  /**
+   * @var string
+   */
+  // phpcs:ignore
+  protected static $defaultDescription = 'Enable anonymous sharing of usage and performance data';
+
   protected function commandRequiresAuthentication(): bool {
     return FALSE;
   }
 
   protected function configure(): void {
-    $this->setDescription('Enable anonymous sharing of usage and performance data')
+    $this
       ->setAliases(['telemetry:enable']);
   }
 

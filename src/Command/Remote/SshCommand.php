@@ -16,8 +16,14 @@ use Symfony\Component\Console\Output\OutputInterface;
 #[AsCommand(name: 'remote:ssh')]
 class SshCommand extends SshBaseCommand {
 
+  /**
+   * @var string
+   */
+  // phpcs:ignore
+  protected static $defaultDescription = 'Use SSH to open a shell or run a command in a Cloud Platform environment';
+
   protected function configure(): void {
-    $this->setDescription('Use SSH to open a shell or run a command in a Cloud Platform environment')
+    $this
       ->setAliases(['ssh'])
       ->addArgument('alias', InputArgument::REQUIRED, 'Alias for application & environment in the format `app-name.env`')
       ->addArgument('ssh_command', InputArgument::IS_ARRAY, 'Command to run via SSH (if not provided, opens a shell in the site directory)')

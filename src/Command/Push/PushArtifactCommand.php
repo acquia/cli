@@ -20,6 +20,11 @@ use Symfony\Component\Filesystem\Path;
 class PushArtifactCommand extends PullCommandBase {
 
   /**
+   * @var string
+   */
+  // phpcs:ignore
+  protected static $defaultDescription = 'Build and push a code artifact to a Cloud Platform environment';
+  /**
    * Composer vendor directories.
    *
    * @var array<mixed>
@@ -40,7 +45,7 @@ class PushArtifactCommand extends PullCommandBase {
   private string $destinationGitRef;
 
   protected function configure(): void {
-    $this->setDescription('Build and push a code artifact to a Cloud Platform environment')
+    $this
       ->addOption('dir', NULL, InputArgument::OPTIONAL, 'The directory containing the Drupal project to be pushed')
       ->addOption('no-sanitize', NULL, InputOption::VALUE_NONE, 'Do not sanitize the build artifact')
       ->addOption('dry-run', NULL, InputOption::VALUE_NONE, 'Deprecated: Use no-push instead')

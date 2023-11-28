@@ -13,8 +13,14 @@ use Symfony\Component\Console\Output\OutputInterface;
 #[AsCommand(name: 'pull:run-scripts')]
 class PullScriptsCommand extends PullCommandBase {
 
+  /**
+   * @var string
+   */
+  // phpcs:ignore
+  protected static $defaultDescription = 'Execute post pull scripts';
+
   protected function configure(): void {
-    $this->setDescription('Execute post pull scripts')
+    $this
       ->acceptEnvironmentId()
       ->addOption('dir', NULL, InputArgument::OPTIONAL, 'The directory containing the Drupal project to be refreshed');
   }

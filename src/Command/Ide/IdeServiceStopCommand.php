@@ -17,12 +17,18 @@ use Symfony\Component\Validator\Validation;
 #[AsCommand(name: 'ide:service-stop')]
 class IdeServiceStopCommand extends IdeCommandBase {
 
+  /**
+   * @var string
+   */
+  // phpcs:ignore
+  protected static $defaultDescription = 'Stop a service in the Cloud IDE';
+
   protected function commandRequiresAuthentication(): bool {
     return FALSE;
   }
 
   protected function configure(): void {
-    $this->setDescription('Stop a service in the Cloud IDE')
+    $this
       ->addArgument('service', InputArgument::REQUIRED, 'The name of the service to stop')
       ->addUsage('php')
       ->addUsage('apache')

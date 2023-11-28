@@ -13,12 +13,18 @@ use Symfony\Component\Console\Output\OutputInterface;
 #[AsCommand(name: 'pull:database')]
 class PullDatabaseCommand extends PullCommandBase {
 
+  /**
+   * @var string
+   */
+  // phpcs:ignore
+  protected static $defaultDescription = 'Import database backup from a Cloud Platform environment';
+
   protected function commandRequiresDatabase(): bool {
     return TRUE;
   }
 
   protected function configure(): void {
-    $this->setDescription('Import database backup from a Cloud Platform environment')
+    $this
       ->setHelp('This uses the latest available database backup, which may be up to 24 hours old. If no backup exists, one will be created.')
       ->setAliases(['pull:db'])
       ->acceptEnvironmentId()

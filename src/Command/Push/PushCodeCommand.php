@@ -14,8 +14,14 @@ use Symfony\Component\Console\Output\OutputInterface;
 #[AsCommand(name: 'push:code')]
 class PushCodeCommand extends PullCommandBase {
 
+  /**
+   * @var string
+   */
+  // phpcs:ignore
+  protected static $defaultDescription = 'Push code from your IDE to a Cloud Platform environment';
+
   protected function configure(): void {
-    $this->setDescription('Push code from your IDE to a Cloud Platform environment')
+    $this
       ->setHidden(!AcquiaDrupalEnvironmentDetector::isAhIdeEnv() && !self::isLandoEnv());
   }
 

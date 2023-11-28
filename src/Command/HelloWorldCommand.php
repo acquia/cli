@@ -12,8 +12,14 @@ use Symfony\Component\Console\Output\OutputInterface;
 #[AsCommand(name: 'hello-world')]
 class HelloWorldCommand extends CommandBase {
 
+  /**
+   * @var string
+   */
+  // phpcs:ignore
+  protected static $defaultDescription = 'Test command used for asserting core functionality';
+
   protected function configure(): void {
-    $this->setDescription('Test command used for asserting core functionality')
+    $this
       ->setHidden();
   }
 

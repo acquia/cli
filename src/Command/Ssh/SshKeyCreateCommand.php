@@ -13,8 +13,14 @@ use Symfony\Component\Console\Output\OutputInterface;
 #[AsCommand(name: 'ssh-key:create')]
 class SshKeyCreateCommand extends SshKeyCommandBase {
 
+  /**
+   * @var string
+   */
+  // phpcs:ignore
+  protected static $defaultDescription = 'Create an SSH key on your local machine';
+
   protected function configure(): void {
-    $this->setDescription('Create an SSH key on your local machine')
+    $this
       ->addOption('filename', NULL, InputOption::VALUE_REQUIRED, 'The filename of the SSH key')
       ->addOption('password', NULL, InputOption::VALUE_REQUIRED, 'The password for the SSH key');
   }

@@ -21,8 +21,14 @@ use Symfony\Component\Console\Output\OutputInterface;
 #[AsCommand(name: 'email:info')]
 class EmailInfoForSubscriptionCommand extends CommandBase {
 
+  /**
+   * @var string
+   */
+  // phpcs:ignore
+  protected static $defaultDescription = 'Print information related to Platform Email set up in a subscription.';
+
   protected function configure(): void {
-    $this->setDescription('Print information related to Platform Email set up in a subscription.')
+    $this
       ->addArgument('subscriptionUuid', InputArgument::OPTIONAL, 'The subscription UUID whose Platform Email configuration is to be checked.')
       ->setHelp('This command lists information related to Platform Email for a subscription, including which domains have been validated, which have not, and which applications have Platform Email domains associated.');
   }

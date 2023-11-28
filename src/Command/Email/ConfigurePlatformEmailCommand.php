@@ -28,8 +28,14 @@ use Symfony\Component\Yaml\Yaml;
 #[AsCommand(name: 'email:configure')]
 class ConfigurePlatformEmailCommand extends CommandBase {
 
+  /**
+   * @var string
+   */
+  // phpcs:ignore
+  protected static $defaultDescription = 'Configure Platform email for one or more applications';
+
   protected function configure(): void {
-    $this->setDescription('Configure Platform email for one or more applications')
+    $this
       ->addArgument('subscriptionUuid', InputArgument::OPTIONAL, 'The subscription UUID to register the domain with.')
       ->setHelp('This command configures Platform Email for a domain in a subscription. It registers the domain with the subscription, associates the domain with an application or set of applications, and enables Platform Email for selected environments of these applications.')
       ->setAliases(['ec']);

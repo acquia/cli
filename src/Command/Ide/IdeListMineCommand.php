@@ -16,8 +16,13 @@ use Symfony\Component\Console\Output\OutputInterface;
 #[AsCommand(name: 'ide:list:mine')]
 class IdeListMineCommand extends IdeCommandBase {
 
+  /**
+   * @var string
+   */
+  // phpcs:ignore
+  protected static $defaultDescription = 'List Cloud IDEs belonging to you';
+
   protected function configure(): void {
-    $this->setDescription('List Cloud IDEs belonging to you');
   }
 
   protected function execute(InputInterface $input, OutputInterface $output): int {

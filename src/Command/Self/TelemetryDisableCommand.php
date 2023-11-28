@@ -14,12 +14,18 @@ use Symfony\Component\Console\Output\OutputInterface;
 #[AsCommand(name: 'self:telemetry:disable')]
 class TelemetryDisableCommand extends CommandBase {
 
+  /**
+   * @var string
+   */
+  // phpcs:ignore
+  protected static $defaultDescription = 'Disable anonymous sharing of usage and performance data';
+
   protected function commandRequiresAuthentication(): bool {
     return FALSE;
   }
 
   protected function configure(): void {
-    $this->setDescription('Disable anonymous sharing of usage and performance data')
+    $this
       ->setAliases(['telemetry:disable']);
   }
 

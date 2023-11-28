@@ -14,10 +14,14 @@ use Symfony\Component\Console\Output\OutputInterface;
 #[AsCommand(name: 'ide:delete')]
 class IdeDeleteCommand extends IdeCommandBase {
 
+  /**
+   * @var string
+   */
+  // phpcs:ignore
+  protected static $defaultDescription = 'Delete a Cloud IDE';
   use SshCommandTrait;
 
   protected function configure(): void {
-    $this->setDescription('Delete a Cloud IDE');
     $this->acceptApplicationUuid();
     // @todo Add option to accept an ide UUID.
   }

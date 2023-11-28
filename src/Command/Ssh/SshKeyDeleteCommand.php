@@ -13,10 +13,15 @@ use Symfony\Component\Console\Output\OutputInterface;
 #[AsCommand(name: 'ssh-key:delete')]
 class SshKeyDeleteCommand extends SshKeyCommandBase {
 
+  /**
+   * @var string
+   */
+  // phpcs:ignore
+  protected static $defaultDescription = 'Delete an SSH key';
   use SshCommandTrait;
 
   protected function configure(): void {
-    $this->setDescription('Delete an SSH key')
+    $this
       ->addOption('cloud-key-uuid', 'uuid', InputOption::VALUE_REQUIRED);
   }
 

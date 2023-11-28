@@ -14,12 +14,18 @@ use Symfony\Component\Console\Output\OutputInterface;
 #[AsCommand(name: 'pull:code')]
 class PullCodeCommand extends PullCommandBase {
 
+  /**
+   * @var string
+   */
+  // phpcs:ignore
+  protected static $defaultDescription = 'Copy code from a Cloud Platform environment';
+
   protected function commandRequiresDatabase(): bool {
     return TRUE;
   }
 
   protected function configure(): void {
-    $this->setDescription('Copy code from a Cloud Platform environment')
+    $this
       ->acceptEnvironmentId()
       ->addOption('dir', NULL, InputArgument::OPTIONAL, 'The directory containing the Drupal project to be refreshed')
       ->addOption('no-scripts', NULL, InputOption::VALUE_NONE,

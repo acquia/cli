@@ -16,8 +16,14 @@ use Symfony\Component\Console\Output\OutputInterface;
 #[AsCommand(name: 'remote:aliases:list')]
 class AliasListCommand extends CommandBase {
 
+  /**
+   * @var string
+   */
+  // phpcs:ignore
+  protected static $defaultDescription = 'List all aliases for the Cloud Platform environments';
+
   protected function configure(): void {
-    $this->setDescription('List all aliases for the Cloud Platform environments')
+    $this
       ->setAliases(['aliases', 'sa']);
     $this->acceptApplicationUuid();
   }

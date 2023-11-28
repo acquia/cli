@@ -14,8 +14,14 @@ use Symfony\Component\Console\Output\OutputInterface;
 #[AsCommand(name: 'app:open')]
 class AppOpenCommand extends CommandBase {
 
+  /**
+   * @var string
+   */
+  // phpcs:ignore
+  protected static $defaultDescription = 'Opens your browser to view a given Cloud application';
+
   protected function configure(): void {
-    $this->setDescription('Opens your browser to view a given Cloud application')
+    $this
       ->acceptApplicationUuid()
       ->setAliases(['open', 'o']);
   }

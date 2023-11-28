@@ -13,8 +13,13 @@ use Symfony\Component\Console\Output\OutputInterface;
 #[AsCommand(name: 'auth:acsf-logout')]
 class AuthAcsfLogoutCommand extends CommandBase {
 
+  /**
+   * @var string
+   */
+  // phpcs:ignore
+  protected static $defaultDescription = 'Remove your Site Factory key and secret from your local machine.';
+
   protected function configure(): void {
-    $this->setDescription('Remove your Site Factory key and secret from your local machine.');
   }
 
   protected function commandRequiresAuthentication(): bool {

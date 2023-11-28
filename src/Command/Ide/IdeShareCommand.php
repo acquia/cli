@@ -18,6 +18,11 @@ use Symfony\Component\Console\Output\OutputInterface;
 class IdeShareCommand extends CommandBase {
 
   /**
+   * @var string
+   */
+  // phpcs:ignore
+  protected static $defaultDescription = 'Get the share URL for a Cloud IDE';
+  /**
    * @var array<mixed>
    */
   private array $shareCodeFilepaths;
@@ -27,7 +32,7 @@ class IdeShareCommand extends CommandBase {
   }
 
   protected function configure(): void {
-    $this->setDescription('Get the share URL for a Cloud IDE')
+    $this
       ->addOption('regenerate', '', InputOption::VALUE_NONE, 'regenerate the share code')
       ->setHidden(!AcquiaDrupalEnvironmentDetector::isAhIdeEnv());
   }

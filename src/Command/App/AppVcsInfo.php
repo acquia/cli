@@ -17,8 +17,14 @@ use Symfony\Component\Console\Output\OutputInterface;
 #[AsCommand(name: 'app:vcs:info')]
 class AppVcsInfo extends CommandBase {
 
+  /**
+   * @var string
+   */
+  // phpcs:ignore
+  protected static $defaultDescription = 'Get all branches and tags of the application with the deployment status';
+
   protected function configure(): void {
-    $this->setDescription('Get all branches and tags of the application with the deployment status')
+    $this
       ->addOption('deployed', NULL, InputOption::VALUE_OPTIONAL, 'Show only deployed branches and tags')
       ->addUsage('[<applicationAlias>] --deployed');
     $this->acceptApplicationUuid();

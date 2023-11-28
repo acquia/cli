@@ -14,10 +14,15 @@ use Symfony\Component\Console\Output\OutputInterface;
 #[AsCommand(name: 'codestudio:php-version')]
 class CodeStudioPhpVersionCommand extends CommandBase {
 
+  /**
+   * @var string
+   */
+  // phpcs:ignore
+  protected static $defaultDescription = 'Change the PHP version in Code Studio';
   use CodeStudioCommandTrait;
 
   protected function configure(): void {
-    $this->setDescription('Change the PHP version in Code Studio')
+    $this
       ->addArgument('php-version', InputArgument::REQUIRED, 'The PHP version that needs to configured or updated')
       ->addUsage('8.1 myapp')
       ->addUsage('8.1 abcd1234-1111-2222-3333-0e02b2c3d470');

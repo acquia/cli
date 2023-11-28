@@ -23,10 +23,15 @@ use Symfony\Component\Filesystem\Path;
 #[AsCommand(name: 'remote:aliases:download')]
 class AliasesDownloadCommand extends SshCommand {
 
+  /**
+   * @var string
+   */
+  // phpcs:ignore
+  protected static $defaultDescription = 'Download Drush aliases for the Cloud Platform';
   private string $drushArchiveFilepath;
 
   protected function configure(): void {
-    $this->setDescription('Download Drush aliases for the Cloud Platform')
+    $this
       ->addOption('destination-dir', NULL, InputOption::VALUE_REQUIRED, 'The directory to which aliases will be downloaded')
       ->addOption('all', NULL, InputOption::VALUE_NONE, 'Download the aliases for all applications that you have access to, not just the current one.');
     $this->acceptApplicationUuid();

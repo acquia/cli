@@ -15,6 +15,11 @@ use Symfony\Component\Console\Output\OutputInterface;
 #[AsCommand(name: 'ide:php-version')]
 class IdePhpVersionCommand extends IdeCommandBase {
 
+  /**
+   * @var string
+   */
+  // phpcs:ignore
+  protected static $defaultDescription = 'Change the PHP version in the current IDE';
   private string $idePhpFilePathPrefix;
 
   /*
@@ -27,7 +32,7 @@ class IdePhpVersionCommand extends IdeCommandBase {
   }
 
   protected function configure(): void {
-    $this->setDescription('Change the PHP version in the current IDE')
+    $this
       ->addArgument('version', InputArgument::REQUIRED, 'The PHP version')
       ->setHidden(!AcquiaDrupalEnvironmentDetector::isAhIdeEnv());
   }
