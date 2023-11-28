@@ -15,21 +15,20 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-#[AsCommand(name: 'codestudio:wizard')]
-class CodeStudioWizardCommand extends WizardCommandBase {
+#[AsCommand(name: 'codestudio:wizard', description: 'Create and/or configure a new Code Studio project for a given Acquia Cloud application', aliases: ['cs:wizard'])]
+final class CodeStudioWizardCommand extends WizardCommandBase {
 
   use CodeStudioCommandTrait;
 
   private Checklist $checklist;
 
   protected function configure(): void {
-    $this->setDescription('Create and/or configure a new Code Studio project for a given Acquia Cloud application')
+    $this
       ->addOption('key', NULL, InputOption::VALUE_REQUIRED, 'The Cloud Platform API token that Code Studio will use')
       ->addOption('secret', NULL, InputOption::VALUE_REQUIRED, 'The Cloud Platform API secret that Code Studio will use')
       ->addOption('gitlab-token', NULL, InputOption::VALUE_REQUIRED, 'The GitLab personal access token that will be used to communicate with the GitLab instance')
       ->addOption('gitlab-project-id', NULL, InputOption::VALUE_REQUIRED, 'The project ID (an integer) of the GitLab project to configure.')
-      ->addOption('gitlab-host-name', NULL, InputOption::VALUE_REQUIRED, 'The GitLab hostname.')
-      ->setAliases(['cs:wizard']);
+      ->addOption('gitlab-host-name', NULL, InputOption::VALUE_REQUIRED, 'The GitLab hostname.');
     $this->acceptApplicationUuid();
   }
 
@@ -114,10 +113,6 @@ class CodeStudioWizardCommand extends WizardCommandBase {
     $this->io->note(["If the {$account->mail} Cloud account is deleted in the future, this Code Studio project will need to be re-configured."]);
 
     return Command::SUCCESS;
-  }
-
-  protected function commandRequiresAuthentication(): bool {
-    return FALSE;
   }
 
   /**

@@ -5,6 +5,8 @@ declare(strict_types = 1);
 namespace Acquia\Cli\Command;
 
 use Acquia\Cli\ApiCredentialsInterface;
+use Acquia\Cli\Attribute\RequireAuth;
+use Acquia\Cli\Attribute\RequireDb;
 use Acquia\Cli\CloudApi\ClientService;
 use Acquia\Cli\Command\Ssh\SshKeyCommandBase;
 use Acquia\Cli\DataStore\AcquiaCliDatastore;
@@ -112,10 +114,10 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     $this->setLocalDbName();
     $this->setLocalDbHost();
     parent::__construct();
-    if ($this->commandRequiresAuthentication()) {
+    if ((new \ReflectionClass(static::class))->getAttributes(RequireAuth::class)) {
       $this->appendHelp('This command requires authentication via the Cloud Platform API.');
     }
-    if ($this->commandRequiresDatabase()) {
+    if ((new \ReflectionClass(static::class))->getAttributes(RequireDb::class)) {
       $this->appendHelp('This command requires an active database connection. Set the following environment variables prior to running this command: '
         . 'ACLI_DB_HOST, ACLI_DB_NAME, ACLI_DB_USER, ACLI_DB_PASSWORD');
     }
@@ -299,18 +301,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
       ->addUsage('myapp.dev default');
 
     return $this;
-  }
-
-  /**
-   * Indicates whether the command requires the machine to be authenticated with the Cloud Platform.
-   */
-  protected function commandRequiresAuthentication(): bool {
-    // Assume commands require authentication unless they opt out by overriding this method.
-    return TRUE;
-  }
-
-  protected function commandRequiresDatabase(): bool {
-    return FALSE;
   }
 
   /**
@@ -1477,7 +1467,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   }
 
   protected function checkAuthentication(): void {
-    if ($this->commandRequiresAuthentication() && !$this->cloudApiClientService->isMachineAuthenticated()) {
+    if ((new \ReflectionClass(static::class))->getAttributes(RequireAuth::class) && !$this->cloudApiClientService->isMachineAuthenticated()) {
       throw new AcquiaCliException('This machine is not yet authenticated with the Cloud Platform. Run `acli auth:login`');
     }
   }

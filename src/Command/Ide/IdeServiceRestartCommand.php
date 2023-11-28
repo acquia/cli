@@ -14,15 +14,11 @@ use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Exception\ValidatorException;
 use Symfony\Component\Validator\Validation;
 
-#[AsCommand(name: 'ide:service-restart')]
-class IdeServiceRestartCommand extends IdeCommandBase {
-
-  protected function commandRequiresAuthentication(): bool {
-    return FALSE;
-  }
+#[AsCommand(name: 'ide:service-restart', description: 'Restart a service in the Cloud IDE')]
+final class IdeServiceRestartCommand extends IdeCommandBase {
 
   protected function configure(): void {
-    $this->setDescription('Restart a service in the Cloud IDE')
+    $this
       ->addArgument('service', InputArgument::REQUIRED, 'The name of the service to restart')
       ->addUsage('php')
       ->addUsage('apache')

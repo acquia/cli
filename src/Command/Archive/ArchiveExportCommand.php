@@ -4,11 +4,14 @@ declare(strict_types = 1);
 
 namespace Acquia\Cli\Command\Archive;
 
+use Acquia\Cli\Attribute\RequireAuth;
+use Acquia\Cli\Attribute\RequireDb;
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Output\Checklist;
 use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
 use Closure;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -17,7 +20,10 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Path;
 
-class ArchiveExportCommand extends CommandBase {
+#[RequireAuth]
+#[RequireDb]
+#[AsCommand(name: 'archive:export', description: 'Export an archive of the Drupal application including code, files, and database')]
+final class ArchiveExportCommand extends CommandBase {
 
   protected Checklist $checklist;
 
@@ -30,13 +36,8 @@ class ArchiveExportCommand extends CommandBase {
 
   private const PUBLIC_FILES_DIR = '/docroot/sites/default/files';
 
-  protected function commandRequiresDatabase(): bool {
-    return TRUE;
-  }
-
   protected function configure(): void {
-    $this->setName('archive:export');
-    $this->setDescription('Export an archive of the Drupal application including code, files, and database')
+    $this
       ->addArgument('destination-dir', InputArgument::REQUIRED, 'The destination directory for the archive file')
       ->addOption('source-dir', 'dir', InputOption::VALUE_REQUIRED, 'The directory containing the Drupal project to be pushed')
       ->addOption('no-files', NULL, InputOption::VALUE_NONE, 'Exclude public files directory from archive')

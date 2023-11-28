@@ -10,16 +10,8 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-#[AsCommand(name: 'auth:acsf-logout')]
-class AuthAcsfLogoutCommand extends CommandBase {
-
-  protected function configure(): void {
-    $this->setDescription('Remove your Site Factory key and secret from your local machine.');
-  }
-
-  protected function commandRequiresAuthentication(): bool {
-    return FALSE;
-  }
+#[AsCommand(name: 'auth:acsf-logout', description: 'Remove your Site Factory key and secret from your local machine.')]
+final class AuthAcsfLogoutCommand extends CommandBase {
 
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $factories = $this->datastoreCloud->get('acsf_factories');

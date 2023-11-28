@@ -4,17 +4,19 @@ declare(strict_types = 1);
 
 namespace Acquia\Cli\Command\Ssh;
 
+use Acquia\Cli\Attribute\RequireAuth;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-#[AsCommand(name: 'ssh-key:create-upload')]
-class SshKeyCreateUploadCommand extends SshKeyCreateCommand {
+#[RequireAuth]
+#[AsCommand(name: 'ssh-key:create-upload', description: 'Create an SSH key on your local machine and upload it to the Cloud Platform')]
+final class SshKeyCreateUploadCommand extends SshKeyCommandBase {
 
   protected function configure(): void {
-    $this->setDescription('Create an SSH key on your local machine and upload it to the Cloud Platform')
+    $this
       ->addOption('filename', NULL, InputOption::VALUE_REQUIRED, 'The filename of the SSH key')
       ->addOption('password', NULL, InputOption::VALUE_REQUIRED, 'The password for the SSH key')
       ->addOption('label', NULL, InputOption::VALUE_REQUIRED, 'The SSH key label to be used with the Cloud Platform')

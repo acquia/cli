@@ -16,8 +16,8 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Path;
 
-#[AsCommand(name: 'push:artifact')]
-class PushArtifactCommand extends PullCommandBase {
+#[AsCommand(name: 'push:artifact', description: 'Build and push a code artifact to a Cloud Platform environment')]
+final class PushArtifactCommand extends PullCommandBase {
 
   /**
    * Composer vendor directories.
@@ -40,7 +40,7 @@ class PushArtifactCommand extends PullCommandBase {
   private string $destinationGitRef;
 
   protected function configure(): void {
-    $this->setDescription('Build and push a code artifact to a Cloud Platform environment')
+    $this
       ->addOption('dir', NULL, InputArgument::OPTIONAL, 'The directory containing the Drupal project to be pushed')
       ->addOption('no-sanitize', NULL, InputOption::VALUE_NONE, 'Do not sanitize the build artifact')
       ->addOption('dry-run', NULL, InputOption::VALUE_NONE, 'Deprecated: Use no-push instead')
@@ -58,10 +58,6 @@ class PushArtifactCommand extends PullCommandBase {
       ->addUsage('--destination-git-branch=main-build')
       ->addUsage('--source-git-tag=foo-build --destination-git-tag=1.0.0')
       ->addUsage('--destination-git-urls=example@svn-1.prod.hosting.acquia.com:example.git --destination-git-branch=main-build');
-  }
-
-  protected function commandRequiresAuthentication(): bool {
-    return FALSE;
   }
 
   protected function execute(InputInterface $input, OutputInterface $output): int {

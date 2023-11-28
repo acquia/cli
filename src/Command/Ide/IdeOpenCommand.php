@@ -4,6 +4,7 @@ declare(strict_types = 1);
 
 namespace Acquia\Cli\Command\Ide;
 
+use Acquia\Cli\Attribute\RequireAuth;
 use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
 use AcquiaCloudApi\Endpoints\Ides;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -11,11 +12,12 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-#[AsCommand(name: 'ide:open')]
-class IdeOpenCommand extends IdeCommandBase {
+#[RequireAuth]
+#[AsCommand(name: 'ide:open', description: 'Open a Cloud IDE in your browser')]
+final class IdeOpenCommand extends IdeCommandBase {
 
   protected function configure(): void {
-    $this->setDescription('Open a Cloud IDE in your browser')
+    $this
       ->setHidden(AcquiaDrupalEnvironmentDetector::isAhIdeEnv());
     $this->acceptApplicationUuid();
     // @todo Add option to accept an ide UUID.

@@ -9,13 +9,8 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-#[AsCommand(name: 'hello-world')]
-class HelloWorldCommand extends CommandBase {
-
-  protected function configure(): void {
-    $this->setDescription('Test command used for asserting core functionality')
-      ->setHidden();
-  }
+#[AsCommand(name: 'hello-world', description: 'Test command used for asserting core functionality', hidden: TRUE)]
+final class HelloWorldCommand extends CommandBase {
 
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $this->io->success('Hello world!');

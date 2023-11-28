@@ -4,6 +4,8 @@ declare(strict_types = 1);
 
 namespace Acquia\Cli\Command\Pull;
 
+use Acquia\Cli\Attribute\RequireAuth;
+use Acquia\Cli\Attribute\RequireDb;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -11,16 +13,13 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-#[AsCommand(name: 'pull:all')]
-class PullCommand extends PullCommandBase {
-
-  protected function commandRequiresDatabase(): bool {
-    return TRUE;
-  }
+#[RequireAuth]
+#[RequireDb]
+#[AsCommand(name: 'pull:all', description: 'Copy code, database, and files from a Cloud Platform environment', aliases: ['refresh', 'pull'])]
+final class PullCommand extends PullCommandBase {
 
   protected function configure(): void {
-    $this->setAliases(['refresh', 'pull'])
-      ->setDescription('Copy code, database, and files from a Cloud Platform environment')
+    $this
       ->acceptEnvironmentId()
       ->acceptSite()
       ->addOption('dir', NULL, InputArgument::OPTIONAL, 'The directory containing the Drupal project to be refreshed')

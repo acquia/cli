@@ -14,13 +14,12 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Path;
 
-#[AsCommand(name: 'app:new:local')]
-class NewCommand extends CommandBase {
+#[AsCommand(name: 'app:new:local', description: 'Create a new Drupal or Next.js project', aliases: ['new'])]
+final class NewCommand extends CommandBase {
 
   protected function configure(): void {
-    $this->setDescription('Create a new Drupal or Next.js project')
-      ->addArgument('directory', InputArgument::OPTIONAL, 'The destination directory')
-      ->setAliases(['new']);
+    $this
+      ->addArgument('directory', InputArgument::OPTIONAL, 'The destination directory');
   }
 
   protected function execute(InputInterface $input, OutputInterface $output): int {
@@ -63,10 +62,6 @@ class NewCommand extends CommandBase {
     $output->writeln($successMessage);
 
     return Command::SUCCESS;
-  }
-
-  protected function commandRequiresAuthentication(): bool {
-    return FALSE;
   }
 
   private function createNextJsProject(string $dir): void {

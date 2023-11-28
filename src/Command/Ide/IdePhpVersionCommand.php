@@ -12,22 +12,13 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-#[AsCommand(name: 'ide:php-version')]
-class IdePhpVersionCommand extends IdeCommandBase {
+#[AsCommand(name: 'ide:php-version', description: 'Change the PHP version in the current IDE')]
+final class IdePhpVersionCommand extends IdeCommandBase {
 
   private string $idePhpFilePathPrefix;
 
-  /*
-   * @param \Symfony\Component\Console\Input\InputInterface $input
-   *
-   * @return bool
-   */
-  protected function commandRequiresAuthentication(): bool {
-    return FALSE;
-  }
-
   protected function configure(): void {
-    $this->setDescription('Change the PHP version in the current IDE')
+    $this
       ->addArgument('version', InputArgument::REQUIRED, 'The PHP version')
       ->setHidden(!AcquiaDrupalEnvironmentDetector::isAhIdeEnv());
   }

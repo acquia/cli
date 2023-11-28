@@ -14,15 +14,11 @@ use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Exception\ValidatorException;
 use Symfony\Component\Validator\Validation;
 
-#[AsCommand(name: 'ide:service-stop')]
-class IdeServiceStopCommand extends IdeCommandBase {
-
-  protected function commandRequiresAuthentication(): bool {
-    return FALSE;
-  }
+#[AsCommand(name: 'ide:service-stop', description: 'Stop a service in the Cloud IDE')]
+final class IdeServiceStopCommand extends IdeCommandBase {
 
   protected function configure(): void {
-    $this->setDescription('Stop a service in the Cloud IDE')
+    $this
       ->addArgument('service', InputArgument::REQUIRED, 'The name of the service to stop')
       ->addUsage('php')
       ->addUsage('apache')

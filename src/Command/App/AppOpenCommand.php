@@ -4,6 +4,7 @@ declare(strict_types = 1);
 
 namespace Acquia\Cli\Command\App;
 
+use Acquia\Cli\Attribute\RequireAuth;
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -11,13 +12,13 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-#[AsCommand(name: 'app:open')]
-class AppOpenCommand extends CommandBase {
+#[RequireAuth]
+#[AsCommand(name: 'app:open', description: 'Opens your browser to view a given Cloud application', aliases: ['open', 'o'])]
+final class AppOpenCommand extends CommandBase {
 
   protected function configure(): void {
-    $this->setDescription('Opens your browser to view a given Cloud application')
-      ->acceptApplicationUuid()
-      ->setAliases(['open', 'o']);
+    $this
+      ->acceptApplicationUuid();
   }
 
   protected function execute(InputInterface $input, OutputInterface $output): int {

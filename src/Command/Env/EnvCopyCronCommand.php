@@ -4,6 +4,7 @@ declare(strict_types = 1);
 
 namespace Acquia\Cli\Command\Env;
 
+use Acquia\Cli\Attribute\RequireAuth;
 use Acquia\Cli\Command\CommandBase;
 use AcquiaCloudApi\Endpoints\Crons;
 use Exception;
@@ -13,11 +14,12 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-#[AsCommand(name: 'env:cron-copy')]
-class EnvCopyCronCommand extends CommandBase {
+#[RequireAuth]
+#[AsCommand(name: 'env:cron-copy', description: 'Copy all cron tasks from one Acquia Cloud Platform environment to another')]
+final class EnvCopyCronCommand extends CommandBase {
 
   protected function configure(): void {
-    $this->setDescription('Copy all cron tasks from one Acquia Cloud Platform environment to another')
+    $this
       ->addArgument('source_env', InputArgument::REQUIRED, 'Alias of the source environment in the format `app-name.env` or the environment uuid')
       ->addArgument('dest_env', InputArgument::REQUIRED, 'Alias of the destination environment in the format `app-name.env` or the environment uuid')
       ->addUsage('<srcEnvironmentAlias> <destEnvironmentAlias>')

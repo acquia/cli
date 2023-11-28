@@ -39,6 +39,7 @@ Available commands:
   completion               Dump the shell completion script
   docs                     Open Acquia product documentation in a web browser
   help                     Display help for a command
+  list                     [self:list] List commands
  acsf
   acsf:list                [acsf] List all Acquia Cloud Site Factory commands
  api
@@ -99,7 +100,6 @@ EOD;
   remote:ssh               [ssh] Use SSH to open a shell or run a command in a Cloud Platform environment
  self
   self:clear-caches        [cc|cr] Clears local Acquia CLI caches
-  self:list                [list] List commands
   self:telemetry:disable   [telemetry:disable] Disable anonymous sharing of usage and performance data
   self:telemetry:enable    [telemetry:enable] Enable anonymous sharing of usage and performance data
   self:telemetry:toggle    [telemetry] Toggle anonymous sharing of usage and performance data

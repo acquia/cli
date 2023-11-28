@@ -4,6 +4,7 @@ declare(strict_types = 1);
 
 namespace Acquia\Cli\Command\Ssh;
 
+use Acquia\Cli\Attribute\RequireAuth;
 use AcquiaCloudApi\Endpoints\SshKeys;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -11,12 +12,9 @@ use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-#[AsCommand(name: 'ssh-key:list')]
-class SshKeyListCommand extends SshKeyCommandBase {
-
-  protected function configure(): void {
-    $this->setDescription('List your local and remote SSH keys');
-  }
+#[RequireAuth]
+#[AsCommand(name: 'ssh-key:list', description: 'List your local and remote SSH keys')]
+final class SshKeyListCommand extends SshKeyCommandBase {
 
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $acquiaCloudClient = $this->cloudApiClientService->getClient();

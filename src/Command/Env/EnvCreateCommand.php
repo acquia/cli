@@ -4,6 +4,7 @@ declare(strict_types = 1);
 
 namespace Acquia\Cli\Command\Env;
 
+use Acquia\Cli\Attribute\RequireAuth;
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Output\Checklist;
@@ -16,13 +17,13 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-#[AsCommand(name: 'env:create')]
-class EnvCreateCommand extends CommandBase {
+#[RequireAuth]
+#[AsCommand(name: 'env:create', description: 'Create a new Continuous Delivery Environment (CDE)')]
+final class EnvCreateCommand extends CommandBase {
 
   private Checklist $checklist;
 
   protected function configure(): void {
-    $this->setDescription('Create a new Continuous Delivery Environment (CDE)');
     $this->addArgument('label', InputArgument::REQUIRED, 'The label of the new environment');
     $this->addArgument('branch', InputArgument::OPTIONAL, 'The vcs path (git branch name) to deploy to the new environment');
     $this->acceptApplicationUuid();

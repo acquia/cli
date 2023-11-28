@@ -4,6 +4,7 @@ declare(strict_types = 1);
 
 namespace Acquia\Cli\Command\Ide;
 
+use Acquia\Cli\Attribute\RequireAuth;
 use Acquia\Cli\Helpers\LoopHelper;
 use Acquia\Cli\Output\Checklist;
 use AcquiaCloudApi\Endpoints\Account;
@@ -20,15 +21,15 @@ use Symfony\Component\Validator\Constraints\Regex;
 use Symfony\Component\Validator\Exception\ValidatorException;
 use Symfony\Component\Validator\Validation;
 
-#[AsCommand(name: 'ide:create')]
-class IdeCreateCommand extends IdeCommandBase {
+#[RequireAuth]
+#[AsCommand(name: 'ide:create', description: 'Create a Cloud IDE')]
+final class IdeCreateCommand extends IdeCommandBase {
 
   private IdeResponse $ide;
 
   private Client $client;
 
   protected function configure(): void {
-    $this->setDescription('Create a Cloud IDE');
     $this->acceptApplicationUuid();
     $this->addOption('label', NULL, InputOption::VALUE_REQUIRED, 'The label for the IDE');
   }

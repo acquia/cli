@@ -4,6 +4,7 @@ declare(strict_types = 1);
 
 namespace Acquia\Cli\Command\Email;
 
+use Acquia\Cli\Attribute\RequireAuth;
 use Acquia\Cli\Command\CommandBase;
 use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Response\SubscriptionResponse;
@@ -18,11 +19,12 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-#[AsCommand(name: 'email:info')]
-class EmailInfoForSubscriptionCommand extends CommandBase {
+#[RequireAuth]
+#[AsCommand(name: 'email:info', description: 'Print information related to Platform Email set up in a subscription.')]
+final class EmailInfoForSubscriptionCommand extends CommandBase {
 
   protected function configure(): void {
-    $this->setDescription('Print information related to Platform Email set up in a subscription.')
+    $this
       ->addArgument('subscriptionUuid', InputArgument::OPTIONAL, 'The subscription UUID whose Platform Email configuration is to be checked.')
       ->setHelp('This command lists information related to Platform Email for a subscription, including which domains have been validated, which have not, and which applications have Platform Email domains associated.');
   }
