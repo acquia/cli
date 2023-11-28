@@ -13,7 +13,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-#[AsCommand(name: 'env:delete', 'Delete a Continuous Delivery Environment (CDE)')]
+#[AsCommand(name: 'env:delete', description: 'Delete a Continuous Delivery Environment (CDE)')]
 class EnvDeleteCommand extends CommandBase {
 
   protected function configure(): void {

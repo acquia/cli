@@ -11,7 +11,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-#[AsCommand(name: 'app:log:tail', 'Tail the logs from your environments', ['tail', 'log:tail'])]
+#[AsCommand(name: 'app:log:tail', description: 'Tail the logs from your environments', aliases: ['tail', 'log:tail'])]
 class LogTailCommand extends CommandBase {
 
   protected function configure(): void {

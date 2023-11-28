@@ -10,7 +10,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-#[AsCommand(name: 'pull:database', 'Import database backup from a Cloud Platform environment', ['pull:db'])]
+#[AsCommand(name: 'pull:database', description: 'Import database backup from a Cloud Platform environment', aliases: ['pull:db'])]
 class PullDatabaseCommand extends PullCommandBase {
 
   protected function commandRequiresDatabase(): bool {

@@ -17,7 +17,7 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-#[AsCommand(name: 'env:mirror', 'Makes one environment identical to another in terms of code, database, files, and configuration.')]
+#[AsCommand(name: 'env:mirror', description: 'Makes one environment identical to another in terms of code, database, files, and configuration.')]
 class EnvMirrorCommand extends CommandBase {
 
   private Checklist $checklist;

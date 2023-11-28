@@ -12,7 +12,7 @@ use Symfony\Component\Console\Helper\DescriptorHelper;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-#[AsCommand(name: 'list', null, ['self:list'])]
+#[AsCommand(name: 'list', description: NULL, aliases: ['self:list'])]
 class ListCommand extends \Symfony\Component\Console\Command\ListCommand {
 
   protected function configure(): void {

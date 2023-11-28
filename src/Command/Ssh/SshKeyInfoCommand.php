@@ -13,7 +13,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-#[AsCommand(name: 'ssh-key:info', 'Print information about an SSH key')]
+#[AsCommand(name: 'ssh-key:info', description: 'Print information about an SSH key')]
 class SshKeyInfoCommand extends SshKeyCommandBase {
 
   protected function configure(): void {

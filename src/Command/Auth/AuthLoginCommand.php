@@ -11,7 +11,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-#[AsCommand(name: 'auth:login', 'Register your Cloud API key and secret to use API functionality', ['login'])]
+#[AsCommand(name: 'auth:login', description: 'Register your Cloud API key and secret to use API functionality', aliases: ['login'])]
 class AuthLoginCommand extends CommandBase {
 
   protected function configure(): void {

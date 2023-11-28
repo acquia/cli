@@ -18,7 +18,7 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-#[AsCommand(name: 'email:info', 'Print information related to Platform Email set up in a subscription.')]
+#[AsCommand(name: 'email:info', description: 'Print information related to Platform Email set up in a subscription.')]
 class EmailInfoForSubscriptionCommand extends CommandBase {
 
   protected function configure(): void {

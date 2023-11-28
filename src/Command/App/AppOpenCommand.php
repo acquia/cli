@@ -11,7 +11,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-#[AsCommand(name: 'app:open', 'Opens your browser to view a given Cloud application', ['open', 'o'])]
+#[AsCommand(name: 'app:open', description: 'Opens your browser to view a given Cloud application', aliases: ['open', 'o'])]
 class AppOpenCommand extends CommandBase {
 
   protected function configure(): void {

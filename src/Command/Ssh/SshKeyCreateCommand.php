@@ -10,7 +10,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-#[AsCommand(name: 'ssh-key:create', 'Create an SSH key on your local machine')]
+#[AsCommand(name: 'ssh-key:create', description: 'Create an SSH key on your local machine')]
 class SshKeyCreateCommand extends SshKeyCommandBase {
 
   protected function configure(): void {

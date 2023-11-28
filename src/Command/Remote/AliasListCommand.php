@@ -13,7 +13,7 @@ use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-#[AsCommand(name: 'remote:aliases:list', 'List all aliases for the Cloud Platform environments', ['aliases', 'sa'])]
+#[AsCommand(name: 'remote:aliases:list', description: 'List all aliases for the Cloud Platform environments', aliases: ['aliases', 'sa'])]
 class AliasListCommand extends CommandBase {
 
   protected function configure(): void {

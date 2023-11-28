@@ -11,7 +11,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-#[AsCommand(name: 'ide:xdebug-toggle', 'Toggle Xdebug on or off in the current IDE', ['xdebug'])]
+#[AsCommand(name: 'ide:xdebug-toggle', description: 'Toggle Xdebug on or off in the current IDE', aliases: ['xdebug'])]
 class IdeXdebugToggleCommand extends IdeCommandBase {
 
   private ?bool $xDebugEnabled;

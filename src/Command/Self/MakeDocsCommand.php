@@ -11,7 +11,7 @@ use Symfony\Component\Console\Helper\DescriptorHelper;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-#[AsCommand(name: 'self:make-docs', 'Generate documentation for all ACLI commands')]
+#[AsCommand(name: 'self:make-docs', description: 'Generate documentation for all ACLI commands')]
 class MakeDocsCommand extends CommandBase {
 
   protected function configure(): void {

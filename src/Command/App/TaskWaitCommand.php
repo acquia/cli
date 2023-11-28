@@ -11,7 +11,7 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-#[AsCommand(name: 'app:task-wait', 'Wait for a task to complete')]
+#[AsCommand(name: 'app:task-wait', description: 'Wait for a task to complete')]
 class TaskWaitCommand extends CommandBase {
 
   protected function configure(): void {

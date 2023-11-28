@@ -20,7 +20,7 @@ use Symfony\Component\Validator\Constraints\Regex;
 use Symfony\Component\Validator\Exception\ValidatorException;
 use Symfony\Component\Validator\Validation;
 
-#[AsCommand(name: 'ide:create', 'Create a Cloud IDE')]
+#[AsCommand(name: 'ide:create', description: 'Create a Cloud IDE')]
 class IdeCreateCommand extends IdeCommandBase {
 
   private IdeResponse $ide;

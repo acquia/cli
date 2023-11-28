@@ -14,7 +14,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-#[AsCommand(name: 'push:database', 'Push a database from your local environment to a Cloud Platform environment', ['push:db'])]
+#[AsCommand(name: 'push:database', description: 'Push a database from your local environment to a Cloud Platform environment', aliases: ['push:db'])]
 class PushDatabaseCommand extends PullCommandBase {
 
   protected function commandRequiresDatabase(): bool {

@@ -11,7 +11,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-#[AsCommand(name: 'ide:delete', 'Delete a Cloud IDE')]
+#[AsCommand(name: 'ide:delete', description: 'Delete a Cloud IDE')]
 class IdeDeleteCommand extends IdeCommandBase {
 
   use SshCommandTrait;

@@ -25,7 +25,7 @@ use Symfony\Component\Validator\Exception\ValidatorException;
 use Symfony\Component\Validator\Validation;
 use Symfony\Component\Yaml\Yaml;
 
-#[AsCommand(name: 'email:configure', 'Configure Platform email for one or more applications', ['ec'])]
+#[AsCommand(name: 'email:configure', description: 'Configure Platform email for one or more applications', aliases: ['ec'])]
 class ConfigurePlatformEmailCommand extends CommandBase {
 
   protected function configure(): void {

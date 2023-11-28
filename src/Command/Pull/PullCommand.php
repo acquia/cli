@@ -11,7 +11,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-#[AsCommand(name: 'pull:all', 'Copy code, database, and files from a Cloud Platform environment', ['refresh', 'pull'])]
+#[AsCommand(name: 'pull:all', description: 'Copy code, database, and files from a Cloud Platform environment', aliases: ['refresh', 'pull'])]
 class PullCommand extends PullCommandBase {
 
   protected function commandRequiresDatabase(): bool {

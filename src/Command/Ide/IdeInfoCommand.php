@@ -11,7 +11,7 @@ use Symfony\Component\Console\Helper\TableSeparator;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-#[AsCommand(name: 'ide:info', 'Print information about a Cloud IDE')]
+#[AsCommand(name: 'ide:info', description: 'Print information about a Cloud IDE')]
 class IdeInfoCommand extends IdeCommandBase {
 
   protected function configure(): void {
