@@ -5,6 +5,7 @@ declare(strict_types = 1);
 namespace Acquia\Cli\Command\Archive;
 
 use Acquia\Cli\Attribute\RequireAuth;
+use Acquia\Cli\Attribute\RequireDb;
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Output\Checklist;
@@ -20,6 +21,7 @@ use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Path;
 
 #[RequireAuth]
+#[RequireDb]
 #[AsCommand(name: 'archive:export', description: 'Export an archive of the Drupal application including code, files, and database')]
 final class ArchiveExportCommand extends CommandBase {
 
@@ -33,10 +35,6 @@ final class ArchiveExportCommand extends CommandBase {
   private string|array|bool|null $destinationDir;
 
   private const PUBLIC_FILES_DIR = '/docroot/sites/default/files';
-
-  protected function commandRequiresDatabase(): bool {
-    return TRUE;
-  }
 
   protected function configure(): void {
     $this

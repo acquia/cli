@@ -5,6 +5,7 @@ declare(strict_types = 1);
 namespace Acquia\Cli\Command\Pull;
 
 use Acquia\Cli\Attribute\RequireAuth;
+use Acquia\Cli\Attribute\RequireDb;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -13,12 +14,9 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 #[RequireAuth]
+#[RequireDb]
 #[AsCommand(name: 'pull:code', description: 'Copy code from a Cloud Platform environment')]
 final class PullCodeCommand extends PullCommandBase {
-
-  protected function commandRequiresDatabase(): bool {
-    return TRUE;
-  }
 
   protected function configure(): void {
     $this
