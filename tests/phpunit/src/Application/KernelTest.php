@@ -60,10 +60,10 @@ EOD;
  archive
   archive:export           Export an archive of the Drupal application including code, files, and database
  auth
-  auth:acsf-login          Register your Site Factory API key and secret to use API functionality
-  auth:acsf-logout         Remove your Site Factory key and secret from your local machine.
-  auth:login               [login] Register your Cloud API key and secret to use API functionality
-  auth:logout              [logout] Remove Cloud API key and secret from local machine.
+  auth:acsf-login          Register Acquia Site Factory API credentials
+  auth:acsf-logout         Remove Acquia Site Factory API credentials
+  auth:login               [login] Register Acquia Cloud API credentials
+  auth:logout              [logout] Remove Acquia Cloud API credentials
  codestudio
   codestudio:php-version   Change the PHP version in Code Studio
   codestudio:wizard        [cs:wizard] Create and/or configure a new Code Studio project for a given Acquia Cloud application
