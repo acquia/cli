@@ -13,13 +13,8 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 #[RequireAuth]
-#[AsCommand(name: 'self:make-docs', description: 'Generate documentation for all ACLI commands')]
+#[AsCommand(name: 'self:make-docs', description: 'Generate documentation for all ACLI commands', hidden: TRUE)]
 final class MakeDocsCommand extends CommandBase {
-
-  protected function configure(): void {
-    $this
-      ->setHidden();
-  }
 
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $helper = new DescriptorHelper();

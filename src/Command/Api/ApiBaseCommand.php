@@ -23,7 +23,7 @@ use Symfony\Component\Validator\Exception\ValidatorException;
 use Symfony\Component\Validator\Validation;
 
 #[RequireAuth]
-#[AsCommand(name: 'api:base')]
+#[AsCommand(name: 'api:base', hidden: TRUE)]
 class ApiBaseCommand extends CommandBase {
 
   protected string $method;
@@ -54,11 +54,6 @@ class ApiBaseCommand extends CommandBase {
    * @var array<mixed>
    */
   private array $pathParams = [];
-
-  protected function configure(): void {
-    $this->setHidden();
-    parent::configure();
-  }
 
   protected function interact(InputInterface $input, OutputInterface $output): void {
     $params = array_merge($this->queryParams, $this->postParams, $this->pathParams);
