@@ -7,6 +7,7 @@ namespace Acquia\Cli\Tests\Commands\Pull;
 use Acquia\Cli\Command\Pull\PullCommandBase;
 use Acquia\Cli\Command\Pull\PullDatabaseCommand;
 use Acquia\Cli\Exception\AcquiaCliException;
+use Acquia\Cli\Helpers\LocalMachineHelper;
 use AcquiaCloudApi\Response\DatabaseResponse;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Psr7\Uri;
@@ -29,6 +30,11 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
   protected string $dbHost = 'localhost';
   protected string $dbName = 'drupal';
 
+  public function setUp(): void {
+    self::unsetEnvVars(['ACLI_DB_HOST', 'ACLI_DB_USER', 'ACLI_DB_PASSWORD', 'ACLI_DB_NAME']);
+    parent::setUp();
+  }
+
   /**
    * @return int[][]
    */
@@ -41,7 +47,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
   }
 
   public function testPullDatabases(): void {
-    $this->setupPullDatabase(TRUE, TRUE, TRUE, TRUE, TRUE);
+    $this->setupPullDatabase(TRUE, TRUE, TRUE, TRUE);
     $inputs = $this->getInputs();
 
     $this->executeCommand([
@@ -60,7 +66,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
   }
 
   public function testPullDatabasesLocalConnectionFailure(): void {
-    $this->setupPullDatabase(FALSE, TRUE, TRUE, TRUE, TRUE);
+    $this->setupPullDatabase(FALSE, TRUE, TRUE, TRUE);
     $inputs = $this->getInputs();
 
     $this->expectException(AcquiaCliException::class);
@@ -71,7 +77,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
   }
 
   public function testPullDatabaseNoPv(): void {
-    $this->setupPullDatabase(TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, FALSE, 0, TRUE, FALSE);
+    $this->setupPullDatabase(TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, FALSE, 0, TRUE, FALSE);
     $inputs = $this->getInputs();
 
     $this->executeCommand(['--no-scripts' => TRUE], $inputs);
@@ -80,7 +86,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
   }
 
   public function testPullMultipleDatabases(): void {
-    $this->setupPullDatabase(TRUE, TRUE, TRUE, TRUE, TRUE, FALSE, TRUE, TRUE);
+    $this->setupPullDatabase(TRUE, TRUE, TRUE, TRUE, FALSE, TRUE, TRUE);
     $inputs = [
       // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
       'n',
@@ -103,7 +109,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
   }
 
   public function testPullDatabasesOnDemand(): void {
-    $this->setupPullDatabase(TRUE, TRUE, TRUE, TRUE, TRUE, TRUE);
+    $this->setupPullDatabase(TRUE, TRUE, TRUE, TRUE, TRUE);
     $inputs = $this->getInputs();
 
     $this->executeCommand([
@@ -122,7 +128,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
   }
 
   public function testPullDatabasesNoExistingBackup(): void {
-    $this->setupPullDatabase(TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, FALSE, 0, FALSE);
+    $this->setupPullDatabase(TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, FALSE, 0, FALSE);
     $inputs = $this->getInputs();
 
     $this->executeCommand([
@@ -141,7 +147,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
   }
 
   public function testPullDatabasesSiteArgument(): void {
-    $this->setupPullDatabase(TRUE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE);
+    $this->setupPullDatabase(TRUE, TRUE, TRUE, TRUE, FALSE, FALSE);
     $inputs = $this->getInputs();
 
     $this->executeCommand([
@@ -159,24 +165,15 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
   }
 
   public function testPullDatabaseWithMySqlDropError(): void {
-    $this->setupPullDatabase(TRUE, FALSE, TRUE, TRUE);
+    $this->setupPullDatabase(TRUE, FALSE, TRUE);
     $inputs = $this->getInputs();
     $this->expectException(AcquiaCliException::class);
-    $this->expectExceptionMessage('Unable to drop a local database');
-    $this->executeCommand(['--no-scripts' => TRUE], $inputs);
-  }
-
-  public function testPullDatabaseWithMySqlCreateError(): void {
-    $this->setupPullDatabase(TRUE, TRUE, FALSE, TRUE);
-    $inputs = $this->getInputs();
-
-    $this->expectException(AcquiaCliException::class);
-    $this->expectExceptionMessage('Unable to create a local database');
+    $this->expectExceptionMessage('Unable to drop tables from database');
     $this->executeCommand(['--no-scripts' => TRUE], $inputs);
   }
 
   public function testPullDatabaseWithMySqlImportError(): void {
-    $this->setupPullDatabase(TRUE, TRUE, TRUE, FALSE);
+    $this->setupPullDatabase(TRUE, TRUE, FALSE);
     $inputs = $this->getInputs();
 
     $this->expectException(AcquiaCliException::class);
@@ -188,7 +185,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
    * @dataProvider providerTestPullDatabaseWithInvalidSslCertificate
    */
   public function testPullDatabaseWithInvalidSslCertificate(int $errorCode): void {
-    $this->setupPullDatabase(TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, FALSE, $errorCode);
+    $this->setupPullDatabase(TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, FALSE, $errorCode);
     $inputs = $this->getInputs();
 
     $this->executeCommand(['--no-scripts' => TRUE], $inputs);
@@ -197,7 +194,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     $this->assertStringContainsString('Trying alternative host other.example.com', $output);
   }
 
-  protected function setupPullDatabase(bool $mysqlConnectSuccessful, bool $mysqlDropSuccessful, bool $mysqlCreateSuccessful, bool $mysqlImportSuccessful, bool $mockIdeFs = FALSE, bool $onDemand = FALSE, bool $mockGetAcsfSites = TRUE, bool $multidb = FALSE, int $curlCode = 0, bool $existingBackups = TRUE, bool $pvExists = TRUE): void {
+  protected function setupPullDatabase(bool $mysqlConnectSuccessful, bool $mysqlDropSuccessful, bool $mysqlImportSuccessful, bool $mockIdeFs = FALSE, bool $onDemand = FALSE, bool $mockGetAcsfSites = TRUE, bool $multiDb = FALSE, int $curlCode = 0, bool $existingBackups = TRUE, bool $pvExists = TRUE): void {
     $applicationsResponse = $this->mockApplicationsRequest();
     $this->mockApplicationRequest();
     $environmentsResponse = $this->mockAcsfEnvironmentsRequest($applicationsResponse);
@@ -209,7 +206,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     $databaseBackupsResponse = $this->mockDatabaseBackupsResponse($selectedEnvironment, $databaseResponse->name, 1, $existingBackups);
     $selectedDatabase = $this->mockDownloadBackup($databaseResponse, $selectedEnvironment, $databaseBackupsResponse->_embedded->items[0], $curlCode);
 
-    if ($multidb) {
+    if ($multiDb) {
       $databaseResponse2 = $databasesResponse[array_search('profserv2', array_column($databasesResponse, 'name'), TRUE)];
       $databaseBackupsResponse2 = $this->mockDatabaseBackupsResponse($selectedEnvironment, $databaseResponse2->name, 1, $existingBackups);
       $this->mockDownloadBackup($databaseResponse2, $selectedEnvironment, $databaseBackupsResponse2->_embedded->items[0], $curlCode);
@@ -239,10 +236,11 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     }
 
     // Database.
+    $this->mockExecuteMySqlListTables($localMachineHelper);
     $this->mockExecuteMySqlDropDb($localMachineHelper, $mysqlDropSuccessful);
-    $this->mockExecuteMySqlCreateDb($localMachineHelper, $mysqlCreateSuccessful);
     $this->mockExecuteMySqlImport($localMachineHelper, $mysqlImportSuccessful, $pvExists);
-    if ($multidb) {
+    if ($multiDb) {
+      $this->mockExecuteMySqlListTables($localMachineHelper, 'drupal');
       $this->mockExecuteMySqlImport($localMachineHelper, $mysqlImportSuccessful, $pvExists, 'profserv2', 'profserv2dev', 'drupal');
     }
     $this->command->localMachineHelper = $localMachineHelper->reveal();
@@ -268,35 +266,38 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
       ->shouldBeCalled();
   }
 
+  protected function mockExecuteMySqlListTables(
+    LocalMachineHelper|ObjectProphecy $localMachineHelper,
+    string $dbName = 'jxr5000596dev',
+  ): void {
+    $localMachineHelper->checkRequiredBinariesExist(["mysql"])->shouldBeCalled();
+    $process = $this->mockProcess();
+    $process->getOutput()->willReturn('table1');
+    $command = [
+      'mysql',
+      '--host',
+      'localhost',
+      '--user',
+      'drupal',
+      $dbName,
+      '--silent',
+      '-e',
+      'SHOW TABLES;',
+    ];
+    $localMachineHelper
+      ->execute($command, Argument::type('callable'), NULL, FALSE, NULL, ['MYSQL_PWD' => $this->dbPassword])
+      ->willReturn($process->reveal())
+      ->shouldBeCalled();
+  }
+
   protected function mockExecuteMySqlDropDb(
-    \Acquia\Cli\Helpers\LocalMachineHelper|ObjectProphecy $localMachineHelper,
+    LocalMachineHelper|ObjectProphecy $localMachineHelper,
     bool $success
   ): void {
     $localMachineHelper->checkRequiredBinariesExist(["mysql"])->shouldBeCalled();
     $process = $this->mockProcess($success);
     $localMachineHelper
       ->execute(Argument::type('array'), Argument::type('callable'), NULL, FALSE, NULL, ['MYSQL_PWD' => $this->dbPassword])
-      ->willReturn($process->reveal())
-      ->shouldBeCalled();
-  }
-
-  protected function mockExecuteMySqlCreateDb(
-    ObjectProphecy $localMachineHelper,
-    bool $success
-  ): void {
-    $localMachineHelper->checkRequiredBinariesExist(["mysql"])->shouldBeCalled();
-    $process = $this->mockProcess($success);
-    $localMachineHelper
-      ->execute([
-        'mysql',
-        '--host',
-        $this->dbHost,
-        '--user',
-        $this->dbUser,
-        '-e',
-        //'create database drupal',
-        'create database jxr5000596dev',
-      ], Argument::type('callable'), NULL, FALSE, NULL, ['MYSQL_PWD' => 'drupal'])
       ->willReturn($process->reveal())
       ->shouldBeCalled();
   }

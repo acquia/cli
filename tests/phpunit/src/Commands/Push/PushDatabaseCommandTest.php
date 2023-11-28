@@ -20,6 +20,11 @@ class PushDatabaseCommandTest extends CommandTestBase {
     return $this->injectCommand(PushDatabaseCommand::class);
   }
 
+  public function setUp(): void {
+    self::unsetEnvVars(['ACLI_DB_HOST', 'ACLI_DB_USER', 'ACLI_DB_PASSWORD', 'ACLI_DB_NAME']);
+    parent::setUp();
+  }
+
   public function testPushDatabase(): void {
     $applicationsResponse = $this->mockApplicationsRequest();
     $this->mockApplicationRequest();

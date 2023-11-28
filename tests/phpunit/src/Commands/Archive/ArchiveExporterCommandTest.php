@@ -22,6 +22,11 @@ class ArchiveExporterCommandTest extends PullCommandTestBase {
     return $this->injectCommand(ArchiveExportCommand::class);
   }
 
+  public function setUp(): void {
+    self::unsetEnvVars(['ACLI_DB_HOST', 'ACLI_DB_USER', 'ACLI_DB_PASSWORD', 'ACLI_DB_NAME']);
+    parent::setUp();
+  }
+
   public function testArchiveExport(): void {
     touch(Path::join($this->projectDir, '.gitignore'));
     $destinationDir = 'foo';
