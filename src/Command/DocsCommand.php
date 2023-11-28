@@ -12,7 +12,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
 
 #[AsCommand(name: 'docs', description: 'Open Acquia product documentation in a web browser')]
-class DocsCommand extends CommandBase {
+final class DocsCommand extends CommandBase {
 
   protected function configure(): void {
     $this

@@ -9,7 +9,7 @@ use Symfony\Component\Console\Attribute\AsCommand;
 
 #[RequireAuth]
 #[AsCommand(name: 'api:list', description: 'List all API commands', aliases: ['api'])]
-class ApiListCommand extends ApiListCommandBase {
+final class ApiListCommand extends ApiListCommandBase {
 
   protected string $namespace = 'api';
 

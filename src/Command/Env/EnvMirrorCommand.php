@@ -20,7 +20,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 #[RequireAuth]
 #[AsCommand(name: 'env:mirror', description: 'Makes one environment identical to another in terms of code, database, files, and configuration.')]
-class EnvMirrorCommand extends CommandBase {
+final class EnvMirrorCommand extends CommandBase {
 
   private Checklist $checklist;
 

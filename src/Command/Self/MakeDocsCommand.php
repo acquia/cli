@@ -14,7 +14,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 #[RequireAuth]
 #[AsCommand(name: 'self:make-docs', description: 'Generate documentation for all ACLI commands')]
-class MakeDocsCommand extends CommandBase {
+final class MakeDocsCommand extends CommandBase {
 
   protected function configure(): void {
     $this

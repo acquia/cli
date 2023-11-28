@@ -16,7 +16,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 #[AsCommand(name: 'codestudio:wizard', description: 'Create and/or configure a new Code Studio project for a given Acquia Cloud application', aliases: ['cs:wizard'])]
-class CodeStudioWizardCommand extends WizardCommandBase {
+final class CodeStudioWizardCommand extends WizardCommandBase {
 
   use CodeStudioCommandTrait;
 

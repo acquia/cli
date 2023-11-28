@@ -15,7 +15,7 @@ use Symfony\Component\Validator\Exception\ValidatorException;
 use Symfony\Component\Validator\Validation;
 
 #[AsCommand(name: 'ide:service-restart', description: 'Restart a service in the Cloud IDE')]
-class IdeServiceRestartCommand extends IdeCommandBase {
+final class IdeServiceRestartCommand extends IdeCommandBase {
 
   protected function configure(): void {
     $this

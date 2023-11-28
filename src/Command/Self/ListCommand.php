@@ -13,7 +13,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 #[AsCommand(name: 'list', description: NULL, aliases: ['self:list'])]
-class ListCommand extends \Symfony\Component\Console\Command\ListCommand {
+final class ListCommand extends \Symfony\Component\Console\Command\ListCommand {
 
   protected function execute(InputInterface $input, OutputInterface $output): int {
     foreach (['api', 'acsf'] as $prefix) {

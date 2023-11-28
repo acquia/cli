@@ -13,7 +13,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 #[AsCommand(name: 'ide:php-version', description: 'Change the PHP version in the current IDE')]
-class IdePhpVersionCommand extends IdeCommandBase {
+final class IdePhpVersionCommand extends IdeCommandBase {
 
   private string $idePhpFilePathPrefix;
 

@@ -15,7 +15,7 @@ use Symfony\Component\Filesystem\Path;
 
 #[RequireAuth]
 #[AsCommand(name: 'self:clear-caches', description: 'Clears local Acquia CLI caches', aliases: ['cc', 'cr'])]
-class ClearCacheCommand extends CommandBase {
+final class ClearCacheCommand extends CommandBase {
 
   protected function execute(InputInterface $input, OutputInterface $output): int {
     self::clearCaches();

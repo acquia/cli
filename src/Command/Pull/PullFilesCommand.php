@@ -12,7 +12,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 #[RequireAuth]
 #[AsCommand(name: 'pull:files', description: 'Copy Drupal public files from a Cloud Platform environment to your local environment')]
-class PullFilesCommand extends PullCommandBase {
+final class PullFilesCommand extends PullCommandBase {
 
   protected function configure(): void {
     $this

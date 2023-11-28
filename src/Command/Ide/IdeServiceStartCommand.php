@@ -15,7 +15,7 @@ use Symfony\Component\Validator\Exception\ValidatorException;
 use Symfony\Component\Validator\Validation;
 
 #[AsCommand(name: 'ide:service-start', description: 'Start a service in the Cloud IDE')]
-class IdeServiceStartCommand extends IdeCommandBase {
+final class IdeServiceStartCommand extends IdeCommandBase {
 
   protected function configure(): void {
     $this

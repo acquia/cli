@@ -14,7 +14,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 #[RequireAuth]
 #[AsCommand(name: 'app:task-wait', description: 'Wait for a task to complete')]
-class TaskWaitCommand extends CommandBase {
+final class TaskWaitCommand extends CommandBase {
 
   protected function configure(): void {
     $this

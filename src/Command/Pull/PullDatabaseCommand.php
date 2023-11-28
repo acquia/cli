@@ -13,7 +13,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 #[RequireAuth]
 #[AsCommand(name: 'pull:database', description: 'Import database backup from a Cloud Platform environment', aliases: ['pull:db'])]
-class PullDatabaseCommand extends PullCommandBase {
+final class PullDatabaseCommand extends PullCommandBase {
 
   protected function commandRequiresDatabase(): bool {
     return TRUE;

@@ -9,7 +9,7 @@ use Symfony\Component\Console\Attribute\AsCommand;
 
 #[RequireAuth]
 #[AsCommand(name: 'acsf:list', description: 'List all Acquia Cloud Site Factory commands', aliases: ['acsf'])]
-class AcsfListCommand extends AcsfListCommandBase {
+final class AcsfListCommand extends AcsfListCommandBase {
 
   protected string $namespace = 'acsf';
 

@@ -15,7 +15,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 #[AsCommand(name: 'ide:share', description: 'Get the share URL for a Cloud IDE')]
-class IdeShareCommand extends CommandBase {
+final class IdeShareCommand extends CommandBase {
 
   /**
    * @var array<mixed>

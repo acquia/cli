@@ -16,7 +16,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 #[RequireAuth]
 #[AsCommand(name: 'remote:ssh', description: 'Use SSH to open a shell or run a command in a Cloud Platform environment', aliases: ['ssh'])]
-class SshCommand extends SshBaseCommand {
+final class SshCommand extends SshBaseCommand {
 
   protected function configure(): void {
     $this

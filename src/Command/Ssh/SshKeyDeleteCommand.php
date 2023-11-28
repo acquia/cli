@@ -13,7 +13,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 #[RequireAuth]
 #[AsCommand(name: 'ssh-key:delete', description: 'Delete an SSH key')]
-class SshKeyDeleteCommand extends SshKeyCommandBase {
+final class SshKeyDeleteCommand extends SshKeyCommandBase {
 
   use SshCommandTrait;
 

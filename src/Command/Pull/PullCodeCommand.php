@@ -14,7 +14,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 #[RequireAuth]
 #[AsCommand(name: 'pull:code', description: 'Copy code from a Cloud Platform environment')]
-class PullCodeCommand extends PullCommandBase {
+final class PullCodeCommand extends PullCommandBase {
 
   protected function commandRequiresDatabase(): bool {
     return TRUE;

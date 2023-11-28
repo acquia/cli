@@ -14,7 +14,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 #[RequireAuth]
 #[AsCommand(name: 'push:code', description: 'Push code from your IDE to a Cloud Platform environment')]
-class PushCodeCommand extends PullCommandBase {
+final class PushCodeCommand extends PullCommandBase {
 
   protected function configure(): void {
     $this

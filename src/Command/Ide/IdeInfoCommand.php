@@ -14,7 +14,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 #[RequireAuth]
 #[AsCommand(name: 'ide:info', description: 'Print information about a Cloud IDE')]
-class IdeInfoCommand extends IdeCommandBase {
+final class IdeInfoCommand extends IdeCommandBase {
 
   protected function configure(): void {
     $this->acceptApplicationUuid();

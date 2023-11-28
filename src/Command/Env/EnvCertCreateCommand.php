@@ -16,7 +16,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 #[RequireAuth]
 #[AsCommand(name: 'env:certificate-create', description: 'Install an SSL certificate.')]
-class EnvCertCreateCommand extends CommandBase {
+final class EnvCertCreateCommand extends CommandBase {
 
   protected function configure(): void {
     $this

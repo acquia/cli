@@ -28,7 +28,7 @@ use Symfony\Component\Yaml\Yaml;
 
 #[RequireAuth]
 #[AsCommand(name: 'email:configure', description: 'Configure Platform email for one or more applications', aliases: ['ec'])]
-class ConfigurePlatformEmailCommand extends CommandBase {
+final class ConfigurePlatformEmailCommand extends CommandBase {
 
   protected function configure(): void {
     $this

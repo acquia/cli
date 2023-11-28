@@ -15,7 +15,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 #[RequireAuth]
 #[AsCommand(name: 'remote:drush', description: 'Run a Drush command remotely on a application\'s environment', aliases: ['drush', 'dr'])]
-class DrushCommand extends SshBaseCommand {
+final class DrushCommand extends SshBaseCommand {
 
   protected function configure(): void {
     $this

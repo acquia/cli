@@ -14,7 +14,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 #[RequireAuth]
 #[AsCommand(name: 'ssh-key:list', description: 'List your local and remote SSH keys')]
-class SshKeyListCommand extends SshKeyCommandBase {
+final class SshKeyListCommand extends SshKeyCommandBase {
 
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $acquiaCloudClient = $this->cloudApiClientService->getClient();

@@ -19,7 +19,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 #[RequireAuth]
 #[AsCommand(name: 'env:create', description: 'Create a new Continuous Delivery Environment (CDE)')]
-class EnvCreateCommand extends CommandBase {
+final class EnvCreateCommand extends CommandBase {
 
   private Checklist $checklist;
 

@@ -28,7 +28,7 @@ use Symfony\Component\Validator\Exception\ValidatorException;
   // A nod to its roots.
   'ama',
 ])]
-class NewFromDrupal7Command extends CommandBase {
+final class NewFromDrupal7Command extends CommandBase {
 
   /**
    * Exit code raised when the URI flag does not correspond to configuration.

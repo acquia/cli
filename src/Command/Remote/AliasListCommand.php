@@ -16,7 +16,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 #[RequireAuth]
 #[AsCommand(name: 'remote:aliases:list', description: 'List all aliases for the Cloud Platform environments', aliases: ['aliases', 'sa'])]
-class AliasListCommand extends CommandBase {
+final class AliasListCommand extends CommandBase {
 
   protected function configure(): void {
     $this->acceptApplicationUuid();

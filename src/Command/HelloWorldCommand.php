@@ -10,7 +10,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 #[AsCommand(name: 'hello-world', description: 'Test command used for asserting core functionality')]
-class HelloWorldCommand extends CommandBase {
+final class HelloWorldCommand extends CommandBase {
 
   protected function configure(): void {
     $this

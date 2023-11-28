@@ -17,7 +17,7 @@ use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Yaml\Yaml;
 
 #[AsCommand(name: 'codestudio:pipelines-migrate', description: 'Migrate .acquia-pipeline.yml file to .gitlab-ci.yml file for a given Acquia Cloud application', aliases: ['cs:pipelines-migrate'])]
-class CodeStudioPipelinesMigrateCommand extends CommandBase {
+final class CodeStudioPipelinesMigrateCommand extends CommandBase {
 
   use CodeStudioCommandTrait;
 

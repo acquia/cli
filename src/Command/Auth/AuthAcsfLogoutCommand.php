@@ -11,7 +11,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 #[AsCommand(name: 'auth:acsf-logout', description: 'Remove your Site Factory key and secret from your local machine.')]
-class AuthAcsfLogoutCommand extends CommandBase {
+final class AuthAcsfLogoutCommand extends CommandBase {
 
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $factories = $this->datastoreCloud->get('acsf_factories');

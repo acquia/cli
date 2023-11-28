@@ -15,7 +15,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 #[RequireAuth]
 #[AsCommand(name: 'push:files', description: 'Copy Drupal public files from your local environment to a Cloud Platform environment')]
-class PushFilesCommand extends PullCommandBase {
+final class PushFilesCommand extends PullCommandBase {
 
   protected function configure(): void {
     $this

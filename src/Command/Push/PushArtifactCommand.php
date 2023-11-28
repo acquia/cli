@@ -17,7 +17,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Path;
 
 #[AsCommand(name: 'push:artifact', description: 'Build and push a code artifact to a Cloud Platform environment')]
-class PushArtifactCommand extends PullCommandBase {
+final class PushArtifactCommand extends PullCommandBase {
 
   /**
    * Composer vendor directories.

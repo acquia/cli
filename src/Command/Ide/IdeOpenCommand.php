@@ -14,7 +14,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 #[RequireAuth]
 #[AsCommand(name: 'ide:open', description: 'Open a Cloud IDE in your browser')]
-class IdeOpenCommand extends IdeCommandBase {
+final class IdeOpenCommand extends IdeCommandBase {
 
   protected function configure(): void {
     $this

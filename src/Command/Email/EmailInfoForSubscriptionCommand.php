@@ -21,7 +21,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 #[RequireAuth]
 #[AsCommand(name: 'email:info', description: 'Print information related to Platform Email set up in a subscription.')]
-class EmailInfoForSubscriptionCommand extends CommandBase {
+final class EmailInfoForSubscriptionCommand extends CommandBase {
 
   protected function configure(): void {
     $this

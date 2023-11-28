@@ -12,7 +12,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 #[AsCommand(name: 'auth:acsf-login', description: 'Register your Site Factory API key and secret to use API functionality')]
-class AuthAcsfLoginCommand extends CommandBase {
+final class AuthAcsfLoginCommand extends CommandBase {
 
   protected function configure(): void {
     $this

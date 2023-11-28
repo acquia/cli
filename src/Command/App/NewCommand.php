@@ -15,7 +15,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Path;
 
 #[AsCommand(name: 'app:new:local', description: 'Create a new Drupal or Next.js project', aliases: ['new'])]
-class NewCommand extends CommandBase {
+final class NewCommand extends CommandBase {
 
   protected function configure(): void {
     $this

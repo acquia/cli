@@ -23,7 +23,7 @@ use Symfony\Component\Filesystem\Path;
  */
 #[RequireAuth]
 #[AsCommand(name: 'remote:aliases:download', description: 'Download Drush aliases for the Cloud Platform')]
-class AliasesDownloadCommand extends SshCommand {
+final class AliasesDownloadCommand extends SshBaseCommand {
 
   private string $drushArchiveFilepath;
 

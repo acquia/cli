@@ -13,7 +13,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 #[RequireAuth]
 #[AsCommand(name: 'ssh-key:upload', description: 'Upload a local SSH key to the Cloud Platform')]
-class SshKeyUploadCommand extends SshKeyCommandBase {
+final class SshKeyUploadCommand extends SshKeyCommandBase {
 
   protected function configure(): void {
     $this

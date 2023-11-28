@@ -23,7 +23,7 @@ use Symfony\Component\Validator\Validation;
 
 #[RequireAuth]
 #[AsCommand(name: 'ide:create', description: 'Create a Cloud IDE')]
-class IdeCreateCommand extends IdeCommandBase {
+final class IdeCreateCommand extends IdeCommandBase {
 
   private IdeResponse $ide;
 

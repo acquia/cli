@@ -15,7 +15,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 #[RequireAuth]
 #[AsCommand(name: 'ide:list:app', description: 'List available Cloud IDEs belonging to a given application', aliases: ['ide:list'])]
-class IdeListCommand extends IdeCommandBase {
+final class IdeListCommand extends IdeCommandBase {
 
   protected function configure(): void {
     $this->acceptApplicationUuid();

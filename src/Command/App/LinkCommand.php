@@ -13,7 +13,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 #[RequireAuth]
 #[AsCommand(name: 'app:link', description: 'Associate your project with a Cloud Platform application', aliases: ['link'])]
-class LinkCommand extends CommandBase {
+final class LinkCommand extends CommandBase {
 
   protected function configure(): void {
     $this->acceptApplicationUuid();
