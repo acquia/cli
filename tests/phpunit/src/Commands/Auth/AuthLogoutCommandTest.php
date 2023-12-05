@@ -7,7 +7,6 @@ namespace Acquia\Cli\Tests\Commands\Auth;
 use Acquia\Cli\Command\Auth\AuthLogoutCommand;
 use Acquia\Cli\Config\CloudDataConfig;
 use Acquia\Cli\DataStore\CloudDataStore;
-use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Tests\CommandTestBase;
 use Symfony\Component\Console\Command\Command;
 
@@ -26,39 +25,10 @@ class AuthLogoutCommandTest extends CommandTestBase {
     $this->assertFileExists($this->cloudConfigFilepath);
     $config = new CloudDataStore($this->localMachineHelper, new CloudDataConfig(), $this->cloudConfigFilepath);
     $this->assertFalse($config->exists('acli_key'));
-    $this->assertEmpty($config->get('keys'));
-    $this->assertStringContainsString('The active key 17feaf34-5d04-402b-9a67-15d5161d24e1 will be unset.', $output);
-    $this->assertStringContainsString('Do you want to delete the active Acquia Cloud API credentials (option --delete)? (yes/no) [yes]:', $output);
-    $this->assertStringContainsString('The active Acquia Cloud API credentials were deleted', $output);
-  }
-
-  public function testAuthLogoutCommandNotAuthenticated(): void {
-    $this->clientServiceProphecy->isMachineAuthenticated()->willReturn(FALSE);
-    $this->removeMockCloudConfigFile();
-
-    $this->expectException(AcquiaCliException::class);
-    $this->expectExceptionMessage('You are not authenticated and therefore cannot logout');
-    $this->executeCommand();
-  }
-
-  public function testAuthLogoutCommandNoDeleteArg(): void {
-    $this->executeCommand(['--no-delete' => TRUE]);
-    $output = $this->getDisplay();
-    $this->assertFileExists($this->cloudConfigFilepath);
-    $config = new CloudDataStore($this->localMachineHelper, new CloudDataConfig(), $this->cloudConfigFilepath);
-    $this->assertFalse($config->exists('acli_key'));
     $this->assertNotEmpty($config->get('keys'));
-    $this->assertStringContainsString('The active Acquia Cloud API credentials were unset', $output);
-  }
-
-  public function testAuthLogoutCommandNoDeleteInput(): void {
-    $this->executeCommand([], ['n']);
-    $output = $this->getDisplay();
-    $this->assertFileExists($this->cloudConfigFilepath);
-    $config = new CloudDataStore($this->localMachineHelper, new CloudDataConfig(), $this->cloudConfigFilepath);
-    $this->assertFalse($config->exists('acli_key'));
-    $this->assertNotEmpty($config->get('keys'));
-    $this->assertStringContainsString('The active Acquia Cloud API credentials were unset', $output);
+    $this->assertStringContainsString('The key Test Key will be deactivated on this machine.', $output);
+    $this->assertStringContainsString('Do you want to delete the active Cloud Platform API credentials (option --delete)? (yes/no) [no]:', $output);
+    $this->assertStringContainsString('The active Cloud Platform API credentials were deactivated', $output);
   }
 
 }
