@@ -47,7 +47,37 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
   }
 
   public function testPullDatabases(): void {
-    $this->setupPullDatabase(TRUE, TRUE, TRUE, TRUE);
+    $applications = $this->mockRequest('getApplications');
+    $this->mockRequest('getApplicationByUuid', $applications[self::$INPUT_DEFAULT_CHOICE]->uuid)
+    $environmentsResponse = $this->mockAcsfEnvironmentsRequest($applications);
+    $selectedEnvironment = $environmentsResponse->_embedded->items[0];
+    $this->createMockGitConfigFile();
+
+    $databasesResponse = $this->mockAcsfDatabasesResponse($selectedEnvironment);
+    $databaseResponse = $databasesResponse[array_search('jxr5000596dev', array_column($databasesResponse, 'name'), TRUE)];
+    $databaseBackupsResponse = $this->mockDatabaseBackupsResponse($selectedEnvironment, $databaseResponse->name, 1);
+    $this->mockDownloadBackup($databaseResponse, $selectedEnvironment, $databaseBackupsResponse->_embedded->items[0]);
+
+    $sshHelper = $this->mockSshHelper();
+    $this->mockGetAcsfSites($sshHelper);
+
+    $fs = $this->prophet->prophesize(Filesystem::class);
+    $localMachineHelper = $this->mockLocalMachineHelper();
+    $this->mockExecuteMySqlConnect($localMachineHelper, TRUE);
+    // Set up file system.
+    $localMachineHelper->getFilesystem()->willReturn($fs)->shouldBeCalled();
+
+    // Mock IDE filesystem.
+    $this->mockDrupalSettingsRefresh($localMachineHelper);
+    $this->mockSettingsFiles($fs);
+
+    // Database.
+    $this->mockExecuteMySqlListTables($localMachineHelper);
+    $this->mockExecuteMySqlDropDb($localMachineHelper, TRUE);
+    $this->mockExecuteMySqlImport($localMachineHelper, TRUE, TRUE);
+    $this->command->localMachineHelper = $localMachineHelper->reveal();
+    $this->command->sshHelper = $sshHelper->reveal();
+
     $inputs = $this->getInputs();
 
     $this->executeCommand([
