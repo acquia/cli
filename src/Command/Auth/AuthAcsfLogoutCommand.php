@@ -10,7 +10,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-#[AsCommand(name: 'auth:acsf-logout', description: 'Remove your Site Factory key and secret from your local machine.')]
+#[AsCommand(name: 'auth:acsf-logout', description: 'Remove Site Factory API credentials')]
 final class AuthAcsfLogoutCommand extends CommandBase {
 
   protected function execute(InputInterface $input, OutputInterface $output): int {
