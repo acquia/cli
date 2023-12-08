@@ -8,6 +8,7 @@ use Acquia\Cli\Command\Pull\PullCommandBase;
 use Acquia\Cli\Command\Pull\PullDatabaseCommand;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Helpers\LocalMachineHelper;
+use Acquia\Cli\Helpers\SshHelper;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Psr7\Uri;
 use Prophecy\Argument;
@@ -41,6 +42,18 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     return [[51], [60]];
   }
 
+  public function mockGetBackup(mixed $environment): void {
+    $databases = $this->mockRequest('getEnvironmentsDatabases', $environment->id);
+    $tamper = function ($backups): void {
+      $backups[0]->completedAt = $backups[0]->completed_at;
+    };
+    $backups = $this->mockRequest('getEnvironmentsDatabaseBackups', [
+      $environment->id,
+      'my_db',
+    ], NULL, NULL, $tamper);
+    $this->mockDownloadBackup($databases[0], $environment, $backups[0]);
+  }
+
   protected function createCommand(): Command {
     return $this->injectCommand(PullDatabaseCommand::class);
   }
@@ -50,17 +63,8 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     $this->mockExecuteMySqlConnect($localMachineHelper, TRUE);
     $environment = $this->mockGetEnvironment();
     $sshHelper = $this->mockSshHelper();
-    $this->command->sshHelper = $sshHelper->reveal();
-    $process = $this->mockProcess();
-    $process->getOutput()->willReturn('default')->shouldBeCalled();
-    $sshHelper->executeCommand(Argument::type('object'), ['ls', '/mnt/files/site.dev/sites'], FALSE)
-      ->willReturn($process->reveal())->shouldBeCalled();
-    $databases = $this->mockRequest('getEnvironmentsDatabases', $environment->id);
-    $tamper = function ($backups): void {
-      $backups[0]->completedAt = $backups[0]->completed_at;
-    };
-    $backups = $this->mockRequest('getEnvironmentsDatabaseBackups', [$environment->id, 'my_db'], NULL, NULL, $tamper);
-    $this->mockDownloadBackup($databases[0], $environment, $backups[0]);
+    $this->mockListSites($sshHelper);
+    $this->mockGetBackup($environment);
     $this->mockExecuteMySqlListTables($localMachineHelper, 'drupal');
     $this->mockExecuteMySqlDropDb($localMachineHelper, TRUE);
     $this->mockExecuteMySqlImport($localMachineHelper, TRUE, TRUE, 'my_db', 'my_dbdev', 'drupal');
@@ -97,17 +101,8 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     $this->mockExecuteMySqlConnect($localMachineHelper, TRUE);
     $environment = $this->mockGetEnvironment();
     $sshHelper = $this->mockSshHelper();
-    $this->command->sshHelper = $sshHelper->reveal();
-    $process = $this->mockProcess();
-    $process->getOutput()->willReturn('default')->shouldBeCalled();
-    $sshHelper->executeCommand(Argument::type('object'), ['ls', '/mnt/files/site.dev/sites'], FALSE)
-      ->willReturn($process->reveal())->shouldBeCalled();
-    $databases = $this->mockRequest('getEnvironmentsDatabases', $environment->id);
-    $tamper = function ($backups): void {
-      $backups[0]->completedAt = $backups[0]->completed_at;
-    };
-    $backups = $this->mockRequest('getEnvironmentsDatabaseBackups', [$environment->id, 'my_db'], NULL, NULL, $tamper);
-    $this->mockDownloadBackup($databases[0], $environment, $backups[0]);
+    $this->mockListSites($sshHelper);
+    $this->mockGetBackup($environment);
     $this->mockExecuteMySqlListTables($localMachineHelper, 'drupal');
     $this->mockExecuteMySqlDropDb($localMachineHelper, TRUE);
     $this->mockExecuteMySqlImport($localMachineHelper, TRUE, FALSE, 'my_db', 'my_dbdev', 'drupal');
@@ -281,7 +276,19 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
       $this->mockExecuteMySqlListTables($localMachineHelper, 'drupal');
       $this->mockExecuteMySqlImport($localMachineHelper, $mysqlImportSuccessful, TRUE, 'profserv2', 'profserv2dev', 'drupal');
     }
+  }
+
+  protected function mockSshHelper(): ObjectProphecy|SshHelper {
+    $sshHelper = parent::mockSshHelper();
     $this->command->sshHelper = $sshHelper->reveal();
+    return $sshHelper;
+  }
+
+  private function mockListSites(SshHelper|ObjectProphecy $sshHelper): void {
+    $process = $this->mockProcess();
+    $process->getOutput()->willReturn('default')->shouldBeCalled();
+    $sshHelper->executeCommand(Argument::type('object'), ['ls', '/mnt/files/site.dev/sites'], FALSE)
+      ->willReturn($process->reveal())->shouldBeCalled();
   }
 
   protected function mockLocalMachineHelper(): LocalMachineHelper|ObjectProphecy {
