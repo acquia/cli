@@ -187,8 +187,7 @@ class ApiBaseCommand extends CommandBase {
         }
         $types[] = $type['type'];
       }
-      $isInt = (in_array('integer', $types, TRUE) || in_array('int', $types, TRUE));
-      if ($isInt && ctype_digit($value)) {
+      if (in_array('integer', $types, TRUE) && ctype_digit($value)) {
         return $this->doCastParamType('integer', $value);
       }
     }
@@ -210,8 +209,8 @@ class ApiBaseCommand extends CommandBase {
 
   private function doCastParamType(string $type, mixed $value): array|bool|int|string|object {
     return match ($type) {
-      'int', 'integer' => (int) $value,
-      'bool', 'boolean' => $this->castBool($value),
+      'integer' => (int) $value,
+      'boolean' => $this->castBool($value),
       'array' => is_string($value) ? explode(',', $value) : (array) $value,
       'string' => (string) $value,
       'object' => json_decode($value, FALSE, 512, JSON_THROW_ON_ERROR),

@@ -52,22 +52,20 @@ class ApiCommandTest extends CommandTestBase {
         'AH_SOMETHING',
       ]);
     }
-    catch (MissingInputException $exception) {
-
+    catch (MissingInputException) {
     }
     $output = $this->getDisplay();
     $this->assertStringContainsString('It must match the pattern', $output);
   }
 
-  public function testArgumentsInteractionValdationFormat(): void {
+  public function testArgumentsInteractionValidationFormat(): void {
     $this->command = $this->getApiCommandByName('api:notifications:find');
     try {
       $this->executeCommand([], [
         'test',
       ]);
     }
-    catch (MissingInputException $exception) {
-
+    catch (MissingInputException) {
     }
     $output = $this->getDisplay();
     $this->assertStringContainsString('This is not a valid UUID', $output);
