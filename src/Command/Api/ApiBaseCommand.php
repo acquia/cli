@@ -150,11 +150,11 @@ class ApiBaseCommand extends CommandBase {
     return $this->method;
   }
 
-  public function addPostParameter(mixed $paramName, mixed $value): void {
+  public function addPostParameter(string $paramName, mixed $value): void {
     $this->postParams[$paramName] = $value;
   }
 
-  public function addQueryParameter(mixed $paramName, mixed $value): void {
+  public function addQueryParameter(string $paramName, mixed $value): void {
     $this->queryParams[$paramName] = $value;
   }
 
@@ -214,7 +214,6 @@ class ApiBaseCommand extends CommandBase {
       'array' => is_string($value) ? explode(',', $value) : (array) $value,
       'string' => (string) $value,
       'object' => json_decode($value, FALSE, 512, JSON_THROW_ON_ERROR),
-      'mixed' => $value,
     };
   }
 
