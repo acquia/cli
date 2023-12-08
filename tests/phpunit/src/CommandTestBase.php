@@ -192,6 +192,29 @@ abstract class CommandTestBase extends TestBase {
     return $localMachineHelper;
   }
 
+  /**
+   * @return array<mixed>
+   */
+  protected static function inputChooseEnvironment(): array {
+    return [
+      // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
+      'n',
+      // Select a Cloud Platform application:
+      self::$INPUT_DEFAULT_CHOICE,
+      // Would you like to link the project at ... ?
+      'n',
+      // Choose an Acquia environment:
+      self::$INPUT_DEFAULT_CHOICE,
+    ];
+  }
+
+  public function mockGetEnvironment(): mixed {
+    $applications = $this->mockRequest('getApplications');
+    $application = $this->mockRequest('getApplicationByUuid', $applications[self::$INPUT_DEFAULT_CHOICE]->uuid);
+    $environments = $this->mockRequest('getApplicationEnvironments', $application->uuid);
+    return $environments[self::$INPUT_DEFAULT_CHOICE];
+  }
+
   protected function mockLocalMachineHelper(): LocalMachineHelper|ObjectProphecy {
     $localMachineHelper = $this->prophet->prophesize(LocalMachineHelper::class);
     $localMachineHelper->useTty()->willReturn(FALSE);

@@ -22,6 +22,7 @@ use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Exception\ApiErrorException;
 use AcquiaCloudApi\Response\IdeResponse;
 use AcquiaLogstream\LogstreamManager;
+use Closure;
 use GuzzleHttp\Psr7\Response;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use org\bovigo\vfs\vfsStream;
@@ -31,6 +32,7 @@ use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
 use Prophecy\Prophet;
 use Psr\Http\Message\StreamInterface;
+use RuntimeException;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\Cache\Adapter\PhpArrayAdapter;
 use Symfony\Component\Cache\CacheItem;
@@ -431,12 +433,21 @@ abstract class TestBase extends TestCase {
     $this->fs->dumpFile($filepath, $contents);
   }
 
-  protected function createMockAcliConfigFile(mixed $cloudAppUuid): void {
+  protected function createMockAcliConfigFile(string $cloudAppUuid): void {
     $this->datastoreAcli->set('cloud_app_uuid', $cloudAppUuid);
   }
 
-  protected function mockRequest(string $operationId, string|array|null $params = NULL, ?array $body = NULL, ?string $exampleResponse = NULL, \Closure $tamper = NULL): object|array {
+  protected function mockRequest(string $operationId, string|array|null $params = NULL, ?array $body = NULL, ?string $exampleResponse = NULL, Closure $tamper = NULL): object|array {
+    if (is_string($params)) {
+      $params = [$params];
+    }
+    else if (is_null($params)) {
+      $params = [];
+    }
     [$path, $method, $code] = $this->getPathMethodCodeFromSpec($operationId);
+    if (count($params) !== substr_count($path, '{')) {
+      throw new RuntimeException('Invalid number of parameters');
+    }
     $response = $this->getMockResponseFromSpec($path, $method, $code);
 
     // This is a set of example responses.
@@ -450,13 +461,8 @@ abstract class TestBase extends TestCase {
     if (isset($tamper)) {
       $tamper($response);
     }
-    if (isset($params)) {
-      if (is_string($params)) {
-        $params = [$params];
-      }
-      foreach ($params as $param) {
-        $path = preg_replace('/\{\w*}/', $param, $path, 1);
-      }
+    foreach ($params as $param) {
+      $path = preg_replace('/\{\w*}/', $param, $path, 1);
     }
     $this->clientProphecy->request($method, $path, $body)
       ->willReturn($response)

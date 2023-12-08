@@ -82,7 +82,7 @@ abstract class PullCommandBase extends CommandBase {
     return $this->dir . '/docroot/sites/' . $site . '/files';
   }
 
-  public static function getBackupPath(mixed $environment, DatabaseResponse $database, mixed $backupResponse): string {
+  public static function getBackupPath(object $environment, object $database, object $backupResponse): string {
     // Databases have a machine name not exposed via the API; we can only
     // approximately reconstruct it and match the filename you'd get downloading
     // a backup from Cloud UI.
@@ -445,7 +445,7 @@ abstract class PullCommandBase extends CommandBase {
     return trim($process->getOutput());
   }
 
-  private function promptChooseEnvironment(mixed $acquiaCloudClient, string $applicationUuid, bool $allowProduction = FALSE): EnvironmentResponse {
+  private function promptChooseEnvironment(Client $acquiaCloudClient, string $applicationUuid, bool $allowProduction = FALSE): EnvironmentResponse {
     $environmentResource = new Environments($acquiaCloudClient);
     $applicationEnvironments = iterator_to_array($environmentResource->getAll($applicationUuid));
     $choices = [];
@@ -542,7 +542,7 @@ abstract class PullCommandBase extends CommandBase {
     $this->checklist->completePreviousItem();
   }
 
-  private function determineSite(string|\AcquiaCloudApi\Response\EnvironmentResponse|array $environment, InputInterface $input): mixed {
+  private function determineSite(string|EnvironmentResponse|array $environment, InputInterface $input): mixed {
     if (isset($this->site)) {
       return $this->site;
     }
@@ -710,7 +710,7 @@ abstract class PullCommandBase extends CommandBase {
     }
   }
 
-  private function environmentPhpVersionMatches(\AcquiaCloudApi\Response\EnvironmentResponse $environment): bool {
+  private function environmentPhpVersionMatches(EnvironmentResponse $environment): bool {
     $currentPhpVersion = $this->getIdePhpVersion();
     return $environment->configuration->php->version === $currentPhpVersion;
   }
@@ -787,9 +787,9 @@ abstract class PullCommandBase extends CommandBase {
 
   private function getDatabaseBackup(
     Client $acquiaCloudClient,
-    string|\AcquiaCloudApi\Response\EnvironmentResponse|array $environment,
+    string|EnvironmentResponse|array $environment,
     DatabaseResponse $database
-  ): mixed {
+  ): BackupResponse {
     $databaseBackups = new DatabaseBackups($acquiaCloudClient);
     $backupsResponse = $databaseBackups->getAll($environment->uuid, $database->name);
     if (!count($backupsResponse)) {

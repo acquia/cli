@@ -8,7 +8,7 @@ use Acquia\Cli\Command\Pull\PullCommandBase;
 use Acquia\Cli\Command\Pull\PullDatabaseCommand;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Helpers\LocalMachineHelper;
-use AcquiaCloudApi\Response\DatabaseResponse;
+use Acquia\Cli\Helpers\SshHelper;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Psr7\Uri;
 use Prophecy\Argument;
@@ -42,17 +42,38 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     return [[51], [60]];
   }
 
+  public function mockGetBackup(mixed $environment): void {
+    $databases = $this->mockRequest('getEnvironmentsDatabases', $environment->id);
+    $tamper = function ($backups): void {
+      $backups[0]->completedAt = $backups[0]->completed_at;
+    };
+    $backups = $this->mockRequest('getEnvironmentsDatabaseBackups', [
+      $environment->id,
+      'my_db',
+    ], NULL, NULL, $tamper);
+    $this->mockDownloadBackup($databases[0], $environment, $backups[0]);
+  }
+
   protected function createCommand(): Command {
     return $this->injectCommand(PullDatabaseCommand::class);
   }
 
   public function testPullDatabases(): void {
-    $this->setupPullDatabase(TRUE, TRUE, TRUE, TRUE);
-    $inputs = $this->getInputs();
+    $localMachineHelper = $this->mockLocalMachineHelper();
+    $this->mockExecuteMySqlConnect($localMachineHelper, TRUE);
+    $environment = $this->mockGetEnvironment();
+    $sshHelper = $this->mockSshHelper();
+    $this->mockListSites($sshHelper);
+    $this->mockGetBackup($environment);
+    $this->mockExecuteMySqlListTables($localMachineHelper, 'drupal');
+    $this->mockExecuteMySqlDropDb($localMachineHelper, TRUE);
+    $this->mockExecuteMySqlImport($localMachineHelper, TRUE, TRUE, 'my_db', 'my_dbdev', 'drupal');
+    $fs = $this->prophet->prophesize(Filesystem::class);
+    $localMachineHelper->getFilesystem()->willReturn($fs)->shouldBeCalled();
 
     $this->executeCommand([
     '--no-scripts' => TRUE,
-    ], $inputs);
+    ], self::inputChooseEnvironment());
     $this->prophet->checkPredictions();
     $output = $this->getDisplay();
 
@@ -60,28 +81,40 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     $this->assertStringContainsString('[0] Sample application 1', $output);
     $this->assertStringContainsString('Choose a Cloud Platform environment', $output);
     $this->assertStringContainsString('[0] Dev, dev (vcs: master)', $output);
-    $this->assertStringContainsString('Choose a site [jxr5000596dev (oracletest1.dev-profserv2.acsitefactory.com)]:', $output);
-    $this->assertStringContainsString('jxr5000596dev (oracletest1.dev-profserv2.acsitefactory.com)', $output);
+    $this->assertStringContainsString('Choose a database [my_db (default)]:', $output);
     $this->assertStringContainsString('Downloading backup 1', $output);
   }
 
   public function testPullDatabasesLocalConnectionFailure(): void {
-    $this->setupPullDatabase(FALSE, TRUE, TRUE, TRUE);
-    $inputs = $this->getInputs();
+    $localMachineHelper = $this->mockLocalMachineHelper();
+    $this->mockExecuteMySqlConnect($localMachineHelper, FALSE);
 
     $this->expectException(AcquiaCliException::class);
     $this->expectExceptionMessage('Unable to connect');
     $this->executeCommand([
       '--no-scripts' => TRUE,
-    ], $inputs);
+    ], self::inputChooseEnvironment());
   }
 
   public function testPullDatabaseNoPv(): void {
-    $this->setupPullDatabase(TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, FALSE, 0, TRUE, FALSE);
-    $inputs = $this->getInputs();
+    $localMachineHelper = $this->mockLocalMachineHelper();
+    $this->mockExecuteMySqlConnect($localMachineHelper, TRUE);
+    $environment = $this->mockGetEnvironment();
+    $sshHelper = $this->mockSshHelper();
+    $this->mockListSites($sshHelper);
+    $this->mockGetBackup($environment);
+    $this->mockExecuteMySqlListTables($localMachineHelper, 'drupal');
+    $this->mockExecuteMySqlDropDb($localMachineHelper, TRUE);
+    $this->mockExecuteMySqlImport($localMachineHelper, TRUE, FALSE, 'my_db', 'my_dbdev', 'drupal');
+    $fs = $this->prophet->prophesize(Filesystem::class);
+    $localMachineHelper->getFilesystem()->willReturn($fs)->shouldBeCalled();
 
-    $this->executeCommand(['--no-scripts' => TRUE], $inputs);
+    $this->executeCommand([
+      '--no-scripts' => TRUE,
+    ], self::inputChooseEnvironment());
+    $this->prophet->checkPredictions();
     $output = $this->getDisplay();
+
     $this->assertStringContainsString(' [WARNING] Install `pv` to see progress bar', $output);
   }
 
@@ -110,7 +143,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
 
   public function testPullDatabasesOnDemand(): void {
     $this->setupPullDatabase(TRUE, TRUE, TRUE, TRUE, TRUE);
-    $inputs = $this->getInputs();
+    $inputs = self::inputChooseEnvironment();
 
     $this->executeCommand([
       '--no-scripts' => TRUE,
@@ -129,7 +162,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
 
   public function testPullDatabasesNoExistingBackup(): void {
     $this->setupPullDatabase(TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, FALSE, 0, FALSE);
-    $inputs = $this->getInputs();
+    $inputs = self::inputChooseEnvironment();
 
     $this->executeCommand([
       '--no-scripts' => TRUE,
@@ -148,7 +181,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
 
   public function testPullDatabasesSiteArgument(): void {
     $this->setupPullDatabase(TRUE, TRUE, TRUE, TRUE, FALSE, FALSE);
-    $inputs = $this->getInputs();
+    $inputs = self::inputChooseEnvironment();
 
     $this->executeCommand([
       '--no-scripts' => TRUE,
@@ -166,7 +199,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
 
   public function testPullDatabaseWithMySqlDropError(): void {
     $this->setupPullDatabase(TRUE, FALSE, TRUE);
-    $inputs = $this->getInputs();
+    $inputs = self::inputChooseEnvironment();
     $this->expectException(AcquiaCliException::class);
     $this->expectExceptionMessage('Unable to drop tables from database');
     $this->executeCommand(['--no-scripts' => TRUE], $inputs);
@@ -174,7 +207,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
 
   public function testPullDatabaseWithMySqlImportError(): void {
     $this->setupPullDatabase(TRUE, TRUE, FALSE);
-    $inputs = $this->getInputs();
+    $inputs = self::inputChooseEnvironment();
 
     $this->expectException(AcquiaCliException::class);
     $this->expectExceptionMessage('Unable to import local database');
@@ -186,7 +219,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
    */
   public function testPullDatabaseWithInvalidSslCertificate(int $errorCode): void {
     $this->setupPullDatabase(TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, FALSE, $errorCode);
-    $inputs = $this->getInputs();
+    $inputs = self::inputChooseEnvironment();
 
     $this->executeCommand(['--no-scripts' => TRUE], $inputs);
     $output = $this->getDisplay();
@@ -194,7 +227,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     $this->assertStringContainsString('Trying alternative host other.example.com', $output);
   }
 
-  protected function setupPullDatabase(bool $mysqlConnectSuccessful, bool $mysqlDropSuccessful, bool $mysqlImportSuccessful, bool $mockIdeFs = FALSE, bool $onDemand = FALSE, bool $mockGetAcsfSites = TRUE, bool $multiDb = FALSE, int $curlCode = 0, bool $existingBackups = TRUE, bool $pvExists = TRUE): void {
+  protected function setupPullDatabase(bool $mysqlConnectSuccessful, bool $mysqlDropSuccessful, bool $mysqlImportSuccessful, bool $mockIdeFs = FALSE, bool $onDemand = FALSE, bool $mockGetAcsfSites = TRUE, bool $multiDb = FALSE, int $curlCode = 0, bool $existingBackups = TRUE): void {
     $applicationsResponse = $this->mockApplicationsRequest();
     $this->mockApplicationRequest();
     $environmentsResponse = $this->mockAcsfEnvironmentsRequest($applicationsResponse);
@@ -238,13 +271,30 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     // Database.
     $this->mockExecuteMySqlListTables($localMachineHelper);
     $this->mockExecuteMySqlDropDb($localMachineHelper, $mysqlDropSuccessful);
-    $this->mockExecuteMySqlImport($localMachineHelper, $mysqlImportSuccessful, $pvExists);
+    $this->mockExecuteMySqlImport($localMachineHelper, $mysqlImportSuccessful, TRUE);
     if ($multiDb) {
       $this->mockExecuteMySqlListTables($localMachineHelper, 'drupal');
-      $this->mockExecuteMySqlImport($localMachineHelper, $mysqlImportSuccessful, $pvExists, 'profserv2', 'profserv2dev', 'drupal');
+      $this->mockExecuteMySqlImport($localMachineHelper, $mysqlImportSuccessful, TRUE, 'profserv2', 'profserv2dev', 'drupal');
     }
-    $this->command->localMachineHelper = $localMachineHelper->reveal();
+  }
+
+  protected function mockSshHelper(): ObjectProphecy|SshHelper {
+    $sshHelper = parent::mockSshHelper();
     $this->command->sshHelper = $sshHelper->reveal();
+    return $sshHelper;
+  }
+
+  private function mockListSites(SshHelper|ObjectProphecy $sshHelper): void {
+    $process = $this->mockProcess();
+    $process->getOutput()->willReturn('default')->shouldBeCalled();
+    $sshHelper->executeCommand(Argument::type('object'), ['ls', '/mnt/files/site.dev/sites'], FALSE)
+      ->willReturn($process->reveal())->shouldBeCalled();
+  }
+
+  protected function mockLocalMachineHelper(): LocalMachineHelper|ObjectProphecy {
+    $localMachineHelper = parent::mockLocalMachineHelper();
+    $this->command->localMachineHelper = $localMachineHelper->reveal();
+    return $localMachineHelper;
   }
 
   protected function mockExecuteMySqlConnect(
@@ -332,22 +382,6 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
       ->shouldBeCalled();
   }
 
-  /**
-   * @return array<mixed>
-   */
-  protected function getInputs(): array {
-    return [
-      // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
-      'n',
-      // Select a Cloud Platform application:
-      0,
-      // Would you like to link the project at ... ?
-      'n',
-      // Choose an Acquia environment:
-      0,
-    ];
-  }
-
   protected function mockSettingsFiles(ObjectProphecy $fs): void {
     $fs->remove(Argument::type('string'))
       ->willReturn()
@@ -369,7 +403,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     $this->assertStringContainsString('100/100 [============================] 100%', $output->fetch());
   }
 
-  protected function mockDownloadBackup(DatabaseResponse $selectedDatabase, object $selectedEnvironment, object $selectedBackup, int $curlCode = 0): DatabaseResponse {
+  protected function mockDownloadBackup(object $selectedDatabase, object $selectedEnvironment, object $selectedBackup, int $curlCode = 0): object {
     if ($curlCode) {
       $this->prophet->prophesize(StreamInterface::class);
       /** @var RequestException|ObjectProphecy $requestException */
