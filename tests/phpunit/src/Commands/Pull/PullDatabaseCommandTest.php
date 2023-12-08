@@ -93,11 +93,33 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
   }
 
   public function testPullDatabaseNoPv(): void {
-    $this->setupPullDatabase(TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, FALSE, 0, TRUE, FALSE);
-    $inputs = PullDatabaseCommandTest::inputChooseEnvironment();
+    $localMachineHelper = $this->mockLocalMachineHelper();
+    $this->mockExecuteMySqlConnect($localMachineHelper, TRUE);
+    $environment = $this->mockGetEnvironment();
+    $sshHelper = $this->mockSshHelper();
+    $this->command->sshHelper = $sshHelper->reveal();
+    $process = $this->mockProcess();
+    $process->getOutput()->willReturn('default')->shouldBeCalled();
+    $sshHelper->executeCommand(Argument::type('object'), ['ls', '/mnt/files/site.dev/sites'], FALSE)
+      ->willReturn($process->reveal())->shouldBeCalled();
+    $databases = $this->mockRequest('getEnvironmentsDatabases', $environment->id);
+    $tamper = function ($backups): void {
+      $backups[0]->completedAt = $backups[0]->completed_at;
+    };
+    $backups = $this->mockRequest('getEnvironmentsDatabaseBackups', [$environment->id, 'my_db'], NULL, NULL, $tamper);
+    $this->mockDownloadBackup($databases[0], $environment, $backups[0]);
+    $this->mockExecuteMySqlListTables($localMachineHelper, 'drupal');
+    $this->mockExecuteMySqlDropDb($localMachineHelper, TRUE);
+    $this->mockExecuteMySqlImport($localMachineHelper, TRUE, FALSE, 'my_db', 'my_dbdev', 'drupal');
+    $fs = $this->prophet->prophesize(Filesystem::class);
+    $localMachineHelper->getFilesystem()->willReturn($fs)->shouldBeCalled();
 
-    $this->executeCommand(['--no-scripts' => TRUE], $inputs);
+    $this->executeCommand([
+      '--no-scripts' => TRUE,
+    ], self::inputChooseEnvironment());
+    $this->prophet->checkPredictions();
     $output = $this->getDisplay();
+
     $this->assertStringContainsString(' [WARNING] Install `pv` to see progress bar', $output);
   }
 
@@ -126,7 +148,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
 
   public function testPullDatabasesOnDemand(): void {
     $this->setupPullDatabase(TRUE, TRUE, TRUE, TRUE, TRUE);
-    $inputs = PullDatabaseCommandTest::inputChooseEnvironment();
+    $inputs = self::inputChooseEnvironment();
 
     $this->executeCommand([
       '--no-scripts' => TRUE,
@@ -145,7 +167,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
 
   public function testPullDatabasesNoExistingBackup(): void {
     $this->setupPullDatabase(TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, FALSE, 0, FALSE);
-    $inputs = PullDatabaseCommandTest::inputChooseEnvironment();
+    $inputs = self::inputChooseEnvironment();
 
     $this->executeCommand([
       '--no-scripts' => TRUE,
@@ -164,7 +186,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
 
   public function testPullDatabasesSiteArgument(): void {
     $this->setupPullDatabase(TRUE, TRUE, TRUE, TRUE, FALSE, FALSE);
-    $inputs = PullDatabaseCommandTest::inputChooseEnvironment();
+    $inputs = self::inputChooseEnvironment();
 
     $this->executeCommand([
       '--no-scripts' => TRUE,
@@ -182,7 +204,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
 
   public function testPullDatabaseWithMySqlDropError(): void {
     $this->setupPullDatabase(TRUE, FALSE, TRUE);
-    $inputs = PullDatabaseCommandTest::inputChooseEnvironment();
+    $inputs = self::inputChooseEnvironment();
     $this->expectException(AcquiaCliException::class);
     $this->expectExceptionMessage('Unable to drop tables from database');
     $this->executeCommand(['--no-scripts' => TRUE], $inputs);
@@ -190,7 +212,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
 
   public function testPullDatabaseWithMySqlImportError(): void {
     $this->setupPullDatabase(TRUE, TRUE, FALSE);
-    $inputs = PullDatabaseCommandTest::inputChooseEnvironment();
+    $inputs = self::inputChooseEnvironment();
 
     $this->expectException(AcquiaCliException::class);
     $this->expectExceptionMessage('Unable to import local database');
@@ -202,7 +224,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
    */
   public function testPullDatabaseWithInvalidSslCertificate(int $errorCode): void {
     $this->setupPullDatabase(TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, FALSE, $errorCode);
-    $inputs = PullDatabaseCommandTest::inputChooseEnvironment();
+    $inputs = self::inputChooseEnvironment();
 
     $this->executeCommand(['--no-scripts' => TRUE], $inputs);
     $output = $this->getDisplay();
@@ -210,7 +232,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     $this->assertStringContainsString('Trying alternative host other.example.com', $output);
   }
 
-  protected function setupPullDatabase(bool $mysqlConnectSuccessful, bool $mysqlDropSuccessful, bool $mysqlImportSuccessful, bool $mockIdeFs = FALSE, bool $onDemand = FALSE, bool $mockGetAcsfSites = TRUE, bool $multiDb = FALSE, int $curlCode = 0, bool $existingBackups = TRUE, bool $pvExists = TRUE): void {
+  protected function setupPullDatabase(bool $mysqlConnectSuccessful, bool $mysqlDropSuccessful, bool $mysqlImportSuccessful, bool $mockIdeFs = FALSE, bool $onDemand = FALSE, bool $mockGetAcsfSites = TRUE, bool $multiDb = FALSE, int $curlCode = 0, bool $existingBackups = TRUE): void {
     $applicationsResponse = $this->mockApplicationsRequest();
     $this->mockApplicationRequest();
     $environmentsResponse = $this->mockAcsfEnvironmentsRequest($applicationsResponse);
@@ -254,10 +276,10 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     // Database.
     $this->mockExecuteMySqlListTables($localMachineHelper);
     $this->mockExecuteMySqlDropDb($localMachineHelper, $mysqlDropSuccessful);
-    $this->mockExecuteMySqlImport($localMachineHelper, $mysqlImportSuccessful, $pvExists);
+    $this->mockExecuteMySqlImport($localMachineHelper, $mysqlImportSuccessful, TRUE);
     if ($multiDb) {
       $this->mockExecuteMySqlListTables($localMachineHelper, 'drupal');
-      $this->mockExecuteMySqlImport($localMachineHelper, $mysqlImportSuccessful, $pvExists, 'profserv2', 'profserv2dev', 'drupal');
+      $this->mockExecuteMySqlImport($localMachineHelper, $mysqlImportSuccessful, TRUE, 'profserv2', 'profserv2dev', 'drupal');
     }
     $this->command->sshHelper = $sshHelper->reveal();
   }
