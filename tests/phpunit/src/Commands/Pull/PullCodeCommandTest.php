@@ -28,16 +28,14 @@ class PullCodeCommandTest extends PullCommandTestBase {
     $this->acliRepoRoot = '';
     $this->command = $this->createCommand();
     // Client responses.
-    $applications = $this->mockRequest('getApplications');
-    $this->mockRequest('getApplicationByUuid', $applications[self::$INPUT_DEFAULT_CHOICE]->uuid);
-    $environments = $this->mockRequest('getApplicationEnvironments', $applications[self::$INPUT_DEFAULT_CHOICE]->uuid);
+    $environment = $this->mockGetEnvironment();
     $localMachineHelper = $this->mockReadIdePhpVersion();
     $process = $this->mockProcess();
     $dir = Path::join($this->vfsRoot->url(), 'empty-dir');
     mkdir($dir);
     $localMachineHelper->checkRequiredBinariesExist(["git"])->shouldBeCalled();
-    $this->mockExecuteGitClone($localMachineHelper, $environments[self::$INPUT_DEFAULT_CHOICE], $process, $dir);
-    $this->mockExecuteGitCheckout($localMachineHelper, $environments[self::$INPUT_DEFAULT_CHOICE]->vcs->path, $dir, $process);
+    $this->mockExecuteGitClone($localMachineHelper, $environment, $process, $dir);
+    $this->mockExecuteGitCheckout($localMachineHelper, $environment->vcs->path, $dir, $process);
     $localMachineHelper->getFinder()->willReturn(new Finder());
 
     $this->command->localMachineHelper = $localMachineHelper->reveal();
@@ -60,9 +58,7 @@ class PullCodeCommandTest extends PullCommandTestBase {
   }
 
   public function testPullCode(): void {
-    $applications = $this->mockRequest('getApplications');
-    $this->mockRequest('getApplicationByUuid', $applications[self::$INPUT_DEFAULT_CHOICE]->uuid);
-    $environments = $this->mockRequest('getApplicationEnvironments', $applications[self::$INPUT_DEFAULT_CHOICE]->uuid);
+    $environment = $this->mockGetEnvironment();
     $this->createMockGitConfigFile();
 
     $localMachineHelper = $this->mockReadIdePhpVersion();
@@ -72,23 +68,12 @@ class PullCodeCommandTest extends PullCommandTestBase {
     $this->command->localMachineHelper = $localMachineHelper->reveal();
 
     $process = $this->mockProcess();
-    $this->mockExecuteGitFetchAndCheckout($localMachineHelper, $process, $this->projectDir, $environments[self::$INPUT_DEFAULT_CHOICE]->vcs->path);
+    $this->mockExecuteGitFetchAndCheckout($localMachineHelper, $process, $this->projectDir, $environment->vcs->path);
     $this->mockExecuteGitStatus(FALSE, $localMachineHelper, $this->projectDir);
-
-    $inputs = [
-      // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
-      'n',
-      // Select a Cloud Platform application:
-      self::$INPUT_DEFAULT_CHOICE,
-      // Would you like to link the project at ... ?
-      'n',
-      // Choose an Acquia environment:
-      self::$INPUT_DEFAULT_CHOICE,
-    ];
 
     $this->executeCommand([
       '--no-scripts' => TRUE,
-    ], $inputs);
+    ], self::inputChooseEnvironment());
     $this->prophet->checkPredictions();
     $output = $this->getDisplay();
 
@@ -100,9 +85,7 @@ class PullCodeCommandTest extends PullCommandTestBase {
 
   public function testWithScripts(): void {
     touch(Path::join($this->projectDir, 'composer.json'));
-    $applications = $this->mockRequest('getApplications');
-    $this->mockRequest('getApplicationByUuid', $applications[self::$INPUT_DEFAULT_CHOICE]->uuid);
-    $environments = $this->mockRequest('getApplicationEnvironments', $applications[self::$INPUT_DEFAULT_CHOICE]->uuid);
+    $environment = $this->mockGetEnvironment();
     $this->createMockGitConfigFile();
 
     $localMachineHelper = $this->mockReadIdePhpVersion();
@@ -112,7 +95,7 @@ class PullCodeCommandTest extends PullCommandTestBase {
     $this->command->localMachineHelper = $localMachineHelper->reveal();
 
     $process = $this->mockProcess();
-    $this->mockExecuteGitFetchAndCheckout($localMachineHelper, $process, $this->projectDir, $environments[self::$INPUT_DEFAULT_CHOICE]->vcs->path);
+    $this->mockExecuteGitFetchAndCheckout($localMachineHelper, $process, $this->projectDir, $environment->vcs->path);
     $this->mockExecuteGitStatus(FALSE, $localMachineHelper, $this->projectDir);
     $process = $this->mockProcess();
     $this->mockExecuteComposerExists($localMachineHelper);
@@ -121,18 +104,7 @@ class PullCodeCommandTest extends PullCommandTestBase {
     $this->mockExecuteDrushStatus($localMachineHelper, TRUE, $this->projectDir);
     $this->mockExecuteDrushCacheRebuild($localMachineHelper, $process);
 
-    $inputs = [
-      // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
-      'n',
-      // Select a Cloud Platform application:
-      self::$INPUT_DEFAULT_CHOICE,
-      // Would you like to link the project at ... ?
-      'n',
-      // Choose an Acquia environment:
-      self::$INPUT_DEFAULT_CHOICE,
-    ];
-
-    $this->executeCommand([], $inputs);
+    $this->executeCommand([], self::inputChooseEnvironment());
     $this->prophet->checkPredictions();
     $output = $this->getDisplay();
 
@@ -143,9 +115,7 @@ class PullCodeCommandTest extends PullCommandTestBase {
   }
 
   public function testNoComposerJson(): void {
-    $applications = $this->mockRequest('getApplications');
-    $this->mockRequest('getApplicationByUuid', $applications[self::$INPUT_DEFAULT_CHOICE]->uuid);
-    $environments = $this->mockRequest('getApplicationEnvironments', $applications[self::$INPUT_DEFAULT_CHOICE]->uuid);
+    $environment = $this->mockGetEnvironment();
     $this->createMockGitConfigFile();
 
     $localMachineHelper = $this->mockReadIdePhpVersion();
@@ -155,25 +125,14 @@ class PullCodeCommandTest extends PullCommandTestBase {
     $this->command->localMachineHelper = $localMachineHelper->reveal();
 
     $process = $this->mockProcess();
-    $this->mockExecuteGitFetchAndCheckout($localMachineHelper, $process, $this->projectDir, $environments[self::$INPUT_DEFAULT_CHOICE]->vcs->path);
+    $this->mockExecuteGitFetchAndCheckout($localMachineHelper, $process, $this->projectDir, $environment->vcs->path);
     $this->mockExecuteGitStatus(FALSE, $localMachineHelper, $this->projectDir);
     $process = $this->mockProcess();
     $this->mockExecuteDrushExists($localMachineHelper);
     $this->mockExecuteDrushStatus($localMachineHelper, TRUE, $this->projectDir);
     $this->mockExecuteDrushCacheRebuild($localMachineHelper, $process);
 
-    $inputs = [
-      // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
-      'n',
-      // Select a Cloud Platform application:
-      self::$INPUT_DEFAULT_CHOICE,
-      // Would you like to link the project at ... ?
-      'n',
-      // Choose an Acquia environment:
-      self::$INPUT_DEFAULT_CHOICE,
-    ];
-
-    $this->executeCommand([], $inputs);
+    $this->executeCommand([], self::inputChooseEnvironment());
     $this->prophet->checkPredictions();
     $output = $this->getDisplay();
     $this->assertStringContainsString('composer.json file not found. Skipping composer install.', $output);
@@ -204,18 +163,7 @@ class PullCodeCommandTest extends PullCommandTestBase {
     $this->mockExecuteDrushStatus($localMachineHelper, TRUE, $this->projectDir);
     $this->mockExecuteDrushCacheRebuild($localMachineHelper, $process);
 
-    $inputs = [
-      // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
-      'n',
-      // Select a Cloud Platform application:
-      self::$INPUT_DEFAULT_CHOICE,
-      // Would you like to link the project at ... ?
-      'n',
-      // Choose an Acquia environment:
-      self::$INPUT_DEFAULT_CHOICE,
-    ];
-
-    $this->executeCommand([], $inputs);
+    $this->executeCommand([], self::inputChooseEnvironment());
     $this->prophet->checkPredictions();
     $output = $this->getDisplay();
 
@@ -245,18 +193,7 @@ class PullCodeCommandTest extends PullCommandTestBase {
     $this->mockExecuteDrushStatus($localMachineHelper, TRUE, $this->projectDir);
     $this->mockExecuteDrushCacheRebuild($localMachineHelper, $process);
 
-    $inputs = [
-      // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
-      'n',
-      // Select a Cloud Platform application:
-      self::$INPUT_DEFAULT_CHOICE,
-      // Would you like to link the project at ... ?
-      'n',
-      // Choose an Acquia environment:
-      self::$INPUT_DEFAULT_CHOICE,
-    ];
-
-    $this->executeCommand([], $inputs);
+    $this->executeCommand([], self::inputChooseEnvironment());
     $this->prophet->checkPredictions();
     $output = $this->getDisplay();
 
