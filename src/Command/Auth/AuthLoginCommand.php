@@ -11,25 +11,29 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-#[AsCommand(name: 'auth:login', description: 'Register your Cloud API key and secret to use API functionality', aliases: ['login'])]
+#[AsCommand(name: 'auth:login', description: 'Register Cloud Platform API credentials', aliases: ['login'])]
 final class AuthLoginCommand extends CommandBase {
 
   protected function configure(): void {
     $this
-      ->addOption('key', 'k', InputOption::VALUE_REQUIRED, 'Your Cloud API key')
-      ->addOption('secret', 's', InputOption::VALUE_REQUIRED, 'Your Cloud API secret');
+      ->addOption('key', 'k', InputOption::VALUE_REQUIRED, 'Your Cloud Platform API key')
+      ->addOption('secret', 's', InputOption::VALUE_REQUIRED, 'Your Cloud Platform API secret')
+      ->setHelp('Acquia CLI can store multiple sets of credentials in case you have multiple Cloud Platform accounts. However, only a single account can be active at a time. This command allows you to activate a new or existing set of credentials.');
   }
 
   protected function execute(InputInterface $input, OutputInterface $output): int {
-    if ($this->cloudApiClientService->isMachineAuthenticated()) {
-      $answer = $this->io->confirm('Your machine has already been authenticated with the Cloud Platform API, would you like to re-authenticate?');
-      if (!$answer) {
-        return Command::SUCCESS;
-      }
+    $keys = $this->datastoreCloud->get('keys');
+    $activeKey = $this->datastoreCloud->get('acli_key');
+    if ($activeKey) {
+      $activeKeyLabel = $keys[$activeKey]['label'];
+      $output->write("The following Cloud Platform API key is active: <options=bold>$activeKeyLabel</>");
+    }
+    else {
+      $output->write('No Cloud Platform API key is active');
     }
 
     // If keys already are saved locally, prompt to select.
-    if ($input->isInteractive() && $keys = $this->datastoreCloud->get('keys')) {
+    if ($keys && $input->isInteractive()) {
       foreach ($keys as $uuid => $key) {
         $keys[$uuid]['uuid'] = $uuid;
       }
@@ -37,10 +41,10 @@ final class AuthLoginCommand extends CommandBase {
         'label' => 'Enter a new API key',
         'uuid' => 'create_new',
       ];
-      $selectedKey = $this->promptChooseFromObjectsOrArrays($keys, 'uuid', 'label', 'Choose which API key to use');
+      $selectedKey = $this->promptChooseFromObjectsOrArrays($keys, 'uuid', 'label', 'Activate a Cloud Platform API key');
       if ($selectedKey['uuid'] !== 'create_new') {
         $this->datastoreCloud->set('acli_key', $selectedKey['uuid']);
-        $output->writeln("<info>Acquia CLI will use the API Key <options=bold>{$selectedKey['label']}</></info>");
+        $output->writeln("<info>Acquia CLI will use the API key <options=bold>{$selectedKey['label']}</></info>");
         $this->reAuthenticate($this->cloudCredentials->getCloudKey(), $this->cloudCredentials->getCloudSecret(), $this->cloudCredentials->getBaseUri(), $this->cloudCredentials->getAccountsUri());
         return Command::SUCCESS;
       }
@@ -57,7 +61,7 @@ final class AuthLoginCommand extends CommandBase {
   }
 
   private function writeApiCredentialsToDisk(string $apiKey, string $apiSecret): void {
-    $tokenInfo = $this->cloudApiClientService->getClient()->request('get', "/account/tokens/{$apiKey}");
+    $tokenInfo = $this->cloudApiClientService->getClient()->request('get', "/account/tokens/$apiKey");
     $keys = $this->datastoreCloud->get('keys');
     $keys[$apiKey] = [
       'label' => $tokenInfo->label,

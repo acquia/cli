@@ -62,6 +62,7 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
+use Symfony\Component\Console\Question\ConfirmationQuestion;
 use Symfony\Component\Console\Question\Question;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Console\Terminal;
@@ -1349,7 +1350,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * explicitly or by default. In other words, we can't prompt for the value of
    * an option that already has a default value.
    */
-  protected function determineOption(string $optionName, bool $hidden = FALSE, ?Closure $validator = NULL, ?Closure $normalizer = NULL, ?string $default = NULL): string|int|null {
+  protected function determineOption(string $optionName, bool $hidden = FALSE, ?Closure $validator = NULL, ?Closure $normalizer = NULL, string|bool|null $default = NULL): string|int|bool|null {
     if ($optionValue = $this->input->getOption($optionName)) {
       if (isset($normalizer)) {
         $optionValue = $normalizer($optionValue);
@@ -1360,18 +1361,32 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
       return $optionValue;
     }
     $option = $this->getDefinition()->getOption($optionName);
+    if ($option->isNegatable() && $this->input->getOption("no-$optionName")) {
+      return FALSE;
+    }
     $optionShortcut = $option->getShortcut();
     $description = lcfirst($option->getDescription());
     if ($optionShortcut) {
-      $message = "Enter $description (option <options=bold>-$optionShortcut</>, <options=bold>--$optionName</>)";
+      $optionString = "option <options=bold>-$optionShortcut</>, <options=bold>--$optionName</>";
     }
     else {
-      $message = "Enter $description (option <options=bold>--$optionName</>)";
+      $optionString = "option <options=bold>--$optionName</>";
+    }
+    if ($option->acceptValue()) {
+      $message = "Enter $description ($optionString)";
+    }
+    else {
+      $message = "Do you want to $description ($optionString)?";
     }
     $optional = $option->isValueOptional();
     $message .= $optional ? ' (optional)' : '';
     $message .= $hidden ? ' (input will be hidden)' : '';
-    $question = new Question($message, $default);
+    if ($option->acceptValue()) {
+      $question = new Question($message, $default);
+    }
+    else {
+      $question = new ConfirmationQuestion($message, $default);
+    }
     $question->setHidden($this->localMachineHelper->useTty() && $hidden);
     $question->setHiddenFallback($hidden);
     if (isset($normalizer)) {
