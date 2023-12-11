@@ -150,11 +150,11 @@ class ApiBaseCommand extends CommandBase {
     return $this->method;
   }
 
-  public function addPostParameter(mixed $paramName, mixed $value): void {
+  public function addPostParameter(string $paramName, mixed $value): void {
     $this->postParams[$paramName] = $value;
   }
 
-  public function addQueryParameter(mixed $paramName, mixed $value): void {
+  public function addQueryParameter(string $paramName, mixed $value): void {
     $this->queryParams[$paramName] = $value;
   }
 
@@ -177,7 +177,7 @@ class ApiBaseCommand extends CommandBase {
     return NULL;
   }
 
-  private function castParamType(array $paramSpec, array|string|bool|int $value): array|bool|int|string {
+  private function castParamType(array $paramSpec, array|string|bool|int $value): array|bool|int|string|object {
     $oneOf = $this->getParamTypeOneOf($paramSpec);
     if (isset($oneOf)) {
       $types = [];
@@ -187,8 +187,7 @@ class ApiBaseCommand extends CommandBase {
         }
         $types[] = $type['type'];
       }
-      if ((in_array('integer', $types, TRUE) || in_array('int', $types, TRUE))
-        && ctype_digit($value)) {
+      if (in_array('integer', $types, TRUE) && ctype_digit($value)) {
         return $this->doCastParamType('integer', $value);
       }
     }
@@ -208,13 +207,13 @@ class ApiBaseCommand extends CommandBase {
     return $this->doCastParamType($type, $value);
   }
 
-  private function doCastParamType(string $type, mixed $value): array|bool|int|string {
+  private function doCastParamType(string $type, mixed $value): array|bool|int|string|object {
     return match ($type) {
-      'int', 'integer' => (int) $value,
-      'bool', 'boolean' => $this->castBool($value),
+      'integer' => (int) $value,
+      'boolean' => $this->castBool($value),
       'array' => is_string($value) ? explode(',', $value) : (array) $value,
       'string' => (string) $value,
-      'mixed' => $value,
+      'object' => json_decode($value, FALSE, 512, JSON_THROW_ON_ERROR),
     };
   }
 
@@ -401,7 +400,7 @@ class ApiBaseCommand extends CommandBase {
     return $oneOf;
   }
 
-  private function castParamToArray(mixed $paramSpec, array|string $originalValue): string|array|bool|int {
+  private function castParamToArray(array $paramSpec, array|string $originalValue): string|array|bool|int {
     if (array_key_exists('items', $paramSpec) && array_key_exists('type', $paramSpec['items'])) {
       if (!is_array($originalValue)) {
         $originalValue = $this->doCastParamType('array', $originalValue);

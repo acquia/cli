@@ -52,22 +52,20 @@ class ApiCommandTest extends CommandTestBase {
         'AH_SOMETHING',
       ]);
     }
-    catch (MissingInputException $exception) {
-
+    catch (MissingInputException) {
     }
     $output = $this->getDisplay();
     $this->assertStringContainsString('It must match the pattern', $output);
   }
 
-  public function testArgumentsInteractionValdationFormat(): void {
+  public function testArgumentsInteractionValidationFormat(): void {
     $this->command = $this->getApiCommandByName('api:notifications:find');
     try {
       $this->executeCommand([], [
         'test',
       ]);
     }
-    catch (MissingInputException $exception) {
-
+    catch (MissingInputException) {
     }
     $output = $this->getDisplay();
     $this->assertStringContainsString('This is not a valid UUID', $output);
@@ -122,10 +120,20 @@ class ApiCommandTest extends CommandTestBase {
     $this->assertArrayHasKey('uuid', $contents[0]);
   }
 
+  public function testObjectParam(): void {
+    $this->mockRequest('putEnvironmentCloudActions', '24-a47ac10b-58cc-4372-a567-0e02b2c3d470');
+    $this->command = $this->getApiCommandByName('api:environments:cloud-actions-update');
+    $this->executeCommand([
+      'cloud-actions' => '{"fb4aa87a-8be2-42c6-bdf0-ef9d09a3de70":true}',
+      'environmentId' => '24-a47ac10b-58cc-4372-a567-0e02b2c3d470',
+    ]);
+    $output = $this->getDisplay();
+    $this->assertStringContainsString('Cloud Actions have been updated.', $output);
+  }
+
   public function testInferApplicationUuidArgument(): void {
-    $mockBody = $this->getMockResponseFromSpec('/applications/{applicationUuid}', 'get', '200');
-    $this->clientProphecy->request('get', '/applications')->willReturn([$mockBody])->shouldBeCalled();
-    $this->clientProphecy->request('get', '/applications/' . $mockBody->uuid)->willReturn($mockBody)->shouldBeCalled();
+    $applications = $this->mockRequest('getApplications');
+    $application = $this->mockRequest('getApplicationByUuid', $applications[0]->uuid);
     $this->command = $this->getApiCommandByName('api:applications:find');
     $this->executeCommand([], [
       // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
@@ -140,7 +148,7 @@ class ApiCommandTest extends CommandTestBase {
     $this->prophet->checkPredictions();
     $output = $this->getDisplay();
     $this->assertStringContainsString('Inferring Cloud Application UUID for this command since none was provided...', $output);
-    $this->assertStringContainsString('Set application uuid to ' . $mockBody->uuid, $output);
+    $this->assertStringContainsString('Set application uuid to ' . $application->uuid, $output);
     $this->assertEquals(0, $this->getStatusCode());
   }
 
@@ -398,7 +406,7 @@ class ApiCommandTest extends CommandTestBase {
    * @param $method
    * @param $usage
    */
-  public function testApiCommandDefinitionRequestBody(mixed $commandName, mixed $method, mixed $usage): void {
+  public function testApiCommandDefinitionRequestBody(string $commandName, string $method, string $usage): void {
     $this->command = $this->getApiCommandByName($commandName);
     $resource = $this->getResourceFromSpec($this->command->getPath(), $method);
     foreach ($resource['requestBody']['content']['application/json']['example'] as $propKey => $value) {
