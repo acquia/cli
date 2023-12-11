@@ -62,7 +62,7 @@
         "mikey179/vfsstream": "^1.6",
         "overtrue/phplint": "^9.0",
         "phpro/grumphp": "^2.2.0",
-        "phpspec/prophecy": "^1.10",
+        "phpspec/prophecy": "1.17",
         "phpspec/prophecy-phpunit": "^2.0",
         "phpstan/extension-installer": "^1.1",
         "phpstan/phpstan": "^1.0",
