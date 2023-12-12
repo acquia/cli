@@ -5,9 +5,9 @@ declare(strict_types = 1);
 namespace Acquia\Cli\Tests\Commands\App;
 
 use Acquia\Cli\Command\App\NewCommand;
+use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Tests\CommandTestBase;
 use Prophecy\Prophecy\ObjectProphecy;
-use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Process\Process;
 
@@ -23,7 +23,7 @@ class NewCommandTest extends CommandTestBase {
     $this->setupFsFixture();
   }
 
-  protected function createCommand(): Command {
+  protected function createCommand(): CommandBase {
     return $this->injectCommand(NewCommand::class);
   }
 
@@ -70,7 +70,6 @@ class NewCommandTest extends CommandTestBase {
     $this->mockExecuteGitAdd($localMachineHelper, $this->newProjectDir, $process);
     $this->mockExecuteGitCommit($localMachineHelper, $this->newProjectDir, $process);
 
-    $this->command->localMachineHelper = $localMachineHelper->reveal();
     $inputs = [
       // Choose a starting project
       $project,
@@ -111,7 +110,6 @@ class NewCommandTest extends CommandTestBase {
     $this->mockExecuteGitAdd($localMachineHelper, $this->newProjectDir, $process);
     $this->mockExecuteGitCommit($localMachineHelper, $this->newProjectDir, $process);
 
-    $this->command->localMachineHelper = $localMachineHelper->reveal();
     $inputs = [
       // Choose a starting project
       $project,

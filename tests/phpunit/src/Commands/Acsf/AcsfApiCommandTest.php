@@ -10,9 +10,9 @@ use Acquia\Cli\AcsfApi\AcsfCredentials;
 use Acquia\Cli\CloudApi\ClientService;
 use Acquia\Cli\Command\Acsf\AcsfApiBaseCommand;
 use Acquia\Cli\Command\Acsf\AcsfCommandFactory;
+use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\CommandFactoryInterface;
 use Prophecy\Argument;
-use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
@@ -29,7 +29,7 @@ class AcsfApiCommandTest extends AcsfCommandTestBase {
     putenv('ACQUIA_CLI_USE_CLOUD_API_SPEC_CACHE=1');
   }
 
-  protected function createCommand(): Command {
+  protected function createCommand(): CommandBase {
     $this->createMockCloudConfigFile($this->getAcsfCredentialsFileContents());
     $this->cloudCredentials = new AcsfCredentials($this->datastoreCloud);
     $this->setClientProphecies(AcsfClientService::class);

@@ -5,10 +5,10 @@ declare(strict_types = 1);
 namespace Acquia\Cli\Tests\Commands\Archive;
 
 use Acquia\Cli\Command\Archive\ArchiveExportCommand;
+use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Tests\Commands\Pull\PullCommandTestBase;
 use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
-use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Finder\Finder;
@@ -18,7 +18,7 @@ use Symfony\Component\Finder\Finder;
  */
 class ArchiveExporterCommandTest extends PullCommandTestBase {
 
-  protected function createCommand(): Command {
+  protected function createCommand(): CommandBase {
     return $this->injectCommand(ArchiveExportCommand::class);
   }
 
@@ -42,8 +42,6 @@ class ArchiveExporterCommandTest extends PullCommandTestBase {
 
     $finder = $this->mockFinder();
     $localMachineHelper->getFinder()->willReturn($finder->reveal());
-
-    $this->command->localMachineHelper = $localMachineHelper->reveal();
 
     $inputs = [
       // ... Do you want to continue? (yes/no) [yes]

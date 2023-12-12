@@ -6,16 +6,16 @@ namespace Acquia\Cli\Tests\Commands\Acsf;
 
 use Acquia\Cli\AcsfApi\AcsfCredentials;
 use Acquia\Cli\Command\Auth\AuthAcsfLogoutCommand;
+use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Config\CloudDataConfig;
 use Acquia\Cli\DataStore\CloudDataStore;
-use Symfony\Component\Console\Command\Command;
 
 /**
  * @property AcsfAuthLogoutCommandTest $command
  */
 class AcsfAuthLogoutCommandTest extends AcsfCommandTestBase {
 
-  protected function createCommand(): Command {
+  protected function createCommand(): CommandBase {
     $this->cloudCredentials = new AcsfCredentials($this->datastoreCloud);
     return $this->injectCommand(AuthAcsfLogoutCommand::class);
   }

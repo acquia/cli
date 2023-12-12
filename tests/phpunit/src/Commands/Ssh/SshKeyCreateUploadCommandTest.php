@@ -4,11 +4,11 @@ declare(strict_types = 1);
 
 namespace Acquia\Cli\Tests\Commands\Ssh;
 
+use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Command\Ssh\SshKeyCreateCommand;
 use Acquia\Cli\Command\Ssh\SshKeyCreateUploadCommand;
 use Acquia\Cli\Command\Ssh\SshKeyUploadCommand;
 use Acquia\Cli\Tests\CommandTestBase;
-use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**
@@ -26,7 +26,7 @@ class SshKeyCreateUploadCommandTest extends CommandTestBase {
     ]);
   }
 
-  protected function createCommand(): Command {
+  protected function createCommand(): CommandBase {
     return $this->injectCommand(SshKeyCreateUploadCommand::class);
   }
 
@@ -51,7 +51,6 @@ class SshKeyCreateUploadCommandTest extends CommandTestBase {
     $this->mockGetLocalSshKey($localMachineHelper, $fileSystem, $mockRequestArgs['public_key']);
 
     $localMachineHelper->getFilesystem()->willReturn($fileSystem->reveal())->shouldBeCalled();
-    $this->command->localMachineHelper = $localMachineHelper->reveal();
 
     /** @var SshKeyCreateCommand $sshKeyCreateCommand */
     $sshKeyCreateCommand = $this->application->find(SshKeyCreateCommand::getDefaultName());

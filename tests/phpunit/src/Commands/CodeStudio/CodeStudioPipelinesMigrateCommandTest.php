@@ -6,12 +6,12 @@ namespace Acquia\Cli\Tests\Commands\CodeStudio;
 
 use Acquia\Cli\Command\CodeStudio\CodeStudioCiCdVariables;
 use Acquia\Cli\Command\CodeStudio\CodeStudioPipelinesMigrateCommand;
+use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Tests\Commands\Ide\IdeRequiredTestTrait;
 use Acquia\Cli\Tests\CommandTestBase;
 use Acquia\Cli\Tests\TestBase;
 use Gitlab\Client;
 use Prophecy\Argument;
-use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Yaml\Yaml;
@@ -41,7 +41,7 @@ class CodeStudioPipelinesMigrateCommandTest extends CommandTestBase {
     TestBase::unsetEnvVars(['GITLAB_HOST' => 'code.cloudservices.acquia.io']);
   }
 
-  protected function createCommand(): Command {
+  protected function createCommand(): CommandBase {
     return $this->injectCommand(CodeStudioPipelinesMigrateCommand::class);
   }
 
@@ -96,7 +96,7 @@ class CodeStudioPipelinesMigrateCommandTest extends CommandTestBase {
     $gitlabClient->projects()->willReturn($projects);
     $localMachineHelper->getFilesystem()->willReturn(new Filesystem())->shouldBeCalled();
     $this->command->setGitLabClient($gitlabClient->reveal());
-    $this->command->localMachineHelper = $localMachineHelper->reveal();
+
     $this->mockRequest('getApplications');
     // Set properties and execute.
     $this->executeCommand($args, $inputs);

@@ -4,9 +4,9 @@ declare(strict_types = 1);
 
 namespace Acquia\Cli\Tests\Commands\Pull;
 
+use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Command\Pull\PullCommand;
 use Acquia\Cli\Exception\AcquiaCliException;
-use Symfony\Component\Console\Command\Command;
 
 /**
  * @property \Acquia\Cli\Command\Pull\PullCommand $command
@@ -18,7 +18,7 @@ class PullCommandTest extends PullCommandTestBase {
     $this->setupFsFixture();
   }
 
-  protected function createCommand(): Command {
+  protected function createCommand(): CommandBase {
     return $this->injectCommand(PullCommand::class);
   }
 

@@ -4,10 +4,10 @@ declare(strict_types = 1);
 
 namespace Acquia\Cli\Tests\Commands\Ide;
 
+use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Command\Ide\IdeShareCommand;
 use Acquia\Cli\Tests\CommandTestBase;
 use AcquiaCloudApi\Response\IdeResponse;
-use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
@@ -36,7 +36,7 @@ class IdeShareCommandTest extends CommandTestBase {
     IdeHelper::setCloudIdeEnvVars();
   }
 
-  protected function createCommand(): Command {
+  protected function createCommand(): CommandBase {
     return $this->injectCommand(IdeShareCommand::class);
   }
 

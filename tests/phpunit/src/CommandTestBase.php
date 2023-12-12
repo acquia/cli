@@ -23,7 +23,6 @@ use PHPUnit\Framework\Constraint\StringContains;
 use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
 use Psr\Http\Message\StreamInterface;
-use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Output\Output;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Terminal;
@@ -46,16 +45,11 @@ abstract class CommandTestBase extends TestBase {
   // Select the application / SSH key / etc.
   protected static int $INPUT_DEFAULT_CHOICE = 0;
 
-  protected Command $command;
+  protected CommandBase $command;
 
   protected string $apiCommandPrefix = 'api';
 
-  /**
-   * Creates a command object to test.
-   *
-   * @return \Symfony\Component\Console\Command\Command A command object with mocked dependencies injected.
-   */
-  abstract protected function createCommand(): Command;
+  abstract protected function createCommand(): CommandBase;
 
   /**
    * This method is called before each test.
@@ -68,7 +62,7 @@ abstract class CommandTestBase extends TestBase {
     $this->printTestName();
   }
 
-  protected function setCommand(Command $command): void {
+  protected function setCommand(CommandBase $command): void {
     $this->command = $command;
   }
 
@@ -218,6 +212,8 @@ abstract class CommandTestBase extends TestBase {
   protected function mockLocalMachineHelper(): LocalMachineHelper|ObjectProphecy {
     $localMachineHelper = $this->prophet->prophesize(LocalMachineHelper::class);
     $localMachineHelper->useTty()->willReturn(FALSE);
+    $this->command->localMachineHelper = $localMachineHelper->reveal();
+
     return $localMachineHelper;
   }
 

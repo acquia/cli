@@ -5,15 +5,15 @@ declare(strict_types = 1);
 namespace Acquia\Cli\Tests\Commands\App;
 
 use Acquia\Cli\Command\App\LogTailCommand;
+use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Tests\CommandTestBase;
-use Symfony\Component\Console\Command\Command;
 
 /**
  * @property \Acquia\Cli\Command\App\LogTailCommand $command
  */
 class LogTailCommandTest extends CommandTestBase {
 
-  protected function createCommand(): Command {
+  protected function createCommand(): CommandBase {
     return $this->injectCommand(LogTailCommand::class);
   }
 

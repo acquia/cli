@@ -5,11 +5,11 @@ declare(strict_types = 1);
 namespace Acquia\Cli\Tests\Commands\CodeStudio;
 
 use Acquia\Cli\Command\CodeStudio\CodeStudioPhpVersionCommand;
+use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Tests\CommandTestBase;
 use Gitlab\Client;
 use Gitlab\Exception\RuntimeException;
 use Prophecy\Argument;
-use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Validator\Exception\ValidatorException;
 
 /**
@@ -22,7 +22,7 @@ class CodeStudioPhpVersionCommandTest extends CommandTestBase {
   private int $gitLabProjectId = 33;
   public static string $applicationUuid = 'a47ac10b-58cc-4372-a567-0e02b2c3d470';
 
-  protected function createCommand(): Command {
+  protected function createCommand(): CommandBase {
     return $this->injectCommand(CodeStudioPhpVersionCommand::class);
   }
 

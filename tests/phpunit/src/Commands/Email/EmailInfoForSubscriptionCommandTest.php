@@ -4,17 +4,17 @@ declare(strict_types = 1);
 
 namespace Acquia\Cli\Tests\Commands\Email;
 
+use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Command\Email\EmailInfoForSubscriptionCommand;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Tests\CommandTestBase;
-use Symfony\Component\Console\Command\Command;
 
 /**
  * @property \Acquia\Cli\Command\Email\EmailInfoForSubscriptionCommand $command
  */
 class EmailInfoForSubscriptionCommandTest extends CommandTestBase {
 
-  protected function createCommand(): Command {
+  protected function createCommand(): CommandBase {
     return $this->injectCommand(EmailInfoForSubscriptionCommand::class);
   }
 

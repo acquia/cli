@@ -74,7 +74,7 @@ abstract class WizardTestBase extends CommandTestBase {
     $this->mockAddSshKeyToAgent($localMachineHelper, $fileSystem);
     $this->mockSshAgentList($localMachineHelper);
     $localMachineHelper->getFilesystem()->willReturn($fileSystem->reveal())->shouldBeCalled();
-    $this->command->localMachineHelper = $localMachineHelper->reveal();
+
     /** @var SshKeyCreateCommand $sshKeyCreateCommand */
     $sshKeyCreateCommand = $this->application->find(SshKeyCreateCommand::getDefaultName());
     $sshKeyCreateCommand->localMachineHelper = $this->command->localMachineHelper;
@@ -145,7 +145,6 @@ abstract class WizardTestBase extends CommandTestBase {
       ->shouldBeCalled();
     $this->mockSshAgentList($localMachineHelper);
 
-    $this->command->localMachineHelper = $localMachineHelper->reveal();
     $this->application->find(SshKeyCreateCommand::getDefaultName())->localMachineHelper = $this->command->localMachineHelper;
     $this->application->find(SshKeyUploadCommand::getDefaultName())->localMachineHelper = $this->command->localMachineHelper;
     $this->application->find(SshKeyDeleteCommand::getDefaultName())->localMachineHelper = $this->command->localMachineHelper;

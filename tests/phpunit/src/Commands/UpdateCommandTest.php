@@ -4,15 +4,15 @@ declare(strict_types = 1);
 
 namespace Acquia\Cli\Tests\Commands;
 
+use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Command\HelloWorldCommand;
 use Acquia\Cli\Tests\CommandTestBase;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
-use Symfony\Component\Console\Command\Command;
 
 class UpdateCommandTest extends CommandTestBase {
 
-  protected function createCommand(): Command {
+  protected function createCommand(): CommandBase {
     return $this->injectCommand(HelloWorldCommand::class);
   }
 

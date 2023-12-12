@@ -5,10 +5,10 @@ declare(strict_types = 1);
 namespace Acquia\Cli\Tests\Commands;
 
 use Acquia\Cli\Command\App\LinkCommand;
+use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Command\Self\TelemetryCommand;
 use Acquia\Cli\Helpers\DataStoreContract;
 use Acquia\Cli\Tests\CommandTestBase;
-use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Filesystem\Path;
 
 /**
@@ -26,7 +26,7 @@ class TelemetryCommandTest extends CommandTestBase {
 
   /**b
    */
-  protected function createCommand(): Command {
+  protected function createCommand(): CommandBase {
     return $this->injectCommand(TelemetryCommand::class);
   }
 

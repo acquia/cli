@@ -4,11 +4,11 @@ declare(strict_types = 1);
 
 namespace Acquia\Cli\Tests\Commands\Ide;
 
+use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Command\Ide\IdeCreateCommand;
 use Acquia\Cli\Tests\CommandTestBase;
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Response;
-use Symfony\Component\Console\Command\Command;
 
 /**
  * @property IdeCreateCommand $command
@@ -61,7 +61,7 @@ class IdeCreateCommandTest extends CommandTestBase {
   /**
    * @return \Acquia\Cli\Command\Ide\IdeCreateCommand
    */
-  protected function createCommand(): Command {
+  protected function createCommand(): CommandBase {
     return $this->injectCommand(IdeCreateCommand::class);
   }
 

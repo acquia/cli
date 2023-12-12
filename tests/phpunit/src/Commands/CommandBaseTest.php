@@ -9,7 +9,6 @@ use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Command\Ide\IdeListCommand;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Tests\CommandTestBase;
-use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Validator\Exception\ValidatorException;
 
 /**
@@ -20,7 +19,7 @@ class CommandBaseTest extends CommandTestBase {
   /**
    * @return \Acquia\Cli\Command\App\LinkCommand
    */
-  protected function createCommand(): Command {
+  protected function createCommand(): CommandBase {
     return $this->injectCommand(LinkCommand::class);
   }
 

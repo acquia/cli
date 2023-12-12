@@ -4,8 +4,8 @@ declare(strict_types = 1);
 
 namespace Acquia\Cli\Tests\Commands\Pull;
 
+use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Command\Pull\PullScriptsCommand;
-use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Filesystem\Path;
 
 /**
@@ -13,7 +13,7 @@ use Symfony\Component\Filesystem\Path;
  */
 class PullScriptsCommandTest extends PullCommandTestBase {
 
-  protected function createCommand(): Command {
+  protected function createCommand(): CommandBase {
     return $this->injectCommand(PullScriptsCommand::class);
   }
 
@@ -21,8 +21,6 @@ class PullScriptsCommandTest extends PullCommandTestBase {
     touch(Path::join($this->projectDir, 'composer.json'));
     $localMachineHelper = $this->mockLocalMachineHelper();
     $process = $this->mockProcess();
-
-    $this->command->localMachineHelper = $localMachineHelper->reveal();
 
     // Composer.
     $this->mockExecuteComposerExists($localMachineHelper);

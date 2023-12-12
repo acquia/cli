@@ -4,11 +4,11 @@ declare(strict_types = 1);
 
 namespace Acquia\Cli\Tests\Commands\Env;
 
+use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Command\Env\EnvCreateCommand;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Tests\CommandTestBase;
 use Prophecy\Argument;
-use Symfony\Component\Console\Command\Command;
 
 /**
  * @property \Acquia\Cli\Command\Env\EnvCreateCommand $command
@@ -65,7 +65,7 @@ class EnvCreateCommandTest extends CommandTestBase {
     return $applicationsResponse->{'_embedded'}->items[0]->uuid;
   }
 
-  protected function createCommand(): Command {
+  protected function createCommand(): CommandBase {
     return $this->injectCommand(EnvCreateCommand::class);
   }
 

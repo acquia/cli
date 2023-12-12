@@ -4,18 +4,18 @@ declare(strict_types = 1);
 
 namespace Acquia\Cli\Tests\Commands\Env;
 
+use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Command\Env\EnvCopyCronCommand;
 use Acquia\Cli\Tests\CommandTestBase;
 use Exception;
 use Prophecy\Argument;
-use Symfony\Component\Console\Command\Command;
 
 /**
  * @property \Acquia\Cli\Command\Env\EnvCopyCronCommand $command
  */
 class EnvCopyCronCommandTest extends CommandTestBase {
 
-  protected function createCommand(): Command {
+  protected function createCommand(): CommandBase {
     return $this->injectCommand(EnvCopyCronCommand::class);
   }
 

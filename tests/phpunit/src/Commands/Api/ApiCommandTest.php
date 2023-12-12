@@ -5,11 +5,11 @@ declare(strict_types = 1);
 namespace Acquia\Cli\Tests\Commands\Api;
 
 use Acquia\Cli\Command\Api\ApiBaseCommand;
+use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Command\Self\ClearCacheCommand;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Tests\CommandTestBase;
 use AcquiaCloudApi\Exception\ApiErrorException;
-use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Exception\MissingInputException;
 use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Yaml\Yaml;
@@ -25,7 +25,7 @@ class ApiCommandTest extends CommandTestBase {
     putenv('ACQUIA_CLI_USE_CLOUD_API_SPEC_CACHE=1');
   }
 
-  protected function createCommand(): Command {
+  protected function createCommand(): CommandBase {
     return $this->injectCommand(ApiBaseCommand::class);
   }
 

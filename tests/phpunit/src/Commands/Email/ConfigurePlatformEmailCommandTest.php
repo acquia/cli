@@ -4,13 +4,13 @@ declare(strict_types = 1);
 
 namespace Acquia\Cli\Tests\Commands\Email;
 
+use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Command\Email\ConfigurePlatformEmailCommand;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Helpers\LocalMachineHelper;
 use Acquia\Cli\Tests\CommandTestBase;
 use AcquiaCloudApi\Exception\ApiErrorException;
 use Prophecy\Prophecy\ObjectProphecy;
-use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**
@@ -72,7 +72,7 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
   "-\n    type: CNAME\n    name: abcdefgh1ijkl2mnopq34rstuvwxyz._domainkey.example.com\n    value: abcdefgh1ijkl2mnopq34rstuvwxyz.dkim.amazonses.com\n" .
   "-\n    type: CNAME\n    name: abcdefgh1ijkl2mnopq34rstuvwxyz._domainkey.example.com\n    value: abcdefgh1ijkl2mnopq34rstuvwxyz.dkim.amazonses.com\n";
 
-  protected function createCommand(): Command {
+  protected function createCommand(): CommandBase {
     return $this->injectCommand(ConfigurePlatformEmailCommand::class);
   }
 
@@ -288,7 +288,6 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
       $this->clientProphecy->request('post', "/environments/{$environmentsResponse->_embedded->items[0]->id}/email/actions/enable")->willReturn($enableResponse);
     }
 
-    $this->command->localMachineHelper = $localMachineHelper->reveal();
     $this->executeCommand([], $inputs);
     $output = $this->getDisplay();
     $this->prophet->checkPredictions();
@@ -369,7 +368,6 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
 
     $this->clientProphecy->request('post', "/environments/{$environmentResponseApp2->_embedded->items[0]->id}/email/actions/enable")->willReturn($enableResponse);
 
-    $this->command->localMachineHelper = $localMachineHelper->reveal();
     $this->executeCommand([], $inputs);
     $output = $this->getDisplay();
     $this->prophet->checkPredictions();
@@ -423,7 +421,6 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
     $mockFileSystem->dumpFile('dns-records.zone', self::ZONE_TEST_OUTPUT)->shouldBeCalled();
     $applicationsResponse = $this->mockApplicationsRequest();
 
-    $this->command->localMachineHelper = $localMachineHelper->reveal();
     $this->expectException(AcquiaCliException::class);
     $this->expectExceptionMessage('You do not have access to any applications');
     $this->executeCommand([], $inputs);
@@ -568,7 +565,6 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
     $enableResponse = $this->getMockResponseFromSpec('/environments/{environmentId}/email/actions/enable', 'post', '200');
     $this->clientProphecy->request('post', "/environments/{$environmentsResponse->_embedded->items[0]->id}/email/actions/enable")->willReturn($enableResponse);
 
-    $this->command->localMachineHelper = $localMachineHelper->reveal();
     $this->executeCommand([], $inputs);
     $output = $this->getDisplay();
     $this->prophet->checkPredictions();

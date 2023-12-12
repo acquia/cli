@@ -4,16 +4,16 @@ declare(strict_types = 1);
 
 namespace Acquia\Cli\Tests\Commands\Ide;
 
+use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Command\Ide\IdeInfoCommand;
 use Acquia\Cli\Tests\CommandTestBase;
-use Symfony\Component\Console\Command\Command;
 
 /**
  * @property \Acquia\Cli\Command\Ide\IdeListCommand $command
  */
 class IdeInfoCommandTest extends CommandTestBase {
 
-  protected function createCommand(): Command {
+  protected function createCommand(): CommandBase {
     return $this->injectCommand(IdeInfoCommand::class);
   }
 

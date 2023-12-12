@@ -4,18 +4,18 @@ declare(strict_types = 1);
 
 namespace Acquia\Cli\Tests\Commands\Remote;
 
+use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Command\Remote\SshCommand;
 use Acquia\Cli\Command\Self\ClearCacheCommand;
 use Acquia\Cli\Helpers\SshHelper;
 use Prophecy\Argument;
-use Symfony\Component\Console\Command\Command;
 
 /**
  * @property SshCommand $command
  */
 class SshCommandTest extends SshCommandTestBase {
 
-  protected function createCommand(): Command {
+  protected function createCommand(): CommandBase {
     return $this->injectCommand(SshCommand::class);
   }
 
@@ -40,7 +40,7 @@ class SshCommandTest extends SshCommandTestBase {
       ->execute($sshCommand, Argument::type('callable'), NULL, TRUE, NULL)
       ->willReturn($process->reveal())
       ->shouldBeCalled();
-    $this->command->localMachineHelper = $localMachineHelper->reveal();
+
     $this->command->sshHelper = new SshHelper($this->output, $localMachineHelper->reveal(), $this->logger);
 
     $args = [

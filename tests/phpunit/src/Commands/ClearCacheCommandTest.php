@@ -8,14 +8,13 @@ use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Command\Ide\IdeListCommand;
 use Acquia\Cli\Command\Self\ClearCacheCommand;
 use Acquia\Cli\Tests\CommandTestBase;
-use Symfony\Component\Console\Command\Command;
 
 /**
  * @property \Acquia\Cli\Command\App\UnlinkCommand $command
  */
 class ClearCacheCommandTest extends CommandTestBase {
 
-  protected function createCommand(): Command {
+  protected function createCommand(): CommandBase {
     return $this->injectCommand(ClearCacheCommand::class);
   }
 

@@ -4,16 +4,16 @@ declare(strict_types = 1);
 
 namespace Acquia\Cli\Tests\Commands\Ide;
 
+use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Command\Ide\IdeOpenCommand;
 use Acquia\Cli\Tests\CommandTestBase;
-use Symfony\Component\Console\Command\Command;
 
 /**
  * @property IdeOpenCommand $command
  */
 class IdeOpenCommandTest extends CommandTestBase {
 
-  protected function createCommand(): Command {
+  protected function createCommand(): CommandBase {
     return $this->injectCommand(IdeOpenCommand::class);
   }
 
@@ -24,7 +24,6 @@ class IdeOpenCommandTest extends CommandTestBase {
     $localMachineHelper = $this->mockLocalMachineHelper();
     $localMachineHelper->isBrowserAvailable()->willReturn(TRUE);
     $localMachineHelper->startBrowser('https://9a83c081-ef78-4dbd-8852-11cc3eb248f7.ides.acquia.com')->willReturn(TRUE);
-    $this->command->localMachineHelper = $localMachineHelper->reveal();
 
     $inputs = [
       // Would you like Acquia CLI to search for a Cloud application that matches your local git config?

@@ -4,17 +4,17 @@ declare(strict_types = 1);
 
 namespace Acquia\Cli\Tests\Commands;
 
+use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Command\DocsCommand;
 use Acquia\Cli\Tests\CommandTestBase;
 use Prophecy\Argument;
-use Symfony\Component\Console\Command\Command;
 
 /**
  * @property \Acquia\Cli\Command\DocsCommand $command
  */
 class DocsCommandTest extends CommandTestBase {
 
-  protected function createCommand(): Command {
+  protected function createCommand(): CommandBase {
     return $this->injectCommand(DocsCommand::class);
   }
 
@@ -24,7 +24,7 @@ class DocsCommandTest extends CommandTestBase {
   public function testDocsCommand(mixed $input, mixed $expectedOutput): void {
     $localMachineHelper = $this->mockLocalMachineHelper();
     $localMachineHelper->startBrowser(Argument::any())->shouldBeCalled();
-    $this->command->localMachineHelper = $localMachineHelper->reveal();
+
     $this->executeCommand([], [$input]);
     $output = $this->getDisplay();
     $this->assertStringContainsString('Select the Acquia Product [Acquia CLI]:', $output);

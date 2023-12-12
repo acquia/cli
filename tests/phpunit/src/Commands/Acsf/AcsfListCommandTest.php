@@ -6,9 +6,9 @@ namespace Acquia\Cli\Tests\Commands\Acsf;
 
 use Acquia\Cli\Command\Acsf\AcsfListCommand;
 use Acquia\Cli\Command\Acsf\AcsfListCommandBase;
+use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Command\Self\ListCommand;
 use Acquia\Cli\Tests\CommandTestBase;
-use Symfony\Component\Console\Command\Command;
 
 /**
  * @property AcsfListCommandBase $command
@@ -23,7 +23,7 @@ class AcsfListCommandTest extends CommandTestBase {
     $this->application->addCommands($this->getApiCommands());
   }
 
-  protected function createCommand(): Command {
+  protected function createCommand(): CommandBase {
     return $this->injectCommand(AcsfListCommand::class);
   }
 
@@ -47,7 +47,7 @@ class AcsfListCommandTest extends CommandTestBase {
   }
 
   public function testListCommand(): void {
-    $this->command = new ListCommand('list');
+    $this->command = $this->injectCommand(ListCommand::class);
     $this->executeCommand();
     $output = $this->getDisplay();
     $this->assertStringContainsString('acsf:api', $output);

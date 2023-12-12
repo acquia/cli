@@ -4,16 +4,16 @@ declare(strict_types = 1);
 
 namespace Acquia\Cli\Tests\Commands\Remote;
 
+use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Command\Remote\AliasListCommand;
 use Acquia\Cli\Tests\CommandTestBase;
-use Symfony\Component\Console\Command\Command;
 
 /**
  * @property AliasListCommand $command
  */
 class AliasesListCommandTest extends CommandTestBase {
 
-  protected function createCommand(): Command {
+  protected function createCommand(): CommandBase {
     return $this->injectCommand(AliasListCommand::class);
   }
 

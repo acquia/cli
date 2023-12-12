@@ -5,6 +5,7 @@ declare(strict_types = 1);
 namespace Acquia\Cli\Tests\Commands\CodeStudio;
 
 use Acquia\Cli\Command\CodeStudio\CodeStudioWizardCommand;
+use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Tests\Commands\Ide\IdeRequiredTestTrait;
 use Acquia\Cli\Tests\Commands\WizardTestBase;
@@ -17,7 +18,6 @@ use Gitlab\Api\Schedules;
 use Gitlab\Client;
 use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
-use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**
@@ -45,7 +45,7 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
     TestBase::unsetEnvVars(['GITLAB_HOST' => 'code.cloudservices.acquia.io']);
   }
 
-  protected function createCommand(): Command {
+  protected function createCommand(): CommandBase {
     return $this->injectCommand(CodeStudioWizardCommand::class);
   }
 
@@ -256,7 +256,6 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
 
     /** @var Filesystem|ObjectProphecy $fileSystem */
     $fileSystem = $this->prophet->prophesize(Filesystem::class);
-    $this->command->localMachineHelper = $localMachineHelper->reveal();
 
     // Set properties and execute.
     $this->executeCommand($args, $inputs);
@@ -271,7 +270,7 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
     $this->mockExecuteGlabExists($localMachineHelper);
     $gitlabClient = $this->mockGitLabAuthenticate($localMachineHelper, $this->gitLabHost, $this->gitLabToken);
     $this->command->setGitLabClient($gitlabClient->reveal());
-    $this->command->localMachineHelper = $localMachineHelper->reveal();
+
     $this->expectException(AcquiaCliException::class);
     $this->expectExceptionMessage('Unable to authenticate with Code Studio');
     $this->executeCommand([
@@ -285,7 +284,7 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
     $this->mockExecuteGlabExists($localMachineHelper);
     $this->mockGitlabGetHost($localMachineHelper, $this->gitLabHost);
     $this->mockGitlabGetToken($localMachineHelper, $this->gitLabToken, $this->gitLabHost, FALSE);
-    $this->command->localMachineHelper = $localMachineHelper->reveal();
+
     $this->expectException(AcquiaCliException::class);
     $this->expectExceptionMessage('Could not determine GitLab token');
     $this->executeCommand([

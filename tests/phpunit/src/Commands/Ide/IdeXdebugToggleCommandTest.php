@@ -4,9 +4,9 @@ declare(strict_types = 1);
 
 namespace Acquia\Cli\Tests\Commands\Ide;
 
+use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Command\Ide\IdeXdebugToggleCommand;
 use Acquia\Cli\Tests\CommandTestBase;
-use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Process\Process;
 
 /**
@@ -35,10 +35,10 @@ class IdeXdebugToggleCommandTest extends CommandTestBase {
       ], NULL, NULL, FALSE)
       ->willReturn($process->reveal())
       ->shouldBeCalled();
-    $this->command->localMachineHelper = $localMachineHelper->reveal();
+
   }
 
-  protected function createCommand(): Command {
+  protected function createCommand(): CommandBase {
     return $this->injectCommand(IdeXdebugToggleCommand::class);
   }
 

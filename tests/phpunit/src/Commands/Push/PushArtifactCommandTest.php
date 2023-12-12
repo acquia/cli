@@ -4,11 +4,11 @@ declare(strict_types = 1);
 
 namespace Acquia\Cli\Tests\Commands\Push;
 
+use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Command\Push\PushArtifactCommand;
 use Acquia\Cli\Tests\Commands\Pull\PullCommandTestBase;
 use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
-use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Process\Process;
@@ -18,7 +18,7 @@ use Symfony\Component\Process\Process;
  */
 class PushArtifactCommandTest extends PullCommandTestBase {
 
-  protected function createCommand(): Command {
+  protected function createCommand(): CommandBase {
     return $this->injectCommand(PushArtifactCommand::class);
   }
 
@@ -220,7 +220,6 @@ class PushArtifactCommandTest extends PullCommandTestBase {
     $localMachineHelper->getFinder()->willReturn($finder->reveal());
     $fs = $this->prophet->prophesize(Filesystem::class);
     $localMachineHelper->getFilesystem()->willReturn($fs)->shouldBeCalled();
-    $this->command->localMachineHelper = $localMachineHelper->reveal();
 
     $this->mockExecuteGitStatus(FALSE, $localMachineHelper, $this->projectDir);
     $commitHash = 'abc123';

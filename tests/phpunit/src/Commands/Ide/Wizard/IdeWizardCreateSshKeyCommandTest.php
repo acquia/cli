@@ -4,10 +4,10 @@ declare(strict_types = 1);
 
 namespace Acquia\Cli\Tests\Commands\Ide\Wizard;
 
+use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Command\Ide\Wizard\IdeWizardCreateSshKeyCommand;
 use Acquia\Cli\Tests\Commands\Ide\IdeHelper;
 use AcquiaCloudApi\Response\IdeResponse;
-use Symfony\Component\Console\Command\Command;
 
 /**
  * @property \Acquia\Cli\Command\Ide\Wizard\IdeWizardCreateSshKeyCommand $command
@@ -30,7 +30,7 @@ class IdeWizardCreateSshKeyCommandTest extends IdeWizardTestBase {
   /**
    * @return \Acquia\Cli\Command\Ide\Wizard\IdeWizardCreateSshKeyCommand
    */
-  protected function createCommand(): Command {
+  protected function createCommand(): CommandBase {
     return $this->injectCommand(IdeWizardCreateSshKeyCommand::class);
   }
 

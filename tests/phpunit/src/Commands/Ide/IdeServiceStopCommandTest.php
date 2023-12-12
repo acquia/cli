@@ -4,9 +4,9 @@ declare(strict_types = 1);
 
 namespace Acquia\Cli\Tests\Commands\Ide;
 
+use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Command\Ide\IdeServiceStopCommand;
 use Acquia\Cli\Tests\CommandTestBase;
-use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Validator\Exception\ValidatorException;
 
 /**
@@ -16,14 +16,14 @@ class IdeServiceStopCommandTest extends CommandTestBase {
 
   use IdeRequiredTestTrait;
 
-  protected function createCommand(): Command {
+  protected function createCommand(): CommandBase {
     return $this->injectCommand(IdeServiceStopCommand::class);
   }
 
   public function testIdeServiceStopCommand(): void {
     $localMachineHelper = $this->mockLocalMachineHelper();
     $this->mockStopPhp($localMachineHelper);
-    $this->command->localMachineHelper = $localMachineHelper->reveal();
+
     $this->executeCommand(['service' => 'php'], []);
 
     // Assert.
@@ -35,7 +35,7 @@ class IdeServiceStopCommandTest extends CommandTestBase {
   public function testIdeServiceStopCommandInvalid(): void {
     $localMachineHelper = $this->mockLocalMachineHelper();
     $this->mockStopPhp($localMachineHelper);
-    $this->command->localMachineHelper = $localMachineHelper->reveal();
+
     $this->expectException(ValidatorException::class);
     $this->expectExceptionMessage('Specify a valid service name');
     $this->executeCommand(['service' => 'rambulator'], []);

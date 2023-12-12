@@ -12,7 +12,9 @@ class KernelTest extends ApplicationTestBase {
    * @group serial
    */
   public function testRun(): void {
-    $this->setInput(['list']);
+    $this->setInput([
+      'command' => 'list',
+    ]);
     $buffer = $this->runApp();
     // A bit dumb that we need to break these up, but the available commands vary based on whether a browser is available or the session is interactive.
     // Could probably handle that more intelligently...

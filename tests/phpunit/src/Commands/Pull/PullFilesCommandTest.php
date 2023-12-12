@@ -11,11 +11,10 @@ use Acquia\Cli\Helpers\LocalMachineHelper;
 use Acquia\Cli\Tests\Commands\Ide\IdeHelper;
 use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
-use Symfony\Component\Console\Command\Command;
 
 class PullFilesCommandTest extends PullCommandTestBase {
 
-  protected function createCommand(): Command {
+  protected function createCommand(): CommandBase {
     return $this->injectCommand(PullFilesCommand::class);
   }
 
@@ -30,7 +29,6 @@ class PullFilesCommandTest extends PullCommandTestBase {
     $this->mockGetFilesystem($localMachineHelper);
     $this->mockExecuteRsync($localMachineHelper, $selectedEnvironment, '/mnt/files/profserv2.dev/sites/g/files/jxr5000596dev/files/', $this->projectDir . '/docroot/sites/jxr5000596dev/files');
 
-    $this->command->localMachineHelper = $localMachineHelper->reveal();
     $this->command->sshHelper = $sshHelper->reveal();
 
     $inputs = [
@@ -68,7 +66,6 @@ class PullFilesCommandTest extends PullCommandTestBase {
     $sitegroup = CommandBase::getSiteGroupFromSshUrl($selectedEnvironment->ssh_url);
     $this->mockExecuteRsync($localMachineHelper, $selectedEnvironment, '/mnt/files/' . $sitegroup . '.' . $selectedEnvironment->name . '/sites/bar/files/', $this->projectDir . '/docroot/sites/bar/files');
 
-    $this->command->localMachineHelper = $localMachineHelper->reveal();
     $this->command->sshHelper = $sshHelper->reveal();
 
     $inputs = [
@@ -98,7 +95,7 @@ class PullFilesCommandTest extends PullCommandTestBase {
     IdeHelper::setCloudIdeEnvVars();
     $localMachineHelper = $this->mockLocalMachineHelper();
     $this->mockDrupalSettingsRefresh($localMachineHelper);
-    $this->command->localMachineHelper = $localMachineHelper->reveal();
+
     $this->expectException(AcquiaCliException::class);
     $this->expectExceptionMessage('Run this command from the ');
     $this->executeCommand();

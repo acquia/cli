@@ -4,12 +4,12 @@ declare(strict_types = 1);
 
 namespace Acquia\Cli\Tests\Commands\Remote;
 
+use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Command\Remote\AliasesDownloadCommand;
 use Acquia\Cli\Tests\CommandTestBase;
 use GuzzleHttp\Psr7\Utils;
 use Phar;
 use PharData;
-use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Filesystem\Path;
 
 /**
@@ -17,7 +17,7 @@ use Symfony\Component\Filesystem\Path;
  */
 class AliasesDownloadCommandTest extends CommandTestBase {
 
-  protected function createCommand(): Command {
+  protected function createCommand(): CommandBase {
     return $this->injectCommand(AliasesDownloadCommand::class);
   }
 

@@ -5,9 +5,9 @@ declare(strict_types = 1);
 namespace Acquia\Cli\Tests\Commands;
 
 use Acquia\Cli\Command\App\LinkCommand;
+use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Tests\CommandTestBase;
-use Symfony\Component\Console\Command\Command;
 
 /**
  * @property LinkCommand $command
@@ -17,7 +17,7 @@ class InferApplicationTest extends CommandTestBase {
   /**
    * @return \Acquia\Cli\Command\App\LinkCommand
    */
-  protected function createCommand(): Command {
+  protected function createCommand(): CommandBase {
     return $this->injectCommand(LinkCommand::class);
   }
 

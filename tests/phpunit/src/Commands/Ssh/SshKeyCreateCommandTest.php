@@ -4,9 +4,9 @@ declare(strict_types = 1);
 
 namespace Acquia\Cli\Tests\Commands\Ssh;
 
+use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Command\Ssh\SshKeyCreateCommand;
 use Acquia\Cli\Tests\CommandTestBase;
-use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Path;
 
@@ -17,7 +17,7 @@ class SshKeyCreateCommandTest extends CommandTestBase {
 
   protected string $filename = 'id_rsa_acli_test';
 
-  protected function createCommand(): Command {
+  protected function createCommand(): CommandBase {
     return $this->injectCommand(SshKeyCreateCommand::class);
   }
 
@@ -77,7 +77,7 @@ class SshKeyCreateCommandTest extends CommandTestBase {
     $this->mockGenerateSshKey($localMachineHelper);
 
     $localMachineHelper->getFilesystem()->willReturn($fileSystem->reveal())->shouldBeCalled();
-    $this->command->localMachineHelper = $localMachineHelper->reveal();
+
     $this->executeCommand($args, $inputs);
   }
 

@@ -5,9 +5,9 @@ declare(strict_types = 1);
 namespace Acquia\Cli\Tests\Commands\App;
 
 use Acquia\Cli\Command\App\NewFromDrupal7Command;
+use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Tests\CommandTestBase;
 use Prophecy\Prophecy\ObjectProphecy;
-use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Process\Process;
 
 /**
@@ -22,7 +22,7 @@ class NewFromDrupal7CommandTest extends CommandTestBase {
     $this->setupFsFixture();
   }
 
-  protected function createCommand(): Command {
+  protected function createCommand(): CommandBase {
     return $this->injectCommand(NewFromDrupal7Command::class);
   }
 
@@ -102,7 +102,6 @@ class NewFromDrupal7CommandTest extends CommandTestBase {
     $this->mockExecuteGitAdd($localMachineHelper, $race_condition_proof_tmpdir, $process);
     $this->mockExecuteGitCommit($localMachineHelper, $race_condition_proof_tmpdir, $process);
 
-    $this->command->localMachineHelper = $localMachineHelper->reveal();
     $this->executeCommand([
       '--directory' => $race_condition_proof_tmpdir,
       '--recommendations' => $recommendations_json,

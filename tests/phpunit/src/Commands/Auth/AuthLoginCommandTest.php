@@ -5,11 +5,11 @@ declare(strict_types = 1);
 namespace Acquia\Cli\Tests\Commands\Auth;
 
 use Acquia\Cli\Command\Auth\AuthLoginCommand;
+use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Config\CloudDataConfig;
 use Acquia\Cli\DataStore\CloudDataStore;
 use Acquia\Cli\Tests\CommandTestBase;
 use Generator;
-use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Validator\Exception\ValidatorException;
 
 /**
@@ -17,7 +17,7 @@ use Symfony\Component\Validator\Exception\ValidatorException;
  */
 class AuthLoginCommandTest extends CommandTestBase {
 
-  protected function createCommand(): Command {
+  protected function createCommand(): CommandBase {
     return $this->injectCommand(AuthLoginCommand::class);
   }
 

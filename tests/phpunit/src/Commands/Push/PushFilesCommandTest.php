@@ -9,11 +9,10 @@ use Acquia\Cli\Command\Push\PushFilesCommand;
 use Acquia\Cli\Tests\CommandTestBase;
 use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
-use Symfony\Component\Console\Command\Command;
 
 class PushFilesCommandTest extends CommandTestBase {
 
-  protected function createCommand(): Command {
+  protected function createCommand(): CommandBase {
     return $this->injectCommand(PushFilesCommand::class);
   }
 
@@ -27,7 +26,6 @@ class PushFilesCommandTest extends CommandTestBase {
     $process = $this->mockProcess();
     $this->mockExecuteAcsfRsync($localMachineHelper, $process, reset($multisiteConfig['sites'])['name']);
 
-    $this->command->localMachineHelper = $localMachineHelper->reveal();
     $this->command->sshHelper = $sshHelper->reveal();
 
     $inputs = [
@@ -66,7 +64,6 @@ class PushFilesCommandTest extends CommandTestBase {
     $process = $this->mockProcess();
     $this->mockExecuteCloudRsync($localMachineHelper, $process, $selectedEnvironment);
 
-    $this->command->localMachineHelper = $localMachineHelper->reveal();
     $this->command->sshHelper = $sshHelper->reveal();
 
     $inputs = [
@@ -103,7 +100,6 @@ class PushFilesCommandTest extends CommandTestBase {
     $this->mockGetCloudSites($sshHelper, $selectedEnvironment);
     $localMachineHelper = $this->mockLocalMachineHelper();
 
-    $this->command->localMachineHelper = $localMachineHelper->reveal();
     $this->command->sshHelper = $sshHelper->reveal();
 
     $inputs = [

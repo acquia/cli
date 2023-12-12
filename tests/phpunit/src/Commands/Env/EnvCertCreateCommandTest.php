@@ -4,13 +4,13 @@ declare(strict_types = 1);
 
 namespace Acquia\Cli\Tests\Commands\Env;
 
+use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Command\Env\EnvCertCreateCommand;
 use Acquia\Cli\Tests\CommandTestBase;
-use Symfony\Component\Console\Command\Command;
 
 class EnvCertCreateCommandTest extends CommandTestBase {
 
-  protected function createCommand(): Command {
+  protected function createCommand(): CommandBase {
     return $this->injectCommand(EnvCertCreateCommand::class);
   }
 
@@ -27,7 +27,7 @@ class EnvCertCreateCommandTest extends CommandTestBase {
     $csrId = 123;
     $localMachineHelper->readFile($certName)->willReturn($certContents)->shouldBeCalled();
     $localMachineHelper->readFile($keyName)->willReturn($keyContents)->shouldBeCalled();
-    $this->command->localMachineHelper = $localMachineHelper->reveal();
+
     $sslResponse = $this->getMockResponseFromSpec('/environments/{environmentId}/ssl/certificates',
       'post', '202');
     $options = [

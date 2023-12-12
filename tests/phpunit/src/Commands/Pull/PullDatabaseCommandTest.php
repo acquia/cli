@@ -4,6 +4,7 @@ declare(strict_types = 1);
 
 namespace Acquia\Cli\Tests\Commands\Pull;
 
+use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Command\Pull\PullCommandBase;
 use Acquia\Cli\Command\Pull\PullDatabaseCommand;
 use Acquia\Cli\Exception\AcquiaCliException;
@@ -16,7 +17,6 @@ use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
-use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Path;
@@ -57,7 +57,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     $this->mockDownloadBackup($databases[0], $environment, $backups[0]);
   }
 
-  protected function createCommand(): Command {
+  protected function createCommand(): CommandBase {
     return $this->injectCommand(PullDatabaseCommand::class);
   }
 
@@ -292,12 +292,6 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     $process->getOutput()->willReturn('default')->shouldBeCalled();
     $sshHelper->executeCommand(Argument::type('object'), ['ls', '/mnt/files/site.dev/sites'], FALSE)
       ->willReturn($process->reveal())->shouldBeCalled();
-  }
-
-  protected function mockLocalMachineHelper(): LocalMachineHelper|ObjectProphecy {
-    $localMachineHelper = parent::mockLocalMachineHelper();
-    $this->command->localMachineHelper = $localMachineHelper->reveal();
-    return $localMachineHelper;
   }
 
   protected function mockExecuteMySqlConnect(

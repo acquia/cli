@@ -4,12 +4,12 @@ declare(strict_types = 1);
 
 namespace Acquia\Cli\Tests\Commands\Pull;
 
+use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Command\Ide\IdePhpVersionCommand;
 use Acquia\Cli\Command\Pull\PullCodeCommand;
 use Acquia\Cli\Tests\Commands\Ide\IdeHelper;
 use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
-use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Finder\Finder;
 
@@ -18,7 +18,7 @@ use Symfony\Component\Finder\Finder;
  */
 class PullCodeCommandTest extends PullCommandTestBase {
 
-  protected function createCommand(): Command {
+  protected function createCommand(): CommandBase {
     return $this->injectCommand(PullCodeCommand::class);
   }
 
@@ -37,8 +37,6 @@ class PullCodeCommandTest extends PullCommandTestBase {
     $this->mockExecuteGitClone($localMachineHelper, $environment, $process, $dir);
     $this->mockExecuteGitCheckout($localMachineHelper, $environment->vcs->path, $dir, $process);
     $localMachineHelper->getFinder()->willReturn(new Finder());
-
-    $this->command->localMachineHelper = $localMachineHelper->reveal();
 
     $inputs = [
       // Would you like to clone a project into the current directory?
@@ -65,7 +63,6 @@ class PullCodeCommandTest extends PullCommandTestBase {
     $localMachineHelper->checkRequiredBinariesExist(["git"])->shouldBeCalled();
     $finder = $this->mockFinder();
     $localMachineHelper->getFinder()->willReturn($finder->reveal());
-    $this->command->localMachineHelper = $localMachineHelper->reveal();
 
     $process = $this->mockProcess();
     $this->mockExecuteGitFetchAndCheckout($localMachineHelper, $process, $this->projectDir, $environment->vcs->path);
@@ -92,7 +89,6 @@ class PullCodeCommandTest extends PullCommandTestBase {
     $localMachineHelper->checkRequiredBinariesExist(["git"])->shouldBeCalled();
     $finder = $this->mockFinder();
     $localMachineHelper->getFinder()->willReturn($finder->reveal());
-    $this->command->localMachineHelper = $localMachineHelper->reveal();
 
     $process = $this->mockProcess();
     $this->mockExecuteGitFetchAndCheckout($localMachineHelper, $process, $this->projectDir, $environment->vcs->path);
@@ -122,7 +118,6 @@ class PullCodeCommandTest extends PullCommandTestBase {
     $localMachineHelper->checkRequiredBinariesExist(["git"])->shouldBeCalled();
     $finder = $this->mockFinder();
     $localMachineHelper->getFinder()->willReturn($finder->reveal());
-    $this->command->localMachineHelper = $localMachineHelper->reveal();
 
     $process = $this->mockProcess();
     $this->mockExecuteGitFetchAndCheckout($localMachineHelper, $process, $this->projectDir, $environment->vcs->path);
@@ -149,7 +144,6 @@ class PullCodeCommandTest extends PullCommandTestBase {
     $localMachineHelper->checkRequiredBinariesExist(["git"])->shouldBeCalled();
     $finder = $this->mockFinder();
     $localMachineHelper->getFinder()->willReturn($finder->reveal());
-    $this->command->localMachineHelper = $localMachineHelper->reveal();
 
     $process = $this->mockProcess();
     $this->mockExecuteGitFetchAndCheckout($localMachineHelper, $process, $this->projectDir, $environments[self::$INPUT_DEFAULT_CHOICE]->vcs->path);
@@ -182,7 +176,6 @@ class PullCodeCommandTest extends PullCommandTestBase {
     $localMachineHelper->checkRequiredBinariesExist(["git"])->shouldBeCalled();
     $finder = $this->mockFinder();
     $localMachineHelper->getFinder()->willReturn($finder->reveal());
-    $this->command->localMachineHelper = $localMachineHelper->reveal();
 
     $process = $this->mockProcess();
     $this->mockExecuteGitFetchAndCheckout($localMachineHelper, $process, $this->projectDir, $environments[self::$INPUT_DEFAULT_CHOICE]->vcs->path);
@@ -228,7 +221,6 @@ class PullCodeCommandTest extends PullCommandTestBase {
       ->shouldBeCalled();
     $finder = $this->mockFinder();
     $localMachineHelper->getFinder()->willReturn($finder->reveal());
-    $this->command->localMachineHelper = $localMachineHelper->reveal();
 
     $process = $this->mockProcess();
     $this->mockExecuteGitFetchAndCheckout($localMachineHelper, $process, $dir, 'master');

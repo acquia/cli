@@ -4,16 +4,16 @@ declare(strict_types = 1);
 
 namespace Acquia\Cli\Tests\Commands\Ssh;
 
+use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Command\Ssh\SshKeyDeleteCommand;
 use Acquia\Cli\Tests\CommandTestBase;
-use Symfony\Component\Console\Command\Command;
 
 /**
  * @property SshKeyDeleteCommand $command
  */
 class SshKeyDeleteCommandTest extends CommandTestBase {
 
-  protected function createCommand(): Command {
+  protected function createCommand(): CommandBase {
     return $this->injectCommand(SshKeyDeleteCommand::class);
   }
 

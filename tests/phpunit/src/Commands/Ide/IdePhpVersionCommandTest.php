@@ -4,12 +4,12 @@ declare(strict_types = 1);
 
 namespace Acquia\Cli\Tests\Commands\Ide;
 
+use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Command\Ide\IdePhpVersionCommand;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Helpers\LocalMachineHelper;
 use Acquia\Cli\Tests\CommandTestBase;
 use Prophecy\Prophecy\ObjectProphecy;
-use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Process\Process;
 use Symfony\Component\Validator\Exception\ValidatorException;
@@ -21,7 +21,7 @@ class IdePhpVersionCommandTest extends CommandTestBase {
 
   use IdeRequiredTestTrait;
 
-  protected function createCommand(): Command {
+  protected function createCommand(): CommandBase {
     return $this->injectCommand(IdePhpVersionCommand::class);
   }
 
@@ -49,7 +49,6 @@ class IdePhpVersionCommandTest extends CommandTestBase {
     $phpVersionFilePath = $this->fs->tempnam(sys_get_temp_dir(), 'acli_php_version_file_');
     $mockFileSystem->dumpFile($phpVersionFilePath, $version)->shouldBeCalled();
 
-    $this->command->localMachineHelper = $localMachineHelper->reveal();
     $this->command->setPhpVersionFilePath($phpVersionFilePath);
     $this->command->setIdePhpFilePathPrefix($phpFilepathPrefix);
     $this->executeCommand([

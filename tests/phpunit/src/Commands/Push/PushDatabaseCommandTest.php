@@ -4,19 +4,19 @@ declare(strict_types = 1);
 
 namespace Acquia\Cli\Tests\Commands\Push;
 
+use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Command\Push\PushDatabaseCommand;
 use Acquia\Cli\Tests\CommandTestBase;
 use AcquiaCloudApi\Response\EnvironmentResponse;
 use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
-use Symfony\Component\Console\Command\Command;
 
 /**
  * @property \Acquia\Cli\Command\Push\PushDatabaseCommand $command
  */
 class PushDatabaseCommandTest extends CommandTestBase {
 
-  protected function createCommand(): Command {
+  protected function createCommand(): CommandBase {
     return $this->injectCommand(PushDatabaseCommand::class);
   }
 
@@ -44,7 +44,6 @@ class PushDatabaseCommandTest extends CommandTestBase {
     $this->mockUploadDatabaseDump($localMachineHelper, $process);
     $this->mockImportDatabaseDumpOnRemote($sshHelper, $selectedEnvironment, $process);
 
-    $this->command->localMachineHelper = $localMachineHelper->reveal();
     $this->command->sshHelper = $sshHelper->reveal();
 
     $inputs = [

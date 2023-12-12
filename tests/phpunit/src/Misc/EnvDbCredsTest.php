@@ -4,10 +4,10 @@ declare(strict_types = 1);
 
 namespace Acquia\Cli\Tests\Misc;
 
+use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Command\Self\ClearCacheCommand;
 use Acquia\Cli\Tests\CommandTestBase;
 use Acquia\Cli\Tests\TestBase;
-use Symfony\Component\Console\Command\Command;
 
 class EnvDbCredsTest extends CommandTestBase {
 
@@ -45,7 +45,7 @@ class EnvDbCredsTest extends CommandTestBase {
     ];
   }
 
-  protected function createCommand(): Command {
+  protected function createCommand(): CommandBase {
     return $this->injectCommand(ClearCacheCommand::class);
   }
 

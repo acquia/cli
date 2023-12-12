@@ -4,17 +4,17 @@ declare(strict_types = 1);
 
 namespace Acquia\Cli\Tests\Commands\Env;
 
+use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Command\Env\EnvMirrorCommand;
 use Acquia\Cli\Tests\CommandTestBase;
 use Prophecy\Argument;
-use Symfony\Component\Console\Command\Command;
 
 /**
  * @property \Acquia\Cli\Command\Env\EnvMirrorCommand $command
  */
 class EnvMirrorCommandTest extends CommandTestBase {
 
-  protected function createCommand(): Command {
+  protected function createCommand(): CommandBase {
     return $this->injectCommand(EnvMirrorCommand::class);
   }
 
