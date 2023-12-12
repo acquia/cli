@@ -107,7 +107,7 @@ class NewFromDrupal7CommandTest extends CommandTestBase {
       '--recommendations' => $recommendations_json,
       '--stored-analysis' => $extensions_json,
     ]);
-    $this->prophet->checkPredictions();
+
     $output = $this->getDisplay();
     $this->assertStringContainsString('Found Drupal 7 site', $output);
     $this->assertStringContainsString('Computing recommendations', $output);

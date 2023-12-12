@@ -30,7 +30,7 @@ class SshKeyInfoCommandTest extends CommandTestBase {
     $this->executeCommand([], $inputs);
 
     // Assert.
-    $this->prophet->checkPredictions();
+
     $output = $this->getDisplay();
     $this->assertStringContainsString('Choose an SSH key to view', $output);
     $this->assertStringContainsString('SSH key property       SSH key value', $output);

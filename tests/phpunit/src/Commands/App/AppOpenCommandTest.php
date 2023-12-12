@@ -25,9 +25,11 @@ class AppOpenCommandTest extends CommandTestBase {
     $localMachineHelper->isBrowserAvailable()->willReturn(TRUE);
     $this->mockRequest('getApplicationByUuid', $applicationUuid);
     $this->executeCommand(['applicationUuid' => $applicationUuid]);
-    $this->prophet->checkPredictions();
   }
 
+  /**
+   * @group brokenProphecy
+   */
   public function testAppOpenNoBrowser(): void {
     $applicationUuid = 'a47ac10b-58cc-4372-a567-0e02b2c3d470';
     $localMachineHelper = $this->mockLocalMachineHelper();

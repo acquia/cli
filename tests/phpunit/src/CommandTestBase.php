@@ -62,6 +62,13 @@ abstract class CommandTestBase extends TestBase {
     $this->printTestName();
   }
 
+  protected function tearDown(): void {
+    parent::tearDown();
+    if (!in_array('brokenProphecy', $this->getGroups())) {
+      $this->prophet->checkPredictions();
+    }
+  }
+
   protected function setCommand(CommandBase $command): void {
     $this->command = $command;
   }

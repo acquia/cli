@@ -19,7 +19,7 @@ class PushCodeCommandTest extends CommandTestBase {
 
   public function testPushCode(): void {
     $this->executeCommand();
-    $this->prophet->checkPredictions();
+
     $output = $this->getDisplay();
 
     $this->assertStringContainsString('Use git to push code changes upstream.', $output);

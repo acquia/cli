@@ -65,6 +65,7 @@ class SshKeyCreateCommandTest extends CommandTestBase {
 
   /**
    * @dataProvider providerTestCreate
+   * @group brokenProphecy
    */
   public function testCreate(mixed $sshAddSuccess, mixed $args, mixed $inputs): void {
     $sshKeyFilepath = Path::join($this->sshDir, '/' . $this->filename);

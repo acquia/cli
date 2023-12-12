@@ -68,7 +68,7 @@ class SshKeyCreateUploadCommandTest extends CommandTestBase {
       $mockRequestArgs['label'],
     ];
     $this->executeCommand(['--no-wait' => ''], $inputs);
-    $this->prophet->checkPredictions();
+
     $output = $this->getDisplay();
     $this->assertStringContainsString('Enter the filename of the SSH key (option --filename) [id_rsa_acquia]:', $output);
     $this->assertStringContainsString('Enter the password for the SSH key (option --password) (input will be hidden):', $output);

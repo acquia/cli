@@ -32,6 +32,7 @@ class EnvDeleteCommandTest extends CommandTestBase {
 
   /**
    * @dataProvider providerTestDeleteCde
+   * @group brokenProphecy
    */
   public function testDeleteCde(mixed $environmentId): void {
     $applicationsResponse = $this->mockApplicationsRequest();
@@ -80,7 +81,7 @@ class EnvDeleteCommandTest extends CommandTestBase {
   }
 
   /**
-   * Tests the case when no CDE available for application.
+   * @group brokenProphecy
    */
   public function testNoExistingCDEEnvironment(): void {
     $applicationsResponse = $this->mockApplicationsRequest();
@@ -101,7 +102,7 @@ class EnvDeleteCommandTest extends CommandTestBase {
   }
 
   /**
-   * Tests the case when multiple CDE available for application.
+   * @group brokenProphecy
    */
   public function testNoEnvironmentArgumentPassed(): void {
     $applications = $this->mockRequest('getApplications');

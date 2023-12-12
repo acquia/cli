@@ -19,7 +19,7 @@ class AppVcsInfoTest extends CommandTestBase {
   }
 
   /**
-   * Test when no environment available for the app.
+   * @group brokenProphecy
    */
   public function testNoEnvAvailableCommand(): void {
     $applications = $this->mockRequest('getApplications');
@@ -42,7 +42,7 @@ class AppVcsInfoTest extends CommandTestBase {
   }
 
   /**
-   * Test when no branch or tag available for the app.
+   * @group brokenProphecy
    */
   public function testNoVcsAvailableCommand(): void {
     $applications = $this->mockRequest('getApplications');
@@ -64,7 +64,7 @@ class AppVcsInfoTest extends CommandTestBase {
   }
 
   /**
-   * Test the list of the VCS details of the application.
+   * @group brokenProphecy
    */
   public function testShowVcsListCommand(): void {
     $applications = $this->mockRequest('getApplications');
@@ -96,7 +96,7 @@ EOD;
   }
 
   /**
-   * Test the list of deployed VCS but no deployed VCS available.
+   * @group brokenProphecy
    */
   public function testNoDeployedVcs(): void {
     $applications = $this->mockRequest('getApplications');
@@ -124,7 +124,7 @@ EOD;
   }
 
   /**
-   * Test the list of the only deployed VCS.
+   * @group brokenProphecy
    */
   public function testListOnlyDeployedVcs(): void {
     $applications = $this->mockRequest('getApplications');

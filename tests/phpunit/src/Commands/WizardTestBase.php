@@ -95,7 +95,7 @@ abstract class WizardTestBase extends CommandTestBase {
     ]);
 
     // Assertions.
-    $this->prophet->checkPredictions();
+
   }
 
   protected function runTestSshKeyAlreadyUploaded(): void {

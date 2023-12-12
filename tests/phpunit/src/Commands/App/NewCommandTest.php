@@ -77,7 +77,7 @@ class NewCommandTest extends CommandTestBase {
     $this->executeCommand([
       'directory' => $directory,
     ], $inputs);
-    $this->prophet->checkPredictions();
+
     $output = $this->getDisplay();
     $this->assertStringContainsString('Acquia recommends most customers use acquia/drupal-recommended-project to setup a Drupal project', $output);
     $this->assertStringContainsString('Choose a starting project', $output);
@@ -117,7 +117,7 @@ class NewCommandTest extends CommandTestBase {
     $this->executeCommand([
       'directory' => $directory,
     ], $inputs);
-    $this->prophet->checkPredictions();
+
     $output = $this->getDisplay();
     $this->assertStringContainsString('acquia/next-acms is a starter template for building a headless site', $output);
     $this->assertStringContainsString('Choose a starting project', $output);

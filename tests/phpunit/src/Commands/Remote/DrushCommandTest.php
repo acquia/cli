@@ -71,7 +71,7 @@ class DrushCommandTest extends SshCommandTestBase {
     $this->executeCommand($args);
 
     // Assert.
-    $this->prophet->checkPredictions();
+
     $this->getDisplay();
   }
 

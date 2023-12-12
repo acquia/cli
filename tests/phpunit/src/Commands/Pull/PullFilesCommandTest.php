@@ -45,7 +45,7 @@ class PullFilesCommandTest extends PullCommandTestBase {
     ];
 
     $this->executeCommand([], $inputs);
-    $this->prophet->checkPredictions();
+
     $output = $this->getDisplay();
 
     $this->assertStringContainsString('Select a Cloud Platform application:', $output);
@@ -82,7 +82,7 @@ class PullFilesCommandTest extends PullCommandTestBase {
     ];
 
     $this->executeCommand([], $inputs);
-    $this->prophet->checkPredictions();
+
     $output = $this->getDisplay();
 
     $this->assertStringContainsString('Select a Cloud Platform application', $output);

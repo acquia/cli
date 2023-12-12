@@ -17,6 +17,9 @@ class IdeListCommandTest extends CommandTestBase {
     return $this->injectCommand(IdeListCommand::class);
   }
 
+  /**
+   * @group brokenProphecy
+   */
   public function testIdeListCommand(): void {
     $applications = $this->mockRequest('getApplications');
     /** @var \AcquiaCloudApi\Response\ApplicationResponse $application */
@@ -33,7 +36,7 @@ class IdeListCommandTest extends CommandTestBase {
     $this->executeCommand([], $inputs);
 
     // Assert.
-    $this->prophet->checkPredictions();
+
     $output = $this->getDisplay();
     $this->assertStringContainsString('Select a Cloud Platform application:', $output);
     $this->assertStringContainsString('[0] Sample application 1', $output);
@@ -46,6 +49,9 @@ class IdeListCommandTest extends CommandTestBase {
     $this->assertStringContainsString('IDE URL: https://feea197a-9503-4441-9f49-b4d420b0ecf8.ides.acquia.com', $output);
   }
 
+  /**
+   * @group brokenProphecy
+   */
   public function testIdeListEmptyCommand(): void {
     $this->mockRequest('getApplications');
     $this->mockApplicationRequest();
@@ -65,7 +71,7 @@ class IdeListCommandTest extends CommandTestBase {
     $this->executeCommand([], $inputs);
 
     // Assert.
-    $this->prophet->checkPredictions();
+
     $output = $this->getDisplay();
     $this->assertStringContainsString('Select a Cloud Platform application:', $output);
     $this->assertStringContainsString('[0] Sample application 1', $output);

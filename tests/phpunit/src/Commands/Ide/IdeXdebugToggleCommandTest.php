@@ -59,7 +59,7 @@ class IdeXdebugToggleCommandTest extends CommandTestBase {
   public function testXdebugCommandEnable(mixed $phpVersion): void {
     $this->setUpXdebug($phpVersion);
     $this->executeCommand();
-    $this->prophet->checkPredictions();
+
     $this->assertFileExists($this->xdebugFilePath);
     $this->assertStringContainsString('zend_extension=xdebug.so', file_get_contents($this->xdebugFilePath));
     $this->assertStringNotContainsString(';zend_extension=xdebug.so', file_get_contents($this->xdebugFilePath));

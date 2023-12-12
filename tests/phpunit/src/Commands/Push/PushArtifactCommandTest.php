@@ -44,7 +44,7 @@ class PushArtifactCommandTest extends PullCommandTestBase {
       0,
     ];
     $this->executeCommand([], $inputs);
-    $this->prophet->checkPredictions();
+
     $output = $this->getDisplay();
 
     $this->assertStringContainsString('Select a Cloud Platform application:', $output);
@@ -89,7 +89,7 @@ class PushArtifactCommandTest extends PullCommandTestBase {
       '--destination-git-tag' => $gitTag,
       '--source-git-tag' => '1.2.0',
     ], $inputs);
-    $this->prophet->checkPredictions();
+
     $output = $this->getDisplay();
 
     $this->assertStringContainsString('Select a Cloud Platform application:', $output);
@@ -111,7 +111,7 @@ class PushArtifactCommandTest extends PullCommandTestBase {
     $this->executeCommand([
       '--destination-git-branch' => 'master',
     ]);
-    $this->prophet->checkPredictions();
+
     $output = $this->getDisplay();
 
     $this->assertStringContainsString('Pushing changes to Acquia Git (https://github.com/example1/cli.git)', $output);
@@ -132,7 +132,7 @@ class PushArtifactCommandTest extends PullCommandTestBase {
       '--destination-git-branch' => 'master',
       '--destination-git-urls' => $destinationGitUrls,
     ]);
-    $this->prophet->checkPredictions();
+
     $output = $this->getDisplay();
 
     $this->assertStringContainsString('Pushing changes to Acquia Git (https://github.com/example1/cli.git)', $output);
@@ -156,7 +156,7 @@ class PushArtifactCommandTest extends PullCommandTestBase {
       0,
     ];
     $this->executeCommand(['--no-push' => TRUE], $inputs);
-    $this->prophet->checkPredictions();
+
     $output = $this->getDisplay();
 
     $this->assertStringContainsString('Initializing Git', $output);
@@ -181,7 +181,7 @@ class PushArtifactCommandTest extends PullCommandTestBase {
       0,
     ];
     $this->executeCommand(['--no-commit' => TRUE], $inputs);
-    $this->prophet->checkPredictions();
+
     $output = $this->getDisplay();
 
     $this->assertStringContainsString('Initializing Git', $output);
@@ -203,7 +203,7 @@ class PushArtifactCommandTest extends PullCommandTestBase {
       0,
     ];
     $this->executeCommand(['--no-clone' => TRUE], $inputs);
-    $this->prophet->checkPredictions();
+
     $output = $this->getDisplay();
 
     $this->assertStringNotContainsString('Initializing Git', $output);

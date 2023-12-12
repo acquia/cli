@@ -49,7 +49,7 @@ class SshCommandTest extends SshCommandTestBase {
     $this->executeCommand($args);
 
     // Assert.
-    $this->prophet->checkPredictions();
+
     $output = $this->getDisplay();
   }
 

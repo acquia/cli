@@ -33,7 +33,7 @@ class SshKeyListCommandTest extends CommandTestBase {
     $this->executeCommand();
 
     // Assert.
-    $this->prophet->checkPredictions();
+
     $output = $this->getDisplay();
     $this->assertStringContainsString('Local filename', $output);
     $this->assertStringContainsString('Cloud Platform label', $output);

@@ -31,7 +31,6 @@ class IdeWizardDeleteSshKeyCommandTest extends IdeWizardTestBase {
     // Run it!
     $this->executeCommand([]);
 
-    $this->prophet->checkPredictions();
     $this->assertFileDoesNotExist($this->sshDir . '/' . $sshKeyFilename);
   }
 

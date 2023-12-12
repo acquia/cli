@@ -54,7 +54,7 @@ class IdePhpVersionCommandTest extends CommandTestBase {
     $this->executeCommand([
       'version' => $version,
     ], []);
-    $this->prophet->checkPredictions();
+
   }
 
   /**

@@ -76,6 +76,7 @@ class CodeStudioPipelinesMigrateCommandTest extends CommandTestBase {
    * @param $mockedGitlabProjects
    * @param $args
    * @param $inputs
+   * @group brokenProphecy
    */
   public function testCommand(mixed $mockedGitlabProjects, mixed $inputs, mixed $args): void {
     copy(

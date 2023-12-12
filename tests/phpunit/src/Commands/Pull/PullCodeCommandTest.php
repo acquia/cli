@@ -52,7 +52,7 @@ class PullCodeCommandTest extends PullCommandTestBase {
       '--dir' => $dir,
       '--no-scripts' => TRUE,
     ], $inputs);
-    $this->prophet->checkPredictions();
+
   }
 
   public function testPullCode(): void {
@@ -71,7 +71,7 @@ class PullCodeCommandTest extends PullCommandTestBase {
     $this->executeCommand([
       '--no-scripts' => TRUE,
     ], self::inputChooseEnvironment());
-    $this->prophet->checkPredictions();
+
     $output = $this->getDisplay();
 
     $this->assertStringContainsString('Select a Cloud Platform application:', $output);
@@ -101,7 +101,7 @@ class PullCodeCommandTest extends PullCommandTestBase {
     $this->mockExecuteDrushCacheRebuild($localMachineHelper, $process);
 
     $this->executeCommand([], self::inputChooseEnvironment());
-    $this->prophet->checkPredictions();
+
     $output = $this->getDisplay();
 
     $this->assertStringContainsString('Select a Cloud Platform application:', $output);
@@ -128,7 +128,7 @@ class PullCodeCommandTest extends PullCommandTestBase {
     $this->mockExecuteDrushCacheRebuild($localMachineHelper, $process);
 
     $this->executeCommand([], self::inputChooseEnvironment());
-    $this->prophet->checkPredictions();
+
     $output = $this->getDisplay();
     $this->assertStringContainsString('composer.json file not found. Skipping composer install.', $output);
   }
@@ -158,7 +158,7 @@ class PullCodeCommandTest extends PullCommandTestBase {
     $this->mockExecuteDrushCacheRebuild($localMachineHelper, $process);
 
     $this->executeCommand([], self::inputChooseEnvironment());
-    $this->prophet->checkPredictions();
+
     $output = $this->getDisplay();
 
     $this->assertStringContainsString('Composer not found. Skipping composer install.', $output);
@@ -187,7 +187,7 @@ class PullCodeCommandTest extends PullCommandTestBase {
     $this->mockExecuteDrushCacheRebuild($localMachineHelper, $process);
 
     $this->executeCommand([], self::inputChooseEnvironment());
-    $this->prophet->checkPredictions();
+
     $output = $this->getDisplay();
 
     $this->assertStringContainsString('Composer dependencies already installed. Skipping composer install.', $output);
@@ -245,7 +245,7 @@ class PullCodeCommandTest extends PullCommandTestBase {
       // Would you like to change the PHP version on this IDE to match the PHP version on ... ?
       'n',
     ]);
-    $this->prophet->checkPredictions();
+
     $output = $this->getDisplay();
     IdeHelper::unsetCloudIdeEnvVars();
     $message = "Would you like to change the PHP version on this IDE to match the PHP version on the {$environmentResponse->label} ({$environmentResponse->configuration->php->version}) environment?";

@@ -44,6 +44,9 @@ class IdeWizardCreateSshKeyCommandTest extends IdeWizardTestBase {
     parent::runTestCreate();
   }
 
+  /**
+   * @group brokenProphecy
+   */
   public function testSshKeyAlreadyUploaded(): void {
     parent::runTestSshKeyAlreadyUploaded();
   }

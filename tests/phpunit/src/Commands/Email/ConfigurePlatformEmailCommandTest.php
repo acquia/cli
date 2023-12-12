@@ -290,7 +290,7 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
 
     $this->executeCommand([], $inputs);
     $output = $this->getDisplay();
-    $this->prophet->checkPredictions();
+
     $this->assertEquals($expectedExitCode, $this->getStatusCode());
     foreach ($expectedText as $text) {
       $this->assertStringContainsString($text, $output);
@@ -370,7 +370,7 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
 
     $this->executeCommand([], $inputs);
     $output = $this->getDisplay();
-    $this->prophet->checkPredictions();
+
     $this->assertEquals(0, $this->getStatusCode());
     $this->assertStringContainsString("You're all set to start using Platform Email!", $output);
 
@@ -426,7 +426,7 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
     $this->executeCommand([], $inputs);
 
     $output = $this->getDisplay();
-    $this->prophet->checkPredictions();
+
     $this->assertStringNotContainsString("You're all set to start using Platform Email!", $output);
   }
 
@@ -462,8 +462,6 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
     $this->expectException(AcquiaCliException::class);
     $this->expectExceptionMessage('Could not find domain');
     $this->executeCommand([], $inputs);
-
-    $this->prophet->checkPredictions();
 
   }
 
@@ -502,8 +500,6 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
     $this->expectException(AcquiaCliException::class);
     $this->expectExceptionMessage('Could not retrieve DNS records for this domain');
     $this->executeCommand([], $inputs);
-
-    $this->prophet->checkPredictions();
 
   }
 
@@ -567,7 +563,7 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
 
     $this->executeCommand([], $inputs);
     $output = $this->getDisplay();
-    $this->prophet->checkPredictions();
+
     $this->assertEquals('0', $this->getStatusCode());
     $this->assertStringContainsString('all set', $output);
   }
@@ -618,7 +614,7 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
 
     $this->executeCommand([], $inputs);
     $output = $this->getDisplay();
-    $this->prophet->checkPredictions();
+
     $this->assertEquals($expectedExitCode, $this->getStatusCode());
     foreach ($expectedText as $text) {
       $this->assertStringContainsString($text, $output);

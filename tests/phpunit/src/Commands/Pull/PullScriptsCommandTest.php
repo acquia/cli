@@ -49,7 +49,7 @@ class PullScriptsCommandTest extends PullCommandTestBase {
     $this->executeCommand([
       '--dir' => $this->projectDir,
     ], $inputs);
-    $this->prophet->checkPredictions();
+
     $output = $this->getDisplay();
   }
 

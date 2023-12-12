@@ -38,6 +38,7 @@ class AuthLoginCommandTest extends CommandTestBase {
 
   /**
    * @dataProvider providerTestAuthLoginCommand
+   * @group brokenProphecy
    */
   public function testAuthLoginCommand(bool $machineIsAuthenticated, bool $assertCloudPrompts, array $inputs, array $args, string $outputToAssert): void {
     $this->mockRequest('getAccountToken', $this->key);

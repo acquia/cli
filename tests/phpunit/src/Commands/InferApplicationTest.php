@@ -42,7 +42,6 @@ class InferApplicationTest extends CommandTestBase {
       'y',
     ]);
 
-    $this->prophet->checkPredictions();
     $output = $this->getDisplay();
 
     $this->assertStringContainsString('There is no Cloud Platform application linked to', $output);
@@ -75,7 +74,6 @@ class InferApplicationTest extends CommandTestBase {
       'y',
     ]);
 
-    $this->prophet->checkPredictions();
     $output = $this->getDisplay();
 
     $this->assertStringContainsString('There is no Cloud Platform application linked to', $output);

@@ -49,7 +49,7 @@ class AcsfApiCommandTest extends AcsfCommandTestBase {
     ]);
 
     // Assert.
-    $this->prophet->checkPredictions();
+
     $output = $this->getDisplay();
   }
 
@@ -64,7 +64,7 @@ class AcsfApiCommandTest extends AcsfCommandTestBase {
     ]);
 
     // Assert.
-    $this->prophet->checkPredictions();
+
   }
 
   public function testAcsfCommandExecutionForHttpGet(): void {
@@ -77,7 +77,7 @@ class AcsfApiCommandTest extends AcsfCommandTestBase {
     $this->executeCommand(['--limit' => '1']);
 
     // Assert.
-    $this->prophet->checkPredictions();
+
     $output = $this->getDisplay();
     $this->assertNotNull($output);
     $this->assertJson($output);
@@ -112,7 +112,7 @@ class AcsfApiCommandTest extends AcsfCommandTestBase {
     $this->executeCommand($arguments, []);
 
     // Assert.
-    $this->prophet->checkPredictions();
+
     $output = $this->getDisplay();
     $this->assertNotNull($output);
     $this->assertJson($output);

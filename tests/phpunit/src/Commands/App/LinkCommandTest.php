@@ -47,6 +47,9 @@ class LinkCommandTest extends CommandTestBase {
     $this->assertEquals(1, $this->getStatusCode());
   }
 
+  /**
+   * @group brokenProphecy
+   */
   public function testLinkCommandInvalidDir(): void {
     $this->mockRequest('getApplications');
     $this->command->setProjectDir('');

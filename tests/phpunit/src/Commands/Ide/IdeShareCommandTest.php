@@ -46,7 +46,7 @@ class IdeShareCommandTest extends CommandTestBase {
     $this->executeCommand();
 
     // Assert.
-    $this->prophet->checkPredictions();
+
     $output = $this->getDisplay();
     $this->assertStringContainsString('Your IDE Share URL: ', $output);
     $this->assertStringContainsString($this->shareCode, $output);
@@ -58,7 +58,7 @@ class IdeShareCommandTest extends CommandTestBase {
     $this->executeCommand(['--regenerate' => TRUE], []);
 
     // Assert.
-    $this->prophet->checkPredictions();
+
     $output = $this->getDisplay();
     $this->assertStringContainsString('Your IDE Share URL: ', $output);
     $this->assertStringNotContainsString($this->shareCode, $output);

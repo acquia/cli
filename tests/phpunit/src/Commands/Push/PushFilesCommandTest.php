@@ -44,7 +44,7 @@ class PushFilesCommandTest extends CommandTestBase {
     ];
 
     $this->executeCommand([], $inputs);
-    $this->prophet->checkPredictions();
+
     $output = $this->getDisplay();
 
     $this->assertStringContainsString('Select a Cloud Platform application:', $output);
@@ -82,7 +82,7 @@ class PushFilesCommandTest extends CommandTestBase {
     ];
 
     $this->executeCommand([], $inputs);
-    $this->prophet->checkPredictions();
+
     $output = $this->getDisplay();
 
     $this->assertStringContainsString('Select a Cloud Platform application:', $output);
@@ -118,7 +118,7 @@ class PushFilesCommandTest extends CommandTestBase {
     ];
 
     $this->executeCommand([], $inputs);
-    $this->prophet->checkPredictions();
+
     $output = $this->getDisplay();
 
     $this->assertStringContainsString('Select a Cloud Platform application:', $output);

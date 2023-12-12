@@ -28,7 +28,7 @@ class TaskWaitCommandTest extends CommandTestBase {
     $this->executeCommand([
       'notification-uuid' => $notification,
     ]);
-    $this->prophet->checkPredictions();
+
     $output = $this->getDisplay();
     self::assertStringContainsString(' [OK] The task with notification uuid 1bd3487e-71d1-4fca-a2d9-5f969b3d35c1 completed', $output);
     $this->assertStringContainsString('Progress: 100', $output);
@@ -51,7 +51,7 @@ class TaskWaitCommandTest extends CommandTestBase {
     $this->executeCommand([
       'notification-uuid' => $notificationUuid,
     ]);
-    $this->prophet->checkPredictions();
+
     self::assertStringContainsString(' [ERROR] The task with notification uuid 1bd3487e-71d1-4fca-a2d9-5f969b3d35c1 failed', $this->getDisplay());
     $this->assertEquals(Command::FAILURE, $this->getStatusCode());
   }
@@ -93,7 +93,7 @@ EOT,
     $this->executeCommand(['notification-uuid' => '{}']);
 
     // Assert.
-    $this->prophet->checkPredictions();
+
   }
 
   public function testTaskWaitCommandWithInvalidUrl(): void {
@@ -102,7 +102,7 @@ EOT,
     $this->executeCommand(['notification-uuid' => 'https://cloud.acquia.com/api/notifications/foo']);
 
     // Assert.
-    $this->prophet->checkPredictions();
+
   }
 
   /**

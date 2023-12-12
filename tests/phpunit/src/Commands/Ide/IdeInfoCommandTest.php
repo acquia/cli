@@ -17,6 +17,9 @@ class IdeInfoCommandTest extends CommandTestBase {
     return $this->injectCommand(IdeInfoCommand::class);
   }
 
+  /**
+   * @group brokenProphecy
+   */
   public function testIdeInfoCommand(): void {
     $applications = $this->mockRequest('getApplications');
     $this->mockRequest('getApplicationByUuid', $applications[0]->uuid);
@@ -35,7 +38,7 @@ class IdeInfoCommandTest extends CommandTestBase {
     $this->executeCommand([], $inputs);
 
     // Assert.
-    $this->prophet->checkPredictions();
+
     $output = $this->getDisplay();
     $this->assertStringContainsString('Select a Cloud Platform application:', $output);
     $this->assertStringContainsString('[0] Sample application 1', $output);

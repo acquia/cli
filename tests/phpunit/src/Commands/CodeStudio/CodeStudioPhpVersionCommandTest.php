@@ -111,7 +111,7 @@ class CodeStudioPhpVersionCommandTest extends CommandTestBase {
   }
 
   /**
-   * Test for successful PHP version add.
+   * @group brokenProphecy
    */
   public function testPhpVersionAdd(): void {
     $this->mockApplicationRequest();
@@ -184,7 +184,7 @@ class CodeStudioPhpVersionCommandTest extends CommandTestBase {
   }
 
   /**
-   * Test for successful PHP version update.
+   * @group brokenProphecy
    */
   public function testPhpVersionUpdate(): void {
     $this->mockApplicationRequest();

@@ -97,7 +97,7 @@ class SshKeyUploadCommandTest extends CommandTestBase {
     $this->executeCommand($args, $inputs);
 
     // Assert.
-    $this->prophet->checkPredictions();
+
     $output = $this->getDisplay();
     $this->assertStringContainsString("Uploaded $fileName to the Cloud Platform with label " . $sshKeysRequestBody['label'], $output);
     $this->assertStringContainsString('Would you like to wait until your key is installed on all of your application\'s servers?', $output);

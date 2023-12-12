@@ -261,10 +261,13 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
     $this->executeCommand($args, $inputs);
 
     // Assertions.
-    $this->prophet->checkPredictions();
+
     $this->assertEquals(0, $this->getStatusCode());
   }
 
+  /**
+   * @group brokenProphecy
+   */
   public function testInvalidGitLabCredentials(): void {
     $localMachineHelper = $this->mockLocalMachineHelper();
     $this->mockExecuteGlabExists($localMachineHelper);
@@ -279,6 +282,9 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
     ]);
   }
 
+  /**
+   * @group brokenProphecy
+   */
   public function testMissingGitLabCredentials(): void {
     $localMachineHelper = $this->mockLocalMachineHelper();
     $this->mockExecuteGlabExists($localMachineHelper);

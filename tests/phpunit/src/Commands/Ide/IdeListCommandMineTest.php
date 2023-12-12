@@ -41,7 +41,7 @@ class IdeListCommandMineTest extends CommandTestBase {
     $this->executeCommand([], $inputs);
 
     // Assert.
-    $this->prophet->checkPredictions();
+
     $output = $this->getDisplay();
     $this->assertStringContainsString('IDE Label 1', $output);
     $this->assertStringContainsString('UUID: 9a83c081-ef78-4dbd-8852-11cc3eb248f7', $output);

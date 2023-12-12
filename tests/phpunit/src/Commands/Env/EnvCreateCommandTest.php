@@ -87,6 +87,7 @@ class EnvCreateCommandTest extends CommandTestBase {
 
   /**
    * @dataProvider providerTestCreateCde
+   * @group brokenProphecy
    */
   public function testCreateCde(mixed $args, mixed $input): void {
     $domain = $this->setupCdeTest(self::$validLabel);
@@ -105,6 +106,9 @@ class EnvCreateCommandTest extends CommandTestBase {
     $this->assertStringContainsString("Your CDE URL: $domain", $output);
   }
 
+  /**
+   * @group brokenProphecy
+   */
   public function testCreateCdeNonUniqueLabel(): void {
     $label = 'Dev';
     $this->setupCdeTest($label);
@@ -120,6 +124,9 @@ class EnvCreateCommandTest extends CommandTestBase {
     );
   }
 
+  /**
+   * @group brokenProphecy
+   */
   public function testCreateCdeInvalidTag(): void {
     $this->setupCdeTest(self::$validLabel);
 

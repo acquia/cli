@@ -50,7 +50,7 @@ class ArchiveExporterCommandTest extends PullCommandTestBase {
     $this->executeCommand([
       'destination-dir' => $destinationDir,
     ], $inputs);
-    $this->prophet->checkPredictions();
+
     $output = $this->getDisplay();
 
     self::assertStringContainsString('An archive of your Drupal application was created at', $output);
