@@ -9,6 +9,7 @@ use Acquia\Cli\Command\Pull\PullDatabaseCommand;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Helpers\LocalMachineHelper;
 use Acquia\Cli\Helpers\SshHelper;
+use AcquiaCloudApi\Response\BackupsResponse;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Psr7\Uri;
 use Prophecy\Argument;
@@ -43,14 +44,16 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
   }
 
   public function mockGetBackup(mixed $environment): void {
-    $databases = $this->mockRequest('getEnvironmentsDatabases', $environment->id);
+    $databases = $this->mockGetEnvironmentsDatabases($environment->id);
     $tamper = function ($backups): void {
       $backups[0]->completedAt = $backups[0]->completed_at;
     };
-    $backups = $this->mockRequest('getEnvironmentsDatabaseBackups', [
-      $environment->id,
-      'my_db',
-    ], NULL, NULL, $tamper);
+    $backups = new BackupsResponse(
+      $this->mockRequest('getEnvironmentsDatabaseBackups', [
+        $environment->id,
+        'my_db',
+      ], NULL, NULL, $tamper)
+    );
     $this->mockDownloadBackup($databases[0], $environment, $backups[0]);
   }
 

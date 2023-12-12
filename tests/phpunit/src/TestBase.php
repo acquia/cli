@@ -20,6 +20,8 @@ use Acquia\Cli\Helpers\SshHelper;
 use Acquia\Cli\Helpers\TelemetryHelper;
 use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Exception\ApiErrorException;
+use AcquiaCloudApi\Response\DatabasesResponse;
+use AcquiaCloudApi\Response\EnvironmentsResponse;
 use AcquiaCloudApi\Response\IdeResponse;
 use AcquiaLogstream\LogstreamManager;
 use Closure;
@@ -435,6 +437,16 @@ abstract class TestBase extends TestCase {
 
   protected function createMockAcliConfigFile(string $cloudAppUuid): void {
     $this->datastoreAcli->set('cloud_app_uuid', $cloudAppUuid);
+  }
+
+  protected function mockGetEnvironmentsDatabases(string $id): DatabasesResponse {
+    $databases = $this->mockRequest('getEnvironmentsDatabases', $id);
+    return new DatabasesResponse($databases);
+  }
+
+  protected function mockGetApplicationEnvironments(string $id): EnvironmentsResponse {
+    $environments = $this->mockRequest('getApplicationEnvironments', $id);
+    return new EnvironmentsResponse($environments);
   }
 
   protected function mockRequest(string $operationId, string|array|null $params = NULL, ?array $body = NULL, ?string $exampleResponse = NULL, Closure $tamper = NULL): object|array {
