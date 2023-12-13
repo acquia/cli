@@ -22,7 +22,6 @@ class IdeListCommandTest extends CommandTestBase {
    */
   public function testIdeListCommand(): void {
     $applications = $this->mockRequest('getApplications');
-    /** @var \AcquiaCloudApi\Response\ApplicationResponse $application */
     $application = $this->mockRequest('getApplicationByUuid', $applications[self::$INPUT_DEFAULT_CHOICE]->uuid);
     $this->mockRequest('getApplicationIdes', $application->uuid);
     $inputs = [

@@ -30,7 +30,7 @@ class PushArtifactCommandTest extends PullCommandTestBase {
   public function testPushArtifact(): void {
     $applications = $this->mockRequest('getApplications');
     $this->mockRequest('getApplicationByUuid', $applications[0]->uuid);
-    $environments = $this->mockGetApplicationEnvironments($applications[0]->uuid);
+    $environments = $this->mockRequest('getApplicationEnvironments', $applications[0]->uuid);
     $localMachineHelper = $this->mockLocalMachineHelper();
     $this->setUpPushArtifact($localMachineHelper, $environments[0]->vcs->path, [$environments[0]->vcs->url]);
     $inputs = [

@@ -20,8 +20,6 @@ use Acquia\Cli\Helpers\SshHelper;
 use Acquia\Cli\Helpers\TelemetryHelper;
 use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Exception\ApiErrorException;
-use AcquiaCloudApi\Response\DatabasesResponse;
-use AcquiaCloudApi\Response\EnvironmentsResponse;
 use AcquiaCloudApi\Response\IdeResponse;
 use AcquiaLogstream\LogstreamManager;
 use Closure;
@@ -439,16 +437,11 @@ abstract class TestBase extends TestCase {
     $this->datastoreAcli->set('cloud_app_uuid', $cloudAppUuid);
   }
 
-  protected function mockGetEnvironmentsDatabases(string $id): DatabasesResponse {
-    $databases = $this->mockRequest('getEnvironmentsDatabases', $id);
-    return new DatabasesResponse($databases);
-  }
-
-  protected function mockGetApplicationEnvironments(string $id): EnvironmentsResponse {
-    $environments = $this->mockRequest('getApplicationEnvironments', $id);
-    return new EnvironmentsResponse($environments);
-  }
-
+  /**
+   * This is the preferred generic way of mocking requests and responses. We still maintain a lot of boilerplate mocking methods for legacy reasons.
+   *
+   * Auto-completion and return type inferencing is provided by .phpstorm.meta.php.
+   */
   protected function mockRequest(string $operationId, string|array|null $params = NULL, ?array $body = NULL, ?string $exampleResponse = NULL, Closure $tamper = NULL): object|array {
     if (is_string($params)) {
       $params = [$params];

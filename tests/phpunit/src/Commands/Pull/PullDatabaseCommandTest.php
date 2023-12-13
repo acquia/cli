@@ -44,7 +44,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
   }
 
   public function mockGetBackup(mixed $environment): void {
-    $databases = $this->mockGetEnvironmentsDatabases($environment->id);
+    $databases = $this->mockRequest('getEnvironmentsDatabases', $environment->id);
     $tamper = function ($backups): void {
       $backups[0]->completedAt = $backups[0]->completed_at;
     };
@@ -418,25 +418,37 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     $this->assertStringContainsString('100/100 [============================] 100%', $output->fetch());
   }
 
-  protected function mockDownloadBackup(object $selectedDatabase, object $selectedEnvironment, object $selectedBackup, int $curlCode = 0): object {
+  protected function mockDownloadBackup(object $database, object $environment, object $backup, int $curlCode = 0): object {
     if ($curlCode) {
       $this->prophet->prophesize(StreamInterface::class);
       /** @var RequestException|ObjectProphecy $requestException */
       $requestException = $this->prophet->prophesize(RequestException::class);
       $requestException->getHandlerContext()->willReturn(['errno' => $curlCode]);
-      $this->clientProphecy->stream('get', "/environments/{$selectedEnvironment->id}/databases/{$selectedDatabase->name}/backups/1/actions/download", [])
+      $this->clientProphecy->stream('get', "/environments/{$environment->id}/databases/{$database->name}/backups/1/actions/download", [])
         ->willThrow($requestException->reveal())
         ->shouldBeCalled();
       $response = $this->prophet->prophesize(ResponseInterface::class);
       $this->httpClientProphecy->request('GET', 'https://other.example.com/download-backup', Argument::type('array'))->willReturn($response->reveal())->shouldBeCalled();
       $domainsResponse = $this->getMockResponseFromSpec('/environments/{environmentId}/domains', 'get', 200);
-      $this->clientProphecy->request('get', "/environments/{$selectedEnvironment->id}/domains")->willReturn($domainsResponse->_embedded->items);
+      $this->clientProphecy->request('get', "/environments/{$environment->id}/domains")->willReturn($domainsResponse->_embedded->items);
       $this->command->setBackupDownloadUrl(new Uri( 'https://www.example.com/download-backup'));
     }
     else {
-      $this->mockDownloadBackupResponse($selectedEnvironment, $selectedDatabase->name, 1);
+      $this->mockDownloadBackupResponse($environment, $database->name, 1);
     }
-    $localFilepath = PullCommandBase::getBackupPath($selectedEnvironment, $selectedDatabase, $selectedBackup);
+    if ($database->flags->default) {
+      $dbMachineName = $database->name . $environment->name;
+    }
+    else {
+      $dbMachineName = 'db' . $database->id;
+    }
+    $filename = implode('-', [
+        $environment->name,
+        $database->name,
+        $dbMachineName,
+        $backup->completedAt,
+      ]) . '.sql.gz';
+    $localFilepath = Path::join(sys_get_temp_dir(), $filename);
     $this->clientProphecy->addOption('sink', $localFilepath)->shouldBeCalled();
     $this->clientProphecy->addOption('curl.options', [
       'CURLOPT_FILE' => $localFilepath,
@@ -446,7 +458,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     $this->clientProphecy->addOption('on_stats', Argument::type('Closure'))->shouldBeCalled();
     $this->clientProphecy->getOptions()->willReturn([]);
 
-    return $selectedDatabase;
+    return $database;
   }
 
 }

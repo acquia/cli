@@ -82,7 +82,7 @@ abstract class PullCommandBase extends CommandBase {
     return $this->dir . '/docroot/sites/' . $site . '/files';
   }
 
-  public static function getBackupPath(object $environment, object $database, object $backupResponse): string {
+  public static function getBackupPath(object $environment, DatabaseResponse $database, object $backupResponse): string {
     // Databases have a machine name not exposed via the API; we can only
     // approximately reconstruct it and match the filename you'd get downloading
     // a backup from Cloud UI.
