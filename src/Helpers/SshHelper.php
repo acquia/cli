@@ -59,7 +59,6 @@ class SshHelper implements LoggerAwareInterface {
 
   private function sendCommand(?string $url, array $command, bool $printOutput, ?int $timeout = NULL): Process {
     $command = array_values($this->getSshCommand($url, $command));
-    $this->localMachineHelper->checkRequiredBinariesExist(['ssh']);
 
     return $this->localMachineHelper->execute($command, $this->getOutputCallback(), NULL, $printOutput, $timeout);
   }
