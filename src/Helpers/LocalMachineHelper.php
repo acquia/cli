@@ -56,7 +56,7 @@ class LocalMachineHelper {
       return (bool) $this->installedBinaries[$command];
     }
     $osCommand = OsInfo::isWindows() ? ['where', $command] : ['which', $command];
-    $exists = $this->execute($osCommand, NULL, NULL, FALSE)->isSuccessful();
+    $exists = $this->execute($osCommand, NULL, NULL, FALSE, NULL, NULL, FALSE)->isSuccessful();
     $this->installedBinaries[$command] = $exists;
     return $exists;
   }
@@ -71,13 +71,10 @@ class LocalMachineHelper {
 
   /**
    * Executes a buffered command.
-   *
-   * @param array $cmd The command to execute.
-   * @param null $callback A function to run while waiting for the process to complete.
    */
-  public function execute(array $cmd, callable $callback = NULL, string $cwd = NULL, ?bool $printOutput = TRUE, float $timeout = NULL, array $env = NULL): Process {
+  public function execute(array $cmd, callable $callback = NULL, string $cwd = NULL, ?bool $printOutput = TRUE, float $timeout = NULL, array $env = NULL, bool $stdin = TRUE): Process {
     $process = new Process($cmd);
-    $process = $this->configureProcess($process, $cwd, $printOutput, $timeout, $env);
+    $process = $this->configureProcess($process, $cwd, $printOutput, $timeout, $env, $stdin);
     return $this->executeProcess($process, $callback, $printOutput);
   }
 
@@ -106,8 +103,8 @@ class LocalMachineHelper {
    * @param string|null $cwd
    * @param array|null $env
    */
-  private function configureProcess(Process $process, string $cwd = NULL, ?bool $printOutput = TRUE, float $timeout = NULL, array $env = NULL): Process {
-    if (function_exists('posix_isatty') && !@posix_isatty(STDIN)) {
+  private function configureProcess(Process $process, string $cwd = NULL, ?bool $printOutput = TRUE, float $timeout = NULL, array $env = NULL, bool $stdin = TRUE): Process {
+    if (function_exists('posix_isatty') && !@posix_isatty(STDIN) && $stdin) {
       $process->setInput(STDIN);
     }
     if ($cwd) {
