@@ -5,6 +5,7 @@ declare(strict_types = 1);
 namespace Acquia\Cli\Command\Auth;
 
 use Acquia\Cli\Command\CommandBase;
+use AcquiaCloudApi\Endpoints\Account;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -61,10 +62,11 @@ final class AuthLoginCommand extends CommandBase {
   }
 
   private function writeApiCredentialsToDisk(string $apiKey, string $apiSecret): void {
-    $tokenInfo = $this->cloudApiClientService->getClient()->request('get', "/account/tokens/$apiKey");
+    $account = new Account($this->cloudApiClientService->getClient());
+    $accountInfo = $account->get();
     $keys = $this->datastoreCloud->get('keys');
     $keys[$apiKey] = [
-      'label' => $tokenInfo->label,
+      'label' => $accountInfo->mail,
       'secret' => $apiSecret,
       'uuid' => $apiKey,
     ];
