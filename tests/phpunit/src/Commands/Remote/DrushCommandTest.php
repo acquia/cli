@@ -50,6 +50,7 @@ class DrushCommandTest extends SshCommandTestBase {
     ClearCacheCommand::clearCaches();
     $this->mockForGetEnvironmentFromAliasArg();
     [$process, $localMachineHelper] = $this->mockForExecuteCommand();
+    $localMachineHelper->checkRequiredBinariesExist(['ssh'])->shouldBeCalled();
     $sshCommand = [
       'ssh',
       'site.dev@sitedev.ssh.hosted.acquia-sites.com',
