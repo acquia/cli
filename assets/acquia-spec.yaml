@@ -17157,7 +17157,6 @@ paths:
           application/json:
             schema:
               type: object
-
               required:
                 - label
                 - sources
