@@ -7,7 +7,6 @@ namespace Acquia\Cli\Tests\Commands\Acsf;
 use Acquia\Cli\AcsfApi\AcsfClient;
 use Acquia\Cli\AcsfApi\AcsfClientService;
 use Acquia\Cli\AcsfApi\AcsfCredentials;
-use Acquia\Cli\CloudApi\ClientService;
 use Acquia\Cli\Command\Acsf\AcsfApiBaseCommand;
 use Acquia\Cli\Command\Acsf\AcsfCommandFactory;
 use Acquia\Cli\Command\CommandBase;
@@ -32,7 +31,7 @@ class AcsfApiCommandTest extends AcsfCommandTestBase {
   protected function createCommand(): CommandBase {
     $this->createMockCloudConfigFile($this->getAcsfCredentialsFileContents());
     $this->cloudCredentials = new AcsfCredentials($this->datastoreCloud);
-    $this->setClientProphecies(AcsfClientService::class);
+    $this->setClientProphecies();
     return $this->injectCommand(AcsfApiBaseCommand::class);
   }
 
@@ -119,11 +118,11 @@ class AcsfApiCommandTest extends AcsfCommandTestBase {
     $contents = json_decode($output, TRUE);
   }
 
-  protected function setClientProphecies(?string $clientServiceClass = ClientService::class): void {
+  protected function setClientProphecies(): void {
     $this->clientProphecy = $this->prophet->prophesize(AcsfClient::class);
     $this->clientProphecy->addOption('headers', ['User-Agent' => 'acli/UNKNOWN']);
     $this->clientProphecy->addOption('debug', Argument::type(OutputInterface::class));
-    $this->clientServiceProphecy = $this->prophet->prophesize($clientServiceClass);
+    $this->clientServiceProphecy = $this->prophet->prophesize(AcsfClientService::class);
     $this->clientServiceProphecy->getClient()
       ->willReturn($this->clientProphecy->reveal());
     $this->clientServiceProphecy->isMachineAuthenticated()

@@ -731,11 +731,11 @@ abstract class TestBase extends TestCase {
     return $guzzleClient;
   }
 
-  protected function setClientProphecies(?string $clientServiceClass = ClientService::class): void {
+  protected function setClientProphecies(): void {
     $this->clientProphecy = $this->prophet->prophesize(Client::class);
     $this->clientProphecy->addOption('headers', ['User-Agent' => 'acli/UNKNOWN']);
     $this->clientProphecy->addOption('debug', Argument::type(OutputInterface::class));
-    $this->clientServiceProphecy = $this->prophet->prophesize($clientServiceClass);
+    $this->clientServiceProphecy = $this->prophet->prophesize(ClientService::class);
     $this->clientServiceProphecy->getClient()
       ->willReturn($this->clientProphecy->reveal());
     $this->clientServiceProphecy->isMachineAuthenticated()

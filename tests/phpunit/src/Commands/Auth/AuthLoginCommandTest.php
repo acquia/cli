@@ -9,7 +9,9 @@ use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Config\CloudDataConfig;
 use Acquia\Cli\DataStore\CloudDataStore;
 use Acquia\Cli\Tests\CommandTestBase;
+use AcquiaCloudApi\Connector\Connector;
 use Generator;
+use Prophecy\Argument;
 use Symfony\Component\Validator\Exception\ValidatorException;
 
 /**
@@ -21,41 +23,18 @@ class AuthLoginCommandTest extends CommandTestBase {
     return $this->injectCommand(AuthLoginCommand::class);
   }
 
-  public function providerTestAuthLoginCommand(): Generator {
-    yield 'Keys as args' => [
-        // $machineIsAuthenticated
-        FALSE,
-        // $assertCloudPrompts
-        FALSE,
-        // No interaction
-        [],
-        // Args.
-        ['--key' => $this->key, '--secret' => $this->secret],
-        // Output to assert.
-        'Saved credentials',
-    ];
-  }
+  public function testAuthLoginCommand(): void {
+    $this->mockRequest('getAccount');
+    $this->clientServiceProphecy->setConnector(Argument::type(Connector::class))->shouldBeCalled();
+    $this->clientServiceProphecy->isMachineAuthenticated()->willReturn(FALSE);
+    $this->removeMockCloudConfigFile();
+    $this->createDataStores();
+    $this->command = $this->createCommand();
 
-  /**
-   * @dataProvider providerTestAuthLoginCommand
-   * @group brokenProphecy
-   */
-  public function testAuthLoginCommand(bool $machineIsAuthenticated, bool $assertCloudPrompts, array $inputs, array $args, string $outputToAssert): void {
-    $this->mockRequest('getAccountToken', $this->key);
-    if (!$machineIsAuthenticated) {
-      $this->clientServiceProphecy->isMachineAuthenticated()->willReturn(FALSE);
-      $this->removeMockCloudConfigFile();
-      $this->createDataStores();
-      $this->command = $this->createCommand();
-    }
-
-    $this->executeCommand($args, $inputs);
+    $this->executeCommand(['--key' => $this->key, '--secret' => $this->secret]);
     $output = $this->getDisplay();
 
-    if ($assertCloudPrompts) {
-      $this->assertInteractivePrompts($output);
-    }
-    $this->assertStringContainsString($outputToAssert, $output);
+    $this->assertStringContainsString('Saved credentials', $output);
     $this->assertKeySavedCorrectly();
   }
 
