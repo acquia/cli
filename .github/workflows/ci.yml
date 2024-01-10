@@ -116,6 +116,15 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/')
         with:
           files: var/acli.phar
+      - name: Publish docs
+        if: github.event_name == 'push'
+        run: |
+          ./bin/acli self:make-docs -d docs
+          aws s3 sync docs s3://acquia-cli/docs
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
   # Require all checks to pass without having to enumerate them in the branch protection UI.
   # @see https://github.community/t/is-it-possible-to-require-all-github-actions-tasks-to-pass-without-enumerating-them/117957
   check:

@@ -27,10 +27,10 @@ final class AuthLoginCommand extends CommandBase {
     $activeKey = $this->datastoreCloud->get('acli_key');
     if ($activeKey) {
       $activeKeyLabel = $keys[$activeKey]['label'];
-      $output->write("The following Cloud Platform API key is active: <options=bold>$activeKeyLabel</>");
+      $output->writeln("The following Cloud Platform API key is active: <options=bold>$activeKeyLabel</>");
     }
     else {
-      $output->write('No Cloud Platform API key is active');
+      $output->writeln('No Cloud Platform API key is active');
     }
 
     // If keys already are saved locally, prompt to select.
