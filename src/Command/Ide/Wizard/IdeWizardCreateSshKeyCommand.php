@@ -72,7 +72,6 @@ final class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
       // the local key, delete remote key!
       $this->deleteThisSshKeyFromCloud($output);
       $publicKey = $this->localMachineHelper->readFile($this->publicSshKeyFilepath);
-      $chosenLocalKey = basename($this->publicSshKeyFilepath);
       $this->uploadSshKey($this->getSshKeyLabel(), $publicKey);
 
       $checklist->completePreviousItem();

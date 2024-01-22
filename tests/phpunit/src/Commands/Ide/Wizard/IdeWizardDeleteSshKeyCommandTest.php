@@ -7,7 +7,6 @@ namespace Acquia\Cli\Tests\Commands\Ide\Wizard;
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Command\Ide\Wizard\IdeWizardDeleteSshKeyCommand;
 use Acquia\Cli\Tests\Commands\Ide\IdeHelper;
-use AcquiaCloudApi\Response\IdeResponse;
 
 /**
  * @property \Acquia\Cli\Command\Ide\Wizard\IdeWizardCreateSshKeyCommand $command
@@ -15,11 +14,7 @@ use AcquiaCloudApi\Response\IdeResponse;
 class IdeWizardDeleteSshKeyCommandTest extends IdeWizardTestBase {
 
   public function testDelete(): void {
-    // Request for IDE data.
-    $ideResponse = $this->getMockResponseFromSpec('/ides/{ideUuid}', 'get', '200');
-    $this->clientProphecy->request('get', '/ides/' . IdeHelper::$remoteIdeUuid)->willReturn($ideResponse)->shouldBeCalled();
-    $ide = new IdeResponse((object) $ideResponse);
-    $mockBody = $this->mockListSshKeysRequestWithIdeKey($ide);
+    $mockBody = $this->mockListSshKeysRequestWithIdeKey();
 
     $this->mockDeleteSshKeyRequest($mockBody->{'_embedded'}->items[0]->uuid);
 
@@ -29,7 +24,7 @@ class IdeWizardDeleteSshKeyCommandTest extends IdeWizardTestBase {
     $this->fs->dumpFile($this->sshDir . '/' . $sshKeyFilename . '.pub', $mockBody->{'_embedded'}->items[0]->public_key);
 
     // Run it!
-    $this->executeCommand([]);
+    $this->executeCommand();
 
     $this->assertFileDoesNotExist($this->sshDir . '/' . $sshKeyFilename);
   }

@@ -10,7 +10,6 @@ use Acquia\Cli\Helpers\SshCommandTrait;
 use Acquia\Cli\Output\Spinner\Spinner;
 use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Endpoints\SshKeys;
-use AcquiaCloudApi\Response\IdeResponse;
 use React\EventLoop\Loop;
 use RuntimeException;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -40,8 +39,8 @@ abstract class SshKeyCommandBase extends CommandBase {
     $this->publicSshKeyFilepath = $this->privateSshKeyFilepath . '.pub';
   }
 
-  public static function getIdeSshKeyLabel(IdeResponse $ide): string {
-    return self::normalizeSshKeyLabel('IDE_' . $ide->label . '_' . $ide->uuid);
+  public static function getIdeSshKeyLabel(): string {
+    return self::normalizeSshKeyLabel('IDE_' . self::getThisCloudIdeLabel() . '_' . self::getThisCloudIdeUuid());
   }
 
   public static function normalizeSshKeyLabel(?string $label): string|null {

@@ -8,7 +8,6 @@ use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Command\Ide\IdeDeleteCommand;
 use Acquia\Cli\Command\Ssh\SshKeyDeleteCommand;
 use Acquia\Cli\Tests\CommandTestBase;
-use AcquiaCloudApi\Response\IdeResponse;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
@@ -39,9 +38,7 @@ class IdeDeleteCommandTest extends CommandTestBase {
     $this->mockRequest('getApplicationByUuid', $applications[0]->uuid);
     $ides = $this->mockRequest('getApplicationIdes', $applications[0]->uuid);
     $this->mockRequest('deleteIde', $ides[0]->uuid, NULL, 'De-provisioning IDE');
-    $ideGetResponse = $this->mockRequest('getIde', $ides[0]->uuid);
-    $ide = new IdeResponse((object) $ideGetResponse);
-    $sshKeyGetResponse = $this->mockListSshKeysRequestWithIdeKey($ide);
+    $sshKeyGetResponse = $this->mockListSshKeysRequestWithIdeKey();
 
     $this->mockDeleteSshKeyRequest($sshKeyGetResponse->{'_embedded'}->items[0]->uuid);
 
