@@ -785,11 +785,11 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    *
    * This command assumes it is being run inside a Cloud IDE.
    */
-  public static function getThisCloudIdeUuid(): false|string {
+  protected static function getThisCloudIdeUuid(): false|string {
     return getenv('REMOTEIDE_UUID');
   }
 
-  public static function getThisCloudIdeLabel(): false|string {
+  protected static function getThisCloudIdeLabel(): false|string {
     return getenv('REMOTEIDE_LABEL');
   }
 
