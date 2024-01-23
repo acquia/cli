@@ -25,7 +25,6 @@ use AcquiaCloudApi\Connector\Connector;
 use AcquiaCloudApi\Endpoints\Account;
 use AcquiaCloudApi\Endpoints\Applications;
 use AcquiaCloudApi\Endpoints\Environments;
-use AcquiaCloudApi\Endpoints\Ides;
 use AcquiaCloudApi\Endpoints\Notifications;
 use AcquiaCloudApi\Endpoints\Organizations;
 use AcquiaCloudApi\Endpoints\Subscriptions;
@@ -786,8 +785,12 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    *
    * This command assumes it is being run inside a Cloud IDE.
    */
-  public static function getThisCloudIdeUuid(): false|string {
+  protected static function getThisCloudIdeUuid(): false|string {
     return getenv('REMOTEIDE_UUID');
+  }
+
+  protected static function getThisCloudIdeLabel(): false|string {
+    return getenv('REMOTEIDE_LABEL');
   }
 
   protected function getCloudApplication(string $applicationUuid): ApplicationResponse {
@@ -908,9 +911,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   protected function findIdeSshKeyOnCloud(string $ideUuid): ?stdClass {
     $acquiaCloudClient = $this->cloudApiClientService->getClient();
     $cloudKeys = $acquiaCloudClient->request('get', '/account/ssh-keys');
-    $idesResource = new Ides($acquiaCloudClient);
-    $ide = $idesResource->get($ideUuid);
-    $sshKeyLabel = SshKeyCommandBase::getIdeSshKeyLabel($ide);
+    $sshKeyLabel = SshKeyCommandBase::getIdeSshKeyLabel();
     foreach ($cloudKeys as $cloudKey) {
       if ($cloudKey->label === $sshKeyLabel) {
         return $cloudKey;

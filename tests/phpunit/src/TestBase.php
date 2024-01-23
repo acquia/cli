@@ -20,7 +20,6 @@ use Acquia\Cli\Helpers\SshHelper;
 use Acquia\Cli\Helpers\TelemetryHelper;
 use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Exception\ApiErrorException;
-use AcquiaCloudApi\Response\IdeResponse;
 use AcquiaLogstream\LogstreamManager;
 use Closure;
 use GuzzleHttp\Psr7\Response;
@@ -591,9 +590,9 @@ abstract class TestBase extends TestCase {
     return $this->mockRequest('getAccountSshKeys');
   }
 
-  protected function mockListSshKeysRequestWithIdeKey(IdeResponse $ide): object {
+  protected function mockListSshKeysRequestWithIdeKey(): object {
     $mockBody = $this->getMockResponseFromSpec('/account/ssh-keys', 'get', '200');
-    $mockBody->{'_embedded'}->items[0]->label = SshKeyCommandBase::getIdeSshKeyLabel($ide);
+    $mockBody->{'_embedded'}->items[0]->label = SshKeyCommandBase::getIdeSshKeyLabel();
     $this->clientProphecy->request('get', '/account/ssh-keys')
       ->willReturn($mockBody->{'_embedded'}->items)
       ->shouldBeCalled();
