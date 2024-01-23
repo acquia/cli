@@ -199,8 +199,10 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     $this->formatter = $this->getHelper('formatter');
 
     $this->output->writeln('Acquia CLI version: ' . $this->getApplication()->getVersion(), OutputInterface::VERBOSITY_DEBUG);
-    $this->checkAndPromptTelemetryPreference();
-    $this->telemetryHelper->initialize();
+    if (getenv('ACLI_NO_TELEMETRY') !== 'true') {
+      $this->checkAndPromptTelemetryPreference();
+      $this->telemetryHelper->initialize();
+    }
     $this->checkAuthentication();
 
     $this->fillMissingRequiredApplicationUuid($input, $output);
