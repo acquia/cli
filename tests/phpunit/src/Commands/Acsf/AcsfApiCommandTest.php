@@ -90,8 +90,8 @@ class AcsfApiCommandTest extends AcsfCommandTestBase {
   public function providerTestAcsfCommandExecutionForHttpGetMultiple(): array {
     return [
       ['get', '/api/v1/audit', '/api/v1/audit', 'acsf:info:audit-events-find', [], []],
-      ['post', '/api/v1/sites', '/api/v1/sites', 'acsf:sites:create', ['site_name' => 'foobar', '--stack_id' => '1', '--group_ids' => ['91,81']], ['site_name' => 'foobar', 'stack_id' => '1', 'group_ids' => [91, 81]]],
-      ['post', '/api/v1/sites', '/api/v1/sites', 'acsf:sites:create', ['site_name' => 'foobar', '--stack_id' => '1', '--group_ids' => ['91','81']], ['site_name' => 'foobar', 'stack_id' => '1', 'group_ids' => [91, 81]]],
+      ['post', '/api/v1/sites', '/api/v1/sites', 'acsf:sites:create', ['site_name' => 'foobar', '--stack_id' => '1', 'group_ids' => ['91,81']], ['site_name' => 'foobar', 'stack_id' => '1', 'group_ids' => [91, 81]]],
+      ['post', '/api/v1/sites', '/api/v1/sites', 'acsf:sites:create', ['site_name' => 'foobar', '--stack_id' => '1', 'group_ids' => ['91','81']], ['site_name' => 'foobar', 'stack_id' => '1', 'group_ids' => [91, 81]]],
       ['post', '/api/v1/sites/{site_id}/backup', '/api/v1/sites/1/backup', 'acsf:sites:backup', ['--label' => 'foo', 'site_id' => '1'], ['label' => 'foo']],
       ['post', '/api/v1/groups/{group_id}/members', '/api/v1/groups/2/members', 'acsf:groups:add-members', ['group_id' => '2', 'uids' => '1'], ['group_id' => 'foo', 'uids' => 1]],
       ['post', '/api/v1/groups/{group_id}/members', '/api/v1/groups/2/members', 'acsf:groups:add-members', ['group_id' => '2', 'uids' => '1,3'], ['group_id' => 'foo', 'uids' => [1, 3]]],
