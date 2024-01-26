@@ -101,21 +101,21 @@ class AcsfApiCommandTest extends AcsfCommandTestBase {
   /**
    * @dataProvider providerTestAcsfCommandExecutionForHttpGetMultiple
    */
-  public function testAcsfCommandExecutionForHttpGetMultiple(mixed $method, mixed $specPath, mixed $path, mixed $command, mixed $arguments = [], mixed $jsonArguments = []): void {
+  public function testAcsfCommandExecutionForHttpGetMultiple(string $method, string $specPath, string $path, string $command, array $arguments = [], array $jsonArguments = []): void {
     $mockBody = $this->getMockResponseFromSpec($specPath, $method, '200');
     $this->clientProphecy->request($method, $path)->willReturn($mockBody)->shouldBeCalled();
     foreach ($jsonArguments as $argumentName => $value) {
       $this->clientProphecy->addOption('json', [$argumentName => $value]);
     }
     $this->command = $this->getApiCommandByName($command);
-    $this->executeCommand($arguments, []);
+    $this->executeCommand($arguments);
 
     // Assert.
 
     $output = $this->getDisplay();
     $this->assertNotNull($output);
     $this->assertJson($output);
-    $contents = json_decode($output, TRUE);
+    json_decode($output, TRUE);
   }
 
   protected function setClientProphecies(): void {
