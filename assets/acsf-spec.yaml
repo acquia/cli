@@ -125,6 +125,46 @@ paths:
                 $ref: '#/components/schemas/AuditEvent_getAuditEventsResponse'
         400:
           description: 'bad input parameter'
+  /api/v1/backup-expiration:
+    put:
+      summary: 'Configure the backup expiration and automatic deletion.'
+      description: 'Configure the backup expiration and automatic deletion setting.'
+      x-cli-name: 'sites:backup-set-expiration'
+      operationId: put_BackupExpirationManagement_setBackupExpirationSettings
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                expiration_days:
+                  description: 'Number of days (between 1 and 365) after which backups get automatically deleted.'
+                  type: integer
+              required:
+                - expiration_days
+      responses:
+        200:
+          description: 'BackupExpirationManagement_setBackupExpirationSettings response'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BackupExpirationManagement_setBackupExpirationSettingsResponse'
+        400:
+          description: 'bad input parameter'
+    get:
+      summary: 'Get the current backup expiration and automatic deletion setting.'
+      description: 'Get the current backup expiration and automatic deletion setting.'
+      x-cli-name: 'sites:backup-get-expiration'
+      operationId: get_BackupExpirationManagement_getBackupExpirationSettings
+      responses:
+        200:
+          description: 'BackupExpirationManagement_getBackupExpirationSettings response'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BackupExpirationManagement_getBackupExpirationSettingsResponse'
+        400:
+          description: 'bad input parameter'
   /api/v1/centralized-role-management:
     get:
       summary: 'Get current centralized role management settings.'
@@ -211,6 +251,59 @@ paths:
                 $ref: '#/components/schemas/CodeBases_getCodeBaseNamesResponse'
         400:
           description: 'bad input parameter'
+  '/api/v1/stacks/{codebase_id}':
+    put:
+      summary: 'Edit stack information.'
+      description: 'Edit stack information.'
+      x-cli-name: 'stacks:edit'
+      operationId: put_CodeBases_editCodebaseName
+      parameters:
+        -
+          in: path
+          name: codebase_id
+          description: 'Id of stack whose details are to be changed.'
+          schema:
+            type: integer
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  description: 'New stack name to be updated.'
+                  type: string
+                description:
+                  description: 'Stack description to be updated.'
+                  type: string
+                tangle_alias:
+                  description: 'New tangle alias name for tangle associated with that stack.'
+                  type: string
+      responses:
+        200:
+          description: 'CodeBases_editCodebaseName response'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CodeBases_editCodebaseNameResponse'
+        400:
+          description: 'bad input parameter'
+  /api/v1/stacks/details:
+    get:
+      summary: 'Get details of available stacks.'
+      description: 'Fetches the details of available stacks.'
+      x-cli-name: 'stacks:find-details'
+      operationId: get_CodeBases_getCodeBaseDetails
+      responses:
+        200:
+          description: 'CodeBases_getCodeBaseDetails response'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CodeBases_getCodeBaseDetailsResponse'
+        400:
+          description: 'bad input parameter'
   /api/v1/cronjobs:
     post:
       summary: 'Create a new cron job.'
@@ -272,11 +365,11 @@ paths:
         -
           in: query
           name: limit
-          description: 'A positive integer (max 1000).'
+          description: 'A positive integer (max 20).'
           schema:
             type: integer
             minimum: 1
-            maximum: 1000
+            maximum: 20
           required: false
         -
           in: query
@@ -397,6 +490,39 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CronJobs_getCronJobResponse'
+        400:
+          description: 'bad input parameter'
+  /api/v1/domains:
+    get:
+      summary: 'Get all domains.'
+      description: "Get all domains known to Site Factory.\n\n Possible domain types:\n   simple|collectionLive|collectionInternal|factoryStandard."
+      x-cli-name: 'domains:get-all'
+      operationId: get_Domains_getAllDomains
+      parameters:
+        -
+          in: query
+          name: limit
+          description: 'A positive integer (max 1000).'
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 1000
+          required: false
+        -
+          in: query
+          name: page
+          description: 'A positive integer.'
+          schema:
+            type: integer
+            minimum: 1
+          required: false
+      responses:
+        200:
+          description: 'Domains_getAllDomains response'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Domains_getAllDomainsResponse'
         400:
           description: 'bad input parameter'
   '/api/v1/domains/{node_id}':
@@ -1518,6 +1644,81 @@ paths:
                 $ref: '#/components/schemas/Role_updateRoleResponse'
         400:
           description: 'bad input parameter'
+  /api/v1/security:
+    get:
+      summary: 'Get current security settings.'
+      description: 'Get current security settings.'
+      x-cli-name: 'security:get-security-settings'
+      operationId: get_Security_getSecuritySettings
+      responses:
+        200:
+          description: 'Security_getSecuritySettings response'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Security_getSecuritySettingsResponse'
+        400:
+          description: 'bad input parameter'
+    put:
+      summary: 'Set the security settings.'
+      description: 'Set the security settings.'
+      x-cli-name: 'security:set-security-settings'
+      operationId: put_Security_updateSecuritySettings
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                minimum_password_length:
+                  description: 'Sets the minimum password length required for customers.'
+                  type: integer
+                  minimum: 0
+                  maximum: 29
+                minimum_required_password_strength:
+                  description: 'Sets the password strength required for customers.'
+                  type: string
+                  pattern: '^(disabled|weak|good|strong|very strong)$'
+                two_step_verification:
+                  description: 'Sets if tfa required for customers.'
+                  type: boolean
+                sign_out_inactive_user_accounts:
+                  description: 'Automatically sign out inactive account.'
+                  type: boolean
+                sign_out_inactivity_time:
+                  description: 'Automatically sign out of the account after seconds, required when sign_out_inactive_user_accounts is set.'
+                  type: integer
+                  minimum: 60
+                automatically_disable_accounts:
+                  description: 'Automatically disable inactive account.'
+                  type: boolean
+                automatically_disable_accounts_after_days:
+                  description: 'Number of days after which an account will be disabled, required when automatically_disable_accounts is set.'
+                  type: integer
+                  minimum: 1
+      responses:
+        200:
+          description: 'Security_updateSecuritySettings response'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Security_updateSecuritySettingsResponse'
+        400:
+          description: 'bad input parameter'
+    delete:
+      summary: 'Delete the security settings.'
+      description: 'Delete the security settings.'
+      x-cli-name: 'security:reset-security-settings'
+      operationId: delete_Security_resetSecuritySettings
+      responses:
+        200:
+          description: 'Security_resetSecuritySettings response'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Security_resetSecuritySettingsResponse'
+        400:
+          description: 'bad input parameter'
   /api/v1/sf-info:
     get:
       summary: 'Get the version of the Site Factory'
@@ -1939,6 +2140,136 @@ paths:
                 $ref: '#/components/schemas/SiteUpdatePriority_resetSiteUpdatePriorityResponse'
         400:
           description: 'bad input parameter'
+  /api/v1/site-variables:
+    post:
+      summary: 'Trigger the site variables set up on the sites.'
+      description: 'Trigger the site variables set up on the sites.'
+      x-cli-name: 'sites:distribute-site-variables'
+      operationId: post_SiteVariables_triggerSiteVariablesDistribution
+      responses:
+        200:
+          description: 'SiteVariables_triggerSiteVariablesDistribution response'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SiteVariables_triggerSiteVariablesDistributionResponse'
+        400:
+          description: 'bad input parameter'
+  '/api/v1/site-variables/{site_id}':
+    get:
+      summary: 'Get the site variables for a given site.'
+      description: 'Get the site variables for a given site.'
+      x-cli-name: 'sites:get-site-variables'
+      operationId: get_SiteVariables_getSiteVariables
+      parameters:
+        -
+          in: path
+          name: site_id
+          description: 'Site ID'
+          schema:
+            type: integer
+          required: true
+      responses:
+        200:
+          description: 'SiteVariables_getSiteVariables response'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SiteVariables_getSiteVariablesResponse'
+        400:
+          description: 'bad input parameter'
+    put:
+      summary: 'Change a site variable for a given site.'
+      description: 'Change a site variable for a given site.'
+      x-cli-name: 'sites:set-site-variable'
+      operationId: put_SiteVariables_changeSiteVariables
+      parameters:
+        -
+          in: path
+          name: site_id
+          description: 'Site ID'
+          schema:
+            type: integer
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                variable_key:
+                  description: 'The variable key.'
+                  type: string
+                variable_value:
+                  description: 'The variable value.'
+                  type: string
+                variable_scrub:
+                  description: 'If the variable should be removed during staging.'
+                  type: integer
+              required:
+                - variable_key
+                - variable_value
+      responses:
+        200:
+          description: 'SiteVariables_changeSiteVariables response'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SiteVariables_changeSiteVariablesResponse'
+        400:
+          description: 'bad input parameter'
+    delete:
+      summary: 'Clear all site variables for a given site.'
+      description: 'Clear all site variables for a given site.'
+      x-cli-name: 'sites:clear-site-variables'
+      operationId: delete_SiteVariables_removeSiteVariables
+      parameters:
+        -
+          in: path
+          name: site_id
+          description: 'Site ID'
+          schema:
+            type: integer
+          required: true
+      responses:
+        200:
+          description: 'SiteVariables_removeSiteVariables response'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SiteVariables_removeSiteVariablesResponse'
+        400:
+          description: 'bad input parameter'
+  '/api/v1/site-variables/{site_id}/{variable_key}':
+    delete:
+      summary: 'Remove a site variable for a given site.'
+      description: 'Remove a site variable for a given site.'
+      x-cli-name: 'sites:remove-site-variable'
+      operationId: delete_SiteVariables_removeSiteVariable
+      parameters:
+        -
+          in: path
+          name: site_id
+          description: 'Site ID'
+          schema:
+            type: integer
+          required: true
+        -
+          in: path
+          name: variable_key
+          description: 'The variable key.'
+          schema:
+            type: string
+          required: true
+      responses:
+        200:
+          description: 'SiteVariables_removeSiteVariable response'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SiteVariables_removeSiteVariableResponse'
+        400:
+          description: 'bad input parameter'
   /api/v1/sites:
     get:
       summary: 'List sites'
@@ -2057,6 +2388,7 @@ paths:
                   type: integer
               required:
                 - site_name
+                - group_ids
       responses:
         200:
           description: 'Sites_createSite response'
@@ -2449,6 +2781,9 @@ paths:
                   type: array
                   items:
                     type: string
+                force_psu_hook:
+                  description: 'Force post-staging-update hook to run even if VCS paths are the same on prod and non-prod.'
+                  type: boolean
               required:
                 - to_env
       responses:
@@ -3045,6 +3380,44 @@ paths:
                 $ref: '#/components/schemas/Update_pauseUpdateResponse'
         400:
           description: 'bad input parameter'
+  /api/v1/update/change_time:
+    post:
+      summary: 'Change the start time of an update process'
+      description: ''
+      x-cli-name: 'update:change-time'
+      operationId: post_Update_changeUpdaterStartTime
+      responses:
+        200:
+          description: 'Update_changeUpdaterStartTime response'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Update_changeUpdaterStartTimeResponse'
+        400:
+          description: 'bad input parameter'
+  '/api/v1/update/{update_id}':
+    delete:
+      summary: 'Terminate an update process'
+      description: 'Terminate an update process.'
+      x-cli-name: 'update:terminate'
+      operationId: delete_Update_terminateUpdater
+      parameters:
+        -
+          in: path
+          name: update_id
+          description: 'The updater id.'
+          schema:
+            type: integer
+          required: true
+      responses:
+        200:
+          description: 'Update_terminateUpdater response'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Update_terminateUpdaterResponse'
+        400:
+          description: 'bad input parameter'
   /api/v1/users:
     get:
       summary: 'List users'
@@ -3438,6 +3811,24 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/AuditEvent_getAuditEventsResponse_changes'
+    BackupExpirationManagement_setBackupExpirationSettingsResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: 'The configuration options have been saved.'
+        time:
+          type: string
+          example: '2022-11-10T08:38:09+00:00'
+    BackupExpirationManagement_getBackupExpirationSettingsResponse:
+      type: object
+      properties:
+        expiration_days:
+          type: integer
+          example: 100
+        time:
+          type: string
+          example: '2022-02-16T08:38:09+00:00'
     CentralizedRoleManagement_executeGetActionsResponse_content_editor:
       type: object
       properties:
@@ -3576,6 +3967,49 @@ components:
           type: object
           additionalProperties:
             type: string
+    CodeBases_editCodebaseNameResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: 'Stack details are updated successfully.'
+    CodeBases_getCodeBaseDetailsResponse_1:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: abcd
+        description:
+          type: string
+          example: 'stack description'
+        tangle_alias:
+          type: string
+          example: tangle1
+    CodeBases_getCodeBaseDetailsResponse_2:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 2
+        name:
+          type: string
+          example: fghj
+        description:
+          type: string
+          example: 'stack description 2'
+        tangle_alias:
+          type: string
+          example: tangle2
+    CodeBases_getCodeBaseDetailsResponse:
+      type: object
+      properties:
+        1:
+          $ref: '#/components/schemas/CodeBases_getCodeBaseDetailsResponse_1'
+        2:
+          $ref: '#/components/schemas/CodeBases_getCodeBaseDetailsResponse_2'
     CronJobs_createCronJobResponse:
       type: object
       properties:
@@ -3671,6 +4105,31 @@ components:
         thread_percentage:
           type: integer
           example: 60
+    Domains_getAllDomainsResponse_domains:
+      type: object
+      properties:
+        nid:
+          type: integer
+          example: 2
+        domain:
+          type: string
+          example: foobar.com
+        type:
+          type: string
+          example: simple
+        readonly:
+          type: boolean
+          example: true
+    Domains_getAllDomainsResponse:
+      type: object
+      properties:
+        count:
+          type: integer
+          example: 111
+        domains:
+          type: array
+          items:
+            $ref: '#/components/schemas/Domains_getAllDomainsResponse_domains'
     Domains_getDomainsResponse_domains:
       type: object
       properties:
@@ -4140,6 +4599,9 @@ components:
         name:
           type: string
           example: acquia_acms
+        caption:
+          type: string
+          example: 'Acquia CMS'
         stack_id:
           type: integer
           example: 1
@@ -4426,6 +4888,48 @@ components:
         deleted:
           type: boolean
           example: true
+    Security_getSecuritySettingsResponse:
+      type: object
+      properties:
+        minimum_password_length:
+          type: string
+          example: '7'
+        minimum_required_password_strength:
+          type: string
+          example: 'disabled|weak|good|strong|very strong'
+        two_step_verification:
+          type: boolean
+          example: true
+        sign_out_inactive_user_accounts:
+          type: boolean
+          example: true
+        sign_out_inactivity_time:
+          type: string
+          example: '18000'
+        automatically_disable_accounts:
+          type: boolean
+          example: true
+        automatically_disable_accounts_after_days:
+          type: string
+          example: '90'
+    Security_updateSecuritySettingsResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: 'Security settings have been saved.'
+        time:
+          type: string
+          example: '2022-01-19T08:38:09+00:00'
+    Security_resetSecuritySettingsResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: 'Security settings have been reset to their default values.'
+        time:
+          type: string
+          example: '2022-01-19T08:38:09+00:00'
     SfInfo_getSfVersionResponse:
       type: object
       properties:
@@ -4458,6 +4962,16 @@ components:
           items:
             type: integer
             example: 91
+        customer_standard_domains:
+          type: array
+          items:
+            type: string
+            example: collection2-coll.example.com
+        external_domains:
+          type: array
+          items:
+            type: string
+            example: external1-coll.example.com
     SiteCollections_getCollectionsResponse:
       type: object
       properties:
@@ -4721,6 +5235,101 @@ components:
         message:
           type: string
           example: 'Site update priority has been removed.'
+        time:
+          type: string
+          example: '2022-01-19T08:38:09+00:00'
+    SiteVariables_triggerSiteVariablesDistributionResponse_task_ids:
+      type: object
+      properties:
+        glitch.01live.01update:
+          type: string
+          example: '1901'
+        glitch2.01live.01liveup:
+          type: string
+          example: '1906'
+    SiteVariables_triggerSiteVariablesDistributionResponse:
+      type: object
+      properties:
+        task_ids:
+          $ref: '#/components/schemas/SiteVariables_triggerSiteVariablesDistributionResponse_task_ids'
+        time:
+          type: string
+          example: '2022-11-23T12:49:57+00:00'
+    SiteVariables_getSiteVariablesResponse_vars_external_service_api_key:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        nid:
+          type: integer
+          example: 101
+        scrub_during_stage:
+          type: integer
+          example: 1
+        variable_key:
+          type: string
+          example: external_service_api_key
+        variable_value:
+          type: string
+          example: apikey-value2
+    SiteVariables_getSiteVariablesResponse_vars_external_service_api_key_non-secret:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 11
+        nid:
+          type: integer
+          example: 101
+        scrub_during_stage:
+          type: integer
+          example: 0
+        variable_key:
+          type: string
+          example: external_service_api_key_non-secret
+        variable_value:
+          type: string
+          example: 'apikey-value xx1234'
+    SiteVariables_getSiteVariablesResponse_vars:
+      type: object
+      properties:
+        external_service_api_key:
+          $ref: '#/components/schemas/SiteVariables_getSiteVariablesResponse_vars_external_service_api_key'
+        external_service_api_key_non-secret:
+          $ref: '#/components/schemas/SiteVariables_getSiteVariablesResponse_vars_external_service_api_key_non-secret'
+    SiteVariables_getSiteVariablesResponse:
+      type: object
+      properties:
+        time:
+          type: string
+          example: '2022-11-23T12:38:06+00:00'
+        vars:
+          $ref: '#/components/schemas/SiteVariables_getSiteVariablesResponse_vars'
+    SiteVariables_changeSiteVariablesResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: 'The configuration options have been saved.'
+        time:
+          type: string
+          example: '2022-01-19T08:38:09+00:00'
+    SiteVariables_removeSiteVariablesResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: 'The configuration options have been saved.'
+        time:
+          type: string
+          example: '2022-01-19T08:38:09+00:00'
+    SiteVariables_removeSiteVariableResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: 'The configuration options have been saved.'
         time:
           type: string
           example: '2022-01-19T08:38:09+00:00'
@@ -5371,6 +5980,21 @@ components:
         message:
           type: string
           example: 'Site update processing has been paused.'
+    Update_changeUpdaterStartTimeResponse:
+      type: object
+      properties:
+        success:
+          type: integer
+          example: 1
+        message:
+          type: string
+          example: 'The updater start time has been changed.'
+    Update_terminateUpdaterResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: 'Initiated termination of task 123.'
     User_getUsersResponse_users:
       type: object
       properties:
