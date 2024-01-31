@@ -107,7 +107,7 @@ jobs:
           ./bin/acli
           composer box-compile
       - name: Store artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: acli.phar
           path: var/acli.phar
