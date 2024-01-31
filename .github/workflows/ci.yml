@@ -16,12 +16,6 @@ defaults:
     # @see https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#using-a-specific-shell
     shell: bash
 
-env:
-  # Using upload token helps against rate limiting errors.
-  # Cannot define it as secret as we need it accessible from forks.
-  # See https://github.com/codecov/codecov-action/issues/837
-  CODECOV_TOKEN: 39b3f423-92e0-491b-aba0-f9b56c451c72
-
 jobs:
   test:
     runs-on: ${{ matrix.os }}
@@ -73,8 +67,8 @@ jobs:
       - name: Upload coverage results to Codecov
         if: matrix.coverage == 'pcov'
         uses: codecov/codecov-action@v4
-        with:
-          token: ${{ env.CODECOV_TOKEN }}
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
   build-release:
     runs-on: ubuntu-22.04
     permissions:
