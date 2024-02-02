@@ -69,9 +69,10 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     $this->mockListSites($sshHelper);
     $this->mockGetBackup($environment);
     $this->mockExecuteMySqlListTables($localMachineHelper, 'drupal');
-    $this->mockExecuteMySqlDropDb($localMachineHelper, TRUE);
-    $this->mockExecuteMySqlImport($localMachineHelper, TRUE, TRUE, 'my_db', 'my_dbdev', 'drupal');
     $fs = $this->prophet->prophesize(Filesystem::class);
+    $this->mockExecuteMySqlDropDb($localMachineHelper, TRUE, $fs);
+    $this->mockExecuteMySqlImport($localMachineHelper, TRUE, TRUE, 'my_db', 'my_dbdev', 'drupal');
+    $fs->remove(Argument::type('string'))->shouldBeCalled();
     $localMachineHelper->getFilesystem()->willReturn($fs)->shouldBeCalled();
 
     $this->executeCommand([
@@ -107,10 +108,11 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     $this->mockListSites($sshHelper);
     $this->mockGetBackup($environment);
     $this->mockExecuteMySqlListTables($localMachineHelper, 'drupal');
-    $this->mockExecuteMySqlDropDb($localMachineHelper, TRUE);
-    $this->mockExecuteMySqlImport($localMachineHelper, TRUE, FALSE, 'my_db', 'my_dbdev', 'drupal');
     $fs = $this->prophet->prophesize(Filesystem::class);
     $localMachineHelper->getFilesystem()->willReturn($fs)->shouldBeCalled();
+    $this->mockExecuteMySqlDropDb($localMachineHelper, TRUE, $fs);
+    $this->mockExecuteMySqlImport($localMachineHelper, TRUE, FALSE, 'my_db', 'my_dbdev', 'drupal');
+    $fs->remove(Argument::type('string'))->shouldBeCalled();
 
     $this->executeCommand([
       '--no-scripts' => TRUE,
@@ -208,7 +210,9 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     $this->mockListSites($sshHelper);
     $this->mockGetBackup($environment);
     $this->mockExecuteMySqlListTables($localMachineHelper, 'drupal');
-    $this->mockExecuteMySqlDropDb($localMachineHelper, FALSE);
+    $fs = $this->prophet->prophesize(Filesystem::class);
+    $localMachineHelper->getFilesystem()->willReturn($fs)->shouldBeCalled();
+    $this->mockExecuteMySqlDropDb($localMachineHelper, FALSE, $fs);
 
     $this->expectException(AcquiaCliException::class);
     $this->expectExceptionMessage('Unable to drop tables from database');
@@ -225,7 +229,9 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     $this->mockListSites($sshHelper);
     $this->mockGetBackup($environment);
     $this->mockExecuteMySqlListTables($localMachineHelper, 'drupal');
-    $this->mockExecuteMySqlDropDb($localMachineHelper, TRUE);
+    $fs = $this->prophet->prophesize(Filesystem::class);
+    $localMachineHelper->getFilesystem()->willReturn($fs)->shouldBeCalled();
+    $this->mockExecuteMySqlDropDb($localMachineHelper, TRUE, $fs);
     $this->mockExecuteMySqlImport($localMachineHelper, FALSE, TRUE, 'my_db', 'my_dbdev', 'drupal');
 
     $this->expectException(AcquiaCliException::class);
@@ -286,12 +292,12 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     // Mock IDE filesystem.
     if ($mockIdeFs) {
       $this->mockDrupalSettingsRefresh($localMachineHelper);
-      $this->mockSettingsFiles($fs);
     }
+    $this->mockSettingsFiles($fs);
 
     // Database.
     $this->mockExecuteMySqlListTables($localMachineHelper);
-    $this->mockExecuteMySqlDropDb($localMachineHelper, TRUE);
+    $this->mockExecuteMySqlDropDb($localMachineHelper, TRUE, $fs);
     $this->mockExecuteMySqlImport($localMachineHelper, TRUE, TRUE);
     if ($multiDb) {
       $this->mockExecuteMySqlListTables($localMachineHelper, 'drupal');
@@ -357,10 +363,13 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
 
   protected function mockExecuteMySqlDropDb(
     LocalMachineHelper|ObjectProphecy $localMachineHelper,
-    bool $success
+    bool $success,
+    ObjectProphecy $fs
   ): void {
     $localMachineHelper->checkRequiredBinariesExist(["mysql"])->shouldBeCalled();
     $process = $this->mockProcess($success);
+    $fs->tempnam(Argument::type('string'), 'acli_drop_table_', '.sql')->willReturn('something')->shouldBeCalled();
+    $fs->dumpfile('something', Argument::type('string'))->shouldBeCalled();
     $localMachineHelper
       ->execute(Argument::type('array'), Argument::type('callable'), NULL, FALSE, NULL, ['MYSQL_PWD' => $this->dbPassword])
       ->willReturn($process->reveal())
