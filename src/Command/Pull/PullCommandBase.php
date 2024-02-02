@@ -382,6 +382,8 @@ abstract class PullCommandBase extends CommandBase {
     $tables = $this->listTablesQuoted($process->getOutput());
     if ($tables) {
       $sql = 'DROP TABLE ' . implode(', ', $tables);
+      $tempnam = $this->localMachineHelper->getFilesystem()->tempnam(sys_get_temp_dir(), 'acli_drop_table_', '.sql');
+      $this->localMachineHelper->getFilesystem()->dumpFile($tempnam, $sql);
       $command = [
         'mysql',
         '--host',
@@ -390,7 +392,7 @@ abstract class PullCommandBase extends CommandBase {
         $dbUser,
         $dbName,
         '-e',
-        $sql,
+        'source ' . $tempnam,
       ];
       $process = $this->localMachineHelper->execute($command, $outputCallback, NULL, FALSE, NULL, ['MYSQL_PWD' => $dbPassword]);
       if (!$process->isSuccessful()) {
