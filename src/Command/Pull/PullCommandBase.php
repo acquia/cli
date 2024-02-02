@@ -382,7 +382,7 @@ abstract class PullCommandBase extends CommandBase {
     $tables = $this->listTablesQuoted($process->getOutput());
     if ($tables) {
       $sql = 'DROP TABLE ' . implode(', ', $tables);
-      $tempnam = $this->localMachineHelper->getFilesystem()->tempnam(sys_get_temp_dir(), 'acli_drop_table', 'sql');
+      $tempnam = $this->localMachineHelper->getFilesystem()->tempnam(sys_get_temp_dir(), 'acli_drop_table_', '.sql');
       $this->localMachineHelper->getFilesystem()->dumpFile($tempnam, $sql);
       $command = [
         'mysql',
