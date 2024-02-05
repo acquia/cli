@@ -5608,16 +5608,16 @@
         },
         {
             "name": "symfony/string",
-            "version": "v6.4.2",
+            "version": "v6.4.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/string.git",
-                "reference": "7cb80bc10bfcdf6b5492741c0b9357dac66940bc"
+                "reference": "7a14736fb179876575464e4658fce0c304e8c15b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/string/zipball/7cb80bc10bfcdf6b5492741c0b9357dac66940bc",
-                "reference": "7cb80bc10bfcdf6b5492741c0b9357dac66940bc",
+                "url": "https://api.github.com/repos/symfony/string/zipball/7a14736fb179876575464e4658fce0c304e8c15b",
+                "reference": "7a14736fb179876575464e4658fce0c304e8c15b",
                 "shasum": ""
             },
             "require": {
@@ -5674,7 +5674,7 @@
                 "utf8"
             ],
             "support": {
-                "source": "https://github.com/symfony/string/tree/v6.4.2"
+                "source": "https://github.com/symfony/string/tree/v6.4.3"
             },
             "funding": [
                 {
@@ -5690,7 +5690,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2023-12-10T16:15:48+00:00"
+            "time": "2024-01-25T09:26:29+00:00"
         },
         {
             "name": "symfony/translation-contracts",
@@ -9859,16 +9859,16 @@
         },
         {
             "name": "overtrue/phplint",
-            "version": "9.0.6",
+            "version": "9.0.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/overtrue/phplint.git",
-                "reference": "fcd227df5fe62e87a22ef08e0fcbc927313a15f6"
+                "reference": "9b0cabaf0af41b06d0b0bc51e9045e5321e9b11a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/overtrue/phplint/zipball/fcd227df5fe62e87a22ef08e0fcbc927313a15f6",
-                "reference": "fcd227df5fe62e87a22ef08e0fcbc927313a15f6",
+                "url": "https://api.github.com/repos/overtrue/phplint/zipball/9b0cabaf0af41b06d0b0bc51e9045e5321e9b11a",
+                "reference": "9b0cabaf0af41b06d0b0bc51e9045e5321e9b11a",
                 "shasum": ""
             },
             "require": {
@@ -9932,7 +9932,7 @@
             ],
             "support": {
                 "issues": "https://github.com/overtrue/phplint/issues",
-                "source": "https://github.com/overtrue/phplint/tree/9.0.6"
+                "source": "https://github.com/overtrue/phplint/tree/9.0.8"
             },
             "funding": [
                 {
@@ -9940,7 +9940,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2023-12-02T06:29:51+00:00"
+            "time": "2024-02-05T09:37:32+00:00"
         },
         {
             "name": "phar-io/manifest",
