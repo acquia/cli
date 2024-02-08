@@ -6,6 +6,7 @@ namespace Acquia\Cli\Tests\Commands\Pull;
 
 use Acquia\Cli\Tests\Commands\Ide\IdeRequiredTestTrait;
 use Acquia\Cli\Tests\CommandTestBase;
+use GuzzleHttp\Client;
 use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
 use Symfony\Component\Finder\Finder;
@@ -14,6 +15,8 @@ use Symfony\Component\Process\Process;
 abstract class PullCommandTestBase extends CommandTestBase {
 
   use IdeRequiredTestTrait;
+
+  protected Client|ObjectProphecy $httpClientProphecy;
 
   public function setUp(): void {
     parent::setUp();

@@ -20,7 +20,6 @@ use Acquia\Cli\Helpers\SshHelper;
 use Acquia\Cli\Helpers\TelemetryHelper;
 use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Exception\ApiErrorException;
-use AcquiaLogstream\LogstreamManager;
 use Closure;
 use GuzzleHttp\Psr7\Response;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
@@ -71,8 +70,6 @@ abstract class TestBase extends TestCase {
 
   protected Client|ObjectProphecy $clientProphecy;
 
-  protected LogstreamManager|ObjectProphecy $logStreamManagerProphecy;
-
   /**
    * @var array<mixed>
    */
@@ -116,8 +113,6 @@ abstract class TestBase extends TestCase {
   protected ConsoleLogger $logger;
 
   protected string $passphraseFilepath = '~/.passphrase';
-
-  protected \GuzzleHttp\Client|ObjectProphecy $httpClientProphecy;
 
   protected vfsStreamDirectory $vfsRoot;
 
@@ -193,9 +188,6 @@ abstract class TestBase extends TestCase {
     $this->telemetryHelper = new TelemetryHelper($this->clientServiceProphecy->reveal(), $this->datastoreCloud, $this->application);
 
     $this->realFixtureDir = realpath(Path::join(__DIR__, '..', '..', 'fixtures'));
-
-    $this->logStreamManagerProphecy = $this->prophet->prophesize(LogstreamManager::class);
-    $this->httpClientProphecy = $this->prophet->prophesize(\GuzzleHttp\Client::class);
 
     parent::setUp();
   }
@@ -341,11 +333,9 @@ abstract class TestBase extends TestCase {
       $this->telemetryHelper,
       $this->acliRepoRoot,
       $this->clientServiceProphecy->reveal(),
-      $this->logStreamManagerProphecy->reveal(),
       $this->sshHelper,
       $this->sshDir,
       $this->logger,
-      $this->httpClientProphecy->reveal()
     );
   }
 
@@ -570,17 +560,6 @@ abstract class TestBase extends TestCase {
   protected function getMockEnvironmentsResponse(): object {
     return $this->getMockResponseFromSpec('/applications/{applicationUuid}/environments',
       'get', 200);
-  }
-
-  protected function mockLogStreamRequest(): object {
-    $response = $this->getMockResponseFromSpec('/environments/{environmentId}/logstream',
-      'get', '200');
-    $this->clientProphecy->request('get',
-      '/environments/24-a47ac10b-58cc-4372-a567-0e02b2c3d470/logstream')
-      ->willReturn($response)
-      ->shouldBeCalled();
-
-    return $response;
   }
 
   /**

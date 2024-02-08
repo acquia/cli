@@ -4,7 +4,7 @@ declare(strict_types = 1);
 
 namespace Acquia\Cli\Command\Push;
 
-use Acquia\Cli\Command\Pull\PullCommandBase;
+use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Output\Checklist;
 use Closure;
@@ -17,7 +17,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Path;
 
 #[AsCommand(name: 'push:artifact', description: 'Build and push a code artifact to a Cloud Platform environment')]
-final class PushArtifactCommand extends PullCommandBase {
+final class PushArtifactCommand extends CommandBase {
 
   /**
    * Composer vendor directories.
@@ -39,6 +39,8 @@ final class PushArtifactCommand extends PullCommandBase {
 
   private string $destinationGitRef;
 
+  protected Checklist $checklist;
+
   protected function configure(): void {
     $this
       ->addOption('dir', NULL, InputArgument::OPTIONAL, 'The directory containing the Drupal project to be pushed')
@@ -58,6 +60,11 @@ final class PushArtifactCommand extends PullCommandBase {
       ->addUsage('--destination-git-branch=main-build')
       ->addUsage('--source-git-tag=foo-build --destination-git-tag=1.0.0')
       ->addUsage('--destination-git-urls=example@svn-1.prod.hosting.acquia.com:example.git --destination-git-branch=main-build');
+  }
+
+  protected function initialize(InputInterface $input, OutputInterface $output): void {
+    parent::initialize($input, $output);
+    $this->checklist = new Checklist($output);
   }
 
   protected function execute(InputInterface $input, OutputInterface $output): int {

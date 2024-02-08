@@ -7,6 +7,7 @@ namespace Acquia\Cli\Tests\Commands\Pull;
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Command\Pull\PullCommand;
 use Acquia\Cli\Exception\AcquiaCliException;
+use GuzzleHttp\Client;
 
 /**
  * @property \Acquia\Cli\Command\Pull\PullCommand $command
@@ -19,7 +20,21 @@ class PullCommandTest extends PullCommandTestBase {
   }
 
   protected function createCommand(): CommandBase {
-    return $this->injectCommand(PullCommand::class);
+    $this->httpClientProphecy = $this->prophet->prophesize(Client::class);
+
+    return new PullCommand(
+      $this->localMachineHelper,
+      $this->datastoreCloud,
+      $this->datastoreAcli,
+      $this->cloudCredentials,
+      $this->telemetryHelper,
+      $this->acliRepoRoot,
+      $this->clientServiceProphecy->reveal(),
+      $this->sshHelper,
+      $this->sshDir,
+      $this->logger,
+      $this->httpClientProphecy->reveal()
+    );
   }
 
   public function testMissingLocalRepo(): void {
