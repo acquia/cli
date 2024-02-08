@@ -12,7 +12,6 @@ use Acquia\Cli\DataStore\CloudDataStore;
 use Acquia\Cli\Helpers\LocalMachineHelper;
 use Acquia\Cli\Helpers\SshHelper;
 use Acquia\Cli\Helpers\TelemetryHelper;
-use AcquiaLogstream\LogstreamManager;
 use GuzzleHttp\Client;
 use Psr\Log\LoggerInterface;
 
@@ -26,7 +25,6 @@ class AcsfCommandFactory implements CommandFactoryInterface {
     private TelemetryHelper $telemetryHelper,
     private string $projectDir,
     private AcsfClientService $cloudApiClientService,
-    private LogstreamManager $logstreamManager,
     private SshHelper $sshHelper,
     private string $sshDir,
     private LoggerInterface $logger,
@@ -43,7 +41,6 @@ class AcsfCommandFactory implements CommandFactoryInterface {
       $this->telemetryHelper,
       $this->projectDir,
       $this->cloudApiClientService,
-      $this->logstreamManager,
       $this->sshHelper,
       $this->sshDir,
       $this->logger,
@@ -60,7 +57,6 @@ class AcsfCommandFactory implements CommandFactoryInterface {
       $this->telemetryHelper,
       $this->projectDir,
       $this->cloudApiClientService,
-      $this->logstreamManager,
       $this->sshHelper,
       $this->sshDir,
       $this->logger,

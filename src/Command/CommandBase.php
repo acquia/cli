@@ -102,7 +102,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     protected TelemetryHelper $telemetryHelper,
     protected string $projectDir,
     protected ClientService $cloudApiClientService,
-    protected LogstreamManager $logstreamManager,
     public SshHelper $sshHelper,
     protected string $sshDir,
     LoggerInterface $logger,

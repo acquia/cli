@@ -7,14 +7,33 @@ namespace Acquia\Cli\Tests\Commands\App;
 use Acquia\Cli\Command\App\LogTailCommand;
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Tests\CommandTestBase;
+use AcquiaLogstream\LogstreamManager;
+use Prophecy\Prophecy\ObjectProphecy;
 
 /**
  * @property \Acquia\Cli\Command\App\LogTailCommand $command
  */
 class LogTailCommandTest extends CommandTestBase {
 
+  protected LogstreamManager|ObjectProphecy $logStreamManagerProphecy;
+
   protected function createCommand(): CommandBase {
-    return $this->injectCommand(LogTailCommand::class);
+    $this->logStreamManagerProphecy = $this->prophet->prophesize(LogstreamManager::class);
+
+    return new LogTailCommand(
+      $this->localMachineHelper,
+      $this->datastoreCloud,
+      $this->datastoreAcli,
+      $this->cloudCredentials,
+      $this->telemetryHelper,
+      $this->acliRepoRoot,
+      $this->clientServiceProphecy->reveal(),
+      $this->sshHelper,
+      $this->sshDir,
+      $this->logger,
+      $this->httpClientProphecy->reveal(),
+      $this->logStreamManagerProphecy->reveal()
+    );
   }
 
   public function testLogTailCommand(): void {
@@ -56,6 +75,15 @@ class LogTailCommandTest extends CommandTestBase {
     $output = $this->getDisplay();
     $this->assertStringContainsString('Apache request', $output);
     $this->assertStringContainsString('Drupal request', $output);
+  }
+
+  private function mockLogStreamRequest(): void {
+    $response = $this->getMockResponseFromSpec('/environments/{environmentId}/logstream',
+      'get', '200');
+    $this->clientProphecy->request('get',
+      '/environments/24-a47ac10b-58cc-4372-a567-0e02b2c3d470/logstream')
+      ->willReturn($response)
+      ->shouldBeCalled();
   }
 
 }
