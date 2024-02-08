@@ -15,7 +15,6 @@ use Acquia\Cli\Helpers\SshHelper;
 use Acquia\Cli\Helpers\TelemetryHelper;
 use AcquiaCloudApi\Endpoints\Logs;
 use AcquiaLogstream\LogstreamManager;
-use GuzzleHttp\Client;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -37,10 +36,9 @@ final class LogTailCommand extends CommandBase {
     public SshHelper $sshHelper,
     protected string $sshDir,
     LoggerInterface $logger,
-    protected Client $httpClient,
     protected LogstreamManager $logstreamManager,
   ) {
-    parent::__construct($this->localMachineHelper, $this->datastoreCloud, $this->datastoreAcli, $this->cloudCredentials, $this->telemetryHelper, $this->projectDir, $this->cloudApiClientService, $this->sshHelper, $this->sshDir, $logger, $this->httpClient);
+    parent::__construct($this->localMachineHelper, $this->datastoreCloud, $this->datastoreAcli, $this->cloudCredentials, $this->telemetryHelper, $this->projectDir, $this->cloudApiClientService, $this->sshHelper, $this->sshDir, $logger);
   }
 
   protected function configure(): void {

@@ -42,8 +42,8 @@ final class PullDatabaseCommand extends PullCommandBase {
     $noScripts = $noImport || $noScripts;
     $this->pullDatabase($input, $output, $onDemand, $noImport, $multipleDbs);
     if (!$noScripts) {
-      $this->runDrushCacheClear($this->getOutputCallback($output, $this->checklist));
-      $this->runDrushSqlSanitize($this->getOutputCallback($output, $this->checklist));
+      $this->runDrushCacheClear($this->getOutputCallback($output, $this->checklist), $this->checklist);
+      $this->runDrushSqlSanitize($this->getOutputCallback($output, $this->checklist), $this->checklist);
     }
 
     return Command::SUCCESS;

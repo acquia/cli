@@ -24,12 +24,15 @@ use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Connector\Connector;
 use AcquiaCloudApi\Endpoints\Account;
 use AcquiaCloudApi\Endpoints\Applications;
+use AcquiaCloudApi\Endpoints\Databases;
 use AcquiaCloudApi\Endpoints\Environments;
 use AcquiaCloudApi\Endpoints\Notifications;
 use AcquiaCloudApi\Endpoints\Organizations;
 use AcquiaCloudApi\Endpoints\Subscriptions;
 use AcquiaCloudApi\Response\AccountResponse;
 use AcquiaCloudApi\Response\ApplicationResponse;
+use AcquiaCloudApi\Response\DatabaseResponse;
+use AcquiaCloudApi\Response\DatabasesResponse;
 use AcquiaCloudApi\Response\EnvironmentResponse;
 use AcquiaCloudApi\Response\EnvironmentsResponse;
 use AcquiaCloudApi\Response\NotificationResponse;
@@ -105,7 +108,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     public SshHelper $sshHelper,
     protected string $sshDir,
     LoggerInterface $logger,
-    protected \GuzzleHttp\Client $httpClient
   ) {
     $this->logger = $logger;
     $this->setLocalDbPassword();
@@ -441,6 +443,197 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     }
 
     return NULL;
+  }
+
+  protected function getHostFromDatabaseResponse(mixed $environment, DatabaseResponse $database): string {
+    if ($this->isAcsfEnv($environment)) {
+      return $database->db_host . '.enterprise-g1.hosting.acquia.com';
+    }
+
+    return $database->db_host;
+  }
+
+  protected function rsyncFiles(string $sourceDir, string $destinationDir, ?callable $outputCallback): void {
+    $this->localMachineHelper->checkRequiredBinariesExist(['rsync']);
+    $command = [
+      'rsync',
+      // -a archive mode; same as -rlptgoD.
+      // -z compress file data during the transfer.
+      // -v increase verbosity.
+      // -P show progress during transfer.
+      // -h output numbers in a human-readable format.
+      // -e specify the remote shell to use.
+      '-avPhze',
+      'ssh -o StrictHostKeyChecking=no',
+      $sourceDir . '/',
+      $destinationDir,
+    ];
+    $process = $this->localMachineHelper->execute($command, $outputCallback, NULL, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
+    if (!$process->isSuccessful()) {
+      throw new AcquiaCliException('Unable to sync files. {message}', ['message' => $process->getErrorOutput()]);
+    }
+  }
+
+  protected function getCloudFilesDir(EnvironmentResponse $chosenEnvironment, string $site): string {
+    $sitegroup = self::getSiteGroupFromSshUrl($chosenEnvironment->sshUrl);
+    if ($this->isAcsfEnv($chosenEnvironment)) {
+      return '/mnt/files/' . $sitegroup . '.' . $chosenEnvironment->name . '/sites/g/files/' . $site . '/files';
+    }
+    return $this->getCloudSitesPath($chosenEnvironment, $sitegroup) . "/$site/files";
+  }
+
+  protected function getLocalFilesDir(string $site): string {
+    return $this->dir . '/docroot/sites/' . $site . '/files';
+  }
+
+  /**
+   * @param string|null $site
+   * @return DatabaseResponse[]
+   */
+  protected function determineCloudDatabases(Client $acquiaCloudClient, EnvironmentResponse $chosenEnvironment, string $site = NULL, bool $multipleDbs = FALSE): array {
+    $databasesRequest = new Databases($acquiaCloudClient);
+    $databases = $databasesRequest->getAll($chosenEnvironment->uuid);
+
+    if (count($databases) === 1) {
+      $this->logger->debug('Only a single database detected on Cloud');
+      return [$databases[0]];
+    }
+    $this->logger->debug('Multiple databases detected on Cloud');
+    if ($site && !$multipleDbs) {
+      if ($site === 'default') {
+        $this->logger->debug('Site is set to default. Assuming default database');
+        $site = self::getSiteGroupFromSshUrl($chosenEnvironment->sshUrl);
+      }
+      $databaseNames = array_column((array) $databases, 'name');
+      $databaseKey = array_search($site, $databaseNames, TRUE);
+      if ($databaseKey !== FALSE) {
+        return [$databases[$databaseKey]];
+      }
+    }
+    return $this->promptChooseDatabases($chosenEnvironment, $databases, $multipleDbs);
+  }
+
+  /**
+   * @return array<mixed>
+   */
+  private function promptChooseDatabases(
+    EnvironmentResponse $cloudEnvironment,
+    DatabasesResponse $environmentDatabases,
+    bool $multipleDbs
+  ): array {
+    $choices = [];
+    if ($multipleDbs) {
+      $choices['all'] = 'All';
+    }
+    $defaultDatabaseIndex = 0;
+    if ($this->isAcsfEnv($cloudEnvironment)) {
+      $acsfSites = $this->getAcsfSites($cloudEnvironment);
+    }
+    foreach ($environmentDatabases as $index => $database) {
+      $suffix = '';
+      if (isset($acsfSites)) {
+        foreach ($acsfSites['sites'] as $domain => $acsfSite) {
+          if ($acsfSite['conf']['gardens_db_name'] === $database->name) {
+            $suffix .= ' (' . $domain . ')';
+            break;
+          }
+        }
+      }
+      if ($database->flags->default) {
+        $defaultDatabaseIndex = $index;
+        $suffix .= ' (default)';
+      }
+      $choices[] = $database->name . $suffix;
+    }
+
+    $question = new ChoiceQuestion(
+      $multipleDbs ? 'Choose databases. You may choose multiple. Use commas to separate choices.' : 'Choose a database.',
+      $choices,
+      $defaultDatabaseIndex
+    );
+    $question->setMultiselect($multipleDbs);
+    if ($multipleDbs) {
+      $chosenDatabaseKeys = $this->io->askQuestion($question);
+      $chosenDatabases = [];
+      if (count($chosenDatabaseKeys) === 1 && $chosenDatabaseKeys[0] === 'all') {
+        if (count($environmentDatabases) > 10) {
+          $this->io->warning('You have chosen to pull down more than 10 databases. This could exhaust your disk space.');
+        }
+        return (array) $environmentDatabases;
+      }
+      foreach ($chosenDatabaseKeys as $chosenDatabaseKey) {
+        $chosenDatabases[] = $environmentDatabases[$chosenDatabaseKey];
+      }
+
+      return $chosenDatabases;
+    }
+
+    $chosenDatabaseLabel = $this->io->choice('Choose a database', $choices, $defaultDatabaseIndex);
+    $chosenDatabaseIndex = array_search($chosenDatabaseLabel, $choices, TRUE);
+    return [$environmentDatabases[$chosenDatabaseIndex]];
+  }
+
+  protected function determineEnvironment(InputInterface $input, OutputInterface $output, bool $allowProduction = FALSE): array|string|EnvironmentResponse {
+    if ($input->getArgument('environmentId')) {
+      $environmentId = $input->getArgument('environmentId');
+      $chosenEnvironment = $this->getCloudEnvironment($environmentId);
+    }
+    else {
+      $cloudApplicationUuid = $this->determineCloudApplication();
+      $cloudApplication = $this->getCloudApplication($cloudApplicationUuid);
+      $output->writeln('Using Cloud Application <options=bold>' . $cloudApplication->name . '</>');
+      $acquiaCloudClient = $this->cloudApiClientService->getClient();
+      $chosenEnvironment = $this->promptChooseEnvironmentConsiderProd($acquiaCloudClient, $cloudApplicationUuid, $allowProduction);
+    }
+    $this->logger->debug("Using environment $chosenEnvironment->label $chosenEnvironment->uuid");
+
+    return $chosenEnvironment;
+  }
+
+  // Todo: obviously combine this with promptChooseEnvironment
+  private function promptChooseEnvironmentConsiderProd(Client $acquiaCloudClient, string $applicationUuid, bool $allowProduction = FALSE): EnvironmentResponse {
+    $environmentResource = new Environments($acquiaCloudClient);
+    $applicationEnvironments = iterator_to_array($environmentResource->getAll($applicationUuid));
+    $choices = [];
+    foreach ($applicationEnvironments as $key => $environment) {
+      if (!$allowProduction && $environment->flags->production) {
+        unset($applicationEnvironments[$key]);
+        // Re-index array so keys match those in $choices.
+        $applicationEnvironments = array_values($applicationEnvironments);
+        continue;
+      }
+      $choices[] = "$environment->label, $environment->name (vcs: {$environment->vcs->path})";
+    }
+    $chosenEnvironmentLabel = $this->io->choice('Choose a Cloud Platform environment', $choices, $choices[0]);
+    $chosenEnvironmentIndex = array_search($chosenEnvironmentLabel, $choices, TRUE);
+
+    return $applicationEnvironments[$chosenEnvironmentIndex];
+  }
+
+  protected function isLocalGitRepoDirty(): bool {
+    $this->localMachineHelper->checkRequiredBinariesExist(['git']);
+    $process = $this->localMachineHelper->executeFromCmd(
+    // Problem with this is that it stages changes for the user. They may
+    // not want that.
+      'git add . && git diff-index --cached --quiet HEAD',
+      NULL, $this->dir, FALSE);
+
+    return !$process->isSuccessful();
+  }
+
+  protected function getLocalGitCommitHash(): string {
+    $this->localMachineHelper->checkRequiredBinariesExist(['git']);
+    $process = $this->localMachineHelper->execute([
+      'git',
+      'rev-parse',
+      'HEAD',
+    ], NULL, $this->dir, FALSE);
+
+    if (!$process->isSuccessful()) {
+      throw new AcquiaCliException("Unable to determine Git commit hash.");
+    }
+
+    return trim($process->getOutput());
   }
 
   /**
@@ -1257,6 +1450,85 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
       }
       $output->writeln($buffer, OutputInterface::VERBOSITY_VERY_VERBOSE);
     };
+  }
+
+  protected function executeAllScripts(Closure $outputCallback, Checklist $checklist): void {
+    $this->runComposerScripts($outputCallback, $checklist);
+    $this->runDrushCacheClear($outputCallback, $checklist);
+    $this->runDrushSqlSanitize($outputCallback, $checklist);
+  }
+
+  protected function runComposerScripts(callable $outputCallback, Checklist $checklist): void {
+    if (!file_exists(Path::join($this->dir, 'composer.json'))) {
+      $this->io->note('composer.json file not found. Skipping composer install.');
+      return;
+    }
+    if (!$this->localMachineHelper->commandExists('composer')) {
+      $this->io->note('Composer not found. Skipping composer install.');
+      return;
+    }
+    if (file_exists(Path::join($this->dir, 'vendor'))) {
+      $this->io->note('Composer dependencies already installed. Skipping composer install.');
+      return;
+    }
+    $checklist->addItem("Installing Composer dependencies");
+    $this->composerInstall($outputCallback);
+    $checklist->completePreviousItem();
+  }
+
+  protected function runDrushCacheClear(Closure $outputCallback, Checklist $checklist): void {
+    if ($this->getDrushDatabaseConnectionStatus()) {
+      $checklist->addItem('Clearing Drupal caches via Drush');
+      // @todo Add support for Drush 8.
+      $process = $this->localMachineHelper->execute([
+        'drush',
+        'cache:rebuild',
+        '--yes',
+        '--no-interaction',
+        '--verbose',
+      ], $outputCallback, $this->dir, FALSE);
+      if (!$process->isSuccessful()) {
+        throw new AcquiaCliException('Unable to rebuild Drupal caches via Drush. {message}', ['message' => $process->getErrorOutput()]);
+      }
+      $checklist->completePreviousItem();
+    }
+    else {
+      $this->logger->notice('Drush does not have an active database connection. Skipping cache:rebuild');
+    }
+  }
+
+  protected function runDrushSqlSanitize(Closure $outputCallback, Checklist $checklist): void {
+    if ($this->getDrushDatabaseConnectionStatus()) {
+      $checklist->addItem('Sanitizing database via Drush');
+      $process = $this->localMachineHelper->execute([
+        'drush',
+        'sql:sanitize',
+        '--yes',
+        '--no-interaction',
+        '--verbose',
+      ], $outputCallback, $this->dir, FALSE);
+      if (!$process->isSuccessful()) {
+        throw new AcquiaCliException('Unable to sanitize Drupal database via Drush. {message}', ['message' => $process->getErrorOutput()]);
+      }
+      $checklist->completePreviousItem();
+      $this->io->newLine();
+      $this->io->text('Your database was sanitized via <options=bold>drush sql:sanitize</>. This has changed all user passwords to randomly generated strings. To log in to your Drupal site, use <options=bold>drush uli</>');
+    }
+    else {
+      $this->logger->notice('Drush does not have an active database connection. Skipping sql:sanitize.');
+    }
+  }
+
+  private function composerInstall(?callable $outputCallback): void {
+    $process = $this->localMachineHelper->execute([
+      'composer',
+      'install',
+      '--no-interaction',
+    ], $outputCallback, $this->dir, FALSE);
+    if (!$process->isSuccessful()) {
+      throw new AcquiaCliException('Unable to install Drupal dependencies via Composer. {message}',
+        ['message' => $process->getErrorOutput()]);
+    }
   }
 
   protected function getDrushDatabaseConnectionStatus(Closure $outputCallback = NULL): bool {

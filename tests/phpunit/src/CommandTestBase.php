@@ -488,7 +488,6 @@ abstract class CommandTestBase extends TestBase {
       $this->sshHelper,
       $this->sshDir,
       $this->logger,
-      $this->httpClientProphecy->reveal()
     );
   }
 

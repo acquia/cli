@@ -27,13 +27,16 @@ final class PullCodeCommand extends PullCommandBase {
   }
 
   protected function execute(InputInterface $input, OutputInterface $output): int {
-    $this->pullCode($input, $output);
-    $this->checkEnvironmentPhpVersions($this->sourceEnvironment);
-    $this->matchIdePhpVersion($output, $this->sourceEnvironment);
+    $this->setDirAndRequireProjectCwd($input);
+    $clone = $this->determineCloneProject($output);
+    $sourceEnvironment = $this->determineEnvironment($input, $output, TRUE);
+    $this->pullCode($input, $output, $clone, $sourceEnvironment);
+    $this->checkEnvironmentPhpVersions($sourceEnvironment);
+    $this->matchIdePhpVersion($output, $sourceEnvironment);
     if (!$input->getOption('no-scripts')) {
       $outputCallback = $this->getOutputCallback($output, $this->checklist);
-      $this->runComposerScripts($outputCallback);
-      $this->runDrushCacheClear($outputCallback);
+      $this->runComposerScripts($outputCallback, $this->checklist);
+      $this->runDrushCacheClear($outputCallback, $this->checklist);
     }
 
     return Command::SUCCESS;

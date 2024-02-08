@@ -8,6 +8,7 @@ use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Command\Ide\IdePhpVersionCommand;
 use Acquia\Cli\Command\Pull\PullCodeCommand;
 use Acquia\Cli\Tests\Commands\Ide\IdeHelper;
+use GuzzleHttp\Client;
 use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
 use Symfony\Component\Filesystem\Path;
@@ -19,7 +20,21 @@ use Symfony\Component\Finder\Finder;
 class PullCodeCommandTest extends PullCommandTestBase {
 
   protected function createCommand(): CommandBase {
-    return $this->injectCommand(PullCodeCommand::class);
+    $this->httpClientProphecy = $this->prophet->prophesize(Client::class);
+
+    return new PullCodeCommand(
+      $this->localMachineHelper,
+      $this->datastoreCloud,
+      $this->datastoreAcli,
+      $this->cloudCredentials,
+      $this->telemetryHelper,
+      $this->acliRepoRoot,
+      $this->clientServiceProphecy->reveal(),
+      $this->sshHelper,
+      $this->sshDir,
+      $this->logger,
+      $this->httpClientProphecy->reveal()
+    );
   }
 
   public function testCloneRepo(): void {

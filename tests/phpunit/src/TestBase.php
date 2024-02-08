@@ -114,8 +114,6 @@ abstract class TestBase extends TestCase {
 
   protected string $passphraseFilepath = '~/.passphrase';
 
-  protected \GuzzleHttp\Client|ObjectProphecy $httpClientProphecy;
-
   protected vfsStreamDirectory $vfsRoot;
 
   protected string $realFixtureDir;
@@ -190,8 +188,6 @@ abstract class TestBase extends TestCase {
     $this->telemetryHelper = new TelemetryHelper($this->clientServiceProphecy->reveal(), $this->datastoreCloud, $this->application);
 
     $this->realFixtureDir = realpath(Path::join(__DIR__, '..', '..', 'fixtures'));
-
-    $this->httpClientProphecy = $this->prophet->prophesize(\GuzzleHttp\Client::class);
 
     parent::setUp();
   }
@@ -340,7 +336,6 @@ abstract class TestBase extends TestCase {
       $this->sshHelper,
       $this->sshDir,
       $this->logger,
-      $this->httpClientProphecy->reveal()
     );
   }
 

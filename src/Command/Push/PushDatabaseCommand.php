@@ -6,7 +6,6 @@ namespace Acquia\Cli\Command\Push;
 
 use Acquia\Cli\Attribute\RequireAuth;
 use Acquia\Cli\Attribute\RequireDb;
-use Acquia\Cli\Command\Pull\PullCommandBase;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Output\Checklist;
 use AcquiaCloudApi\Response\DatabaseResponse;
@@ -19,7 +18,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 #[RequireAuth]
 #[RequireDb]
 #[AsCommand(name: 'push:database', description: 'Push a database from your local environment to a Cloud Platform environment', aliases: ['push:db'])]
-final class PushDatabaseCommand extends PullCommandBase {
+final class PushDatabaseCommand extends PushCommandBase {
 
   protected function configure(): void {
     $this
@@ -33,7 +32,7 @@ final class PushDatabaseCommand extends PullCommandBase {
     $databases = $this->determineCloudDatabases($acquiaCloudClient, $destinationEnvironment, $input->getArgument('site'));
     // We only support pushing a single database.
     $database = $databases[0];
-    $answer = $this->io->confirm("Overwrite the <bg=cyan;options=bold>{$database->name}</> database on <bg=cyan;options=bold>{$destinationEnvironment->name}</> with a copy of the database from the current machine?");
+    $answer = $this->io->confirm("Overwrite the <bg=cyan;options=bold>$database->name</> database on <bg=cyan;options=bold>{$destinationEnvironment->name}</> with a copy of the database from the current machine?");
     if (!$answer) {
       return Command::SUCCESS;
     }

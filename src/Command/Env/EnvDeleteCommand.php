@@ -27,7 +27,7 @@ final class EnvDeleteCommand extends CommandBase {
     $cloudAppUuid = $this->determineCloudApplication(TRUE);
     $acquiaCloudClient = $this->cloudApiClientService->getClient();
     $environmentsResource = new Environments($acquiaCloudClient);
-    $environment = $this->determineEnvironment($environmentsResource, $cloudAppUuid);
+    $environment = $this->determineEnvironmentCde($environmentsResource, $cloudAppUuid);
     $environmentsResource->delete($environment->uuid);
 
     $this->io->success([
@@ -37,7 +37,7 @@ final class EnvDeleteCommand extends CommandBase {
     return Command::SUCCESS;
   }
 
-  private function determineEnvironment(Environments $environmentsResource, string $cloudAppUuid): EnvironmentResponse {
+  private function determineEnvironmentCde(Environments $environmentsResource, string $cloudAppUuid): EnvironmentResponse {
     if ($this->input->getArgument('environmentId')) {
       // @todo Validate.
       $environmentId = $this->input->getArgument('environmentId');

@@ -5,7 +5,6 @@ declare(strict_types = 1);
 namespace Acquia\Cli\Command\Push;
 
 use Acquia\Cli\Attribute\RequireAuth;
-use Acquia\Cli\Command\Pull\PullCommandBase;
 use Acquia\Cli\Output\Checklist;
 use AcquiaCloudApi\Response\EnvironmentResponse;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -15,7 +14,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 #[RequireAuth]
 #[AsCommand(name: 'push:files', description: 'Copy Drupal public files from your local environment to a Cloud Platform environment')]
-final class PushFilesCommand extends PullCommandBase {
+final class PushFilesCommand extends PushCommandBase {
 
   protected function configure(): void {
     $this
