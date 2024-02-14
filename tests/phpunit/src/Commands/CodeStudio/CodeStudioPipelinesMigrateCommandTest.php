@@ -92,7 +92,7 @@ class CodeStudioPipelinesMigrateCommandTest extends CommandTestBase {
     $this->mockRequest('getAccount');
     $this->mockGitLabPermissionsRequest($this::$applicationUuid);
     $projects = $this->mockGetGitLabProjects($this::$applicationUuid, $this->gitLabProjectId, $mockedGitlabProjects);
-    $projects->variables($this->gitLabProjectId)->willReturn(CodeStudioCiCdVariables::getDefaults());
+    $projects->variables($this->gitLabProjectId)->willReturn(CodeStudioCiCdVariables::getDefaultsForPhp());
     $projects->update($this->gitLabProjectId, Argument::type('array'));
     $gitlabClient->projects()->willReturn($projects);
     $localMachineHelper->getFilesystem()->willReturn(new Filesystem())->shouldBeCalled();

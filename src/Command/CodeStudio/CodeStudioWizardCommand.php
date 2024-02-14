@@ -42,7 +42,8 @@ final class CodeStudioWizardCommand extends WizardCommandBase {
     // But, we specifically need an API Token key-pair of Code Studio.
     // So we reauthenticate to be sure we're using the provided credentials.
     $this->reAuthenticate($cloudKey, $cloudSecret, $this->cloudCredentials->getBaseUri(), $this->cloudCredentials->getAccountsUri());
-
+    $phpVersion = NULL;
+    $nodeVersion = NULL;
     $projectType = [
       'Drupal_project',
       'Node_project',
