@@ -15,7 +15,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 #[RequireAuth]
-#[AsCommand(name: 'env:cron-copy', description: 'Copy all cron tasks from one Acquia Cloud Platform environment to another')]
+#[AsCommand(name: 'env:cron-copy', description: 'Copy all cron tasks from one Cloud Platform environment to another')]
 final class EnvCopyCronCommand extends CommandBase {
 
   protected function configure(): void {

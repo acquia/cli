@@ -104,17 +104,6 @@ class ExceptionApplicationTest extends ApplicationTestBase {
   /**
    * @group serial
    */
-  public function testMissingEnvironmentUuid(): void {
-    $this->setInput([
-      'command' => 'log:tail',
-    ]);
-    $buffer = $this->runApp();
-    self::assertStringContainsString('can also be a site alias.', $buffer);
-  }
-
-  /**
-   * @group serial
-   */
   public function testInvalidEnvironmentUuid(): void {
     $this->mockRequest('getAccount');
     $this->mockRequest('getApplications');

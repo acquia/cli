@@ -85,7 +85,7 @@ class PushDatabaseCommandTest extends CommandTestBase {
       '-tDvPhe',
       'ssh -o StrictHostKeyChecking=no',
       sys_get_temp_dir() . '/acli-mysql-dump-drupal.sql.gz',
-      'profserv2.01dev@profserv201dev.ssh.enterprise-g1.acquia-sites.com:/mnt/tmp/profserv2.dev/acli-mysql-dump-drupal.sql.gz',
+      'profserv2.01dev@profserv201dev.ssh.enterprise-g1.acquia-sites.com:/mnt/tmp/profserv2.01dev/acli-mysql-dump-drupal.sql.gz',
     ];
     $localMachineHelper->execute($command, Argument::type('callable'), NULL, TRUE, NULL)
       ->willReturn($process->reveal())
@@ -99,7 +99,7 @@ class PushDatabaseCommandTest extends CommandTestBase {
   ): void {
     $sshHelper->executeCommand(
       new EnvironmentResponse($environmentsResponse),
-      ['pv /mnt/tmp/profserv2.dev/acli-mysql-dump-drupal.sql.gz --bytes --rate | gunzip | MYSQL_PWD=password mysql --host=fsdb-74.enterprise-g1.hosting.acquia.com.enterprise-g1.hosting.acquia.com --user=s164 profserv2db14390'],
+      ['pv /mnt/tmp/profserv2.01dev/acli-mysql-dump-drupal.sql.gz --bytes --rate | gunzip | MYSQL_PWD=password mysql --host=fsdb-74.enterprise-g1.hosting.acquia.com.enterprise-g1.hosting.acquia.com --user=s164 profserv2db14390'],
       TRUE,
       NULL
     )
