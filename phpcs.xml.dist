@@ -52,4 +52,12 @@
     <exclude name="SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingTraversableTypeHintSpecification"/>
   </rule>
   <rule ref="SlevomatCodingStandard.TypeHints.DeclareStrictTypes" />
+
+  <rule ref="Generic.PHP.ForbiddenFunctions">
+    <properties>
+      <property name="forbiddenFunctions" type="array">
+        <element key="echo" value="null"/>
+      </property>
+    </properties>
+  </rule>
 </ruleset>
