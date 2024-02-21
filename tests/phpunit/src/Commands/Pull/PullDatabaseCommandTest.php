@@ -413,7 +413,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
   }
 
   protected function mockDownloadMySqlDump(ObjectProphecy $localMachineHelper, mixed $success): void {
-    $process = $this->mockProcess($success);
+    $this->mockProcess($success);
     $localMachineHelper->writeFile(
       Argument::containingString("dev-profserv2-profserv201dev-something.sql.gz"),
       'backupfilecontents'

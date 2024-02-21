@@ -47,14 +47,14 @@ final class LogTailCommand extends CommandBase {
   }
 
   protected function execute(InputInterface $input, OutputInterface $output): int {
-    $environmentId = $this->determineCloudEnvironment();
+    $environment = $this->determineEnvironment($input, $output);
     $acquiaCloudClient = $this->cloudApiClientService->getClient();
     $logs = $this->promptChooseLogs();
     $logTypes = array_map(static function (mixed $log) {
       return $log['type'];
     }, $logs);
     $logsResource = new Logs($acquiaCloudClient);
-    $stream = $logsResource->stream($environmentId);
+    $stream = $logsResource->stream($environment->uuid);
     $this->logstreamManager->setParams($stream->logstream->params);
     $this->logstreamManager->setColourise(TRUE);
     $this->logstreamManager->setLogTypeFilter($logTypes);

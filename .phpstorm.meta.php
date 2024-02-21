@@ -5,6 +5,7 @@ namespace PHPSTORM_META {
   use AcquiaCloudApi\Response\ApplicationResponse;
   use AcquiaCloudApi\Response\ApplicationsResponse;
   use AcquiaCloudApi\Response\DatabasesResponse;
+  use AcquiaCloudApi\Response\EnvironmentResponse;
   use AcquiaCloudApi\Response\EnvironmentsResponse;
 
   override(\Acquia\Cli\Tests\TestBase::mockRequest(), map([
@@ -12,7 +13,8 @@ namespace PHPSTORM_META {
     'getApplications' => ApplicationsResponse::class,
     'getApplicationByUuid' => ApplicationResponse::class,
     'getApplicationEnvironments' => EnvironmentsResponse::class,
-    'getEnvironmentsDatabases' => DatabasesResponse::class
+    'getEnvironmentsDatabases' => DatabasesResponse::class,
+    'getEnvironment' => EnvironmentResponse::class
   ]));
 
 }

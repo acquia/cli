@@ -60,8 +60,8 @@ final class PushDatabaseCommand extends PushCommandBase {
     string $localFilepath,
     callable $outputCallback
   ): string {
-    $sitegroup = self::getSiteGroupFromSshUrl($environment->sshUrl);
-    $remoteFilepath = "/mnt/tmp/{$sitegroup}.{$environment->name}/" . basename($localFilepath);
+    $envAlias = self::getEnvironmentAlias($environment);
+    $remoteFilepath = "/mnt/tmp/$envAlias/" . basename($localFilepath);
     $this->logger->debug("Uploading database dump to $remoteFilepath on remote machine");
     $this->localMachineHelper->checkRequiredBinariesExist(['rsync']);
     $command = [

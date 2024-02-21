@@ -68,14 +68,14 @@ EOD;
   auth:logout              [logout] Remove Cloud Platform API credentials
  codestudio
   codestudio:php-version   Change the PHP version in Code Studio
-  codestudio:wizard        [cs:wizard] Create and/or configure a new Code Studio project for a given Acquia Cloud application
+  codestudio:wizard        [cs:wizard] Create and/or configure a new Code Studio project for a given Cloud Platform application
  email
   email:configure          [ec] Configure Platform email for one or more applications
   email:info               Print information related to Platform Email set up in a subscription.
  env
   env:certificate-create   Install an SSL certificate.
   env:create               Create a new Continuous Delivery Environment (CDE)
-  env:cron-copy            Copy all cron tasks from one Acquia Cloud Platform environment to another
+  env:cron-copy            Copy all cron tasks from one Cloud Platform environment to another
   env:delete               Delete a Continuous Delivery Environment (CDE)
   env:mirror               Makes one environment identical to another in terms of code, database, files, and configuration.
  ide
@@ -98,7 +98,7 @@ EOD;
  remote
   remote:aliases:download  Download Drush aliases for the Cloud Platform
   remote:aliases:list      [aliases|sa] List all aliases for the Cloud Platform environments
-  remote:drush             [drush|dr] Run a Drush command remotely on a application's environment
+  remote:drush             [drush|dr] Run a Drush command remotely on a Cloud Platform environment
   remote:ssh               [ssh] Use SSH to open a shell or run a command in a Cloud Platform environment
  self
   self:clear-caches        [cc|cr] Clears local Acquia CLI caches
