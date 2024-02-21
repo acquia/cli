@@ -965,6 +965,10 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     return getenv('REMOTEIDE_LABEL');
   }
 
+  protected static function getThisCloudIdeWebUrl(): false|string {
+    return getenv('REMOTEIDE_WEB_HOST');
+  }
+
   protected function getCloudApplication(string $applicationUuid): ApplicationResponse {
     $applicationsResource = new Applications($this->cloudApiClientService->getClient());
     return $applicationsResource->get($applicationUuid);
