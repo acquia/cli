@@ -42,7 +42,7 @@ class PullFilesCommandTest extends PullCommandTestBase {
     $this->mockGetAcsfSites($sshHelper);
     $localMachineHelper = $this->mockLocalMachineHelper();
     $this->mockGetFilesystem($localMachineHelper);
-    $this->mockExecuteRsync($localMachineHelper, $selectedEnvironment, '/mnt/files/profserv2.dev/sites/g/files/jxr5000596dev/files/', $this->projectDir . '/docroot/sites/jxr5000596dev/files');
+    $this->mockExecuteRsync($localMachineHelper, $selectedEnvironment, '/mnt/files/profserv2.01dev/sites/g/files/jxr5000596dev/files/', $this->projectDir . '/docroot/sites/jxr5000596dev/files');
 
     $this->command->sshHelper = $sshHelper->reveal();
 
@@ -78,7 +78,8 @@ class PullFilesCommandTest extends PullCommandTestBase {
     $this->mockGetCloudSites($sshHelper, $selectedEnvironment);
     $localMachineHelper = $this->mockLocalMachineHelper();
     $this->mockGetFilesystem($localMachineHelper);
-    $sitegroup = CommandBase::getSiteGroupFromSshUrl($selectedEnvironment->ssh_url);
+    $parts = explode('.', $selectedEnvironment->ssh_url);
+    $sitegroup = reset($parts);
     $this->mockExecuteRsync($localMachineHelper, $selectedEnvironment, '/mnt/files/' . $sitegroup . '.' . $selectedEnvironment->name . '/sites/bar/files/', $this->projectDir . '/docroot/sites/bar/files');
 
     $this->command->sshHelper = $sshHelper->reveal();

@@ -6,7 +6,6 @@ namespace Acquia\Cli\Tests\Commands\Remote;
 
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Command\Remote\DrushCommand;
-use Acquia\Cli\Command\Self\ClearCacheCommand;
 use Acquia\Cli\Helpers\SshHelper;
 use Prophecy\Argument;
 
@@ -27,14 +26,12 @@ class DrushCommandTest extends SshCommandTestBase {
       [
         [
           '-vvv' => '',
-          'alias' => 'devcloud2.dev',
           'drush_command' => 'status --fields=db-status',
         ],
       ],
       [
         [
           '-vvv' => '',
-          'alias' => '@devcloud2.dev',
           'drush_command' => 'status --fields=db-status',
         ],
       ],
@@ -47,8 +44,7 @@ class DrushCommandTest extends SshCommandTestBase {
    * @group serial
    */
   public function testRemoteDrushCommand(array $args): void {
-    ClearCacheCommand::clearCaches();
-    $this->mockForGetEnvironmentFromAliasArg();
+    $this->mockGetEnvironment();
     [$process, $localMachineHelper] = $this->mockForExecuteCommand();
     $localMachineHelper->checkRequiredBinariesExist(['ssh'])->shouldBeCalled();
     $sshCommand = [
@@ -58,7 +54,7 @@ class DrushCommandTest extends SshCommandTestBase {
       '-o StrictHostKeyChecking=no',
       '-o AddressFamily inet',
       '-o LogLevel=ERROR',
-      'cd /var/www/html/devcloud2.dev/docroot; ',
+      'cd /var/www/html/site.dev/docroot; ',
       'drush',
       'status --fields=db-status',
     ];
@@ -68,7 +64,7 @@ class DrushCommandTest extends SshCommandTestBase {
       ->shouldBeCalled();
 
     $this->command->sshHelper = new SshHelper($this->output, $localMachineHelper->reveal(), $this->logger);
-    $this->executeCommand($args);
+    $this->executeCommand($args, self::inputChooseEnvironment());
 
     // Assert.
 

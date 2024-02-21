@@ -134,7 +134,8 @@ class PushFilesCommandTest extends CommandTestBase {
     mixed $environment
   ): void {
     $localMachineHelper->checkRequiredBinariesExist(['rsync'])->shouldBeCalled();
-    $sitegroup = CommandBase::getSiteGroupFromSshUrl($environment->ssh_url);
+    $parts = explode('.', $environment->ssh_url);
+    $sitegroup = reset($parts);
     $command = [
       'rsync',
       '-avPhze',
@@ -158,7 +159,7 @@ class PushFilesCommandTest extends CommandTestBase {
       '-avPhze',
       'ssh -o StrictHostKeyChecking=no',
       $this->projectDir . '/docroot/sites/' . $site . '/files/',
-      'profserv2.01dev@profserv201dev.ssh.enterprise-g1.acquia-sites.com:/mnt/files/profserv2.dev/sites/g/files/' . $site . '/files',
+      'profserv2.01dev@profserv201dev.ssh.enterprise-g1.acquia-sites.com:/mnt/files/profserv2.01dev/sites/g/files/' . $site . '/files',
     ];
     $localMachineHelper->execute($command, Argument::type('callable'), NULL, TRUE)
       ->willReturn($process->reveal())

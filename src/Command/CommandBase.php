@@ -56,7 +56,6 @@ use Safe\Exceptions\FilesystemException;
 use stdClass;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Exception\RuntimeException;
 use Symfony\Component\Console\Helper\FormatterHelper;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Helper\Table;
@@ -475,9 +474,10 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   }
 
   protected function getCloudFilesDir(EnvironmentResponse $chosenEnvironment, string $site): string {
-    $sitegroup = self::getSiteGroupFromSshUrl($chosenEnvironment->sshUrl);
+    $sitegroup = self::getSitegroup($chosenEnvironment);
+    $envAlias = self::getEnvironmentAlias($chosenEnvironment);
     if ($this->isAcsfEnv($chosenEnvironment)) {
-      return '/mnt/files/' . $sitegroup . '.' . $chosenEnvironment->name . '/sites/g/files/' . $site . '/files';
+      return "/mnt/files/$envAlias/sites/g/files/$site/files";
     }
     return $this->getCloudSitesPath($chosenEnvironment, $sitegroup) . "/$site/files";
   }
@@ -502,7 +502,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     if ($site && !$multipleDbs) {
       if ($site === 'default') {
         $this->logger->debug('Site is set to default. Assuming default database');
-        $site = self::getSiteGroupFromSshUrl($chosenEnvironment->sshUrl);
+        $site = self::getSitegroup($chosenEnvironment);
       }
       $databaseNames = array_column((array) $databases, 'name');
       $databaseKey = array_search($site, $databaseNames, TRUE);
@@ -774,28 +774,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     }
 
     return NULL;
-  }
-
-  /**
-   * Determine the Cloud environment.
-   *
-   * @return string The environment UUID.
-   */
-  protected function determineCloudEnvironment(): string {
-    if ($this->input->hasArgument('environmentId') && $this->input->getArgument('environmentId')) {
-      return $this->input->getArgument('environmentId');
-    }
-
-    if (!$this->input->isInteractive()) {
-      throw new RuntimeException('Not enough arguments (missing: "environmentId").');
-    }
-
-    $applicationUuid = $this->determineCloudApplication();
-    $acquiaCloudClient = $this->cloudApiClientService->getClient();
-    /** @var EnvironmentResponse $environment */
-    $environment = $this->promptChooseEnvironment($acquiaCloudClient, $applicationUuid);
-
-    return $environment->uuid;
   }
 
   /**
@@ -1316,12 +1294,13 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     }
   }
 
-  /**
-   * @param string $sshUrl The SSH URL to the server.
-   * @return string The sitegroup. E.g., eemgrasmick.
-   */
-  public static function getSiteGroupFromSshUrl(string $sshUrl): string {
-    $sshUrlParts = explode('.', $sshUrl);
+  public static function getSitegroup(EnvironmentResponse $environment): string {
+    $sshUrlParts = explode('.', $environment->sshUrl);
+    return reset($sshUrlParts);
+  }
+
+  public static function getEnvironmentAlias(EnvironmentResponse $environment): string {
+    $sshUrlParts = explode('@', $environment->sshUrl);
     return reset($sshUrlParts);
   }
 
@@ -1342,8 +1321,8 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @return array<mixed>
    */
   protected function getAcsfSites(EnvironmentResponse $cloudEnvironment): array {
-    $sitegroup = self::getSiteGroupFromSshUrl($cloudEnvironment->sshUrl);
-    $command = ['cat', "/var/www/site-php/$sitegroup.{$cloudEnvironment->name}/multisite-config.json"];
+    $envAlias = self::getEnvironmentAlias($cloudEnvironment);
+    $command = ['cat', "/var/www/site-php/$envAlias/multisite-config.json"];
     $process = $this->sshHelper->executeCommand($cloudEnvironment, $command, FALSE);
     if ($process->isSuccessful()) {
       return json_decode($process->getOutput(), TRUE, 512, JSON_THROW_ON_ERROR);
@@ -1355,7 +1334,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @return array<mixed>
    */
   private function getCloudSites(EnvironmentResponse $cloudEnvironment): array {
-    $sitegroup = self::getSiteGroupFromSshUrl($cloudEnvironment->sshUrl);
+    $sitegroup = self::getSitegroup($cloudEnvironment);
     $command = ['ls', $this->getCloudSitesPath($cloudEnvironment, $sitegroup)];
     $process = $this->sshHelper->executeCommand($cloudEnvironment, $command, FALSE);
     $sites = array_filter(explode("\n", trim($process->getOutput())));

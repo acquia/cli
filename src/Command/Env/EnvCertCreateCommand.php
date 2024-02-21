@@ -31,7 +31,7 @@ final class EnvCertCreateCommand extends CommandBase {
 
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $acquiaCloudClient = $this->cloudApiClientService->getClient();
-    $envUuid = $this->determineCloudEnvironment();
+    $environment = $this->determineEnvironment($input, $output);
     $certificate = $input->getArgument('certificate');
     $privateKey = $input->getArgument('private-key');
     $label = $this->determineOption('label');
@@ -42,7 +42,7 @@ final class EnvCertCreateCommand extends CommandBase {
 
     $sslCertificates = new SslCertificates($acquiaCloudClient);
     $response = $sslCertificates->create(
-      $envUuid,
+      $environment->uuid,
       $label,
       $this->localMachineHelper->readFile($certificate),
       $this->localMachineHelper->readFile($privateKey),

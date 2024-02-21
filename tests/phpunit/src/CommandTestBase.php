@@ -265,7 +265,7 @@ abstract class CommandTestBase extends TestBase {
     $acsfMultisiteFetchProcess->getOutput()->willReturn($multisiteConfig)->shouldBeCalled();
     $sshHelper->executeCommand(
       Argument::type('object'),
-      ['cat', '/var/www/site-php/profserv2.dev/multisite-config.json'],
+      ['cat', '/var/www/site-php/profserv2.01dev/multisite-config.json'],
       FALSE
     )->willReturn($acsfMultisiteFetchProcess->reveal())->shouldBeCalled();
     return json_decode($multisiteConfig, TRUE);
@@ -274,7 +274,8 @@ abstract class CommandTestBase extends TestBase {
   protected function mockGetCloudSites(mixed $sshHelper, mixed $environment): void {
     $cloudMultisiteFetchProcess = $this->mockProcess();
     $cloudMultisiteFetchProcess->getOutput()->willReturn("\nbar\ndefault\nfoo\n")->shouldBeCalled();
-    $sitegroup = CommandBase::getSiteGroupFromSshUrl($environment->ssh_url);
+    $parts = explode('.', $environment->ssh_url);
+    $sitegroup = reset($parts);
     $sshHelper->executeCommand(
       Argument::type('object'),
       ['ls', "/mnt/files/$sitegroup.{$environment->name}/sites"],
