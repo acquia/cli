@@ -16,8 +16,6 @@ use Symfony\Component\Filesystem\Path;
  *
  * These must be tested using the ApplicationTestBase, since the Symfony
  * CommandTester does not fire Event Dispatchers.
- *
- * @covers \Acquia\Cli\EventListener\ComposerScriptsListener
  */
 class ComposerScriptsListenerTest extends ApplicationTestBase {
 
