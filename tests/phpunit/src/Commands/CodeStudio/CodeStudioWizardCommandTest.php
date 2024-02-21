@@ -157,6 +157,8 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
           $this->key,
           // Enter Cloud secret,
           $this->secret,
+          // Select a project type Drupal_project
+          '0',
           // Select PHP version 8.1
           '0',
           // Do you want to continue?
@@ -176,6 +178,50 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
           $this->key,
           // Enter Cloud secret,
           $this->secret,
+          // Select a project type Node_project
+          '1',
+          // Select PHP version 8.1
+          '0',
+          // Do you want to continue?
+          'y',
+        ],
+        // Args
+        [],
+      ],
+      [
+        // No projects.
+        [],
+        // Inputs
+        [
+          // 'Would you like to create a new Code Studio project?
+          'y',
+          // Enter Cloud Key
+          $this->key,
+          // Enter Cloud secret,
+          $this->secret,
+          // Select a project type Drupal_project
+          '0',
+          // Select PHP version 8.2
+          '1',
+          // Do you want to continue?
+          'y',
+        ],
+        // Args
+        [],
+      ],
+      [
+        // No projects.
+        [],
+        // Inputs
+        [
+          // 'Would you like to create a new Code Studio project?
+          'y',
+          // Enter Cloud Key
+          $this->key,
+          // Enter Cloud secret,
+          $this->secret,
+          // Select a project type Node_project
+          '1',
           // Select PHP version 8.2
           '1',
           // Do you want to continue?
