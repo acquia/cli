@@ -37,8 +37,7 @@ class ComposerScriptsListener {
   private function executeComposerScripts(ConsoleCommandEvent|ConsoleTerminateEvent $event, string $prefix): void {
     /** @var CommandBase $command */
     $command = $event->getCommand();
-    // If a command has the --no-script option and it's passed, do not execute post scripts.
-    if ($event->getInput()->hasOption('no-script') && $event->getInput()->getOption('no-scripts')) {
+    if ($event->getInput()->hasOption('no-scripts') && $event->getInput()->getOption('no-scripts')) {
       return;
     }
     // Only successful commands should be executed.
@@ -46,19 +45,16 @@ class ComposerScriptsListener {
       $composerJsonFilepath = Path::join($command->getProjectDir(), 'composer.json');
       if (file_exists($composerJsonFilepath)) {
         $composerJson = json_decode($command->localMachineHelper->readFile($composerJsonFilepath), TRUE, 512, JSON_THROW_ON_ERROR);
-        // Protect against invalid JSON.
-        if ($composerJson) {
-          $commandName = $command->getName();
-          // Replace colons with hyphens. E.g., pull:db becomes pull-db.
-          $scriptName = $prefix . '-acli-' . str_replace(':', '-', $commandName);
-          if (array_key_exists('scripts', $composerJson) && array_key_exists($scriptName, $composerJson['scripts'])) {
-            $event->getOutput()->writeln("Executing composer script `$scriptName` defined in `$composerJsonFilepath`", OutputInterface::VERBOSITY_VERBOSE);
-            $event->getOutput()->writeln($scriptName);
-            $command->localMachineHelper->execute(['composer', 'run-script', $scriptName]);
-          }
-          else {
-            $event->getOutput()->writeln("Notice: Composer script `$scriptName` does not exist in `$composerJsonFilepath`, skipping. This is not an error.", OutputInterface::VERBOSITY_VERBOSE);
-          }
+        $commandName = $command->getName();
+        // Replace colons with hyphens. E.g., pull:db becomes pull-db.
+        $scriptName = $prefix . '-acli-' . str_replace(':', '-', $commandName);
+        if (array_key_exists('scripts', $composerJson) && array_key_exists($scriptName, $composerJson['scripts'])) {
+          $event->getOutput()->writeln("Executing composer script `$scriptName` defined in `$composerJsonFilepath`", OutputInterface::VERBOSITY_VERBOSE);
+          $event->getOutput()->writeln($scriptName);
+          $command->localMachineHelper->execute(['composer', 'run-script', $scriptName]);
+        }
+        else {
+          $event->getOutput()->writeln("Notice: Composer script `$scriptName` does not exist in `$composerJsonFilepath`, skipping. This is not an error.", OutputInterface::VERBOSITY_VERBOSE);
         }
       }
     }

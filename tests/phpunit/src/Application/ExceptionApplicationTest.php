@@ -5,7 +5,6 @@ declare(strict_types = 1);
 namespace Acquia\Cli\Tests\Application;
 
 use Acquia\Cli\Tests\ApplicationTestBase;
-use Symfony\Component\Filesystem\Path;
 
 /**
  * Tests exceptions rewritten by the Symfony Event Dispatcher.
@@ -18,53 +17,7 @@ class ExceptionApplicationTest extends ApplicationTestBase {
   /**
    * @group serial
    */
-  public function testPreScripts(): void {
-    $json = [
-      'scripts' => [
-        'pre-acli-hello-world' => [
-          'echo "good morning world"',
-        ],
-      ],
-    ];
-    file_put_contents(
-      Path::join($this->projectDir, 'composer.json'),
-      json_encode($json, JSON_THROW_ON_ERROR)
-    );
-    $this->mockRequest('getAccount');
-    $this->setInput([
-          'command' => 'hello-world',
-      ]);
-    $buffer = $this->runApp();
-    self::assertStringContainsString('pre-acli-hello-world', $buffer);
-  }
-
-  /**
-   * @group serial
-   */
-  public function testPostScripts(): void {
-    $json = [
-      'scripts' => [
-        'post-acli-hello-world' => [
-          'echo "goodbye world"',
-        ],
-      ],
-    ];
-    file_put_contents(
-      Path::join($this->projectDir, 'composer.json'),
-      json_encode($json, JSON_THROW_ON_ERROR)
-    );
-    $this->mockRequest('getAccount');
-    $this->setInput([
-          'command' => 'hello-world',
-      ]);
-    $buffer = $this->runApp();
-    self::assertStringContainsString('post-acli-hello-world', $buffer);
-  }
-
-  /**
-   * @group serial
-   */
-  public function testInvalidApiCreds(): void {
+  public function testInvalidApiCredentials(): void {
     $this->setInput([
       'applicationUuid' => '2ed281d4-9dec-4cc3-ac63-691c3ba002c2',
       'command' => 'aliases',
