@@ -38,5 +38,4 @@ jobs:
         if: github.event_name == 'push'
         env:
           INFECTION_DASHBOARD_API_KEY: ${{ secrets.INFECTION_DASHBOARD_API_KEY }}
-        run: |
-          php vendor/bin/infection --threads=max --only-covered
+        run: composer mutation

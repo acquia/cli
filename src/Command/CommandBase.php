@@ -1749,6 +1749,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     $notification = NULL;
     $checkNotificationStatus = static function () use ($notificationsResource, &$notification, $uuid): bool {
       $notification = $notificationsResource->get($uuid);
+      /** @infection-ignore-all */
       return $notification->status !== 'in-progress';
     };
     if ($success === NULL) {

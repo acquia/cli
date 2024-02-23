@@ -9,11 +9,32 @@ use Acquia\Cli\Command\Ide\IdeCreateCommand;
 use Acquia\Cli\Tests\CommandTestBase;
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Response;
+use Prophecy\Prophecy\ObjectProphecy;
 
 /**
  * @property IdeCreateCommand $command
  */
 class IdeCreateCommandTest extends CommandTestBase {
+
+  protected Client|ObjectProphecy $httpClientProphecy;
+
+  protected function createCommand(): CommandBase {
+    $this->httpClientProphecy = $this->prophet->prophesize(Client::class);
+
+    return new IdeCreateCommand(
+      $this->localMachineHelper,
+      $this->datastoreCloud,
+      $this->datastoreAcli,
+      $this->cloudCredentials,
+      $this->telemetryHelper,
+      $this->acliRepoRoot,
+      $this->clientServiceProphecy->reveal(),
+      $this->sshHelper,
+      $this->sshDir,
+      $this->logger,
+      $this->httpClientProphecy->reveal()
+    );
+  }
 
   /**
    * @group brokenProphecy
@@ -34,9 +55,7 @@ class IdeCreateCommandTest extends CommandTestBase {
     /** @var \Prophecy\Prophecy\ObjectProphecy|\GuzzleHttp\Psr7\Response $guzzleResponse */
     $guzzleResponse = $this->prophet->prophesize(Response::class);
     $guzzleResponse->getStatusCode()->willReturn(200);
-    $guzzleClient = $this->prophet->prophesize(Client::class);
-    $guzzleClient->request('GET', '/health')->willReturn($guzzleResponse->reveal())->shouldBeCalled();
-    $this->command->setClient($guzzleClient->reveal());
+    $this->httpClientProphecy->request('GET', 'https://215824ff-272a-4a8c-9027-df32ed1d68a9.ides.acquia.com/health')->willReturn($guzzleResponse->reveal())->shouldBeCalled();
 
     $inputs = [
       // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
@@ -59,13 +78,6 @@ class IdeCreateCommandTest extends CommandTestBase {
     $this->assertStringContainsString('Your IDE is ready!', $output);
     $this->assertStringContainsString('Your IDE URL: https://215824ff-272a-4a8c-9027-df32ed1d68a9.ides.acquia.com', $output);
     $this->assertStringContainsString('Your Drupal Site URL: https://ide-215824ff-272a-4a8c-9027-df32ed1d68a9.prod.acquia-sites.com', $output);
-  }
-
-  /**
-   * @return \Acquia\Cli\Command\Ide\IdeCreateCommand
-   */
-  protected function createCommand(): CommandBase {
-    return $this->injectCommand(IdeCreateCommand::class);
   }
 
 }

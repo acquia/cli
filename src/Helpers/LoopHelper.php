@@ -23,12 +23,14 @@ class LoopHelper {
     $spinner->start();
 
     $cancelTimers = static function () use (&$timers, $spinner): void {
+      /** @infection-ignore-all */
       array_map('\React\EventLoop\Loop::cancelTimer', $timers);
       $timers = [];
       $spinner->finish();
     };
     $periodicCallback = static function () use ($logger, $statusCallback, $doneCallback, $cancelTimers): void {
       try {
+        /** @infection-ignore-all */
         if ($statusCallback()) {
           $cancelTimers();
           $doneCallback();

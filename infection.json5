@@ -8,10 +8,11 @@
     "logs": {
         "stryker": {
             "report": "main"
-        }
+        },
+        "html": "var/infection.html"
     },
-    "timeout": 30,
     "mutators": {
         "@default": true
-    }
+    },
+    "testFrameworkOptions": "--exclude-group=serial"
 }

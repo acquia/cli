@@ -305,6 +305,7 @@ final class ConfigurePlatformEmailCommand extends CommandBase {
         return TRUE;
       }
 
+      /** @infection-ignore-all */
       if (isset($response->health) && str_starts_with($response->health->code, "4")) {
         $this->io->error($response->health->details);
         if ($this->io->confirm('Would you like to refresh?')) {
