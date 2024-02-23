@@ -130,7 +130,7 @@
             "php var/box.phar compile"
         ],
         "infection": [
-            "php -d pcov.enabled=1 vendor/bin/infection --threads=8"
+            "php -d pcov.enabled=1 vendor/bin/infection --threads=max"
         ],
         "cs": "phpcs",
         "cbf": "phpcbf",
