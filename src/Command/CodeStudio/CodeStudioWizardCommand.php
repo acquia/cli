@@ -50,23 +50,25 @@ final class CodeStudioWizardCommand extends WizardCommandBase {
     ];
     $projectSelected = $this->io->choice('Select a project type', $projectType, $projectType[0]);
 
-    if ($projectSelected == 'Drupal_project') {
-      $phpVersions = [
-        'PHP_version_8.1' => "8.1",
-        'PHP_version_8.2' => "8.2",
-      ];
-      $project = $this->io->choice('Select a PHP version', array_values($phpVersions), $phpVersions['PHP_version_8.1']);
-      $project = array_search($project, $phpVersions, TRUE);
-      $phpVersion = $phpVersions[$project];
-    }
-    elseif ($projectSelected == 'Node_project') {
-      $nodeVersions = [
-        'NODE_version_18.17.1' => "18.17.1",
-        'NODE_version_20.5.1' => "20.5.1",
-      ];
-      $project = $this->io->choice('Select a NODE version', array_values($nodeVersions), $nodeVersions['NODE_version_20.5.1']);
-      $project = array_search($project, $nodeVersions, TRUE);
-      $nodeVersion = $nodeVersions[$project];
+    switch ($projectSelected) {
+      case "Drupal_project":
+        $phpVersions = [
+            'PHP_version_8.1' => "8.1",
+            'PHP_version_8.2' => "8.2",
+          ];
+        $project = $this->io->choice('Select a PHP version', array_values($phpVersions), $phpVersions['PHP_version_8.1']);
+        $project = array_search($project, $phpVersions, TRUE);
+        $phpVersion = $phpVersions[$project];
+          break;
+      case "Node_project":
+        $nodeVersions = [
+            'NODE_version_18.17.1' => "18.17.1",
+            'NODE_version_20.5.1' => "20.5.1",
+          ];
+        $project = $this->io->choice('Select a NODE version', array_values($nodeVersions), $nodeVersions['NODE_version_20.5.1']);
+        $project = array_search($project, $nodeVersions, TRUE);
+        $nodeVersion = $nodeVersions[$project];
+          break;
     }
 
     $appUuid = $this->determineCloudApplication();
