@@ -14,5 +14,6 @@
     "mutators": {
         "@default": true
     },
+    "timeout": 300,
     "testFrameworkOptions": "--exclude-group=serial"
 }
