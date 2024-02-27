@@ -44,10 +44,7 @@ final class CodeStudioWizardCommand extends WizardCommandBase {
     $this->reAuthenticate($cloudKey, $cloudSecret, $this->cloudCredentials->getBaseUri(), $this->cloudCredentials->getAccountsUri());
     $phpVersion = NULL;
     $nodeVersion = NULL;
-    $projectType = [
-      'Drupal_project',
-      'Node_project',
-    ];
+    $projectType = $this->getListOfProjectType();
     $projectSelected = $this->io->choice('Select a project type', $projectType, $projectType[0]);
 
     switch ($projectSelected) {
@@ -166,6 +163,17 @@ final class CodeStudioWizardCommand extends WizardCommandBase {
       }
     }
     return NULL;
+  }
+
+  /**
+   * @return array<mixed>|null ?
+   */
+  private function getListOfProjectType(): ?array {
+    $array = [
+      'Drupal_project',
+      'Node_project',
+    ];
+    return $array;
   }
 
   private function createProjectAccessToken(array $project, string $projectAccessTokenName): string {

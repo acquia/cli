@@ -302,7 +302,7 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
 
     /** @var Filesystem|ObjectProphecy $fileSystem */
     $fileSystem = $this->prophet->prophesize(Filesystem::class);
-
+    $this->mockGitlabProjectType($this->gitLabProjectId);
     // Set properties and execute.
     $this->executeCommand($args, $inputs);
 
@@ -460,6 +460,11 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
       'web_url' => 'https://code.cloudservices.acquia.io/matthew.grasmick',
     ]);
     $gitlabClient->namespaces()->willReturn($namespaces->reveal());
+  }
+
+  protected function mockGitlabProjectType(int $gitlabProjectId): void {
+    $projectType = $this->getMockProjectTypeValue();
+    $this->assertCount(2, $projectType);
   }
 
   protected function mockGitLabVariables(int $gitlabProjectId, ObjectProphecy $projects): void {
