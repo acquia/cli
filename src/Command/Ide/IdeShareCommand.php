@@ -6,7 +6,6 @@ namespace Acquia\Cli\Command\Ide;
 
 use Acquia\Cli\Command\CommandBase;
 use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
-use AcquiaCloudApi\Endpoints\Ides;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -36,12 +35,10 @@ final class IdeShareCommand extends CommandBase {
     }
 
     $shareUuid = $this->localMachineHelper->readFile($this->getShareCodeFilepaths()[0]);
-    $acquiaCloudClient = $this->cloudApiClientService->getClient();
-    $idesResource = new Ides($acquiaCloudClient);
-    $ide = $idesResource->get($this::getThisCloudIdeUuid());
+    $webUrl = self::getThisCloudIdeWebUrl();
 
     $this->output->writeln('');
-    $this->output->writeln("<comment>Your IDE Share URL:</comment> <href={$ide->links->web->href}>{$ide->links->web->href}?share=$shareUuid</>");
+    $this->output->writeln("<comment>Your IDE Share URL:</comment> <href=https://$webUrl>https://$webUrl?share=$shareUuid</>");
 
     return Command::SUCCESS;
   }

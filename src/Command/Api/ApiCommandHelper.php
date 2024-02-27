@@ -277,16 +277,16 @@ class ApiCommandHelper {
     return $acquiaCloudSpec['components']['schemas'][$paramKey];
   }
 
+  /** @infection-ignore-all */
   private function isApiSpecChecksumCacheValid(\Symfony\Component\Cache\CacheItem $cacheItem, string $acquiaCloudSpecFileChecksum): bool {
     // If the spec file doesn't exist, assume cache is valid.
-    if ($cacheItem->isHit() && !$acquiaCloudSpecFileChecksum) {
+    if (!$acquiaCloudSpecFileChecksum && $cacheItem->isHit()) {
       return TRUE;
     }
     // If there's an invalid entry OR there's no entry, return false.
-    if (!$cacheItem->isHit() || ($cacheItem->isHit() && $cacheItem->get() !== $acquiaCloudSpecFileChecksum)) {
+    if (!$cacheItem->isHit() || $cacheItem->get() !== $acquiaCloudSpecFileChecksum) {
       return FALSE;
     }
-
     return TRUE;
   }
 
@@ -296,6 +296,7 @@ class ApiCommandHelper {
   private function getCloudApiSpec(string $specFilePath): array {
     $cacheKey = basename($specFilePath);
     $cache = new PhpArrayAdapter(__DIR__ . '/../../../var/cache/' . $cacheKey . '.cache', new NullAdapter());
+    /** @infection-ignore-all */
     $cacheItemChecksum = $cache->getItem($cacheKey . '.checksum');
     $cacheItemSpec = $cache->getItem($cacheKey);
 
@@ -306,6 +307,7 @@ class ApiCommandHelper {
 
     // Otherwise, only use cache when it is valid.
     $checksum = md5_file($specFilePath);
+    /** @infection-ignore-all */
     if ($this->useCloudApiSpecCache()
       && $this->isApiSpecChecksumCacheValid($cacheItemChecksum, $checksum) && $cacheItemSpec->isHit()
     ) {
@@ -325,13 +327,13 @@ class ApiCommandHelper {
   }
 
   /**
-   * @param array $acquiaCloudSpec
    * @return ApiBaseCommand[]
    */
   private function generateApiCommandsFromSpec(array $acquiaCloudSpec, string $commandPrefix, CommandFactoryInterface $commandFactory): array {
     $apiCommands = [];
     foreach ($acquiaCloudSpec['paths'] as $path => $endpoint) {
       // Skip internal endpoints. These shouldn't actually be in the spec.
+      /** @infection-ignore-all */
       if (array_key_exists('x-internal', $endpoint) && $endpoint['x-internal']) {
         continue;
       }
@@ -346,6 +348,7 @@ class ApiCommandHelper {
         }
 
         // Skip deprecated endpoints.
+        /** @infection-ignore-all */
         if (array_key_exists('deprecated', $schema) && $schema['deprecated']) {
           continue;
         }

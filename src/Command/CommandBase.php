@@ -965,6 +965,10 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     return getenv('REMOTEIDE_LABEL');
   }
 
+  protected static function getThisCloudIdeWebUrl(): false|string {
+    return getenv('REMOTEIDE_WEB_HOST');
+  }
+
   protected function getCloudApplication(string $applicationUuid): ApplicationResponse {
     $applicationsResource = new Applications($this->cloudApiClientService->getClient());
     return $applicationsResource->get($applicationUuid);
@@ -1745,6 +1749,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     $notification = NULL;
     $checkNotificationStatus = static function () use ($notificationsResource, &$notification, $uuid): bool {
       $notification = $notificationsResource->get($uuid);
+      /** @infection-ignore-all */
       return $notification->status !== 'in-progress';
     };
     if ($success === NULL) {

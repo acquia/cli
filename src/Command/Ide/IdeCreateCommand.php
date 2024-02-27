@@ -4,14 +4,22 @@ declare(strict_types = 1);
 
 namespace Acquia\Cli\Command\Ide;
 
+use Acquia\Cli\ApiCredentialsInterface;
 use Acquia\Cli\Attribute\RequireAuth;
+use Acquia\Cli\CloudApi\ClientService;
+use Acquia\Cli\DataStore\AcquiaCliDatastore;
+use Acquia\Cli\DataStore\CloudDataStore;
+use Acquia\Cli\Helpers\LocalMachineHelper;
 use Acquia\Cli\Helpers\LoopHelper;
+use Acquia\Cli\Helpers\SshHelper;
+use Acquia\Cli\Helpers\TelemetryHelper;
 use Acquia\Cli\Output\Checklist;
 use AcquiaCloudApi\Endpoints\Account;
 use AcquiaCloudApi\Endpoints\Ides;
 use AcquiaCloudApi\Response\IdeResponse;
 use AcquiaCloudApi\Response\OperationResponse;
 use GuzzleHttp\Client;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -27,7 +35,21 @@ final class IdeCreateCommand extends IdeCommandBase {
 
   private IdeResponse $ide;
 
-  private Client $client;
+  public function __construct(
+    public LocalMachineHelper $localMachineHelper,
+    protected CloudDataStore $datastoreCloud,
+    protected AcquiaCliDatastore $datastoreAcli,
+    protected ApiCredentialsInterface $cloudCredentials,
+    protected TelemetryHelper $telemetryHelper,
+    protected string $projectDir,
+    protected ClientService $cloudApiClientService,
+    public SshHelper $sshHelper,
+    protected string $sshDir,
+    LoggerInterface $logger,
+    protected Client $httpClient
+  ) {
+    parent::__construct($this->localMachineHelper, $this->datastoreCloud, $this->datastoreAcli, $this->cloudCredentials, $this->telemetryHelper, $this->projectDir, $this->cloudApiClientService, $this->sshHelper, $this->sshDir, $logger);
+  }
 
   protected function configure(): void {
     $this->acceptApplicationUuid();
@@ -76,13 +98,14 @@ final class IdeCreateCommand extends IdeCommandBase {
     return $label;
   }
 
-  private function waitForDnsPropagation(mixed $ideUrl): int {
+  private function waitForDnsPropagation(string $ideUrl): int {
     $ideCreated = FALSE;
-    if (!$this->getClient()) {
-      $this->setClient(new Client(['base_uri' => $ideUrl]));
-    }
-    $checkIdeStatus = function () use (&$ideCreated) {
-      $response = $this->client->request('GET', '/health');
+    $checkIdeStatus = function () use (&$ideCreated, $ideUrl) {
+      // Ideally we'd set $ideUrl as the Guzzle base_url, but that requires creating a client factory.
+      // @see https://stackoverflow.com/questions/28277889/guzzlehttp-client-change-base-url-dynamically
+      $response = $this->httpClient->request('GET', "$ideUrl/health");
+      // Mutating this will result in an infinite loop and timeout.
+      /** @infection-ignore-all */
       if ($response->getStatusCode() === 200) {
         $ideCreated = TRUE;
       }
@@ -109,14 +132,6 @@ final class IdeCreateCommand extends IdeCommandBase {
     $this->output->writeln("<comment>Your IDE URL:</comment> <href={$this->ide->links->ide->href}>{$this->ide->links->ide->href}</>");
     $this->output->writeln("<comment>Your Drupal Site URL:</comment> <href={$this->ide->links->web->href}>{$this->ide->links->web->href}</>");
     // @todo Prompt to open browser.
-  }
-
-  private function getClient(): ?Client {
-    return $this->client ?? NULL;
-  }
-
-  public function setClient(Client $client): void {
-    $this->client = $client;
   }
 
   private function getIdeFromResponse(

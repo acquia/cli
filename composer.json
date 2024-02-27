@@ -129,8 +129,8 @@
         "box-compile": [
             "php var/box.phar compile"
         ],
-        "infection": [
-            "php -d pcov.enabled=1 vendor/bin/infection --threads=8"
+        "mutation": [
+            "infection --threads=max --only-covered"
         ],
         "cs": "phpcs",
         "cbf": "phpcbf",

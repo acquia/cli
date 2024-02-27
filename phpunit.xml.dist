@@ -10,6 +10,7 @@
         convertNoticesToExceptions="true"
         convertWarningsToExceptions="true"
         convertDeprecationsToExceptions="true"
+        executionOrder="random"
 >
   <php>
     <env name="AMPLITUDE_KEY" value=""/>

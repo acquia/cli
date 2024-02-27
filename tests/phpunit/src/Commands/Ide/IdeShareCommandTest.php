@@ -7,7 +7,6 @@ namespace Acquia\Cli\Tests\Commands\Ide;
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Command\Ide\IdeShareCommand;
 use Acquia\Cli\Tests\CommandTestBase;
-use AcquiaCloudApi\Response\IdeResponse;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
@@ -41,24 +40,14 @@ class IdeShareCommandTest extends CommandTestBase {
   }
 
   public function testIdeShareCommand(): void {
-    $ideGetResponse = $this->mockRequest('getIde', IdeHelper::$remoteIdeUuid);
-    $ide = new IdeResponse((object) $ideGetResponse);
     $this->executeCommand();
-
-    // Assert.
-
     $output = $this->getDisplay();
     $this->assertStringContainsString('Your IDE Share URL: ', $output);
     $this->assertStringContainsString($this->shareCode, $output);
   }
 
   public function testIdeShareRegenerateCommand(): void {
-    $ideGetResponse = $this->mockRequest('getIde', IdeHelper::$remoteIdeUuid);
-    $ide = new IdeResponse((object) $ideGetResponse);
-    $this->executeCommand(['--regenerate' => TRUE], []);
-
-    // Assert.
-
+    $this->executeCommand(['--regenerate' => TRUE]);
     $output = $this->getDisplay();
     $this->assertStringContainsString('Your IDE Share URL: ', $output);
     $this->assertStringNotContainsString($this->shareCode, $output);
