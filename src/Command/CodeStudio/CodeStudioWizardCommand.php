@@ -114,11 +114,13 @@ final class CodeStudioWizardCommand extends WizardCommandBase {
     $projectAccessTokenName = 'acquia-codestudio';
     $projectAccessToken = $this->createProjectAccessToken($project, $projectAccessTokenName);
     $this->updateGitLabProject($project);
-    if ($projectSelected == 'Drupal_project') {
-      $this->setGitLabCiCdVariablesForPhpProject($project, $appUuid, $cloudKey, $cloudSecret, $projectAccessTokenName, $projectAccessToken, $phpVersion);
-    }
-    elseif ($projectSelected == 'Node_project') {
-      $this->setGitLabCiCdVariablesForNodeProject($project, $appUuid, $cloudKey, $cloudSecret, $projectAccessTokenName, $projectAccessToken, $nodeVersion);
+    switch ($projectSelected) {
+      case "Drupal_project":
+        $this->setGitLabCiCdVariablesForPhpProject($project, $appUuid, $cloudKey, $cloudSecret, $projectAccessTokenName, $projectAccessToken, $phpVersion);
+        break;
+      case "Node_project":
+        $this->setGitLabCiCdVariablesForNodeProject($project, $appUuid, $cloudKey, $cloudSecret, $projectAccessTokenName, $projectAccessToken, $nodeVersion);
+        break;
     }
     $this->createScheduledPipeline($project);
 

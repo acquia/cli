@@ -95,6 +95,8 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
         [
           // 'Would you like to create a new Code Studio project?
           'y',
+          // Select a project type Drupal_project
+          '0',
           // Select PHP version 8.1
           '0',
           // Do you want to continue?
@@ -115,7 +117,53 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
         [
           // 'Would you like to create a new Code Studio project?
           'y',
+          // Select a project type Drupal_project
+          '0',
           // Select PHP version 8.2
+          '1',
+          // Do you want to continue?
+          'y',
+          // Would you like to perform a one time push of code from Acquia Cloud to Code Studio now? (yes/no) [yes]:
+          'y',
+        ],
+        // Args.
+        [
+          '--key' => $this->key,
+          '--secret' => $this->secret,
+        ],
+      ],
+      [
+        // No projects.
+        [],
+        // Inputs.
+        [
+          // 'Would you like to create a new Code Studio project?
+          'y',
+          // Select a project type Node_project
+          '1',
+          // Select NODE version 18.17.1
+          '0',
+          // Do you want to continue?
+          'y',
+          // Would you like to perform a one time push of code from Acquia Cloud to Code Studio now? (yes/no) [yes]:
+          'y',
+        ],
+        // Args.
+        [
+          '--key' => $this->key,
+          '--secret' => $this->secret,
+        ],
+      ],
+      [
+        // No projects.
+        [],
+        // Inputs.
+        [
+          // 'Would you like to create a new Code Studio project?
+          'y',
+          // Select a project type Node_project
+          '1',
+          // Select NODE version 20.5.1
           '1',
           // Do you want to continue?
           'y',
@@ -180,7 +228,7 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
           $this->secret,
           // Select a project type Node_project
           '1',
-          // Select PHP version 8.1
+          // Select NODE version 18.17.1
           '0',
           // Do you want to continue?
           'y',
@@ -222,7 +270,7 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
           $this->secret,
           // Select a project type Node_project
           '1',
-          // Select PHP version 8.2
+          // Select NODE version 20.5.1
           '1',
           // Do you want to continue?
           'y',
