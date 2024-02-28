@@ -521,6 +521,10 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
     $projects->addVariable($gitlabProjectId, Argument::type('string'), Argument::type('string'), Argument::type('bool'), NULL, Argument::type('array'))->shouldBeCalled();
     foreach ($variables as $variable) {
       $projects->updateVariable($this->gitLabProjectId, $variable['key'], $variable['value'], FALSE, NULL, ['masked' => TRUE, 'variable_type' => 'env_var'])->shouldBeCalled();
+      $maskedValue = $variable['masked'];
+      $this->assertEquals(TRUE, $maskedValue);
+      $protectedValue = $variable['protected'];
+      $this->assertEquals(FALSE, $protectedValue);
     }
   }
 
