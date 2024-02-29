@@ -45,7 +45,7 @@ final class CodeStudioWizardCommand extends WizardCommandBase {
     $phpVersion = NULL;
     $nodeVersion = NULL;
     $projectType = $this->getListOfProjectType();
-    $projectSelected = $this->io->choice('Select a project type', $projectType, $projectType[0]);
+    $projectSelected = $this->io->choice('Select a project type', $projectType, "Drupal_project");
 
     switch ($projectSelected) {
       case "Drupal_project":
