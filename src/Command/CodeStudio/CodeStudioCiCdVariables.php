@@ -56,7 +56,7 @@ class CodeStudioCiCdVariables {
       ],
       [
         'key' => 'NODE_VERSION',
-        'masked' => FALSE,
+        'masked' => TRUE,
         'protected' => FALSE,
         'value' => $nodeVersion,
         'variable_type' => 'env_var',
@@ -106,7 +106,7 @@ class CodeStudioCiCdVariables {
       ],
       [
         'key' => 'PHP_VERSION',
-        'masked' => FALSE,
+        'masked' => TRUE,
         'protected' => FALSE,
         'value' => $phpVersion,
         'variable_type' => 'env_var',
