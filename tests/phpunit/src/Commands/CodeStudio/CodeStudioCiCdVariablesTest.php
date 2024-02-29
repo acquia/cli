@@ -12,17 +12,12 @@ class CodeStudioCiCdVariablesTest extends TestBase {
   public function testGetDefaultsForNode(): void {
     $codeStudioCiCdVariablesObj = new CodeStudioCiCdVariables();
     $variables = $codeStudioCiCdVariablesObj->getDefaultsForNode();
-    foreach ($variables as $variable) {
-      $maskedValue = $variable['masked'];
-      $this->assertEquals(TRUE, $maskedValue);
-      $protectedValue = $variable['protected'];
-      $this->assertEquals(FALSE, $protectedValue);
-    }
+    $this->testBooleanValues($variables);
+    $variables = $codeStudioCiCdVariablesObj->getDefaultsForPhp();
+    $this->testBooleanValues($variables);
   }
 
-  public function testGetDefaultsForPhp(): void {
-    $codeStudioCiCdVariablesObj = new CodeStudioCiCdVariables();
-    $variables = $codeStudioCiCdVariablesObj->getDefaultsForPhp();
+  protected function testBooleanValues(array $variables): void {
     foreach ($variables as $variable) {
       $maskedValue = $variable['masked'];
       $this->assertEquals(TRUE, $maskedValue);

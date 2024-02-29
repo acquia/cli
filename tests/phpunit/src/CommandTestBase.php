@@ -670,16 +670,6 @@ abstract class CommandTestBase extends TestBase {
   }
 
   /**
-   * @return array<mixed>
-   */
-  protected function getMockProjectTypeValue(): array {
-    return [
-      'Drupal_project',
-      'Node_project',
-    ];
-  }
-
-  /**
    * Normalize strings for Windows tests.
    *
    * @todo Remove for PHPUnit 10.
