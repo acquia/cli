@@ -153,4 +153,14 @@ abstract class WizardTestBase extends CommandTestBase {
     $this->executeCommand();
   }
 
+  /**
+ * @return string[]
+ *   An array of strings to inspect the output for.
+ */
+  protected function getOutputStrings(): array {
+    return [
+      "Setting GitLab CI/CD variables for",
+    ];
+  }
+
 }

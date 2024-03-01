@@ -210,7 +210,7 @@ final class CodeStudioWizardCommand extends WizardCommandBase {
     }
 
     foreach ($gitlabCicdVariables as $variable) {
-      $this->checklist->addItem("Setting CI/CD variable <comment>{$variable['key']}</comment>");
+      $this->checklist->addItem("Setting GitLab CI/CD variables for <comment>{$variable['key']}</comment>");
       if (!array_key_exists($variable['key'], $gitlabCicdExistingVariablesKeyed)) {
         $this->gitLabClient->projects()
           ->addVariable($project['id'], $variable['key'], $variable['value'], $variable['protected'], NULL, ['masked' => $variable['masked'], 'variable_type' => $variable['variable_type']]);

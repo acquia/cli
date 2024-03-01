@@ -352,6 +352,11 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
     $fileSystem = $this->prophet->prophesize(Filesystem::class);
     // Set properties and execute.
     $this->executeCommand($args, $inputs);
+    $output = $this->getDisplay();
+    $output_strings = $this->getOutputStrings();
+    foreach ($output_strings as $output_string) {
+      self::assertStringContainsString($output_string, $output);
+    }
 
     // Assertions.
 
