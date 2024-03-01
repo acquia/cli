@@ -31,10 +31,16 @@ final class DrushCommand extends SshBaseCommand {
     $environment = $this->determineEnvironment($input, $output);
     $alias = self::getEnvironmentAlias($environment);
     $acliArguments = $input->getArguments();
+    $drushArguments = (array) $acliArguments['drush_command'];
+    // When available, provide the default domain to drush
+    if (!empty($environment->default_domain)) {
+      // Insert at the beginning so a user-supplied --uri arg will override
+      array_unshift($drushArguments, "--uri=http://{$environment->default_domain}");
+    }
     $drushCommandArguments = [
       "cd /var/www/html/$alias/docroot; ",
       'drush',
-      implode(' ', (array) $acliArguments['drush_command']),
+      implode(' ', $drushArguments),
     ];
 
     return $this->sshHelper->executeCommand($environment, $drushCommandArguments)->getExitCode();

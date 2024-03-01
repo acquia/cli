@@ -56,7 +56,7 @@ class DrushCommandTest extends SshCommandTestBase {
       '-o LogLevel=ERROR',
       'cd /var/www/html/site.dev/docroot; ',
       'drush',
-      'status --fields=db-status',
+      '--uri=http://sitedev.hosted.acquia-sites.com status --fields=db-status',
     ];
     $localMachineHelper
       ->execute($sshCommand, Argument::type('callable'), NULL, TRUE, NULL)
