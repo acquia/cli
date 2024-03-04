@@ -517,7 +517,10 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
   protected function mockGitLabVariables(int $gitlabProjectId, ObjectProphecy $projects): void {
     $variables = $this->getMockGitLabVariables();
     $projects->variables($gitlabProjectId)->willReturn($variables);
-    $projects->addVariable($gitlabProjectId, Argument::type('string'), Argument::type('string'), Argument::type('bool'), NULL, Argument::type('array'))->shouldBeCalled();
+    foreach ($variables as $variable) {
+      $projects->addVariable($this->gitLabProjectId, Argument::type('string'), Argument::type('string'), FALSE, NULL, ['masked' => $variable['masked'], 'variable_type' => $variable['variable_type']])->shouldBeCalled();
+    }
+    // $projects->addVariable($gitlabProjectId, Argument::type('string'), Argument::type('string'), Argument::type('bool'), NULL, Argument::type('array'))->shouldBeCalled();
     foreach ($variables as $variable) {
       $projects->updateVariable($this->gitLabProjectId, $variable['key'], $variable['value'], FALSE, NULL, ['masked' => TRUE, 'variable_type' => 'env_var'])->shouldBeCalled();
     }
