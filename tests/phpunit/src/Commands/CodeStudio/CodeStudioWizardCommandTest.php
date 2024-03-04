@@ -350,9 +350,13 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
 
     /** @var Filesystem|ObjectProphecy $fileSystem */
     $fileSystem = $this->prophet->prophesize(Filesystem::class);
-    $this->mockGitlabProjectType($this->gitLabProjectId);
     // Set properties and execute.
     $this->executeCommand($args, $inputs);
+    $output = $this->getDisplay();
+    $output_strings = $this->getOutputStrings();
+    foreach ($output_strings as $output_string) {
+      self::assertStringContainsString($output_string, $output);
+    }
 
     // Assertions.
 
@@ -510,21 +514,12 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
     $gitlabClient->namespaces()->willReturn($namespaces->reveal());
   }
 
-  protected function mockGitlabProjectType(int $gitlabProjectId): void {
-    $projectType = $this->getMockProjectTypeValue();
-    $this->assertCount(2, $projectType);
-  }
-
   protected function mockGitLabVariables(int $gitlabProjectId, ObjectProphecy $projects): void {
     $variables = $this->getMockGitLabVariables();
     $projects->variables($gitlabProjectId)->willReturn($variables);
     $projects->addVariable($gitlabProjectId, Argument::type('string'), Argument::type('string'), Argument::type('bool'), NULL, Argument::type('array'))->shouldBeCalled();
     foreach ($variables as $variable) {
       $projects->updateVariable($this->gitLabProjectId, $variable['key'], $variable['value'], FALSE, NULL, ['masked' => TRUE, 'variable_type' => 'env_var'])->shouldBeCalled();
-      $maskedValue = $variable['masked'];
-      $this->assertEquals(TRUE, $maskedValue);
-      $protectedValue = $variable['protected'];
-      $this->assertEquals(FALSE, $protectedValue);
     }
   }
 

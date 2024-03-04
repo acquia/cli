@@ -45,7 +45,7 @@ final class CodeStudioWizardCommand extends WizardCommandBase {
     $phpVersion = NULL;
     $nodeVersion = NULL;
     $projectType = $this->getListOfProjectType();
-    $projectSelected = $this->io->choice('Select a project type', $projectType, $projectType[0]);
+    $projectSelected = $this->io->choice('Select a project type', $projectType, "Drupal_project");
 
     switch ($projectSelected) {
       case "Drupal_project":
@@ -53,7 +53,7 @@ final class CodeStudioWizardCommand extends WizardCommandBase {
             'PHP_version_8.1' => "8.1",
             'PHP_version_8.2' => "8.2",
           ];
-        $project = $this->io->choice('Select a PHP version', array_values($phpVersions), $phpVersions['PHP_version_8.1']);
+        $project = $this->io->choice('Select a PHP version', array_values($phpVersions), "8.1");
         $project = array_search($project, $phpVersions, TRUE);
         $phpVersion = $phpVersions[$project];
           break;
@@ -62,7 +62,7 @@ final class CodeStudioWizardCommand extends WizardCommandBase {
             'NODE_version_18.17.1' => "18.17.1",
             'NODE_version_20.5.1' => "20.5.1",
           ];
-        $project = $this->io->choice('Select a NODE version', array_values($nodeVersions), $nodeVersions['NODE_version_20.5.1']);
+        $project = $this->io->choice('Select a NODE version', array_values($nodeVersions), "18.17.1");
         $project = array_search($project, $nodeVersions, TRUE);
         $nodeVersion = $nodeVersions[$project];
           break;
@@ -210,7 +210,7 @@ final class CodeStudioWizardCommand extends WizardCommandBase {
     }
 
     foreach ($gitlabCicdVariables as $variable) {
-      $this->checklist->addItem("Setting CI/CD variable <comment>{$variable['key']}</comment>");
+      $this->checklist->addItem("Setting GitLab CI/CD variables for <comment>{$variable['key']}</comment>");
       if (!array_key_exists($variable['key'], $gitlabCicdExistingVariablesKeyed)) {
         $this->gitLabClient->projects()
           ->addVariable($project['id'], $variable['key'], $variable['value'], $variable['protected'], NULL, ['masked' => $variable['masked'], 'variable_type' => $variable['variable_type']]);
