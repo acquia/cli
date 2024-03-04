@@ -95,6 +95,8 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
         [
           // 'Would you like to create a new Code Studio project?
           'y',
+          // Select a project type Drupal_project
+          '0',
           // Select PHP version 8.1
           '0',
           // Do you want to continue?
@@ -115,7 +117,53 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
         [
           // 'Would you like to create a new Code Studio project?
           'y',
+          // Select a project type Drupal_project
+          '0',
           // Select PHP version 8.2
+          '1',
+          // Do you want to continue?
+          'y',
+          // Would you like to perform a one time push of code from Acquia Cloud to Code Studio now? (yes/no) [yes]:
+          'y',
+        ],
+        // Args.
+        [
+          '--key' => $this->key,
+          '--secret' => $this->secret,
+        ],
+      ],
+      [
+        // No projects.
+        [],
+        // Inputs.
+        [
+          // 'Would you like to create a new Code Studio project?
+          'y',
+          // Select a project type Node_project
+          '1',
+          // Select NODE version 18.17.1
+          '0',
+          // Do you want to continue?
+          'y',
+          // Would you like to perform a one time push of code from Acquia Cloud to Code Studio now? (yes/no) [yes]:
+          'y',
+        ],
+        // Args.
+        [
+          '--key' => $this->key,
+          '--secret' => $this->secret,
+        ],
+      ],
+      [
+        // No projects.
+        [],
+        // Inputs.
+        [
+          // 'Would you like to create a new Code Studio project?
+          'y',
+          // Select a project type Node_project
+          '1',
+          // Select NODE version 20.5.1
           '1',
           // Do you want to continue?
           'y',
@@ -157,6 +205,8 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
           $this->key,
           // Enter Cloud secret,
           $this->secret,
+          // Select a project type Drupal_project
+          '0',
           // Select PHP version 8.1
           '0',
           // Do you want to continue?
@@ -176,7 +226,51 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
           $this->key,
           // Enter Cloud secret,
           $this->secret,
+          // Select a project type Node_project
+          '1',
+          // Select NODE version 18.17.1
+          '0',
+          // Do you want to continue?
+          'y',
+        ],
+        // Args
+        [],
+      ],
+      [
+        // No projects.
+        [],
+        // Inputs
+        [
+          // 'Would you like to create a new Code Studio project?
+          'y',
+          // Enter Cloud Key
+          $this->key,
+          // Enter Cloud secret,
+          $this->secret,
+          // Select a project type Drupal_project
+          '0',
           // Select PHP version 8.2
+          '1',
+          // Do you want to continue?
+          'y',
+        ],
+        // Args
+        [],
+      ],
+      [
+        // No projects.
+        [],
+        // Inputs
+        [
+          // 'Would you like to create a new Code Studio project?
+          'y',
+          // Enter Cloud Key
+          $this->key,
+          // Enter Cloud secret,
+          $this->secret,
+          // Select a project type Node_project
+          '1',
+          // Select NODE version 20.5.1
           '1',
           // Do you want to continue?
           'y',
@@ -256,9 +350,13 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
 
     /** @var Filesystem|ObjectProphecy $fileSystem */
     $fileSystem = $this->prophet->prophesize(Filesystem::class);
-
     // Set properties and execute.
     $this->executeCommand($args, $inputs);
+    $output = $this->getDisplay();
+    $output_strings = $this->getOutputStrings();
+    foreach ($output_strings as $output_string) {
+      self::assertStringContainsString($output_string, $output);
+    }
 
     // Assertions.
 
@@ -417,9 +515,15 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
   }
 
   protected function mockGitLabVariables(int $gitlabProjectId, ObjectProphecy $projects): void {
-    $projects->variables($gitlabProjectId)->willReturn($this->getMockGitLabVariables());
-    $projects->addVariable($gitlabProjectId, Argument::type('string'), Argument::type('string'), Argument::type('bool'), NULL, Argument::type('array'))->shouldBeCalled();
-    $projects->updateVariable($this->gitLabProjectId, Argument::type('string'), Argument::type('string'), FALSE, NULL, ["masked" => TRUE, "variable_type" => "env_var"])->shouldBeCalled();
+    $variables = $this->getMockGitLabVariables();
+    $projects->variables($gitlabProjectId)->willReturn($variables);
+    foreach ($variables as $variable) {
+      $projects->addVariable($this->gitLabProjectId, Argument::type('string'), Argument::type('string'), FALSE, NULL, ['masked' => $variable['masked'], 'variable_type' => $variable['variable_type']])->shouldBeCalled();
+    }
+    // $projects->addVariable($gitlabProjectId, Argument::type('string'), Argument::type('string'), Argument::type('bool'), NULL, Argument::type('array'))->shouldBeCalled();
+    foreach ($variables as $variable) {
+      $projects->updateVariable($this->gitLabProjectId, $variable['key'], $variable['value'], FALSE, NULL, ['masked' => TRUE, 'variable_type' => 'env_var'])->shouldBeCalled();
+    }
   }
 
 }

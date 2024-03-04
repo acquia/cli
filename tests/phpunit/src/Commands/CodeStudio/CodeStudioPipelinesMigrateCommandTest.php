@@ -4,7 +4,6 @@ declare(strict_types = 1);
 
 namespace Acquia\Cli\Tests\Commands\CodeStudio;
 
-use Acquia\Cli\Command\CodeStudio\CodeStudioCiCdVariables;
 use Acquia\Cli\Command\CodeStudio\CodeStudioPipelinesMigrateCommand;
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Tests\Commands\Ide\IdeRequiredTestTrait;
@@ -92,7 +91,51 @@ class CodeStudioPipelinesMigrateCommandTest extends CommandTestBase {
     $this->mockRequest('getAccount');
     $this->mockGitLabPermissionsRequest($this::$applicationUuid);
     $projects = $this->mockGetGitLabProjects($this::$applicationUuid, $this->gitLabProjectId, $mockedGitlabProjects);
-    $projects->variables($this->gitLabProjectId)->willReturn(CodeStudioCiCdVariables::getDefaults());
+    $gitlabCicdVariables = [
+    [
+        'key' => 'ACQUIA_APPLICATION_UUID',
+        'masked' => TRUE,
+        'protected' => FALSE,
+        'value' => NULL,
+        'variable_type' => 'env_var',
+      ],
+      [
+        'key' => 'ACQUIA_CLOUD_API_TOKEN_KEY',
+        'masked' => TRUE,
+        'protected' => FALSE,
+        'value' => NULL,
+        'variable_type' => 'env_var',
+      ],
+      [
+        'key' => 'ACQUIA_CLOUD_API_TOKEN_SECRET',
+        'masked' => TRUE,
+        'protected' => FALSE,
+        'value' => NULL,
+        'variable_type' => 'env_var',
+      ],
+      [
+        'key' => 'ACQUIA_GLAB_TOKEN_NAME',
+        'masked' => TRUE,
+        'protected' => FALSE,
+        'value' => NULL,
+        'variable_type' => 'env_var',
+      ],
+      [
+        'key' => 'ACQUIA_GLAB_TOKEN_SECRET',
+        'masked' => TRUE,
+        'protected' => FALSE,
+        'value' => NULL,
+        'variable_type' => 'env_var',
+      ],
+      [
+        'key' => 'PHP_VERSION',
+        'masked' => FALSE,
+        'protected' => FALSE,
+        'value' => NULL,
+        'variable_type' => 'env_var',
+      ],
+    ];
+    $projects->variables($this->gitLabProjectId)->willReturn($gitlabCicdVariables);
     $projects->update($this->gitLabProjectId, Argument::type('array'));
     $gitlabClient->projects()->willReturn($projects);
     $localMachineHelper->getFilesystem()->willReturn(new Filesystem())->shouldBeCalled();

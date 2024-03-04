@@ -648,7 +648,7 @@ abstract class CommandTestBase extends TestBase {
           'key' => 'ACQUIA_APPLICATION_UUID',
           'masked' => TRUE,
           'protected' => FALSE,
-          'value' => '2b3f7cf0-6602-4590-948b-3b07b1b005ef',
+          'value' => 'a47ac10b-58cc-4372-a567-0e02b2c3d470',
           'variable_type' => 'env_var',
         ],
       1 => [
@@ -656,7 +656,14 @@ abstract class CommandTestBase extends TestBase {
           'key' => 'ACQUIA_CLOUD_API_TOKEN_KEY',
           'masked' => TRUE,
           'protected' => FALSE,
-          'value' => '111aae74-e81a-4052-b4b9-a27a62e6b6a6',
+          'value' => '17feaf34-5d04-402b-9a67-15d5161d24e1',
+          'variable_type' => 'env_var',
+      ],
+      2 => [
+          'key' => 'ACQUIA_CLOUD_API_TOKEN_SECRET',
+          'masked' => TRUE,
+          'protected' => FALSE,
+          'value' => 'X1u\/PIQXtYaoeui.4RJSJpGZjwmWYmfl5AUQkAebYE=',
           'variable_type' => 'env_var',
       ],
     ];
