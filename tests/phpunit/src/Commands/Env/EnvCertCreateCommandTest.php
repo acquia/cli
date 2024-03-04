@@ -57,7 +57,7 @@ class EnvCertCreateCommandTest extends CommandTestBase {
         'private-key' => $keyName,
       ],
       [
-        // Would you like Acquia CLI to search for a Cloud application that matches your local git config?'
+        // Would you like Acquia CLI to search for a Cloud application that matches your local git config?'.
         'n',
         // Select a Cloud Platform application: [Sample application 1]:
         0,

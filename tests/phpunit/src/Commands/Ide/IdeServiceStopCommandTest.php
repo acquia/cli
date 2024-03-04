@@ -27,7 +27,6 @@ class IdeServiceStopCommandTest extends CommandTestBase {
     $this->executeCommand(['service' => 'php'], []);
 
     // Assert.
-
     $output = $this->getDisplay();
     $this->assertStringContainsString('Stopping php', $output);
   }

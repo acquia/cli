@@ -64,7 +64,7 @@ class SshKeyCreateUploadCommandTest extends CommandTestBase {
       $sshKeyFilename,
       // Enter a password for your SSH key:
       'acli123',
-      // Label
+      // Label.
       $mockRequestArgs['label'],
     ];
     $this->executeCommand(['--no-wait' => ''], $inputs);

@@ -68,13 +68,13 @@ final class EmailInfoForSubscriptionCommand extends CommandBase {
    */
   private function writeDomainsToTables(OutputInterface $output, SubscriptionResponse $subscription, array $domainList): void {
 
-    // initialize tables to be displayed in console
+    // Initialize tables to be displayed in console.
     $allDomainsTable = $this->createTotalDomainTable($output, "Subscription $subscription->name - All Domains");
     $verifiedDomainsTable = $this->createDomainStatusTable($output, "Subscription $subscription->name - Verified Domains");
     $pendingDomainsTable = $this->createDomainStatusTable($output, "Subscription $subscription->name - Pending Domains");
     $failedDomainsTable = $this->createDomainStatusTable($output, "Subscription $subscription->name - Failed Domains");
 
-    // initialize csv writers for each file
+    // Initialize csv writers for each file.
     $writerAllDomains = Writer::createFromPath("./subscription-$subscription->uuid-domains/all-domains-summary.csv", 'w+');
     $writerVerifiedDomains = Writer::createFromPath("./subscription-$subscription->uuid-domains/verified-domains-summary.csv", 'w+');
     $writerPendingDomains = Writer::createFromPath("./subscription-$subscription->uuid-domains/pending-domains-summary.csv", 'w+');

@@ -41,7 +41,6 @@ class IdeOpenCommandTest extends CommandTestBase {
     $this->executeCommand([], $inputs);
 
     // Assert.
-
     $output = $this->getDisplay();
     $this->assertStringContainsString('Select a Cloud Platform application:', $output);
     $this->assertStringContainsString('[0] Sample application 1', $output);

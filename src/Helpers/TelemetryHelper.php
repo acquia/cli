@@ -64,7 +64,7 @@ class TelemetryHelper {
       if (str_contains($context, 'acli ')) {
         $context = substr($context, strpos($context, 'acli ') + 5);
       }
-      // Strip sensitive parameters from context
+      // Strip sensitive parameters from context.
       if (str_contains($context, "--password")) {
         $context = substr($context, 0, strpos($context, "--password") + 10) . 'REDACTED';
       }

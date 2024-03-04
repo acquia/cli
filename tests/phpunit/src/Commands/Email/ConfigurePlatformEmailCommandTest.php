@@ -95,7 +95,7 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
         [
           // What's the domain name you'd like to register?
           'test.com',
-          // Select a Cloud Platform subscription
+          // Select a Cloud Platform subscription.
           '0',
           // Would you like your DNS records in BIND Zone File, JSON, or YAML format?
           '0',
@@ -118,7 +118,7 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
         [
           // What's the domain name you'd like to register?
           'test.com',
-          // Select a Cloud Platform subscription
+          // Select a Cloud Platform subscription.
           '0',
           // Would you like your DNS records in BIND Zone File, JSON, or YAML format?
           '1',
@@ -139,7 +139,7 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
         [
           // What's the domain name you'd like to register?
           'test.com',
-          // Select a Cloud Platform subscription
+          // Select a Cloud Platform subscription.
           '0',
           // Would you like your DNS records in BIND Zone File, JSON, or YAML format?
           '2',
@@ -162,7 +162,7 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
         [
           // What's the domain name you'd like to register?
           'test.com',
-          // Select a Cloud Platform subscription
+          // Select a Cloud Platform subscription.
           '0',
           // Would you like your DNS records in BIND Zone File, JSON, or YAML format?
           '0',
@@ -170,7 +170,7 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
           'y',
           // Would you like to refresh?
           'y',
-          //  Would you like to re-check domain verification?
+          // Would you like to re-check domain verification?
           'n',
         ],
         // Status code.
@@ -193,7 +193,7 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
         [
           // What's the domain name you'd like to register?
           'example.com',
-          // Select a Cloud Platform subscription
+          // Select a Cloud Platform subscription.
           '0',
           // Would you like your DNS records in BIND Zone File, JSON, or YAML format?
           '0',
@@ -216,7 +216,7 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
         [
           // What's the domain name you'd like to register?
           'example.com',
-          // Select a Cloud Platform subscription
+          // Select a Cloud Platform subscription.
           '0',
           // Would you like your DNS records in BIND Zone File, JSON, or YAML format?
           '0',
@@ -302,7 +302,7 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
     $inputs = [
       // What's the domain name you'd like to register?
       'test.com',
-      // Select a Cloud Platform subscription
+      // Select a Cloud Platform subscription.
       '0',
       // Would you like your DNS records in BIND Zone File, JSON, or YAML format?
       '0',
@@ -310,9 +310,9 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
       'y',
       // What are the applications you'd like to associate this domain with? You may enter multiple separated by a comma.
       '0,1',
-      // What are the environments you'd like to enable email for? You may enter multiple separated by a comma. - Application 0
+      // What are the environments you'd like to enable email for? You may enter multiple separated by a comma. - Application 0.
       '0,1',
-      // What are the environments you'd like to enable email for? You may enter multiple separated by a comma. - Application 1
+      // What are the environments you'd like to enable email for? You may enter multiple separated by a comma. - Application 1.
       '0',
     ];
     $localMachineHelper = $this->mockLocalMachineHelper();
@@ -384,7 +384,7 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
     $inputs = [
       // What's the domain name you'd like to register?
       $baseDomain,
-      // Select a Cloud Platform subscription
+      // Select a Cloud Platform subscription.
       '0',
       // Would you like your DNS records in BIND Zone File, JSON, or YAML format?
       '0',
@@ -435,7 +435,7 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
     $inputs = [
       // What's the domain name you'd like to register?
       $baseDomain,
-      // Select a Cloud Platform subscription
+      // Select a Cloud Platform subscription.
       '0',
       // Would you like your DNS records in BIND Zone File, JSON, or YAML format?
       '0',
@@ -470,7 +470,7 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
     $inputs = [
       // What's the domain name you'd like to register?
       $baseDomain,
-      // Select a Cloud Platform subscription
+      // Select a Cloud Platform subscription.
       '0',
       // Would you like your DNS records in BIND Zone File, JSON, or YAML format?
       '0',
@@ -513,7 +513,7 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
     $inputs = [
         // What's the domain name you'd like to register?
         'test.com',
-        // Select a Cloud Platform subscription
+        // Select a Cloud Platform subscription.
         '0',
         // Would you like your DNS records in BIND Zone File, JSON, or YAML format?
         '2',

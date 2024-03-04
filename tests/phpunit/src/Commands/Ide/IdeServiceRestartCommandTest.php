@@ -27,7 +27,6 @@ class IdeServiceRestartCommandTest extends CommandTestBase {
     $this->executeCommand(['service' => 'php'], []);
 
     // Assert.
-
     $output = $this->getDisplay();
     $this->assertStringContainsString('Restarted php', $output);
   }

@@ -24,6 +24,7 @@
 
   <rule ref="AcquiaPHP" />
 
+  <rule ref="Drupal.Commenting.InlineComment"/>
   <rule ref="SlevomatCodingStandard.Arrays.AlphabeticallySortedByKeys" />
   <rule ref="SlevomatCodingStandard.Arrays.DisallowImplicitArrayCreation"/>
   <rule ref="SlevomatCodingStandard.Arrays.MultiLineArrayEndBracketPlacement"/>

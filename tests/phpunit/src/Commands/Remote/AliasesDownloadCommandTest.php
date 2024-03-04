@@ -79,7 +79,6 @@ class AliasesDownloadCommandTest extends CommandTestBase {
     $this->executeCommand($args, $inputs);
 
     // Assert.
-
     $output = $this->getDisplay();
 
     $this->assertFileDoesNotExist($drushArchiveFilepath);

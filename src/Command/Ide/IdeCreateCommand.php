@@ -105,7 +105,7 @@ final class IdeCreateCommand extends IdeCommandBase {
       // @see https://stackoverflow.com/questions/28277889/guzzlehttp-client-change-base-url-dynamically
       $response = $this->httpClient->request('GET', "$ideUrl/health");
       // Mutating this will result in an infinite loop and timeout.
-      /** @infection-ignore-all */
+      // @infection-ignore-all
       if ($response->getStatusCode() === 200) {
         $ideCreated = TRUE;
       }

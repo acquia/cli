@@ -43,12 +43,11 @@ class AcsfApiCommandTest extends AcsfCommandTestBase {
     $this->executeCommand([
       'uids' => '1,2,3',
     ], [
-      // group_id
+      // group_id.
       '1',
     ]);
 
     // Assert.
-
     $output = $this->getDisplay();
   }
 
@@ -58,12 +57,11 @@ class AcsfApiCommandTest extends AcsfCommandTestBase {
     $this->clientProphecy->addOption('json', ["pause" => TRUE])->shouldBeCalled();
     $this->command = $this->getApiCommandByName('acsf:updates:pause');
     $this->executeCommand([], [
-      // pause
+      // Pause.
       '1',
     ]);
 
     // Assert.
-
   }
 
   public function testAcsfCommandExecutionForHttpGet(): void {
@@ -76,7 +74,6 @@ class AcsfApiCommandTest extends AcsfCommandTestBase {
     $this->executeCommand(['--limit' => '1']);
 
     // Assert.
-
     $output = $this->getDisplay();
     $this->assertNotNull($output);
     $this->assertJson($output);
@@ -111,7 +108,6 @@ class AcsfApiCommandTest extends AcsfCommandTestBase {
     $this->executeCommand($arguments);
 
     // Assert.
-
     $output = $this->getDisplay();
     $this->assertNotNull($output);
     $this->assertJson($output);

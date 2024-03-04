@@ -53,9 +53,9 @@ class PushDatabaseCommandTest extends CommandTestBase {
       0,
       // Would you like to link the project at ... ?
       'n',
-      // Choose a Cloud Platform environment
+      // Choose a Cloud Platform environment.
       0,
-      // Choose a database
+      // Choose a database.
       0,
       // Overwrite the profserv2 database on dev with a copy of the database from the current machine?
       'y',

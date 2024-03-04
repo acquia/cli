@@ -57,7 +57,7 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
       [
         // One project.
         [$this->getMockedGitLabProject($this->gitLabProjectId)],
-        // Inputs
+        // Inputs.
         [
           // Do you want to continue?
           'y',
@@ -75,7 +75,7 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
         [$this->getMockedGitLabProject($this->gitLabProjectId), $this->getMockedGitLabProject($this->gitLabProjectId)],
         // Inputs.
         [
-          //  Found multiple projects that could match the Sample application 1 application. Choose which one to configure.
+          // Found multiple projects that could match the Sample application 1 application. Choose which one to configure.
           '0',
           // Do you want to continue?
           'y',
@@ -95,53 +95,9 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
         [
           // 'Would you like to create a new Code Studio project?
           'y',
-          // Select a project type Drupal_project
+          // Select a project type Drupal_project.
           '0',
-          // Select PHP version 8.1
-          '0',
-          // Do you want to continue?
-          'y',
-          // Would you like to perform a one time push of code from Acquia Cloud to Code Studio now? (yes/no) [yes]:
-          'y',
-        ],
-        // Args.
-        [
-          '--key' => $this->key,
-          '--secret' => $this->secret,
-        ],
-      ],
-      [
-        // No projects.
-        [],
-        // Inputs.
-        [
-          // 'Would you like to create a new Code Studio project?
-          'y',
-          // Select a project type Drupal_project
-          '0',
-          // Select PHP version 8.2
-          '1',
-          // Do you want to continue?
-          'y',
-          // Would you like to perform a one time push of code from Acquia Cloud to Code Studio now? (yes/no) [yes]:
-          'y',
-        ],
-        // Args.
-        [
-          '--key' => $this->key,
-          '--secret' => $this->secret,
-        ],
-      ],
-      [
-        // No projects.
-        [],
-        // Inputs.
-        [
-          // 'Would you like to create a new Code Studio project?
-          'y',
-          // Select a project type Node_project
-          '1',
-          // Select NODE version 18.17.1
+          // Select PHP version 8.1.
           '0',
           // Do you want to continue?
           'y',
@@ -161,9 +117,9 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
         [
           // 'Would you like to create a new Code Studio project?
           'y',
-          // Select a project type Node_project
-          '1',
-          // Select NODE version 20.5.1
+          // Select a project type Drupal_project.
+          '0',
+          // Select PHP version 8.2.
           '1',
           // Do you want to continue?
           'y',
@@ -179,7 +135,51 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
       [
         // No projects.
         [],
-        // Inputs
+        // Inputs.
+        [
+          // 'Would you like to create a new Code Studio project?
+          'y',
+          // Select a project type Node_project.
+          '1',
+          // Select NODE version 18.17.1.
+          '0',
+          // Do you want to continue?
+          'y',
+          // Would you like to perform a one time push of code from Acquia Cloud to Code Studio now? (yes/no) [yes]:
+          'y',
+        ],
+        // Args.
+        [
+          '--key' => $this->key,
+          '--secret' => $this->secret,
+        ],
+      ],
+      [
+        // No projects.
+        [],
+        // Inputs.
+        [
+          // 'Would you like to create a new Code Studio project?
+          'y',
+          // Select a project type Node_project.
+          '1',
+          // Select NODE version 20.5.1.
+          '1',
+          // Do you want to continue?
+          'y',
+          // Would you like to perform a one time push of code from Acquia Cloud to Code Studio now? (yes/no) [yes]:
+          'y',
+        ],
+        // Args.
+        [
+          '--key' => $this->key,
+          '--secret' => $this->secret,
+        ],
+      ],
+      [
+        // No projects.
+        [],
+        // Inputs.
         [
           // 'Would you like to create a new Code Studio project?
           'n',
@@ -188,7 +188,7 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
           // Do you want to continue?
           'y',
         ],
-        // Args
+        // Args.
         [
           '--key' => $this->key,
           '--secret' => $this->secret,
@@ -197,85 +197,85 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
       [
         // No projects.
         [],
-        // Inputs
+        // Inputs.
         [
           // 'Would you like to create a new Code Studio project?
           'y',
-          // Enter Cloud Key
+          // Enter Cloud Key.
           $this->key,
-          // Enter Cloud secret,
+          // Enter Cloud secret,.
           $this->secret,
-          // Select a project type Drupal_project
+          // Select a project type Drupal_project.
           '0',
-          // Select PHP version 8.1
+          // Select PHP version 8.1.
           '0',
           // Do you want to continue?
           'y',
         ],
-        // Args
+        // Args.
         [],
       ],
       [
         // No projects.
         [],
-        // Inputs
+        // Inputs.
         [
           // 'Would you like to create a new Code Studio project?
           'y',
-          // Enter Cloud Key
+          // Enter Cloud Key.
           $this->key,
-          // Enter Cloud secret,
+          // Enter Cloud secret,.
           $this->secret,
-          // Select a project type Node_project
+          // Select a project type Node_project.
           '1',
-          // Select NODE version 18.17.1
+          // Select NODE version 18.17.1.
           '0',
           // Do you want to continue?
           'y',
         ],
-        // Args
+        // Args.
         [],
       ],
       [
         // No projects.
         [],
-        // Inputs
+        // Inputs.
         [
           // 'Would you like to create a new Code Studio project?
           'y',
-          // Enter Cloud Key
+          // Enter Cloud Key.
           $this->key,
-          // Enter Cloud secret,
+          // Enter Cloud secret,.
           $this->secret,
-          // Select a project type Drupal_project
+          // Select a project type Drupal_project.
           '0',
-          // Select PHP version 8.2
+          // Select PHP version 8.2.
           '1',
           // Do you want to continue?
           'y',
         ],
-        // Args
+        // Args.
         [],
       ],
       [
         // No projects.
         [],
-        // Inputs
+        // Inputs.
         [
           // 'Would you like to create a new Code Studio project?
           'y',
-          // Enter Cloud Key
+          // Enter Cloud Key.
           $this->key,
-          // Enter Cloud secret,
+          // Enter Cloud secret,.
           $this->secret,
-          // Select a project type Node_project
+          // Select a project type Node_project.
           '1',
-          // Select NODE version 20.5.1
+          // Select NODE version 20.5.1.
           '1',
           // Do you want to continue?
           'y',
         ],
-        // Args
+        // Args.
         [],
       ],
     ];
@@ -318,7 +318,7 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
     $schedules->showAll($this->gitLabProjectId)->willReturn([]);
     $pipeline = ['id' => 1];
     $parameters = [
-      # Every Thursday at midnight.
+      // Every Thursday at midnight.
       'cron' => '0 0 * * 4',
       'description' => 'Code Studio Automatic Updates',
       'ref' => 'master',
@@ -359,7 +359,6 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
     }
 
     // Assertions.
-
     $this->assertEquals(0, $this->getStatusCode());
   }
 

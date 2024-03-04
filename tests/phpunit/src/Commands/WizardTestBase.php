@@ -95,7 +95,6 @@ abstract class WizardTestBase extends CommandTestBase {
     ]);
 
     // Assertions.
-
   }
 
   protected function runTestSshKeyAlreadyUploaded(): void {

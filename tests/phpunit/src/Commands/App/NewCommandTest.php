@@ -71,7 +71,7 @@ class NewCommandTest extends CommandTestBase {
     $this->mockExecuteGitCommit($localMachineHelper, $this->newProjectDir, $process);
 
     $inputs = [
-      // Choose a starting project
+      // Choose a starting project.
       $project,
     ];
     $this->executeCommand([
@@ -111,7 +111,7 @@ class NewCommandTest extends CommandTestBase {
     $this->mockExecuteGitCommit($localMachineHelper, $this->newProjectDir, $process);
 
     $inputs = [
-      // Choose a starting project
+      // Choose a starting project.
       $project,
     ];
     $this->executeCommand([

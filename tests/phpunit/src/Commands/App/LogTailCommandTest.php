@@ -45,14 +45,13 @@ class LogTailCommandTest extends CommandTestBase {
       0,
       // Would you like to link the project at ... ?
       'y',
-      // Select environment
+      // Select environment.
       0,
-      // Select log
+      // Select log.
       0,
     ]);
 
     // Assert.
-
     $output = $this->getDisplay();
     $this->assertStringContainsString('Select a Cloud Platform application:', $output);
     $this->assertStringContainsString('[0] Sample application 1', $output);
@@ -71,7 +70,6 @@ class LogTailCommandTest extends CommandTestBase {
     );
 
     // Assert.
-
     $output = $this->getDisplay();
     $this->assertStringContainsString('Apache request', $output);
     $this->assertStringContainsString('Drupal request', $output);

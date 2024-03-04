@@ -178,7 +178,6 @@ trait CodeStudioCommandTrait {
       );
     }
     // Prompt to create project.
-
     $this->io->writeln([
       "",
       "Could not find any existing Code Studio project for Acquia Cloud Platform application <comment>{$cloudApplication->name}</comment>.",
@@ -189,7 +188,6 @@ trait CodeStudioCommandTrait {
       return $this->createGitLabProject($cloudApplication);
     }
     // Prompt to choose from full list, regardless of description.
-
     return $this->promptChooseFromObjectsOrArrays(
       $this->gitLabClient->projects()->all(),
       'id',

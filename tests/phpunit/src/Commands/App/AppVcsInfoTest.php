@@ -103,7 +103,7 @@ EOD;
     $application = $this->mockRequest('getApplicationByUuid', $applications[self::$INPUT_DEFAULT_CHOICE]->uuid);
     $environments = $this->mockRequest('getApplicationEnvironments', $applications[self::$INPUT_DEFAULT_CHOICE]->uuid);
     foreach ($environments as $environment) {
-      // Empty the VCS
+      // Empty the VCS.
       $environment->vcs = new \stdClass();
     }
 

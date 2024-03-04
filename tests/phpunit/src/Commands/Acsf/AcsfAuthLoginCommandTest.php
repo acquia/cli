@@ -31,13 +31,13 @@ class AcsfAuthLoginCommandTest extends AcsfCommandTestBase {
         FALSE,
         // $inputs
         [
-          // Would you like to share anonymous performance usage and data? (yes/no) [yes]
+          // Would you like to share anonymous performance usage and data? (yes/no) [yes].
           'yes',
-          // Enter the full URL of the factory
+          // Enter the full URL of the factory.
           $this->acsfCurrentFactoryUrl,
-          // Enter a value for username
+          // Enter a value for username.
           $this->acsfUsername,
-          //  Enter a value for key
+          // Enter a value for key.
           $this->acsfKey,
         ],
         // No arguments, all interactive.
@@ -53,11 +53,11 @@ class AcsfAuthLoginCommandTest extends AcsfCommandTestBase {
         [],
         // Arguments.
         [
-          // Enter the full URL of the factory
+          // Enter the full URL of the factory.
           '--factory-url' => $this->acsfCurrentFactoryUrl,
-          //  Enter a value for key
+          // Enter a value for key.
           '--key' => $this->acsfKey,
-          // Enter a value for username
+          // Enter a value for username.
           '--username' => $this->acsfUsername,
         ],
         // Output to assert.

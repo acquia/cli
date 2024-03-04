@@ -97,7 +97,6 @@ class SshKeyUploadCommandTest extends CommandTestBase {
     $this->executeCommand($args, $inputs);
 
     // Assert.
-
     $output = $this->getDisplay();
     $this->assertStringContainsString("Uploaded $fileName to the Cloud Platform with label " . $sshKeysRequestBody['label'], $output);
     $this->assertStringContainsString('Would you like to wait until your key is installed on all of your application\'s servers?', $output);
@@ -108,7 +107,7 @@ class SshKeyUploadCommandTest extends CommandTestBase {
     $inputs = [
       // Choose key.
       '0',
-      // Label
+      // Label.
       'Test',
     ];
     $filepath = Path::join(sys_get_temp_dir(), 'notarealfile');

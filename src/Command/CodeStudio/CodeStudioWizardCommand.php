@@ -80,15 +80,15 @@ final class CodeStudioWizardCommand extends WizardCommandBase {
       $account,
       [
         "deploy to non-prod",
-        # Add SSH key to git repository
+        // Add SSH key to git repository.
         "add ssh key to git",
-        # Add SSH key to non-production environments
+        // Add SSH key to non-production environments.
         "add ssh key to non-prod",
-        # Add a CD environment
+        // Add a CD environment.
         "add an environment",
-        # Delete a CD environment
+        // Delete a CD environment.
         "delete an environment",
-        # Manage environment variables on a non-production environment
+        // Manage environment variables on a non-production environment.
         "administer environment variables on non-prod",
       ]
     );
@@ -255,7 +255,7 @@ final class CodeStudioWizardCommand extends WizardCommandBase {
     if (!$this->getGitLabScheduleByDescription($project, $scheduledPipelineDescription)) {
       $this->checklist->addItem("Creating scheduled pipeline <comment>$scheduledPipelineDescription</comment>");
       $pipeline = $this->gitLabClient->schedules()->create($project['id'], [
-        # Every Thursday at midnight.
+        // Every Thursday at midnight.
         'cron' => '0 0 * * 4',
         'description' => $scheduledPipelineDescription,
         'ref' => $project['default_branch'],

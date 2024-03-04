@@ -67,7 +67,6 @@ class DrushCommandTest extends SshCommandTestBase {
     $this->executeCommand($args, self::inputChooseEnvironment());
 
     // Assert.
-
     $this->getDisplay();
   }
 

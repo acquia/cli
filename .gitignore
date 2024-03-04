@@ -19,3 +19,5 @@ drupal
 cx-api-spec
 gardener
 
+// Artifacts from mutation testing
+*.cache

@@ -52,7 +52,7 @@ class CodeStudioPipelinesMigrateCommandTest extends CommandTestBase {
       [
         // One project.
         [$this->getMockedGitLabProject($this->gitLabProjectId)],
-        // Inputs
+        // Inputs.
         [
           // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
           'n',

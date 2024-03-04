@@ -26,13 +26,13 @@ class EmailInfoForSubscriptionCommandTest extends CommandTestBase {
 
   public function testEmailInfoForSubscription(): void {
     $inputs = [
-      // Select a Cloud Platform subscription
+      // Select a Cloud Platform subscription.
       0,
     ];
     $subscriptions = $this->mockRequest('getSubscriptions');
 
     $getDomainsResponse = $this->getMockResponseFromSpec('/subscriptions/{subscriptionUuid}/domains', 'get', '200');
-    // duplicating the request to ensure there is at least one domain with a successful, pending, and failed health code
+    // Duplicating the request to ensure there is at least one domain with a successful, pending, and failed health code.
     $getDomainsResponse2 = $this->getMockResponseFromSpec('/subscriptions/{subscriptionUuid}/domains', 'get', '200');
     $totalDomainsList = array_merge($getDomainsResponse->_embedded->items, $getDomainsResponse2->_embedded->items);
     $this->clientProphecy->request('get', "/subscriptions/{$subscriptions[0]->uuid}/domains")->willReturn($totalDomainsList);
@@ -48,7 +48,7 @@ class EmailInfoForSubscriptionCommandTest extends CommandTestBase {
     $applicationsResponse->_embedded->items[0]->subscription->uuid = $subscriptions[0]->uuid;
 
     $getAppDomainsResponse = $this->getMockResponseFromSpec('/applications/{applicationUuid}/email/domains', 'get', '200');
-    // duplicating the request to ensure added domains are included in association list
+    // Duplicating the request to ensure added domains are included in association list.
     $getAppDomainsResponse2 = $this->getMockResponseFromSpec('/applications/{applicationUuid}/email/domains', 'get', '200');
     $totalAppDomainsList = array_merge($getAppDomainsResponse->_embedded->items, $getAppDomainsResponse2->_embedded->items);
     $this->clientProphecy->request('get', "/applications/{$applicationsResponse->_embedded->items[0]->uuid}/email/domains")->willReturn($totalAppDomainsList);
@@ -77,7 +77,7 @@ class EmailInfoForSubscriptionCommandTest extends CommandTestBase {
 
   public function testEmailInfoForSubscriptionNoApps(): void {
     $inputs = [
-      // Select a Cloud Platform subscription
+      // Select a Cloud Platform subscription.
       0,
     ];
     $subscriptions = $this->mockRequest('getSubscriptions');
@@ -94,7 +94,7 @@ class EmailInfoForSubscriptionCommandTest extends CommandTestBase {
 
   public function testEmailInfoForSubscriptionWith101Apps(): void {
     $inputs = [
-      // Select a Cloud Platform subscription
+      // Select a Cloud Platform subscription.
       0,
       // Do you wish to continue?
       'no',
@@ -128,7 +128,7 @@ class EmailInfoForSubscriptionCommandTest extends CommandTestBase {
 
   public function testEmailInfoForSubscriptionNoDomains(): void {
     $inputs = [
-      // Select a Cloud Platform subscription
+      // Select a Cloud Platform subscription.
       0,
     ];
     $subscriptions = $this->mockRequest('getSubscriptions');
@@ -142,7 +142,7 @@ class EmailInfoForSubscriptionCommandTest extends CommandTestBase {
 
   public function testEmailInfoForSubscriptionNoAppDomains(): void {
     $inputs = [
-      // Select a Cloud Platform subscription
+      // Select a Cloud Platform subscription.
       0,
     ];
     $subscriptions = $this->mockRequest('getSubscriptions');
@@ -163,7 +163,7 @@ class EmailInfoForSubscriptionCommandTest extends CommandTestBase {
 
   public function testEmailInfoForSubscriptionNoSubscriptions(): void {
     $inputs = [
-      // Select a Cloud Platform subscription
+      // Select a Cloud Platform subscription.
       0,
     ];
     $this->clientProphecy->request('get', '/subscriptions')

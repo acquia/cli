@@ -100,7 +100,7 @@ final class DocsCommand extends CommandBase {
     if ($acquiaProductName = $input->getArgument('product')) {
       $productUrl = NULL;
       foreach ($acquiaProducts as $acquiaProduct) {
-        // If product provided by the user exists in the alias
+        // If product provided by the user exists in the alias.
         if (in_array(strtolower($acquiaProductName), $acquiaProduct['alias'], TRUE)) {
           $productUrl = $acquiaProduct['url'];
           break;

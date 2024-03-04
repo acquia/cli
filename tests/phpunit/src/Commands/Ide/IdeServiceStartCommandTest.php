@@ -27,7 +27,6 @@ class IdeServiceStartCommandTest extends CommandTestBase {
     $this->executeCommand(['service' => 'php'], []);
 
     // Assert.
-
     $output = $this->getDisplay();
     $this->assertStringContainsString('Starting php', $output);
   }

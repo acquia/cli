@@ -93,7 +93,6 @@ EOT,
     $this->executeCommand(['notification-uuid' => '{}']);
 
     // Assert.
-
   }
 
   public function testTaskWaitCommandWithInvalidUrl(): void {
@@ -102,7 +101,6 @@ EOT,
     $this->executeCommand(['notification-uuid' => 'https://cloud.acquia.com/api/notifications/foo']);
 
     // Assert.
-
   }
 
   /**

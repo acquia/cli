@@ -51,7 +51,6 @@ class ClearCacheCommandTest extends CommandTestBase {
     $this->executeCommand($args, $inputs);
 
     // Assert.
-
     $output = $this->getDisplay();
     $this->assertEquals(0, $this->getStatusCode());
   }

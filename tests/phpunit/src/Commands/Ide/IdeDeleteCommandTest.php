@@ -58,7 +58,6 @@ class IdeDeleteCommandTest extends CommandTestBase {
     $this->executeCommand([], $inputs);
 
     // Assert.
-
     $output = $this->getDisplay();
     $this->assertStringContainsString('The Cloud IDE is being deleted.', $output);
   }

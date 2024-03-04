@@ -49,7 +49,6 @@ class SshCommandTest extends SshCommandTestBase {
     $this->executeCommand($args);
 
     // Assert.
-
     $output = $this->getDisplay();
   }
 

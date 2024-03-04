@@ -590,7 +590,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     return $chosenEnvironment;
   }
 
-  // Todo: obviously combine this with promptChooseEnvironment
+  // Todo: obviously combine this with promptChooseEnvironment.
   private function promptChooseEnvironmentConsiderProd(Client $acquiaCloudClient, string $applicationUuid, bool $allowProduction = FALSE): EnvironmentResponse {
     $environmentResource = new Environments($acquiaCloudClient);
     $applicationEnvironments = iterator_to_array($environmentResource->getAll($applicationUuid));
@@ -1749,7 +1749,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     $notification = NULL;
     $checkNotificationStatus = static function () use ($notificationsResource, &$notification, $uuid): bool {
       $notification = $notificationsResource->get($uuid);
-      /** @infection-ignore-all */
+      // @infection-ignore-all
       return $notification->status !== 'in-progress';
     };
     if ($success === NULL) {

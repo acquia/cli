@@ -147,9 +147,9 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
       0,
       // Would you like to link the project at ... ?
       'n',
-      //  Choose a Cloud Platform environment [Dev, dev (vcs: master)]:
+      // Choose a Cloud Platform environment [Dev, dev (vcs: master)]:
       0,
-      //  Choose a site [jxr5000596dev (oracletest1.dev-profserv2.acsitefactory.com)]:
+      // Choose a site [jxr5000596dev (oracletest1.dev-profserv2.acsitefactory.com)]:
       0,
       // Choose databases. You may choose multiple. Use commas to separate choices. [profserv2 (default)]:
       '10,27',

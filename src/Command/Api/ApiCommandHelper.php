@@ -277,7 +277,7 @@ class ApiCommandHelper {
     return $acquiaCloudSpec['components']['schemas'][$paramKey];
   }
 
-  /** @infection-ignore-all */
+  // @infection-ignore-all
   private function isApiSpecChecksumCacheValid(\Symfony\Component\Cache\CacheItem $cacheItem, string $acquiaCloudSpecFileChecksum): bool {
     // If the spec file doesn't exist, assume cache is valid.
     if (!$acquiaCloudSpecFileChecksum && $cacheItem->isHit()) {
@@ -296,7 +296,7 @@ class ApiCommandHelper {
   private function getCloudApiSpec(string $specFilePath): array {
     $cacheKey = basename($specFilePath);
     $cache = new PhpArrayAdapter(__DIR__ . '/../../../var/cache/' . $cacheKey . '.cache', new NullAdapter());
-    /** @infection-ignore-all */
+    // @infection-ignore-all
     $cacheItemChecksum = $cache->getItem($cacheKey . '.checksum');
     $cacheItemSpec = $cache->getItem($cacheKey);
 
@@ -307,7 +307,7 @@ class ApiCommandHelper {
 
     // Otherwise, only use cache when it is valid.
     $checksum = md5_file($specFilePath);
-    /** @infection-ignore-all */
+    // @infection-ignore-all
     if ($this->useCloudApiSpecCache()
       && $this->isApiSpecChecksumCacheValid($cacheItemChecksum, $checksum) && $cacheItemSpec->isHit()
     ) {
@@ -333,7 +333,7 @@ class ApiCommandHelper {
     $apiCommands = [];
     foreach ($acquiaCloudSpec['paths'] as $path => $endpoint) {
       // Skip internal endpoints. These shouldn't actually be in the spec.
-      /** @infection-ignore-all */
+      // @infection-ignore-all
       if (array_key_exists('x-internal', $endpoint) && $endpoint['x-internal']) {
         continue;
       }
@@ -348,7 +348,7 @@ class ApiCommandHelper {
         }
 
         // Skip deprecated endpoints.
-        /** @infection-ignore-all */
+        // @infection-ignore-all
         if (array_key_exists('deprecated', $schema) && $schema['deprecated']) {
           continue;
         }

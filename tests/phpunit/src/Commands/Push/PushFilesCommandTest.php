@@ -35,11 +35,11 @@ class PushFilesCommandTest extends CommandTestBase {
       0,
       // Would you like to link the project at ... ?
       'n',
-      // Choose a Cloud Platform environment
+      // Choose a Cloud Platform environment.
       0,
-      // Choose a site
+      // Choose a site.
       0,
-      // Overwrite the public files directory
+      // Overwrite the public files directory.
       'y',
     ];
 
@@ -73,11 +73,11 @@ class PushFilesCommandTest extends CommandTestBase {
       0,
       // Would you like to link the project at ... ?
       'n',
-      // Choose a Cloud Platform environment
+      // Choose a Cloud Platform environment.
       0,
-      // Choose a site
+      // Choose a site.
       0,
-      // Overwrite the public files directory
+      // Overwrite the public files directory.
       'y',
     ];
 
@@ -109,11 +109,11 @@ class PushFilesCommandTest extends CommandTestBase {
       0,
       // Would you like to link the project at ... ?
       'n',
-      // Choose a Cloud Platform environment
+      // Choose a Cloud Platform environment.
       0,
-      // Choose a site
+      // Choose a site.
       0,
-      // Overwrite the public files directory
+      // Overwrite the public files directory.
       'n',
     ];
 

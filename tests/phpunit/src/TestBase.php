@@ -196,10 +196,7 @@ abstract class TestBase extends TestCase {
    * Create a guaranteed-unique temporary directory.
    */
   protected function getTempDir(): string {
-    /**
-     * sys_get_temp_dir() is not thread-safe, but it's okay to use here since
-     * we are specifically creating a thread-safe temporary directory.
-     */
+    // sys_get_temp_dir() is not thread-safe, but it's okay to use here since we are specifically creating a thread-safe temporary directory.
     // phpcs:ignore
     $dir = sys_get_temp_dir();
 

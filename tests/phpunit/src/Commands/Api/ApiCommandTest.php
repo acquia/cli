@@ -97,7 +97,6 @@ class ApiCommandTest extends CommandTestBase {
     ]);
 
     // Assert.
-
     $output = $this->getDisplay();
     $this->assertJson($output);
     $this->assertStringContainsString($mockBody->message, $output);
@@ -114,7 +113,6 @@ class ApiCommandTest extends CommandTestBase {
     $this->executeCommand(['--limit' => '1']);
 
     // Assert.
-
     $output = $this->getDisplay();
     $this->assertNotNull($output);
     $this->assertJson($output);
@@ -151,7 +149,6 @@ class ApiCommandTest extends CommandTestBase {
     ]);
 
     // Assert.
-
     $output = $this->getDisplay();
     $this->assertStringContainsString('Inferring Cloud Application UUID for this command since none was provided...', $output);
     $this->assertStringContainsString('Set application uuid to ' . $application->uuid, $output);
@@ -201,7 +198,6 @@ class ApiCommandTest extends CommandTestBase {
     ]);
 
     // Assert.
-
     $this->getDisplay();
     $this->assertEquals(0, $this->getStatusCode());
   }
@@ -273,7 +269,6 @@ class ApiCommandTest extends CommandTestBase {
     ]);
 
     // Assert.
-
     $this->getDisplay();
     $this->assertEquals(0, $this->getStatusCode());
   }
@@ -306,7 +301,6 @@ class ApiCommandTest extends CommandTestBase {
     $this->executeCommand($mockRequestArgs);
 
     // Assert.
-
     $output = $this->getDisplay();
     $this->assertNotNull($output);
     $this->assertJson($output);
@@ -334,7 +328,6 @@ class ApiCommandTest extends CommandTestBase {
     $this->executeCommand($args);
 
     // Assert.
-
     $output = $this->getDisplay();
     $this->assertNotNull($output);
     $this->assertJson($output);

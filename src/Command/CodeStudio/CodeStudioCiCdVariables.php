@@ -10,7 +10,7 @@ class CodeStudioCiCdVariables {
    * @return array<mixed>
    */
   public static function getList(): array {
-    //getlist is being utilised in pipeline-migrate command. By default command is supporting drupal project but going forward need to support both drupal and nodejs project.
+    // Getlist is being utilised in pipeline-migrate command. By default command is supporting drupal project but going forward need to support both drupal and nodejs project.
     return array_column(self::getDefaultsForPhp(), 'key');
   }
 
