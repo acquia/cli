@@ -661,7 +661,7 @@ abstract class CommandTestBase extends TestBase {
       ],
       2 => [
           'key' => 'ACQUIA_CLOUD_API_TOKEN_SECRET',
-          'masked' => TRUE,
+          'masked' => FALSE,
           'protected' => FALSE,
           'value' => 'X1u\/PIQXtYaoeui.4RJSJpGZjwmWYmfl5AUQkAebYE=',
           'variable_type' => 'env_var',

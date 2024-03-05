@@ -18,9 +18,15 @@ class CodeStudioCiCdVariablesTest extends TestBase {
   }
 
   protected function testBooleanValues(array $variables): void {
-    foreach ($variables as $variable) {
-      $maskedValue = $variable['masked'];
-      $this->assertEquals(TRUE, $maskedValue);
+    foreach ($variables as $variable ) {
+      if ($variable['key'] !== "PHP_VERSION" && $variable['key'] !== "NODE_VERSION") {
+        $maskedValue = $variable['masked'];
+        $this->assertEquals(TRUE, $maskedValue);
+      }
+      else {
+        $maskedValue = $variable['masked'];
+        $this->assertEquals(FALSE, $maskedValue);
+      }
       $protectedValue = $variable['protected'];
       $this->assertEquals(FALSE, $protectedValue);
     }
