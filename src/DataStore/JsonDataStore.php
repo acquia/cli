@@ -36,9 +36,6 @@ class JsonDataStore extends Datastore {
     $this->fileSystem->dumpFile($this->filepath, json_encode($this->data->export(), JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT));
   }
 
-  /**
-  * @param array $array
-   */
   protected function cleanLegacyConfig(array &$array): bool {
     // Legacy format of credential storage.
     $dump = FALSE;

@@ -59,10 +59,6 @@ class ApiCommandHelper {
     return $usage;
   }
 
-  /**
-   * @param array $schema
-   * @param array $acquiaCloudSpec
-   */
   private function addApiCommandParameters(array $schema, array $acquiaCloudSpec, ApiBaseCommand $command): void {
     $inputDefinition = [];
     $usage = '';
@@ -112,8 +108,6 @@ class ApiCommandHelper {
   }
 
   /**
-   * @param array $schema
-   * @param array $acquiaCloudSpec
    * @return array<mixed>
    */
   private function addApiCommandParametersForRequestBody(array $schema, array $acquiaCloudSpec): array {
@@ -211,8 +205,6 @@ class ApiCommandHelper {
   }
 
   /**
-   * @param array $schema
-   * @param array $acquiaCloudSpec
    * @return array<mixed>
    */
   private function addApiCommandParametersForPathAndQuery(array $schema, array $acquiaCloudSpec): array {
@@ -255,10 +247,6 @@ class ApiCommandHelper {
     return [$inputDefinition, $usage];
   }
 
-  /**
-   * @param array $acquiaCloudSpec
-   * @param $schema
-   */
   private function getParameterDefinitionFromSpec(string $paramKey, array $acquiaCloudSpec, mixed $schema): mixed {
     $uppercaseKey = ucfirst($paramKey);
     if (array_key_exists('parameters', $acquiaCloudSpec['components'])
@@ -421,8 +409,6 @@ class ApiCommandHelper {
   }
 
   /**
-   * @param array $schema
-   * @param array $acquiaCloudSpec
    * @return array<mixed>
    */
   private function getRequestBodyFromParameterSchema(array $schema, array $acquiaCloudSpec): array {
@@ -439,10 +425,6 @@ class ApiCommandHelper {
     return $requestBodySchema;
   }
 
-  /**
-   * @param array $requestBodySchema
-   * @param $parameterDefinition
-   */
   private function getPropertySpecFromRequestBodyParam(array $requestBodySchema, mixed $parameterDefinition): mixed {
     return $requestBodySchema['properties'][$parameterDefinition->getName()] ?? NULL;
   }
@@ -477,7 +459,6 @@ class ApiCommandHelper {
   }
 
   /**
-   * @param array $apiCommands
    * @return ApiListCommandBase[]
    */
   private function generateApiListCommands(array $apiCommands, string $commandPrefix, CommandFactoryInterface $commandFactory): array {

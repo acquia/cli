@@ -44,7 +44,6 @@ class AcsfServiceTest extends TestBase {
 
   /**
    * @dataProvider providerTestIsMachineAuthenticated
-   * @param array $envVars
    */
   public function testIsMachineAuthenticated(array $envVars, bool $isAuthenticated): void {
     self::setEnvVars($envVars);

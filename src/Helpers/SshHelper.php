@@ -30,7 +30,6 @@ class SshHelper implements LoggerAwareInterface {
   /**
    * Execute the command in a remote environment.
    *
-   * @param array $commandArgs
    * @param int|null $timeout
    */
   public function executeCommand(EnvironmentResponse|string $target, array $commandArgs, bool $printOutput = TRUE, int $timeout = NULL): Process {
@@ -66,8 +65,6 @@ class SshHelper implements LoggerAwareInterface {
 
   /**
    * Return the first item of the $commandArgs that is not an option.
-   *
-   * @param array $commandArgs
    */
   private function firstArguments(array $commandArgs): string {
     $result = '';
@@ -98,8 +95,6 @@ class SshHelper implements LoggerAwareInterface {
    * Return a summary of the command that does not include the
    * arguments. This avoids potential information disclosure in
    * CI scripts.
-   *
-   * @param array $commandArgs
    */
   private function getCommandSummary(array $commandArgs): string {
     return $this->firstArguments($commandArgs);

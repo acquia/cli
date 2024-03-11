@@ -97,8 +97,6 @@ final class ConfigurePlatformEmailCommand extends CommandBase {
 
   /**
    * Generates Zone File for DNS records of the registered domain.
-   *
-   * @param array $records
    */
   private function generateZoneFile(string $baseDomain, array $records): void {
 

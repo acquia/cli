@@ -63,8 +63,6 @@ final class EmailInfoForSubscriptionCommand extends CommandBase {
   /**
    * Renders tables showing email domain verification statuses,
    * as well as exports these statuses to respective CSV files.
-   *
-   * @param array $domainList
    */
   private function writeDomainsToTables(OutputInterface $output, SubscriptionResponse $subscription, array $domainList): void {
 
@@ -156,8 +154,6 @@ final class EmailInfoForSubscriptionCommand extends CommandBase {
 
   /**
    * Nicely renders a given array of tables.
-   *
-   * @param array $tables
    */
   private function renderDomainInfoTables(array $tables): void {
     foreach ($tables as $table) {

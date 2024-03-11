@@ -56,7 +56,6 @@ abstract class Datastore implements DataStoreInterface {
   }
 
   /**
-   * @param array $config
    * @param string $path Path to the datastore on disk.
    * @return array<mixed>
    */

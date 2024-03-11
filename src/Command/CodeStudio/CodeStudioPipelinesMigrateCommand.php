@@ -76,8 +76,6 @@ final class CodeStudioPipelinesMigrateCommand extends CommandBase {
 
   /**
    * Check whether wizard command is executed by checking the env variable of codestudio project.
-   *
-   * @param array $project
    */
   private function checkGitLabCiCdVariables(array $project): void {
     $gitlabCicdVariables = CodeStudioCiCdVariables::getList();
@@ -93,7 +91,6 @@ final class CodeStudioPipelinesMigrateCommand extends CommandBase {
   /**
    * Check acquia-pipeline.yml file exists in the root repo and remove ci_config_path from codestudio project.
    *
-   * @param array $project
    * @return array<mixed>
    */
   private function getAcquiaPipelinesFileContents(array $project): array {
@@ -163,10 +160,6 @@ final class CodeStudioPipelinesMigrateCommand extends CommandBase {
     return $acquiaPipelinesFileContents['events'][$eventName]['steps'] ?? NULL;
   }
 
-  /**
-   * @param array $acquiaPipelinesFileContents
-   * @param array $gitlabCiFileContents
-   */
   private function migrateEventsSection(array $acquiaPipelinesFileContents, array &$gitlabCiFileContents): void {
     // phpcs:disable SlevomatCodingStandard.Arrays.AlphabeticallySortedByKeys
     $eventsMap = [

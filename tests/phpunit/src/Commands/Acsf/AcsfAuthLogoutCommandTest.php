@@ -49,8 +49,6 @@ class AcsfAuthLogoutCommandTest extends AcsfCommandTestBase {
 
   /**
    * @dataProvider providerTestAuthLogoutCommand
-   * @param array $inputs
-   * @param array $config
    */
   public function testAcsfAuthLogoutCommand(bool $machineIsAuthenticated, array $inputs, array $config = []): void {
     if (!$machineIsAuthenticated) {

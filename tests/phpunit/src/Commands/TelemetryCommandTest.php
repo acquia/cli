@@ -60,7 +60,6 @@ class TelemetryCommandTest extends CommandTestBase {
    * Tests telemetry prompt.
    *
    * @dataProvider providerTestTelemetryPrompt
-   * @param array $inputs
    * @param $message
    */
   public function testTelemetryPrompt(array $inputs, mixed $message): void {

@@ -140,7 +140,6 @@ final class CodeStudioWizardCommand extends WizardCommandBase {
   }
 
   /**
-   * @param array $project
    * @return array<mixed>|null
    */
   private function getGitLabScheduleByDescription(array $project, string $scheduledPipelineDescription): ?array {
@@ -154,7 +153,6 @@ final class CodeStudioWizardCommand extends WizardCommandBase {
   }
 
   /**
-   * @param array $project
    * @return array<mixed>|null ?
    */
   private function getGitLabProjectAccessTokenByName(array $project, string $name): ?array {

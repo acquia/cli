@@ -49,7 +49,6 @@ class NewCommandTest extends CommandTestBase {
 
   /**
    * @dataProvider provideTestNewDrupalCommand
-   * @param array $package
    */
   public function testNewDrupalCommand(array $package, string $directory = 'drupal'): void {
     $this->newProjectDir = Path::makeAbsolute($directory, $this->projectDir);
@@ -88,7 +87,6 @@ class NewCommandTest extends CommandTestBase {
 
   /**
    * @dataProvider provideTestNewNextJsAppCommand
-   * @param array $package
    */
   public function testNewNextJSAppCommand(array $package, string $directory = 'nextjs'): void {
     $this->newProjectDir = Path::makeAbsolute($directory, $this->projectDir);
