@@ -21,7 +21,7 @@ class ApiCommandTest extends CommandTestBase {
 
   public function setUp(): void {
     parent::setUp();
-    $this->clientProphecy->addOption('headers', ['Accept' => 'application/hal+json']);
+    $this->clientProphecy->addOption('headers', ['Accept' => 'application/json']);
     putenv('ACQUIA_CLI_USE_CLOUD_API_SPEC_CACHE=1');
   }
 
