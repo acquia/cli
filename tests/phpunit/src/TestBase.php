@@ -272,7 +272,12 @@ abstract class TestBase extends TestCase {
   public function getMockResponseFromSpec(mixed $path, mixed $method, mixed $httpCode): object {
     $endpoint = $this->getResourceFromSpec($path, $method);
     $response = $endpoint['responses'][$httpCode];
-    $content = $response['content']['application/json'];
+    if (array_key_exists('application/hal+json', $response['content'])) {
+      $content = $response['content']['application/hal+json'];
+    }
+    else {
+      $content = $response['content']['application/json'];
+    }
 
     if (array_key_exists('example', $content)) {
       $responseBody = json_encode($content['example'], JSON_THROW_ON_ERROR);
@@ -336,9 +341,13 @@ abstract class TestBase extends TestCase {
     );
   }
 
-  public function getMockRequestBodyFromSpec(mixed $path, string $method = 'post'): mixed {
+  public function getMockRequestBodyFromSpec(string $path, string $method = 'post'): mixed {
     $endpoint = $this->getResourceFromSpec($path, $method);
-    return $endpoint['requestBody']['content']['application/json']['example'];
+    if (array_key_exists('application/json', $endpoint['requestBody']['content'])) {
+      return $endpoint['requestBody']['content']['application/json']['example'];
+    }
+
+    return $endpoint['requestBody']['content']['application/hal+json']['example'];
   }
 
   protected function getCloudApiSpec(): mixed {

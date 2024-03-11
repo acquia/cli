@@ -459,7 +459,7 @@ components:
       required: false
       schema:
         type: string
-      example: 2020-01-01T00:00:00.000Z
+      example: '2020-01-01T00:00:00.000Z'
     From:
       name: from
       in: query
@@ -475,7 +475,7 @@ components:
       required: false
       schema:
         type: string
-      example: 2021-01-29T22:45:21+00:00
+      example: '2021-01-29T22:45:21+00:00'
     FromStackMetrics:
       name: from
       in: query
@@ -483,7 +483,7 @@ components:
       required: true
       schema:
         type: string
-      example: 2021-01-29T22:45:21+00:00
+      example: '2021-01-29T22:45:21+00:00'
     To:
       name: to
       in: query
@@ -499,7 +499,7 @@ components:
       required: false
       schema:
         type: string
-      example: 2021-01-29T23:55:21+00:00
+      example: '2021-01-29T23:55:21+00:00'
     Sort:
       name: sort
       in: query
@@ -7027,8 +7027,8 @@ paths:
                 name: jane.doe
                 first_name: Jane
                 last_name: Doe
-                last_login_at: 2017-03-28T13:07:54-0500
-                created_at: 2016-07-17T20:35:25+00:00
+                last_login_at: '2017-03-28T13:07:54-0500'
+                created_at: '2016-07-17T20:35:25+00:00'
                 mail: jane.doe@example.com
                 phone:
                   office: null
@@ -7538,7 +7538,7 @@ paths:
                         name: Team Name
                       uuid: eb947b2c-2fe0-11e9-b210-d663bd873d93
                       email: invitee@example.com
-                      created_at: 2012-05-15T12:00:00Z
+                      created_at: '2012-05-15T12:00:00Z'
                       token: dd9ea69fdcb6bee08b31a858b85535ec
                       flags:
                         declined: false
@@ -7559,7 +7559,7 @@ paths:
                         picture_url: https://accounts.acquia.com/sites/default/files/avatars/123abc?mail=jane.doe@example.com
                       uuid: 0540f4ba-2fe1-11e9-b210-d663bd873d93
                       email: invitee@example.com
-                      created_at: 2012-05-15T12:00:00Z
+                      created_at: '2012-05-15T12:00:00Z'
                       token: dd9ea69fdcb6bee08b31a858b85535ec
                       flags:
                         declined: false
@@ -7865,7 +7865,7 @@ paths:
                     - uuid: 02905393-65d7-4bef-873b-24593f73d273
                       label: PC Home
                       fingerprint: 5d:23:fb:45:70:df:ef:ad:ca:bf:81:93:cd:50:26:28
-                      created_at: 2017-05-09T20:30:35+00:00
+                      created_at: '2017-05-09T20:30:35+00:00'
                       public_key: ssh-rsa AAAAB3NzaC1yc2EADHrfHY17SbrmAAABIwAAAQEAklOUpkTIpNLTGK9Tjom/BWDSUGPl+nafzlZ5ew18JH4JW9jbhUFrviQzM7xlELEVf4h9lFX5HDTYW7hdI4yQVkbPppSwg0cda3Pbv7kOdJ/MTyBlWXFCR+HAo3FXRitBqxiX1nKhXpHAZsMciLq8V6RjsNAQwdsdMFvSlVK/7XAt3FaoJoAsncM1Q9x5+3V0Ww68/eIFmb1zuUFljQJKprrX88XypNDvjYNby6vw/Pb0rwert/EnmZ+AW4OZPnTPI89ZPmVMLuayrD2cE86Z/il8b+gw3r3+1nKatmIkjn2so1d01QraTlMqVSsbxNrRFi9wrf+M7Q== example@example.com
                       _links:
                         self:
@@ -7873,7 +7873,7 @@ paths:
                     - uuid: d40833b3-6ea4-4339-9e2c-4b78e700258b
                       label: Laptop Work
                       fingerprint: 5b:18:fb:50:55:df:cf:d5:bf:ea:81:23:ef:55:22:29
-                      created_at: 2017-05-09T20:30:35+00:00
+                      created_at: '2017-05-09T20:30:35+00:00'
                       public_key: ssh-rsa 1yc2EAAAABIwbrmTIpNLTGK9Tjom/BWDSUGPl+nafzlHDAAAQEAklOUpkDHrfHY17STYW7hdI4yZ5ew18JH4JW9jbhUFrviQzM7xlELEVf4pSwg0cda3PbAAAAB3NzaCv7kOdJ/MTyBlWXFCRh9lFX5QVkbPp+HAo3FXRitBqxiX1nKhXpHAZsMciLq8V6RjsNAQwdsdMFvSlVK/7XAt3FaoJoAsncM1Q9x5+3V0Ww68/eIFmb1zuUFljQJKprrX88XypNDvjYNby6vw/Pb0rwert/EnmZ+AW4OZPnTPI89ZPmVMLuayrD2cE86Z/il8b+gw3r3+1nKatmIkjn2so1d01QraTlMqVSsbxNrRFi9wrf+M7Q== example@example.com
                       _links:
                         self:
@@ -7881,7 +7881,7 @@ paths:
                     - uuid: c40ee264-0023-4f60-815b-d20b44740746
                       label: PC Work
                       fingerprint: 7c:s3:ab:30:40:da:cf:c5:bf:ca:31:33:ed:58:23:21
-                      created_at: 2017-05-09T20:30:35+00:00
+                      created_at: '2017-05-09T20:30:35+00:00'
                       public_key: ssh-rsa A1yc2EAAAlOUpkDHrfHY17SbrmTIAAAB3NzaCom/BWDSUGPl+nafzlHDTYW7hdI4yQVkbPppSwg0cda3ABIwAAAQEAkPZ5ew18JH4JW9jbhUFrviQzM7xlELEVf4h9lFX5bv7kOdJ/MTyBlWXFCR+HAo3FXRitBqxiX1nKhXpHAZsMciLq8V6RjsNAQwdsdMFvSlVK/7XAt3FaoJoAsncM1Q9x5+3V0Ww68/eIFmb1zuUFljQJKprrX88XypNDvjYNby6vw/Pb0rwert/EnmZ+AW4OZPnTPI89ZPmVMLuayrD2cE86Z/il8b+gw3r3+1nKatmIkjn2so1d01QraTlMqVSsbxNrRFi9wrf+M7Q== example@example.com
                       _links:
                         self:
@@ -8013,7 +8013,7 @@ paths:
                 uuid: b2a53dfb-f4e2-4543-814d-7a9aa3793746
                 label: PC Home
                 fingerprint: 8d:13:fb:50:50:da:cf:c5:bf:ca:31:33:ed:51:27:24
-                created_at: 2017-05-09T20:30:35+00:00
+                created_at: '2017-05-09T20:30:35+00:00'
                 public_key: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQChwPHzTTDKDpSbpa2+d22LcbQmsw92eLsUK3Fmei1fiGDkd34NsYCN8m7lsi3NbvdMS83CtPQPWiCveYPzFs1/hHc4PYj8opD2CNnr5iWVVbyaulCYHCgVv4aB/ojcexg8q483A4xJeF15TiCr/gu34rK6ucTvC/tn/rCwJBudczvEwt0klqYwv8Cl/ytaQboSuem5KgSjO3lMrb6CWtfSNhE43ZOw+UBFBqxIninN868vGMkIv9VY34Pwj54rPn/ItQd6Ef4B0KHHaGmzK0vfP+AK7FxNMoHnj3iYT33KZNqtDozdn5tYyH/bThPebEtgqUn+/w5l6wZIC/8zzvls/127ngHk+jNa0PlNyS2TxhPUK4NaPHIEnnrlp07JEYC4ImcBjaYCWAdcTcUkcJjwZQkN4bGmyO9cjICH98SdLD/HxqzTHeaYDbAX/Hu9HfaBb5dXLWsjw3Xc6hoVnUUZbMQyfgb0KgxDLh92eNGxJkpZiL0VDNOWCxDWsNpzwhLNkLqCvI6lyxiLaUzvJAk6dPaRhExmCbU1lDO2eR0FdSwC1TEhJOT9eDIK1r2hztZKs2oa5FNFfB/IFHVWasVFC9N2h/r/egB5zsRxC9MqBLRBq95NBxaRSFng6ML5WZSw41Qi4C/JWVm89rdj2WqScDHYyAdwyyppWU4T5c9Fmw== example@example.com
                 _links:
                   self:
@@ -8331,7 +8331,7 @@ paths:
                     - uuid: 17feaf34-5d04-402b-9a67-15d5161d24e1
                       active: true
                       label: My First App
-                      created_at: 2016-01-22T17:41:57-0500
+                      created_at: '2016-01-22T17:41:57-0500'
                       flags:
                         active: true
                       revocation: null
@@ -8341,7 +8341,7 @@ paths:
                     - uuid: 81e8965d-0af0-460d-9e46-977dfcc38c29
                       active: true
                       label: My Second App
-                      created_at: 2016-01-22T17:55:15-0500
+                      created_at: '2016-01-22T17:55:15-0500'
                       flags:
                         active: true
                       revocation: null
@@ -8432,7 +8432,7 @@ paths:
                 uuid: 17feaf34-5d04-402b-9a67-15d5161d24e1
                 active: true
                 label: My App v1.0
-                created_at: 2016-01-22T17:41:57-0500
+                created_at: '2016-01-22T17:41:57-0500'
                 revocation: null
                 flags:
                   active: true
@@ -9166,21 +9166,21 @@ paths:
                     - id: 1
                       name: master@e5a80b9e0a2bdb1df32c6cdfce54deb70cc20ad2
                       state: ready
-                      created_at: 2012-05-15T12:00:00Z
+                      created_at: '2012-05-15T12:00:00Z'
                       _links:
                         self:
                           href: https://cloud.acquia.com/api/applications/a47ac10b-58cc-4372-a567-0e02b2c3d470/artifacts/1
                     - id: 2
                       name: master@a265389db6a6918cf4e51edbe5f06d7e1578175c
                       state: pending-upload
-                      created_at: 2012-05-15T12:00:00Z
+                      created_at: '2012-05-15T12:00:00Z'
                       _links:
                         self:
                           href: https://cloud.acquia.com/api/applications/a47ac10b-58cc-4372-a567-0e02b2c3d470/artifacts/2
                     - id: 3
                       name: master@e7157f36e5fb82317ffee2fc2d70302cdad0c60c
                       state: deleted
-                      created_at: 2012-05-15T12:00:00Z
+                      created_at: '2012-05-15T12:00:00Z'
                       _links:
                         self:
                           href: https://cloud.acquia.com/api/applications/a47ac10b-58cc-4372-a567-0e02b2c3d470/artifacts/3
@@ -9222,7 +9222,7 @@ paths:
                 id: 1
                 name: master@e5a80b9e0a2bdb1df32c6cdfce54deb70cc20ad2
                 state: ready
-                created_at: 2012-05-15T12:00:00Z
+                created_at: '2012-05-15T12:00:00Z'
                 _links:
                   self:
                     href: https://cloud.acquia.com/api/applications/a47ac10b-58cc-4372-a567-0e02b2c3d470/artifacts/1
@@ -10123,8 +10123,8 @@ paths:
                           uuid: 10be1d3e-f2b4-4d34-855d-321df3938ffd
                           first_name: First
                           last_name: Last
-                          last_login_at: 2019-01-31T10:53:11-05:00
-                          created_at: 2016-08-14T17:38:59-04:00
+                          last_login_at: '2019-01-31T10:53:11-05:00'
+                          created_at: '2016-08-14T17:38:59-04:00'
                           email: user.name@example.com
                           picture_url: https://accounts.acquia.com/path/to/image.png
                           username: user.name
@@ -10145,8 +10145,8 @@ paths:
                           uuid: 10be1d3e-f2b4-4d34-855d-321df3938ffd
                           first_name: First
                           last_name: Last
-                          last_login_at: 2019-01-31T10:53:11-05:00
-                          created_at: 2016-08-14T17:38:59-04:00
+                          last_login_at: '2019-01-31T10:53:11-05:00'
+                          created_at: '2016-08-14T17:38:59-04:00'
                           email: user.name@example.com
                           picture_url: https://accounts.acquia.com/path/to/image.png
                           username: user.name
@@ -10418,8 +10418,8 @@ paths:
                       event: ApplicationAddedToRecents
                       label: Application added to recents list
                       description: '"Canary QA 11 - ACE" was added to your recent applications list.'
-                      created_at: 2019-07-29T20:47:13+00:00
-                      completed_at: 2019-07-29T20:47:13+00:00
+                      created_at: '2019-07-29T20:47:13+00:00'
+                      completed_at: '2019-07-29T20:47:13+00:00'
                       status: completed
                       progress: 100
                       context:
@@ -11438,8 +11438,8 @@ paths:
             example:
               update_mode: update
               update_type: core_contrib
-              pause_until: 2021-10-10 13:00:00
-              deploy_at: 2020-10-13 13:00:00
+              pause_until: '2021-10-10 13:00:00'
+              deploy_at: '2020-10-13 13:00:00'
               deploy_environment: test
               source_environment: prod
               copy_files: false
@@ -12097,8 +12097,8 @@ paths:
                   items:
                     - uuid: abcd1234-82b5-11e3-9170-12313920a02c
                       name: Team Name 1
-                      created_at: 2013-10-28T14:16:07-0700
-                      updated_at: 2015-02-19T08:53:10-0800
+                      created_at: '2013-10-28T14:16:07-0700'
+                      updated_at: '2015-02-19T08:53:10-0800'
                       organization:
                         uuid: 2375e327-3fff-11e3-9170-12313920a02c
                         name: Sample Organization
@@ -12107,8 +12107,8 @@ paths:
                           href: https://cloud.acquia.com/api/teams/2c9ea556-4016-11e3-9170-12313920a02c
                     - uuid: 1234abcd-82b5-11e3-9170-12313920a02c
                       name: Team Name 2
-                      created_at: 2014-05-27T11:55:39-0700
-                      updated_at: 2015-01-30T05:49:16-0800
+                      created_at: '2014-05-27T11:55:39-0700'
+                      updated_at: '2015-01-30T05:49:16-0800'
                       organization:
                         uuid: 2375e327-3fff-11e3-9170-12313920a02c
                         name: Sample Organization
@@ -12225,11 +12225,11 @@ paths:
                   items:
                     - metric: views
                       datapoints:
-                        - - 2019-03-13T00:00:00+00:00
+                        - - '2019-03-13T00:00:00+00:00'
                           - "9"
-                        - - 2019-03-14T00:00:00+00:00
+                        - - '2019-03-14T00:00:00+00:00'
                           - "1"
-                      last_data_at: 2019-03-14T00:00:00+00:00
+                      last_data_at: '2019-03-14T00:00:00+00:00'
                       metadata:
                         subscription:
                           uuids:
@@ -12249,11 +12249,11 @@ paths:
                           href: https://cloud.acquia.com/api/applications/1df8bff7-ffda-4571-b64a-f90f60f4dbf8/metrics/usage
                     - metric: visits
                       datapoints:
-                        - - 2019-03-13T00:00:00+00:00
+                        - - '2019-03-13T00:00:00+00:00'
                           - "3"
-                        - - 2019-03-14T00:00:00+00:00
+                        - - '2019-03-14T00:00:00+00:00'
                           - "1"
-                      last_data_at: 2019-03-14T00:00:00+00:00
+                      last_data_at: '2019-03-14T00:00:00+00:00'
                       metadata:
                         subscription:
                           uuids:
@@ -12379,11 +12379,11 @@ paths:
                           href: https://cloud.acquia.com/api/environments/123-1df8bff7-ffda-4571-b64a-f90f60f4dbf8/metrics/usage
                     - metric: views
                       datapoints:
-                        - - 2019-03-13T00:00:00+00:00
+                        - - '2019-03-13T00:00:00+00:00'
                           - "9"
-                        - - 2019-03-14T00:00:00+00:00
+                        - - '2019-03-14T00:00:00+00:00'
                           - "1"
-                      last_data_at: 2019-03-14T00:00:00+00:00
+                      last_data_at: '2019-03-14T00:00:00+00:00'
                       metadata:
                         subscription:
                           uuids:
@@ -12401,11 +12401,11 @@ paths:
                           href: https://cloud.acquia.com/api/environments/124-1df8bff7-ffda-4571-b64a-f90f60f4dbf8/metrics/usage
                     - metric: visits
                       datapoints:
-                        - - 2019-03-13T00:00:00+00:00
+                        - - '2019-03-13T00:00:00+00:00'
                           - "3"
-                        - - 2019-03-14T00:00:00+00:00
+                        - - '2019-03-14T00:00:00+00:00'
                           - "1"
-                      last_data_at: 2019-03-14T00:00:00+00:00
+                      last_data_at: '2019-03-14T00:00:00+00:00'
                       metadata:
                         subscription:
                           uuids:
@@ -12506,11 +12506,11 @@ paths:
               example:
                 metric: views
                 datapoints:
-                  - - 2019-03-13T00:00:00+00:00
+                  - - '2019-03-13T00:00:00+00:00'
                     - "9"
-                  - - 2019-03-14T00:00:00+00:00
+                  - - '2019-03-14T00:00:00+00:00'
                     - "1"
-                last_data_at: 2019-03-14T00:00:00+00:00
+                last_data_at: '2019-03-14T00:00:00+00:00'
                 metadata:
                   subscription:
                     uuids:
@@ -12617,11 +12617,11 @@ paths:
                           href: https://cloud.acquia.com/api/environments/123-1df8bff7-ffda-4571-b64a-f90f60f4dbf8/metrics/usage
                     - metric: views
                       datapoints:
-                        - - 2019-03-13T00:00:00+00:00
+                        - - '2019-03-13T00:00:00+00:00'
                           - "9"
-                        - - 2019-03-14T00:00:00+00:00
+                        - - '2019-03-14T00:00:00+00:00'
                           - "1"
-                      last_data_at: 2019-03-14T00:00:00+00:00
+                      last_data_at: '2019-03-14T00:00:00+00:00'
                       metadata:
                         subscription:
                           uuids:
@@ -12744,11 +12744,11 @@ paths:
                           href: https://cloud.acquia.com/api/environments/123-1df8bff7-ffda-4571-b64a-f90f60f4dbf8/metrics/usage
                     - metric: visits
                       datapoints:
-                        - - 2019-03-13T00:00:00+00:00
+                        - - '2019-03-13T00:00:00+00:00'
                           - "3"
-                        - - 2019-03-14T00:00:00+00:00
+                        - - '2019-03-14T00:00:00+00:00'
                           - "1"
-                      last_data_at: 2019-03-14T00:00:00+00:00
+                      last_data_at: '2019-03-14T00:00:00+00:00'
                       metadata:
                         subscription:
                           uuids:
@@ -15992,8 +15992,8 @@ paths:
                         id: 14
                         name: db_name
                       type: daily
-                      started_at: 2012-05-15T12:00:00Z
-                      completed_at: 2012-05-15T12:00:00Z
+                      started_at: '2012-05-15T12:00:00Z'
+                      completed_at: '2012-05-15T12:00:00Z'
                       flags:
                         deleted: false
                       environment:
@@ -16179,8 +16179,8 @@ paths:
                   id: 14
                   name: db_name
                 type: daily
-                started_at: 2012-05-15T12:00:00Z
-                completed_at: 2012-05-15T12:00:00Z
+                started_at: '2012-05-15T12:00:00Z'
+                completed_at: '2012-05-15T12:00:00Z'
                 flags:
                   deleted: false
                 environment:
@@ -16330,7 +16330,7 @@ paths:
                 $ref: "#/components/schemas/FileDownload"
               example:
                 url: http://example.com/backup.gz
-                expires_at: 2020-06-16T15:15:05+00:00
+                expires_at: '2020-06-16T15:15:05+00:00'
                 _links:
                   self:
                     href: https://cloud.acquia.com/api/environments/12-482e4650-1b74-44db-8d4e-e86a3b1ed908/databases/sitedatabase/backups/4423492/actions/download
@@ -17586,8 +17586,8 @@ paths:
                   type: string
                   description: An ISO-8601 formatted date retrieve results to. Date ranges are only supported on Acquia Cloud Next.
             example:
-              from: 2021-01-28T22:45:21+00:00
-              to: 2021-01-29T23:55:21+00:00
+              from: '2021-01-28T22:45:21+00:00'
+              to: '2021-01-29T23:55:21+00:00'
       responses:
         "201":
           description: Created
@@ -18939,7 +18939,7 @@ paths:
                           - "1447876680"
                         - - "4.568567607842"
                           - "1447876980"
-                      last_data_at: 2019-06-19T00:00:00+00:00
+                      last_data_at: '2019-06-19T00:00:00+00:00'
                       metadata:
                         host: fsdb-1.prod.hosting.acquia.com
                     - metric: db-cpu
@@ -18950,7 +18950,7 @@ paths:
                           - "1447876680"
                         - - "24.168567607842"
                           - "1447876980"
-                      last_data_at: 2019-06-19T00:00:00+00:00
+                      last_data_at: '2019-06-19T00:00:00+00:00'
                       metadata:
                         host: fsdb-2.prod.hosting.acquia.com
                     - metric: web-cpu
@@ -18961,7 +18961,7 @@ paths:
                           - "1447876680"
                         - - "12.168567607842"
                           - "1447876980"
-                      last_data_at: 2019-06-19T00:00:00+00:00
+                      last_data_at: '2019-06-19T00:00:00+00:00'
                       metadata:
                         host: web-1.prod.hosting.acquia.com
                     - metric: web-cpu
@@ -18972,7 +18972,7 @@ paths:
                           - "1447876680"
                         - - "2.168567607842"
                           - "1447876980"
-                      last_data_at: 2019-06-19T00:00:00+00:00
+                      last_data_at: '2019-06-19T00:00:00+00:00'
                       metadata:
                         host: web-2.prod.hosting.acquia.com
         "403":
@@ -19089,11 +19089,11 @@ paths:
                   items:
                     - metric: views
                       datapoints:
-                        - - 2019-03-13T00:00:00+00:00
+                        - - '2019-03-13T00:00:00+00:00'
                           - "9"
-                        - - 2019-03-14T00:00:00+00:00
+                        - - '2019-03-14T00:00:00+00:00'
                           - "1"
-                      last_data_at: 2019-03-14T00:00:00+00:00
+                      last_data_at: '2019-03-14T00:00:00+00:00'
                       metadata:
                         subscription:
                           uuids:
@@ -19111,11 +19111,11 @@ paths:
                           href: https://cloud.acquia.com/api/environments/123-1df8bff7-ffda-4571-b64a-f90f60f4dbf8/metrics/usage
                     - metric: visits
                       datapoints:
-                        - - 2019-03-13T00:00:00+00:00
+                        - - '2019-03-13T00:00:00+00:00'
                           - "3"
-                        - - 2019-03-14T00:00:00+00:00
+                        - - '2019-03-14T00:00:00+00:00'
                           - "1"
-                      last_data_at: 2019-03-14T00:00:00+00:00
+                      last_data_at: '2019-03-14T00:00:00+00:00'
                       metadata:
                         subscription:
                           uuids:
@@ -19178,11 +19178,11 @@ paths:
               example:
                 metric: views
                 datapoints:
-                  - - 2019-03-13T00:00:00+00:00
+                  - - '2019-03-13T00:00:00+00:00'
                     - "9"
-                  - - 2019-03-14T00:00:00+00:00
+                  - - '2019-03-14T00:00:00+00:00'
                     - "1"
-                last_data_at: 2019-03-14T00:00:00+00:00
+                last_data_at: '2019-03-14T00:00:00+00:00'
                 metadata:
                   subscription:
                     uuids:
@@ -21016,7 +21016,7 @@ paths:
                         active: true
                         csr: true
                         legacy: true
-                      expires_at: 2022-03-28T00:12:34-0400
+                      expires_at: '2022-03-28T00:12:34-0400'
                       domains:
                         - example.com
                         - www.example.com
@@ -21037,7 +21037,7 @@ paths:
                         active: true
                         csr: false
                         legacy: false
-                      expires_at: 2021-01-01T00:00:00-0400
+                      expires_at: '2021-01-01T00:00:00-0400'
                       domains:
                         - example2.com
                         - www.example2.com
@@ -21056,7 +21056,7 @@ paths:
                         active: false
                         csr: true
                         legacy: false
-                      expires_at: 2021-01-01T00:00:00-0400
+                      expires_at: '2021-01-01T00:00:00-0400'
                       domains:
                         - example3.com
                         - www.example3.com
@@ -21212,7 +21212,7 @@ paths:
                   active: true
                   csr: true
                   legacy: false
-                expires_at: 2022-03-28T00:12:34-0400
+                expires_at: '2022-03-28T00:12:34-0400'
                 domains:
                   - example.com
                   - www.example.com
@@ -22414,8 +22414,8 @@ paths:
                     uuid: 10be1d3e-f2b4-4d34-855d-321df3938ffd
                     first_name: First
                     last_name: Last
-                    last_login_at: 2019-01-31T10:53:11-05:00
-                    created_at: 2016-08-14T17:38:59-04:00
+                    last_login_at: '2019-01-31T10:53:11-05:00'
+                    created_at: '2016-08-14T17:38:59-04:00'
                     email: user.name@example.com
                     picture_url: https://accounts.acquia.com/path/to/image.png
                     username: user.name
@@ -22940,8 +22940,8 @@ paths:
                   uuid: 2429bf71-9145-4266-b532-1f4e3beaed55
                   first_name: Joe
                   last_name: Smith
-                  last_login_at: 2019-01-30T08:58:07-05:00
-                  created_at: 2015-08-14T17:37:23-04:00
+                  last_login_at: '2019-01-30T08:58:07-05:00'
+                  created_at: '2015-08-14T17:37:23-04:00'
                   mail: joe.smith@example.com
                   picture_url: https://accounts.acquia.com/images/users/2429bf71-9145-4266-b532-1f4e3beaed55/style/avatar
                   username: joe.smith
@@ -22956,7 +22956,7 @@ paths:
                   name: My Team
                 uuid: d258dc23-90c5-447c-b550-981b469796d9
                 email: joe.smith@example.com
-                created_at: 2019-01-30T09:12:15-05:00
+                created_at: '2019-01-30T09:12:15-05:00'
                 token: 189d2089-c7f1-418c-a437-9676f4edb1b3
                 flags:
                   declined: false
@@ -23253,8 +23253,8 @@ paths:
                 event: ApplicationAddedToRecents
                 label: Application added to recents list
                 description: '"Canary QA 11 - ACE" was added to your recent applications list.'
-                created_at: 2019-07-29T20:47:13+00:00
-                completed_at: 2019-07-29T20:47:13+00:00
+                created_at: '2019-07-29T20:47:13+00:00'
+                completed_at: '2019-07-29T20:47:13+00:00'
                 status: completed
                 progress: 100
                 context:
@@ -23987,7 +23987,7 @@ paths:
                     - uuid: 5aa902c5-f1c1-6c94-edfa-86bc58d0dce3
                       first_name: James
                       last_name: Kirk
-                      last_login_at: 2017-03-28T13:07:54-0500
+                      last_login_at: '2017-03-28T13:07:54-0500'
                       mail: james.kirk@example.com
                       picture_url: https://accounts.acquia.com/images/users/5aa902c5-f1c1-6c94-edfa-86bc58d0dce3/style/avatar
                       username: james.kirk
@@ -24055,7 +24055,7 @@ paths:
                 uuid: 5aa902c5-f1c1-6c94-edfa-86bc58d0dce3
                 first_name: James
                 last_name: Kirk
-                last_login_at: 2017-03-28T13:07:54-0500
+                last_login_at: '2017-03-28T13:07:54-0500'
                 mail: james.kirk@example.com
                 picture_url: https://accounts.acquia.com/images/users/5aa902c5-f1c1-6c94-edfa-86bc58d0dce3/style/avatar
                 username: james.kirk
@@ -24190,7 +24190,7 @@ paths:
                         uuid: a45a99ce-e1ae-47ac-a570-8189bc4d3347
                       uuid: f921fa88-47e3-49df-9dbb-75950aaca428
                       email: invitee@example.com
-                      created_at: 2012-05-15T12:00:00Z
+                      created_at: '2012-05-15T12:00:00Z'
                       token: dd9ea69fdcb6bee08b31a858b85535ec
                       flags:
                         declined: false
@@ -24209,7 +24209,7 @@ paths:
                         picture_url: https://accounts.acquia.com/sites/default/files/avatars/123abc?mail=john.doe@example.com
                       uuid: 857a8ec9-ac33-428d-8b1c-718d7f6f9aa4
                       email: invitee2@example.com
-                      created_at: 2012-05-15T12:00:00Z
+                      created_at: '2012-05-15T12:00:00Z'
                       token: dd9ea69fdcb6bee08b31a858b85535ed
                       flags:
                         declined: false
@@ -24915,7 +24915,7 @@ paths:
                     - uuid: 5aa902c5-f1c1-6c94-edfa-86bc58d0dce3
                       first_name: James
                       last_name: Kirk
-                      last_login_at: 2017-03-28T13:07:54-0500
+                      last_login_at: '2017-03-28T13:07:54-0500'
                       mail: james.kirk@example.com
                       picture_url: https://accounts.acquia.com/images/users/5aa902c5-f1c1-6c94-edfa-86bc58d0dce3/style/avatar
                       username: james.kirk
@@ -24932,7 +24932,7 @@ paths:
                       first_name: Christopher
                       last_name: Pike
                       mail: chris.pike@example.com
-                      last_login_at: 2018-02-19T13:07:54-0500
+                      last_login_at: '2018-02-19T13:07:54-0500'
                       picture_url: https://accounts.acquia.com/images/users/30dacb5e-4122-11e1-9eb5-12313928d3c2/style/avatar
                       username: chris.pike
                       teams:
@@ -25000,7 +25000,7 @@ paths:
                 uuid: 3bcddc3a-52ba-4cce-aaa3-9adf721c1b52
                 first_name: Jonathan
                 last_name: Archer
-                last_login_at: 2017-03-28T13:07:54-0500
+                last_login_at: '2017-03-28T13:07:54-0500'
                 mail: jonathan.archer@example.com
                 picture_url: https://accounts.acquia.com/images/users/3bcddc3a-52ba-4cce-aaa3-9adf721c1b52/style/avatar
                 username: jonathan.archer
@@ -25268,8 +25268,8 @@ paths:
                       event: TeamCreated
                       label: Team created
                       description: Created a new team project anomaly.
-                      created_at: 2022-12-08T15:42:37+00:00
-                      completed_at: 2022-12-08T15:42:37+00:00
+                      created_at: '2022-12-08T15:42:37+00:00'
+                      completed_at: '2022-12-08T15:42:37+00:00'
                       status: completed
                       progress: 100
                       context:
@@ -25304,8 +25304,8 @@ paths:
                           uuid: 08a44409-568f-46f6-8038-4f30e19e3eb2
                           first_name: Thomas
                           last_name: Anderson
-                          last_login_at: 2022-11-30T16:22:48+00:00
-                          created_at: 2019-10-15T20:22:19+00:00
+                          last_login_at: '2022-11-30T16:22:48+00:00'
+                          created_at: '2019-10-15T20:22:19+00:00'
                           email: thomas.a.anderson@acquia.com
                           picture_url: https://accounts.acquia.com/images/users/08a44409-568f-46f6-8038-4f30e19e3eb2/style/avatar
                           username: thomas.a.anderson@acquia.com
@@ -25687,7 +25687,7 @@ paths:
                         uuid: 879fc134-e8d9-49ab-a1a8-ffa33fddf8c9
                         first_name: Joe
                         last_name: Smith
-                        last_login_at: 2019-01-30T08:58:07-05:00
+                        last_login_at: '2019-01-30T08:58:07-05:00'
                         created_at: 2014-08-14T17:37:23-04:00
                         mail: joe.smith@example.com
                         picture_url: https://accounts.acquia.com/images/users/879fc134-e8d9-49ab-a1a8-ffa33fddf8c9/style/avatar
@@ -25703,7 +25703,7 @@ paths:
                         name: Team Name 1
                       uuid: fd745f4b-178f-4c09-87cc-4061a60eb1c9
                       email: invitee@example.com
-                      created_at: 2012-05-15T12:00:00Z
+                      created_at: '2012-05-15T12:00:00Z'
                       token: dd9ea69fdcb6bee08b31a858b85535ec
                       flags:
                         declined: true
@@ -25715,8 +25715,8 @@ paths:
                         uuid: 7e181890-bfb9-40d7-874b-ec78912c7525
                         first_name: Jane
                         last_name: Smith
-                        last_login_at: 2018-01-30T08:58:07-05:00
-                        created_at: 2017-08-14T17:37:23-04:00
+                        last_login_at: '2018-01-30T08:58:07-05:00'
+                        created_at: '2017-08-14T17:37:23-04:00'
                         mail: jane.smith@example.com
                         picture_url: https://accounts.acquia.com/images/users/7e181890-bfb9-40d7-874b-ec78912c7525/style/avatar
                         username: joe.smith
@@ -25733,7 +25733,7 @@ paths:
                         name: Team Name 1
                       uuid: 036612d0-8879-44a6-b2e2-93e0e30fc7fb
                       email: invitee2@example.com
-                      created_at: 2012-05-15T12:00:00Z
+                      created_at: '2012-05-15T12:00:00Z'
                       token: dd9ea69fdcb6bee08b31a858b85535ed
                       flags:
                         declined: false
@@ -25745,8 +25745,8 @@ paths:
                         uuid: 36dd8434-8eda-4c75-9f80-4f8a76d622b2
                         first_name: David
                         last_name: Green
-                        last_login_at: 2018-03-21T08:48:07-05:00
-                        created_at: 2016-03-14T17:37:23-04:00
+                        last_login_at: '2018-03-21T08:48:07-05:00'
+                        created_at: '2016-03-14T17:37:23-04:00'
                         mail: david.green@example.com
                         picture_url: https://accounts.acquia.com/images/users/36dd8434-8eda-4c75-9f80-4f8a76d622b2/style/avatar
                         username: joe.smith
@@ -25761,7 +25761,7 @@ paths:
                         name: Team Name 2
                       uuid: 24f7baea-5d0c-4860-8838-23130f092c48
                       email: invitee2@example.com
-                      created_at: 2013-05-15T12:00:00Z
+                      created_at: '2013-05-15T12:00:00Z'
                       token: aa1ea69fdcb6bee08b31a858b85535ee
                       flags:
                         declined: false
@@ -25829,8 +25829,8 @@ paths:
                   items:
                     - uuid: e8a29774-8f46-4765-9529-d564c81ba05f
                       name: Team Name 1
-                      created_at: 2013-10-28T14:16:07-0700
-                      updated_at: 2015-02-19T08:53:10-0800
+                      created_at: '2013-10-28T14:16:07-0700'
+                      updated_at: '2015-02-19T08:53:10-0800'
                       organization:
                         uuid: 842da900-3488-4139-9f31-656665857267
                         name: Sample Organization
@@ -25839,8 +25839,8 @@ paths:
                           href: https://cloud.acquia.com/api/teams/2c9ea556-4016-11e3-9170-12313920a02c
                     - uuid: 4b30d7e6-84af-4d80-931a-4172f57fe1b0
                       name: Team Name 2
-                      created_at: 2014-05-27T11:55:39-0700
-                      updated_at: 2015-01-30T05:49:16-0800
+                      created_at: '2014-05-27T11:55:39-0700'
+                      updated_at: '2015-01-30T05:49:16-0800'
                       organization:
                         uuid: 842da900-3488-4139-9f31-656665857267
                         name: Sample Organization
@@ -26529,7 +26529,7 @@ paths:
                     - id: 222
                       uuid: 36496037-6eb5-482d-8549-e45e1718f2b7
                       name: My Acquia Subscription
-                      start_at: 2012-05-15T12:00:00Z
+                      start_at: '2012-05-15T12:00:00Z'
                       expire_at: 2015-05-15T12:00:00Z
                       product:
                         id: 8999
@@ -26559,7 +26559,7 @@ paths:
                     - id: 333
                       uuid: 2d92f652-882c-458a-8183-4d9cef7c2fde
                       name: My Acquia Subscription 2
-                      start_at: 2012-05-15T12:00:00Z
+                      start_at: '2012-05-15T12:00:00Z'
                       expire_at: 2015-05-15T12:00:00Z
                       product:
                         id: 8999
@@ -28021,7 +28021,7 @@ paths:
                     - name: cde
                       offering_ids:
                         - b2a188df-00b7-47bf-a664-66835cde53b0
-                      expires_at: 2023-05-16T11:15:05+00:00
+                      expires_at: '2023-05-16T11:15:05+00:00'
                       flags:
                         trial: true
                       properties:
@@ -28031,14 +28031,14 @@ paths:
                     - name: pipelines
                       offering_ids:
                         - b2a188df-00b7-47bf-a664-66835cde53b0
-                      expires_at: 2023-05-16T11:15:05+00:00
+                      expires_at: '2023-05-16T11:15:05+00:00'
                       flags:
                         trial: true
                       properties: []
                     - name: newrelic
                       offering_ids:
                         - b2a188df-00b7-47bf-a664-66835cde53b0
-                      expires_at: 2023-05-16T11:15:05+00:00
+                      expires_at: '2023-05-16T11:15:05+00:00'
                       flags:
                         trial: true
                       properties:
@@ -28047,21 +28047,21 @@ paths:
                     - name: log-forwarding
                       offering_ids:
                         - b2a188df-00b7-47bf-a664-66835cde53b0
-                      expires_at: 2023-05-16T11:15:05+00:00
+                      expires_at: '2023-05-16T11:15:05+00:00'
                       flags:
                         trial: true
                       properties: []
                     - name: shield
                       offering_ids:
                         - b2a188df-00b7-47bf-a664-66835cde53b0
-                      expires_at: 2023-05-16T11:15:05+00:00
+                      expires_at: '2023-05-16T11:15:05+00:00'
                       flags:
                         trial: true
                       properties: []
                     - name: consumption-based-pricing
                       offering_ids:
                         - b2a188df-00b7-47bf-a664-66835cde53b0
-                      expires_at: 2023-05-16T11:15:05+00:00
+                      expires_at: '2023-05-16T11:15:05+00:00'
                       flags:
                         trial: true
                       properties:
@@ -28070,7 +28070,7 @@ paths:
                     - name: migrate-accelerator
                       offering_ids:
                         - b2a188df-00b7-47bf-a664-66835cde53b0
-                      expires_at: 2023-05-16T11:15:05+00:00
+                      expires_at: '2023-05-16T11:15:05+00:00'
                       flags:
                         trial: true
                       properties: []
@@ -28133,8 +28133,8 @@ paths:
                           uuid: 10be1d3e-f2b4-4d34-855d-321df3938ffd
                           first_name: First
                           last_name: Last
-                          last_login_at: 2019-01-31T10:53:11-05:00
-                          created_at: 2016-08-14T17:38:59-04:00
+                          last_login_at: '2019-01-31T10:53:11-05:00'
+                          created_at: '2016-08-14T17:38:59-04:00'
                           email: user.name@example.com
                           picture_url: https://accounts.acquia.com/path/to/image.png
                           username: user.name
@@ -28155,8 +28155,8 @@ paths:
                           uuid: 10be1d3e-f2b4-4d34-855d-321df3938ffd
                           first_name: First
                           last_name: Last
-                          last_login_at: 2019-01-31T10:53:11-05:00
-                          created_at: 2016-08-14T17:38:59-04:00
+                          last_login_at: '2019-01-31T10:53:11-05:00'
+                          created_at: '2016-08-14T17:38:59-04:00'
                           email: user.name@example.com
                           picture_url: https://accounts.acquia.com/path/to/image.png
                           username: user.name
@@ -28270,11 +28270,11 @@ paths:
                   items:
                     - metric: views
                       datapoints:
-                        - - 2019-03-13T00:00:00+00:00
+                        - - '2019-03-13T00:00:00+00:00'
                           - "9"
-                        - - 2019-03-14T00:00:00+00:00
+                        - - '2019-03-14T00:00:00+00:00'
                           - "1"
-                      last_data_at: 2019-03-14T00:00:00+00:00
+                      last_data_at: '2019-03-14T00:00:00+00:00'
                       metadata:
                         subscription:
                           uuids:
@@ -28289,11 +28289,11 @@ paths:
                           href: https://cloud.acquia.com/api/subscriptions/9567a611-4cdd-4586-8b3f-f3980a87e471/metrics/usage
                     - metric: visits
                       datapoints:
-                        - - 2019-03-13T00:00:00+00:00
+                        - - '2019-03-13T00:00:00+00:00'
                           - "3"
-                        - - 2019-03-14T00:00:00+00:00
+                        - - '2019-03-14T00:00:00+00:00'
                           - "1"
-                      last_data_at: 2019-03-14T00:00:00+00:00
+                      last_data_at: '2019-03-14T00:00:00+00:00'
                       metadata:
                         subscription:
                           uuids:
@@ -28378,11 +28378,11 @@ paths:
                   items:
                     - metric: views
                       datapoints:
-                        - - 2019-03-13T00:00:00+00:00
+                        - - '2019-03-13T00:00:00+00:00'
                           - "9"
-                        - - 2019-03-14T00:00:00+00:00
+                        - - '2019-03-14T00:00:00+00:00'
                           - "1"
-                      last_data_at: 2019-03-14T00:00:00+00:00
+                      last_data_at: '2019-03-14T00:00:00+00:00'
                       metadata:
                         subscription:
                           uuids:
@@ -28402,11 +28402,11 @@ paths:
                           href: https://cloud.acquia.com/api/applications/1df8bff7-ffda-4571-b64a-f90f60f4dbf8/metrics/usage
                     - metric: visits
                       datapoints:
-                        - - 2019-03-13T00:00:00+00:00
+                        - - '2019-03-13T00:00:00+00:00'
                           - "3"
-                        - - 2019-03-14T00:00:00+00:00
+                        - - '2019-03-14T00:00:00+00:00'
                           - "1"
-                      last_data_at: 2019-03-14T00:00:00+00:00
+                      last_data_at: '2019-03-14T00:00:00+00:00'
                       metadata:
                         subscription:
                           uuids:
@@ -28473,11 +28473,11 @@ paths:
               example:
                 metric: views
                 datapoints:
-                  - - 2019-03-13T00:00:00+00:00
+                  - - '2019-03-13T00:00:00+00:00'
                     - "9"
-                  - - 2019-03-14T00:00:00+00:00
+                  - - '2019-03-14T00:00:00+00:00'
                     - "1"
-                last_data_at: 2019-03-14T00:00:00+00:00
+                last_data_at: '2019-03-14T00:00:00+00:00'
                 metadata:
                   subscription:
                     uuids:
@@ -28561,11 +28561,11 @@ paths:
                   items:
                     - metric: views
                       datapoints:
-                        - - 2019-03-13T00:00:00+00:00
+                        - - '2019-03-13T00:00:00+00:00'
                           - "9"
-                        - - 2019-03-14T00:00:00+00:00
+                        - - '2019-03-14T00:00:00+00:00'
                           - "1"
-                      last_data_at: 2019-03-14T00:00:00+00:00
+                      last_data_at: '2019-03-14T00:00:00+00:00'
                       metadata:
                         subscription:
                           uuids:
@@ -28654,11 +28654,11 @@ paths:
                   items:
                     - metric: visits
                       datapoints:
-                        - - 2019-03-13T00:00:00+00:00
+                        - - '2019-03-13T00:00:00+00:00'
                           - "3"
-                        - - 2019-03-14T00:00:00+00:00
+                        - - '2019-03-14T00:00:00+00:00'
                           - "1"
-                      last_data_at: 2019-03-14T00:00:00+00:00
+                      last_data_at: '2019-03-14T00:00:00+00:00'
                       metadata:
                         subscription:
                           uuids:
@@ -29217,8 +29217,8 @@ paths:
                   items:
                     - uuid: abcd1234-82b5-11e3-9170-12313920a02c
                       name: Team Name 1
-                      created_at: 2013-10-28T14:16:07-0700
-                      updated_at: 2015-02-19T08:53:10-0800
+                      created_at: '2013-10-28T14:16:07-0700'
+                      updated_at: '2015-02-19T08:53:10-0800'
                       organization:
                         uuid: 2375e327-3fff-11e3-9170-12313920a02c
                         name: Sample Organization
@@ -29227,8 +29227,8 @@ paths:
                           href: https://cloud.acquia.com/api/teams/2c9ea556-4016-11e3-9170-12313920a02c
                     - uuid: 1234abcd-82b5-11e3-9170-12313920a02c
                       name: Team Name 2
-                      created_at: 2014-05-27T11:55:39-0700
-                      updated_at: 2015-01-30T05:49:16-0800
+                      created_at: '2014-05-27T11:55:39-0700'
+                      updated_at: '2015-01-30T05:49:16-0800'
                       organization:
                         uuid: 2375e327-3fff-11e3-9170-12313920a02c
                         name: Sample Organization
@@ -29268,8 +29268,8 @@ paths:
               example:
                 uuid: 2c9ea556-4016-11e3-9170-12313920a02c
                 name: Sample Team
-                created_at: 2013-10-28T14:16:07-0700
-                updated_at: 2015-02-19T08:53:10-0800
+                created_at: '2013-10-28T14:16:07-0700'
+                updated_at: '2015-02-19T08:53:10-0800'
                 organization:
                   uuid: 2375e327-3fff-11e3-9170-12313920a02c
                   name: Sample Organization
@@ -29752,7 +29752,7 @@ paths:
                         name: Team Name
                       uuid: f4347e76-bcd7-41f6-91aa-ac6691755f0c
                       email: invitee@example.com
-                      created_at: 2012-05-15T12:00:00Z
+                      created_at: '2012-05-15T12:00:00Z'
                       token: dd9ea69fdcb6bee08b31a858b85535ec
                       flags:
                         declined: true
@@ -29782,7 +29782,7 @@ paths:
                         name: Team Name
                       uuid: 6bf96944-bb9b-4629-b593-d658e44d8054
                       email: invitee2@example.com
-                      created_at: 2012-05-15T12:00:00Z
+                      created_at: '2012-05-15T12:00:00Z'
                       token: dd9ea69fdcb6bee08b31a858b85535ed
                       flags:
                         declined: false
@@ -29962,7 +29962,7 @@ paths:
                     - uuid: 5aa902c5-f1c1-6c94-edfa-86bc58d0dce3
                       first_name: James
                       last_name: Kirk
-                      last_login_at: 2017-03-28T13:07:54-0500
+                      last_login_at: '2017-03-28T13:07:54-0500'
                       mail: james.kirk@example.com
                       picture_url: https://accounts.acquia.com/images/users/5aa902c5-f1c1-6c94-edfa-86bc58d0dce3/style/avatar
                       username: james.kirk

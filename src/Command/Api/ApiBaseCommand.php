@@ -92,7 +92,7 @@ class ApiBaseCommand extends CommandBase {
     $this->addQueryParamsToClient($input, $acquiaCloudClient);
     $this->addPostParamsToClient($input, $acquiaCloudClient);
     $acquiaCloudClient->addOption('headers', [
-      'Accept' => 'application/json',
+      'Accept' => 'application/hal+json',
     ]);
 
     try {
