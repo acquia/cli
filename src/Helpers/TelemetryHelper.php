@@ -52,6 +52,9 @@ class TelemetryHelper {
       if (str_starts_with($report->getContext(), 'GET')) {
         return FALSE;
       }
+      if (str_starts_with($report->getContext(), 'Allowed memory size')) {
+        return FALSE;
+      }
       // Set user info.
       $userId = $this->getUserId();
       if (isset($userId)) {
