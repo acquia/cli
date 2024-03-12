@@ -407,7 +407,7 @@ class ApiCommandTest extends CommandTestBase {
   public function testApiCommandDefinitionRequestBody(string $commandName, string $method, string $usage): void {
     $this->command = $this->getApiCommandByName($commandName);
     $resource = $this->getResourceFromSpec($this->command->getPath(), $method);
-    foreach ($resource['requestBody']['content']['application/json']['example'] as $propKey => $value) {
+    foreach ($resource['requestBody']['content']['application/hal+json']['example'] as $propKey => $value) {
       $this->assertTrue($this->command->getDefinition()->hasArgument($propKey) || $this->command->getDefinition()
           ->hasOption($propKey),
         "Command {$this->command->getName()} does not have expected argument or option $propKey");
