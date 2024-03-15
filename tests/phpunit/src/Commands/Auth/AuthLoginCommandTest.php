@@ -8,6 +8,7 @@ use Acquia\Cli\Command\Auth\AuthLoginCommand;
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Config\CloudDataConfig;
 use Acquia\Cli\DataStore\CloudDataStore;
+use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Tests\CommandTestBase;
 use AcquiaCloudApi\Connector\Connector;
 use Generator;
@@ -66,6 +67,18 @@ class AuthLoginCommandTest extends CommandTestBase {
     $this->command = $this->createCommand();
     $this->expectException(ValidatorException::class);
     $this->executeCommand($args, $inputs);
+  }
+
+  public function testAuthLoginInvalidDatastore(): void {
+    $this->clientServiceProphecy->isMachineAuthenticated()->willReturn(FALSE);
+    $this->removeMockCloudConfigFile();
+    $this->createDataStores();
+    $this->datastoreCloud->set('keys', ['key1']);
+    $this->datastoreCloud->set('acli_key', 'key2');
+    $this->command = $this->createCommand();
+    $this->expectException(AcquiaCliException::class);
+    $this->expectExceptionMessage('Invalid key in Cloud datastore; run acli auth:logout && acli auth:login to fix');
+    $this->executeCommand();
   }
 
   protected function assertInteractivePrompts(string $output): void {

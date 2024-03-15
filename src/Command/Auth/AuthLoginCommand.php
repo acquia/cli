@@ -5,6 +5,7 @@ declare(strict_types = 1);
 namespace Acquia\Cli\Command\Auth;
 
 use Acquia\Cli\Command\CommandBase;
+use Acquia\Cli\Exception\AcquiaCliException;
 use AcquiaCloudApi\Endpoints\Account;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -25,6 +26,9 @@ final class AuthLoginCommand extends CommandBase {
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $keys = $this->datastoreCloud->get('keys');
     $activeKey = $this->datastoreCloud->get('acli_key');
+    if (is_array($keys) && !array_key_exists($activeKey, $keys)) {
+      throw new AcquiaCliException('Invalid key in Cloud datastore; run acli auth:logout && acli auth:login to fix');
+    }
     if ($activeKey) {
       $activeKeyLabel = $keys[$activeKey]['label'];
       $output->writeln("The following Cloud Platform API key is active: <options=bold>$activeKeyLabel</>");
