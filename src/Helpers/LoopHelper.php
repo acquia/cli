@@ -5,8 +5,6 @@ declare(strict_types = 1);
 namespace Acquia\Cli\Helpers;
 
 use Acquia\Cli\Output\Spinner\Spinner;
-use Exception;
-use Psr\Log\LoggerInterface;
 use React\EventLoop\Loop;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
@@ -16,7 +14,7 @@ class LoopHelper {
   /**
    * @param callable $statusCallback A TRUE return value will cause the loop to exit and call $doneCallback.
    */
-  public static function getLoopy(OutputInterface $output, SymfonyStyle $io, LoggerInterface $logger, string $spinnerMessage, callable $statusCallback, callable $doneCallback): void {
+  public static function getLoopy(OutputInterface $output, SymfonyStyle $io, string $spinnerMessage, callable $statusCallback, callable $doneCallback): void {
     $timers = [];
     $spinner = new Spinner($output, 4);
     $spinner->setMessage($spinnerMessage);
@@ -28,16 +26,11 @@ class LoopHelper {
       $timers = [];
       $spinner->finish();
     };
-    $periodicCallback = static function () use ($logger, $statusCallback, $doneCallback, $cancelTimers): void {
-      try {
-        // @infection-ignore-all
-        if ($statusCallback()) {
-          $cancelTimers();
-          $doneCallback();
-        }
-      }
-      catch (Exception $e) {
-        $logger->debug($e->getMessage());
+    $periodicCallback = static function () use ($statusCallback, $doneCallback, $cancelTimers): void {
+      // @infection-ignore-all
+      if ($statusCallback()) {
+        $cancelTimers();
+        $doneCallback();
       }
     };
 
