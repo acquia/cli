@@ -103,7 +103,7 @@ final class IdeCreateCommand extends IdeCommandBase {
     $checkIdeStatus = function () use (&$ideCreated, $ideUrl) {
       // Ideally we'd set $ideUrl as the Guzzle base_url, but that requires creating a client factory.
       // @see https://stackoverflow.com/questions/28277889/guzzlehttp-client-change-base-url-dynamically
-      $response = $this->httpClient->request('GET', "$ideUrl/health");
+      $response = $this->httpClient->request('GET', "$ideUrl/health", ['http_errors' => FALSE]);
       // Mutating this will result in an infinite loop and timeout.
       // @infection-ignore-all
       if ($response->getStatusCode() === 200) {
@@ -119,7 +119,7 @@ final class IdeCreateCommand extends IdeCommandBase {
       $this->writeIdeLinksToScreen();
     };
     $spinnerMessage = 'Waiting for the IDE to be ready. This usually takes 2 - 15 minutes.';
-    LoopHelper::getLoopy($this->output, $this->io, $this->logger, $spinnerMessage, $checkIdeStatus, $doneCallback);
+    LoopHelper::getLoopy($this->output, $this->io, $spinnerMessage, $checkIdeStatus, $doneCallback);
 
     return Command::SUCCESS;
   }
