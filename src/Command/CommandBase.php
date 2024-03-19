@@ -1233,9 +1233,14 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     // Not a UUID, maybe a JSON object?
     try {
       $json = json_decode($notification, NULL, 4, JSON_THROW_ON_ERROR);
-      return CommandBase::getNotificationUuidFromResponse($json);
+      if (is_object($json)) {
+        return self::getNotificationUuidFromResponse($json);
+      }
+      // In rare cases, JSON can decode to a string that's a valid UUID.
+      self::validateUuid($json);
+      return $json;
     }
-    catch (JsonException | AcquiaCliException) {
+    catch (JsonException | AcquiaCliException | ValidatorException) {
     }
 
     // Last chance, maybe a URL?
