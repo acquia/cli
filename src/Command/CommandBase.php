@@ -1757,7 +1757,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
         $this->writeCompletedMessage($notification);
       };
     }
-    LoopHelper::getLoopy($this->output, $this->io, $this->logger, $message, $checkNotificationStatus, $success);
+    LoopHelper::getLoopy($this->output, $this->io, $message, $checkNotificationStatus, $success);
     return $notification->status === 'completed';
   }
 
