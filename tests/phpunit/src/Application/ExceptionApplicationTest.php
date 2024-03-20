@@ -93,4 +93,21 @@ class ExceptionApplicationTest extends ApplicationTestBase {
     self::assertStringContainsString('An alias consists of an application name', $buffer);
   }
 
+  /**
+   * @group serial
+   */
+  public function testApiTypeError(): void {
+    $tamper = function ($response): void {
+      $response[0]->server = [];
+    };
+    $this->mockRequest('getCronJobsByEnvironmentId', '24-a47ac10b-58cc-4372-a567-0e02b2c3d470', NULL, NULL, $tamper);
+    $this->setInput([
+      'command' => 'env:cron-copy',
+      'dest_env' => '24-a47ac10b-58cc-4372-a567-0e02b2c3d471',
+      'source_env' => '24-a47ac10b-58cc-4372-a567-0e02b2c3d470',
+    ]);
+    $buffer = $this->runApp();
+    self::assertStringContainsString('Cloud Platform API returned an unexpected data type.', $buffer);
+  }
+
 }
