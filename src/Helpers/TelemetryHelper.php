@@ -20,11 +20,11 @@ use Zumba\Amplitude\Amplitude;
 class TelemetryHelper {
 
   public function __construct(
-    private ClientService $cloudApiClientService,
-    private CloudDataStore $datastoreCloud,
-    private Application $application,
-    private ?string $amplitudeKey = '',
-    private ?string $bugSnagKey = ''
+    private readonly ClientService $cloudApiClientService,
+    private readonly CloudDataStore $datastoreCloud,
+    private readonly Application $application,
+    private readonly ?string $amplitudeKey = '',
+    private readonly ?string $bugSnagKey = ''
   ) {
   }
 
@@ -47,13 +47,15 @@ class TelemetryHelper {
     $bugsnag->setAppVersion($this->application->getVersion());
     $bugsnag->setProjectRoot(Path::join(__DIR__, '..'));
     $bugsnag->registerCallback(function (Report $report): bool {
-      // Exclude reports from app:from, which bootstraps Drupal.
-      // We aren't responsible for Drupal application errors.
-      if (str_starts_with($report->getContext(), 'GET')) {
-        return FALSE;
-      }
-      if (str_starts_with($report->getContext(), 'Allowed memory size')) {
-        return FALSE;
+      // Exclude errors that we can't control.
+      switch (TRUE) {
+        // Exclude reports from app:from, which bootstraps Drupal.
+        case str_starts_with($report->getContext(), 'GET'):
+          // Exclude memory exhaustion errors.
+        case str_starts_with($report->getContext(), 'Allowed memory size'):
+          // Exclude i/o errors.
+        case str_starts_with($report->getContext(), 'fgets'):
+          return FALSE;
       }
       // Set user info.
       $userId = $this->getUserId();
