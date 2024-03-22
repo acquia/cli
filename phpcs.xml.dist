@@ -57,7 +57,8 @@
   <rule ref="Generic.PHP.ForbiddenFunctions">
     <properties>
       <property name="forbiddenFunctions" type="array">
-        <element key="echo" value="null"/>
+        <element key="echo" value="$output->writeln"/>
+        <element key="shell_exec" value="$localmachinehelper->execute"/>
       </property>
     </properties>
   </rule>
