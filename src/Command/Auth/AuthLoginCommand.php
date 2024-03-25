@@ -27,7 +27,7 @@ final class AuthLoginCommand extends CommandBase {
     $keys = $this->datastoreCloud->get('keys');
     $activeKey = $this->datastoreCloud->get('acli_key');
     // @todo this validation should really be enforced as a schema on the datastore.
-    if (count($keys) != 0 && !array_key_exists($activeKey, $keys)) {
+    if ( is_array($keys) && !empty($keys) != 0 && !array_key_exists($activeKey, $keys)) {
       throw new AcquiaCliException('Invalid key in Cloud datastore; run acli auth:logout && acli auth:login to fix');
     }
     if ($activeKey) {
