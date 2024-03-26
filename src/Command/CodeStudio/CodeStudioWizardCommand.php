@@ -5,6 +5,7 @@ declare(strict_types = 1);
 namespace Acquia\Cli\Command\CodeStudio;
 
 use Acquia\Cli\Command\WizardCommandBase;
+use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Output\Checklist;
 use AcquiaCloudApi\Endpoints\Account;
 use DateTime;
@@ -117,13 +118,16 @@ final class CodeStudioWizardCommand extends WizardCommandBase {
     $this->updateGitLabProject($project);
     $ciPath = 'gitlab-ci/Auto-DevOps.acquia.gitlab-ci.yml@acquia/node-template';
     $hostPath = $this->getGitLabHost();
-    $curlCommand = 'curl -s -N -k -L --request PUT --header "PRIVATE-TOKEN: ' . $projectAccessToken . '" --url ' . $hostPath . '/api/v4/projects/' . $projectId . ' --data "ci_config_path=' . $ciPath . '"';
+    $curlCommand = $this->getCurlCommand($projectAccessToken, $hostPath, $projectId, $ciPath);
     switch ($projectSelected) {
       case "Drupal_project":
         $this->setGitLabCiCdVariablesForPhpProject($project, $appUuid, $cloudKey, $cloudSecret, $projectAccessTokenName, $projectAccessToken, $phpVersion);
         break;
       case "Node_project":
-        shell_exec($curlCommand);
+        $cmdOutput = $this->localMachineHelper->executeFromCmd($curlCommand);
+        if (!$cmdOutput->isSuccessful()) {
+          throw new AcquiaCliException('Unable to execute curl command. {error_message}', ['error_message' => $cmdOutput->getErrorOutput()]);
+        }
         $this->setGitLabCiCdVariablesForNodeProject($project, $appUuid, $cloudKey, $cloudSecret, $projectAccessTokenName, $projectAccessToken, $nodeVersion);
         break;
     }
@@ -179,6 +183,11 @@ final class CodeStudioWizardCommand extends WizardCommandBase {
       'Node_project',
     ];
     return $array;
+  }
+
+  public function getCurlCommand(string $projectAccessToken, string $hostPath, int $projectId, string $ciPath): string {
+    $curlCommandString = 'curl -s -N -k -L --request PUT --header "PRIVATE-TOKEN: ' . $projectAccessToken . '" --url ' . $hostPath . '/api/v4/projects/' . $projectId . ' --data "ci_config_path=' . $ciPath . '"';
+    return $curlCommandString;
   }
 
   private function createProjectAccessToken(array $project, string $projectAccessTokenName): string {
