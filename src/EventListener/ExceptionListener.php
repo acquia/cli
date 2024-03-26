@@ -61,6 +61,12 @@ class ExceptionListener {
         case 'Access token expiry file not found at {file}':
           $this->helpMessages[] = 'Get help for this error at https://docs.acquia.com/ide/known-issues/#the-automated-cloud-platform-api-authentication-might-fail';
           break;
+        case 'This machine is not yet authenticated with the Cloud Platform.':
+          $this->helpMessages[] = 'Run `acli auth:login` to re-authenticated with the Cloud Platform.';
+          break;
+        case 'This machine is not yet authenticated with Site Factory.':
+          $this->helpMessages[] = 'Run `acli auth:acsf-login` to re-authenticate with Site Factory.';
+          break;
       }
     }
 

@@ -7,8 +7,8 @@ namespace Acquia\Cli\Tests\Commands\Acsf;
 use Acquia\Cli\AcsfApi\AcsfClient;
 use Acquia\Cli\AcsfApi\AcsfClientService;
 use Acquia\Cli\AcsfApi\AcsfCredentials;
-use Acquia\Cli\Command\Acsf\AcsfApiBaseCommand;
 use Acquia\Cli\Command\Acsf\AcsfCommandFactory;
+use Acquia\Cli\Command\Api\ApiBaseCommand;
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\CommandFactoryInterface;
 use Prophecy\Argument;
@@ -32,7 +32,7 @@ class AcsfApiCommandTest extends AcsfCommandTestBase {
     $this->createMockCloudConfigFile($this->getAcsfCredentialsFileContents());
     $this->cloudCredentials = new AcsfCredentials($this->datastoreCloud);
     $this->setClientProphecies();
-    return $this->injectCommand(AcsfApiBaseCommand::class);
+    return $this->injectCommand(ApiBaseCommand::class);
   }
 
   public function testAcsfCommandExecutionForHttpPostWithMultipleDataTypes(): void {
