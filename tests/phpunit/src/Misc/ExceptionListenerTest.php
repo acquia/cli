@@ -12,17 +12,18 @@ use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Event\ConsoleErrorEvent;
 use Symfony\Component\Console\Exception\RuntimeException;
+use Throwable;
 
 class ExceptionListenerTest extends TestBase {
 
   /**
    * @dataProvider providerTestHelp
    */
-  public function testHelp(\Throwable $error, string $helpText): void {
+  public function testHelp(Throwable $error, string $helpText): void {
     $exceptionListener = new ExceptionListener();
     $commandProphecy = $this->prophet->prophesize(Command::class);
     $applicationProphecy = $this->prophet->prophesize(Application::class);
-    $messages = [$helpText, "You can find Acquia CLI documentation at https://docs.acquia.com/acquia-cli/", "You can submit a support ticket at https://support-acquia.force.com/s/contactsupport\nRe-run the command with the <bg=blue;fg=white;options=bold>-vvv</> flag and include the full command output in your support ticket."];
+    $messages = [$helpText, 'You can find Acquia CLI documentation at https://docs.acquia.com/acquia-cli/', 'You can submit a support ticket at https://support-acquia.force.com/s/contactsupport' . PHP_EOL . 'Re-run the command with the <bg=blue;fg=white;options=bold>-vvv</> flag and include the full command output in your support ticket.'];
     $applicationProphecy->setHelpMessages($messages)->shouldBeCalled();
     $commandProphecy->getApplication()->willReturn($applicationProphecy->reveal());
     $consoleErrorEvent = new ConsoleErrorEvent($this->input, $this->output, $error, $commandProphecy->reveal());
