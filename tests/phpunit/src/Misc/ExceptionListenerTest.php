@@ -42,11 +42,11 @@ class ExceptionListenerTest extends TestBase {
       ],
       [
         new RuntimeException('Not enough arguments (missing: "environmentId").'),
-        "<bg=blue;options=bold>environmentId</> can also be a site alias. E.g. <bg=blue;fg=white;options=bold>myapp.dev</>.\nRun <bg=blue;options=bold>acli remote:aliases:list</> to see a list of all available aliases.",
+        '<bg=blue;options=bold>environmentId</> can also be a site alias. E.g. <bg=blue;fg=white;options=bold>myapp.dev</>.' . PHP_EOL . 'Run <bg=blue;options=bold>acli remote:aliases:list</> to see a list of all available aliases.',
       ],
       [
         new RuntimeException('Not enough arguments (missing: "environmentUuid").'),
-        "<bg=blue;options=bold>environmentId</> can also be a site alias. E.g. <bg=blue;fg=white;options=bold>myapp.dev</>.\nRun <bg=blue;options=bold>acli remote:aliases:list</> to see a list of all available aliases.",
+        '<bg=blue;options=bold>environmentId</> can also be a site alias. E.g. <bg=blue;fg=white;options=bold>myapp.dev</>.' . PHP_EOL . 'Run <bg=blue;options=bold>acli remote:aliases:list</> to see a list of all available aliases.',
       ],
       [
         new AcquiaCliException('This machine is not yet authenticated with the Cloud Platform.'),
