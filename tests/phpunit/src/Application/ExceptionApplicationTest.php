@@ -11,6 +11,9 @@ use Acquia\Cli\Tests\ApplicationTestBase;
  *
  * These must be tested using the ApplicationTestBase, since the Symfony
  * CommandTester does not fire Event Dispatchers.
+ *
+ * This test suite only needs to verify that the listener catches at least one
+ * exception. Specific exceptions are tested in ExceptionListenerTest.
  */
 class ExceptionApplicationTest extends ApplicationTestBase {
 
@@ -26,88 +29,6 @@ class ExceptionApplicationTest extends ApplicationTestBase {
     $buffer = $this->runApp();
     // This is sensitive to the display width of the test environment, so that's fun.
     self::assertStringContainsString('Your Cloud Platform API credentials are invalid.', $buffer);
-  }
-
-  /**
-   * @group serial
-   */
-  public function testApiError(): void {
-    $this->setInput([
-      'applicationUuid' => '2ed281d4-9dec-4cc3-ac63-691c3ba002c2',
-      'command' => 'aliases',
-    ]);
-    $this->mockApiError();
-    $buffer = $this->runApp();
-    self::assertStringContainsString('Cloud Platform API returned an error:', $buffer);
-  }
-
-  /**
-   * @group serial
-   */
-  public function testNoAvailableIdes(): void {
-    $this->setInput([
-      'applicationUuid' => '2ed281d4-9dec-4cc3-ac63-691c3ba002c2',
-      'command' => 'aliases',
-    ]);
-    $this->mockNoAvailableIdes();
-    $buffer = $this->runApp();
-    self::assertStringContainsString('Delete an existing IDE', $buffer);
-  }
-
-  /**
-   * @group serial
-   */
-  public function testInvalidEnvironmentUuid(): void {
-    $this->mockRequest('getAccount');
-    $this->mockRequest('getApplications');
-    $this->setInput([
-      'command' => 'log:tail',
-      'environmentId' => 'aoeuth.aoeu',
-    ]);
-    $buffer = $this->runApp();
-    self::assertStringContainsString('can also be a site alias.', $buffer);
-  }
-
-  /**
-   * @group serial
-   */
-  public function testMissingApplicationUuid(): void {
-    $this->setInput([
-      'command' => 'ide:open',
-    ]);
-    $buffer = $this->runApp();
-    self::assertStringContainsString('Could not determine Cloud Application.', $buffer);
-  }
-
-  /**
-   * @group serial
-   */
-  public function testInvalidApplicationUuid(): void {
-    $this->mockRequest('getAccount');
-    $this->mockRequest('getApplications');
-    $this->setInput([
-      'applicationUuid' => 'aoeuthao',
-      'command' => 'ide:open',
-    ]);
-    $buffer = $this->runApp();
-    self::assertStringContainsString('An alias consists of an application name', $buffer);
-  }
-
-  /**
-   * @group serial
-   */
-  public function testApiTypeError(): void {
-    $tamper = function ($response): void {
-      $response[0]->server = [];
-    };
-    $this->mockRequest('getCronJobsByEnvironmentId', '24-a47ac10b-58cc-4372-a567-0e02b2c3d470', NULL, NULL, $tamper);
-    $this->setInput([
-      'command' => 'env:cron-copy',
-      'dest_env' => '24-a47ac10b-58cc-4372-a567-0e02b2c3d471',
-      'source_env' => '24-a47ac10b-58cc-4372-a567-0e02b2c3d470',
-    ]);
-    $buffer = $this->runApp();
-    self::assertStringContainsString('Cloud Platform API returned an unexpected data type.', $buffer);
   }
 
 }

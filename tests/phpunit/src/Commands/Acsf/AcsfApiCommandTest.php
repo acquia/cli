@@ -11,6 +11,7 @@ use Acquia\Cli\Command\Acsf\AcsfCommandFactory;
 use Acquia\Cli\Command\Api\ApiBaseCommand;
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\CommandFactoryInterface;
+use Acquia\Cli\Exception\AcquiaCliException;
 use Prophecy\Argument;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -112,6 +113,19 @@ class AcsfApiCommandTest extends AcsfCommandTestBase {
     $this->assertNotNull($output);
     $this->assertJson($output);
     json_decode($output, TRUE);
+  }
+
+  public function testAcsfUnauthenticatedFailure(): void {
+    $this->clientServiceProphecy->isMachineAuthenticated()->willReturn(FALSE);
+    $this->removeMockConfigFiles();
+
+    $inputs = [
+      // Would you like to share anonymous performance usage and data?
+      'n',
+    ];
+    $this->expectException(AcquiaCliException::class);
+    $this->expectExceptionMessage('This machine is not yet authenticated with Site Factory.');
+    $this->executeCommand([], $inputs);
   }
 
   protected function setClientProphecies(): void {
