@@ -104,7 +104,7 @@ class LocalMachineHelper {
    * @param array|null $env
    */
   private function configureProcess(Process $process, string $cwd = NULL, ?bool $printOutput = TRUE, float $timeout = NULL, array $env = NULL, bool $stdin = TRUE): Process {
-    if (function_exists('posix_isatty') && !posix_isatty(STDIN) && $stdin) {
+    if (function_exists('posix_isatty') && !@posix_isatty(STDIN) && $stdin) {
       $process->setInput(STDIN);
     }
     if ($cwd) {
@@ -183,7 +183,7 @@ class LocalMachineHelper {
     // of a tty if stdout is redirected.
     // Otherwise, let the local machine helper decide whether to use a tty.
     if (function_exists('posix_isatty')) {
-      return (posix_isatty(STDOUT) && posix_isatty(STDIN));
+      return (posix_isatty(STDOUT) && @posix_isatty(STDIN));
     }
 
     return FALSE;
