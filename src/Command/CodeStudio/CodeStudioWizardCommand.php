@@ -5,7 +5,6 @@ declare(strict_types = 1);
 namespace Acquia\Cli\Command\CodeStudio;
 
 use Acquia\Cli\Command\WizardCommandBase;
-use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Output\Checklist;
 use AcquiaCloudApi\Endpoints\Account;
 use DateTime;
@@ -124,10 +123,7 @@ final class CodeStudioWizardCommand extends WizardCommandBase {
         $this->setGitLabCiCdVariablesForPhpProject($project, $appUuid, $cloudKey, $cloudSecret, $projectAccessTokenName, $projectAccessToken, $phpVersion);
         break;
       case "Node_project":
-        $cmdOutput = $this->localMachineHelper->executeFromCmd($curlCommand);
-        if (!$cmdOutput->isSuccessful()) {
-          throw new AcquiaCliException('Unable to execute curl command. {error_message}', ['error_message' => $cmdOutput->getErrorOutput()]);
-        }
+        $this->invokeCurlCommand($curlCommand);
         $this->setGitLabCiCdVariablesForNodeProject($project, $appUuid, $cloudKey, $cloudSecret, $projectAccessTokenName, $projectAccessToken, $nodeVersion);
         break;
     }

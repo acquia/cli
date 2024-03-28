@@ -1571,6 +1571,14 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     return $localFilepath;
   }
 
+  protected function invokeCurlCommand(string $command, Closure $outputCallback = NULL): void {
+    $this->localMachineHelper->checkRequiredBinariesExist(['curl']);
+    $process = $this->localMachineHelper->executeFromCmd($command, $outputCallback, NULL, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
+    if (!$process->isSuccessful()) {
+      throw new AcquiaCliException('Unable to execute curl command. {error_message}', ['error_message' => $process->getErrorOutput()]);
+    }
+  }
+
   protected function promptOpenBrowserToCreateToken(
     InputInterface $input
   ): void {
