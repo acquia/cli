@@ -281,6 +281,23 @@ class ApiCommandTest extends CommandTestBase {
     $this->assertEquals(0, $this->getStatusCode());
   }
 
+  /**
+   * @group serial
+   */
+  public function testConvertInvalidEnvironmentAliasToUuidArgument(): void {
+    ClearCacheCommand::clearCaches();
+    $applicationsResponse = $this->mockApplicationsRequest(1);
+    $this->clientProphecy->addQuery('filter', 'hosting=@*:devcloud2')->shouldBeCalled();
+    $this->mockEnvironmentsRequest($applicationsResponse);
+    $this->mockRequest('getAccount');
+    $this->command = $this->getApiCommandByName('api:environments:find');
+    $alias = 'devcloud2.invalid';
+    $this->expectException(AcquiaCliException::class);
+    $this->expectExceptionMessage('{environmentId} must be a valid UUID or site alias.');
+    $this->executeCommand(['environmentId' => $alias], []);
+
+  }
+
   public function testApiCommandExecutionForHttpPost(): void {
     $this->clientProphecy->addOption('headers', ['Accept' => 'application/hal+json, version=2'])->shouldBeCalled();
     $mockRequestArgs = $this->getMockRequestBodyFromSpec('/account/ssh-keys');
