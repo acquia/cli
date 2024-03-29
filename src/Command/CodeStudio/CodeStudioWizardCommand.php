@@ -97,7 +97,6 @@ final class CodeStudioWizardCommand extends WizardCommandBase {
     // Get Cloud application.
     $cloudApplication = $this->getCloudApplication($appUuid);
     $project = $this->determineGitLabProject($cloudApplication);
-    $projectId = $project['id'];
 
     $this->io->writeln([
       "",
@@ -115,15 +114,16 @@ final class CodeStudioWizardCommand extends WizardCommandBase {
     $projectAccessTokenName = 'acquia-codestudio';
     $projectAccessToken = $this->createProjectAccessToken($project, $projectAccessTokenName);
     $this->updateGitLabProject($project);
-    $ciPath = 'gitlab-ci/Auto-DevOps.acquia.gitlab-ci.yml@acquia/node-template';
-    $hostPath = $this->getGitLabHost();
-    $curlCommand = $this->getCurlCommand($projectAccessToken, $hostPath, $projectId, $ciPath);
     switch ($projectSelected) {
       case "Drupal_project":
         $this->setGitLabCiCdVariablesForPhpProject($project, $appUuid, $cloudKey, $cloudSecret, $projectAccessTokenName, $projectAccessToken, $phpVersion);
         break;
       case "Node_project":
-        $this->invokeCurlCommand($curlCommand);
+        $parameters = [
+          'ci_config_path' => 'gitlab-ci/Auto-DevOps.acquia.gitlab-ci.yml@acquia/node-template',
+        ];
+        $client = $this->getGitLabClient();
+        $client->projects()->update($project['id'], $parameters);
         $this->setGitLabCiCdVariablesForNodeProject($project, $appUuid, $cloudKey, $cloudSecret, $projectAccessTokenName, $projectAccessToken, $nodeVersion);
         break;
     }
@@ -179,11 +179,6 @@ final class CodeStudioWizardCommand extends WizardCommandBase {
       'Node_project',
     ];
     return $array;
-  }
-
-  public function getCurlCommand(string $projectAccessToken, string $hostPath, int $projectId, string $ciPath): string {
-    $curlCommandString = 'curl -s -N -k -L --request PUT --header "PRIVATE-TOKEN: ' . $projectAccessToken . '" --url ' . $hostPath . '/api/v4/projects/' . $projectId . ' --data "ci_config_path=' . $ciPath . '"';
-    return $curlCommandString;
   }
 
   private function createProjectAccessToken(array $project, string $projectAccessTokenName): string {

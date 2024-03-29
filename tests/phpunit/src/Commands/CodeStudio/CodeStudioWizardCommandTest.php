@@ -30,7 +30,6 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
 
   private string $gitLabHost = 'gitlabhost';
   private string $gitLabToken = 'gitlabtoken';
-  private string $ciPath = 'ciPath';
 
   private int $gitLabProjectId = 33;
   private int $gitLabTokenId = 118;
@@ -315,6 +314,13 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
       Argument::type('string'),
     )->shouldBeCalled();
     $this->mockGitLabVariables($this->gitLabProjectId, $projects);
+
+    if ($inputs[0] === 'y' && ($inputs[1] === '1' || (array_key_exists(3, $inputs) && $inputs[3] === '1'))) {
+      $parameters = [
+        'ci_config_path' => 'gitlab-ci/Auto-DevOps.acquia.gitlab-ci.yml@acquia/node-template',
+      ];
+      $projects->update($this->gitLabProjectId, $parameters)->shouldBeCalled();
+    }
     $schedules = $this->prophet->prophesize(Schedules::class);
     $schedules->showAll($this->gitLabProjectId)->willReturn([]);
     $pipeline = ['id' => 1];
@@ -349,10 +355,6 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
     $this->mockGitlabGetHost($localMachineHelper, $this->gitLabHost);
     $this->mockGitlabGetToken($localMachineHelper, $this->gitLabToken, $this->gitLabHost);
 
-    if ($inputs[0] == 'y' && $inputs[1] == '1' ) {
-      $this->mockCurlCommand($localMachineHelper);
-    }
-
     /** @var Filesystem|ObjectProphecy $fileSystem */
     $fileSystem = $this->prophet->prophesize(Filesystem::class);
     // Set properties and execute.
@@ -364,9 +366,6 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
     }
 
     // Assertions.
-    $curlCommand = $this->command->getCurlCommand($this->gitLabToken, $this->gitLabHost, $this->gitLabProjectId, $this->ciPath);
-    $curlString = $this->getCurlString();
-    self::assertStringContainsString($curlString, $curlCommand);
     $this->assertEquals(0, $this->getStatusCode());
   }
 

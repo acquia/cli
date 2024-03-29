@@ -162,12 +162,4 @@ abstract class WizardTestBase extends CommandTestBase {
     ];
   }
 
-  /**
- * @return string
- *   A strings to inspect the output for.
- */
-  protected function getCurlString(): string {
-    return 'curl -s -N -k -L --request PUT --header "PRIVATE-TOKEN: gitlabtoken" --url gitlabhost/api/v4/projects/33 --data "ci_config_path=ciPath"';
-  }
-
 }
