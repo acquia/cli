@@ -36,7 +36,7 @@ final class AuthAcsfLoginCommand extends CommandBase {
       ];
       $factory = $this->promptChooseFromObjectsOrArrays($factoryChoices, 'url', 'url', 'Choose a Factory to login to');
       if ($factory['url'] === 'Enter a new factory URL') {
-        $factoryUrl = $this->io->ask('Enter the full URL of the factory including https://');
+        $factoryUrl = $this->io->ask('Enter the full URL of the factory');
         $factory = [
           'url' => $factoryUrl,
           'users' => [],
