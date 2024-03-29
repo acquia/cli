@@ -25,7 +25,7 @@ class AcsfApiCommandTest extends AcsfCommandTestBase {
 
   public function setUp(): void {
     parent::setUp();
-    $this->clientProphecy->addOption('headers', ['Accept' => 'application/json']);
+    $this->clientProphecy->addOption('headers', ['Accept' => 'application/hal+json, version=2']);
     putenv('ACQUIA_CLI_USE_CLOUD_API_SPEC_CACHE=1');
   }
 

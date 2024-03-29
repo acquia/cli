@@ -18,7 +18,7 @@ final class AuthAcsfLoginCommand extends CommandBase {
     $this
       ->addOption('username', 'u', InputOption::VALUE_REQUIRED, "Your Site Factory username")
       ->addOption('key', 'k', InputOption::VALUE_REQUIRED, "Your Site Factory key")
-      ->addOption('factory-url', 'f', InputOption::VALUE_REQUIRED, "Your Site Factory URL");
+      ->addOption('factory-url', 'f', InputOption::VALUE_REQUIRED, "Your Site Factory URL (including https://)");
   }
 
   protected function execute(InputInterface $input, OutputInterface $output): int {
@@ -36,7 +36,7 @@ final class AuthAcsfLoginCommand extends CommandBase {
       ];
       $factory = $this->promptChooseFromObjectsOrArrays($factoryChoices, 'url', 'url', 'Choose a Factory to login to');
       if ($factory['url'] === 'Enter a new factory URL') {
-        $factoryUrl = $this->io->ask('Enter the full URL of the factory');
+        $factoryUrl = $this->io->ask('Enter the full URL of the factory including https://');
         $factory = [
           'url' => $factoryUrl,
           'users' => [],
