@@ -384,6 +384,15 @@ abstract class CommandTestBase extends TestBase {
       ->shouldBeCalled();
   }
 
+  protected function mockCurlCommand(ObjectProphecy $localMachineHelper): void {
+    $localMachineHelper->checkRequiredBinariesExist(["curl"])->shouldBeCalled();
+    $process = $this->mockProcess();
+    $process->getOutput()->willReturn('');
+    $command = $this->getCurlString();
+    $localMachineHelper->executeFromCmd($command, Argument::type('callable'), NULL, TRUE)->willReturn($process->reveal())
+      ->shouldBeCalled();
+  }
+
   protected function mockExecutePvExists(
         ObjectProphecy $localMachineHelper,
         bool $pvExists = TRUE

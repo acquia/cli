@@ -349,6 +349,10 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
     $this->mockGitlabGetHost($localMachineHelper, $this->gitLabHost);
     $this->mockGitlabGetToken($localMachineHelper, $this->gitLabToken, $this->gitLabHost);
 
+    if ($inputs[0] == 'y' && $inputs[1] == '1' ) {
+      $this->mockCurlCommand($localMachineHelper);
+    }
+
     /** @var Filesystem|ObjectProphecy $fileSystem */
     $fileSystem = $this->prophet->prophesize(Filesystem::class);
     // Set properties and execute.
