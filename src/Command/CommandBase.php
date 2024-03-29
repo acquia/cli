@@ -4,6 +4,7 @@ declare(strict_types = 1);
 
 namespace Acquia\Cli\Command;
 
+use Acquia\Cli\AcsfApi\AcsfClientService;
 use Acquia\Cli\ApiCredentialsInterface;
 use Acquia\Cli\Attribute\RequireAuth;
 use Acquia\Cli\Attribute\RequireDb;
@@ -1753,7 +1754,10 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
 
   protected function checkAuthentication(): void {
     if ((new \ReflectionClass(static::class))->getAttributes(RequireAuth::class) && !$this->cloudApiClientService->isMachineAuthenticated()) {
-      throw new AcquiaCliException('This machine is not yet authenticated with the Cloud Platform. Run `acli auth:login`');
+      if ($this->cloudApiClientService instanceof AcsfClientService) {
+        throw new AcquiaCliException('This machine is not yet authenticated with Site Factory.');
+      }
+      throw new AcquiaCliException('This machine is not yet authenticated with the Cloud Platform.');
     }
   }
 

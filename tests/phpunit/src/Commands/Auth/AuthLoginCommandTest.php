@@ -39,6 +39,22 @@ class AuthLoginCommandTest extends CommandTestBase {
     $this->assertKeySavedCorrectly();
   }
 
+  public function testAuthLoginNoKeysCommand(): void {
+    $this->mockRequest('getAccount');
+    $this->clientServiceProphecy->setConnector(Argument::type(Connector::class))->shouldBeCalled();
+    $this->clientServiceProphecy->isMachineAuthenticated()->willReturn(FALSE);
+    $this->removeMockCloudConfigFile();
+    $this->fs->dumpFile($this->cloudConfigFilepath, json_encode(['send_telemetry' => FALSE]));
+    $this->createDataStores();
+    $this->command = $this->createCommand();
+
+    $this->executeCommand(['--key' => $this->key, '--secret' => $this->secret]);
+    $output = $this->getDisplay();
+
+    $this->assertStringContainsString('Saved credentials', $output);
+    $this->assertKeySavedCorrectly();
+  }
+
   public function providerTestAuthLoginInvalidInputCommand(): Generator {
     yield
       [
@@ -72,9 +88,18 @@ class AuthLoginCommandTest extends CommandTestBase {
   public function testAuthLoginInvalidDatastore(): void {
     $this->clientServiceProphecy->isMachineAuthenticated()->willReturn(FALSE);
     $this->removeMockCloudConfigFile();
+    $data = [
+      'acli_key' => 'key2',
+      'keys' => [
+        'key1' => [
+          'label' => 'foo',
+          'secret' => 'foo',
+          'uuid' => 'foo',
+        ],
+      ],
+    ];
+    $this->fs->dumpFile($this->cloudConfigFilepath, json_encode($data));
     $this->createDataStores();
-    $this->datastoreCloud->set('keys', ['key1']);
-    $this->datastoreCloud->set('acli_key', 'key2');
     $this->command = $this->createCommand();
     $this->expectException(AcquiaCliException::class);
     $this->expectExceptionMessage('Invalid key in Cloud datastore; run acli auth:logout && acli auth:login to fix');

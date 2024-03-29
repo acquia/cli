@@ -6,6 +6,7 @@ namespace Acquia\Cli\Command\Acsf;
 
 use Acquia\Cli\AcsfApi\AcsfClientService;
 use Acquia\Cli\AcsfApi\AcsfCredentials;
+use Acquia\Cli\Command\Api\ApiBaseCommand;
 use Acquia\Cli\CommandFactoryInterface;
 use Acquia\Cli\DataStore\AcquiaCliDatastore;
 use Acquia\Cli\DataStore\CloudDataStore;
@@ -30,8 +31,8 @@ class AcsfCommandFactory implements CommandFactoryInterface {
   ) {
   }
 
-  public function createCommand(): AcsfApiBaseCommand {
-    return new AcsfApiBaseCommand(
+  public function createCommand(): ApiBaseCommand {
+    return new ApiBaseCommand(
       $this->localMachineHelper,
       $this->datastoreCloud,
       $this->datastoreAcli,

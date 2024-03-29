@@ -32,7 +32,7 @@ class CommandBaseTest extends CommandTestBase {
       'n',
     ];
     $this->expectException(AcquiaCliException::class);
-    $this->expectExceptionMessage('This machine is not yet authenticated with the Cloud Platform. Run `acli auth:login`');
+    $this->expectExceptionMessage('This machine is not yet authenticated with the Cloud Platform.');
     $this->executeCommand([], $inputs);
   }
 
