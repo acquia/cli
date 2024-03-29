@@ -144,4 +144,12 @@ EOD;
     self::assertStringContainsStringIgnoringLineEndings($expected, $output);
   }
 
+  public function testConvertInvalidEnvironmentAliasToUuidArgument(): void {
+    $this->mockRequest('getApplicationEnvironments', 'a47ac10b-58cc-4372-a567-0e02b2c3d470');
+    $alias = 'devcloud2.invalid';
+    $this->expectException(AcquiaCliException::class);
+    $this->expectExceptionMessage('{environmentId} must be a valid UUID or site alias.');
+    $this->executeCommand(['environmentId' => $alias]);
+  }
+
 }
