@@ -21,7 +21,6 @@ class ApiCommandTest extends CommandTestBase {
 
   public function setUp(): void {
     parent::setUp();
-    $this->clientProphecy->addOption('headers', ['Accept' => 'application/json']);
     putenv('ACQUIA_CLI_USE_CLOUD_API_SPEC_CACHE=1');
   }
 
@@ -79,6 +78,7 @@ class ApiCommandTest extends CommandTestBase {
    */
   public function testApiCommandErrorResponse(): void {
     $invalidUuid = '257a5440-22c3-49d1-894d-29497a1cf3b9';
+    $this->clientProphecy->addOption('headers', ['Accept' => 'application/hal+json, version=2'])->shouldBeCalled();
     $this->command = $this->getApiCommandByName('api:applications:find');
     $mockBody = $this->getMockResponseFromSpec($this->command->getPath(), $this->command->getMethod(), '404');
     $this->clientProphecy->request('get', '/applications/' . $invalidUuid)->willThrow(new ApiErrorException($mockBody))->shouldBeCalled();
@@ -104,6 +104,7 @@ class ApiCommandTest extends CommandTestBase {
   }
 
   public function testApiCommandExecutionForHttpGet(): void {
+    $this->clientProphecy->addOption('headers', ['Accept' => 'application/hal+json, version=2'])->shouldBeCalled();
     $mockBody = $this->getMockResponseFromSpec('/account/ssh-keys', 'get', '200');
     $this->clientProphecy->addQuery('limit', '1')->shouldBeCalled();
     $this->clientProphecy->request('get', '/account/ssh-keys')->willReturn($mockBody->{'_embedded'}->items)->shouldBeCalled();
@@ -136,6 +137,7 @@ class ApiCommandTest extends CommandTestBase {
   }
 
   public function testInferApplicationUuidArgument(): void {
+    $this->clientProphecy->addOption('headers', ['Accept' => 'application/hal+json, version=2'])->shouldBeCalled();
     $applications = $this->mockRequest('getApplications');
     $application = $this->mockRequest('getApplicationByUuid', $applications[0]->uuid);
     $this->command = $this->getApiCommandByName('api:applications:find');
@@ -171,6 +173,7 @@ class ApiCommandTest extends CommandTestBase {
    */
   public function testConvertApplicationAliasToUuidArgument(bool $support): void {
     ClearCacheCommand::clearCaches();
+    $this->clientProphecy->addOption('headers', ['Accept' => 'application/hal+json, version=2'])->shouldBeCalled();
     $tamper = function (&$response): void {
       unset($response[1]);
     };
@@ -232,7 +235,11 @@ class ApiCommandTest extends CommandTestBase {
 
   }
 
+  /**
+   * @serial
+   */
   public function testConvertApplicationAliasWithRealmToUuidArgument(): void {
+    $this->clientProphecy->addOption('headers', ['Accept' => 'application/hal+json, version=2'])->shouldBeCalled();
     $this->mockApplicationsRequest(1, FALSE);
     $this->clientProphecy->addQuery('filter', 'hosting=@devcloud:devcloud2')->shouldBeCalled();
     $this->mockApplicationRequest();
@@ -248,6 +255,7 @@ class ApiCommandTest extends CommandTestBase {
    */
   public function testConvertEnvironmentAliasToUuidArgument(): void {
     ClearCacheCommand::clearCaches();
+    $this->clientProphecy->addOption('headers', ['Accept' => 'application/hal+json, version=2'])->shouldBeCalled();
     $applicationsResponse = $this->mockApplicationsRequest(1);
     $this->clientProphecy->addQuery('filter', 'hosting=@*:devcloud2')->shouldBeCalled();
     $this->mockEnvironmentsRequest($applicationsResponse);
@@ -291,6 +299,7 @@ class ApiCommandTest extends CommandTestBase {
   }
 
   public function testApiCommandExecutionForHttpPost(): void {
+    $this->clientProphecy->addOption('headers', ['Accept' => 'application/hal+json, version=2'])->shouldBeCalled();
     $mockRequestArgs = $this->getMockRequestBodyFromSpec('/account/ssh-keys');
     $mockResponseBody = $this->getMockResponseFromSpec('/account/ssh-keys', 'post', '202');
     foreach ($mockRequestArgs as $name => $value) {
@@ -308,6 +317,7 @@ class ApiCommandTest extends CommandTestBase {
   }
 
   public function testApiCommandExecutionForHttpPut(): void {
+    $this->clientProphecy->addOption('headers', ['Accept' => 'application/hal+json, version=2'])->shouldBeCalled();
     $mockRequestOptions = $this->getMockRequestBodyFromSpec('/environments/{environmentId}', 'put');
     $mockRequestOptions['max_input_vars'] = 1001;
     $mockResponseBody = $this->getMockEnvironmentResponse('put', '202');
@@ -416,6 +426,7 @@ class ApiCommandTest extends CommandTestBase {
   }
 
   public function testGetApplicationUuidFromBltYml(): void {
+    $this->clientProphecy->addOption('headers', ['Accept' => 'application/hal+json, version=2'])->shouldBeCalled();
     $mockBody = $this->getMockResponseFromSpec('/applications/{applicationUuid}', 'get', '200');
     $this->clientProphecy->request('get', '/applications/' . $mockBody->uuid)->willReturn($mockBody)->shouldBeCalled();
     $this->command = $this->getApiCommandByName('api:applications:find');
@@ -431,6 +442,7 @@ class ApiCommandTest extends CommandTestBase {
     $orgId = 'bfafd31a-83a6-4257-b0ec-afdeff83117a';
     $memberUuid = '26c4af83-545b-45cb-b165-d537adc9e0b4';
 
+    $this->clientProphecy->addOption('headers', ['Accept' => 'application/hal+json, version=2'])->shouldBeCalled();
     $this->mockRequest('postOrganizationMemberDelete', [$orgId, $memberUuid], NULL, 'Member removed');
 
     $this->command = $this->getApiCommandByName('api:organizations:member-delete');
@@ -450,6 +462,7 @@ class ApiCommandTest extends CommandTestBase {
    * Test of deletion of the user from organization by user email.
    */
   public function testOrganizationMemberDeleteByUserEmail(): void {
+    $this->clientProphecy->addOption('headers', ['Accept' => 'application/hal+json, version=2'])->shouldBeCalled();
     $membersResponse = $this->getMockResponseFromSpec('/organizations/{organizationUuid}/members', 'get', 200);
     $orgId = 'bfafd31a-83a6-4257-b0ec-afdeff83117a';
     $memberMail = $membersResponse->_embedded->items[0]->mail;

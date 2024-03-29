@@ -91,8 +91,11 @@ class ApiBaseCommand extends CommandBase {
     $acquiaCloudClient = $this->cloudApiClientService->getClient();
     $this->addQueryParamsToClient($input, $acquiaCloudClient);
     $this->addPostParamsToClient($input, $acquiaCloudClient);
+    // Acquia PHP SDK cannot set the Accept header itself because it would break
+    // API calls returning octet streams (e.g., db backups). It's safe to use
+    // here because the API command should always return JSON.
     $acquiaCloudClient->addOption('headers', [
-      'Accept' => 'application/json',
+      'Accept' => 'application/hal+json, version=2',
     ]);
 
     try {

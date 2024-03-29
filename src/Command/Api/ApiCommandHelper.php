@@ -75,10 +75,6 @@ class ApiCommandHelper {
         elseif ($parameterSpecification['in'] === 'path') {
           $command->addPathParameter($parameterDefinition->getName(), $parameterSpecification);
         }
-        // @todo Remove this! It is a workaround for CLI-769.
-        elseif ($parameterSpecification['in'] === 'header') {
-          $command->addPostParameter($parameterDefinition->getName(), $parameterSpecification);
-        }
       }
       $usage .= $queryParamUsageSuffix;
       $inputDefinition = array_merge($inputDefinition, $queryInputDefinition);
@@ -484,16 +480,16 @@ class ApiCommandHelper {
   }
 
   /**
-   * @param $requestBody
+   * @param array<mixed> $requestBody
    * @return array<mixed>
    */
-  private function getRequestBodyContent(mixed $requestBody): array {
+  private function getRequestBodyContent(array $requestBody): array {
     $content = $requestBody['content'];
     $knownContentTypes = [
+      'application/hal+json',
       'application/json',
       'application/x-www-form-urlencoded',
       'multipart/form-data',
-      'application/hal+json',
     ];
     foreach ($knownContentTypes as $contentType) {
       if (array_key_exists($contentType, $content)) {
