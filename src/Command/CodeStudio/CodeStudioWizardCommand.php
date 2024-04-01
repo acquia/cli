@@ -119,6 +119,11 @@ final class CodeStudioWizardCommand extends WizardCommandBase {
         $this->setGitLabCiCdVariablesForPhpProject($project, $appUuid, $cloudKey, $cloudSecret, $projectAccessTokenName, $projectAccessToken, $phpVersion);
         break;
       case "Node_project":
+        $parameters = [
+          'ci_config_path' => 'gitlab-ci/Auto-DevOps.acquia.gitlab-ci.yml@acquia/node-template',
+        ];
+        $client = $this->getGitLabClient();
+        $client->projects()->update($project['id'], $parameters);
         $this->setGitLabCiCdVariablesForNodeProject($project, $appUuid, $cloudKey, $cloudSecret, $projectAccessTokenName, $projectAccessToken, $nodeVersion);
         break;
     }

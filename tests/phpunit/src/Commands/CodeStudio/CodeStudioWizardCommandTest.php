@@ -314,6 +314,13 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
       Argument::type('string'),
     )->shouldBeCalled();
     $this->mockGitLabVariables($this->gitLabProjectId, $projects);
+
+    if ($inputs[0] === 'y' && ($inputs[1] === '1' || (array_key_exists(3, $inputs) && $inputs[3] === '1'))) {
+      $parameters = [
+        'ci_config_path' => 'gitlab-ci/Auto-DevOps.acquia.gitlab-ci.yml@acquia/node-template',
+      ];
+      $projects->update($this->gitLabProjectId, $parameters)->shouldBeCalled();
+    }
     $schedules = $this->prophet->prophesize(Schedules::class);
     $schedules->showAll($this->gitLabProjectId)->willReturn([]);
     $pipeline = ['id' => 1];
