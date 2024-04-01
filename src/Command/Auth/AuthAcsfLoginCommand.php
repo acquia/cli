@@ -18,7 +18,7 @@ final class AuthAcsfLoginCommand extends CommandBase {
     $this
       ->addOption('username', 'u', InputOption::VALUE_REQUIRED, "Your Site Factory username")
       ->addOption('key', 'k', InputOption::VALUE_REQUIRED, "Your Site Factory key")
-      ->addOption('factory-url', 'f', InputOption::VALUE_REQUIRED, "Your Site Factory URL");
+      ->addOption('factory-url', 'f', InputOption::VALUE_REQUIRED, "Your Site Factory URL (including https://)");
   }
 
   protected function execute(InputInterface $input, OutputInterface $output): int {
