@@ -1310,16 +1310,16 @@
         },
         {
             "name": "laminas/laminas-validator",
-            "version": "2.51.0",
+            "version": "2.53.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laminas/laminas-validator.git",
-                "reference": "25cc42efd096352f4dcfcf55dfb00665a1b29aaf"
+                "reference": "dbcfc19cb7f2e3eb3a27ba5d059c200e8404d72c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laminas/laminas-validator/zipball/25cc42efd096352f4dcfcf55dfb00665a1b29aaf",
-                "reference": "25cc42efd096352f4dcfcf55dfb00665a1b29aaf",
+                "url": "https://api.github.com/repos/laminas/laminas-validator/zipball/dbcfc19cb7f2e3eb3a27ba5d059c200e8404d72c",
+                "reference": "dbcfc19cb7f2e3eb3a27ba5d059c200e8404d72c",
                 "shasum": ""
             },
             "require": {
@@ -1336,13 +1336,13 @@
                 "laminas/laminas-db": "^2.19",
                 "laminas/laminas-filter": "^2.34",
                 "laminas/laminas-i18n": "^2.26.0",
-                "laminas/laminas-session": "^2.18",
+                "laminas/laminas-session": "^2.20",
                 "laminas/laminas-uri": "^2.11.0",
-                "phpunit/phpunit": "^10.5.10",
-                "psalm/plugin-phpunit": "^0.18.4",
+                "phpunit/phpunit": "^10.5.15",
+                "psalm/plugin-phpunit": "^0.19.0",
                 "psr/http-client": "^1.0.3",
                 "psr/http-factory": "^1.0.2",
-                "vimeo/psalm": "^5.22.1"
+                "vimeo/psalm": "^5.23.1"
             },
             "suggest": {
                 "laminas/laminas-db": "Laminas\\Db component, required by the (No)RecordExists validator",
@@ -1390,7 +1390,7 @@
                     "type": "community_bridge"
                 }
             ],
-            "time": "2024-03-16T03:34:49+00:00"
+            "time": "2024-04-01T09:26:32+00:00"
         },
         {
             "name": "league/csv",
@@ -10602,16 +10602,16 @@
         },
         {
             "name": "phpstan/phpstan",
-            "version": "1.10.65",
+            "version": "1.10.66",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpstan/phpstan.git",
-                "reference": "3c657d057a0b7ecae19cb12db446bbc99d8839c6"
+                "reference": "94779c987e4ebd620025d9e5fdd23323903950bd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/3c657d057a0b7ecae19cb12db446bbc99d8839c6",
-                "reference": "3c657d057a0b7ecae19cb12db446bbc99d8839c6",
+                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/94779c987e4ebd620025d9e5fdd23323903950bd",
+                "reference": "94779c987e4ebd620025d9e5fdd23323903950bd",
                 "shasum": ""
             },
             "require": {
@@ -10660,7 +10660,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-03-23T10:30:26+00:00"
+            "time": "2024-03-28T16:17:31+00:00"
         },
         {
             "name": "phpstan/phpstan-deprecation-rules",
@@ -12645,16 +12645,16 @@
         },
         {
             "name": "squizlabs/php_codesniffer",
-            "version": "3.9.0",
+            "version": "3.9.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/PHPCSStandards/PHP_CodeSniffer.git",
-                "reference": "d63cee4890a8afaf86a22e51ad4d97c91dd4579b"
+                "reference": "267a4405fff1d9c847134db3a3c92f1ab7f77909"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PHPCSStandards/PHP_CodeSniffer/zipball/d63cee4890a8afaf86a22e51ad4d97c91dd4579b",
-                "reference": "d63cee4890a8afaf86a22e51ad4d97c91dd4579b",
+                "url": "https://api.github.com/repos/PHPCSStandards/PHP_CodeSniffer/zipball/267a4405fff1d9c847134db3a3c92f1ab7f77909",
+                "reference": "267a4405fff1d9c847134db3a3c92f1ab7f77909",
                 "shasum": ""
             },
             "require": {
@@ -12721,7 +12721,7 @@
                     "type": "open_collective"
                 }
             ],
-            "time": "2024-02-16T15:06:51+00:00"
+            "time": "2024-03-31T21:03:09+00:00"
         },
         {
             "name": "symfony/css-selector",
