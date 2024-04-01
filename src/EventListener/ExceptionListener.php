@@ -67,6 +67,8 @@ class ExceptionListener {
         case 'This machine is not yet authenticated with Site Factory.':
           $this->helpMessages[] = 'Run `acli auth:acsf-login` to re-authenticate with Site Factory.';
           break;
+        case 'Could not extract aliases to {destination}':
+          $this->helpMessages[] = 'Check that you have write access to the directory';
       }
     }
 
