@@ -27,7 +27,7 @@ final class AuthLoginCommand extends CommandBase {
     $keys = $this->datastoreCloud->get('keys');
     $activeKey = $this->datastoreCloud->get('acli_key');
     if (is_array($keys) && !empty($keys) && !array_key_exists($activeKey, $keys)) {
-      throw new AcquiaCliException('Invalid key in Cloud datastore; run acli auth:logout && acli auth:login to fix');
+      throw new AcquiaCliException('Invalid key in datastore at {filepath}', ['filepath' => $this->datastoreCloud->filepath]);
     }
     if ($activeKey) {
       $activeKeyLabel = $keys[$activeKey]['label'];

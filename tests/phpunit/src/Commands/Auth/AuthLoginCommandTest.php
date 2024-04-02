@@ -102,7 +102,7 @@ class AuthLoginCommandTest extends CommandTestBase {
     $this->createDataStores();
     $this->command = $this->createCommand();
     $this->expectException(AcquiaCliException::class);
-    $this->expectExceptionMessage('Invalid key in Cloud datastore; run acli auth:logout && acli auth:login to fix');
+    $this->expectExceptionMessage("Invalid key in datastore at $this->cloudConfigFilepath");
     $this->executeCommand();
   }
 
