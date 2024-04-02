@@ -69,6 +69,9 @@ class ExceptionListener {
           break;
         case 'Could not extract aliases to {destination}':
           $this->helpMessages[] = 'Check that you have write access to the directory';
+        case 'Invalid key in datastore at {filepath}':
+          $this->helpMessages[] = 'Delete the datastore and run this command again.';
+          break;
       }
     }
 
@@ -91,6 +94,9 @@ class ExceptionListener {
       $newErrorMessage = 'Cloud Platform API returned an unexpected data type. This is not an issue with Acquia CLI but could indicate a problem with your Cloud Platform application.';
     }
 
+    if (!empty($this->helpMessages)) {
+      $this->helpMessages[0] = '<options=bold>How to fix it:</> ' . $this->helpMessages[0];
+    }
     $this->helpMessages[] = "You can find Acquia CLI documentation at https://docs.acquia.com/acquia-cli/";
     $this->writeUpdateHelp($event);
     $this->writeSupportTicketHelp($event);

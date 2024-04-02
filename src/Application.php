@@ -24,7 +24,7 @@ class Application extends \Symfony\Component\Console\Application {
     return $this->helpMessages;
   }
 
-  public function setHelpMessages(mixed $helpMessages): void {
+  public function setHelpMessages(array $helpMessages): void {
     $this->helpMessages = $helpMessages;
   }
 

@@ -22,6 +22,9 @@ final class AuthLogoutCommand extends CommandBase {
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $keys = $this->datastoreCloud->get('keys');
     $activeKey = $this->datastoreCloud->get('acli_key');
+    if (is_array($keys) && !empty($keys) && !array_key_exists($activeKey, $keys)) {
+      throw new AcquiaCliException('Invalid key in datastore at {filepath}', ['filepath' => $this->datastoreCloud->filepath]);
+    }
     if (!$activeKey) {
       throw new AcquiaCliException('There is no active Cloud Platform API key');
     }

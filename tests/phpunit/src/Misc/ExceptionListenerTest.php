@@ -33,6 +33,7 @@ class ExceptionListenerTest extends TestBase {
     else {
       $messages = array_merge([$helpText], $messages1);
     }
+    $messages[0] = "<options=bold>How to fix it:</> $messages[0]";
     $applicationProphecy->setHelpMessages($messages)->shouldBeCalled();
     $commandProphecy->getApplication()->willReturn($applicationProphecy->reveal());
     $consoleErrorEvent = new ConsoleErrorEvent($this->input, $this->output, $error, $commandProphecy->reveal());
@@ -93,6 +94,9 @@ class ExceptionListenerTest extends TestBase {
       [
         new AcquiaCliException('Could not extract aliases to {destination}'),
         'Check that you have write access to the directory',
+      ],
+        new AcquiaCliException('Invalid key in datastore at {filepath}'),
+        'Delete the datastore and run this command again.',
       ],
       [
         new ApiErrorException((object) ['error' => '', 'message' => "There are no available Cloud IDEs for this application.\n"]),
