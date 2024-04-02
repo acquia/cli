@@ -85,6 +85,9 @@ class AliasesDownloadCommandTest extends CommandTestBase {
     $this->assertStringContainsString('Cloud Platform Drush aliases installed into ' . $destinationDir, $output);
   }
 
+  /**
+   * @requires OS linux|darwin
+   */
   public function testRemoteAliasesDownloadFailed(): void {
     $drushAliasesFixture = Path::canonicalize(__DIR__ . '/../../../../fixtures/drush-aliases');
     $drushAliasesTarballFixtureFilepath = tempnam(sys_get_temp_dir(), 'AcquiaDrushAliases');
