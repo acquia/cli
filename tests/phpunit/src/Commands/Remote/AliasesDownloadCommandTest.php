@@ -6,6 +6,7 @@ namespace Acquia\Cli\Tests\Commands\Remote;
 
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Command\Remote\AliasesDownloadCommand;
+use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Tests\CommandTestBase;
 use GuzzleHttp\Psr7\Utils;
 use Phar;
@@ -82,7 +83,29 @@ class AliasesDownloadCommandTest extends CommandTestBase {
     $this->assertFileDoesNotExist($drushArchiveFilepath);
     $this->assertFileExists($destinationDir);
     $this->assertStringContainsString('Cloud Platform Drush aliases installed into ' . $destinationDir, $output);
+  }
 
+  /**
+   * @requires OS linux|darwin
+   */
+  public function testRemoteAliasesDownloadFailed(): void {
+    $drushAliasesFixture = Path::canonicalize(__DIR__ . '/../../../../fixtures/drush-aliases');
+    $drushAliasesTarballFixtureFilepath = tempnam(sys_get_temp_dir(), 'AcquiaDrushAliases');
+    $archiveFixture = new PharData($drushAliasesTarballFixtureFilepath . '.tar');
+    $archiveFixture->buildFromDirectory($drushAliasesFixture);
+    $archiveFixture->compress(Phar::GZ);
+
+    $stream = Utils::streamFor(file_get_contents($drushAliasesTarballFixtureFilepath . '.tar.gz'));
+    $this->clientProphecy->addQuery('version', '9');
+    $this->clientProphecy->stream('get', '/account/drush-aliases/download')->willReturn($stream);
+
+    $destinationDir = Path::join($this->acliRepoRoot, 'drush');
+    $sitesDir = Path::join($destinationDir, 'sites');
+    mkdir($sitesDir, 0777, TRUE);
+    chmod($sitesDir, 000);
+    $this->expectException(AcquiaCliException::class);
+    $this->expectExceptionMessage("Could not extract aliases to $destinationDir");
+    $this->executeCommand(['--all' => TRUE, '--destination-dir' => $destinationDir], ['9']);
   }
 
 }

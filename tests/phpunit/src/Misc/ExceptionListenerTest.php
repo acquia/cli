@@ -92,6 +92,10 @@ class ExceptionListenerTest extends TestBase {
         'Run `acli auth:acsf-login` to re-authenticate with Site Factory.',
       ],
       [
+        new AcquiaCliException('Could not extract aliases to {destination}'),
+        'Check that you have write access to the directory',
+      ],
+      [
         new AcquiaCliException('Invalid key in datastore at {filepath}'),
         'Delete the datastore and run this command again.',
       ],

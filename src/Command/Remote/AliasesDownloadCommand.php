@@ -130,7 +130,13 @@ final class AliasesDownloadCommand extends SshBaseCommand {
         $drushFiles[] = $baseDir . '/' . $file->getFileName();
       }
     }
-    $archive->extractTo($drushAliasesDir, $drushFiles, TRUE);
+    try {
+      // Throws warnings on permissions errors.
+      @$archive->extractTo($drushAliasesDir, $drushFiles, TRUE);
+    }
+    catch (\Exception) {
+      throw new AcquiaCliException('Could not extract aliases to {destination}', ['destination' => $drushAliasesDir]);
+    }
   }
 
   protected function downloadDrush8Aliases(string $aliasVersion, string $drushArchiveTempFilepath, string $drushAliasesDir): void {
