@@ -407,7 +407,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
       }
     }
     $labels = array_values($list);
-    $default = $multiselect ? NULL : $labels[0];
+    $default = $multiselect ? 0 : $labels[0];
     $question = new ChoiceQuestion($questionText, $labels, $default);
     $question->setMultiselect($multiselect);
     $choiceId = $this->io->askQuestion($question);
