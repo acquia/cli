@@ -396,7 +396,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @param array[]|object[] $items An array of objects or arrays.
    * @param string $uniqueProperty The property of the $item that will be used to identify the object.
    */
-  public function promptChooseFromObjectsOrArrays(array|ArrayObject $items, string $uniqueProperty, string $labelProperty, string $questionText, bool $multiselect = FALSE): object|array|null {
+  protected function promptChooseFromObjectsOrArrays(array|ArrayObject $items, string $uniqueProperty, string $labelProperty, string $questionText, bool $multiselect = FALSE): object|array|null {
     $list = [];
     foreach ($items as $item) {
       if (is_array($item)) {
