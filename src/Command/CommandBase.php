@@ -396,7 +396,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @param array[]|object[] $items An array of objects or arrays.
    * @param string $uniqueProperty The property of the $item that will be used to identify the object.
    */
-  public function promptChooseFromObjectsOrArrays(array|ArrayObject $items, string $uniqueProperty, string $labelProperty, string $questionText, bool $multiselect = FALSE): object|array|null {
+  protected function promptChooseFromObjectsOrArrays(array|ArrayObject $items, string $uniqueProperty, string $labelProperty, string $questionText, bool $multiselect = FALSE): object|array|null {
     $list = [];
     foreach ($items as $item) {
       if (is_array($item)) {
@@ -407,7 +407,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
       }
     }
     $labels = array_values($list);
-    $default = $multiselect ? NULL : $labels[0];
+    $default = $multiselect ? 0 : $labels[0];
     $question = new ChoiceQuestion($questionText, $labels, $default);
     $question->setMultiselect($multiselect);
     $choiceId = $this->io->askQuestion($question);

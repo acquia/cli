@@ -8,6 +8,7 @@ use Acquia\Cli\Command\App\LogTailCommand;
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Tests\CommandTestBase;
 use AcquiaLogstream\LogstreamManager;
+use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
 
 /**
@@ -17,8 +18,24 @@ class LogTailCommandTest extends CommandTestBase {
 
   protected LogstreamManager|ObjectProphecy $logStreamManagerProphecy;
 
+  /**
+   * @return int[]
+   */
+  public function providerLogTailCommand(): array {
+    return [
+      [0],
+      [NULL],
+    ];
+  }
+
   protected function createCommand(): CommandBase {
+    // Must initialize this here instead of in setUp() because we need the
+    // prophet to be initialized first.
     $this->logStreamManagerProphecy = $this->prophet->prophesize(LogstreamManager::class);
+    $this->logStreamManagerProphecy->setColourise(TRUE)->shouldBeCalled();
+    $this->logStreamManagerProphecy->setParams(Argument::type('object'))->shouldBeCalled();
+    $this->logStreamManagerProphecy->setLogTypeFilter(["bal-request"])->shouldBeCalled();
+    $this->logStreamManagerProphecy->stream()->shouldBeCalled();
 
     return new LogTailCommand(
       $this->localMachineHelper,
@@ -35,7 +52,10 @@ class LogTailCommandTest extends CommandTestBase {
     );
   }
 
-  public function testLogTailCommand(): void {
+  /**
+   * @dataProvider providerLogTailCommand
+   */
+  public function testLogTailCommand(?int $stream): void {
     $this->mockGetEnvironment();
     $this->mockLogStreamRequest();
     $this->executeCommand([], [
@@ -48,7 +68,7 @@ class LogTailCommandTest extends CommandTestBase {
       // Select environment.
       0,
       // Select log.
-      0,
+      $stream,
     ]);
 
     // Assert.
