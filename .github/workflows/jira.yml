@@ -4,8 +4,12 @@ on:
     types:
       - opened
       - closed
+  pull_request_target:
+    types:
+      - opened
 permissions:
   issues: write
+  pull-requests: read
 jobs:
   jira:
     uses: acquia/.github/.github/workflows/jira.yml@main
