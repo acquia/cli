@@ -100,7 +100,7 @@ jobs:
           # Warm the symfony cache so it gets bundled with phar.
           ./bin/acli
           composer box-compile
-      - name: Store artifact
+      - name: Store artifact in Actions
         uses: actions/upload-artifact@v4
         with:
           name: acli.phar
