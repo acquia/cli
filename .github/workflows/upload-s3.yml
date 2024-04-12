@@ -54,3 +54,8 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: us-east-1
+      - name: Comment on PR
+        run: 'gh pr comment --edit-last https://github.com/$GITHUB_REPOSITORY/pull/$GITHUB_PR --body "Try the dev build for this PR: https://acquia-cli.s3.amazonaws.com/builds/$GITHUB_SHA/acli.phar"'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GITHUB_PR: ${{ steps.pr.outputs.result }}
