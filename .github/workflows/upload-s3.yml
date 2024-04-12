@@ -62,7 +62,11 @@ jobs:
       - name: Comment on PR
         run: |
           GITHUB_PR=${{ steps.pr.outputs.result }}
-          COMMENT="Try the dev build for this PR: https://acquia-cli.s3.amazonaws.com/build/$GITHUB_SHA/acli.phar\n```\ncurl -OL https://acquia-cli.s3.amazonaws.com/build/$GITHUB_SHA/acli.phar\nchmod +x acli.phar\n```"
+          COMMENT="Try the dev build for this PR: https://acquia-cli.s3.amazonaws.com/build/$GITHUB_SHA/acli.phar
+          \`\`\`
+          curl -OL https://acquia-cli.s3.amazonaws.com/build/$GITHUB_SHA/acli.phar
+          chmod +x acli.phar
+          \`\`\`"
           COMMENT_URL="https://github.com/$GITHUB_REPOSITORY/pull/$GITHUB_PR"
           gh pr comment --edit-last $COMMENT_URL --body "$COMMENT" || gh pr comment $COMMENT_URL --body "$COMMENT"
         env:
