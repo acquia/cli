@@ -45,7 +45,7 @@ jobs:
           coverage: ${{ matrix.coverage }}
       - name: Check for abandoned dependencies
         if: matrix.os == 'ubuntu-22.04'
-        run: cat composer.lock | jq '.packages[] | select(.abandoned and .name != "php-http/message-factory")' | grep -q ^ && echo 'Abandoned Composer packages found' && exit 1 || exit 0
+        run: cat composer.lock | jq '.packages[] | select(.abandoned)' | grep -q ^ && echo 'Abandoned Composer packages found' && exit 1 || exit 0
       - name: Check for insecure dependencies
         run: composer audit
       - name: Composer install
