@@ -39,8 +39,8 @@ abstract class SshKeyCommandBase extends CommandBase {
     $this->publicSshKeyFilepath = $this->privateSshKeyFilepath . '.pub';
   }
 
-  public static function getIdeSshKeyLabel(): string {
-    return self::normalizeSshKeyLabel('IDE_' . self::getThisCloudIdeLabel() . '_' . self::getThisCloudIdeUuid());
+  public static function getIdeSshKeyLabel(string $ideLabel, string $ideUuid): string {
+    return self::normalizeSshKeyLabel('IDE_' . $ideLabel . '_' . $ideUuid);
   }
 
   public static function normalizeSshKeyLabel(?string $label): string|null {
