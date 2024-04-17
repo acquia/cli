@@ -39,7 +39,7 @@ abstract class SshKeyCommandBase extends CommandBase {
     $this->publicSshKeyFilepath = $this->privateSshKeyFilepath . '.pub';
   }
 
-  public static function getIdeSshKeyLabel(string $ideLabel, string $ideUuid): string {
+  protected static function getIdeSshKeyLabel(string $ideLabel, string $ideUuid): string {
     return self::normalizeSshKeyLabel('IDE_' . $ideLabel . '_' . $ideUuid);
   }
 
@@ -48,7 +48,7 @@ abstract class SshKeyCommandBase extends CommandBase {
       throw new RuntimeException('The label cannot be empty');
     }
     // It may only contain letters, numbers and underscores.
-    return preg_replace('/[^A-Za-z0-9_]/', '', $label);
+    return preg_replace('/\W/', '', $label);
   }
 
   /**
