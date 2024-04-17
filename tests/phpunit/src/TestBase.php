@@ -574,9 +574,9 @@ abstract class TestBase extends TestCase {
     return $this->mockRequest('getAccountSshKeys');
   }
 
-  protected function mockListSshKeysRequestWithIdeKey(): object {
+  protected function mockListSshKeysRequestWithIdeKey(string $ideLabel, string $ideUuid): object {
     $mockBody = $this->getMockResponseFromSpec('/account/ssh-keys', 'get', '200');
-    $mockBody->{'_embedded'}->items[0]->label = 'IDE_ExampleIDE_215824ff272a4a8c9027df32ed1d68a9';
+    $mockBody->{'_embedded'}->items[0]->label = preg_replace('/\W/', '', 'IDE_' . $ideLabel . '_' . $ideUuid);
     $this->clientProphecy->request('get', '/account/ssh-keys')
       ->willReturn($mockBody->{'_embedded'}->items)
       ->shouldBeCalled();

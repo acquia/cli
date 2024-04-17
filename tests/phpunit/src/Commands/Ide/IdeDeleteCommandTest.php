@@ -30,15 +30,12 @@ class IdeDeleteCommandTest extends CommandTestBase {
     return $this->injectCommand(IdeDeleteCommand::class);
   }
 
-  /**
-   * @group brokenProphecy
-   */
   public function testIdeDeleteCommand(): void {
     $applications = $this->mockRequest('getApplications');
     $this->mockRequest('getApplicationByUuid', $applications[0]->uuid);
     $ides = $this->mockRequest('getApplicationIdes', $applications[0]->uuid);
     $this->mockRequest('deleteIde', $ides[0]->uuid, NULL, 'De-provisioning IDE');
-    $sshKeyGetResponse = $this->mockListSshKeysRequestWithIdeKey();
+    $sshKeyGetResponse = $this->mockListSshKeysRequestWithIdeKey($ides[0]->label, $ides[0]->uuid);
 
     $this->mockDeleteSshKeyRequest($sshKeyGetResponse->{'_embedded'}->items[0]->uuid);
 
