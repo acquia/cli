@@ -43,7 +43,7 @@ abstract class SshKeyCommandBase extends CommandBase {
     return self::normalizeSshKeyLabel('IDE_' . $ideLabel . '_' . $ideUuid);
   }
 
-  public static function normalizeSshKeyLabel(?string $label): string|null {
+  private static function normalizeSshKeyLabel(?string $label): string|null {
     if (is_null($label)) {
       throw new RuntimeException('The label cannot be empty');
     }
