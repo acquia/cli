@@ -110,7 +110,6 @@ EOT
     OutputInterface $output
   ): void {
     // Create a loop to periodically poll the Cloud Platform.
-    $loop = Loop::get();
     $timers = [];
     $startTime = time();
     $cloudAppUuid = $this->determineCloudApplication(TRUE);
@@ -121,20 +120,20 @@ EOT
       $spinner = new Spinner($output, 4);
       $spinner->setMessage("Waiting for the key to become available in Cloud Platform $envName environments");
       $spinner->start();
-      $mappings[$envName]['timer'] = $loop->addPeriodicTimer($spinner->interval(),
+      $mappings[$envName]['timer'] = Loop::addPeriodicTimer($spinner->interval(),
         static function () use ($spinner): void {
           $spinner->advance();
         });
       $mappings[$envName]['spinner'] = $spinner;
     }
-    $callback = function () use ($output, $loop, &$mappings, &$timers, $startTime): void {
+    $callback = function () use ($output, &$mappings, &$timers, $startTime): void {
       foreach ($mappings as $envName => $config) {
         try {
           $process = $this->sshHelper->executeCommand($config['ssh_target'], ['ls'], FALSE);
           if (($process->getExitCode() === 128 && $envName === 'git') || $process->isSuccessful()) {
             // SSH key is available on this host, but may be pending on others.
             $config['spinner']->finish();
-            $loop->cancelTimer($config['timer']);
+            Loop::cancelTimer($config['timer']);
             unset($mappings[$envName]);
           }
           else {
@@ -151,24 +150,24 @@ EOT
         Amplitude::getInstance()->queueEvent('SSH key upload', ['result' => 'success', 'duration' => time() - $startTime]);
         $output->writeln("\n<info>Your SSH key is ready for use!</info>\n");
         foreach ($timers as $timer) {
-          $loop->cancelTimer($timer);
+          Loop::cancelTimer($timer);
         }
         $timers = [];
       }
     };
     // Poll Cloud every 5 seconds.
-    $timers[] = $loop->addPeriodicTimer(5, $callback);
-    $timers[] = $loop->addTimer(0.1, $callback);
-    $timers[] = $loop->addTimer(60 * 60, function () use ($output, $loop, &$timers): void {
+    $timers[] = Loop::addPeriodicTimer(5, $callback);
+    $timers[] = Loop::addTimer(0.1, $callback);
+    $timers[] = Loop::addTimer(60 * 60, static function () use ($output, &$timers): void {
       // Upload timed out.
       $output->writeln("\n<comment>This is taking longer than usual. It will happen eventually!</comment>\n");
       Amplitude::getInstance()->queueEvent('SSH key upload', ['result' => 'timeout']);
       foreach ($timers as $timer) {
-        $loop->cancelTimer($timer);
+        Loop::cancelTimer($timer);
       }
       $timers = [];
     });
-    $loop->run();
+    Loop::run();
   }
 
   /**
