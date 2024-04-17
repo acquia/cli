@@ -20,7 +20,7 @@ abstract class IdeCommandBase extends CommandBase {
     string $questionText,
     Ides $idesResource,
     string $cloudApplicationUuid
-  ): ?IdeResponse {
+  ): IdeResponse {
     $ides = iterator_to_array($idesResource->getAll($cloudApplicationUuid));
     if (empty($ides)) {
       throw new AcquiaCliException('No IDEs exist for this application.');

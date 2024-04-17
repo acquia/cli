@@ -8,7 +8,6 @@ use Acquia\Cli\ApiCredentialsInterface;
 use Acquia\Cli\Application;
 use Acquia\Cli\CloudApi\ClientService;
 use Acquia\Cli\CloudApi\CloudCredentials;
-use Acquia\Cli\Command\Ssh\SshKeyCommandBase;
 use Acquia\Cli\Config\AcquiaCliConfig;
 use Acquia\Cli\Config\CloudDataConfig;
 use Acquia\Cli\DataStore\AcquiaCliDatastore;
@@ -575,9 +574,9 @@ abstract class TestBase extends TestCase {
     return $this->mockRequest('getAccountSshKeys');
   }
 
-  protected function mockListSshKeysRequestWithIdeKey(): object {
+  protected function mockListSshKeysRequestWithIdeKey(string $ideLabel, string $ideUuid): object {
     $mockBody = $this->getMockResponseFromSpec('/account/ssh-keys', 'get', '200');
-    $mockBody->{'_embedded'}->items[0]->label = SshKeyCommandBase::getIdeSshKeyLabel();
+    $mockBody->{'_embedded'}->items[0]->label = preg_replace('/\W/', '', 'IDE_' . $ideLabel . '_' . $ideUuid);
     $this->clientProphecy->request('get', '/account/ssh-keys')
       ->willReturn($mockBody->{'_embedded'}->items)
       ->shouldBeCalled();

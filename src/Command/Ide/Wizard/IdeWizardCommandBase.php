@@ -37,11 +37,11 @@ abstract class IdeWizardCommandBase extends WizardCommandBase {
   }
 
   protected function getSshKeyLabel(): string {
-    return $this::getIdeSshKeyLabel();
+    return $this::getIdeSshKeyLabel(self::getThisCloudIdeLabel(), self::getThisCloudIdeUuid());
   }
 
   protected function deleteThisSshKeyFromCloud(mixed $output): void {
-    if ($cloudKey = $this->findIdeSshKeyOnCloud($this::getThisCloudIdeUuid())) {
+    if ($cloudKey = $this->findIdeSshKeyOnCloud($this::getThisCloudIdeLabel(), $this::getThisCloudIdeUuid())) {
       $this->deleteSshKeyFromCloud($output, $cloudKey);
     }
   }

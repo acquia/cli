@@ -9,16 +9,18 @@ namespace PHPSTORM_META {
   use AcquiaCloudApi\Response\DatabasesResponse;
   use AcquiaCloudApi\Response\EnvironmentResponse;
   use AcquiaCloudApi\Response\EnvironmentsResponse;
+  use AcquiaCloudApi\Response\IdeResponse;
 
   override(\Acquia\Cli\Tests\TestBase::mockRequest(), map([
     'getAccount' => AccountResponse::class,
     'getApplications' => ApplicationsResponse::class,
     'getApplicationByUuid' => ApplicationResponse::class,
     'getApplicationEnvironments' => EnvironmentsResponse::class,
-    'getEnvironmentsDatabases' => DatabasesResponse::class,
-    'getEnvironment' => EnvironmentResponse::class,
     'getCron' => CronResponse::class,
-    'getCronJobsByEnvironmentId' => CronsResponse::class
+    'getCronJobsByEnvironmentId' => CronsResponse::class,
+    'getEnvironment' => EnvironmentResponse::class,
+    'getEnvironmentsDatabases' => DatabasesResponse::class,
+    'getIde' => IdeResponse::class
   ]));
 
 }

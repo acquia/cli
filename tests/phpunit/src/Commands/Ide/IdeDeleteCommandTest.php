@@ -30,15 +30,12 @@ class IdeDeleteCommandTest extends CommandTestBase {
     return $this->injectCommand(IdeDeleteCommand::class);
   }
 
-  /**
-   * @group brokenProphecy
-   */
   public function testIdeDeleteCommand(): void {
     $applications = $this->mockRequest('getApplications');
     $this->mockRequest('getApplicationByUuid', $applications[0]->uuid);
     $ides = $this->mockRequest('getApplicationIdes', $applications[0]->uuid);
     $this->mockRequest('deleteIde', $ides[0]->uuid, NULL, 'De-provisioning IDE');
-    $sshKeyGetResponse = $this->mockListSshKeysRequestWithIdeKey();
+    $sshKeyGetResponse = $this->mockListSshKeysRequestWithIdeKey($ides[0]->label, $ides[0]->uuid);
 
     $this->mockDeleteSshKeyRequest($sshKeyGetResponse->{'_embedded'}->items[0]->uuid);
 
@@ -51,7 +48,7 @@ class IdeDeleteCommandTest extends CommandTestBase {
       'y',
       // Select the IDE you'd like to delete:
       0,
-      // Would you like to delete the SSH key associated with this IDE from your Cloud Platform account?
+      // Are you sure you want to delete ExampleIDE?
       'y',
     ];
 
@@ -60,6 +57,49 @@ class IdeDeleteCommandTest extends CommandTestBase {
     // Assert.
     $output = $this->getDisplay();
     $this->assertStringContainsString('The Cloud IDE is being deleted.', $output);
+  }
+
+  public function testIdeDeleteByUuid(): void {
+    $this->mockRequest('getIde', IdeHelper::$remoteIdeUuid);
+    $this->mockRequest('deleteIde', IdeHelper::$remoteIdeUuid, NULL, 'De-provisioning IDE');
+    $sshKeyGetResponse = $this->mockListSshKeysRequestWithIdeKey(IdeHelper::$remoteIdeLabel, IdeHelper::$remoteIdeUuid);
+
+    $this->mockDeleteSshKeyRequest($sshKeyGetResponse->{'_embedded'}->items[0]->uuid);
+
+    $inputs = [
+      // Would you like to delete the SSH key associated with this IDE from your Cloud Platform account?
+      'y',
+    ];
+
+    $this->executeCommand(['--uuid' => IdeHelper::$remoteIdeUuid], $inputs);
+
+    // Assert.
+    $output = $this->getDisplay();
+    $this->assertStringContainsString('The Cloud IDE is being deleted.', $output);
+  }
+
+  public function testIdeDeleteNeverMind(): void {
+    $applications = $this->mockRequest('getApplications');
+    $this->mockRequest('getApplicationByUuid', $applications[0]->uuid);
+    $this->mockRequest('getApplicationIdes', $applications[0]->uuid);
+    $inputs = [
+      // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
+      'n',
+      // Select the application for which you'd like to create a new IDE.
+      0,
+      // Would you like to link the project at ... ?
+      'y',
+      // Select the IDE you'd like to delete:
+      0,
+      // Are you sure you want to delete ExampleIDE?
+      'n',
+    ];
+
+    $this->executeCommand([], $inputs);
+
+    // Assert.
+    $output = $this->getDisplay();
+    $this->assertStringContainsString('Ok, never mind.', $output);
   }
 
 }

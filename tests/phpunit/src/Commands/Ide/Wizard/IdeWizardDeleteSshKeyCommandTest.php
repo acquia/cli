@@ -14,7 +14,7 @@ use Acquia\Cli\Tests\Commands\Ide\IdeHelper;
 class IdeWizardDeleteSshKeyCommandTest extends IdeWizardTestBase {
 
   public function testDelete(): void {
-    $mockBody = $this->mockListSshKeysRequestWithIdeKey();
+    $mockBody = $this->mockListSshKeysRequestWithIdeKey(IdeHelper::$remoteIdeLabel, IdeHelper::$remoteIdeUuid);
 
     $this->mockDeleteSshKeyRequest($mockBody->{'_embedded'}->items[0]->uuid);
 
