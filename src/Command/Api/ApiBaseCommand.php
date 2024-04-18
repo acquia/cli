@@ -110,6 +110,8 @@ class ApiBaseCommand extends CommandBase {
       $response = $acquiaCloudClient->request($this->method, $path);
       $exitCode = 0;
     }
+    // Ignore PhpStorm warning here.
+    // @see https://youtrack.jetbrains.com/issue/WI-77190/Exception-is-never-thrown-when-thrown-from-submethod
     catch (ApiErrorException $exception) {
       $response = $exception->getResponseBody();
       $exitCode = 1;
