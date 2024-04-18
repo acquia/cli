@@ -6,6 +6,7 @@ namespace Acquia\Cli\Command\Api;
 
 use Acquia\Cli\Attribute\RequireAuth;
 use Acquia\Cli\Command\CommandBase;
+use Acquia\Cli\Exception\AcquiaCliException;
 use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Exception\ApiErrorException;
 use Closure;
@@ -87,6 +88,9 @@ class ApiBaseCommand extends CommandBase {
   }
 
   protected function execute(InputInterface $input, OutputInterface $output): int {
+    if ($this->getName() === 'api:base') {
+      throw new AcquiaCliException('api:base is not a valid command');
+    }
     // Build query from non-null options.
     $acquiaCloudClient = $this->cloudApiClientService->getClient();
     $this->addQueryParamsToClient($input, $acquiaCloudClient);
