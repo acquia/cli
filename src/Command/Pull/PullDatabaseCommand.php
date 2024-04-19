@@ -33,7 +33,6 @@ final class PullDatabaseCommand extends PullCommandBase {
   }
 
   protected function execute(InputInterface $input, OutputInterface $output): int {
-    parent::execute($input, $output);
     $noScripts = $input->hasOption('no-scripts') && $input->getOption('no-scripts');
     $onDemand = $input->hasOption('on-demand') && $input->getOption('on-demand');
     $noImport = $input->hasOption('no-import') && $input->getOption('no-import');
