@@ -58,9 +58,14 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     $this->mockExecuteMySqlImport($localMachineHelper, TRUE, TRUE, 'my_db', 'my_dbdev', 'drupal');
     $fs->remove(Argument::type('string'))->shouldBeCalled();
     $localMachineHelper->getFilesystem()->willReturn($fs)->shouldBeCalled();
+    $this->mockExecuteDrushExists($localMachineHelper);
+    $this->mockExecuteDrushStatus($localMachineHelper, $this->projectDir);
+    $process = $this->mockProcess();
+    $this->mockExecuteDrushCacheRebuild($localMachineHelper, $process);
+    $this->mockExecuteDrushSqlSanitize($localMachineHelper, $process);
 
     $this->executeCommand([
-    '--no-scripts' => TRUE,
+    '--no-scripts' => FALSE,
     ], self::inputChooseEnvironment());
 
     $output = $this->getDisplay();

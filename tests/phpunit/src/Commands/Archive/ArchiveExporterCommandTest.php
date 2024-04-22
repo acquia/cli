@@ -35,7 +35,7 @@ class ArchiveExporterCommandTest extends PullCommandTestBase {
     $localMachineHelper->getFilesystem()->willReturn($fileSystem->reveal())->shouldBeCalled();
     $this->mockExecutePvExists($localMachineHelper);
     $this->mockExecuteDrushExists($localMachineHelper);
-    $this->mockExecuteDrushStatus($localMachineHelper, TRUE, $this->projectDir);
+    $this->mockExecuteDrushStatus($localMachineHelper, $this->projectDir);
     $this->mockCreateMySqlDumpOnLocal($localMachineHelper);
     $localMachineHelper->checkRequiredBinariesExist(["tar"])->shouldBeCalled();
     $localMachineHelper->execute(Argument::type('array'), Argument::type('callable'), NULL, TRUE)->willReturn($this->mockProcess())->shouldBeCalled();

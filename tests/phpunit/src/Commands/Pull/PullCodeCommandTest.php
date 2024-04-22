@@ -112,7 +112,7 @@ class PullCodeCommandTest extends PullCommandTestBase {
     $this->mockExecuteComposerExists($localMachineHelper);
     $this->mockExecuteComposerInstall($localMachineHelper, $process);
     $this->mockExecuteDrushExists($localMachineHelper);
-    $this->mockExecuteDrushStatus($localMachineHelper, TRUE, $this->projectDir);
+    $this->mockExecuteDrushStatus($localMachineHelper, $this->projectDir);
     $this->mockExecuteDrushCacheRebuild($localMachineHelper, $process);
 
     $this->executeCommand([], self::inputChooseEnvironment());
@@ -139,7 +139,7 @@ class PullCodeCommandTest extends PullCommandTestBase {
     $this->mockExecuteGitStatus(FALSE, $localMachineHelper, $this->projectDir);
     $process = $this->mockProcess();
     $this->mockExecuteDrushExists($localMachineHelper);
-    $this->mockExecuteDrushStatus($localMachineHelper, TRUE, $this->projectDir);
+    $this->mockExecuteDrushStatus($localMachineHelper, $this->projectDir);
     $this->mockExecuteDrushCacheRebuild($localMachineHelper, $process);
 
     $this->executeCommand([], self::inputChooseEnvironment());
@@ -169,7 +169,7 @@ class PullCodeCommandTest extends PullCommandTestBase {
       ->willReturn(FALSE)
       ->shouldBeCalled();
     $this->mockExecuteDrushExists($localMachineHelper);
-    $this->mockExecuteDrushStatus($localMachineHelper, TRUE, $this->projectDir);
+    $this->mockExecuteDrushStatus($localMachineHelper, $this->projectDir);
     $this->mockExecuteDrushCacheRebuild($localMachineHelper, $process);
 
     $this->executeCommand([], self::inputChooseEnvironment());
@@ -198,7 +198,7 @@ class PullCodeCommandTest extends PullCommandTestBase {
     $process = $this->mockProcess();
     $this->mockExecuteComposerExists($localMachineHelper);
     $this->mockExecuteDrushExists($localMachineHelper);
-    $this->mockExecuteDrushStatus($localMachineHelper, TRUE, $this->projectDir);
+    $this->mockExecuteDrushStatus($localMachineHelper, $this->projectDir);
     $this->mockExecuteDrushCacheRebuild($localMachineHelper, $process);
 
     $this->executeCommand([], self::inputChooseEnvironment());

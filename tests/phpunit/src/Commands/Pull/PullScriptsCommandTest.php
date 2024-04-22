@@ -27,13 +27,10 @@ class PullScriptsCommandTest extends PullCommandTestBase {
     $this->mockExecuteComposerInstall($localMachineHelper, $process);
 
     // Drush.
-    $drushConnectionExists = TRUE;
     $this->mockExecuteDrushExists($localMachineHelper);
-    $this->mockExecuteDrushStatus($localMachineHelper, $drushConnectionExists, $this->projectDir);
-    if ($drushConnectionExists) {
-      $this->mockExecuteDrushCacheRebuild($localMachineHelper, $process);
-      $this->mockExecuteDrushSqlSanitize($localMachineHelper, $process);
-    }
+    $this->mockExecuteDrushStatus($localMachineHelper, $this->projectDir);
+    $this->mockExecuteDrushCacheRebuild($localMachineHelper, $process);
+    $this->mockExecuteDrushSqlSanitize($localMachineHelper, $process);
 
     $inputs = [
       // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
@@ -50,7 +47,7 @@ class PullScriptsCommandTest extends PullCommandTestBase {
       '--dir' => $this->projectDir,
     ], $inputs);
 
-    $output = $this->getDisplay();
+    $this->getDisplay();
   }
 
 }
