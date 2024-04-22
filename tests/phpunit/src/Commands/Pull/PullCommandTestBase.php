@@ -283,12 +283,13 @@ abstract class PullCommandTestBase extends CommandTestBase {
     bool $pvExists,
     string $dbName = 'jxr5000596dev',
     string $dbMachineName = 'db554675',
-    string $localDbName = 'jxr5000596dev'
+    string $localDbName = 'jxr5000596dev',
+    string $env = 'dev'
   ): void {
     $localMachineHelper->checkRequiredBinariesExist(['gunzip', 'mysql'])->shouldBeCalled();
     $this->mockExecutePvExists($localMachineHelper, $pvExists);
     $process = $this->mockProcess($success);
-    $filePath = Path::join(sys_get_temp_dir(), "dev-$dbName-$dbMachineName-2012-05-15T12:00:00Z.sql.gz");
+    $filePath = Path::join(sys_get_temp_dir(), "$env-$dbName-$dbMachineName-2012-05-15T12:00:00Z.sql.gz");
     $command = $pvExists ? "pv $filePath --bytes --rate | gunzip | MYSQL_PWD=drupal mysql --host=localhost --user=drupal $localDbName" : "gunzip -c $filePath | MYSQL_PWD=drupal mysql --host=localhost --user=drupal $localDbName";
     // MySQL import command.
     $localMachineHelper

@@ -73,6 +73,49 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     $this->assertStringContainsString('Downloading backup 1', $output);
   }
 
+  public function testPullProdDatabase(): void {
+    $localMachineHelper = $this->mockLocalMachineHelper();
+    $this->mockExecuteMySqlConnect($localMachineHelper, TRUE);
+    $applications = $this->mockRequest('getApplications');
+    $application = $this->mockRequest('getApplicationByUuid', $applications[self::$INPUT_DEFAULT_CHOICE]->uuid);
+    $environments = $this->mockRequest('getApplicationEnvironments', $application->uuid);
+    $environment = $environments[1];
+    $sshHelper = $this->mockSshHelper();
+    $process = $this->mockProcess();
+    $process->getOutput()->willReturn('default')->shouldBeCalled();
+    $sshHelper->executeCommand(Argument::type('object'), ['ls', '/mnt/files/site.prod/sites'], FALSE)
+      ->willReturn($process->reveal())->shouldBeCalled();
+    $this->mockGetBackup($environment);
+    $this->mockExecuteMySqlListTables($localMachineHelper, 'drupal');
+    $fs = $this->prophet->prophesize(Filesystem::class);
+    $this->mockExecuteMySqlDropDb($localMachineHelper, TRUE, $fs);
+    $this->mockExecuteMySqlImport($localMachineHelper, TRUE, TRUE, 'my_db', 'my_dbprod', 'drupal', 'prod');
+    $fs->remove(Argument::type('string'))->shouldBeCalled();
+    $localMachineHelper->getFilesystem()->willReturn($fs)->shouldBeCalled();
+
+    $this->executeCommand([
+      '--no-scripts' => TRUE,
+    ], [
+      // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
+      'n',
+      // Select a Cloud Platform application:
+      self::$INPUT_DEFAULT_CHOICE,
+      // Would you like to link the project at ... ?
+      'n',
+      // Choose an Acquia environment:
+      1,
+    ]);
+
+    $output = $this->getDisplay();
+
+    $this->assertStringContainsString('Select a Cloud Platform application:', $output);
+    $this->assertStringContainsString('[0] Sample application 1', $output);
+    $this->assertStringContainsString('Choose a Cloud Platform environment', $output);
+    $this->assertStringContainsString('[0] Dev, dev (vcs: master)', $output);
+    $this->assertStringContainsString('Choose a database [my_db (default)]:', $output);
+    $this->assertStringContainsString('Downloading backup 1', $output);
+  }
+
   public function testPullDatabasesLocalConnectionFailure(): void {
     $this->mockGetEnvironment();
     $localMachineHelper = $this->mockLocalMachineHelper();

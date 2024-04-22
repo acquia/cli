@@ -66,7 +66,17 @@ class PullCommandTest extends PullCommandTestBase {
     $this->mockExecuteMySqlImport($localMachineHelper, TRUE, TRUE, 'my_db', 'my_dbdev', 'drupal');
     $this->executeCommand([
       '--no-scripts' => TRUE,
-    ], self::inputChooseEnvironment());
+    ], [
+      // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
+      'n',
+      // Select a Cloud Platform application:
+      self::$INPUT_DEFAULT_CHOICE,
+      // Would you like to link the project at ... ?
+      'n',
+      // Choose an Acquia environment:
+      self::$INPUT_DEFAULT_CHOICE,
+      self::$INPUT_DEFAULT_CHOICE,
+    ]);
 
     $output = $this->getDisplay();
 
@@ -74,6 +84,7 @@ class PullCommandTest extends PullCommandTestBase {
     $this->assertStringContainsString('[0] Sample application 1', $output);
     $this->assertStringContainsString('Choose a Cloud Platform environment', $output);
     $this->assertStringContainsString('[0] Dev, dev (vcs: master)', $output);
+    $this->assertStringContainsString('Choose a database [my_db (default)]:', $output);
   }
 
   public function testMissingLocalRepo(): void {
