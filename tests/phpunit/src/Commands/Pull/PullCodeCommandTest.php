@@ -289,30 +289,4 @@ class PullCodeCommandTest extends PullCommandTestBase {
       ->shouldBeCalled();
   }
 
-  protected function mockExecuteGitFetchAndCheckout(
-    ObjectProphecy $localMachineHelper,
-    ObjectProphecy $process,
-    mixed $cwd,
-    mixed $vcsPath
-  ): void {
-    $localMachineHelper->execute([
-      'git',
-      'fetch',
-      '--all',
-    ], Argument::type('callable'), $cwd, FALSE)
-      ->willReturn($process->reveal())
-      ->shouldBeCalled();
-    $this->mockExecuteGitCheckout($localMachineHelper, $vcsPath, $cwd, $process);
-  }
-
-  protected function mockExecuteGitCheckout(ObjectProphecy $localMachineHelper, mixed $vcsPath, mixed $cwd, ObjectProphecy $process): void {
-    $localMachineHelper->execute([
-      'git',
-      'checkout',
-      $vcsPath,
-    ], Argument::type('callable'), $cwd, FALSE)
-      ->willReturn($process->reveal())
-      ->shouldBeCalled();
-  }
-
 }
