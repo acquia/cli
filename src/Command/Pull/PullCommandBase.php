@@ -29,7 +29,6 @@ use GuzzleHttp\TransferStats;
 use Psr\Http\Message\UriInterface;
 use Psr\Log\LoggerInterface;
 use React\EventLoop\Loop;
-use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
@@ -112,10 +111,6 @@ abstract class PullCommandBase extends CommandBase {
     $this->checklist = new Checklist($output);
   }
 
-  protected function execute(InputInterface $input, OutputInterface $output): int {
-    return Command::SUCCESS;
-  }
-
   protected function pullCode(InputInterface $input, OutputInterface $output, bool $clone, EnvironmentResponse $sourceEnvironment): void {
     if ($clone) {
       $this->checklist->addItem('Cloning git repository from the Cloud Platform');
@@ -132,14 +127,13 @@ abstract class PullCommandBase extends CommandBase {
    * @param bool $onDemand Force on-demand backup.
    * @param bool $noImport Skip import.
    */
-  protected function pullDatabase(InputInterface $input, OutputInterface $output, bool $onDemand = FALSE, bool $noImport = FALSE, bool $multipleDbs = FALSE): void {
+  protected function pullDatabase(InputInterface $input, OutputInterface $output, EnvironmentResponse $sourceEnvironment, bool $onDemand = FALSE, bool $noImport = FALSE, bool $multipleDbs = FALSE): void {
     $this->setDirAndRequireProjectCwd($input);
     if (!$noImport) {
       // Verify database connection.
       $this->connectToLocalDatabase($this->getLocalDbHost(), $this->getLocalDbUser(), $this->getLocalDbName(), $this->getLocalDbPassword(), $this->getOutputCallback($output, $this->checklist));
     }
     $acquiaCloudClient = $this->cloudApiClientService->getClient();
-    $sourceEnvironment = $this->determineEnvironment($input, $output, TRUE);
     $site = $this->determineSite($sourceEnvironment, $input);
     $databases = $this->determineCloudDatabases($acquiaCloudClient, $sourceEnvironment, $site, $multipleDbs);
 

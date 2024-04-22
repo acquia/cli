@@ -105,6 +105,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
   }
 
   public function testPullDatabasesLocalConnectionFailure(): void {
+    $this->mockGetEnvironment();
     $localMachineHelper = $this->mockLocalMachineHelper();
     $this->mockExecuteMySqlConnect($localMachineHelper, FALSE);
 
