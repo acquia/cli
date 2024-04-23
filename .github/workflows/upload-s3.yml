@@ -54,7 +54,7 @@ jobs:
         run: unzip acli.phar.zip
       - name: Store artifact in S3
         run: |
-          aws s3 cp acli.phar s3://acquia-cli/build/pr/${{ steps.pr.outputs.result }}
+          aws s3 cp acli.phar s3://acquia-cli/build/pr/${{ steps.pr.outputs.result }}/
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
