@@ -132,6 +132,9 @@
         "mutation": [
             "infection --threads=max --only-covered"
         ],
+        "mutation-diff-lines": [
+            "infection --threads=max --only-covered --git-diff-lines --git-diff-base=origin/$GITHUB_BASE_REF --min-covered-msi=100"
+        ],
         "cs": "phpcs",
         "cbf": "phpcbf",
         "unit": [
