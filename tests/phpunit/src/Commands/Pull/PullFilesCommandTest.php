@@ -7,11 +7,8 @@ namespace Acquia\Cli\Tests\Commands\Pull;
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Command\Pull\PullFilesCommand;
 use Acquia\Cli\Exception\AcquiaCliException;
-use Acquia\Cli\Helpers\LocalMachineHelper;
 use Acquia\Cli\Tests\Commands\Ide\IdeHelper;
 use GuzzleHttp\Client;
-use Prophecy\Argument;
-use Prophecy\Prophecy\ObjectProphecy;
 
 class PullFilesCommandTest extends PullCommandTestBase {
 
@@ -116,26 +113,6 @@ class PullFilesCommandTest extends PullCommandTestBase {
     $this->expectExceptionMessage('Run this command from the ');
     $this->executeCommand();
     IdeHelper::unsetCloudIdeEnvVars();
-  }
-
-  protected function mockExecuteRsync(
-    LocalMachineHelper|ObjectProphecy $localMachineHelper,
-                   mixed $environment,
-    string $sourceDir,
-    string $destinationDir
-  ): void {
-    $process = $this->mockProcess();
-    $localMachineHelper->checkRequiredBinariesExist(['rsync'])->shouldBeCalled();
-    $command = [
-      'rsync',
-      '-avPhze',
-      'ssh -o StrictHostKeyChecking=no',
-      $environment->ssh_url . ':' . $sourceDir,
-      $destinationDir,
-    ];
-    $localMachineHelper->execute($command, Argument::type('callable'), NULL, TRUE)
-      ->willReturn($process->reveal())
-      ->shouldBeCalled();
   }
 
 }

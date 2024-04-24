@@ -8,54 +8,23 @@ use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Command\Pull\PullCommandBase;
 use Acquia\Cli\Command\Pull\PullDatabaseCommand;
 use Acquia\Cli\Exception\AcquiaCliException;
-use Acquia\Cli\Helpers\LocalMachineHelper;
 use Acquia\Cli\Helpers\SshHelper;
-use AcquiaCloudApi\Response\BackupsResponse;
 use GuzzleHttp\Client;
-use GuzzleHttp\Exception\RequestException;
-use GuzzleHttp\Psr7\Uri;
 use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\StreamInterface;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\Filesystem\Path;
 
 /**
  * @property \Acquia\Cli\Command\Pull\PullDatabaseCommand $command
  */
 class PullDatabaseCommandTest extends PullCommandTestBase {
 
-  protected string $dbUser = 'drupal';
-  protected string $dbPassword = 'drupal';
-  protected string $dbHost = 'localhost';
-  protected string $dbName = 'drupal';
-
-  public function setUp(): void {
-    self::unsetEnvVars(['ACLI_DB_HOST', 'ACLI_DB_USER', 'ACLI_DB_PASSWORD', 'ACLI_DB_NAME']);
-    parent::setUp();
-  }
-
   /**
    * @return int[][]
    */
   public function providerTestPullDatabaseWithInvalidSslCertificate(): array {
     return [[51], [60]];
-  }
-
-  public function mockGetBackup(mixed $environment): void {
-    $databases = $this->mockRequest('getEnvironmentsDatabases', $environment->id);
-    $tamper = function ($backups): void {
-      $backups[0]->completedAt = $backups[0]->completed_at;
-    };
-    $backups = new BackupsResponse(
-      $this->mockRequest('getEnvironmentsDatabaseBackups', [
-        $environment->id,
-        'my_db',
-      ], NULL, NULL, $tamper)
-    );
-    $this->mockDownloadBackup($databases[0], $environment, $backups[0]);
   }
 
   protected function createCommand(): CommandBase {
@@ -89,9 +58,14 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     $this->mockExecuteMySqlImport($localMachineHelper, TRUE, TRUE, 'my_db', 'my_dbdev', 'drupal');
     $fs->remove(Argument::type('string'))->shouldBeCalled();
     $localMachineHelper->getFilesystem()->willReturn($fs)->shouldBeCalled();
+    $this->mockExecuteDrushExists($localMachineHelper);
+    $this->mockExecuteDrushStatus($localMachineHelper, $this->projectDir);
+    $process = $this->mockProcess();
+    $this->mockExecuteDrushCacheRebuild($localMachineHelper, $process);
+    $this->mockExecuteDrushSqlSanitize($localMachineHelper, $process);
 
     $this->executeCommand([
-    '--no-scripts' => TRUE,
+    '--no-scripts' => FALSE,
     ], self::inputChooseEnvironment());
 
     $output = $this->getDisplay();
@@ -104,7 +78,51 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     $this->assertStringContainsString('Downloading backup 1', $output);
   }
 
+  public function testPullProdDatabase(): void {
+    $localMachineHelper = $this->mockLocalMachineHelper();
+    $this->mockExecuteMySqlConnect($localMachineHelper, TRUE);
+    $applications = $this->mockRequest('getApplications');
+    $application = $this->mockRequest('getApplicationByUuid', $applications[self::$INPUT_DEFAULT_CHOICE]->uuid);
+    $environments = $this->mockRequest('getApplicationEnvironments', $application->uuid);
+    $environment = $environments[1];
+    $sshHelper = $this->mockSshHelper();
+    $process = $this->mockProcess();
+    $process->getOutput()->willReturn('default')->shouldBeCalled();
+    $sshHelper->executeCommand(Argument::type('object'), ['ls', '/mnt/files/site.prod/sites'], FALSE)
+      ->willReturn($process->reveal())->shouldBeCalled();
+    $this->mockGetBackup($environment);
+    $this->mockExecuteMySqlListTables($localMachineHelper, 'drupal');
+    $fs = $this->prophet->prophesize(Filesystem::class);
+    $this->mockExecuteMySqlDropDb($localMachineHelper, TRUE, $fs);
+    $this->mockExecuteMySqlImport($localMachineHelper, TRUE, TRUE, 'my_db', 'my_dbprod', 'drupal', 'prod');
+    $fs->remove(Argument::type('string'))->shouldBeCalled();
+    $localMachineHelper->getFilesystem()->willReturn($fs)->shouldBeCalled();
+
+    $this->executeCommand([
+      '--no-scripts' => TRUE,
+    ], [
+      // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
+      'n',
+      // Select a Cloud Platform application:
+      self::$INPUT_DEFAULT_CHOICE,
+      // Would you like to link the project at ... ?
+      'n',
+      // Choose an Acquia environment:
+      1,
+    ]);
+
+    $output = $this->getDisplay();
+
+    $this->assertStringContainsString('Select a Cloud Platform application:', $output);
+    $this->assertStringContainsString('[0] Sample application 1', $output);
+    $this->assertStringContainsString('Choose a Cloud Platform environment', $output);
+    $this->assertStringContainsString('[0] Dev, dev (vcs: master)', $output);
+    $this->assertStringContainsString('Choose a database [my_db (default)]:', $output);
+    $this->assertStringContainsString('Downloading backup 1', $output);
+  }
+
   public function testPullDatabasesLocalConnectionFailure(): void {
+    $this->mockGetEnvironment();
     $localMachineHelper = $this->mockLocalMachineHelper();
     $this->mockExecuteMySqlConnect($localMachineHelper, FALSE);
 
@@ -326,107 +344,6 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     return $sshHelper;
   }
 
-  private function mockListSites(SshHelper|ObjectProphecy $sshHelper): void {
-    $process = $this->mockProcess();
-    $process->getOutput()->willReturn('default')->shouldBeCalled();
-    $sshHelper->executeCommand(Argument::type('object'), ['ls', '/mnt/files/site.dev/sites'], FALSE)
-      ->willReturn($process->reveal())->shouldBeCalled();
-  }
-
-  protected function mockExecuteMySqlConnect(
-    ObjectProphecy $localMachineHelper,
-    bool $success
-  ): void {
-    $localMachineHelper->checkRequiredBinariesExist(["mysql"])->shouldBeCalled();
-    $process = $this->mockProcess($success);
-    $localMachineHelper
-      ->execute([
-        'mysql',
-        '--host',
-        $this->dbHost,
-        '--user',
-        'drupal',
-        'drupal',
-      ], Argument::type('callable'), NULL, FALSE, NULL, ['MYSQL_PWD' => 'drupal'])
-      ->willReturn($process->reveal())
-      ->shouldBeCalled();
-  }
-
-  protected function mockExecuteMySqlListTables(
-    LocalMachineHelper|ObjectProphecy $localMachineHelper,
-    string $dbName = 'jxr5000596dev',
-  ): void {
-    $localMachineHelper->checkRequiredBinariesExist(["mysql"])->shouldBeCalled();
-    $process = $this->mockProcess();
-    $process->getOutput()->willReturn('table1');
-    $command = [
-      'mysql',
-      '--host',
-      'localhost',
-      '--user',
-      'drupal',
-      $dbName,
-      '--silent',
-      '-e',
-      'SHOW TABLES;',
-    ];
-    $localMachineHelper
-      ->execute($command, Argument::type('callable'), NULL, FALSE, NULL, ['MYSQL_PWD' => $this->dbPassword])
-      ->willReturn($process->reveal())
-      ->shouldBeCalled();
-  }
-
-  protected function mockExecuteMySqlDropDb(
-    LocalMachineHelper|ObjectProphecy $localMachineHelper,
-    bool $success,
-    ObjectProphecy $fs
-  ): void {
-    $localMachineHelper->checkRequiredBinariesExist(["mysql"])->shouldBeCalled();
-    $process = $this->mockProcess($success);
-    $fs->tempnam(Argument::type('string'), 'acli_drop_table_', '.sql')->willReturn('something')->shouldBeCalled();
-    $fs->dumpfile('something', Argument::type('string'))->shouldBeCalled();
-    $localMachineHelper
-      ->execute(Argument::type('array'), Argument::type('callable'), NULL, FALSE, NULL, ['MYSQL_PWD' => $this->dbPassword])
-      ->willReturn($process->reveal())
-      ->shouldBeCalled();
-  }
-
-  protected function mockExecuteMySqlImport(
-    ObjectProphecy $localMachineHelper,
-    bool $success,
-    bool $pvExists,
-    string $dbName = 'jxr5000596dev',
-    string $dbMachineName = 'db554675',
-    string $localDbName = 'jxr5000596dev'
-  ): void {
-    $localMachineHelper->checkRequiredBinariesExist(['gunzip', 'mysql'])->shouldBeCalled();
-    $this->mockExecutePvExists($localMachineHelper, $pvExists);
-    $process = $this->mockProcess($success);
-    $filePath = Path::join(sys_get_temp_dir(), "dev-$dbName-$dbMachineName-2012-05-15T12:00:00Z.sql.gz");
-    $command = $pvExists ? "pv $filePath --bytes --rate | gunzip | MYSQL_PWD=drupal mysql --host=localhost --user=drupal $localDbName" : "gunzip -c $filePath | MYSQL_PWD=drupal mysql --host=localhost --user=drupal $localDbName";
-    // MySQL import command.
-    $localMachineHelper
-      ->executeFromCmd($command, Argument::type('callable'),
-        NULL, TRUE, NULL)
-      ->willReturn($process->reveal())
-      ->shouldBeCalled();
-  }
-
-  protected function mockDownloadMySqlDump(ObjectProphecy $localMachineHelper, mixed $success): void {
-    $this->mockProcess($success);
-    $localMachineHelper->writeFile(
-      Argument::containingString("dev-profserv2-profserv201dev-something.sql.gz"),
-      'backupfilecontents'
-    )
-      ->shouldBeCalled();
-  }
-
-  protected function mockSettingsFiles(ObjectProphecy $fs): void {
-    $fs->remove(Argument::type('string'))
-      ->willReturn()
-      ->shouldBeCalled();
-  }
-
   public function testDownloadProgressDisplay(): void {
     $output = new BufferedOutput();
     $progress = NULL;
@@ -440,49 +357,6 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
 
     PullCommandBase::displayDownloadProgress(100, 100, $progress, $output);
     $this->assertStringContainsString('100/100 [============================] 100%', $output->fetch());
-  }
-
-  protected function mockDownloadBackup(object $database, object $environment, object $backup, int $curlCode = 0): object {
-    if ($curlCode) {
-      $this->prophet->prophesize(StreamInterface::class);
-      /** @var RequestException|ObjectProphecy $requestException */
-      $requestException = $this->prophet->prophesize(RequestException::class);
-      $requestException->getHandlerContext()->willReturn(['errno' => $curlCode]);
-      $this->clientProphecy->stream('get', "/environments/{$environment->id}/databases/{$database->name}/backups/1/actions/download", [])
-        ->willThrow($requestException->reveal())
-        ->shouldBeCalled();
-      $response = $this->prophet->prophesize(ResponseInterface::class);
-      $this->httpClientProphecy->request('GET', 'https://other.example.com/download-backup', Argument::type('array'))->willReturn($response->reveal())->shouldBeCalled();
-      $domainsResponse = $this->getMockResponseFromSpec('/environments/{environmentId}/domains', 'get', 200);
-      $this->clientProphecy->request('get', "/environments/{$environment->id}/domains")->willReturn($domainsResponse->_embedded->items);
-      $this->command->setBackupDownloadUrl(new Uri( 'https://www.example.com/download-backup'));
-    }
-    else {
-      $this->mockDownloadBackupResponse($environment, $database->name, 1);
-    }
-    if ($database->flags->default) {
-      $dbMachineName = $database->name . $environment->name;
-    }
-    else {
-      $dbMachineName = 'db' . $database->id;
-    }
-    $filename = implode('-', [
-        $environment->name,
-        $database->name,
-        $dbMachineName,
-        $backup->completedAt,
-      ]) . '.sql.gz';
-    $localFilepath = Path::join(sys_get_temp_dir(), $filename);
-    $this->clientProphecy->addOption('sink', $localFilepath)->shouldBeCalled();
-    $this->clientProphecy->addOption('curl.options', [
-      'CURLOPT_FILE' => $localFilepath,
-      'CURLOPT_RETURNTRANSFER' => FALSE,
-])->shouldBeCalled();
-    $this->clientProphecy->addOption('progress', Argument::type('Closure'))->shouldBeCalled();
-    $this->clientProphecy->addOption('on_stats', Argument::type('Closure'))->shouldBeCalled();
-    $this->clientProphecy->getOptions()->willReturn([]);
-
-    return $database;
   }
 
 }

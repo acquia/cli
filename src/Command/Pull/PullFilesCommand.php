@@ -21,7 +21,6 @@ final class PullFilesCommand extends PullCommandBase {
   }
 
   protected function execute(InputInterface $input, OutputInterface $output): int {
-    parent::execute($input, $output);
     $this->setDirAndRequireProjectCwd($input);
     $sourceEnvironment = $this->determineEnvironment($input, $output, TRUE);
     $this->pullFiles($input, $output, $sourceEnvironment);

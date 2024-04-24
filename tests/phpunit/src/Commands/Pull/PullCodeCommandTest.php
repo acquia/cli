@@ -112,7 +112,7 @@ class PullCodeCommandTest extends PullCommandTestBase {
     $this->mockExecuteComposerExists($localMachineHelper);
     $this->mockExecuteComposerInstall($localMachineHelper, $process);
     $this->mockExecuteDrushExists($localMachineHelper);
-    $this->mockExecuteDrushStatus($localMachineHelper, TRUE, $this->projectDir);
+    $this->mockExecuteDrushStatus($localMachineHelper, $this->projectDir);
     $this->mockExecuteDrushCacheRebuild($localMachineHelper, $process);
 
     $this->executeCommand([], self::inputChooseEnvironment());
@@ -139,7 +139,7 @@ class PullCodeCommandTest extends PullCommandTestBase {
     $this->mockExecuteGitStatus(FALSE, $localMachineHelper, $this->projectDir);
     $process = $this->mockProcess();
     $this->mockExecuteDrushExists($localMachineHelper);
-    $this->mockExecuteDrushStatus($localMachineHelper, TRUE, $this->projectDir);
+    $this->mockExecuteDrushStatus($localMachineHelper, $this->projectDir);
     $this->mockExecuteDrushCacheRebuild($localMachineHelper, $process);
 
     $this->executeCommand([], self::inputChooseEnvironment());
@@ -169,7 +169,7 @@ class PullCodeCommandTest extends PullCommandTestBase {
       ->willReturn(FALSE)
       ->shouldBeCalled();
     $this->mockExecuteDrushExists($localMachineHelper);
-    $this->mockExecuteDrushStatus($localMachineHelper, TRUE, $this->projectDir);
+    $this->mockExecuteDrushStatus($localMachineHelper, $this->projectDir);
     $this->mockExecuteDrushCacheRebuild($localMachineHelper, $process);
 
     $this->executeCommand([], self::inputChooseEnvironment());
@@ -198,7 +198,7 @@ class PullCodeCommandTest extends PullCommandTestBase {
     $process = $this->mockProcess();
     $this->mockExecuteComposerExists($localMachineHelper);
     $this->mockExecuteDrushExists($localMachineHelper);
-    $this->mockExecuteDrushStatus($localMachineHelper, TRUE, $this->projectDir);
+    $this->mockExecuteDrushStatus($localMachineHelper, $this->projectDir);
     $this->mockExecuteDrushCacheRebuild($localMachineHelper, $process);
 
     $this->executeCommand([], self::inputChooseEnvironment());
@@ -285,32 +285,6 @@ class PullCodeCommandTest extends PullCommandTestBase {
       $dir,
     ];
     $localMachineHelper->execute($command, Argument::type('callable'), NULL, TRUE, NULL, ['GIT_SSH_COMMAND' => 'ssh -o StrictHostKeyChecking=no'])
-      ->willReturn($process->reveal())
-      ->shouldBeCalled();
-  }
-
-  protected function mockExecuteGitFetchAndCheckout(
-    ObjectProphecy $localMachineHelper,
-    ObjectProphecy $process,
-    mixed $cwd,
-    mixed $vcsPath
-  ): void {
-    $localMachineHelper->execute([
-      'git',
-      'fetch',
-      '--all',
-    ], Argument::type('callable'), $cwd, FALSE)
-      ->willReturn($process->reveal())
-      ->shouldBeCalled();
-    $this->mockExecuteGitCheckout($localMachineHelper, $vcsPath, $cwd, $process);
-  }
-
-  protected function mockExecuteGitCheckout(ObjectProphecy $localMachineHelper, mixed $vcsPath, mixed $cwd, ObjectProphecy $process): void {
-    $localMachineHelper->execute([
-      'git',
-      'checkout',
-      $vcsPath,
-    ], Argument::type('callable'), $cwd, FALSE)
       ->willReturn($process->reveal())
       ->shouldBeCalled();
   }

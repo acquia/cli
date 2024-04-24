@@ -35,8 +35,6 @@ final class PullCommand extends PullCommandBase {
   }
 
   protected function execute(InputInterface $input, OutputInterface $output): int {
-    parent::execute($input, $output);
-
     $this->setDirAndRequireProjectCwd($input);
     $clone = $this->determineCloneProject($output);
     $sourceEnvironment = $this->determineEnvironment($input, $output, TRUE);
@@ -50,7 +48,7 @@ final class PullCommand extends PullCommandBase {
     }
 
     if (!$input->getOption('no-databases')) {
-      $this->pullDatabase($input, $output);
+      $this->pullDatabase($input, $output, $sourceEnvironment);
     }
 
     if (!$input->getOption('no-scripts')) {
