@@ -35,8 +35,8 @@ class LocalMachineHelper {
   private SymfonyStyle $io;
 
   public function __construct(
-      private InputInterface $input,
-      private OutputInterface $output,
+      private readonly InputInterface $input,
+      private readonly OutputInterface $output,
       LoggerInterface $logger
   ) {
     $this->setLogger($logger);
@@ -48,12 +48,10 @@ class LocalMachineHelper {
    *
    * This won't find aliases or shell built-ins, so use it mindfully (e.g. only
    * for commands that you _know_ to be system commands).
-   *
-   * @param $command
    */
-  public function commandExists(mixed $command): bool {
+  public function commandExists(string $command): bool {
     if (array_key_exists($command, $this->installedBinaries)) {
-      return (bool) $this->installedBinaries[$command];
+      return $this->installedBinaries[$command];
     }
     $osCommand = OsInfo::isWindows() ? ['where', $command] : ['which', $command];
     $exists = $this->execute($osCommand, NULL, NULL, FALSE, NULL, NULL, FALSE)->isSuccessful();
@@ -104,7 +102,7 @@ class LocalMachineHelper {
    * @param array|null $env
    */
   private function configureProcess(Process $process, string $cwd = NULL, ?bool $printOutput = TRUE, float $timeout = NULL, array $env = NULL, bool $stdin = TRUE): Process {
-    if (function_exists('posix_isatty') && !@posix_isatty(STDIN) && $stdin) {
+    if (function_exists('posix_isatty') && $stdin && !@posix_isatty(STDIN)) {
       $process->setInput(STDIN);
     }
     if ($cwd) {
@@ -251,7 +249,7 @@ class LocalMachineHelper {
    * This method assumes you are running `acli` in a directory containing a
    * Drupal docroot either as a sibling or parent(N) of the working directory.
    *
-   * Typically the root directory would also be a Git repository root, though it
+   * Typically, the root directory would also be a Git repository root, though it
    * doesn't have to be (such as for brand-new projects that haven't initialized
    * Git yet).
    */
@@ -344,9 +342,9 @@ class LocalMachineHelper {
 
     // Validate that the host part of the URL resolves, so we don't attempt to
     // open the browser for http://default or similar invalid hosts.
-    $hosterror = (gethostbynamel($host) === FALSE);
-    $iperror = (ip2long($host) && gethostbyaddr($host) == $host);
-    if ($hosterror || $iperror) {
+    $hostError = (gethostbynamel($host) === FALSE);
+    $ipError = (ip2long($host) && gethostbyaddr($host) === $host);
+    if ($hostError || $ipError) {
       $this->logger->warning(
             '!host does not appear to be a resolvable hostname or IP, not starting browser.',
             ['!host' => $host]

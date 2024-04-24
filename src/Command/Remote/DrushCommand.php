@@ -35,7 +35,7 @@ final class DrushCommand extends SshBaseCommand {
     // When available, provide the default domain to drush.
     if (!empty($environment->default_domain)) {
       // Insert at the beginning so a user-supplied --uri arg will override.
-      array_unshift($drushArguments, "--uri=http://{$environment->default_domain}");
+      array_unshift($drushArguments, "--uri=http://$environment->default_domain");
     }
     $drushCommandArguments = [
       "cd /var/www/html/$alias/docroot; ",

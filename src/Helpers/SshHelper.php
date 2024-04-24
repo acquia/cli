@@ -20,8 +20,8 @@ class SshHelper implements LoggerAwareInterface {
    * SshHelper constructor.
    */
   public function __construct(
-      private OutputInterface $output,
-      private LocalMachineHelper $localMachineHelper,
+      private readonly OutputInterface $output,
+      private readonly LocalMachineHelper $localMachineHelper,
       LoggerInterface $logger
   ) {
     $this->setLogger($logger);
@@ -70,7 +70,7 @@ class SshHelper implements LoggerAwareInterface {
     $result = '';
     while (!empty($commandArgs)) {
       $first = array_shift($commandArgs);
-      if ($first != '' && $first[0] == '-') {
+      if ($first !== '' && $first[0] === '-') {
         return $result;
       }
       $result .= " $first";
