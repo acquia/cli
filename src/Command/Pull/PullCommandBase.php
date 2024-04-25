@@ -414,7 +414,7 @@ abstract class PullCommandBase extends CommandBase {
     }
   }
 
-  private function determineSite(string|EnvironmentResponse|array $environment, InputInterface $input): mixed {
+  private function determineSite(string|EnvironmentResponse|array $environment, InputInterface $input): string {
     if (isset($this->site)) {
       return $this->site;
     }
@@ -423,15 +423,9 @@ abstract class PullCommandBase extends CommandBase {
       return $input->getArgument('site');
     }
 
-    if ($this->isAcsfEnv($environment)) {
-      $site = $this->promptChooseAcsfSite($environment);
-    }
-    else {
-      $site = $this->promptChooseCloudSite($environment);
-    }
-    $this->site = $site;
+    $this->site = $this->promptChooseDrupalSite($environment);
 
-    return $site;
+    return $this->site;
   }
 
   private function rsyncFilesFromCloud(EnvironmentResponse $chosenEnvironment, Closure $outputCallback, string $site): void {

@@ -7,7 +7,6 @@ namespace Acquia\Cli\Tests\Commands\Push;
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Command\Push\PushDatabaseCommand;
 use Acquia\Cli\Tests\CommandTestBase;
-use AcquiaCloudApi\Response\EnvironmentResponse;
 use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
 
@@ -98,7 +97,7 @@ class PushDatabaseCommandTest extends CommandTestBase {
     mixed $process
   ): void {
     $sshHelper->executeCommand(
-      new EnvironmentResponse($environmentsResponse),
+      $environmentsResponse->ssh_url,
       ['pv /mnt/tmp/profserv2.01dev/acli-mysql-dump-drupal.sql.gz --bytes --rate | gunzip | MYSQL_PWD=password mysql --host=fsdb-74.enterprise-g1.hosting.acquia.com.enterprise-g1.hosting.acquia.com --user=s164 profserv2db14390'],
       TRUE,
       NULL

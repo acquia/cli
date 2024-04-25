@@ -1333,7 +1333,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   protected function getAcsfSites(EnvironmentResponse $cloudEnvironment): array {
     $envAlias = self::getEnvironmentAlias($cloudEnvironment);
     $command = ['cat', "/var/www/site-php/$envAlias/multisite-config.json"];
-    $process = $this->sshHelper->executeCommand($cloudEnvironment, $command, FALSE);
+    $process = $this->sshHelper->executeCommand($cloudEnvironment->sshUrl, $command, FALSE);
     if ($process->isSuccessful()) {
       return json_decode($process->getOutput(), TRUE, 512, JSON_THROW_ON_ERROR);
     }
@@ -1346,7 +1346,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   private function getCloudSites(EnvironmentResponse $cloudEnvironment): array {
     $sitegroup = self::getSitegroup($cloudEnvironment);
     $command = ['ls', $this->getCloudSitesPath($cloudEnvironment, $sitegroup)];
-    $process = $this->sshHelper->executeCommand($cloudEnvironment, $command, FALSE);
+    $process = $this->sshHelper->executeCommand($cloudEnvironment->sshUrl, $command, FALSE);
     $sites = array_filter(explode("\n", trim($process->getOutput())));
     if ($process->isSuccessful() && $sites) {
       return $sites;
@@ -1841,6 +1841,18 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     }
 
     return $version;
+  }
+
+  protected function promptChooseDrupalSite(EnvironmentResponse $environment): string {
+    if ($this->isAcsfEnv($environment)) {
+      return $this->promptChooseAcsfSite($environment);
+    }
+
+    if ($environment->type === 'drupal') {
+      return $this->promptChooseCloudSite($environment);
+    }
+
+    throw new AcquiaCliException('Environment type {type} is not supported', ['type' => $environment->type]);
   }
 
 }

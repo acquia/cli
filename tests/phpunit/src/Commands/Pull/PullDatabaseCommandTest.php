@@ -88,7 +88,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     $sshHelper = $this->mockSshHelper();
     $process = $this->mockProcess();
     $process->getOutput()->willReturn('default')->shouldBeCalled();
-    $sshHelper->executeCommand(Argument::type('object'), ['ls', '/mnt/files/site.prod/sites'], FALSE)
+    $sshHelper->executeCommand(Argument::type('string'), ['ls', '/mnt/files/site.prod/sites'], FALSE)
       ->willReturn($process->reveal())->shouldBeCalled();
     $this->mockGetBackup($environment);
     $this->mockExecuteMySqlListTables($localMachineHelper, 'drupal');

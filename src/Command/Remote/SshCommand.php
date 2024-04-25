@@ -45,7 +45,7 @@ final class SshCommand extends SshBaseCommand {
       $sshCommand[] = implode(' ', $arguments['ssh_command']);
     }
     $sshCommand = (array) implode('; ', $sshCommand);
-    return $this->sshHelper->executeCommand($environment, $sshCommand)->getExitCode();
+    return $this->sshHelper->executeCommand($environment->sshUrl, $sshCommand)->getExitCode();
   }
 
 }

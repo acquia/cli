@@ -27,12 +27,7 @@ final class PushFilesCommand extends PushCommandBase {
     $destinationEnvironment = $this->determineEnvironment($input, $output);
     $chosenSite = $input->getArgument('site');
     if (!$chosenSite) {
-      if ($this->isAcsfEnv($destinationEnvironment)) {
-        $chosenSite = $this->promptChooseAcsfSite($destinationEnvironment);
-      }
-      else {
-        $chosenSite = $this->promptChooseCloudSite($destinationEnvironment);
-      }
+      $chosenSite = $this->promptChooseDrupalSite($destinationEnvironment);
     }
     $answer = $this->io->confirm("Overwrite the public files directory on <bg=cyan;options=bold>$destinationEnvironment->name</> with a copy of the files from the current machine?");
     if (!$answer) {

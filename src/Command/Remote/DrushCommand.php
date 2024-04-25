@@ -43,7 +43,7 @@ final class DrushCommand extends SshBaseCommand {
       implode(' ', $drushArguments),
     ];
 
-    return $this->sshHelper->executeCommand($environment, $drushCommandArguments)->getExitCode();
+    return $this->sshHelper->executeCommand($environment->sshUrl, $drushCommandArguments)->getExitCode();
   }
 
 }

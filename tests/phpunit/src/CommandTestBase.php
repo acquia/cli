@@ -12,7 +12,6 @@ use Acquia\Cli\CommandFactoryInterface;
 use Acquia\Cli\Helpers\LocalMachineHelper;
 use Acquia\Cli\Helpers\SshHelper;
 use AcquiaCloudApi\Response\DatabaseResponse;
-use AcquiaCloudApi\Response\EnvironmentResponse;
 use Exception;
 use Gitlab\Api\Projects;
 use Gitlab\Api\Users;
@@ -264,7 +263,7 @@ abstract class CommandTestBase extends TestBase {
     $multisiteConfig = file_get_contents(Path::join($this->realFixtureDir, '/multisite-config.json'));
     $acsfMultisiteFetchProcess->getOutput()->willReturn($multisiteConfig)->shouldBeCalled();
     $sshHelper->executeCommand(
-      Argument::type('object'),
+      Argument::type('string'),
       ['cat', '/var/www/site-php/profserv2.01dev/multisite-config.json'],
       FALSE
     )->willReturn($acsfMultisiteFetchProcess->reveal())->shouldBeCalled();
@@ -277,7 +276,7 @@ abstract class CommandTestBase extends TestBase {
     $parts = explode('.', $environment->ssh_url);
     $sitegroup = reset($parts);
     $sshHelper->executeCommand(
-      Argument::type('object'),
+      Argument::type('string'),
       ['ls', "/mnt/files/$sitegroup.{$environment->name}/sites"],
       FALSE
     )->willReturn($cloudMultisiteFetchProcess->reveal())->shouldBeCalled();
@@ -434,11 +433,11 @@ abstract class CommandTestBase extends TestBase {
       ->willReturn($gitProcess->reveal())
       ->shouldBeCalled();
     // Mock non-prod.
-    $sshHelper->executeCommand(new EnvironmentResponse($environmentsResponse->_embedded->items[0]), ['ls'], FALSE)
+    $sshHelper->executeCommand($environmentsResponse->_embedded->items[0]->ssh_url, ['ls'], FALSE)
       ->willReturn($process->reveal())
       ->shouldBeCalled();
     // Mock prod.
-    $sshHelper->executeCommand(new EnvironmentResponse($environmentsResponse->_embedded->items[1]), ['ls'], FALSE)
+    $sshHelper->executeCommand($environmentsResponse->_embedded->items[1]->ssh_url, ['ls'], FALSE)
       ->willReturn($process->reveal())
       ->shouldBeCalled();
     return $sshHelper;
