@@ -24,7 +24,7 @@ final class PushFilesCommand extends PushCommandBase {
 
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $this->setDirAndRequireProjectCwd($input);
-    $destinationEnvironment = $this->determineEnvironment($input, $output);
+    $destinationEnvironment = $this->determineEnvironment($input, $output, FALSE, FALSE);
     $chosenSite = $input->getArgument('site');
     if (!$chosenSite) {
       $chosenSite = $this->promptChooseDrupalSite($destinationEnvironment);

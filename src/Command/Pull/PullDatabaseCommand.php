@@ -40,7 +40,7 @@ final class PullDatabaseCommand extends PullCommandBase {
     // $noImport implies $noScripts.
     $noScripts = $noImport || $noScripts;
     $this->setDirAndRequireProjectCwd($input);
-    $sourceEnvironment = $this->determineEnvironment($input, $output, TRUE);
+    $sourceEnvironment = $this->determineEnvironment($input, $output, TRUE, FALSE);
     $this->pullDatabase($input, $output, $sourceEnvironment, $onDemand, $noImport, $multipleDbs);
     if (!$noScripts) {
       $this->runDrushCacheClear($this->getOutputCallback($output, $this->checklist), $this->checklist);

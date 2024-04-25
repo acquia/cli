@@ -22,7 +22,7 @@ final class PullFilesCommand extends PullCommandBase {
 
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $this->setDirAndRequireProjectCwd($input);
-    $sourceEnvironment = $this->determineEnvironment($input, $output, TRUE);
+    $sourceEnvironment = $this->determineEnvironment($input, $output, TRUE, FALSE);
     $this->pullFiles($input, $output, $sourceEnvironment);
 
     return Command::SUCCESS;

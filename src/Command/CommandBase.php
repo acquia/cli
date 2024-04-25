@@ -574,7 +574,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     return [$environmentDatabases[$chosenDatabaseIndex]];
   }
 
-  protected function determineEnvironment(InputInterface $input, OutputInterface $output, bool $allowProduction = FALSE): array|string|EnvironmentResponse {
+  protected function determineEnvironment(InputInterface $input, OutputInterface $output, bool $allowProduction = FALSE, bool $allowNode = TRUE): array|string|EnvironmentResponse {
     if ($input->getArgument('environmentId')) {
       $environmentId = $input->getArgument('environmentId');
       $chosenEnvironment = $this->getCloudEnvironment($environmentId);
@@ -584,7 +584,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
       $cloudApplication = $this->getCloudApplication($cloudApplicationUuid);
       $output->writeln('Using Cloud Application <options=bold>' . $cloudApplication->name . '</>');
       $acquiaCloudClient = $this->cloudApiClientService->getClient();
-      $chosenEnvironment = $this->promptChooseEnvironmentConsiderProd($acquiaCloudClient, $cloudApplicationUuid, $allowProduction);
+      $chosenEnvironment = $this->promptChooseEnvironmentConsiderProd($acquiaCloudClient, $cloudApplicationUuid, $allowProduction, $allowNode);
     }
     $this->logger->debug("Using environment $chosenEnvironment->label $chosenEnvironment->uuid");
 
@@ -592,12 +592,14 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   }
 
   // Todo: obviously combine this with promptChooseEnvironment.
-  private function promptChooseEnvironmentConsiderProd(Client $acquiaCloudClient, string $applicationUuid, bool $allowProduction = FALSE): EnvironmentResponse {
+  private function promptChooseEnvironmentConsiderProd(Client $acquiaCloudClient, string $applicationUuid, bool $allowProduction = FALSE, bool $allowNode = TRUE): EnvironmentResponse {
     $environmentResource = new Environments($acquiaCloudClient);
     $applicationEnvironments = iterator_to_array($environmentResource->getAll($applicationUuid));
     $choices = [];
     foreach ($applicationEnvironments as $key => $environment) {
-      if (!$allowProduction && $environment->flags->production) {
+      $productionNotAllowed = !$allowProduction && $environment->flags->production;
+      $nodeNotAllowed = !$allowNode && $environment->type === 'node';
+      if ($productionNotAllowed || $nodeNotAllowed) {
         unset($applicationEnvironments[$key]);
         // Re-index array so keys match those in $choices.
         $applicationEnvironments = array_values($applicationEnvironments);
@@ -1682,8 +1684,8 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * Get the first non-prod environment for a given Cloud application.
    */
   protected function getAnyNonProdAhEnvironment(string $cloudAppUuid): EnvironmentResponse|false {
-    return $this->getAnyAhEnvironment($cloudAppUuid, function (mixed $environment) {
-      return !$environment->flags->production;
+    return $this->getAnyAhEnvironment($cloudAppUuid, function (EnvironmentResponse $environment) {
+      return !$environment->flags->production && $environment->type === 'drupal';
     });
   }
 
@@ -1691,8 +1693,8 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * Get the first prod environment for a given Cloud application.
    */
   protected function getAnyProdAhEnvironment(string $cloudAppUuid): EnvironmentResponse|false {
-    return $this->getAnyAhEnvironment($cloudAppUuid, function (mixed $environment) {
-      return $environment->flags->production;
+    return $this->getAnyAhEnvironment($cloudAppUuid, function (EnvironmentResponse $environment) {
+      return $environment->flags->production && $environment->type === 'drupal';
     });
   }
 
@@ -1848,11 +1850,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
       return $this->promptChooseAcsfSite($environment);
     }
 
-    if ($environment->type === 'drupal') {
-      return $this->promptChooseCloudSite($environment);
-    }
-
-    throw new AcquiaCliException('Environment type {type} is not supported', ['type' => $environment->type]);
+    return $this->promptChooseCloudSite($environment);
   }
 
 }
