@@ -1332,7 +1332,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   /**
    * @return array<mixed>
    */
-  protected function getAcsfSites(EnvironmentResponse $cloudEnvironment): array {
+  private function getAcsfSites(EnvironmentResponse $cloudEnvironment): array {
     $envAlias = self::getEnvironmentAlias($cloudEnvironment);
     $command = ['cat', "/var/www/site-php/$envAlias/multisite-config.json"];
     $process = $this->sshHelper->executeCommand($cloudEnvironment->sshUrl, $command, FALSE);
