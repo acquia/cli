@@ -52,6 +52,7 @@ final class CodeStudioWizardCommand extends WizardCommandBase {
         $phpVersions = [
             'PHP_version_8.1' => "8.1",
             'PHP_version_8.2' => "8.2",
+            'PHP_version_8.3' => "8.3",
           ];
         $project = $this->io->choice('Select a PHP version', array_values($phpVersions), "8.1");
         $project = array_search($project, $phpVersions, TRUE);
