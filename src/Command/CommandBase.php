@@ -607,6 +607,9 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
       }
       $choices[] = "$environment->label, $environment->name (vcs: {$environment->vcs->path})";
     }
+    if (count($choices) === 0) {
+      throw new AcquiaCliException('No compatible environments found');
+    }
     $chosenEnvironmentLabel = $this->io->choice('Choose a Cloud Platform environment', $choices, $choices[0]);
     $chosenEnvironmentIndex = array_search($chosenEnvironmentLabel, $choices, TRUE);
 
