@@ -419,7 +419,7 @@ abstract class CommandTestBase extends TestBase {
     $this->command->setUpdateClient($guzzleClient->reveal());
   }
 
-  protected function mockPollCloudViaSsh(object $environmentsResponse): ObjectProphecy {
+  protected function mockPollCloudViaSsh(array $environmentsResponse, bool $ssh = TRUE): ObjectProphecy {
     $process = $this->prophet->prophesize(Process::class);
     $process->isSuccessful()->willReturn(TRUE);
     $process->getExitCode()->willReturn(0);
@@ -428,18 +428,20 @@ abstract class CommandTestBase extends TestBase {
     $gitProcess->getExitCode()->willReturn(128);
     $sshHelper = $this->mockSshHelper();
     // Mock Git.
-    $urlParts = explode(':', $environmentsResponse->_embedded->items[0]->vcs->url);
+    $urlParts = explode(':', $environmentsResponse[0]->vcs->url);
     $sshHelper->executeCommand($urlParts[0], ['ls'], FALSE)
       ->willReturn($gitProcess->reveal())
       ->shouldBeCalled();
-    // Mock non-prod.
-    $sshHelper->executeCommand($environmentsResponse->_embedded->items[0]->ssh_url, ['ls'], FALSE)
-      ->willReturn($process->reveal())
-      ->shouldBeCalled();
-    // Mock prod.
-    $sshHelper->executeCommand($environmentsResponse->_embedded->items[1]->ssh_url, ['ls'], FALSE)
-      ->willReturn($process->reveal())
-      ->shouldBeCalled();
+    if ($ssh) {
+      // Mock non-prod.
+      $sshHelper->executeCommand($environmentsResponse[0]->ssh_url, ['ls'], FALSE)
+        ->willReturn($process->reveal())
+        ->shouldBeCalled();
+      // Mock prod.
+      $sshHelper->executeCommand($environmentsResponse[1]->ssh_url, ['ls'], FALSE)
+        ->willReturn($process->reveal())
+        ->shouldBeCalled();
+    }
     return $sshHelper;
   }
 

@@ -64,7 +64,7 @@ abstract class WizardTestBase extends CommandTestBase {
     $localMachineHelper = $this->mockLocalMachineHelper();
 
     // Poll Cloud.
-    $sshHelper = $this->mockPollCloudViaSsh($environmentsResponse);
+    $sshHelper = $this->mockPollCloudViaSsh($environmentsResponse->_embedded->items);
     $this->command->sshHelper = $sshHelper->reveal();
 
     $fileSystem = $this->prophet->prophesize(Filesystem::class);
@@ -132,7 +132,7 @@ abstract class WizardTestBase extends CommandTestBase {
     $this->mockRequest('postAccountSshKeys', NULL, $body);
 
     // Poll Cloud.
-    $sshHelper = $this->mockPollCloudViaSsh($environmentsResponse);
+    $sshHelper = $this->mockPollCloudViaSsh($environmentsResponse->_embedded->items);
     $this->command->sshHelper = $sshHelper->reveal();
 
     $fileSystem = $this->prophet->prophesize(Filesystem::class);
