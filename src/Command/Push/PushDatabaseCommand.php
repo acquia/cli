@@ -27,7 +27,7 @@ final class PushDatabaseCommand extends PushCommandBase {
   }
 
   protected function execute(InputInterface $input, OutputInterface $output): int {
-    $destinationEnvironment = $this->determineEnvironment($input, $output, FALSE, FALSE);
+    $destinationEnvironment = $this->determineEnvironment($input, $output);
     $acquiaCloudClient = $this->cloudApiClientService->getClient();
     $databases = $this->determineCloudDatabases($acquiaCloudClient, $destinationEnvironment, $input->getArgument('site'));
     // We only support pushing a single database.

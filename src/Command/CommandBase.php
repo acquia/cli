@@ -574,7 +574,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     return [$environmentDatabases[$chosenDatabaseIndex]];
   }
 
-  protected function determineEnvironment(InputInterface $input, OutputInterface $output, bool $allowProduction = FALSE, bool $allowNode = TRUE): array|string|EnvironmentResponse {
+  protected function determineEnvironment(InputInterface $input, OutputInterface $output, bool $allowProduction = FALSE, bool $allowNode = FALSE): array|string|EnvironmentResponse {
     if ($input->getArgument('environmentId')) {
       $environmentId = $input->getArgument('environmentId');
       $chosenEnvironment = $this->getCloudEnvironment($environmentId);
