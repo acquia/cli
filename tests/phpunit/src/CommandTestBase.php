@@ -81,7 +81,7 @@ abstract class CommandTestBase extends TestBase {
    *   An array of strings representing each input passed to the command input
    *   stream.
    */
-  protected function executeCommand(array $args = [], array $inputs = []): void {
+  protected function executeCommand(array $args = [], array $inputs = [], int $verbosity = Output::VERBOSITY_VERY_VERBOSE): void {
     $cwd = $this->projectDir;
     $tester = $this->getCommandTester();
     $tester->setInputs($inputs);
@@ -95,7 +95,7 @@ abstract class CommandTestBase extends TestBase {
     }
 
     try {
-      $tester->execute($args, ['verbosity' => Output::VERBOSITY_VERY_VERBOSE]);
+      $tester->execute($args, ['verbosity' => $verbosity]);
     }
     catch (Exception $e) {
       if (getenv('ACLI_PRINT_COMMAND_OUTPUT')) {
@@ -374,12 +374,12 @@ abstract class CommandTestBase extends TestBase {
     return $this->mockRequest('getNotificationByUuid', $uuid);
   }
 
-  protected function mockCreateMySqlDumpOnLocal(ObjectProphecy $localMachineHelper): void {
+  protected function mockCreateMySqlDumpOnLocal(ObjectProphecy $localMachineHelper, bool $printOutput = TRUE): void {
     $localMachineHelper->checkRequiredBinariesExist(["mysqldump", "gzip"])->shouldBeCalled();
     $process = $this->mockProcess();
     $process->getOutput()->willReturn('');
     $command = 'MYSQL_PWD=drupal mysqldump --host=localhost --user=drupal drupal | pv --rate --bytes | gzip -9 > ' . sys_get_temp_dir() . '/acli-mysql-dump-drupal.sql.gz';
-    $localMachineHelper->executeFromCmd($command, Argument::type('callable'), NULL, TRUE)->willReturn($process->reveal())
+    $localMachineHelper->executeFromCmd($command, Argument::type('callable'), NULL, $printOutput)->willReturn($process->reveal())
       ->shouldBeCalled();
   }
 
