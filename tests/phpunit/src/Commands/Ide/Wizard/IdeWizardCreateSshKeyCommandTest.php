@@ -31,14 +31,14 @@ class IdeWizardCreateSshKeyCommandTest extends IdeWizardTestBase {
   }
 
   public function testCreate(): void {
-    parent::runTestCreate();
+    $this->runTestCreate();
   }
 
   /**
    * @group brokenProphecy
    */
   public function testSshKeyAlreadyUploaded(): void {
-    parent::runTestSshKeyAlreadyUploaded();
+    $this->runTestSshKeyAlreadyUploaded();
   }
 
 }

@@ -6,6 +6,7 @@ namespace Acquia\Cli\Tests\Commands\App;
 
 use Acquia\Cli\Command\App\LogTailCommand;
 use Acquia\Cli\Command\CommandBase;
+use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Tests\CommandTestBase;
 use AcquiaLogstream\LogstreamManager;
 use Prophecy\Argument;
@@ -32,10 +33,6 @@ class LogTailCommandTest extends CommandTestBase {
     // Must initialize this here instead of in setUp() because we need the
     // prophet to be initialized first.
     $this->logStreamManagerProphecy = $this->prophet->prophesize(LogstreamManager::class);
-    $this->logStreamManagerProphecy->setColourise(TRUE)->shouldBeCalled();
-    $this->logStreamManagerProphecy->setParams(Argument::type('object'))->shouldBeCalled();
-    $this->logStreamManagerProphecy->setLogTypeFilter(["bal-request"])->shouldBeCalled();
-    $this->logStreamManagerProphecy->stream()->shouldBeCalled();
 
     return new LogTailCommand(
       $this->localMachineHelper,
@@ -56,6 +53,10 @@ class LogTailCommandTest extends CommandTestBase {
    * @dataProvider providerLogTailCommand
    */
   public function testLogTailCommand(?int $stream): void {
+    $this->logStreamManagerProphecy->setColourise(TRUE)->shouldBeCalled();
+    $this->logStreamManagerProphecy->setParams(Argument::type('object'))->shouldBeCalled();
+    $this->logStreamManagerProphecy->setLogTypeFilter(["bal-request"])->shouldBeCalled();
+    $this->logStreamManagerProphecy->stream()->shouldBeCalled();
     $this->mockGetEnvironment();
     $this->mockLogStreamRequest();
     $this->executeCommand([], [
@@ -93,6 +94,31 @@ class LogTailCommandTest extends CommandTestBase {
     $output = $this->getDisplay();
     $this->assertStringContainsString('Apache request', $output);
     $this->assertStringContainsString('Drupal request', $output);
+  }
+
+  public function testLogTailNode(): void {
+    $applications = $this->mockRequest('getApplications');
+    $application = $this->mockRequest('getApplicationByUuid', $applications[self::$INPUT_DEFAULT_CHOICE]->uuid);
+    $tamper = function ($responses): void {
+      foreach ($responses as $response) {
+        $response->type = 'node';
+      }
+    };
+    $this->mockRequest('getApplicationEnvironments', $application->uuid, NULL, NULL, $tamper);
+    $this->expectException(AcquiaCliException::class);
+    $this->expectExceptionMessage('No compatible environments found');
+    $this->executeCommand([], [
+      // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
+      'n',
+      // Select the application.
+      0,
+      // Would you like to link the project at ... ?
+      'y',
+      // Select environment.
+      0,
+      // Select log.
+      0,
+    ]);
   }
 
   private function mockLogStreamRequest(): void {

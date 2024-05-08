@@ -316,7 +316,7 @@ abstract class PullCommandTestBase extends CommandTestBase {
   protected function mockListSites(SshHelper|ObjectProphecy $sshHelper): void {
     $process = $this->mockProcess();
     $process->getOutput()->willReturn('default')->shouldBeCalled();
-    $sshHelper->executeCommand(Argument::type('object'), ['ls', '/mnt/files/site.dev/sites'], FALSE)
+    $sshHelper->executeCommand(Argument::type('string'), ['ls', '/mnt/files/site.dev/sites'], FALSE)
       ->willReturn($process->reveal())->shouldBeCalled();
   }
 

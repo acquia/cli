@@ -186,12 +186,12 @@ EOT
             break;
           case 'add ssh key to non-prod':
             if ($nonProdEnv = $this->getAnyNonProdAhEnvironment($cloudAppUuid)) {
-              $mappings['nonprod']['ssh_target'] = $nonProdEnv;
+              $mappings['nonprod']['ssh_target'] = $nonProdEnv->sshUrl;
             }
             break;
           case 'add ssh key to prod':
             if ($prodEnv = $this->getAnyProdAhEnvironment($cloudAppUuid)) {
-              $mappings['prod']['ssh_target'] = $prodEnv;
+              $mappings['prod']['ssh_target'] = $prodEnv->sshUrl;
             }
             break;
         }

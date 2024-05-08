@@ -5,7 +5,6 @@ declare(strict_types = 1);
 namespace Acquia\Cli\Helpers;
 
 use Acquia\Cli\Exception\AcquiaCliException;
-use AcquiaCloudApi\Response\EnvironmentResponse;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\LoggerInterface;
@@ -32,20 +31,16 @@ class SshHelper implements LoggerAwareInterface {
    *
    * @param int|null $timeout
    */
-  public function executeCommand(EnvironmentResponse|string $target, array $commandArgs, bool $printOutput = TRUE, int $timeout = NULL): Process {
+  public function executeCommand(string $sshUrl, array $commandArgs, bool $printOutput = TRUE, int $timeout = NULL): Process {
     $commandSummary = $this->getCommandSummary($commandArgs);
-
-    if (is_a($target, EnvironmentResponse::class)) {
-      $target = $target->sshUrl;
-    }
 
     // Remove site_env arg.
     unset($commandArgs['alias']);
-    $process = $this->sendCommand($target, $commandArgs, $printOutput, $timeout);
+    $process = $this->sendCommand($sshUrl, $commandArgs, $printOutput, $timeout);
 
     $this->logger->debug('Command: {command} [Exit: {exit}]', [
       'command' => $commandSummary,
-      'env' => $target,
+      'env' => $sshUrl,
       'exit' => $process->getExitCode(),
     ]);
 
@@ -56,7 +51,7 @@ class SshHelper implements LoggerAwareInterface {
     return $process;
   }
 
-  private function sendCommand(?string $url, array $command, bool $printOutput, ?int $timeout = NULL): Process {
+  private function sendCommand(string $url, array $command, bool $printOutput, ?int $timeout = NULL): Process {
     $command = array_values($this->getSshCommand($url, $command));
     $this->localMachineHelper->checkRequiredBinariesExist(['ssh']);
 

@@ -12,7 +12,6 @@ use Acquia\Cli\CommandFactoryInterface;
 use Acquia\Cli\Helpers\LocalMachineHelper;
 use Acquia\Cli\Helpers\SshHelper;
 use AcquiaCloudApi\Response\DatabaseResponse;
-use AcquiaCloudApi\Response\EnvironmentResponse;
 use Exception;
 use Gitlab\Api\Projects;
 use Gitlab\Api\Users;
@@ -82,7 +81,7 @@ abstract class CommandTestBase extends TestBase {
    *   An array of strings representing each input passed to the command input
    *   stream.
    */
-  protected function executeCommand(array $args = [], array $inputs = []): void {
+  protected function executeCommand(array $args = [], array $inputs = [], int $verbosity = Output::VERBOSITY_VERY_VERBOSE): void {
     $cwd = $this->projectDir;
     $tester = $this->getCommandTester();
     $tester->setInputs($inputs);
@@ -96,7 +95,7 @@ abstract class CommandTestBase extends TestBase {
     }
 
     try {
-      $tester->execute($args, ['verbosity' => Output::VERBOSITY_VERY_VERBOSE]);
+      $tester->execute($args, ['verbosity' => $verbosity]);
     }
     catch (Exception $e) {
       if (getenv('ACLI_PRINT_COMMAND_OUTPUT')) {
@@ -264,7 +263,7 @@ abstract class CommandTestBase extends TestBase {
     $multisiteConfig = file_get_contents(Path::join($this->realFixtureDir, '/multisite-config.json'));
     $acsfMultisiteFetchProcess->getOutput()->willReturn($multisiteConfig)->shouldBeCalled();
     $sshHelper->executeCommand(
-      Argument::type('object'),
+      Argument::type('string'),
       ['cat', '/var/www/site-php/profserv2.01dev/multisite-config.json'],
       FALSE
     )->willReturn($acsfMultisiteFetchProcess->reveal())->shouldBeCalled();
@@ -277,7 +276,7 @@ abstract class CommandTestBase extends TestBase {
     $parts = explode('.', $environment->ssh_url);
     $sitegroup = reset($parts);
     $sshHelper->executeCommand(
-      Argument::type('object'),
+      Argument::type('string'),
       ['ls', "/mnt/files/$sitegroup.{$environment->name}/sites"],
       FALSE
     )->willReturn($cloudMultisiteFetchProcess->reveal())->shouldBeCalled();
@@ -375,12 +374,12 @@ abstract class CommandTestBase extends TestBase {
     return $this->mockRequest('getNotificationByUuid', $uuid);
   }
 
-  protected function mockCreateMySqlDumpOnLocal(ObjectProphecy $localMachineHelper): void {
+  protected function mockCreateMySqlDumpOnLocal(ObjectProphecy $localMachineHelper, bool $printOutput = TRUE): void {
     $localMachineHelper->checkRequiredBinariesExist(["mysqldump", "gzip"])->shouldBeCalled();
     $process = $this->mockProcess();
     $process->getOutput()->willReturn('');
     $command = 'MYSQL_PWD=drupal mysqldump --host=localhost --user=drupal drupal | pv --rate --bytes | gzip -9 > ' . sys_get_temp_dir() . '/acli-mysql-dump-drupal.sql.gz';
-    $localMachineHelper->executeFromCmd($command, Argument::type('callable'), NULL, TRUE)->willReturn($process->reveal())
+    $localMachineHelper->executeFromCmd($command, Argument::type('callable'), NULL, $printOutput)->willReturn($process->reveal())
       ->shouldBeCalled();
   }
 
@@ -420,7 +419,7 @@ abstract class CommandTestBase extends TestBase {
     $this->command->setUpdateClient($guzzleClient->reveal());
   }
 
-  protected function mockPollCloudViaSsh(object $environmentsResponse): ObjectProphecy {
+  protected function mockPollCloudViaSsh(array $environmentsResponse, bool $ssh = TRUE): ObjectProphecy {
     $process = $this->prophet->prophesize(Process::class);
     $process->isSuccessful()->willReturn(TRUE);
     $process->getExitCode()->willReturn(0);
@@ -429,18 +428,20 @@ abstract class CommandTestBase extends TestBase {
     $gitProcess->getExitCode()->willReturn(128);
     $sshHelper = $this->mockSshHelper();
     // Mock Git.
-    $urlParts = explode(':', $environmentsResponse->_embedded->items[0]->vcs->url);
+    $urlParts = explode(':', $environmentsResponse[0]->vcs->url);
     $sshHelper->executeCommand($urlParts[0], ['ls'], FALSE)
       ->willReturn($gitProcess->reveal())
       ->shouldBeCalled();
-    // Mock non-prod.
-    $sshHelper->executeCommand(new EnvironmentResponse($environmentsResponse->_embedded->items[0]), ['ls'], FALSE)
-      ->willReturn($process->reveal())
-      ->shouldBeCalled();
-    // Mock prod.
-    $sshHelper->executeCommand(new EnvironmentResponse($environmentsResponse->_embedded->items[1]), ['ls'], FALSE)
-      ->willReturn($process->reveal())
-      ->shouldBeCalled();
+    if ($ssh) {
+      // Mock non-prod.
+      $sshHelper->executeCommand($environmentsResponse[0]->ssh_url, ['ls'], FALSE)
+        ->willReturn($process->reveal())
+        ->shouldBeCalled();
+      // Mock prod.
+      $sshHelper->executeCommand($environmentsResponse[1]->ssh_url, ['ls'], FALSE)
+        ->willReturn($process->reveal())
+        ->shouldBeCalled();
+    }
     return $sshHelper;
   }
 

@@ -51,6 +51,7 @@ class PushArtifactCommandTest extends PullCommandTestBase {
     $this->assertStringContainsString('[0] Sample application 1', $output);
     $this->assertStringContainsString('Choose a Cloud Platform environment', $output);
     $this->assertStringContainsString('[0] Dev, dev (vcs: master)', $output);
+    $this->assertStringNotContainsString('Production, prod', $output);
     $this->assertStringContainsString('Acquia CLI will:', $output);
     $this->assertStringContainsString('- git clone master from site@svn-3.hosted.acquia-sites.com:site.git', $output);
     $this->assertStringContainsString('- Compile the contents of vfs://root/project into an artifact', $output);

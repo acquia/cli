@@ -88,7 +88,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     $sshHelper = $this->mockSshHelper();
     $process = $this->mockProcess();
     $process->getOutput()->willReturn('default')->shouldBeCalled();
-    $sshHelper->executeCommand(Argument::type('object'), ['ls', '/mnt/files/site.prod/sites'], FALSE)
+    $sshHelper->executeCommand(Argument::type('string'), ['ls', '/mnt/files/site.prod/sites'], FALSE)
       ->willReturn($process->reveal())->shouldBeCalled();
     $this->mockGetBackup($environment);
     $this->mockExecuteMySqlListTables($localMachineHelper, 'drupal');
@@ -357,6 +357,32 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
 
     PullCommandBase::displayDownloadProgress(100, 100, $progress, $output);
     $this->assertStringContainsString('100/100 [============================] 100%', $output->fetch());
+  }
+
+  public function testPullNode(): void {
+    $applications = $this->mockRequest('getApplications');
+    $application = $this->mockRequest('getApplicationByUuid', $applications[self::$INPUT_DEFAULT_CHOICE]->uuid);
+    $tamper = function ($responses): void {
+      foreach ($responses as $response) {
+        $response->type = 'node';
+      }
+    };
+    $this->mockRequest('getApplicationEnvironments', $application->uuid, NULL, NULL, $tamper);
+
+    $this->expectException(AcquiaCliException::class);
+    $this->expectExceptionMessage('No compatible environments found');
+    $this->executeCommand([
+      '--no-scripts' => TRUE,
+    ], [
+      // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
+      'n',
+      // Select a Cloud Platform application:
+      self::$INPUT_DEFAULT_CHOICE,
+      // Would you like to link the project at ... ?
+      'n',
+      // Choose an Acquia environment:
+      1,
+    ]);
   }
 
 }
