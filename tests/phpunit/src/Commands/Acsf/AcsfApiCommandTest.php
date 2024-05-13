@@ -20,9 +20,6 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class AcsfApiCommandTest extends AcsfCommandTestBase {
 
-  protected string $apiSpecFixtureFilePath = __DIR__ . '/../../../../../assets/acsf-spec.yaml';
-  protected string $apiCommandPrefix = 'acsf';
-
   public function setUp(): void {
     parent::setUp();
     $this->clientProphecy->addOption('headers', ['Accept' => 'application/hal+json, version=2']);
