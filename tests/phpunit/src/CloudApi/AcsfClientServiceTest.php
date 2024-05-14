@@ -14,7 +14,7 @@ use GuzzleHttp\Psr7\Response;
 
 class AcsfClientServiceTest extends TestBase {
 
-  protected string $apiSpecFixtureFilePath = __DIR__ . '/../../../../assets/acsf-spec.yaml';
+  protected string $apiSpecFixtureFilePath = __DIR__ . '/../../../../assets/acsf-spec.json';
   protected string $apiCommandPrefix = 'acsf';
 
   /**

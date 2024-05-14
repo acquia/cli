@@ -10,7 +10,7 @@ use Symfony\Component\Filesystem\Path;
 class ApiSpecTest extends TestCase {
 
   public function testApiSpec(): void {
-    $apiSpecFile = Path::canonicalize(__DIR__ . '/../../../../assets/acquia-spec.yaml');
+    $apiSpecFile = Path::canonicalize(__DIR__ . '/../../../../assets/acquia-spec.json');
     $this->assertFileExists($apiSpecFile);
     $apiSpec = file_get_contents($apiSpecFile);
     $this->assertStringNotContainsString('x-internal', $apiSpec);

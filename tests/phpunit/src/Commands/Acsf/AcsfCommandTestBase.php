@@ -21,6 +21,10 @@ abstract class AcsfCommandTestBase extends CommandTestBase {
 
   protected string $acsfKey = 'h@x0r';
 
+  protected string $apiCommandPrefix = 'acsf';
+
+  protected string $apiSpecFixtureFilePath = __DIR__ . '/../../../../../assets/acsf-spec.json';
+
   /**
    * @return array<mixed>
    */

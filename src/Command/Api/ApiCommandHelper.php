@@ -12,7 +12,6 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Logger\ConsoleLogger;
-use Symfony\Component\Yaml\Yaml;
 
 class ApiCommandHelper {
 
@@ -300,7 +299,7 @@ class ApiCommandHelper {
 
     // Parse file. This can take a long while!
     $this->logger->debug("Rebuilding caches...");
-    $spec = Yaml::parseFile($specFilePath);
+    $spec = json_decode(file_get_contents($specFilePath), TRUE);
 
     $cache->warmUp([
       $cacheKey => $spec,
@@ -316,12 +315,6 @@ class ApiCommandHelper {
   private function generateApiCommandsFromSpec(array $acquiaCloudSpec, string $commandPrefix, CommandFactoryInterface $commandFactory): array {
     $apiCommands = [];
     foreach ($acquiaCloudSpec['paths'] as $path => $endpoint) {
-      // Skip internal endpoints. These shouldn't actually be in the spec.
-      // @infection-ignore-all
-      if (array_key_exists('x-internal', $endpoint) && $endpoint['x-internal']) {
-        continue;
-      }
-
       foreach ($endpoint as $method => $schema) {
         if (!array_key_exists('x-cli-name', $schema)) {
           continue;

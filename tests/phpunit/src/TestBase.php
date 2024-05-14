@@ -49,7 +49,7 @@ use Symfony\Component\Yaml\Yaml;
  */
 abstract class TestBase extends TestCase {
 
-  protected string $apiSpecFixtureFilePath = __DIR__ . '/../../../assets/acquia-spec.yaml';
+  protected string $apiSpecFixtureFilePath = __DIR__ . '/../../../assets/acquia-spec.json';
 
   protected ConsoleOutput $consoleOutput;
 

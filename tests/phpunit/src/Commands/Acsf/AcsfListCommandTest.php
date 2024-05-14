@@ -8,15 +8,11 @@ use Acquia\Cli\Command\Acsf\AcsfListCommand;
 use Acquia\Cli\Command\Acsf\AcsfListCommandBase;
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Command\Self\ListCommand;
-use Acquia\Cli\Tests\CommandTestBase;
 
 /**
  * @property AcsfListCommandBase $command
  */
-class AcsfListCommandTest extends CommandTestBase {
-
-  protected string $apiSpecFixtureFilePath = __DIR__ . '/../../../../../assets/acsf-spec.yaml';
-  protected string $apiCommandPrefix = 'acsf';
+class AcsfListCommandTest extends AcsfCommandTestBase {
 
   public function setUp(): void {
     parent::setUp();
