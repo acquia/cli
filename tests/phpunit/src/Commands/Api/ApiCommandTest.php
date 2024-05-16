@@ -361,12 +361,8 @@ class ApiCommandTest extends CommandTestBase {
 
   /**
    * @dataProvider providerTestApiCommandDefinitionParameters
-   * @param $useSpecCache
-   * @param $commandName
-   * @param $method
-   * @param $usage
    */
-  public function testApiCommandDefinitionParameters(mixed $useSpecCache, mixed $commandName, mixed $method, mixed $usage): void {
+  public function testApiCommandDefinitionParameters(string $useSpecCache, string $commandName, string $method, string $usage): void {
     putenv('ACQUIA_CLI_USE_CLOUD_API_SPEC_CACHE=' . $useSpecCache);
 
     $this->command = $this->getApiCommandByName($commandName);

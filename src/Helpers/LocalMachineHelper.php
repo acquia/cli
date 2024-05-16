@@ -324,12 +324,15 @@ class LocalMachineHelper {
   /**
    * Starts a background browser/tab for the current site or a specified URL.
    *
+   * Exclude from mutation testing as we don't want real browser windows opened.
+   *
    * @param string|null $uri Optional URI or site path to open in browser. If omitted, or if a site path
    *   is specified, the current site home page uri will be prepended if the site's
    *   hostname resolves.
    * @param string|null $browser The command to run to launch a browser.
    * @return bool TRUE if browser was opened. FALSE if browser was disabled by the user or a
    *   default browser could not be found.
+   * @infection-ignore-all
    */
   public function startBrowser(string $uri = NULL, string $browser = NULL): bool {
     // We can only open a browser if we have a DISPLAY environment variable on

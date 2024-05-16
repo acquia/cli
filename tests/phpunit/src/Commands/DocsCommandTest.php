@@ -21,7 +21,7 @@ class DocsCommandTest extends CommandTestBase {
   /**
    * @dataProvider providerTestDocsCommand
    */
-  public function testDocsCommand(mixed $input, mixed $expectedOutput): void {
+  public function testDocsCommand(int $input, string $expectedOutput): void {
     $localMachineHelper = $this->mockLocalMachineHelper();
     $localMachineHelper->startBrowser(Argument::any())->shouldBeCalled();
 

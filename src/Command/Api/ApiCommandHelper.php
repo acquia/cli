@@ -274,12 +274,14 @@ class ApiCommandHelper {
   }
 
   /**
+   * Breaking caching during tests will cause performance issues and timeouts.
+   *
    * @return array<mixed>
+   * @infection-ignore-all
    */
   private function getCloudApiSpec(string $specFilePath): array {
     $cacheKey = basename($specFilePath);
     $cache = new PhpArrayAdapter(__DIR__ . '/../../../var/cache/' . $cacheKey . '.cache', new NullAdapter());
-    // @infection-ignore-all
     $cacheItemChecksum = $cache->getItem($cacheKey . '.checksum');
     $cacheItemSpec = $cache->getItem($cacheKey);
 
