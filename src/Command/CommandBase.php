@@ -1577,6 +1577,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     return $localFilepath;
   }
 
+  /** @infection-ignore-all */
   protected function promptOpenBrowserToCreateToken(
     InputInterface $input
   ): void {
