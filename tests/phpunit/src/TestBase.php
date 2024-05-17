@@ -42,7 +42,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Process\Process;
-use Symfony\Component\Yaml\Yaml;
 
 /**
  * @property \Acquia\Cli\Command\CommandBase $command
@@ -362,7 +361,7 @@ abstract class TestBase extends TestCase {
     if ($isCommandCacheValid && $apiSpecCacheItem->isHit()) {
       return $apiSpecCacheItem->get();
     }
-    $apiSpec = Yaml::parseFile($acquiaCloudSpecFile);
+    $apiSpec = json_decode(file_get_contents($acquiaCloudSpecFile), TRUE);
     $this->saveApiSpecCacheItems($cache, $acquiaCloudSpecFileChecksum, $apiSpecCacheItem, $apiSpec);
 
     return $apiSpec;
