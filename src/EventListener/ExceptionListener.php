@@ -70,9 +70,6 @@ class ExceptionListener {
         case 'Could not extract aliases to {destination}':
           $this->helpMessages[] = 'Check that you have write access to the directory';
           break;
-        case 'Invalid key in datastore at {filepath}':
-          $this->helpMessages[] = 'Delete the datastore and run this command again.';
-          break;
       }
     }
 

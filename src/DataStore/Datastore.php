@@ -67,7 +67,9 @@ abstract class Datastore implements DataStoreInterface {
       );
     }
     catch (InvalidConfigurationException $e) {
-      throw new AcquiaCliException("Configuration file at the following path contains invalid keys: $path. {$e->getMessage()}");
+      throw new AcquiaCliException(
+        'Configuration file at the following path contains invalid keys: {path} {error}',
+        ['path' => $path, 'error' => $e->getMessage()]);
     }
   }
 

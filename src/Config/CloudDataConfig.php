@@ -33,7 +33,7 @@ class CloudDataConfig implements ConfigurationInterface {
                 ->children()
                   ->scalarNode('label')->end()
                   ->scalarNode('uuid')->end()
-                  ->scalarNode('secret')->end()
+                  ->scalarNode('secret')->isRequired()->end()
                 ->end()
             ->end()
         ->end()
@@ -68,7 +68,12 @@ class CloudDataConfig implements ConfigurationInterface {
 
         ->scalarNode('acsf_active_factory')->end()
 
-      ->end();
+      ->end()
+      ->validate()
+      ->ifTrue(function ($config) {
+        return is_array($config['keys']) && !empty($config['keys']) && !array_key_exists($config['acli_key'], $config['keys']);
+      })
+      ->thenInvalid('acli_key must exist in keys');
     return $treeBuilder;
   }
 
