@@ -99,11 +99,9 @@ class AuthLoginCommandTest extends CommandTestBase {
       ],
     ];
     $this->fs->dumpFile($this->cloudConfigFilepath, json_encode($data));
-    $this->createDataStores();
-    $this->command = $this->createCommand();
     $this->expectException(AcquiaCliException::class);
-    $this->expectExceptionMessage("Invalid key in datastore at $this->cloudConfigFilepath");
-    $this->executeCommand();
+    $this->expectExceptionMessage("Configuration file at the following path contains invalid keys: $this->cloudConfigFilepath Invalid configuration for path \"cloud_api\": acli_key must exist in keys");
+    $this->createDataStores();
   }
 
   protected function assertInteractivePrompts(string $output): void {

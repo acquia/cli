@@ -96,10 +96,6 @@ class ExceptionListenerTest extends TestBase {
         'Check that you have write access to the directory',
       ],
       [
-        new AcquiaCliException('Invalid key in datastore at {filepath}'),
-        'Delete the datastore and run this command again.',
-      ],
-      [
         new ApiErrorException((object) ['error' => '', 'message' => "There are no available Cloud IDEs for this application.\n"]),
         'Delete an existing IDE via <bg=blue;fg=white;options=bold>acli ide:delete</> or contact your Account Manager or Acquia Sales to purchase additional IDEs.',
       ],
