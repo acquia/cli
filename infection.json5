@@ -9,7 +9,6 @@
         "stryker": {
             "report": "main"
         },
-        "github":  true,
         "html": "var/infection.html"
     },
     "mutators": {
