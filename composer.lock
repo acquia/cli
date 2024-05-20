@@ -1315,16 +1315,16 @@
         },
         {
             "name": "laminas/laminas-validator",
-            "version": "2.53.0",
+            "version": "2.54.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laminas/laminas-validator.git",
-                "reference": "dbcfc19cb7f2e3eb3a27ba5d059c200e8404d72c"
+                "reference": "43b84efd642d55188dc0a8ffee4de187c1dc2314"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laminas/laminas-validator/zipball/dbcfc19cb7f2e3eb3a27ba5d059c200e8404d72c",
-                "reference": "dbcfc19cb7f2e3eb3a27ba5d059c200e8404d72c",
+                "url": "https://api.github.com/repos/laminas/laminas-validator/zipball/43b84efd642d55188dc0a8ffee4de187c1dc2314",
+                "reference": "43b84efd642d55188dc0a8ffee4de187c1dc2314",
                 "shasum": ""
             },
             "require": {
@@ -1338,16 +1338,16 @@
             },
             "require-dev": {
                 "laminas/laminas-coding-standard": "^2.5",
-                "laminas/laminas-db": "^2.19",
-                "laminas/laminas-filter": "^2.34",
+                "laminas/laminas-db": "^2.20",
+                "laminas/laminas-filter": "^2.35.2",
                 "laminas/laminas-i18n": "^2.26.0",
                 "laminas/laminas-session": "^2.20",
                 "laminas/laminas-uri": "^2.11.0",
-                "phpunit/phpunit": "^10.5.15",
+                "phpunit/phpunit": "^10.5.20",
                 "psalm/plugin-phpunit": "^0.19.0",
                 "psr/http-client": "^1.0.3",
-                "psr/http-factory": "^1.0.2",
-                "vimeo/psalm": "^5.23.1"
+                "psr/http-factory": "^1.1.0",
+                "vimeo/psalm": "^5.24.0"
             },
             "suggest": {
                 "laminas/laminas-db": "Laminas\\Db component, required by the (No)RecordExists validator",
@@ -1395,7 +1395,7 @@
                     "type": "community_bridge"
                 }
             ],
-            "time": "2024-04-01T09:26:32+00:00"
+            "time": "2024-05-16T12:03:20+00:00"
         },
         {
             "name": "league/csv",
@@ -10607,16 +10607,16 @@
         },
         {
             "name": "phpstan/phpstan",
-            "version": "1.11.0",
+            "version": "1.11.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpstan/phpstan.git",
-                "reference": "666cb1703742cea9cc80fee631f0940e1592fa6e"
+                "reference": "e524358f930e41a2b4cca1320e3b04fc26b39e0b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/666cb1703742cea9cc80fee631f0940e1592fa6e",
-                "reference": "666cb1703742cea9cc80fee631f0940e1592fa6e",
+                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/e524358f930e41a2b4cca1320e3b04fc26b39e0b",
+                "reference": "e524358f930e41a2b4cca1320e3b04fc26b39e0b",
                 "shasum": ""
             },
             "require": {
@@ -10661,7 +10661,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2024-05-13T06:02:22+00:00"
+            "time": "2024-05-15T08:00:59+00:00"
         },
         {
             "name": "phpstan/phpstan-deprecation-rules",
@@ -12645,16 +12645,16 @@
         },
         {
             "name": "squizlabs/php_codesniffer",
-            "version": "3.9.2",
+            "version": "3.10.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/PHPCSStandards/PHP_CodeSniffer.git",
-                "reference": "aac1f6f347a5c5ac6bc98ad395007df00990f480"
+                "reference": "57e09801c2fbae2d257b8b75bebb3deeb7e9deb2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PHPCSStandards/PHP_CodeSniffer/zipball/aac1f6f347a5c5ac6bc98ad395007df00990f480",
-                "reference": "aac1f6f347a5c5ac6bc98ad395007df00990f480",
+                "url": "https://api.github.com/repos/PHPCSStandards/PHP_CodeSniffer/zipball/57e09801c2fbae2d257b8b75bebb3deeb7e9deb2",
+                "reference": "57e09801c2fbae2d257b8b75bebb3deeb7e9deb2",
                 "shasum": ""
             },
             "require": {
@@ -12721,7 +12721,7 @@
                     "type": "open_collective"
                 }
             ],
-            "time": "2024-04-23T20:25:34+00:00"
+            "time": "2024-05-20T08:11:32+00:00"
         },
         {
             "name": "symfony/css-selector",
@@ -13059,16 +13059,16 @@
         },
         {
             "name": "twig/twig",
-            "version": "v3.10.1",
+            "version": "v3.10.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/twigphp/Twig.git",
-                "reference": "3af5ab2e52279e5e23dc192b1a26db3b8cffa4e7"
+                "reference": "67f29781ffafa520b0bbfbd8384674b42db04572"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/twigphp/Twig/zipball/3af5ab2e52279e5e23dc192b1a26db3b8cffa4e7",
-                "reference": "3af5ab2e52279e5e23dc192b1a26db3b8cffa4e7",
+                "url": "https://api.github.com/repos/twigphp/Twig/zipball/67f29781ffafa520b0bbfbd8384674b42db04572",
+                "reference": "67f29781ffafa520b0bbfbd8384674b42db04572",
                 "shasum": ""
             },
             "require": {
@@ -13122,7 +13122,7 @@
             ],
             "support": {
                 "issues": "https://github.com/twigphp/Twig/issues",
-                "source": "https://github.com/twigphp/Twig/tree/v3.10.1"
+                "source": "https://github.com/twigphp/Twig/tree/v3.10.3"
             },
             "funding": [
                 {
@@ -13134,7 +13134,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-05-12T06:16:18+00:00"
+            "time": "2024-05-16T10:04:27+00:00"
         },
         {
             "name": "webmozart/assert",
