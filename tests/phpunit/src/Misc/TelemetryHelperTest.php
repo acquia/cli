@@ -51,4 +51,16 @@ class TelemetryHelperTest extends CommandTestBase {
     $this->assertEquals($provider, TelemetryHelper::getEnvironmentProvider());
   }
 
+  /**
+   * Test the getEnvironmentProvider method when no environment provider is detected.
+   */
+  public function testGetEnvironmentProviderWithoutAnyEnvSet(): void {
+    // Ensure no environment variables are set.
+    $providersList = TelemetryHelper::getProviders();
+    TestBase::unsetEnvVars($providersList);
+
+    // Expect null since no provider environment variables are set.
+    $this->assertNull(TelemetryHelper::getEnvironmentProvider());
+  }
+
 }
