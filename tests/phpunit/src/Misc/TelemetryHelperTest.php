@@ -27,7 +27,7 @@ class TelemetryHelperTest extends CommandTestBase {
   }
 
   /**
-   * @return array[]
+   * @return array<mixed>
    */
   public function providerTestEnvironmentProvider(): array {
     $providersList = TelemetryHelper::getProviders();

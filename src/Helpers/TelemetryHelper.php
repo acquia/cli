@@ -201,7 +201,7 @@ class TelemetryHelper {
   }
 
   /**
-   * @return array[]
+   * @return array<mixed>
    *   An array of providers and their associated environment variables.
    */
   public static function getProviders(): array {
