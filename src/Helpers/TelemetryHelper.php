@@ -120,6 +120,7 @@ class TelemetryHelper {
       'ah_non_production' => getenv('AH_NON_PRODUCTION'),
       'ah_realm' => getenv('AH_REALM'),
       'CI' => getenv('CI'),
+      'env_provider' => $this->getEnvironmentProvider(),
       'php_version' => PHP_MAJOR_VERSION . '.' . PHP_MINOR_VERSION,
     ];
     try {
@@ -132,6 +133,41 @@ class TelemetryHelper {
       // If something is wrong with the Cloud API client, don't bother users.
     }
     return $data;
+  }
+
+  private function getEnvironmentProvider(): ?string {
+    // Define the environment variables associated with each provider.
+    $providers = [
+      // Assuming Acquia has a specific environment variable, just for example purposes.
+      'acquia'    => ['ACQUIA_ENVIRONMENT'],
+      'bamboo'    => ['BAMBOO_BUILDNUMBER'],
+      'bitbucket' => ['BITBUCKET_BRANCH'],
+      'circleci'  => ['CIRCLECI'],
+      'codebuild' => ['CODEBUILD_BUILD_ID'],
+      'drone'     => ['DRONE'],
+      'github'    => ['GITHUB_ACTIONS'],
+      'gitlab'    => ['GITLAB_CI'],
+      'heroku'    => ['HEROKU_TEST_RUN_ID'],
+      'jenkins'   => ['JENKINS_URL'],
+      'octopus'   => ['OCTOPUS_DEPLOYMENT_ID'],
+      'teamcity'  => ['TEAMCITY_VERSION'],
+      'travis'    => ['TRAVIS'],
+    ];
+
+    // Check for an Acquia environment first as it uses a method call rather than getenv.
+    if (AcquiaDrupalEnvironmentDetector::getAhEnv()) {
+      return 'acquia';
+    }
+
+    // Check for CI/CD environment variables.
+    foreach ($providers as $provider => $vars) {
+      foreach ($vars as $var) {
+        if (getenv($var) !== FALSE)
+          return $provider;
+      }
+    }
+
+    return NULL;
   }
 
   private function getUserId(): ?string {
