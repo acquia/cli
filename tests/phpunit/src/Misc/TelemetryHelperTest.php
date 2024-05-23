@@ -60,10 +60,8 @@ class TelemetryHelperTest extends CommandTestBase {
    * @dataProvider providerTestEnvironmentProvider()
    */
   public function testEnvironmentProvider(string $provider, array $envVars): void {
+    $this->unsetGitHubEnvVars();
     TestBase::setEnvVars($envVars);
-    if ($provider !== 'github') {
-      $this->unsetGitHubEnvVars();
-    }
     $this->assertEquals($provider, TelemetryHelper::getEnvironmentProvider());
   }
 
