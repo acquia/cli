@@ -139,6 +139,7 @@ class TelemetryHelper {
     $providers = self::getProviders();
 
     // Check for an Acquia environment first as it uses a method call rather than getenv.
+    // Under the hood, this checks the AH_SITE_ENVIRONMENT environment variable. This is set by Cloud IDE and Lando.
     if (AcquiaDrupalEnvironmentDetector::getAhEnv()) {
       return 'acquia';
     }
@@ -217,11 +218,13 @@ class TelemetryHelper {
       'buddy' => ['BUDDY_WORKSPACE_ID'],
       'circleci' => ['CIRCLECI'],
       'codebuild' => ['CODEBUILD_BUILD_ID'],
+      'ddev' => ['IS_DDEV_PROJECT'],
       'drone' => ['DRONE'],
       'github' => ['GITHUB_ACTIONS'],
       'gitlab' => ['GITLAB_CI'],
       'heroku' => ['HEROKU_TEST_RUN_ID'],
       'jenkins' => ['JENKINS_URL'],
+      'lando' => ['LANDO'],
       'pantheon' => ['PANTHEON_ENVIRONMENT'],
       'pipelines' => ['PIPELINE_ENV'],
       'platformsh' => ['PLATFORM_ENVIRONMENT'],
