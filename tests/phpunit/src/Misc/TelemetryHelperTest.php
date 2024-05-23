@@ -7,10 +7,9 @@ namespace Acquia\Cli\Tests\Misc;
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Command\Self\ClearCacheCommand;
 use Acquia\Cli\Helpers\TelemetryHelper;
-use Acquia\Cli\Tests\CommandTestBase;
 use Acquia\Cli\Tests\TestBase;
 
-class TelemetryHelperTest extends CommandTestBase {
+class TelemetryHelperTest extends TestBase {
 
   const ENV_VAR_DEFAULT_VALUE = 'test';
 
@@ -33,10 +32,6 @@ class TelemetryHelperTest extends CommandTestBase {
       $github_env_vars[$var] = self::ENV_VAR_DEFAULT_VALUE;
     }
     TestBase::unsetEnvVars($github_env_vars);
-  }
-
-  protected function createCommand(): CommandBase {
-    return $this->injectCommand(ClearCacheCommand::class);
   }
 
   /**

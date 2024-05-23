@@ -230,6 +230,8 @@ class TelemetryHelper {
       'platformsh' => ['PLATFORM_ENVIRONMENT'],
       'teamcity' => ['TEAMCITY_VERSION'],
       'travis' => ['TRAVIS'],
+      // docksal?
+      // docker?
     ];
   }
 
