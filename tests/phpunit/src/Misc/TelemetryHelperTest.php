@@ -4,8 +4,6 @@ declare(strict_types = 1);
 
 namespace Acquia\Cli\Tests\Misc;
 
-use Acquia\Cli\Command\CommandBase;
-use Acquia\Cli\Command\Self\ClearCacheCommand;
 use Acquia\Cli\Helpers\TelemetryHelper;
 use Acquia\Cli\Tests\TestBase;
 
