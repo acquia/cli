@@ -120,6 +120,7 @@ class TelemetryHelper {
       'ah_non_production' => getenv('AH_NON_PRODUCTION'),
       'ah_realm' => getenv('AH_REALM'),
       'CI' => getenv('CI'),
+      'env_provider' => $this->getEnvironmentProvider(),
       'php_version' => PHP_MAJOR_VERSION . '.' . PHP_MINOR_VERSION,
     ];
     try {
@@ -132,6 +133,20 @@ class TelemetryHelper {
       // If something is wrong with the Cloud API client, don't bother users.
     }
     return $data;
+  }
+
+  public static function getEnvironmentProvider(): ?string {
+    $providers = self::getProviders();
+
+    // Check for environment variables.
+    foreach ($providers as $provider => $vars) {
+      foreach ($vars as $var) {
+        if (getenv($var) !== FALSE)
+          return $provider;
+      }
+    }
+
+    return NULL;
   }
 
   private function getUserId(): ?string {
@@ -177,6 +192,42 @@ class TelemetryHelper {
     return [
       'is_acquian' => str_ends_with($account->get()->mail, 'acquia.com'),
       'uuid' => $account->get()->uuid,
+    ];
+  }
+
+  /**
+   * @infection-ignore-all
+   *   Skipping infection testing for this because, it most cases, we expect that when a row from this array is changed
+   *   it won't affect the return value.
+   * @return array<mixed>
+   *   An array of providers and their associated environment variables.
+   */
+  public static function getProviders(): array {
+    // Define the environment variables associated with each provider.
+    // phpcs:ignore SlevomatCodingStandard.Arrays.AlphabeticallySortedByKeys.IncorrectKeyOrder
+    return [
+      'lando' => ['LANDO'],
+      'ddev' => ['IS_DDEV_PROJECT'],
+      // Check Lando and DDEV first because the hijack AH_SITE_ENVIRONMENT.
+      'acquia' => ['AH_SITE_ENVIRONMENT'],
+      'bamboo' => ['BAMBOO_BUILDNUMBER'],
+      'beanstalk' => ['BEANSTALK_ENVIRONMENT'],
+      'bitbucket' => ['BITBUCKET_BUILD_NUMBER'],
+      'bitrise' => ['BITRISE_IO'],
+      'buddy' => ['BUDDY_WORKSPACE_ID'],
+      'circleci' => ['CIRCLECI'],
+      'codebuild' => ['CODEBUILD_BUILD_ID'],
+      'docksal' => ['DOCKSAL_VERSION'],
+      'drone' => ['DRONE'],
+      'github' => ['GITHUB_ACTIONS'],
+      'gitlab' => ['GITLAB_CI'],
+      'heroku' => ['HEROKU_TEST_RUN_ID'],
+      'jenkins' => ['JENKINS_URL'],
+      'pantheon' => ['PANTHEON_ENVIRONMENT'],
+      'pipelines' => ['PIPELINE_ENV'],
+      'platformsh' => ['PLATFORM_ENVIRONMENT'],
+      'teamcity' => ['TEAMCITY_VERSION'],
+      'travis' => ['TRAVIS'],
     ];
   }
 
