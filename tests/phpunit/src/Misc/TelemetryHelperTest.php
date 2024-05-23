@@ -12,6 +12,8 @@ use Acquia\Cli\Tests\TestBase;
 
 class TelemetryHelperTest extends CommandTestBase {
 
+  const ENV_VAR_DEFAULT_VALUE = 'test';
+
   public function tearDown(): void {
     parent::tearDown();
     $envVars = ['AH_SITE_ENVIRONMENT' => 'test'];
@@ -35,7 +37,7 @@ class TelemetryHelperTest extends CommandTestBase {
     foreach ($providersList as $provider => $envVars) {
       $env_vars_with_values = [];
       foreach ($envVars as $var_name) {
-        $env_vars_with_values[$var_name] = 'test';
+        $env_vars_with_values[$var_name] = self::ENV_VAR_DEFAULT_VALUE;
       }
       $providersArray[] = [$provider, $env_vars_with_values];
     }
@@ -55,6 +57,16 @@ class TelemetryHelperTest extends CommandTestBase {
    * Test the getEnvironmentProvider method when no environment provider is detected.
    */
   public function testGetEnvironmentProviderWithoutAnyEnvSet(): void {
+    $providers = TelemetryHelper::getProviders();
+
+    // Since we actually run our own tests on GitHub, getEnvironmentProvider() will return 'github' unless we unset it.
+    $github_env_vars = [];
+    foreach ($providers['github'] as $var) {
+      $github_env_vars[$var] = self::ENV_VAR_DEFAULT_VALUE;
+    }
+
+    TestBase::unsetEnvVars($github_env_vars);
+
     // Expect null since no provider environment variables are set.
     $this->assertNull(TelemetryHelper::getEnvironmentProvider());
   }
@@ -63,7 +75,7 @@ class TelemetryHelperTest extends CommandTestBase {
    * Test the getEnvironmentProvider method when Acquia environment is detected.
    */
   public function testGetEnvironmentProviderWithAcquia(): void {
-    TestBase::setEnvVars(['AH_SITE_ENVIRONMENT' => 'test']);
+    TestBase::setEnvVars(['AH_SITE_ENVIRONMENT' => self::ENV_VAR_DEFAULT_VALUE]);
 
     // We need to make sure our mocked method is used. Depending on the implementation,
     // this could involve setting it statically or using dependency injection.
