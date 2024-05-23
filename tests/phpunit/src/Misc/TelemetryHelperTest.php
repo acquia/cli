@@ -24,6 +24,17 @@ class TelemetryHelperTest extends CommandTestBase {
     TestBase::unsetEnvVars($envVars);
   }
 
+  public function unsetGitHubEnvVars(): void {
+    $providers = TelemetryHelper::getProviders();
+
+    // Since we actually run our own tests on GitHub, getEnvironmentProvider() will return 'github' unless we unset it.
+    $github_env_vars = [];
+    foreach ($providers['github'] as $var) {
+      $github_env_vars[$var] = self::ENV_VAR_DEFAULT_VALUE;
+    }
+    TestBase::unsetEnvVars($github_env_vars);
+  }
+
   protected function createCommand(): CommandBase {
     return $this->injectCommand(ClearCacheCommand::class);
   }
@@ -50,6 +61,9 @@ class TelemetryHelperTest extends CommandTestBase {
    */
   public function testEnvironmentProvider(string $provider, array $envVars): void {
     TestBase::setEnvVars($envVars);
+    if ($provider !== 'github') {
+      $this->unsetGitHubEnvVars();
+    }
     $this->assertEquals($provider, TelemetryHelper::getEnvironmentProvider());
   }
 
@@ -57,15 +71,7 @@ class TelemetryHelperTest extends CommandTestBase {
    * Test the getEnvironmentProvider method when no environment provider is detected.
    */
   public function testGetEnvironmentProviderWithoutAnyEnvSet(): void {
-    $providers = TelemetryHelper::getProviders();
-
-    // Since we actually run our own tests on GitHub, getEnvironmentProvider() will return 'github' unless we unset it.
-    $github_env_vars = [];
-    foreach ($providers['github'] as $var) {
-      $github_env_vars[$var] = self::ENV_VAR_DEFAULT_VALUE;
-    }
-
-    TestBase::unsetEnvVars($github_env_vars);
+    $this->unsetGitHubEnvVars();
 
     // Expect null since no provider environment variables are set.
     $this->assertNull(TelemetryHelper::getEnvironmentProvider());
