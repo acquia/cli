@@ -199,12 +199,12 @@ class TelemetryHelper {
    * @infection-ignore-all
    *   Skipping infection testing for this because, it most cases, we expect that when a row from this array is changed
    *   it won't affect the return value.
-   *
    * @return array<mixed>
    *   An array of providers and their associated environment variables.
    */
   public static function getProviders(): array {
     // Define the environment variables associated with each provider.
+    // phpcs:ignore SlevomatCodingStandard.Arrays.AlphabeticallySortedByKeys.IncorrectKeyOrder
     return [
       'lando' => ['LANDO'],
       'ddev' => ['IS_DDEV_PROJECT'],
