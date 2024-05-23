@@ -135,31 +135,15 @@ class TelemetryHelper {
     return $data;
   }
 
-  private function getEnvironmentProvider(): ?string {
-    // Define the environment variables associated with each provider.
-    $providers = [
-      // Assuming Acquia has a specific environment variable, just for example purposes.
-      'acquia'    => ['ACQUIA_ENVIRONMENT'],
-      'bamboo'    => ['BAMBOO_BUILDNUMBER'],
-      'bitbucket' => ['BITBUCKET_BRANCH'],
-      'circleci'  => ['CIRCLECI'],
-      'codebuild' => ['CODEBUILD_BUILD_ID'],
-      'drone'     => ['DRONE'],
-      'github'    => ['GITHUB_ACTIONS'],
-      'gitlab'    => ['GITLAB_CI'],
-      'heroku'    => ['HEROKU_TEST_RUN_ID'],
-      'jenkins'   => ['JENKINS_URL'],
-      'octopus'   => ['OCTOPUS_DEPLOYMENT_ID'],
-      'teamcity'  => ['TEAMCITY_VERSION'],
-      'travis'    => ['TRAVIS'],
-    ];
+  public static function getEnvironmentProvider(): ?string {
+    $providers = self::getProviders();
 
     // Check for an Acquia environment first as it uses a method call rather than getenv.
     if (AcquiaDrupalEnvironmentDetector::getAhEnv()) {
       return 'acquia';
     }
 
-    // Check for CI/CD environment variables.
+    // Check for environment variables.
     foreach ($providers as $provider => $vars) {
       foreach ($vars as $var) {
         if (getenv($var) !== FALSE)
@@ -213,6 +197,28 @@ class TelemetryHelper {
     return [
       'is_acquian' => str_ends_with($account->get()->mail, 'acquia.com'),
       'uuid' => $account->get()->uuid,
+    ];
+  }
+
+  /**
+   * @return array[]
+   *   An array of providers and their associated environment variables.
+   */
+  public static function getProviders(): array {
+    // Define the environment variables associated with each provider.
+    return [
+      'bamboo' => ['BAMBOO_BUILDNUMBER'],
+      'bitbucket' => ['BITBUCKET_BRANCH'],
+      'circleci' => ['CIRCLECI'],
+      'codebuild' => ['CODEBUILD_BUILD_ID'],
+      'drone' => ['DRONE'],
+      'github' => ['GITHUB_ACTIONS'],
+      'gitlab' => ['GITLAB_CI'],
+      'heroku' => ['HEROKU_TEST_RUN_ID'],
+      'jenkins' => ['JENKINS_URL'],
+      'octopus' => ['OCTOPUS_DEPLOYMENT_ID'],
+      'teamcity' => ['TEAMCITY_VERSION'],
+      'travis' => ['TRAVIS'],
     ];
   }
 
