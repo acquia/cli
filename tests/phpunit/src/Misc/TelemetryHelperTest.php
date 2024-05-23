@@ -75,11 +75,11 @@ class TelemetryHelperTest extends CommandTestBase {
    * Test the getEnvironmentProvider method when Acquia environment is detected.
    */
   public function testGetEnvironmentProviderWithAcquia(): void {
+    // We test this separately from testEnvironmentProvider() because AH_SITE_ENVIRONMENT isn't in
+    // TelemetryHelper::getProviders(). Instead, we rely on AcquiaDrupalEnvironmentDetector::getAhEnv() in
+    // getEnvironmentProvider() to indirectly tell us if AH_SITE_ENVIRONMENT is set. This allows
+    // AcquiaDrupalEnvironmentDetector to handle any changes to the logic of detecting Acquia environments.
     TestBase::setEnvVars(['AH_SITE_ENVIRONMENT' => self::ENV_VAR_DEFAULT_VALUE]);
-
-    // We need to make sure our mocked method is used. Depending on the implementation,
-    // this could involve setting it statically or using dependency injection.
-    // Expect 'acquia' to be returned since Acquia environment is mocked to be present.
     $this->assertEquals('acquia', TelemetryHelper::getEnvironmentProvider());
   }
 
