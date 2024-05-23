@@ -14,7 +14,7 @@ class TelemetryHelperTest extends CommandTestBase {
 
   public function tearDown(): void {
     parent::tearDown();
-    $envVars = [];
+    $envVars = ['AH_SITE_ENVIRONMENT' => 'test'];
     foreach ($this->providerTestEnvironmentProvider() as $args) {
       $envVars = array_merge($envVars, $args[1]);
     }
@@ -55,12 +55,20 @@ class TelemetryHelperTest extends CommandTestBase {
    * Test the getEnvironmentProvider method when no environment provider is detected.
    */
   public function testGetEnvironmentProviderWithoutAnyEnvSet(): void {
-    // Ensure no environment variables are set.
-    $providersList = TelemetryHelper::getProviders();
-    TestBase::unsetEnvVars($providersList);
-
     // Expect null since no provider environment variables are set.
     $this->assertNull(TelemetryHelper::getEnvironmentProvider());
+  }
+
+  /**
+   * Test the getEnvironmentProvider method when Acquia environment is detected.
+   */
+  public function testGetEnvironmentProviderWithAcquia(): void {
+    TestBase::setEnvVars(['AH_SITE_ENVIRONMENT' => 'test']);
+
+    // We need to make sure our mocked method is used. Depending on the implementation,
+    // this could involve setting it statically or using dependency injection.
+    // Expect 'acquia' to be returned since Acquia environment is mocked to be present.
+    $this->assertEquals('acquia', TelemetryHelper::getEnvironmentProvider());
   }
 
 }
