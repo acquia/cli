@@ -211,7 +211,10 @@ class TelemetryHelper {
     // Define the environment variables associated with each provider.
     return [
       'bamboo' => ['BAMBOO_BUILDNUMBER'],
-      'bitbucket' => ['BITBUCKET_BRANCH'],
+      'beanstalk' => ['BEANSTALK_ENVIRONMENT'],
+      'bitbucket' => ['BITBUCKET_BUILD_NUMBER'],
+      'bitrise' => ['BITRISE_IO'],
+      'buddy' => ['BUDDY_WORKSPACE_ID'],
       'circleci' => ['CIRCLECI'],
       'codebuild' => ['CODEBUILD_BUILD_ID'],
       'drone' => ['DRONE'],
@@ -219,7 +222,9 @@ class TelemetryHelper {
       'gitlab' => ['GITLAB_CI'],
       'heroku' => ['HEROKU_TEST_RUN_ID'],
       'jenkins' => ['JENKINS_URL'],
-      'octopus' => ['OCTOPUS_DEPLOYMENT_ID'],
+      'pantheon' => ['PANTHEON_ENVIRONMENT'],
+      'pipelines' => ['PIPELINE_ENV'],
+      'platformsh' => ['PLATFORM_ENVIRONMENT'],
       'teamcity' => ['TEAMCITY_VERSION'],
       'travis' => ['TRAVIS'],
     ];
