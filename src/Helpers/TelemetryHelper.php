@@ -201,6 +201,9 @@ class TelemetryHelper {
   }
 
   /**
+   * @infection-ignore-all
+   *   Skipping infection testing for this because, it most cases, we expect that when a row from this array is changed
+   *   it won't affect the return value.
    * @return array<mixed>
    *   An array of providers and their associated environment variables.
    */
