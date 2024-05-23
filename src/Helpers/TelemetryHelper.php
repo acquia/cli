@@ -138,12 +138,6 @@ class TelemetryHelper {
   public static function getEnvironmentProvider(): ?string {
     $providers = self::getProviders();
 
-    // Check for an Acquia environment first as it uses a method call rather than getenv.
-    // Under the hood, this checks the AH_SITE_ENVIRONMENT environment variable. This is set by Cloud IDE and Lando.
-    if (AcquiaDrupalEnvironmentDetector::getAhEnv()) {
-      return 'acquia';
-    }
-
     // Check for environment variables.
     foreach ($providers as $provider => $vars) {
       foreach ($vars as $var) {
@@ -205,12 +199,17 @@ class TelemetryHelper {
    * @infection-ignore-all
    *   Skipping infection testing for this because, it most cases, we expect that when a row from this array is changed
    *   it won't affect the return value.
+   *
    * @return array<mixed>
    *   An array of providers and their associated environment variables.
    */
   public static function getProviders(): array {
     // Define the environment variables associated with each provider.
     return [
+      'lando' => ['LANDO'],
+      'ddev' => ['IS_DDEV_PROJECT'],
+      // Check Lando and DDEV first because the hijack AH_SITE_ENVIRONMENT.
+      'acquia' => ['AH_SITE_ENVIRONMENT'],
       'bamboo' => ['BAMBOO_BUILDNUMBER'],
       'beanstalk' => ['BEANSTALK_ENVIRONMENT'],
       'bitbucket' => ['BITBUCKET_BUILD_NUMBER'],
@@ -218,20 +217,17 @@ class TelemetryHelper {
       'buddy' => ['BUDDY_WORKSPACE_ID'],
       'circleci' => ['CIRCLECI'],
       'codebuild' => ['CODEBUILD_BUILD_ID'],
-      'ddev' => ['IS_DDEV_PROJECT'],
+      'docksal' => ['DOCKSAL_VERSION'],
       'drone' => ['DRONE'],
       'github' => ['GITHUB_ACTIONS'],
       'gitlab' => ['GITLAB_CI'],
       'heroku' => ['HEROKU_TEST_RUN_ID'],
       'jenkins' => ['JENKINS_URL'],
-      'lando' => ['LANDO'],
       'pantheon' => ['PANTHEON_ENVIRONMENT'],
       'pipelines' => ['PIPELINE_ENV'],
       'platformsh' => ['PLATFORM_ENVIRONMENT'],
       'teamcity' => ['TEAMCITY_VERSION'],
       'travis' => ['TRAVIS'],
-      // docksal?
-      // docker?
     ];
   }
 
