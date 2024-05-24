@@ -107,11 +107,7 @@ class TelemetryHelper {
     }
   }
 
-  private function normalizeAhEnv(): string {
-    $ah_env = AcquiaDrupalEnvironmentDetector::getAhEnv();
-    if (AcquiaDrupalEnvironmentDetector::isAcsfEnv()) {
-      return 'acsf';
-    }
+  public static function normalizeAhEnv($ah_env): string {
     if (AcquiaDrupalEnvironmentDetector::isAhProdEnv($ah_env)) {
       return 'prod';
     }
@@ -127,7 +123,7 @@ class TelemetryHelper {
     if (AcquiaDrupalEnvironmentDetector::isAhIdeEnv($ah_env)) {
       return 'ide';
     }
-    return AcquiaDrupalEnvironmentDetector::getAhEnv();
+    return $ah_env;
   }
 
   /**
@@ -138,7 +134,7 @@ class TelemetryHelper {
   private function getTelemetryUserData(): array {
     $data = [
       'ah_app_uuid' => getenv('AH_APPLICATION_UUID'),
-      'ah_env' => $this->normalizeAhEnv(),
+      'ah_env' => $this->normalizeAhEnv(AcquiaDrupalEnvironmentDetector::getAhEnv()),
       'ah_group' => AcquiaDrupalEnvironmentDetector::getAhGroup(),
       'ah_non_production' => getenv('AH_NON_PRODUCTION'),
       'ah_realm' => getenv('AH_REALM'),

@@ -67,5 +67,24 @@ class TelemetryHelperTest extends TestBase {
     // Expect null since no provider environment variables are set.
     $this->assertNull(TelemetryHelper::getEnvironmentProvider());
   }
+  public function providerTestAhEnvNormalization(): array {
+    return [
+      ['prod', 'prod'],
+      ['01live', 'prod'],
+      ['stage', 'stage'],
+      ['stg', 'stage'],
+      ['dev1', 'dev'],
+      ['ode1', 'ode'],
+      ['ide', 'ide'],
+    ];
+  }
+
+  /**
+   * @dataProvider providerTestAhEnvNormalization
+   */
+  public function testAhEnvNormalization($ah_env, $expected) {
+    $normalized_ah_env = TelemetryHelper::normalizeAhEnv($ah_env);
+    $this->assertEquals($expected, $normalized_ah_env);
+  }
 
 }
