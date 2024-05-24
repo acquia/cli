@@ -81,6 +81,7 @@ class TelemetryHelperTest extends TestBase {
       ['dev1', 'dev'],
       ['ode1', 'ode'],
       ['ide', 'ide'],
+      ['fake', 'fake'],
     ];
   }
 
