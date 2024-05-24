@@ -108,6 +108,31 @@ class TelemetryHelper {
   }
 
   /**
+   * @param string $ah_env
+   *   Environment name from AH_ENV.
+   * @return string
+   *   Normalized environment name.
+   */
+  public static function normalizeAhEnv(string $ah_env): string {
+    if (AcquiaDrupalEnvironmentDetector::isAhProdEnv($ah_env)) {
+      return 'prod';
+    }
+    if (AcquiaDrupalEnvironmentDetector::isAhStageEnv($ah_env)) {
+      return 'stage';
+    }
+    if (AcquiaDrupalEnvironmentDetector::isAhDevEnv($ah_env)) {
+      return 'dev';
+    }
+    if (AcquiaDrupalEnvironmentDetector::isAhOdeEnv($ah_env)) {
+      return 'ode';
+    }
+    if (AcquiaDrupalEnvironmentDetector::isAhIdeEnv($ah_env)) {
+      return 'ide';
+    }
+    return $ah_env;
+  }
+
+  /**
    * Get telemetry user data.
    *
    * @return array<mixed> Telemetry user data.
@@ -115,7 +140,7 @@ class TelemetryHelper {
   private function getTelemetryUserData(): array {
     $data = [
       'ah_app_uuid' => getenv('AH_APPLICATION_UUID'),
-      'ah_env' => AcquiaDrupalEnvironmentDetector::getAhEnv(),
+      'ah_env' => $this->normalizeAhEnv(AcquiaDrupalEnvironmentDetector::getAhEnv()),
       'ah_group' => AcquiaDrupalEnvironmentDetector::getAhGroup(),
       'ah_non_production' => getenv('AH_NON_PRODUCTION'),
       'ah_realm' => getenv('AH_REALM'),

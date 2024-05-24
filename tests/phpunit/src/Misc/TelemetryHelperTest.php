@@ -68,4 +68,33 @@ class TelemetryHelperTest extends TestBase {
     $this->assertNull(TelemetryHelper::getEnvironmentProvider());
   }
 
+  /**
+   * @return mixed[]
+   *   The data provider.
+   */
+  public function providerTestAhEnvNormalization(): array {
+    return [
+      ['prod', 'prod'],
+      ['01live', 'prod'],
+      ['stage', 'stage'],
+      ['stg', 'stage'],
+      ['dev1', 'dev'],
+      ['ode1', 'ode'],
+      ['ide', 'ide'],
+      ['fake', 'fake'],
+    ];
+  }
+
+  /**
+   * @dataProvider providerTestAhEnvNormalization
+   * @param string $ah_env
+   *   The Acquia hosting environment.
+   * @param string $expected
+   *   The expected normalized environment.
+   */
+  public function testAhEnvNormalization(string $ah_env, string $expected): void {
+    $normalized_ah_env = TelemetryHelper::normalizeAhEnv($ah_env);
+    $this->assertEquals($expected, $normalized_ah_env);
+  }
+
 }
