@@ -107,7 +107,13 @@ class TelemetryHelper {
     }
   }
 
-  public static function normalizeAhEnv($ah_env): string {
+  /**
+   * @param string $ah_env
+   *   Environment name from AH_ENV.
+   * @return string
+   *   Normalized environment name.
+   */
+  public static function normalizeAhEnv(string $ah_env): string {
     if (AcquiaDrupalEnvironmentDetector::isAhProdEnv($ah_env)) {
       return 'prod';
     }

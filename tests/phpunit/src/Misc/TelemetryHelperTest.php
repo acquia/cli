@@ -67,6 +67,11 @@ class TelemetryHelperTest extends TestBase {
     // Expect null since no provider environment variables are set.
     $this->assertNull(TelemetryHelper::getEnvironmentProvider());
   }
+
+  /**
+   * @return mixed[]
+   *   The data provider.
+   */
   public function providerTestAhEnvNormalization(): array {
     return [
       ['prod', 'prod'],
@@ -81,8 +86,12 @@ class TelemetryHelperTest extends TestBase {
 
   /**
    * @dataProvider providerTestAhEnvNormalization
+   * @param string $ah_env
+   *   The Acquia hosting environment.
+   * @param string $expected
+   *   The expected normalized environment.
    */
-  public function testAhEnvNormalization($ah_env, $expected) {
+  public function testAhEnvNormalization(string $ah_env, string $expected): void {
     $normalized_ah_env = TelemetryHelper::normalizeAhEnv($ah_env);
     $this->assertEquals($expected, $normalized_ah_env);
   }
