@@ -12,7 +12,10 @@
         "html": "var/infection.html"
     },
     "mutators": {
-        "@default": true
+        "@default": true,
+        "global-ignoreSourceCodeByRegex": [
+            "\\$this->logger.*"
+        ]
     },
     "timeout": 30,
     "testFrameworkOptions": "--exclude-group=serial"
