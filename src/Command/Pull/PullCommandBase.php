@@ -554,7 +554,7 @@ abstract class PullCommandBase extends CommandBase {
   }
 
   private function importRemoteDatabase(DatabaseResponse $database, string $localFilepath, Closure $outputCallback = NULL): void {
-    if ($database->flags->default) {
+    if ($database->flags->default || getenv('IS_LOCAL')) {
       // Easy case, import the default db into the default db.
       $this->doImportRemoteDatabase($this->getLocalDbHost(), $this->getLocalDbUser(), $this->getLocalDbName(), $this->getLocalDbPassword(), $localFilepath, $outputCallback);
     }
