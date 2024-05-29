@@ -37,6 +37,12 @@ class Kernel extends BaseKernel {
     $this->registerExtensionConfiguration($loader);
   }
 
+  /** @infection-ignore-all */
+  public function getCacheDir(): string {
+    $testToken = getenv('TEST_TOKEN') ?? '';
+    return parent::getCacheDir() . $testToken;
+  }
+
   protected function registerExtensionConfiguration(mixed $loader): void {
     // Search for plugins.
     $finder = new Finder();
