@@ -1242,9 +1242,11 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
       if (is_object($json)) {
         return self::getNotificationUuidFromResponse($json);
       }
-      // In rare cases, JSON can decode to a string that's a valid UUID.
-      self::validateUuid($json);
-      return $json;
+      if (is_string($json)) {
+        // In rare cases, JSON can decode to a string that's a valid UUID.
+        self::validateUuid($json);
+        return $json;
+      }
     }
     catch (JsonException | AcquiaCliException | ValidatorException) {
     }
