@@ -236,7 +236,9 @@ trait CodeStudioCommandTrait {
   private function getGitLabProjectDefaults(): array {
     return [
       'container_registry_access_level' => 'disabled',
+      'default_branch' => 'main',
       'description' => $this->gitLabProjectDescription,
+      'initialize_with_readme' => TRUE,
       'topics' => 'Acquia Cloud Application',
     ];
   }
