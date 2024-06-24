@@ -297,7 +297,9 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
     $projects = $this->mockGetGitLabProjects($this::$applicationUuid, $this->gitLabProjectId, $mockedGitlabProjects);
     $parameters = [
       'container_registry_access_level' => 'disabled',
+      'default_branch' => 'main',
       'description' => 'Source repository for Acquia Cloud Platform application <comment>a47ac10b-58cc-4372-a567-0e02b2c3d470</comment>',
+      'initialize_with_readme' => TRUE,
       'namespace_id' => 47,
       'topics' => 'Acquia Cloud Application',
     ];
@@ -305,7 +307,9 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
     $this->mockGitLabProjectsTokens($projects);
     $parameters = [
       'container_registry_access_level' => 'disabled',
+      'default_branch' => 'main',
       'description' => 'Source repository for Acquia Cloud Platform application <comment>a47ac10b-58cc-4372-a567-0e02b2c3d470</comment>',
+      'initialize_with_readme' => TRUE,
       'topics' => 'Acquia Cloud Application',
     ];
     $projects->update($this->gitLabProjectId, $parameters)->shouldBeCalled();
