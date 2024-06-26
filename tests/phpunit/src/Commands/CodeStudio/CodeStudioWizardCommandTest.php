@@ -325,25 +325,28 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
       ];
       $projects->update($this->gitLabProjectId, $parameters)->shouldBeCalled();
     }
-    $schedules = $this->prophet->prophesize(Schedules::class);
-    $schedules->showAll($this->gitLabProjectId)->willReturn([]);
-    $pipeline = ['id' => 1];
-    $parameters = [
-      // Every Thursday at midnight.
-      'cron' => '0 0 * * 4',
-      'description' => 'Code Studio Automatic Updates',
-      'ref' => 'master',
-    ];
-    $schedules->create($this->gitLabProjectId, $parameters)->willReturn($pipeline);
-    $schedules->addVariable($this->gitLabProjectId, $pipeline['id'], [
-      'key' => 'ACQUIA_JOBS_DEPRECATED_UPDATE',
-      'value' => 'true',
-    ])->shouldBeCalled();
-    $schedules->addVariable($this->gitLabProjectId, $pipeline['id'], [
-      'key' => 'ACQUIA_JOBS_COMPOSER_UPDATE',
-      'value' => 'true',
-    ])->shouldBeCalled();
-    $gitlabClient->schedules()->willReturn($schedules->reveal());
+    else {
+      $schedules = $this->prophet->prophesize(Schedules::class);
+      $schedules->showAll($this->gitLabProjectId)->willReturn([]);
+      $pipeline = ['id' => 1];
+      $parameters = [
+        // Every Thursday at midnight.
+        'cron' => '0 0 * * 4',
+        'description' => 'Code Studio Automatic Updates',
+        'ref' => 'master',
+      ];
+      $schedules->create($this->gitLabProjectId, $parameters)->willReturn($pipeline);
+      $schedules->addVariable($this->gitLabProjectId, $pipeline['id'], [
+        'key' => 'ACQUIA_JOBS_DEPRECATED_UPDATE',
+        'value' => 'true',
+      ])->shouldBeCalled();
+      $schedules->addVariable($this->gitLabProjectId, $pipeline['id'], [
+        'key' => 'ACQUIA_JOBS_COMPOSER_UPDATE',
+        'value' => 'true',
+      ])->shouldBeCalled();
+      $gitlabClient->schedules()->willReturn($schedules->reveal());
+    }
+
     $gitlabClient->projects()->willReturn($projects);
 
     $this->command->setGitLabClient($gitlabClient->reveal());

@@ -118,6 +118,7 @@ final class CodeStudioWizardCommand extends WizardCommandBase {
     switch ($projectSelected) {
       case "Drupal_project":
         $this->setGitLabCiCdVariablesForPhpProject($project, $appUuid, $cloudKey, $cloudSecret, $projectAccessTokenName, $projectAccessToken, $phpVersion);
+        $this->createScheduledPipeline($project);
         break;
       case "Node_project":
         $parameters = [
@@ -128,7 +129,6 @@ final class CodeStudioWizardCommand extends WizardCommandBase {
         $this->setGitLabCiCdVariablesForNodeProject($project, $appUuid, $cloudKey, $cloudSecret, $projectAccessTokenName, $projectAccessToken, $nodeVersion);
         break;
     }
-    $this->createScheduledPipeline($project);
 
     $this->io->success([
       "Successfully configured the Code Studio project!",
