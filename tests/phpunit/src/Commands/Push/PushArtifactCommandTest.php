@@ -246,7 +246,7 @@ class PushArtifactCommandTest extends PullCommandTestBase {
     $process->isSuccessful()->willReturn(TRUE)->shouldBeCalled();
     $localMachineHelper->execute(['git', 'clone', '--depth=1', $vcsUrl, $artifactDir], Argument::type('callable'), NULL, TRUE)
       ->willReturn($process->reveal())->shouldBeCalled();
-    $localMachineHelper->execute(['git', 'fetch', '--depth=1', $vcsUrl, $vcsPath . ':' . $vcsPath], Argument::type('callable'), Argument::type('string'), TRUE)
+    $localMachineHelper->execute(['git', 'fetch', '--depth=1', '--update-head-ok', $vcsUrl, $vcsPath . ':' . $vcsPath], Argument::type('callable'), Argument::type('string'), TRUE)
       ->willReturn($process->reveal())->shouldBeCalled();
     $localMachineHelper->execute(['git', 'checkout', $vcsPath], Argument::type('callable'), Argument::type('string'), TRUE)
       ->willReturn($process->reveal())->shouldBeCalled();

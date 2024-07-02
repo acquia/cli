@@ -180,7 +180,7 @@ final class PushArtifactCommand extends CommandBase {
     if (!$process->isSuccessful()) {
       throw new AcquiaCliException('Failed to clone repository from the Cloud Platform: {message}', ['message' => $process->getErrorOutput()]);
     }
-    $process = $this->localMachineHelper->execute(['git', 'fetch', '--depth=1', $vcsUrl, $vcsPath . ':' . $vcsPath], $outputCallback, $artifactDir, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
+    $process = $this->localMachineHelper->execute(['git', 'fetch', '--depth=1', '--update-head-ok', $vcsUrl, $vcsPath . ':' . $vcsPath], $outputCallback, $artifactDir, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
     if (!$process->isSuccessful()) {
       // Remote branch does not exist. Just create it locally. This will create
       // the new branch off of the current commit.
