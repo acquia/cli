@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Acquia\Cli\Command\Pull;
 
@@ -12,20 +12,21 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 #[RequireAuth]
 #[AsCommand(name: 'pull:files', description: 'Copy Drupal public files from a Cloud Platform environment to your local environment')]
-final class PullFilesCommand extends PullCommandBase {
+final class PullFilesCommand extends PullCommandBase
+{
+    protected function configure(): void
+    {
+        $this
+        ->acceptEnvironmentId()
+        ->acceptSite();
+    }
 
-  protected function configure(): void {
-    $this
-      ->acceptEnvironmentId()
-      ->acceptSite();
-  }
+    protected function execute(InputInterface $input, OutputInterface $output): int
+    {
+        $this->setDirAndRequireProjectCwd($input);
+        $sourceEnvironment = $this->determineEnvironment($input, $output, true);
+        $this->pullFiles($input, $output, $sourceEnvironment);
 
-  protected function execute(InputInterface $input, OutputInterface $output): int {
-    $this->setDirAndRequireProjectCwd($input);
-    $sourceEnvironment = $this->determineEnvironment($input, $output, TRUE);
-    $this->pullFiles($input, $output, $sourceEnvironment);
-
-    return Command::SUCCESS;
-  }
-
+        return Command::SUCCESS;
+    }
 }

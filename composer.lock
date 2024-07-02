@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ab4ff60bae8f6336db700b8e95faf26f",
+    "content-hash": "af855bbe270547764bcca9fce1344172",
     "packages": [
         {
             "name": "acquia/drupal-environment-detector",
@@ -6501,17 +6501,11 @@
     "packages-dev": [
         {
             "name": "acquia/coding-standards",
-            "version": "v2.0.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/acquia/coding-standards-php.git",
-                "reference": "bb52b780a00ca7586e8b2e502e09dc53c5e90a60"
-            },
+            "version": "3.x-dev",
             "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/acquia/coding-standards-php/zipball/bb52b780a00ca7586e8b2e502e09dc53c5e90a60",
-                "reference": "bb52b780a00ca7586e8b2e502e09dc53c5e90a60",
-                "shasum": ""
+                "type": "path",
+                "url": "../coding-standards-php",
+                "reference": "b4bef3bc0af6fcbfcd087a5a194e55116709932e"
             },
             "require": {
                 "drupal/coder": "^8.3",
@@ -6534,9 +6528,8 @@
                     "Acquia\\CodingStandards\\": "src/"
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
             "license": [
-                "GPL-2.0-only"
+                "GPL-2.0-or-later"
             ],
             "authors": [
                 {
@@ -6547,7 +6540,7 @@
             ],
             "description": "PHP_CodeSniffer rules (sniffs) for Acquia coding standards",
             "keywords": [
-                "drupal",
+                "Drupal",
                 "phpcs",
                 "standards",
                 "static analysis"
@@ -6556,7 +6549,9 @@
                 "issues": "https://github.com/acquia/coding-standards/issues",
                 "source": "https://github.com/acquia/coding-standards"
             },
-            "time": "2023-03-06T17:49:20+00:00"
+            "transport-options": {
+                "relative": true
+            }
         },
         {
             "name": "amphp/amp",

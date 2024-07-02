@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Acquia\Cli;
 
@@ -23,104 +23,109 @@ use Symfony\Component\HttpKernel\Kernel as BaseKernel;
 /**
  * Manages an environment made of bundles.
  */
-class Kernel extends BaseKernel {
-
-  /**
-   * @return array<mixed>
-   */
-  public function registerBundles(): iterable {
-    return [];
-  }
-
-  public function registerContainerConfiguration(LoaderInterface $loader): void {
-    $loader->load($this->getProjectDir() . '/config/' . $this->getEnvironment() . '/services.yml');
-    $this->registerExtensionConfiguration($loader);
-  }
-
-  /** @infection-ignore-all */
-  public function getCacheDir(): string {
-    $testToken = getenv('TEST_TOKEN') ?? '';
-    return parent::getCacheDir() . $testToken;
-  }
-
-  protected function registerExtensionConfiguration(mixed $loader): void {
-    // Search for plugins.
-    $finder = new Finder();
-    $extensions = $finder->files()
-      ->in([
-        __DIR__ . '/../../',
-      ])
-      ->depth(1)
-      ->name('acli.services.yml');
-    foreach ($extensions as $extension) {
-      $loader->load($extension->getRealPath());
+class Kernel extends BaseKernel
+{
+    /**
+     * @return array<mixed>
+     */
+    public function registerBundles(): iterable
+    {
+        return [];
     }
-  }
 
-  /**
-   * Returns a loader for the container.
-   *
-   * @return \Symfony\Component\Config\Loader\DelegatingLoader The loader
-   */
-  protected function getContainerLoader(ContainerInterface $container): DelegatingLoader {
-    $locator = new FileLocator([$this->getProjectDir()]);
-    $resolver = new LoaderResolver([
-      new YamlFileLoader($container, $locator),
-      new DirectoryLoader($container, $locator),
-    ]);
+    public function registerContainerConfiguration(LoaderInterface $loader): void
+    {
+        $loader->load($this->getProjectDir() . '/config/' . $this->getEnvironment() . '/services.yml');
+        $this->registerExtensionConfiguration($loader);
+    }
 
-    return new DelegatingLoader($resolver);
-  }
+    /** @infection-ignore-all */
+    public function getCacheDir(): string
+    {
+        $testToken = getenv('TEST_TOKEN') ?? '';
+        return parent::getCacheDir() . $testToken;
+    }
 
-  protected function build(ContainerBuilder $containerBuilder): void {
-    $containerBuilder->addCompilerPass($this->createCollectingCompilerPass());
-  }
-
-  /**
-   * Creates a collecting compiler pass.
-   */
-  private function createCollectingCompilerPass(): CompilerPassInterface {
-    return new class implements CompilerPassInterface {
-
-      public function process(ContainerBuilder $containerBuilder): void {
-        $appDefinition = $containerBuilder->findDefinition(Application::class);
-        $dispatcherDefinition = $containerBuilder->findDefinition(EventDispatcher::class);
-
-        foreach ($containerBuilder->getDefinitions() as $definition) {
-          // Handle event listeners.
-          if ($definition->hasTag('kernel.event_listener')) {
-            foreach ($definition->getTag('kernel.event_listener') as $tag) {
-              $dispatcherDefinition->addMethodCall('addListener', [
-                $tag['event'],
-                [
-                  new ServiceClosureArgument(new Reference($definition->getClass())),
-                  $tag['method'],
-                ],
-              ]);
-            }
-          }
-
-          // Handle commands.
-          if (!is_a($definition->getClass(), Command::class, TRUE)) {
-            continue;
-          }
-
-          // Without this, Symfony tries to instantiate our abstract base command. No bueno.
-          if ($definition->isAbstract()) {
-            continue;
-          }
-
-          $appDefinition->addMethodCall('add', [
-            new Reference($definition->getClass()),
-          ]);
+    protected function registerExtensionConfiguration(mixed $loader): void
+    {
+        // Search for plugins.
+        $finder = new Finder();
+        $extensions = $finder->files()
+        ->in([
+        __DIR__ . '/../../',
+        ])
+        ->depth(1)
+        ->name('acli.services.yml');
+        foreach ($extensions as $extension) {
+            $loader->load($extension->getRealPath());
         }
+    }
 
-        $appDefinition->addMethodCall('setDispatcher', [
-          $dispatcherDefinition,
+    /**
+     * Returns a loader for the container.
+     *
+     * @return \Symfony\Component\Config\Loader\DelegatingLoader The loader
+     */
+    protected function getContainerLoader(ContainerInterface $container): DelegatingLoader
+    {
+        $locator = new FileLocator([$this->getProjectDir()]);
+        $resolver = new LoaderResolver([
+        new YamlFileLoader($container, $locator),
+        new DirectoryLoader($container, $locator),
         ]);
-      }
 
-    };
-  }
+        return new DelegatingLoader($resolver);
+    }
 
+    protected function build(ContainerBuilder $containerBuilder): void
+    {
+        $containerBuilder->addCompilerPass($this->createCollectingCompilerPass());
+    }
+
+    /**
+     * Creates a collecting compiler pass.
+     */
+    private function createCollectingCompilerPass(): CompilerPassInterface
+    {
+        return new class implements CompilerPassInterface {
+            public function process(ContainerBuilder $containerBuilder): void
+            {
+                $appDefinition = $containerBuilder->findDefinition(Application::class);
+                $dispatcherDefinition = $containerBuilder->findDefinition(EventDispatcher::class);
+
+                foreach ($containerBuilder->getDefinitions() as $definition) {
+                    // Handle event listeners.
+                    if ($definition->hasTag('kernel.event_listener')) {
+                        foreach ($definition->getTag('kernel.event_listener') as $tag) {
+                            $dispatcherDefinition->addMethodCall('addListener', [
+                            $tag['event'],
+                            [
+                            new ServiceClosureArgument(new Reference($definition->getClass())),
+                            $tag['method'],
+                            ],
+                            ]);
+                        }
+                    }
+
+                    // Handle commands.
+                    if (!is_a($definition->getClass(), Command::class, true)) {
+                        continue;
+                    }
+
+                    // Without this, Symfony tries to instantiate our abstract base command. No bueno.
+                    if ($definition->isAbstract()) {
+                        continue;
+                    }
+
+                    $appDefinition->addMethodCall('add', [
+                    new Reference($definition->getClass()),
+                    ]);
+                }
+
+                $appDefinition->addMethodCall('setDispatcher', [
+                $dispatcherDefinition,
+                ]);
+            }
+        };
+    }
 }

@@ -22,37 +22,7 @@
   <!-- @see https://github.com/squizlabs/PHP_CodeSniffer/issues/981 -->
   <exclude-pattern>tests/fixtures/*</exclude-pattern>
 
-  <rule ref="AcquiaPHP" />
-
-  <rule ref="Drupal.Commenting.InlineComment"/>
-  <rule ref="SlevomatCodingStandard.Arrays.AlphabeticallySortedByKeys" />
-  <rule ref="SlevomatCodingStandard.Arrays.DisallowImplicitArrayCreation"/>
-  <rule ref="SlevomatCodingStandard.Arrays.MultiLineArrayEndBracketPlacement"/>
-  <rule ref="SlevomatCodingStandard.Arrays.SingleLineArrayWhitespace"/>
-  <rule ref="SlevomatCodingStandard.Arrays.TrailingArrayComma"/>
-
-  <rule ref="SlevomatCodingStandard.Classes.RequireConstructorPropertyPromotion" />
-  <rule ref="SlevomatCodingStandard.Commenting.DeprecatedAnnotationDeclaration" />
-  <rule ref="SlevomatCodingStandard.Commenting.DisallowCommentAfterCode" />
-  <rule ref="SlevomatCodingStandard.Commenting.DocCommentSpacing" />
-  <rule ref="SlevomatCodingStandard.Commenting.EmptyComment" />
-  <rule ref="SlevomatCodingStandard.Commenting.ForbiddenAnnotations">
-    <properties>
-      <property name="forbiddenAnnotations" type="array" value="@author,@created,@version,@package,@copyright,@license,@throws" />
-    </properties>
-  </rule>
-  <rule ref="SlevomatCodingStandard.Commenting.ForbiddenComments">
-    <properties>
-      <property name="forbiddenCommentPatterns" type="array" value="/Class .*/" />
-    </properties>
-  </rule>
-  <rule ref="SlevomatCodingStandard.Commenting.InlineDocCommentDeclaration" />
-  <rule ref="SlevomatCodingStandard.Commenting.UselessFunctionDocComment" />
-  <rule ref="SlevomatCodingStandard.Commenting.UselessInheritDocComment" />
-  <rule ref="SlevomatCodingStandard.TypeHints.ParameterTypeHint">
-    <exclude name="SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingTraversableTypeHintSpecification"/>
-  </rule>
-  <rule ref="SlevomatCodingStandard.TypeHints.DeclareStrictTypes" />
+  <rule ref="AcquiaPHPStrict" />
 
   <rule ref="Generic.PHP.ForbiddenFunctions">
     <properties>
@@ -62,4 +32,5 @@
       </property>
     </properties>
   </rule>
+
 </ruleset>

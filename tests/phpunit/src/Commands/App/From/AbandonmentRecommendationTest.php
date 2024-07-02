@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Acquia\Cli\Tests\Commands\App\From;
 
@@ -11,79 +11,86 @@ use PHPUnit\Framework\TestCase;
 /**
  * @coversDefaultClass \Acquia\Cli\Command\App\From\Recommendation\AbandonmentRecommendation
  */
-class AbandonmentRecommendationTest extends TestCase {
+class AbandonmentRecommendationTest extends TestCase
+{
+    private AbandonmentRecommendation $sut;
 
-  private AbandonmentRecommendation $sut;
-
-  protected function setUp(): void {
-    parent::setUp();
-    // @see \Acquia\Cli\Tests\Commands\App\From\DefinedRecommendationTest::getTestConfigurations()
-    // phpcs:disable SlevomatCodingStandard.Arrays.AlphabeticallySortedByKeys
-    $this->sut = DefinedRecommendation::createFromDefinition([
-      'package' => NULL,
-      'note' => 'Example: The module bar is no longer required because its functionality has been incorporated into Drupal core.',
-      'replaces' => [
+    protected function setUp(): void
+    {
+        parent::setUp();
+        // @see \Acquia\Cli\Tests\Commands\App\From\DefinedRecommendationTest::getTestConfigurations()
+        // phpcs:disable SlevomatCodingStandard.Arrays.AlphabeticallySortedByKeys
+        $this->sut = DefinedRecommendation::createFromDefinition([
+        'package' => null,
+        'note' => 'Example: The module bar is no longer required because its functionality has been incorporated into Drupal core.',
+        'replaces' => [
         'name' => 'bar',
-      ],
-      'vetted' => TRUE,
-    ]);
-    // phpcs:enable
-  }
+        ],
+        'vetted' => true,
+        ]);
+        // phpcs:enable
+    }
 
-  /**
-   * @covers ::getPackageName
-   */
-  public function testPackageName(): void {
-    $this->expectException(\LogicException::class);
-    $this->sut->getPackageName();
-  }
+    /**
+     * @covers ::getPackageName
+     */
+    public function testPackageName(): void
+    {
+        $this->expectException(\LogicException::class);
+        $this->sut->getPackageName();
+    }
 
-  /**
-   * @covers ::getVersionConstraint
-   */
-  public function testVersionConstraint(): void {
-    $this->expectException(\LogicException::class);
-    $this->sut->getVersionConstraint();
-  }
+    /**
+     * @covers ::getVersionConstraint
+     */
+    public function testVersionConstraint(): void
+    {
+        $this->expectException(\LogicException::class);
+        $this->sut->getVersionConstraint();
+    }
 
-  /**
-   * @covers ::hasModulesToInstall
-   */
-  public function testHasModulesToInstall(): void {
-    $this->expectException(\LogicException::class);
-    $this->sut->hasModulesToInstall();
-  }
+    /**
+     * @covers ::hasModulesToInstall
+     */
+    public function testHasModulesToInstall(): void
+    {
+        $this->expectException(\LogicException::class);
+        $this->sut->hasModulesToInstall();
+    }
 
-  /**
-   * @covers ::getModulesToInstall
-   */
-  public function testGetModulesToInstall(): void {
-    $this->expectException(\LogicException::class);
-    $this->sut->getModulesToInstall();
-  }
+    /**
+     * @covers ::getModulesToInstall
+     */
+    public function testGetModulesToInstall(): void
+    {
+        $this->expectException(\LogicException::class);
+        $this->sut->getModulesToInstall();
+    }
 
-  /**
-   * @covers ::hasPatches
-   */
-  public function testHasPatches(): void {
-    $this->expectException(\LogicException::class);
-    $this->sut->hasPatches();
-  }
+    /**
+     * @covers ::hasPatches
+     */
+    public function testHasPatches(): void
+    {
+        $this->expectException(\LogicException::class);
+        $this->sut->hasPatches();
+    }
 
-  /**
-   * @covers ::isVetted
-   */
-  public function testIsVetted(): void {
-    $this->expectException(\LogicException::class);
-    $this->sut->isVetted();
-  }
+    /**
+     * @covers ::isVetted
+     */
+    public function testIsVetted(): void
+    {
+        $this->expectException(\LogicException::class);
+        $this->sut->isVetted();
+    }
 
-  /**
-   * @covers ::getPatches
-   */
-  public function testGetPatches(): void {
-    $this->expectException(\LogicException::class);
-    $this->sut->getPatches();
-  }
-
+    /**
+     * @covers ::getPatches
+     */
+    public function testGetPatches(): void
+    {
+        $this->expectException(\LogicException::class);
+        $this->sut->getPatches();
+    }
 }

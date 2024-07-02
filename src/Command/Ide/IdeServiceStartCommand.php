@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Acquia\Cli\Command\Ide;
 
@@ -15,49 +15,50 @@ use Symfony\Component\Validator\Exception\ValidatorException;
 use Symfony\Component\Validator\Validation;
 
 #[AsCommand(name: 'ide:service-start', description: 'Start a service in the Cloud IDE')]
-final class IdeServiceStartCommand extends IdeCommandBase {
-
-  protected function configure(): void {
-    $this
-      ->addArgument('service', InputArgument::REQUIRED, 'The name of the service to start')
-      ->addUsage('php')
-      ->addUsage('apache')
-      ->addUsage('mysql')
-      ->setHidden(!AcquiaDrupalEnvironmentDetector::isAhIdeEnv());
-  }
-
-  protected function execute(InputInterface $input, OutputInterface $output): int {
-    $this->requireCloudIdeEnvironment();
-    $service = $input->getArgument('service');
-    $this->validateService($service);
-
-    $serviceNameMap = [
-      'apache' => 'apache2',
-      'apache2' => 'apache2',
-      'mysql' => 'mysqld',
-      'mysqld' => 'mysqld',
-      'php' => 'php-fpm',
-      'php-fpm' => 'php-fpm',
-    ];
-    $output->writeln("Starting <options=bold>$service</>...");
-    $serviceName = $serviceNameMap[$service];
-    $this->startService($serviceName);
-    $output->writeln("<info>Started <options=bold>$service</></info>");
-
-    return Command::SUCCESS;
-  }
-
-  private function validateService(string $service): void {
-    $violations = Validation::createValidator()->validate($service, [
-      new Choice([
-        'choices' => ['php', 'php-fpm', 'apache', 'apache2', 'mysql', 'mysqld'],
-        'message' => 'Specify a valid service name: php, apache, or mysql',
-      ]),
-    ]);
-    if (count($violations)) {
-      throw new ValidatorException($violations->get(0)->getMessage());
+final class IdeServiceStartCommand extends IdeCommandBase
+{
+    protected function configure(): void
+    {
+        $this
+        ->addArgument('service', InputArgument::REQUIRED, 'The name of the service to start')
+        ->addUsage('php')
+        ->addUsage('apache')
+        ->addUsage('mysql')
+        ->setHidden(!AcquiaDrupalEnvironmentDetector::isAhIdeEnv());
     }
 
-  }
+    protected function execute(InputInterface $input, OutputInterface $output): int
+    {
+        $this->requireCloudIdeEnvironment();
+        $service = $input->getArgument('service');
+        $this->validateService($service);
 
+        $serviceNameMap = [
+        'apache' => 'apache2',
+        'apache2' => 'apache2',
+        'mysql' => 'mysqld',
+        'mysqld' => 'mysqld',
+        'php' => 'php-fpm',
+        'php-fpm' => 'php-fpm',
+        ];
+        $output->writeln("Starting <options=bold>$service</>...");
+        $serviceName = $serviceNameMap[$service];
+        $this->startService($serviceName);
+        $output->writeln("<info>Started <options=bold>$service</></info>");
+
+        return Command::SUCCESS;
+    }
+
+    private function validateService(string $service): void
+    {
+        $violations = Validation::createValidator()->validate($service, [
+        new Choice([
+        'choices' => ['php', 'php-fpm', 'apache', 'apache2', 'mysql', 'mysqld'],
+        'message' => 'Specify a valid service name: php, apache, or mysql',
+        ]),
+        ]);
+        if (count($violations)) {
+            throw new ValidatorException($violations->get(0)->getMessage());
+        }
+    }
 }

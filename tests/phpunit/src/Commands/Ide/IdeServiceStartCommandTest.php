@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Acquia\Cli\Tests\Commands\Ide;
 
@@ -12,35 +12,37 @@ use Symfony\Component\Validator\Exception\ValidatorException;
 /**
  * @property IdeServiceStartCommandTest $command
  */
-class IdeServiceStartCommandTest extends CommandTestBase {
+class IdeServiceStartCommandTest extends CommandTestBase
+{
+    use IdeRequiredTestTrait;
 
-  use IdeRequiredTestTrait;
+    protected function createCommand(): CommandBase
+    {
+        return $this->injectCommand(IdeServiceStartCommand::class);
+    }
 
-  protected function createCommand(): CommandBase {
-    return $this->injectCommand(IdeServiceStartCommand::class);
-  }
+    public function testIdeServiceStartCommand(): void
+    {
+        $localMachineHelper = $this->mockLocalMachineHelper();
+        $this->mockStartPhp($localMachineHelper);
 
-  public function testIdeServiceStartCommand(): void {
-    $localMachineHelper = $this->mockLocalMachineHelper();
-    $this->mockStartPhp($localMachineHelper);
+        $this->executeCommand(['service' => 'php'], []);
 
-    $this->executeCommand(['service' => 'php'], []);
+        // Assert.
+        $output = $this->getDisplay();
+        $this->assertStringContainsString('Starting php', $output);
+    }
 
-    // Assert.
-    $output = $this->getDisplay();
-    $this->assertStringContainsString('Starting php', $output);
-  }
+    /**
+     * @group brokenProphecy
+     */
+    public function testIdeServiceStartCommandInvalid(): void
+    {
+        $localMachineHelper = $this->mockLocalMachineHelper();
+        $this->mockStartPhp($localMachineHelper);
 
-  /**
-   * @group brokenProphecy
-   */
-  public function testIdeServiceStartCommandInvalid(): void {
-    $localMachineHelper = $this->mockLocalMachineHelper();
-    $this->mockStartPhp($localMachineHelper);
-
-    $this->expectException(ValidatorException::class);
-    $this->expectExceptionMessage('Specify a valid service name');
-    $this->executeCommand(['service' => 'rambulator'], []);
-  }
-
+        $this->expectException(ValidatorException::class);
+        $this->expectExceptionMessage('Specify a valid service name');
+        $this->executeCommand(['service' => 'rambulator'], []);
+    }
 }

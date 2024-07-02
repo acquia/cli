@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Acquia\Cli\Command\Ssh;
 
@@ -13,17 +13,18 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 #[RequireAuth]
 #[AsCommand(name: 'ssh-key:delete', description: 'Delete an SSH key')]
-final class SshKeyDeleteCommand extends SshKeyCommandBase {
+final class SshKeyDeleteCommand extends SshKeyCommandBase
+{
+    use SshCommandTrait;
 
-  use SshCommandTrait;
+    protected function configure(): void
+    {
+        $this
+        ->addOption('cloud-key-uuid', 'uuid', InputOption::VALUE_REQUIRED);
+    }
 
-  protected function configure(): void {
-    $this
-      ->addOption('cloud-key-uuid', 'uuid', InputOption::VALUE_REQUIRED);
-  }
-
-  protected function execute(InputInterface $input, OutputInterface $output): int {
-    return $this->deleteSshKeyFromCloud($output);
-  }
-
+    protected function execute(InputInterface $input, OutputInterface $output): int
+    {
+        return $this->deleteSshKeyFromCloud($output);
+    }
 }

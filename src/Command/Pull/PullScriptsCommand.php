@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Acquia\Cli\Command\Pull;
 
@@ -13,26 +13,28 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 #[AsCommand(name: 'pull:run-scripts', description: 'Execute post pull scripts')]
-final class PullScriptsCommand extends CommandBase {
+final class PullScriptsCommand extends CommandBase
+{
+    protected Checklist $checklist;
 
-  protected Checklist $checklist;
+    protected function configure(): void
+    {
+        $this
+        ->acceptEnvironmentId()
+        ->addOption('dir', null, InputArgument::OPTIONAL, 'The directory containing the Drupal project to be refreshed');
+    }
 
-  protected function configure(): void {
-    $this
-      ->acceptEnvironmentId()
-      ->addOption('dir', NULL, InputArgument::OPTIONAL, 'The directory containing the Drupal project to be refreshed');
-  }
+    protected function initialize(InputInterface $input, OutputInterface $output): void
+    {
+        parent::initialize($input, $output);
+        $this->checklist = new Checklist($output);
+    }
 
-  protected function initialize(InputInterface $input, OutputInterface $output): void {
-    parent::initialize($input, $output);
-    $this->checklist = new Checklist($output);
-  }
+    protected function execute(InputInterface $input, OutputInterface $output): int
+    {
+        $this->setDirAndRequireProjectCwd($input);
+        $this->executeAllScripts($this->getOutputCallback($output, $this->checklist), $this->checklist);
 
-  protected function execute(InputInterface $input, OutputInterface $output): int {
-    $this->setDirAndRequireProjectCwd($input);
-    $this->executeAllScripts($this->getOutputCallback($output, $this->checklist), $this->checklist);
-
-    return Command::SUCCESS;
-  }
-
+        return Command::SUCCESS;
+    }
 }

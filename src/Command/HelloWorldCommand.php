@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Acquia\Cli\Command;
 
@@ -9,13 +9,13 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-#[AsCommand(name: 'hello-world', description: 'Test command used for asserting core functionality', hidden: TRUE)]
-final class HelloWorldCommand extends CommandBase {
+#[AsCommand(name: 'hello-world', description: 'Test command used for asserting core functionality', hidden: true)]
+final class HelloWorldCommand extends CommandBase
+{
+    protected function execute(InputInterface $input, OutputInterface $output): int
+    {
+        $this->io->success('Hello world!');
 
-  protected function execute(InputInterface $input, OutputInterface $output): int {
-    $this->io->success('Hello world!');
-
-    return Command::SUCCESS;
-  }
-
+        return Command::SUCCESS;
+    }
 }

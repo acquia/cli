@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Acquia\Cli\Command\Push;
 
@@ -14,39 +14,41 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 #[RequireAuth]
 #[AsCommand(name: 'push:files', description: 'Copy Drupal public files from your local environment to a Cloud Platform environment')]
-final class PushFilesCommand extends PushCommandBase {
-
-  protected function configure(): void {
-    $this
-      ->acceptEnvironmentId()
-      ->acceptSite();
-  }
-
-  protected function execute(InputInterface $input, OutputInterface $output): int {
-    $this->setDirAndRequireProjectCwd($input);
-    $destinationEnvironment = $this->determineEnvironment($input, $output);
-    $chosenSite = $input->getArgument('site');
-    if (!$chosenSite) {
-      $chosenSite = $this->promptChooseDrupalSite($destinationEnvironment);
-    }
-    $answer = $this->io->confirm("Overwrite the public files directory on <bg=cyan;options=bold>$destinationEnvironment->name</> with a copy of the files from the current machine?");
-    if (!$answer) {
-      return Command::SUCCESS;
+final class PushFilesCommand extends PushCommandBase
+{
+    protected function configure(): void
+    {
+        $this
+        ->acceptEnvironmentId()
+        ->acceptSite();
     }
 
-    $this->checklist = new Checklist($output);
-    $this->checklist->addItem('Pushing public files directory to remote machine');
-    $this->rsyncFilesToCloud($destinationEnvironment, $this->getOutputCallback($output, $this->checklist), $chosenSite);
-    $this->checklist->completePreviousItem();
+    protected function execute(InputInterface $input, OutputInterface $output): int
+    {
+        $this->setDirAndRequireProjectCwd($input);
+        $destinationEnvironment = $this->determineEnvironment($input, $output);
+        $chosenSite = $input->getArgument('site');
+        if (!$chosenSite) {
+            $chosenSite = $this->promptChooseDrupalSite($destinationEnvironment);
+        }
+        $answer = $this->io->confirm("Overwrite the public files directory on <bg=cyan;options=bold>$destinationEnvironment->name</> with a copy of the files from the current machine?");
+        if (!$answer) {
+            return Command::SUCCESS;
+        }
 
-    return Command::SUCCESS;
-  }
+        $this->checklist = new Checklist($output);
+        $this->checklist->addItem('Pushing public files directory to remote machine');
+        $this->rsyncFilesToCloud($destinationEnvironment, $this->getOutputCallback($output, $this->checklist), $chosenSite);
+        $this->checklist->completePreviousItem();
 
-  private function rsyncFilesToCloud(EnvironmentResponse $chosenEnvironment, callable $outputCallback = NULL, string $site = NULL): void {
-    $sourceDir = $this->getLocalFilesDir($site);
-    $destinationDir = $chosenEnvironment->sshUrl . ':' . $this->getCloudFilesDir($chosenEnvironment, $site);
+        return Command::SUCCESS;
+    }
 
-    $this->rsyncFiles($sourceDir, $destinationDir, $outputCallback);
-  }
+    private function rsyncFilesToCloud(EnvironmentResponse $chosenEnvironment, callable $outputCallback = null, string $site = null): void
+    {
+        $sourceDir = $this->getLocalFilesDir($site);
+        $destinationDir = $chosenEnvironment->sshUrl . ':' . $this->getCloudFilesDir($chosenEnvironment, $site);
 
+        $this->rsyncFiles($sourceDir, $destinationDir, $outputCallback);
+    }
 }

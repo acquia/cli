@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Acquia\Cli\Command\App;
 
@@ -13,22 +13,23 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 #[RequireAuth]
 #[AsCommand(name: 'app:link', description: 'Associate your project with a Cloud Platform application', aliases: ['link'])]
-final class LinkCommand extends CommandBase {
-
-  protected function configure(): void {
-    $this->acceptApplicationUuid();
-  }
-
-  protected function execute(InputInterface $input, OutputInterface $output): int {
-    $this->validateCwdIsValidDrupalProject();
-    if ($cloudApplicationUuid = $this->getCloudUuidFromDatastore()) {
-      $cloudApplication = $this->getCloudApplication($cloudApplicationUuid);
-      $output->writeln('This repository is already linked to Cloud application <options=bold>' . $cloudApplication->name . '</>. Run <options=bold>acli unlink</> to unlink it.');
-      return 1;
+final class LinkCommand extends CommandBase
+{
+    protected function configure(): void
+    {
+        $this->acceptApplicationUuid();
     }
-    $this->determineCloudApplication(TRUE);
 
-    return Command::SUCCESS;
-  }
+    protected function execute(InputInterface $input, OutputInterface $output): int
+    {
+        $this->validateCwdIsValidDrupalProject();
+        if ($cloudApplicationUuid = $this->getCloudUuidFromDatastore()) {
+            $cloudApplication = $this->getCloudApplication($cloudApplicationUuid);
+            $output->writeln('This repository is already linked to Cloud application <options=bold>' . $cloudApplication->name . '</>. Run <options=bold>acli unlink</> to unlink it.');
+            return 1;
+        }
+        $this->determineCloudApplication(true);
 
+        return Command::SUCCESS;
+    }
 }
