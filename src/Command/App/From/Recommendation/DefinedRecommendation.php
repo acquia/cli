@@ -23,7 +23,7 @@ class DefinedRecommendation implements RecommendationInterface, NormalizableInte
      *
      * @const string
      */
-    const NOTE_PLACEHOLDER_STRING = '%note%';
+    protected const NOTE_PLACEHOLDER_STRING = '%note%';
 
     /**
      * An anonymous function that determines if this recommendation is applicable.

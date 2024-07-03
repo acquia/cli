@@ -16,7 +16,7 @@ final class StructuredArrayValidator
     /**
      * Schema definition key that matches an associative array w/ arbitrary keys.
      */
-    const KEYS_ARE_STRINGS = __CLASS__ . '%array_keys_are_string%';
+    protected const KEYS_ARE_STRINGS = __CLASS__ . '%array_keys_are_string%';
 
     /**
      * A schema definition for the array to be validated.

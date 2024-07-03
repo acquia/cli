@@ -80,9 +80,8 @@ class ApiBaseCommand extends CommandBase
                 ) {
                     $answer = $this->io->choice("Select a value for {$argument->getName()}", ['false', 'true'], $argument->getDefault());
                     $answer = $answer === 'true';
-                }
-                // Free form.
-                else {
+                } else {
+                    // Free form.
                     $answer = $this->askFreeFormQuestion($argument, $params);
                 }
                 $input->setArgument($argument->getName(), $answer);
@@ -114,10 +113,9 @@ class ApiBaseCommand extends CommandBase
             $path = $this->getRequestPath($input);
             $response = $acquiaCloudClient->request($this->method, $path);
             $exitCode = 0;
-        }
-        // Ignore PhpStorm warning here.
-        // @see https://youtrack.jetbrains.com/issue/WI-77190/Exception-is-never-thrown-when-thrown-from-submethod
-        catch (ApiErrorException $exception) {
+        } catch (ApiErrorException $exception) {
+            // Ignore PhpStorm warning here.
+            // @see https://youtrack.jetbrains.com/issue/WI-77190/Exception-is-never-thrown-when-thrown-from-submethod
             $response = $exception->getResponseBody();
             $exitCode = 1;
         }

@@ -14,7 +14,7 @@ class RecommendationsTest extends TestCase
 {
     use ProphecyTrait;
 
-    const NO_RECOMMENDATIONS = [];
+    protected const NO_RECOMMENDATIONS = [];
 
     /**
      * @param string $configuration

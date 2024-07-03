@@ -18,7 +18,7 @@ use Symfony\Component\Filesystem\Filesystem;
  */
 class ConfigurePlatformEmailCommandTest extends CommandTestBase
 {
-    const JSON_TEST_OUTPUT = '[
+    protected const JSON_TEST_OUTPUT = '[
     {
         "type": "TXT",
         "name": "_amazonses.example.com",
@@ -56,7 +56,7 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase
     }
 ]';
 
-    const ZONE_TEST_OUTPUT = "_acquiaplatform.example.com. 3600 IN TXT \"aGh54oW35sd5LMGhas1fWrnRrticnsdndf,43=\"\n" .
+    protected const ZONE_TEST_OUTPUT = "_acquiaplatform.example.com. 3600 IN TXT \"aGh54oW35sd5LMGhas1fWrnRrticnsdndf,43=\"\n" .
     "_amazonses.example.com. 3600 IN TXT \"AB/CD4Hef1+c0D7+wYS2xQ+EBr3HZiXRWDJHrjEWOhs=\"\n" .
     "abcdefgh1ijkl2mnopq34rstuvwxyz._domainkey.example.com. 3600 IN CNAME abcdefgh1ijkl2mnopq34rstuvwxyz.dkim.amazonses.com.\n" .
     "abcdefgh1ijkl2mnopq34rstuvwxyz._domainkey.example.com. 3600 IN CNAME abcdefgh1ijkl2mnopq34rstuvwxyz.dkim.amazonses.com.\n" .
@@ -64,7 +64,7 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase
     "mail.example.com. 3600 IN MX 10 feedback-smtp.us-east-1.amazonses.com.\n" .
     "mail.example.com. 3600 IN TXT \"v=spf1 include:amazonses.com ~all\"";
 
-    const YAML_TEST_OUTPUT = "-\n    type: TXT\n    name: _amazonses.example.com\n    value: AB/CD4Hef1+c0D7+wYS2xQ+EBr3HZiXRWDJHrjEWOhs=\n" .
+    protected const YAML_TEST_OUTPUT = "-\n    type: TXT\n    name: _amazonses.example.com\n    value: AB/CD4Hef1+c0D7+wYS2xQ+EBr3HZiXRWDJHrjEWOhs=\n" .
     "-\n    type: TXT\n    name: _acquiaplatform.example.com\n    value: 'aGh54oW35sd5LMGhas1fWrnRrticnsdndf,43='\n" .
     "-\n    type: MX\n    name: mail.example.com\n    value: '10 feedback-smtp.us-east-1.amazonses.com'\n" .
     "-\n    type: TXT\n    name: mail.example.com\n    value: 'v=spf1 include:amazonses.com ~all'\n" .

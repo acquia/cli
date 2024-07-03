@@ -22,7 +22,9 @@
   <!-- @see https://github.com/squizlabs/PHP_CodeSniffer/issues/981 -->
   <exclude-pattern>tests/fixtures/*</exclude-pattern>
 
-  <rule ref="AcquiaPHPStrict" />
+  <rule ref="AcquiaPHPStrict">
+    <exclude name="Generic.Files.LineLength"/>
+  </rule>
 
   <rule ref="Generic.PHP.ForbiddenFunctions">
     <properties>

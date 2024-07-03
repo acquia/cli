@@ -9,7 +9,7 @@ use Acquia\Cli\Tests\TestBase;
 
 class TelemetryHelperTest extends TestBase
 {
-    const ENV_VAR_DEFAULT_VALUE = 'test';
+    protected const ENV_VAR_DEFAULT_VALUE = 'test';
 
     public function tearDown(): void
     {
