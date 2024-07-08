@@ -141,7 +141,7 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
           'y',
           // Select a project type Node_project.
           '1',
-          // Select NODE version 18.17.1.
+          // Select NODE version 18.
           '0',
           // Do you want to continue?
           'y',
@@ -163,7 +163,7 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
           'y',
           // Select a project type Node_project.
           '1',
-          // Select NODE version 20.5.1.
+          // Select NODE version 20.
           '1',
           // Do you want to continue?
           'y',
@@ -228,7 +228,7 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
           $this->secret,
           // Select a project type Node_project.
           '1',
-          // Select NODE version 18.17.1.
+          // Select NODE version 18.
           '0',
           // Do you want to continue?
           'y',
@@ -270,7 +270,7 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
           $this->secret,
           // Select a project type Node_project.
           '1',
-          // Select NODE version 20.5.1.
+          // Select NODE version 20.
           '1',
           // Do you want to continue?
           'y',
