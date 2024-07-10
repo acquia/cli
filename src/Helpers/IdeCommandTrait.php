@@ -1,34 +1,34 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Acquia\Cli\Helpers;
 
 use Safe\Exceptions\FilesystemException;
 
-trait IdeCommandTrait {
+trait IdeCommandTrait
+{
+    private string $phpVersionFilePath;
 
-  private string $phpVersionFilePath;
-
-  private function getIdePhpVersion(): ?string {
-    try {
-      return trim($this->localMachineHelper->readFile($this->getIdePhpVersionFilePath()));
+    private function getIdePhpVersion(): ?string
+    {
+        try {
+            return trim($this->localMachineHelper->readFile($this->getIdePhpVersionFilePath()));
+        } catch (FilesystemException) {
+            return null;
+        }
     }
-    catch (FilesystemException) {
-      return NULL;
+
+    public function setPhpVersionFilePath(string $path): void
+    {
+        $this->phpVersionFilePath = $path;
     }
 
-  }
-
-  public function setPhpVersionFilePath(string $path): void {
-    $this->phpVersionFilePath = $path;
-  }
-
-  protected function getIdePhpVersionFilePath(): string {
-    if (!isset($this->phpVersionFilePath)) {
-      $this->phpVersionFilePath = '/home/ide/configs/php/.version';
+    protected function getIdePhpVersionFilePath(): string
+    {
+        if (!isset($this->phpVersionFilePath)) {
+            $this->phpVersionFilePath = '/home/ide/configs/php/.version';
+        }
+        return $this->phpVersionFilePath;
     }
-    return $this->phpVersionFilePath;
-  }
-
 }

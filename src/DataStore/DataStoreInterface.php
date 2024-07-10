@@ -1,19 +1,18 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Acquia\Cli\DataStore;
 
-interface DataStoreInterface {
+interface DataStoreInterface
+{
+    public function set(string $key, mixed $value): void;
 
-  public function set(string $key, mixed $value): void;
+    public function get(string $key): mixed;
 
-  public function get(string $key): mixed;
+    public function dump(): void;
 
-  public function dump(): void;
+    public function remove(string $key): void;
 
-  public function remove(string $key): void;
-
-  public function exists(string $key): bool;
-
+    public function exists(string $key): bool;
 }

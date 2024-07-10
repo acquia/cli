@@ -1,29 +1,31 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Acquia\Cli\Tests\Application;
 
 use Acquia\Cli\Tests\ApplicationTestBase;
 
-class KernelTest extends ApplicationTestBase {
+class KernelTest extends ApplicationTestBase
+{
+    /**
+     * @group serial
+     */
+    public function testRun(): void
+    {
+        $this->setInput([
+        'command' => 'list',
+        ]);
+        $buffer = $this->runApp();
+        // A bit dumb that we need to break these up, but the available commands vary based on whether a browser is available or the session is interactive.
+        // Could probably handle that more intelligently...
+        $this->assertStringStartsWith($this->getStart(), $buffer);
+        $this->assertStringEndsWith($this->getEnd(), $buffer);
+    }
 
-  /**
-   * @group serial
-   */
-  public function testRun(): void {
-    $this->setInput([
-      'command' => 'list',
-    ]);
-    $buffer = $this->runApp();
-    // A bit dumb that we need to break these up, but the available commands vary based on whether a browser is available or the session is interactive.
-    // Could probably handle that more intelligently...
-    $this->assertStringStartsWith($this->getStart(), $buffer);
-    $this->assertStringEndsWith($this->getEnd(), $buffer);
-  }
-
-  private function getStart(): string {
-    return <<<EOD
+    private function getStart(): string
+    {
+        return <<<EOD
 Console Tool
 
 Usage:
@@ -52,10 +54,11 @@ Available commands:
   app:new:from:drupal7     [from:d7|ama] Generate a new Drupal 9+ project from a Drupal 7 application using the default Acquia Migrate Accelerate recommendations.
   app:new:local            [new] Create a new Drupal or Next.js project
 EOD;
-  }
+    }
 
-  private function getEnd(): string {
-    return <<<EOD
+    private function getEnd(): string
+    {
+        return <<<EOD
   app:task-wait            Wait for a task to complete
   app:unlink               [unlink] Remove local association between your project and a Cloud Platform application
   app:vcs:info             Get all branches and tags of the application with the deployment status
@@ -114,6 +117,5 @@ EOD;
   ssh-key:upload           Upload a local SSH key to the Cloud Platform
 
 EOD;
-  }
-
+    }
 }

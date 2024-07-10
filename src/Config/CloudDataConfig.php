@@ -1,23 +1,25 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Acquia\Cli\Config;
 
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 
-class CloudDataConfig implements ConfigurationInterface {
+class CloudDataConfig implements ConfigurationInterface
+{
+    public function getName(): string
+    {
+        return 'cloud_api';
+    }
 
-  public function getName(): string {
-    return 'cloud_api';
-  }
-
-  public function getConfigTreeBuilder(): TreeBuilder {
-    $treeBuilder = new TreeBuilder('cloud_api');
-    $rootNode = $treeBuilder->getRootNode();
-    $rootNode
-      ->children()
+    public function getConfigTreeBuilder(): TreeBuilder
+    {
+        $treeBuilder = new TreeBuilder('cloud_api');
+        $rootNode = $treeBuilder->getRootNode();
+        $rootNode
+        ->children()
 
         // I can't find a better node type that accepts TRUE, FALSE, and NULL.
         // boolNode() will cast NULL to FALSE and enumNode()->values() will
@@ -28,7 +30,7 @@ class CloudDataConfig implements ConfigurationInterface {
 
         ->arrayNode('keys')
             ->useAttributeAsKey('uuid')
-            ->normalizeKeys(FALSE)
+            ->normalizeKeys(false)
             ->arrayPrototype()
                 ->children()
                   ->scalarNode('label')->end()
@@ -42,14 +44,14 @@ class CloudDataConfig implements ConfigurationInterface {
             ->children()
                 ->scalarNode('uuid')->end()
                 ->booleanNode('is_acquian')
-                  ->defaultValue(FALSE)
+                  ->defaultValue(false)
                 ->end()
             ->end()
         ->end()
 
         ->arrayNode('acsf_factories')
             ->useAttributeAsKey('url')
-            ->normalizeKeys(FALSE)
+            ->normalizeKeys(false)
             ->arrayPrototype()
                 ->children()
                     ->arrayNode('users')
@@ -68,13 +70,12 @@ class CloudDataConfig implements ConfigurationInterface {
 
         ->scalarNode('acsf_active_factory')->end()
 
-      ->end()
-      ->validate()
-      ->ifTrue(function ($config) {
-        return is_array($config['keys']) && !empty($config['keys']) && !array_key_exists($config['acli_key'], $config['keys']);
-      })
-      ->thenInvalid('acli_key must exist in keys');
-    return $treeBuilder;
-  }
-
+        ->end()
+        ->validate()
+        ->ifTrue(function ($config) {
+            return is_array($config['keys']) && !empty($config['keys']) && !array_key_exists($config['acli_key'], $config['keys']);
+        })
+        ->thenInvalid('acli_key must exist in keys');
+        return $treeBuilder;
+    }
 }

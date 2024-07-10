@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Acquia\Cli\Command\App;
 
@@ -14,21 +14,22 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 #[RequireAuth]
 #[AsCommand(name: 'app:open', description: 'Opens your browser to view a given Cloud application', aliases: ['open', 'o'])]
-final class AppOpenCommand extends CommandBase {
-
-  protected function configure(): void {
-    $this
-      ->acceptApplicationUuid();
-  }
-
-  protected function execute(InputInterface $input, OutputInterface $output): int {
-    if (!$this->localMachineHelper->isBrowserAvailable()) {
-      throw new AcquiaCliException('No browser is available on this machine');
+final class AppOpenCommand extends CommandBase
+{
+    protected function configure(): void
+    {
+        $this
+        ->acceptApplicationUuid();
     }
-    $applicationUuid = $this->determineCloudApplication();
-    $this->localMachineHelper->startBrowser('https://cloud.acquia.com/a/applications/' . $applicationUuid);
 
-    return Command::SUCCESS;
-  }
+    protected function execute(InputInterface $input, OutputInterface $output): int
+    {
+        if (!$this->localMachineHelper->isBrowserAvailable()) {
+            throw new AcquiaCliException('No browser is available on this machine');
+        }
+        $applicationUuid = $this->determineCloudApplication();
+        $this->localMachineHelper->startBrowser('https://cloud.acquia.com/a/applications/' . $applicationUuid);
 
+        return Command::SUCCESS;
+    }
 }

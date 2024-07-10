@@ -1,22 +1,23 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Acquia\Cli\Tests\Commands\Ide;
 
-trait IdeRequiredTestTrait {
+trait IdeRequiredTestTrait
+{
+    /**
+     * This method is called before each test.
+     */
+    public function setUp(): void
+    {
+        parent::setUp();
+        IdeHelper::setCloudIdeEnvVars();
+    }
 
-  /**
-   * This method is called before each test.
-   */
-  public function setUp(): void {
-    parent::setUp();
-    IdeHelper::setCloudIdeEnvVars();
-  }
-
-  public function tearDown(): void {
-    parent::tearDown();
-    IdeHelper::unsetCloudIdeEnvVars();
-  }
-
+    public function tearDown(): void
+    {
+        parent::tearDown();
+        IdeHelper::unsetCloudIdeEnvVars();
+    }
 }

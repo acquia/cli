@@ -1,15 +1,14 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Acquia\Cli;
 
-interface ApiCredentialsInterface {
+interface ApiCredentialsInterface
+{
+    public function getBaseUri(): ?string;
 
-  public function getBaseUri(): ?string;
+    public function getCloudKey(): ?string;
 
-  public function getCloudKey(): ?string;
-
-  public function getCloudSecret(): ?string;
-
+    public function getCloudSecret(): ?string;
 }
