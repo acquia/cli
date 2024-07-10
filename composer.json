@@ -10,11 +10,6 @@
             "role": "Maintainer"
         }
     ],
-    "repositories": [{
-        "type": "path",
-        "url": "../coding-standards-php"
-    }
-    ],
     "minimum-stability": "dev",
     "require": {
         "php": "^8.1",
@@ -58,7 +53,7 @@
         "zumba/amplitude-php": "^1.0.4"
     },
     "require-dev": {
-        "acquia/coding-standards": "*",
+        "acquia/coding-standards": "^3",
         "brianium/paratest": "^6.6",
         "dealerdirect/phpcodesniffer-composer-installer": "^1.0.0",
         "dominikb/composer-license-checker": "^2.4",
