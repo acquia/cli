@@ -179,17 +179,39 @@ final class PushArtifactCommand extends CommandBase
 
         $outputCallback('out', "Initializing Git in $artifactDir");
         $this->localMachineHelper->checkRequiredBinariesExist(['git']);
-        $process = $this->localMachineHelper->execute(['git', 'clone', '--depth=1', $vcsUrl, $artifactDir], $outputCallback, null, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
+        $process = $this->localMachineHelper->execute([
+        'git',
+        'clone',
+        '--depth=1',
+        $vcsUrl,
+        $artifactDir,
+        ], $outputCallback, null, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
         if (!$process->isSuccessful()) {
             throw new AcquiaCliException('Failed to clone repository from the Cloud Platform: {message}', ['message' => $process->getErrorOutput()]);
         }
-        $process = $this->localMachineHelper->execute(['git', 'fetch', '--depth=1', $vcsUrl, $vcsPath . ':' . $vcsPath], $outputCallback, $artifactDir, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
+        $process = $this->localMachineHelper->execute([
+        'git',
+        'fetch',
+        '--depth=1',
+        '--update-head-ok',
+        $vcsUrl,
+        $vcsPath . ':' . $vcsPath,
+        ], $outputCallback, $artifactDir, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
         if (!$process->isSuccessful()) {
             // Remote branch does not exist. Just create it locally. This will create
             // the new branch off of the current commit.
-            $process = $this->localMachineHelper->execute(['git', 'checkout', '-b', $vcsPath], $outputCallback, $artifactDir, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
+            $process = $this->localMachineHelper->execute([
+            'git',
+            'checkout',
+            '-b',
+            $vcsPath,
+            ], $outputCallback, $artifactDir, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
         } else {
-            $process = $this->localMachineHelper->execute(['git', 'checkout', $vcsPath], $outputCallback, $artifactDir, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
+            $process = $this->localMachineHelper->execute([
+            'git',
+            'checkout',
+            $vcsPath,
+            ], $outputCallback, $artifactDir, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
         }
         if (!$process->isSuccessful()) {
             throw new AcquiaCliException("Could not checkout $vcsPath branch locally: {message}", ['message' => $process->getErrorOutput() . $process->getOutput()]);
