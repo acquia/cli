@@ -44,7 +44,7 @@ class Checklist
             $item = $this->getLastItem();
             /** @var \Acquia\Cli\Output\Spinner\Spinner $spinner */
             $spinner = $item['spinner'];
-            $spinner->setMessage('', 'detail');
+            $spinner->setMessage(' ', 'detail');
             $spinner->setMessage($item['message']);
             $spinner->advance();
             $spinner->finish();

@@ -45,7 +45,7 @@ class ChecklistTest extends TestBase
         $this->assertEquals('[38;5;202m⢸[0m', $progressBar->getProgressCharacter());
         $this->assertEquals('⌛', $progressBar->getEmptyBarCharacter());
         $this->assertEquals(1, $progressBar->getBarWidth());
-        $this->assertEquals('', $progressBar->getMessage('detail'));
+        $this->assertEquals(' ', $progressBar->getMessage('detail'));
 
         putenv('PHPUNIT_RUNNING');
     }
