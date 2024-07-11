@@ -27,8 +27,8 @@ class SshKeyInfoCommandTest extends CommandTestBase
         $this->mockListSshKeysRequest();
 
         $inputs = [
-        // Choose key.
-        '0',
+            // Choose key.
+            '0',
         ];
         $this->executeCommand([], $inputs);
 

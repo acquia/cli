@@ -27,8 +27,12 @@ class EnvCertCreateCommandTest extends CommandTestBase
         $keyName = 'key.pem';
         $label = 'My certificate';
         $csrId = 123;
-        $localMachineHelper->readFile($certName)->willReturn($certContents)->shouldBeCalled();
-        $localMachineHelper->readFile($keyName)->willReturn($keyContents)->shouldBeCalled();
+        $localMachineHelper->readFile($certName)
+            ->willReturn($certContents)
+            ->shouldBeCalled();
+        $localMachineHelper->readFile($keyName)
+            ->willReturn($keyContents)
+            ->shouldBeCalled();
 
         $sslResponse = $this->getMockResponseFromSpec(
             '/environments/{environmentId}/ssl/certificates',
@@ -36,36 +40,36 @@ class EnvCertCreateCommandTest extends CommandTestBase
             '202'
         );
         $options = [
-        'json' => [
-        'ca_certificates' => null,
-        'certificate' => $certContents,
-        'csr_id' => $csrId,
-        'label' => $label,
-        'legacy' => false,
-        'private_key' => $keyContents,
-        ],
+            'json' => [
+                'ca_certificates' => null,
+                'certificate' => $certContents,
+                'csr_id' => $csrId,
+                'label' => $label,
+                'legacy' => false,
+                'private_key' => $keyContents,
+            ],
         ];
         $this->clientProphecy->request('post', "/environments/{$environments[1]->id}/ssl/certificates", $options)
-        ->willReturn($sslResponse->{'Site is being imported'}->value)
-        ->shouldBeCalled();
+            ->willReturn($sslResponse->{'Site is being imported'}->value)
+            ->shouldBeCalled();
         $this->mockNotificationResponseFromObject($sslResponse->{'Site is being imported'}->value);
 
         $this->executeCommand(
             [
-            '--csr-id' => $csrId,
-            '--label' => $label,
-            '--legacy' => false,
-            'certificate' => $certName,
-            'private-key' => $keyName,
+                '--csr-id' => $csrId,
+                '--label' => $label,
+                '--legacy' => false,
+                'certificate' => $certName,
+                'private-key' => $keyName,
             ],
             [
-            // Would you like Acquia CLI to search for a Cloud application that matches your local git config?'.
-            'n',
-            // Select a Cloud Platform application: [Sample application 1]:
-            0,
-            'n',
-            1,
-            '',
+                // Would you like Acquia CLI to search for a Cloud application that matches your local git config?'.
+                'n',
+                // Select a Cloud Platform application: [Sample application 1]:
+                0,
+                'n',
+                1,
+                '',
             ]
         );
     }
@@ -87,8 +91,12 @@ class EnvCertCreateCommandTest extends CommandTestBase
         $keyName = 'key.pem';
         $label = 'My certificate';
         $csrId = 123;
-        $localMachineHelper->readFile($certName)->willReturn($certContents)->shouldBeCalled();
-        $localMachineHelper->readFile($keyName)->willReturn($keyContents)->shouldBeCalled();
+        $localMachineHelper->readFile($certName)
+            ->willReturn($certContents)
+            ->shouldBeCalled();
+        $localMachineHelper->readFile($keyName)
+            ->willReturn($keyContents)
+            ->shouldBeCalled();
 
         $sslResponse = $this->getMockResponseFromSpec(
             '/environments/{environmentId}/ssl/certificates',
@@ -96,33 +104,33 @@ class EnvCertCreateCommandTest extends CommandTestBase
             '202'
         );
         $options = [
-        'json' => [
-        'ca_certificates' => null,
-        'certificate' => $certContents,
-        'csr_id' => $csrId,
-        'label' => $label,
-        'legacy' => false,
-        'private_key' => $keyContents,
-        ],
+            'json' => [
+                'ca_certificates' => null,
+                'certificate' => $certContents,
+                'csr_id' => $csrId,
+                'label' => $label,
+                'legacy' => false,
+                'private_key' => $keyContents,
+            ],
         ];
         $this->clientProphecy->request('post', "/environments/{$environments[0]->id}/ssl/certificates", $options)
-        ->willReturn($sslResponse->{'Site is being imported'}->value)
-        ->shouldBeCalled();
+            ->willReturn($sslResponse->{'Site is being imported'}->value)
+            ->shouldBeCalled();
         $this->mockNotificationResponseFromObject($sslResponse->{'Site is being imported'}->value);
 
         $this->executeCommand(
             [
-            '--csr-id' => $csrId,
-            '--label' => $label,
-            '--legacy' => false,
-            'certificate' => $certName,
-            'private-key' => $keyName,
+                '--csr-id' => $csrId,
+                '--label' => $label,
+                '--legacy' => false,
+                'certificate' => $certName,
+                'private-key' => $keyName,
             ],
             [
-            // Would you like Acquia CLI to search for a Cloud application that matches your local git config?'.
-            'n',
-            // Select a Cloud Platform application: [Sample application 1]:
-            0,
+                // Would you like Acquia CLI to search for a Cloud application that matches your local git config?'.
+                'n',
+                // Select a Cloud Platform application: [Sample application 1]:
+                0,
             ]
         );
     }

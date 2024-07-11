@@ -30,8 +30,8 @@ final class AliasesDownloadCommand extends SshBaseCommand
     protected function configure(): void
     {
         $this
-        ->addOption('destination-dir', null, InputOption::VALUE_REQUIRED, 'The directory to which aliases will be downloaded')
-        ->addOption('all', null, InputOption::VALUE_NONE, 'Download the aliases for all applications that you have access to, not just the current one.');
+            ->addOption('destination-dir', null, InputOption::VALUE_REQUIRED, 'The directory to which aliases will be downloaded')
+            ->addOption('all', null, InputOption::VALUE_NONE, 'Download the aliases for all applications that you have access to, not just the current one.');
         $this->acceptApplicationUuid();
     }
 
@@ -41,7 +41,8 @@ final class AliasesDownloadCommand extends SshBaseCommand
         $drushArchiveTempFilepath = $this->getDrushArchiveTempFilepath();
         $drushAliasesDir = $this->getDrushAliasesDir($aliasVersion);
         $this->localMachineHelper->getFilesystem()->mkdir($drushAliasesDir);
-        $this->localMachineHelper->getFilesystem()->chmod($drushAliasesDir, 0700);
+        $this->localMachineHelper->getFilesystem()
+            ->chmod($drushAliasesDir, 0700);
 
         if ($aliasVersion === '9') {
             $this->downloadDrush9Aliases($input, $aliasVersion, $drushArchiveTempFilepath, $drushAliasesDir);
@@ -66,8 +67,8 @@ final class AliasesDownloadCommand extends SshBaseCommand
         $this->io->writeln('Drush changed how aliases are defined in Drush 9. Drush 8 aliases are PHP-based and stored in your home directory, while Drush 9+ aliases are YAML-based and stored with your project.');
         $question = 'Choose your preferred alias compatibility:';
         $choices = [
-        '8' => 'Drush 8 / Drupal 7 (PHP)',
-        '9' => 'Drush 9+ / Drupal 8+ (YAML)',
+            '8' => 'Drush 8 / Drupal 7 (PHP)',
+            '9' => 'Drush 9+ / Drupal 8+ (YAML)',
         ];
         return (string) array_search($this->io->choice($question, $choices, '9'), $choices, true);
     }

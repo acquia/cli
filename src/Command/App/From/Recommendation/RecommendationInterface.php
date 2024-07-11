@@ -22,7 +22,8 @@ interface RecommendationInterface
     public function applies(ExtensionInterface $extension): bool;
 
     /**
-     * The recommended composer package name to replace the applicable extension.
+     * The recommended composer package name to replace the applicable
+     * extension.
      *
      * @return string
      *   The recommended package's name.
@@ -41,7 +42,8 @@ interface RecommendationInterface
      * Whether this recommendation contains modules to install.
      *
      * @return bool
-     *   TRUE if the recommendation includes modules to install, FALSE otherwise.
+     *   TRUE if the recommendation includes modules to install, FALSE
+     *     otherwise.
      */
     public function hasModulesToInstall(): bool;
 
@@ -74,8 +76,9 @@ interface RecommendationInterface
      * Gets an array of recommended patches for the recommended package.
      *
      * @return array<mixed>
-     *   An associative array whose keys are a description of the patch's contents
-     *   and whose values are URLs or relative paths to a patch file.
+     *   An associative array whose keys are a description of the patch's
+     *     contents and whose values are URLs or relative paths to a patch
+     *     file.
      */
     public function getPatches(): array;
 }

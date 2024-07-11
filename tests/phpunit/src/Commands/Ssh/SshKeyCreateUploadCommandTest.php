@@ -22,8 +22,8 @@ class SshKeyCreateUploadCommandTest extends CommandTestBase
 
         $this->getCommandTester();
         $this->application->addCommands([
-        $this->injectCommand(SshKeyCreateCommand::class),
-        $this->injectCommand(SshKeyUploadCommand::class),
+            $this->injectCommand(SshKeyCreateCommand::class),
+            $this->injectCommand(SshKeyUploadCommand::class),
         ]);
     }
 
@@ -38,22 +38,25 @@ class SshKeyCreateUploadCommandTest extends CommandTestBase
 
         $sshKeyFilename = 'id_rsa';
         $localMachineHelper = $this->mockLocalMachineHelper();
-        $localMachineHelper->getLocalFilepath('~/.passphrase')->willReturn('~/.passphrase');
+        $localMachineHelper->getLocalFilepath('~/.passphrase')
+            ->willReturn('~/.passphrase');
         $fileSystem = $this->prophet->prophesize(Filesystem::class);
         $this->mockAddSshKeyToAgent($localMachineHelper, $fileSystem);
         $this->mockSshAgentList($localMachineHelper);
         $this->mockGenerateSshKey($localMachineHelper, $mockRequestArgs['public_key']);
 
         $body = [
-        'json' => [
-        'label' => $mockRequestArgs['label'],
-        'public_key' => $mockRequestArgs['public_key'],
-        ],
+            'json' => [
+                'label' => $mockRequestArgs['label'],
+                'public_key' => $mockRequestArgs['public_key'],
+            ],
         ];
         $this->mockRequest('postAccountSshKeys', null, $body);
         $this->mockGetLocalSshKey($localMachineHelper, $fileSystem, $mockRequestArgs['public_key']);
 
-        $localMachineHelper->getFilesystem()->willReturn($fileSystem->reveal())->shouldBeCalled();
+        $localMachineHelper->getFilesystem()
+            ->willReturn($fileSystem->reveal())
+            ->shouldBeCalled();
 
         /** @var SshKeyCreateCommand $sshKeyCreateCommand */
         $sshKeyCreateCommand = $this->application->find(SshKeyCreateCommand::getDefaultName());
@@ -63,12 +66,12 @@ class SshKeyCreateUploadCommandTest extends CommandTestBase
         $sshKeyUploadCommand->localMachineHelper = $this->command->localMachineHelper;
 
         $inputs = [
-        // Enter a filename for your new local SSH key:
-        $sshKeyFilename,
-        // Enter a password for your SSH key:
-        'acli123',
-        // Label.
-        $mockRequestArgs['label'],
+            // Enter a filename for your new local SSH key:
+            $sshKeyFilename,
+            // Enter a password for your SSH key:
+            'acli123',
+            // Label.
+            $mockRequestArgs['label'],
         ];
         $this->executeCommand(['--no-wait' => ''], $inputs);
 

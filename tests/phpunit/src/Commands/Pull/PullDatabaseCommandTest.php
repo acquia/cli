@@ -68,7 +68,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase
         $this->mockExecuteDrushSqlSanitize($localMachineHelper, $process);
 
         $this->executeCommand([
-        '--no-scripts' => false,
+            '--no-scripts' => false,
         ], self::inputChooseEnvironment());
 
         $output = $this->getDisplay();
@@ -92,8 +92,11 @@ class PullDatabaseCommandTest extends PullCommandTestBase
         $sshHelper = $this->mockSshHelper();
         $process = $this->mockProcess();
         $process->getOutput()->willReturn('default')->shouldBeCalled();
-        $sshHelper->executeCommand(Argument::type('string'), ['ls', '/mnt/files/site.prod/sites'], false)
-        ->willReturn($process->reveal())->shouldBeCalled();
+        $sshHelper->executeCommand(Argument::type('string'), [
+            'ls',
+            '/mnt/files/site.prod/sites',
+        ], false)
+            ->willReturn($process->reveal())->shouldBeCalled();
         $this->mockGetBackup($environment);
         $this->mockExecuteMySqlListTables($localMachineHelper, 'drupal');
         $fs = $this->prophet->prophesize(Filesystem::class);
@@ -103,16 +106,16 @@ class PullDatabaseCommandTest extends PullCommandTestBase
         $localMachineHelper->getFilesystem()->willReturn($fs)->shouldBeCalled();
 
         $this->executeCommand([
-        '--no-scripts' => true,
+            '--no-scripts' => true,
         ], [
-        // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
-        'n',
-        // Select a Cloud Platform application:
-        self::$INPUT_DEFAULT_CHOICE,
-        // Would you like to link the project at ... ?
-        'n',
-        // Choose an Acquia environment:
-        1,
+            // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
+            'n',
+            // Select a Cloud Platform application:
+            self::$INPUT_DEFAULT_CHOICE,
+            // Would you like to link the project at ... ?
+            'n',
+            // Choose an Acquia environment:
+            1,
         ]);
 
         $output = $this->getDisplay();
@@ -134,7 +137,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase
         $this->expectException(AcquiaCliException::class);
         $this->expectExceptionMessage('Unable to connect');
         $this->executeCommand([
-        '--no-scripts' => true,
+            '--no-scripts' => true,
         ], self::inputChooseEnvironment());
     }
 
@@ -154,7 +157,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase
         $fs->remove(Argument::type('string'))->shouldBeCalled();
 
         $this->executeCommand([
-        '--no-scripts' => true,
+            '--no-scripts' => true,
         ], self::inputChooseEnvironment());
 
         $output = $this->getDisplay();
@@ -166,22 +169,22 @@ class PullDatabaseCommandTest extends PullCommandTestBase
     {
         $this->setupPullDatabase(true, true, false, true, true);
         $inputs = [
-        // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
-        'n',
-        // Select a Cloud Platform application:
-        0,
-        // Would you like to link the project at ... ?
-        'n',
-        // Choose a Cloud Platform environment [Dev, dev (vcs: master)]:
-        0,
-        // Choose a site [jxr5000596dev (oracletest1.dev-profserv2.acsitefactory.com)]:
-        0,
-        // Choose databases. You may choose multiple. Use commas to separate choices. [profserv2 (default)]:
-        '10,27',
+            // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
+            'n',
+            // Select a Cloud Platform application:
+            0,
+            // Would you like to link the project at ... ?
+            'n',
+            // Choose a Cloud Platform environment [Dev, dev (vcs: master)]:
+            0,
+            // Choose a site [jxr5000596dev (oracletest1.dev-profserv2.acsitefactory.com)]:
+            0,
+            // Choose databases. You may choose multiple. Use commas to separate choices. [profserv2 (default)]:
+            '10,27',
         ];
         $this->executeCommand([
-        '--multiple-dbs' => true,
-        '--no-scripts' => true,
+            '--multiple-dbs' => true,
+            '--no-scripts' => true,
         ], $inputs);
     }
 
@@ -191,8 +194,8 @@ class PullDatabaseCommandTest extends PullCommandTestBase
         $inputs = self::inputChooseEnvironment();
 
         $this->executeCommand([
-        '--no-scripts' => true,
-        '--on-demand' => true,
+            '--no-scripts' => true,
+            '--on-demand' => true,
         ], $inputs);
 
         $output = $this->getDisplay();
@@ -211,7 +214,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase
         $inputs = self::inputChooseEnvironment();
 
         $this->executeCommand([
-        '--no-scripts' => true,
+            '--no-scripts' => true,
         ], $inputs);
 
         $output = $this->getDisplay();
@@ -231,8 +234,8 @@ class PullDatabaseCommandTest extends PullCommandTestBase
         $inputs = self::inputChooseEnvironment();
 
         $this->executeCommand([
-        '--no-scripts' => true,
-        'site' => 'jxr5000596dev',
+            '--no-scripts' => true,
+            'site' => 'jxr5000596dev',
         ], $inputs);
 
         $output = $this->getDisplay();
@@ -260,7 +263,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase
         $this->expectException(AcquiaCliException::class);
         $this->expectExceptionMessage('Unable to drop tables from database');
         $this->executeCommand([
-        '--no-scripts' => true,
+            '--no-scripts' => true,
         ], self::inputChooseEnvironment());
     }
 
@@ -281,7 +284,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase
         $this->expectException(AcquiaCliException::class);
         $this->expectExceptionMessage('Unable to import local database');
         $this->executeCommand([
-        '--no-scripts' => true,
+            '--no-scripts' => true,
         ], self::inputChooseEnvironment());
     }
 
@@ -388,16 +391,16 @@ class PullDatabaseCommandTest extends PullCommandTestBase
         $this->expectException(AcquiaCliException::class);
         $this->expectExceptionMessage('No compatible environments found');
         $this->executeCommand([
-        '--no-scripts' => true,
+            '--no-scripts' => true,
         ], [
-        // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
-        'n',
-        // Select a Cloud Platform application:
-        self::$INPUT_DEFAULT_CHOICE,
-        // Would you like to link the project at ... ?
-        'n',
-        // Choose an Acquia environment:
-        1,
+            // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
+            'n',
+            // Select a Cloud Platform application:
+            self::$INPUT_DEFAULT_CHOICE,
+            // Would you like to link the project at ... ?
+            'n',
+            // Choose an Acquia environment:
+            1,
         ]);
     }
 }

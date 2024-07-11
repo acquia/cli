@@ -27,8 +27,8 @@ class EnvDeleteCommandTest extends CommandTestBase
         $environmentResponse = $this->getMockEnvironmentsResponse();
         $environment = $environmentResponse->_embedded->items[0];
         return [
-        [$environment->id],
-        [null],
+            [$environment->id],
+            [null],
         ];
     }
 
@@ -53,8 +53,8 @@ class EnvDeleteCommandTest extends CommandTestBase
             'get',
             "/applications/{$applicationsResponse->{'_embedded'}->items[0]->uuid}/environments"
         )
-        ->willReturn($response2->_embedded->items)
-        ->shouldBeCalled();
+            ->willReturn($response2->_embedded->items)
+            ->shouldBeCalled();
 
         $environmentsResponse = $this->getMockResponseFromSpec(
             '/environments/{environmentId}',
@@ -62,8 +62,8 @@ class EnvDeleteCommandTest extends CommandTestBase
             202
         );
         $this->clientProphecy->request('delete', "/environments/" . $cde->id)
-        ->willReturn($environmentsResponse)
-        ->shouldBeCalled();
+            ->willReturn($environmentsResponse)
+            ->shouldBeCalled();
 
         $this->getMockResponseFromSpec(
             '/environments/{environmentId}',
@@ -71,18 +71,18 @@ class EnvDeleteCommandTest extends CommandTestBase
             200
         );
         $this->clientProphecy->request('get', "/environments/" . $cde->id)
-        ->willReturn($cde)
-        ->shouldBeCalled();
+            ->willReturn($cde)
+            ->shouldBeCalled();
 
         $this->executeCommand(
             [
-            'environmentId' => $environmentId,
+                'environmentId' => $environmentId,
             ],
             [
-            // Would you like Acquia CLI to search for a Cloud application that matches your local git config?'.
-            'n',
-            // Select a Cloud Platform application: [Sample application 1]:
-            0,
+                // Would you like Acquia CLI to search for a Cloud application that matches your local git config?'.
+                'n',
+                // Select a Cloud Platform application: [Sample application 1]:
+                0,
             ]
         );
         $output = $this->getDisplay();
@@ -105,10 +105,10 @@ class EnvDeleteCommandTest extends CommandTestBase
         $this->executeCommand(
             [],
             [
-            // Would you like Acquia CLI to search for a Cloud application that matches your local git config?'.
-            'n',
-            // Select a Cloud Platform application: [Sample application 1]:
-            0,
+                // Would you like Acquia CLI to search for a Cloud application that matches your local git config?'.
+                'n',
+                // Select a Cloud Platform application: [Sample application 1]:
+                0,
             ]
         );
     }
@@ -128,8 +128,8 @@ class EnvDeleteCommandTest extends CommandTestBase
             'get',
             "/applications/{$application->uuid}/environments"
         )
-        ->willReturn($environments)
-        ->shouldBeCalled();
+            ->willReturn($environments)
+            ->shouldBeCalled();
 
         $cde = $environments[0];
         $environmentsResponse = $this->getMockResponseFromSpec(
@@ -138,16 +138,16 @@ class EnvDeleteCommandTest extends CommandTestBase
             202
         );
         $this->clientProphecy->request('delete', "/environments/" . $cde->id)
-        ->willReturn($environmentsResponse)
-        ->shouldBeCalled();
+            ->willReturn($environmentsResponse)
+            ->shouldBeCalled();
 
         $this->executeCommand(
             [],
             [
-            // Would you like Acquia CLI to search for a Cloud application that matches your local git config?'.
-            'n',
-            // Select a Cloud Platform application: [Sample application 1]:
-            0,
+                // Would you like Acquia CLI to search for a Cloud application that matches your local git config?'.
+                'n',
+                // Select a Cloud Platform application: [Sample application 1]:
+                0,
             ]
         );
 

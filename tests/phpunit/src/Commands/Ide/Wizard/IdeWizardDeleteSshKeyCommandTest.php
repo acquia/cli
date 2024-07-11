@@ -9,7 +9,8 @@ use Acquia\Cli\Command\Ide\Wizard\IdeWizardDeleteSshKeyCommand;
 use Acquia\Cli\Tests\Commands\Ide\IdeHelper;
 
 /**
- * @property \Acquia\Cli\Command\Ide\Wizard\IdeWizardCreateSshKeyCommand $command
+ * @property \Acquia\Cli\Command\Ide\Wizard\IdeWizardCreateSshKeyCommand
+ *     $command
  */
 class IdeWizardDeleteSshKeyCommandTest extends IdeWizardTestBase
 {

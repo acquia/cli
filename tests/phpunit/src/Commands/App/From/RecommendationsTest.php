@@ -20,7 +20,8 @@ class RecommendationsTest extends TestCase
      * @param string $configuration
      *   A JSON string from which to create a configuration object.
      * @param \Acquia\Cli\Command\App\From\Recommendation\RecommendationInterface|\JsonException $expectation
-     *   An expected recommendation or a JSON exception in the case that the given
+     *   An expected recommendation or a JSON exception in the case that the
+     *     given
      *   $configuration is malformed.
      * @dataProvider getTestConfigurations
      */
@@ -52,40 +53,40 @@ class RecommendationsTest extends TestCase
     {
         // phpcs:disable SlevomatCodingStandard.Arrays.AlphabeticallySortedByKeys
         return [
-        'bad JSON in configuration file' => [
-        '{,}',
-        static::NO_RECOMMENDATIONS,
-        ],
-        'empty configuration file' => [
-        json_encode((object) []),
-        static::NO_RECOMMENDATIONS,
-        ],
-        'unexpected recommendations value' => [
-        json_encode(['data' => true]),
-        static::NO_RECOMMENDATIONS,
-        ],
-        'empty recommendations key' => [
-        json_encode(['data' => []]),
-        static::NO_RECOMMENDATIONS,
-        ],
-        'populated recommendations key with invalid item' => [
-        json_encode(['recommendations' => [[]]]),
-        static::NO_RECOMMENDATIONS,
-        ],
-        'populated recommendations key with valid item' => [
-        json_encode([
-        'data' => [
-        [
-        'package' => 'foo',
-        'constraint' => '^1.42',
-        'replaces' => [
-        'name' => 'foo',
-        ],
-        ],
-        ],
-        ]),
-        new TestRecommendation(true, 'foo', '^1.42'),
-        ],
+            'bad JSON in configuration file' => [
+                '{,}',
+                static::NO_RECOMMENDATIONS,
+            ],
+            'empty configuration file' => [
+                json_encode((object) []),
+                static::NO_RECOMMENDATIONS,
+            ],
+            'unexpected recommendations value' => [
+                json_encode(['data' => true]),
+                static::NO_RECOMMENDATIONS,
+            ],
+            'empty recommendations key' => [
+                json_encode(['data' => []]),
+                static::NO_RECOMMENDATIONS,
+            ],
+            'populated recommendations key with invalid item' => [
+                json_encode(['recommendations' => [[]]]),
+                static::NO_RECOMMENDATIONS,
+            ],
+            'populated recommendations key with valid item' => [
+                json_encode([
+                    'data' => [
+                        [
+                            'package' => 'foo',
+                            'constraint' => '^1.42',
+                            'replaces' => [
+                                'name' => 'foo',
+                            ],
+                        ],
+                    ],
+                ]),
+                new TestRecommendation(true, 'foo', '^1.42'),
+            ],
         ];
         // phpcs:enable
     }

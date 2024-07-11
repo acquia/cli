@@ -12,7 +12,8 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 class LoopHelper
 {
     /**
-     * @param callable $statusCallback A TRUE return value will cause the loop to exit and call $doneCallback.
+     * @param callable $statusCallback A TRUE return value will cause the loop
+     *     to exit and call $doneCallback.
      */
     public static function getLoopy(OutputInterface $output, SymfonyStyle $io, string $spinnerMessage, callable $statusCallback, callable $doneCallback): void
     {

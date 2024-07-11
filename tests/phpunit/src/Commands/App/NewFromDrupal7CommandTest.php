@@ -45,9 +45,9 @@ class NewFromDrupal7CommandTest extends CommandTestBase
         $cases = [];
         foreach ($case_directories as $case_directory) {
             $cases[basename($case_directory)] = [
-            "$case_directory/extensions.json",
-            "$repo_root/config/from_d7_recommendations.json",
-            "$case_directory/expected.json",
+                "$case_directory/extensions.json",
+                "$repo_root/config/from_d7_recommendations.json",
+                "$case_directory/expected.json",
             ];
         }
         return $cases;
@@ -62,14 +62,16 @@ class NewFromDrupal7CommandTest extends CommandTestBase
     /**
      * Test the app:new:from:drupal7 command.
      *
-     * Since this command inspects an actual Drupal site to determine its enabled
-     * modules, the inspector must be mocked. A set of Drupal 7 extensions is
-     * given by the extensions file. This project provides a shell script to help
-     * generate that file from an existing Drupal 7 site. An example shell command
-     * is given below.
+     * Since this command inspects an actual Drupal site to determine its
+     * enabled modules, the inspector must be mocked. A set of Drupal 7
+     * extensions is given by the extensions file. This project provides a
+     * shell script to help generate that file from an existing Drupal 7 site.
+     * An example shell command is given below.
      *
      * @code
-     * drush pm:list --pipe --format=json | /path/to/this/project/tests/fixtures/drupal7/drush_to_extensions_test_file_format.sh > extensions.json
+     * drush pm:list --pipe --format=json |
+     *     /path/to/this/project/tests/fixtures/drupal7/drush_to_extensions_test_file_format.sh
+     *     > extensions.json
      * @endcode
      * @param string $extensions_file
      *   An extensions file. See above.
@@ -100,17 +102,19 @@ class NewFromDrupal7CommandTest extends CommandTestBase
         $localMachineHelper = $this->mockLocalMachineHelper();
 
         $mockFileSystem = $this->mockGetFilesystem($localMachineHelper);
-        $localMachineHelper->checkRequiredBinariesExist(["composer"])->shouldBeCalled();
+        $localMachineHelper->checkRequiredBinariesExist(["composer"])
+            ->shouldBeCalled();
         $this->mockExecuteComposerCreate($race_condition_proof_tmpdir, $localMachineHelper, $process);
-        $localMachineHelper->checkRequiredBinariesExist(["git"])->shouldBeCalled();
+        $localMachineHelper->checkRequiredBinariesExist(["git"])
+            ->shouldBeCalled();
         $this->mockExecuteGitInit($localMachineHelper, $race_condition_proof_tmpdir, $process);
         $this->mockExecuteGitAdd($localMachineHelper, $race_condition_proof_tmpdir, $process);
         $this->mockExecuteGitCommit($localMachineHelper, $race_condition_proof_tmpdir, $process);
 
         $this->executeCommand([
-        '--directory' => $race_condition_proof_tmpdir,
-        '--recommendations' => $recommendations_json,
-        '--stored-analysis' => $extensions_json,
+            '--directory' => $race_condition_proof_tmpdir,
+            '--recommendations' => $recommendations_json,
+            '--stored-analysis' => $extensions_json,
         ]);
 
         $output = $this->getDisplay();
@@ -138,16 +142,16 @@ class NewFromDrupal7CommandTest extends CommandTestBase
         ObjectProphecy $process
     ): void {
         $command = [
-        'composer',
-        'install',
-        '--working-dir',
-        $projectDir,
-        '--no-interaction',
+            'composer',
+            'install',
+            '--working-dir',
+            $projectDir,
+            '--no-interaction',
         ];
         $localMachineHelper
-        ->execute($command)
-        ->willReturn($process->reveal())
-        ->shouldBeCalled();
+            ->execute($command)
+            ->willReturn($process->reveal())
+            ->shouldBeCalled();
     }
 
     protected function mockExecuteGitInit(
@@ -156,15 +160,15 @@ class NewFromDrupal7CommandTest extends CommandTestBase
         ObjectProphecy $process
     ): void {
         $command = [
-        'git',
-        'init',
-        '--initial-branch=main',
-        '--quiet',
+            'git',
+            'init',
+            '--initial-branch=main',
+            '--quiet',
         ];
         $localMachineHelper
-        ->execute($command, null, $projectDir)
-        ->willReturn($process->reveal())
-        ->shouldBeCalled();
+            ->execute($command, null, $projectDir)
+            ->willReturn($process->reveal())
+            ->shouldBeCalled();
     }
 
     protected function mockExecuteGitAdd(
@@ -173,14 +177,14 @@ class NewFromDrupal7CommandTest extends CommandTestBase
         ObjectProphecy $process
     ): void {
         $command = [
-        'git',
-        'add',
-        '-A',
+            'git',
+            'add',
+            '-A',
         ];
         $localMachineHelper
-        ->execute($command, null, $projectDir)
-        ->willReturn($process->reveal())
-        ->shouldBeCalled();
+            ->execute($command, null, $projectDir)
+            ->willReturn($process->reveal())
+            ->shouldBeCalled();
     }
 
     protected function mockExecuteGitCommit(
@@ -189,15 +193,15 @@ class NewFromDrupal7CommandTest extends CommandTestBase
         ObjectProphecy $process
     ): void {
         $command = [
-        'git',
-        'commit',
-        '--message',
-        "Generated by Acquia CLI's app:new:from:drupal7.",
-        '--quiet',
+            'git',
+            'commit',
+            '--message',
+            "Generated by Acquia CLI's app:new:from:drupal7.",
+            '--quiet',
         ];
         $localMachineHelper
-        ->execute($command, null, $projectDir)
-        ->willReturn($process->reveal())
-        ->shouldBeCalled();
+            ->execute($command, null, $projectDir)
+            ->willReturn($process->reveal())
+            ->shouldBeCalled();
     }
 }

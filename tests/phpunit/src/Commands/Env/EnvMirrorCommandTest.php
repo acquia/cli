@@ -30,61 +30,61 @@ class EnvMirrorCommandTest extends CommandTestBase
             'post',
             "/environments/{$environmentResponse->id}/code/actions/switch",
             [
-            'form_params' => [
-            'branch' => $environmentResponse->vcs->path,
-            ],
+                'form_params' => [
+                    'branch' => $environmentResponse->vcs->path,
+                ],
             ]
         )
-        ->willReturn($response)
-        ->shouldBeCalled();
+            ->willReturn($response)
+            ->shouldBeCalled();
 
         $databasesResponse = $this->getMockResponseFromSpec("/environments/{environmentId}/databases", 'get', '200');
         $this->clientProphecy->request(
             'get',
             "/environments/{$environmentResponse->id}/databases"
         )
-        ->willReturn($databasesResponse->_embedded->items)
-        ->shouldBeCalled();
+            ->willReturn($databasesResponse->_embedded->items)
+            ->shouldBeCalled();
 
         $dbCopyResponse = $this->getMockResponseFromSpec("/environments/{environmentId}/databases", 'post', '202');
         $response = $dbCopyResponse->{'Database being copied'}->value;
         $this->mockNotificationResponseFromObject($response);
         $response->links = $response->{'_links'};
         $this->clientProphecy->request('post', "/environments/{$environmentResponse->id}/databases", [
-        'json' => [
-        'name' => $databasesResponse->_embedded->items[0]->name,
-        'source' => $environmentResponse->id,
-        ],
+            'json' => [
+                'name' => $databasesResponse->_embedded->items[0]->name,
+                'source' => $environmentResponse->id,
+            ],
         ])
-        ->willReturn($response)
-        ->shouldBeCalled();
+            ->willReturn($response)
+            ->shouldBeCalled();
 
         $filesCopyResponse = $this->getMockResponseFromSpec("/environments/{environmentId}/files", 'post', '202');
         $response = $filesCopyResponse->{'Files queued for copying'}->value;
         $this->mockNotificationResponseFromObject($response);
         $response->links = $response->{'_links'};
         $this->clientProphecy->request('post', "/environments/{$environmentResponse->id}/files", [
-        'json' => [
-        'source' => $environmentResponse->id,
-        ],
+            'json' => [
+                'source' => $environmentResponse->id,
+            ],
         ])
-        ->willReturn($response)
-        ->shouldBeCalled();
+            ->willReturn($response)
+            ->shouldBeCalled();
 
         $environmentUpdateResponse = $this->getMockResponseFromSpec("/environments/{environmentId}", 'put', '202');
         $this->clientProphecy->request('put', "/environments/{$environmentResponse->id}", Argument::type('array'))
-        ->willReturn($environmentUpdateResponse)
-        ->shouldBeCalled();
+            ->willReturn($environmentUpdateResponse)
+            ->shouldBeCalled();
         $this->mockNotificationResponseFromObject($environmentUpdateResponse);
 
         $this->executeCommand(
             [
-            'destination-environment' => $environmentResponse->id,
-            'source-environment' => $environmentResponse->id,
+                'destination-environment' => $environmentResponse->id,
+                'source-environment' => $environmentResponse->id,
             ],
             [
-            // Are you sure that you want to overwrite everything ...
-            'y',
+                // Are you sure that you want to overwrite everything ...
+                'y',
             ]
         );
 

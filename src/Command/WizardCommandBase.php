@@ -36,8 +36,8 @@ abstract class WizardCommandBase extends SshKeyCommandBase
     protected function deleteLocalSshKey(): void
     {
         $this->localMachineHelper->getFilesystem()->remove([
-        $this->publicSshKeyFilepath,
-        $this->privateSshKeyFilepath,
+            $this->publicSshKeyFilepath,
+            $this->privateSshKeyFilepath,
         ]);
     }
 

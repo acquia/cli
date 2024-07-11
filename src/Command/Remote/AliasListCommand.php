@@ -15,7 +15,10 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 #[RequireAuth]
-#[AsCommand(name: 'remote:aliases:list', description: 'List all aliases for the Cloud Platform environments', aliases: ['aliases', 'sa'])]
+#[AsCommand(name: 'remote:aliases:list', description: 'List all aliases for the Cloud Platform environments', aliases: [
+    'aliases',
+    'sa',
+])]
 final class AliasListCommand extends CommandBase
 {
     protected function configure(): void
@@ -32,7 +35,11 @@ final class AliasListCommand extends CommandBase
         $environmentsResource = new Environments($acquiaCloudClient);
 
         $table = new Table($this->output);
-        $table->setHeaders(['Application', 'Environment Alias', 'Environment UUID']);
+        $table->setHeaders([
+            'Application',
+            'Environment Alias',
+            'Environment UUID',
+        ]);
 
         $siteId = $customerApplication->hosting->id;
         $parts = explode(':', $siteId);
@@ -40,7 +47,11 @@ final class AliasListCommand extends CommandBase
         $environments = $environmentsResource->getAll($customerApplication->uuid);
         foreach ($environments as $environment) {
             $alias = $sitePrefix . '.' . $environment->name;
-            $table->addRow([$customerApplication->name, $alias, $environment->uuid]);
+            $table->addRow([
+                $customerApplication->name,
+                $alias,
+                $environment->uuid,
+            ]);
         }
 
         $table->render();

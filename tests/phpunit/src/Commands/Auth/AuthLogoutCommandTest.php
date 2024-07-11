@@ -31,17 +31,18 @@ class AuthLogoutCommandTest extends CommandTestBase
 
     public function testAuthLogoutInvalidDatastore(): void
     {
-        $this->clientServiceProphecy->isMachineAuthenticated()->willReturn(false);
+        $this->clientServiceProphecy->isMachineAuthenticated()
+            ->willReturn(false);
         $this->removeMockCloudConfigFile();
         $data = [
-        'acli_key' => 'key2',
-        'keys' => [
-        'key1' => [
-        'label' => 'foo',
-        'secret' => 'foo',
-        'uuid' => 'foo',
-        ],
-        ],
+            'acli_key' => 'key2',
+            'keys' => [
+                'key1' => [
+                    'label' => 'foo',
+                    'secret' => 'foo',
+                    'uuid' => 'foo',
+                ],
+            ],
         ];
         $this->fs->dumpFile($this->cloudConfigFilepath, json_encode($data));
         $this->expectException(AcquiaCliException::class);

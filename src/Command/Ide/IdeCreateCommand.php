@@ -87,13 +87,16 @@ final class IdeCreateCommand extends IdeCommandBase
      * Keep this public since it's used as a callback and static analysis tools
      * think it's unused.
      *
-     * @todo use first-class callable syntax instead once we upgrade to PHP 8.1
      * @see https://www.php.net/manual/en/functions.first_class_callable_syntax.php
+     * @todo use first-class callable syntax instead once we upgrade to PHP 8.1
      */
     public function validateIdeLabel(string $label): string
     {
         $violations = Validation::createValidator()->validate($label, [
-        new Regex(['pattern' => '/^[\w\' ]+$/', 'message' => 'Use only letters, numbers, and spaces']),
+            new Regex([
+                'message' => 'Use only letters, numbers, and spaces',
+                'pattern' => '/^[\w\' ]+$/',
+            ]),
         ]);
         if (count($violations)) {
             throw new ValidatorException($violations->get(0)->getMessage());

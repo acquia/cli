@@ -51,11 +51,11 @@ class Kernel extends BaseKernel
         // Search for plugins.
         $finder = new Finder();
         $extensions = $finder->files()
-        ->in([
-        __DIR__ . '/../../',
-        ])
-        ->depth(1)
-        ->name('acli.services.yml');
+            ->in([
+                __DIR__ . '/../../',
+            ])
+            ->depth(1)
+            ->name('acli.services.yml');
         foreach ($extensions as $extension) {
             $loader->load($extension->getRealPath());
         }
@@ -70,8 +70,8 @@ class Kernel extends BaseKernel
     {
         $locator = new FileLocator([$this->getProjectDir()]);
         $resolver = new LoaderResolver([
-        new YamlFileLoader($container, $locator),
-        new DirectoryLoader($container, $locator),
+            new YamlFileLoader($container, $locator),
+            new DirectoryLoader($container, $locator),
         ]);
 
         return new DelegatingLoader($resolver);
@@ -98,11 +98,11 @@ class Kernel extends BaseKernel
                     if ($definition->hasTag('kernel.event_listener')) {
                         foreach ($definition->getTag('kernel.event_listener') as $tag) {
                             $dispatcherDefinition->addMethodCall('addListener', [
-                            $tag['event'],
-                            [
-                            new ServiceClosureArgument(new Reference($definition->getClass())),
-                            $tag['method'],
-                            ],
+                                $tag['event'],
+                                [
+                                    new ServiceClosureArgument(new Reference($definition->getClass())),
+                                    $tag['method'],
+                                ],
                             ]);
                         }
                     }
@@ -118,12 +118,12 @@ class Kernel extends BaseKernel
                     }
 
                     $appDefinition->addMethodCall('add', [
-                    new Reference($definition->getClass()),
+                        new Reference($definition->getClass()),
                     ]);
                 }
 
                 $appDefinition->addMethodCall('setDispatcher', [
-                $dispatcherDefinition,
+                    $dispatcherDefinition,
                 ]);
             }
         };

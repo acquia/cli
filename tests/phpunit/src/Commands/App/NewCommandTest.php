@@ -35,8 +35,13 @@ class NewCommandTest extends CommandTestBase
     public function provideTestNewDrupalCommand(): array
     {
         return [
-        [['acquia_drupal_recommended' => 'acquia/drupal-recommended-project']],
-        [['acquia_drupal_recommended' => 'acquia/drupal-recommended-project', 'test-dir']],
+            [['acquia_drupal_recommended' => 'acquia/drupal-recommended-project']],
+            [
+                [
+                    'acquia_drupal_recommended' => 'acquia/drupal-recommended-project',
+                    'test-dir',
+                ],
+            ],
         ];
     }
 
@@ -46,8 +51,8 @@ class NewCommandTest extends CommandTestBase
     public function provideTestNewNextJsAppCommand(): array
     {
         return [
-        [['acquia_next_acms' => 'acquia/next-acms']],
-        [['acquia_next_acms' => 'acquia/next-acms'], 'test-dir'],
+            [['acquia_next_acms' => 'acquia/next-acms']],
+            [['acquia_next_acms' => 'acquia/next-acms'], 'test-dir'],
         ];
     }
 
@@ -67,19 +72,21 @@ class NewCommandTest extends CommandTestBase
         $localMachineHelper = $this->mockLocalMachineHelper();
 
         $mockFileSystem = $this->mockGetFilesystem($localMachineHelper);
-        $localMachineHelper->checkRequiredBinariesExist(["composer"])->shouldBeCalled();
+        $localMachineHelper->checkRequiredBinariesExist(["composer"])
+            ->shouldBeCalled();
         $this->mockExecuteComposerCreate($this->newProjectDir, $localMachineHelper, $process, $project);
-        $localMachineHelper->checkRequiredBinariesExist(["git"])->shouldBeCalled();
+        $localMachineHelper->checkRequiredBinariesExist(["git"])
+            ->shouldBeCalled();
         $this->mockExecuteGitInit($localMachineHelper, $this->newProjectDir, $process);
         $this->mockExecuteGitAdd($localMachineHelper, $this->newProjectDir, $process);
         $this->mockExecuteGitCommit($localMachineHelper, $this->newProjectDir, $process);
 
         $inputs = [
-        // Choose a starting project.
-        $project,
+            // Choose a starting project.
+            $project,
         ];
         $this->executeCommand([
-        'directory' => $directory,
+            'directory' => $directory,
         ], $inputs);
 
         $output = $this->getDisplay();
@@ -107,19 +114,21 @@ class NewCommandTest extends CommandTestBase
 
         $mockFileSystem = $this->mockGetFilesystem($localMachineHelper);
 
-        $localMachineHelper->checkRequiredBinariesExist(["node"])->shouldBeCalled();
+        $localMachineHelper->checkRequiredBinariesExist(["node"])
+            ->shouldBeCalled();
         $this->mockExecuteNpxCreate($this->newProjectDir, $localMachineHelper, $process);
-        $localMachineHelper->checkRequiredBinariesExist(["git"])->shouldBeCalled();
+        $localMachineHelper->checkRequiredBinariesExist(["git"])
+            ->shouldBeCalled();
         $this->mockExecuteGitInit($localMachineHelper, $this->newProjectDir, $process);
         $this->mockExecuteGitAdd($localMachineHelper, $this->newProjectDir, $process);
         $this->mockExecuteGitCommit($localMachineHelper, $this->newProjectDir, $process);
 
         $inputs = [
-        // Choose a starting project.
-        $project,
+            // Choose a starting project.
+            $project,
         ];
         $this->executeCommand([
-        'directory' => $directory,
+            'directory' => $directory,
         ], $inputs);
 
         $output = $this->getDisplay();
@@ -137,16 +146,16 @@ class NewCommandTest extends CommandTestBase
         string $project
     ): void {
         $command = [
-        'composer',
-        'create-project',
-        $project,
-        $projectDir,
-        '--no-interaction',
+            'composer',
+            'create-project',
+            $project,
+            $projectDir,
+            '--no-interaction',
         ];
         $localMachineHelper
-        ->execute($command)
-        ->willReturn($process->reveal())
-        ->shouldBeCalled();
+            ->execute($command)
+            ->willReturn($process->reveal())
+            ->shouldBeCalled();
     }
 
     protected function mockExecuteNpxCreate(
@@ -155,16 +164,16 @@ class NewCommandTest extends CommandTestBase
         ObjectProphecy $process,
     ): void {
         $command = [
-        'npx',
-        'create-next-app',
-        '-e',
-        'https://github.com/acquia/next-acms/tree/main/starters/basic-starter',
-        $projectDir,
+            'npx',
+            'create-next-app',
+            '-e',
+            'https://github.com/acquia/next-acms/tree/main/starters/basic-starter',
+            $projectDir,
         ];
         $localMachineHelper
-        ->execute($command)
-        ->willReturn($process->reveal())
-        ->shouldBeCalled();
+            ->execute($command)
+            ->willReturn($process->reveal())
+            ->shouldBeCalled();
     }
 
     protected function mockExecuteGitInit(
@@ -173,14 +182,14 @@ class NewCommandTest extends CommandTestBase
         ObjectProphecy $process
     ): void {
         $command = [
-        'git',
-        'init',
-        '--initial-branch=main',
+            'git',
+            'init',
+            '--initial-branch=main',
         ];
         $localMachineHelper
-        ->execute($command, null, $projectDir)
-        ->willReturn($process->reveal())
-        ->shouldBeCalled();
+            ->execute($command, null, $projectDir)
+            ->willReturn($process->reveal())
+            ->shouldBeCalled();
     }
 
     protected function mockExecuteGitAdd(
@@ -189,14 +198,14 @@ class NewCommandTest extends CommandTestBase
         ObjectProphecy $process
     ): void {
         $command = [
-        'git',
-        'add',
-        '-A',
+            'git',
+            'add',
+            '-A',
         ];
         $localMachineHelper
-        ->execute($command, null, $projectDir)
-        ->willReturn($process->reveal())
-        ->shouldBeCalled();
+            ->execute($command, null, $projectDir)
+            ->willReturn($process->reveal())
+            ->shouldBeCalled();
     }
 
     protected function mockExecuteGitCommit(
@@ -205,15 +214,15 @@ class NewCommandTest extends CommandTestBase
         ObjectProphecy $process
     ): void {
         $command = [
-        'git',
-        'commit',
-        '--message',
-        'Initial commit.',
-        '--quiet',
+            'git',
+            'commit',
+            '--message',
+            'Initial commit.',
+            '--quiet',
         ];
         $localMachineHelper
-        ->execute($command, null, $projectDir)
-        ->willReturn($process->reveal())
-        ->shouldBeCalled();
+            ->execute($command, null, $projectDir)
+            ->willReturn($process->reveal())
+            ->shouldBeCalled();
     }
 }

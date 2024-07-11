@@ -29,9 +29,9 @@ abstract class WizardTestBase extends CommandTestBase
         parent::setUp();
         $this->getCommandTester();
         $this->application->addCommands([
-        $this->injectCommand(SshKeyCreateCommand::class),
-        $this->injectCommand(SshKeyDeleteCommand::class),
-        $this->injectCommand(SshKeyUploadCommand::class),
+            $this->injectCommand(SshKeyCreateCommand::class),
+            $this->injectCommand(SshKeyDeleteCommand::class),
+            $this->injectCommand(SshKeyUploadCommand::class),
         ]);
     }
 
@@ -47,21 +47,23 @@ abstract class WizardTestBase extends CommandTestBase
     public static function getEnvVars(): array
     {
         return [
-        'ACQUIA_APPLICATION_UUID' => self::$applicationUuid,
+            'ACQUIA_APPLICATION_UUID' => self::$applicationUuid,
         ];
     }
 
     protected function runTestCreate(): void
     {
         $environmentsResponse = $this->getMockEnvironmentsResponse();
-        $this->clientProphecy->request('get', "/applications/{$this::$applicationUuid}/environments")->willReturn($environmentsResponse->_embedded->items)->shouldBeCalled();
+        $this->clientProphecy->request('get', "/applications/{$this::$applicationUuid}/environments")
+            ->willReturn($environmentsResponse->_embedded->items)
+            ->shouldBeCalled();
         $request = $this->getMockRequestBodyFromSpec('/account/ssh-keys');
 
         $body = [
-        'json' => [
-        'label' => 'IDE_ExampleIDE_215824ff272a4a8c9027df32ed1d68a9',
-        'public_key' => $request['public_key'],
-        ],
+            'json' => [
+                'label' => 'IDE_ExampleIDE_215824ff272a4a8c9027df32ed1d68a9',
+                'public_key' => $request['public_key'],
+            ],
         ];
         $this->mockRequest('postAccountSshKeys', null, $body);
 
@@ -73,11 +75,14 @@ abstract class WizardTestBase extends CommandTestBase
 
         $fileSystem = $this->prophet->prophesize(Filesystem::class);
         $this->mockGenerateSshKey($localMachineHelper, $request['public_key']);
-        $localMachineHelper->getLocalFilepath($this->passphraseFilepath)->willReturn($this->passphraseFilepath);
+        $localMachineHelper->getLocalFilepath($this->passphraseFilepath)
+            ->willReturn($this->passphraseFilepath);
         $fileSystem->remove(Argument::size(2))->shouldBeCalled();
         $this->mockAddSshKeyToAgent($localMachineHelper, $fileSystem);
         $this->mockSshAgentList($localMachineHelper);
-        $localMachineHelper->getFilesystem()->willReturn($fileSystem->reveal())->shouldBeCalled();
+        $localMachineHelper->getFilesystem()
+            ->willReturn($fileSystem->reveal())
+            ->shouldBeCalled();
 
         /** @var SshKeyCreateCommand $sshKeyCreateCommand */
         $sshKeyCreateCommand = $this->application->find(SshKeyCreateCommand::getDefaultName());
@@ -94,8 +99,8 @@ abstract class WizardTestBase extends CommandTestBase
 
         // Set properties and execute.
         $this->executeCommand([], [
-        // Would you like to link the project at ... ?
-        'y',
+            // Would you like to link the project at ... ?
+            'y',
         ]);
 
         // Assertions.
@@ -108,31 +113,31 @@ abstract class WizardTestBase extends CommandTestBase
         // Make the uploaded key match the created one.
         $sshKeysResponse->_embedded->items[0]->public_key = $mockRequestArgs['public_key'];
         $this->clientProphecy->request('get', '/account/ssh-keys')
-        ->willReturn($sshKeysResponse->{'_embedded'}->items)
-        ->shouldBeCalled();
+            ->willReturn($sshKeysResponse->{'_embedded'}->items)
+            ->shouldBeCalled();
 
         $this->clientProphecy->request('get', '/account/ssh-keys/' . $sshKeysResponse->_embedded->items[0]->uuid)
-        ->willReturn($sshKeysResponse->{'_embedded'}->items[0])
-        ->shouldBeCalled();
+            ->willReturn($sshKeysResponse->{'_embedded'}->items[0])
+            ->shouldBeCalled();
 
         $deleteResponse = $this->prophet->prophesize(ResponseInterface::class);
         $deleteResponse->getStatusCode()->willReturn(202);
         $this->clientProphecy->makeRequest('delete', '/account/ssh-keys/' . $sshKeysResponse->_embedded->items[0]->uuid)
-        ->willReturn($deleteResponse->reveal())
-        ->shouldBeCalled();
+            ->willReturn($deleteResponse->reveal())
+            ->shouldBeCalled();
 
         $environmentsResponse = $this->getMockEnvironmentsResponse();
         $this->clientProphecy->request('get', "/applications/{$this::$applicationUuid}/environments")
-        ->willReturn($environmentsResponse->_embedded->items)
-        ->shouldBeCalled();
+            ->willReturn($environmentsResponse->_embedded->items)
+            ->shouldBeCalled();
 
         $localMachineHelper = $this->mockLocalMachineHelper();
 
         $body = [
-        'json' => [
-        'label' => 'IDE_ExampleIDE_215824ff272a4a8c9027df32ed1d68a9',
-        'public_key' => $mockRequestArgs['public_key'],
-        ],
+            'json' => [
+                'label' => 'IDE_ExampleIDE_215824ff272a4a8c9027df32ed1d68a9',
+                'public_key' => $mockRequestArgs['public_key'],
+            ],
         ];
         $this->mockRequest('postAccountSshKeys', null, $body);
 
@@ -145,8 +150,8 @@ abstract class WizardTestBase extends CommandTestBase
         $fileSystem->remove(Argument::size(2))->shouldBeCalled();
         $this->mockAddSshKeyToAgent($localMachineHelper, $fileSystem);
         $localMachineHelper->getFilesystem()
-        ->willReturn($fileSystem->reveal())
-        ->shouldBeCalled();
+            ->willReturn($fileSystem->reveal())
+            ->shouldBeCalled();
         $this->mockSshAgentList($localMachineHelper);
 
         $this->application->find(SshKeyCreateCommand::getDefaultName())->localMachineHelper = $this->command->localMachineHelper;
@@ -158,13 +163,13 @@ abstract class WizardTestBase extends CommandTestBase
     }
 
     /**
-   * @return string[]
-   *   An array of strings to inspect the output for.
-   */
+     * @return string[]
+     *   An array of strings to inspect the output for.
+     */
     protected function getOutputStrings(): array
     {
         return [
-        "Setting GitLab CI/CD variables for",
+            "Setting GitLab CI/CD variables for",
         ];
     }
 }

@@ -26,9 +26,9 @@ class LocalMachineHelperTest extends TestBase
     public function providerTestExecuteFromCmd(): array
     {
         return [
-        [false, null, null],
-        [false, false, false],
-        [true, false, false],
+            [false, null, null],
+            [false, false, false],
+            [true, false, false],
         ];
     }
 
@@ -55,7 +55,10 @@ class LocalMachineHelperTest extends TestBase
     {
         $this->setupFsFixture();
         $localMachineHelper = $this->localMachineHelper;
-        $process = $localMachineHelper->execute(['ls', '-lash'], null, $this->fixtureDir, false);
+        $process = $localMachineHelper->execute([
+            'ls',
+            '-lash',
+        ], null, $this->fixtureDir, false);
         $this->assertTrue($process->isSuccessful());
         $this->assertStringContainsString('xdebug.ini', $process->getOutput());
     }
@@ -70,11 +73,11 @@ class LocalMachineHelperTest extends TestBase
     public function testHomeDirWindowsCmd(): void
     {
         self::setEnvVars([
-        'HOMEPATH' => 'something',
+            'HOMEPATH' => 'something',
         ]);
         self::unsetEnvVars([
-        'MSYSTEM',
-        'HOME',
+            'MSYSTEM',
+            'HOME',
         ]);
         $home = LocalMachineHelper::getHomeDir();
         $this->assertEquals('something', $home);
@@ -83,8 +86,8 @@ class LocalMachineHelperTest extends TestBase
     public function testHomeDirWindowsMsys2(): void
     {
         self::setEnvVars([
-        'HOMEPATH' => 'something',
-        'MSYSTEM' => 'MSYS2',
+            'HOMEPATH' => 'something',
+            'MSYSTEM' => 'MSYS2',
         ]);
         self::unsetEnvVars(['HOME']);
         $home = LocalMachineHelper::getHomeDir();

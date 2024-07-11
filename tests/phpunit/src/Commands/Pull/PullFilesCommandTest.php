@@ -46,16 +46,16 @@ class PullFilesCommandTest extends PullCommandTestBase
         $this->command->sshHelper = $sshHelper->reveal();
 
         $inputs = [
-        // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
-        'n',
-        // Select a Cloud Platform application:
-        0,
-        // Would you like to link the project at ... ?
-        'n',
-        // Choose an Acquia environment:
-        0,
-        // Choose site from which to copy files:
-        0,
+            // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
+            'n',
+            // Select a Cloud Platform application:
+            0,
+            // Would you like to link the project at ... ?
+            'n',
+            // Choose an Acquia environment:
+            0,
+            // Choose site from which to copy files:
+            0,
         ];
 
         $this->executeCommand([], $inputs);
@@ -85,16 +85,16 @@ class PullFilesCommandTest extends PullCommandTestBase
         $this->command->sshHelper = $sshHelper->reveal();
 
         $inputs = [
-        // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
-        'n',
-        // Select a Cloud Platform application:
-        0,
-        // Would you like to link the project at ... ?
-        'n',
-        // Choose an Acquia environment:
-        0,
-        // Choose site from which to copy files:
-        0,
+            // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
+            'n',
+            // Select a Cloud Platform application:
+            0,
+            // Would you like to link the project at ... ?
+            'n',
+            // Choose an Acquia environment:
+            0,
+            // Choose site from which to copy files:
+            0,
         ];
 
         $this->executeCommand([], $inputs);

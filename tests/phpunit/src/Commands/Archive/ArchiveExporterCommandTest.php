@@ -25,7 +25,12 @@ class ArchiveExporterCommandTest extends PullCommandTestBase
 
     public function setUp(): void
     {
-        self::unsetEnvVars(['ACLI_DB_HOST', 'ACLI_DB_USER', 'ACLI_DB_PASSWORD', 'ACLI_DB_NAME']);
+        self::unsetEnvVars([
+            'ACLI_DB_HOST',
+            'ACLI_DB_USER',
+            'ACLI_DB_PASSWORD',
+            'ACLI_DB_NAME',
+        ]);
         parent::setUp();
     }
 
@@ -35,23 +40,28 @@ class ArchiveExporterCommandTest extends PullCommandTestBase
         $destinationDir = 'foo';
         $localMachineHelper = $this->mockLocalMachineHelper();
         $fileSystem = $this->mockFileSystem($destinationDir);
-        $localMachineHelper->getFilesystem()->willReturn($fileSystem->reveal())->shouldBeCalled();
+        $localMachineHelper->getFilesystem()
+            ->willReturn($fileSystem->reveal())
+            ->shouldBeCalled();
         $this->mockExecutePvExists($localMachineHelper);
         $this->mockExecuteDrushExists($localMachineHelper);
         $this->mockExecuteDrushStatus($localMachineHelper, $this->projectDir);
         $this->mockCreateMySqlDumpOnLocal($localMachineHelper);
-        $localMachineHelper->checkRequiredBinariesExist(["tar"])->shouldBeCalled();
-        $localMachineHelper->execute(Argument::type('array'), Argument::type('callable'), null, true)->willReturn($this->mockProcess())->shouldBeCalled();
+        $localMachineHelper->checkRequiredBinariesExist(["tar"])
+            ->shouldBeCalled();
+        $localMachineHelper->execute(Argument::type('array'), Argument::type('callable'), null, true)
+            ->willReturn($this->mockProcess())
+            ->shouldBeCalled();
 
         $finder = $this->mockFinder();
         $localMachineHelper->getFinder()->willReturn($finder->reveal());
 
         $inputs = [
-        // ... Do you want to continue? (yes/no) [yes]
-        'y',
+            // ... Do you want to continue? (yes/no) [yes]
+            'y',
         ];
         $this->executeCommand([
-        'destination-dir' => $destinationDir,
+            'destination-dir' => $destinationDir,
         ], $inputs);
 
         $output = $this->getDisplay();
@@ -70,9 +80,11 @@ class ArchiveExporterCommandTest extends PullCommandTestBase
             ['override' => true, 'delete' => true],
             Argument::type(Finder::class)
         )->shouldBeCalled();
-        $fileSystem->exists($destinationDir)->willReturn(true)->shouldBeCalled();
+        $fileSystem->exists($destinationDir)
+            ->willReturn(true)
+            ->shouldBeCalled();
         $fileSystem->rename(Argument::type('string'), Argument::type('string'))
-        ->shouldBeCalled();
+            ->shouldBeCalled();
         $fileSystem->remove(Argument::type('string'))->shouldBeCalled();
         $fileSystem->mkdir(Argument::type('array'))->shouldBeCalled();
         return $fileSystem;

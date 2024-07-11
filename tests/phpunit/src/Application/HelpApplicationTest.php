@@ -21,8 +21,8 @@ class HelpApplicationTest extends ApplicationTestBase
     public function testApplicationAliasHelp(): void
     {
         $this->setInput([
-        'command' => 'help',
-        'command_name' => 'app:link',
+            'command' => 'help',
+            'command_name' => 'app:link',
         ]);
         $buffer = $this->runApp();
         $this->assertStringContainsString('The Cloud Platform application UUID or alias (i.e. an application name optionally prefixed with the realm)', $buffer);
@@ -41,8 +41,8 @@ class HelpApplicationTest extends ApplicationTestBase
     public function testEnvironmentAliasHelp(): void
     {
         $this->setInput([
-        'command' => 'help',
-        'command_name' => 'log:tail',
+            'command' => 'help',
+            'command_name' => 'log:tail',
         ]);
         $buffer = $this->runApp();
         $this->assertStringContainsString('The Cloud Platform environment ID or alias (i.e. an application and environment name optionally prefixed with the realm)', $buffer);

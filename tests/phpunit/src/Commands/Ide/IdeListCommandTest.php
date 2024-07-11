@@ -27,12 +27,12 @@ class IdeListCommandTest extends CommandTestBase
         $application = $this->mockRequest('getApplicationByUuid', $applications[self::$INPUT_DEFAULT_CHOICE]->uuid);
         $this->mockRequest('getApplicationIdes', $application->uuid);
         $inputs = [
-        // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
-        'n',
-        // Select the application.
-        self::$INPUT_DEFAULT_CHOICE,
-        // Would you like to link the project at ... ?
-        'y',
+            // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
+            'n',
+            // Select the application.
+            self::$INPUT_DEFAULT_CHOICE,
+            // Would you like to link the project at ... ?
+            'y',
         ];
         $this->executeCommand([], $inputs);
 
@@ -60,16 +60,16 @@ class IdeListCommandTest extends CommandTestBase
             'get',
             '/applications/a47ac10b-58cc-4372-a567-0e02b2c3d470/ides'
         )
-        ->willReturn([])
-        ->shouldBeCalled();
+            ->willReturn([])
+            ->shouldBeCalled();
 
         $inputs = [
-        // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
-        'n',
-        // Select the application.
-        self::$INPUT_DEFAULT_CHOICE,
-        // Would you like to link the project at ... ?
-        'y',
+            // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
+            'n',
+            // Select the application.
+            self::$INPUT_DEFAULT_CHOICE,
+            // Would you like to link the project at ... ?
+            'y',
         ];
         $this->executeCommand([], $inputs);
 

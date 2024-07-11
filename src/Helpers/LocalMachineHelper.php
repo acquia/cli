@@ -21,7 +21,8 @@ use Symfony\Component\Process\Process;
 use function safe\file_get_contents;
 
 /**
- * A helper for executing commands on the local client. A wrapper for 'exec' and 'passthru'.
+ * A helper for executing commands on the local client. A wrapper for 'exec'
+ * and 'passthru'.
  */
 class LocalMachineHelper
 {
@@ -48,16 +49,20 @@ class LocalMachineHelper
     /**
      * Check if a command exists.
      *
-     * This won't find aliases or shell built-ins, so use it mindfully (e.g. only
-     * for commands that you _know_ to be system commands).
+     * This won't find aliases or shell built-ins, so use it mindfully (e.g.
+     * only for commands that you _know_ to be system commands).
      */
     public function commandExists(string $command): bool
     {
         if (array_key_exists($command, $this->installedBinaries)) {
             return $this->installedBinaries[$command];
         }
-        $osCommand = OsInfo::isWindows() ? ['where', $command] : ['which', $command];
-        $exists = $this->execute($osCommand, null, null, false, null, null, false)->isSuccessful();
+        $osCommand = OsInfo::isWindows() ? ['where', $command] : [
+            'which',
+            $command,
+        ];
+        $exists = $this->execute($osCommand, null, null, false, null, null, false)
+            ->isSuccessful();
         $this->installedBinaries[$command] = $exists;
         return $exists;
     }
@@ -137,8 +142,8 @@ class LocalMachineHelper
         $process->wait($callback);
 
         $this->logger->notice('Command: {command} [Exit: {exit}]', [
-        'command' => $process->getCommandLine(),
-        'exit' => $process->getExitCode(),
+            'command' => $process->getCommandLine(),
+            'exit' => $process->getExitCode(),
         ]);
 
         return $process;
@@ -210,7 +215,8 @@ class LocalMachineHelper
      */
     public function writeFile(string $filename, string|StreamInterface $content): void
     {
-        $this->getFilesystem()->dumpFile($this->getLocalFilepath($filename), $content);
+        $this->getFilesystem()
+            ->dumpFile($this->getLocalFilepath($filename), $content);
     }
 
     /**
@@ -265,16 +271,17 @@ class LocalMachineHelper
      * Get the project root directory for the working directory.
      *
      * This method assumes you are running `acli` in a directory containing a
-     * Drupal docroot either as a sibling or parent(N) of the working directory.
+     * Drupal docroot either as a sibling or parent(N) of the working
+     * directory.
      *
-     * Typically, the root directory would also be a Git repository root, though it
-     * doesn't have to be (such as for brand-new projects that haven't initialized
-     * Git yet).
+     * Typically, the root directory would also be a Git repository root,
+     * though it doesn't have to be (such as for brand-new projects that
+     * haven't initialized Git yet).
      */
     public static function getProjectDir(): ?string
     {
         $possibleProjectRoots = [
-        getcwd(),
+            getcwd(),
         ];
         // Check for PWD - some local environments will not have this key.
         if (getenv('PWD') && !in_array(getenv('PWD'), $possibleProjectRoots, true)) {
@@ -292,10 +299,12 @@ class LocalMachineHelper
     /**
      * Traverses file system upwards in search of a given file.
      *
-     * Begins searching for $file in $workingDirectory and climbs up directories
+     * Begins searching for $file in $workingDirectory and climbs up
+     * directories
      * $maxHeight times, repeating search.
      *
-     * @return bool|string FALSE if file was not found. Otherwise, the directory path containing the file.
+     * @return bool|string FALSE if file was not found. Otherwise, the
+     *     directory path containing the file.
      */
     private static function findDirectoryContainingFiles(string $workingDirectory, array $files, int $maxHeight = 10): bool|string
     {
@@ -346,14 +355,15 @@ class LocalMachineHelper
     /**
      * Starts a background browser/tab for the current site or a specified URL.
      *
-     * Exclude from mutation testing as we don't want real browser windows opened.
+     * Exclude from mutation testing as we don't want real browser windows
+     * opened.
      *
-     * @param string|null $uri Optional URI or site path to open in browser. If omitted, or if a site path
-     *   is specified, the current site home page uri will be prepended if the site's
-     *   hostname resolves.
+     * @param string|null $uri Optional URI or site path to open in browser. If
+     *     omitted, or if a site path is specified, the current site home page
+     *     uri will be prepended if the site's hostname resolves.
      * @param string|null $browser The command to run to launch a browser.
-     * @return bool TRUE if browser was opened. FALSE if browser was disabled by the user or a
-     *   default browser could not be found.
+     * @return bool TRUE if browser was opened. FALSE if browser was disabled
+     *     by the user or a default browser could not be found.
      * @infection-ignore-all
      */
     public function startBrowser(string $uri = null, string $browser = null): bool

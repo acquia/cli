@@ -22,8 +22,8 @@ class AppVcsInfo extends CommandBase
     protected function configure(): void
     {
         $this
-        ->addOption('deployed', null, InputOption::VALUE_OPTIONAL, 'Show only deployed branches and tags')
-        ->addUsage('[<applicationAlias>] --deployed');
+            ->addOption('deployed', null, InputOption::VALUE_OPTIONAL, 'Show only deployed branches and tags')
+            ->addUsage('[<applicationAlias>] --deployed');
         $this->acceptApplicationUuid();
     }
 
@@ -82,11 +82,11 @@ class AppVcsInfo extends CommandBase
         $table->setHeaderTitle('Status of Branches and Tags of the Application');
         foreach ($allVcs as $vscPath => $env) {
             $table->addRow([
-            $vscPath,
-            // If VCS and env name is not same, it means it is deployed.
-            $vscPath !== $env ? 'Yes' : 'No',
-            // If VCS and env name is same, it means it is deployed.
-            $vscPath !== $env ? $env : 'None',
+                $vscPath,
+                // If VCS and env name is not same, it means it is deployed.
+                $vscPath !== $env ? 'Yes' : 'No',
+                // If VCS and env name is same, it means it is deployed.
+                $vscPath !== $env ? $env : 'None',
             ]);
         }
 

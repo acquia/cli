@@ -17,9 +17,9 @@ final class AuthAcsfLoginCommand extends CommandBase
     protected function configure(): void
     {
         $this
-        ->addOption('username', 'u', InputOption::VALUE_REQUIRED, "Your Site Factory username")
-        ->addOption('key', 'k', InputOption::VALUE_REQUIRED, "Your Site Factory key")
-        ->addOption('factory-url', 'f', InputOption::VALUE_REQUIRED, "Your Site Factory URL (including https://)");
+            ->addOption('username', 'u', InputOption::VALUE_REQUIRED, "Your Site Factory username")
+            ->addOption('key', 'k', InputOption::VALUE_REQUIRED, "Your Site Factory key")
+            ->addOption('factory-url', 'f', InputOption::VALUE_REQUIRED, "Your Site Factory URL (including https://)");
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -33,14 +33,14 @@ final class AuthAcsfLoginCommand extends CommandBase
                 $factoryChoices[$url]['url'] = $url;
             }
             $factoryChoices['add_new'] = [
-            'url' => 'Enter a new factory URL',
+                'url' => 'Enter a new factory URL',
             ];
             $factory = $this->promptChooseFromObjectsOrArrays($factoryChoices, 'url', 'url', 'Choose a Factory to login to');
             if ($factory['url'] === 'Enter a new factory URL') {
                 $factoryUrl = $this->io->ask('Enter the full URL of the factory');
                 $factory = [
-                'url' => $factoryUrl,
-                'users' => [],
+                    'url' => $factoryUrl,
+                    'users' => [],
                 ];
             } else {
                 $factoryUrl = $factory['url'];
@@ -48,7 +48,7 @@ final class AuthAcsfLoginCommand extends CommandBase
 
             $users = $factory['users'];
             $users['add_new'] = [
-            'username' => 'Enter a new user',
+                'username' => 'Enter a new user',
             ];
             $selectedUser = $this->promptChooseFromObjectsOrArrays($users, 'username', 'username', 'Choose which user to login as');
             if ($selectedUser['username'] !== 'Enter a new user') {
@@ -56,7 +56,7 @@ final class AuthAcsfLoginCommand extends CommandBase
                 $factories[$factoryUrl]['active_user'] = $selectedUser['username'];
                 $this->datastoreCloud->set('acsf_factories', $factories);
                 $output->writeln([
-                "<info>Acquia CLI is now logged in to <options=bold>{$factory['url']}</> as <options=bold>{$selectedUser['username']}</></info>",
+                    "<info>Acquia CLI is now logged in to <options=bold>{$factory['url']}</> as <options=bold>{$selectedUser['username']}</></info>",
                 ]);
                 return Command::SUCCESS;
             }
@@ -77,8 +77,8 @@ final class AuthAcsfLoginCommand extends CommandBase
     {
         $keys = $this->datastoreCloud->get('acsf_factories');
         $keys[$factoryUrl]['users'][$username] = [
-        'key' => $key,
-        'username' => $username,
+            'key' => $key,
+            'username' => $username,
         ];
         $keys[$factoryUrl]['url'] = $factoryUrl;
         $keys[$factoryUrl]['active_user'] = $username;

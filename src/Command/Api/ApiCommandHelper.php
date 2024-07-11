@@ -67,7 +67,10 @@ class ApiCommandHelper
 
         // Parameters to be used in the request query and path.
         if (array_key_exists('parameters', $schema)) {
-            [$queryInputDefinition, $queryParamUsageSuffix] = $this->addApiCommandParametersForPathAndQuery($schema, $acquiaCloudSpec);
+            [
+                $queryInputDefinition,
+                $queryParamUsageSuffix,
+            ] = $this->addApiCommandParametersForPathAndQuery($schema, $acquiaCloudSpec);
             /** @var \Symfony\Component\Console\Input\InputOption|InputArgument $parameterDefinition */
             foreach ($queryInputDefinition as $parameterDefinition) {
                 $parameterSpecification = $this->getParameterDefinitionFromSpec($parameterDefinition->getName(), $acquiaCloudSpec, $schema);
@@ -84,8 +87,8 @@ class ApiCommandHelper
         // Parameters to be used in the request body.
         if (array_key_exists('requestBody', $schema)) {
             [
-            $bodyInputDefinition,
-            $requestBodyParamUsageSuffix,
+                $bodyInputDefinition,
+                $requestBodyParamUsageSuffix,
             ] = $this->addApiCommandParametersForRequestBody($schema, $acquiaCloudSpec);
             $requestBodySchema = $this->getRequestBodyFromParameterSchema($schema, $acquiaCloudSpec);
             /** @var \Symfony\Component\Console\Input\InputOption|InputArgument $parameterDefinition */
@@ -175,11 +178,11 @@ class ApiCommandHelper
                                 $usage .= $prefix . "\"$value\" ";
                             }
                         } else {
-                              // @todo Pretty sure prevents the user from using the arguments.
-                              // Probably a bug. How can we allow users to specify a multidimensional array as an
-                              // argument?
-                              $value = json_encode($example[$propKey], JSON_THROW_ON_ERROR);
-                              $usage .= $prefix . "\"$value\" ";
+                            // @todo Pretty sure prevents the user from using the arguments.
+                            // Probably a bug. How can we allow users to specify a multidimensional array as an
+                            // argument?
+                            $value = json_encode($example[$propKey], JSON_THROW_ON_ERROR);
+                            $usage .= $prefix . "\"$value\" ";
                         }
                         break;
 
@@ -310,8 +313,8 @@ class ApiCommandHelper
         $spec = json_decode(file_get_contents($specFilePath), true);
 
         $cache->warmUp([
-        $cacheKey => $spec,
-        $cacheKey . '.checksum' => $checksum,
+            $cacheKey => $spec,
+            $cacheKey . '.checksum' => $checksum,
         ]);
 
         return $spec;
@@ -365,19 +368,19 @@ class ApiCommandHelper
     protected function getSkippedApiCommands(): array
     {
         return [
-        // Skip accounts:drush-aliases since we have remote:aliases:download instead and it actually returns
-        // application/gzip content.
-        'accounts:drush-aliases',
-        // Skip any command that has a duplicative corresponding ACLI command.
-        'ide:create',
-        'log:tail',
-        'ssh-key:create',
-        'ssh-key:create-upload',
-        'ssh-key:delete',
-        'ssh-key:list',
-        'ssh-key:upload',
-        // Skip buggy or unsupported endpoints.
-        'environments:stack-metrics-data-metric',
+            // Skip accounts:drush-aliases since we have remote:aliases:download instead and it actually returns
+            // application/gzip content.
+            'accounts:drush-aliases',
+            // Skip any command that has a duplicative corresponding ACLI command.
+            'ide:create',
+            'log:tail',
+            'ssh-key:create',
+            'ssh-key:create-upload',
+            'ssh-key:delete',
+            'ssh-key:list',
+            'ssh-key:upload',
+            // Skip buggy or unsupported endpoints.
+            'environments:stack-metrics-data-metric',
         ];
     }
 
@@ -439,10 +442,10 @@ class ApiCommandHelper
     {
         // Format should be ['original => new'].
         return [
-        // @see api:environments:cron-create
-        'command' => 'cron_command',
-        // @see api:environments:update.
-        'version' => 'lang_version',
+            // @see api:environments:cron-create
+            'command' => 'cron_command',
+            // @see api:environments:update.
+            'version' => 'lang_version',
         ];
     }
 
@@ -498,10 +501,10 @@ class ApiCommandHelper
     {
         $content = $requestBody['content'];
         $knownContentTypes = [
-        'application/hal+json',
-        'application/json',
-        'application/x-www-form-urlencoded',
-        'multipart/form-data',
+            'application/hal+json',
+            'application/json',
+            'application/x-www-form-urlencoded',
+            'multipart/form-data',
         ];
         foreach ($knownContentTypes as $contentType) {
             if (array_key_exists($contentType, $content)) {

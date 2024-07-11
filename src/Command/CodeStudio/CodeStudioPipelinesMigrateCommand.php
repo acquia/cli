@@ -24,10 +24,10 @@ final class CodeStudioPipelinesMigrateCommand extends CommandBase
     protected function configure(): void
     {
         $this
-        ->addOption('key', null, InputOption::VALUE_REQUIRED, 'The Cloud Platform API token that Code Studio will use')
-        ->addOption('secret', null, InputOption::VALUE_REQUIRED, 'The Cloud Platform API secret that Code Studio will use')
-        ->addOption('gitlab-token', null, InputOption::VALUE_REQUIRED, 'The GitLab personal access token that will be used to communicate with the GitLab instance')
-        ->addOption('gitlab-project-id', null, InputOption::VALUE_REQUIRED, 'The project ID (an integer) of the GitLab project to configure.');
+            ->addOption('key', null, InputOption::VALUE_REQUIRED, 'The Cloud Platform API token that Code Studio will use')
+            ->addOption('secret', null, InputOption::VALUE_REQUIRED, 'The Cloud Platform API secret that Code Studio will use')
+            ->addOption('gitlab-token', null, InputOption::VALUE_REQUIRED, 'The GitLab personal access token that will be used to communicate with the GitLab instance')
+            ->addOption('gitlab-project-id', null, InputOption::VALUE_REQUIRED, 'The project ID (an integer) of the GitLab project to configure.');
         $this->acceptApplicationUuid();
         $this->setHidden(!AcquiaDrupalEnvironmentDetector::isAhIdeEnv());
     }
@@ -66,23 +66,25 @@ final class CodeStudioPipelinesMigrateCommand extends CommandBase
         $this->removeEmptyScript($gitlabCiFileContents);
         $this->createGitLabCiFile($gitlabCiFileContents, $acquiaPipelinesFileName);
         $this->io->success([
-        "",
-        "Migration completed successfully.",
-        "Created .gitlab-ci.yml and removed acquia-pipeline.yml file.",
-        "In order to run Pipeline, push .gitlab-ci.yaml to Main branch of Code Studio project.",
-        "Check your pipeline is running in Code Studio for your project.",
+            "",
+            "Migration completed successfully.",
+            "Created .gitlab-ci.yml and removed acquia-pipeline.yml file.",
+            "In order to run Pipeline, push .gitlab-ci.yaml to Main branch of Code Studio project.",
+            "Check your pipeline is running in Code Studio for your project.",
         ]);
 
         return Command::SUCCESS;
     }
 
     /**
-     * Check whether wizard command is executed by checking the env variable of codestudio project.
+     * Check whether wizard command is executed by checking the env variable of
+     * codestudio project.
      */
     private function checkGitLabCiCdVariables(array $project): void
     {
         $gitlabCicdVariables = CodeStudioCiCdVariables::getList();
-        $gitlabCicdExistingVariables = $this->gitLabClient->projects()->variables($project['id']);
+        $gitlabCicdExistingVariables = $this->gitLabClient->projects()
+            ->variables($project['id']);
         $existingKeys = array_column($gitlabCicdExistingVariables, 'key');
         foreach ($gitlabCicdVariables as $gitlabCicdVariable) {
             if (!in_array($gitlabCicdVariable, $existingKeys, true)) {
@@ -92,7 +94,8 @@ final class CodeStudioPipelinesMigrateCommand extends CommandBase
     }
 
     /**
-     * Check acquia-pipeline.yml file exists in the root repo and remove ci_config_path from codestudio project.
+     * Check acquia-pipeline.yml file exists in the root repo and remove
+     * ci_config_path from codestudio project.
      *
      * @return array<mixed>
      */
@@ -101,18 +104,24 @@ final class CodeStudioPipelinesMigrateCommand extends CommandBase
         $pipelinesFilepathYml = Path::join($this->projectDir, 'acquia-pipelines.yml');
         $pipelinesFilepathYaml = Path::join($this->projectDir, 'acquia-pipelines.yaml');
         if (
-            $this->localMachineHelper->getFilesystem()->exists($pipelinesFilepathYml) ||
-            $this->localMachineHelper->getFilesystem()->exists($pipelinesFilepathYaml)
+            $this->localMachineHelper->getFilesystem()
+                ->exists($pipelinesFilepathYml) ||
+            $this->localMachineHelper->getFilesystem()
+                ->exists($pipelinesFilepathYaml)
         ) {
-            $this->gitLabClient->projects()->update($project['id'], ['ci_config_path' => '']);
-            $pipelinesFilenames = ['acquia-pipelines.yml', 'acquia-pipelines.yaml'];
+            $this->gitLabClient->projects()
+                ->update($project['id'], ['ci_config_path' => '']);
+            $pipelinesFilenames = [
+                'acquia-pipelines.yml',
+                'acquia-pipelines.yaml',
+            ];
             foreach ($pipelinesFilenames as $pipelinesFilename) {
                 $pipelinesFilepath = Path::join($this->projectDir, $pipelinesFilename);
                 if (file_exists($pipelinesFilepath)) {
                     $fileContents = file_get_contents($pipelinesFilepath);
                     return [
-                    'filename' => $pipelinesFilename,
-                    'file_contents' => Yaml::parse($fileContents, Yaml::PARSE_OBJECT),
+                        'filename' => $pipelinesFilename,
+                        'file_contents' => Yaml::parse($fileContents, Yaml::PARSE_OBJECT),
                     ];
                 }
             }
@@ -129,7 +138,10 @@ final class CodeStudioPipelinesMigrateCommand extends CommandBase
     private function getGitLabCiFileTemplate(): array
     {
         return [
-        'include' => ['project' => 'acquia/standard-template', 'file' => '/gitlab-ci/Auto-DevOps.acquia.gitlab-ci.yml'],
+            'include' => [
+                'file' => '/gitlab-ci/Auto-DevOps.acquia.gitlab-ci.yml',
+                'project' => 'acquia/standard-template',
+            ],
         ];
     }
 
@@ -144,11 +156,11 @@ final class CodeStudioPipelinesMigrateCommand extends CommandBase
             $variablesParse = Yaml::parse($removeGlobal);
             $gitlabCiFileContents = array_merge($gitlabCiFileContents, $variablesParse);
             $this->io->success([
-            "Migrated `variables` section of acquia-pipelines.yml to .gitlab-ci.yml",
+                "Migrated `variables` section of acquia-pipelines.yml to .gitlab-ci.yml",
             ]);
         } else {
             $this->io->info([
-            "Checked acquia-pipeline.yml file for `variables` section",
+                "Checked acquia-pipeline.yml file for `variables` section",
             ]);
         }
     }
@@ -171,48 +183,48 @@ final class CodeStudioPipelinesMigrateCommand extends CommandBase
     {
         // phpcs:disable SlevomatCodingStandard.Arrays.AlphabeticallySortedByKeys
         $eventsMap = [
-        'build' => [
-        'skip' => [
-        'composer install' => [
-        'message' => 'Code Studio AutoDevOps will run `composer install` by default. Skipping migration of this command in your acquia-pipelines.yml file:',
-        'prompt' => false,
-        ],
-        '${BLT_DIR}' => [
-        'message' => 'Code Studio AutoDevOps will run BLT commands for you by default. Do you want to migrate the following command?',
-        'prompt' => true,
-        ],
-        ],
-        'default_stage' => 'Test Drupal',
-        'stage' => [
-        'setup' => 'Build Drupal',
-        'npm run build' => 'Build Drupal',
-        'validate' => 'Test Drupal',
-        'tests' => 'Test Drupal',
-        'test'  => 'Test Drupal',
-        'npm test' => 'Test Drupal',
-        'artifact' => 'Deploy Drupal',
-        'deploy' => 'Deploy Drupal',
-        ],
-        'needs' => [
-        'Build Code',
-        'Manage Secrets',
-        ],
-        ],
-        'post-deploy' => [
-        'skip' => [
-        'launch_ode' => [
-        'message' => 'Code Studio AutoDevOps will run Launch a new Continuous Delivery Environment (CDE) automatically for new merge requests. Skipping migration of this command in your acquia-pipelines.yml file:',
-        'prompt' => false,
-        ],
-        ],
-        'default_stage' => 'Deploy Drupal',
-        'stage' => [
-        'launch_ode' => 'Deploy Drupal',
-        ],
-        'needs' => [
-        'Create artifact from branch',
-        ],
-        ],
+            'build' => [
+                'skip' => [
+                    'composer install' => [
+                        'message' => 'Code Studio AutoDevOps will run `composer install` by default. Skipping migration of this command in your acquia-pipelines.yml file:',
+                        'prompt' => false,
+                    ],
+                    '${BLT_DIR}' => [
+                        'message' => 'Code Studio AutoDevOps will run BLT commands for you by default. Do you want to migrate the following command?',
+                        'prompt' => true,
+                    ],
+                ],
+                'default_stage' => 'Test Drupal',
+                'stage' => [
+                    'setup' => 'Build Drupal',
+                    'npm run build' => 'Build Drupal',
+                    'validate' => 'Test Drupal',
+                    'tests' => 'Test Drupal',
+                    'test' => 'Test Drupal',
+                    'npm test' => 'Test Drupal',
+                    'artifact' => 'Deploy Drupal',
+                    'deploy' => 'Deploy Drupal',
+                ],
+                'needs' => [
+                    'Build Code',
+                    'Manage Secrets',
+                ],
+            ],
+            'post-deploy' => [
+                'skip' => [
+                    'launch_ode' => [
+                        'message' => 'Code Studio AutoDevOps will run Launch a new Continuous Delivery Environment (CDE) automatically for new merge requests. Skipping migration of this command in your acquia-pipelines.yml file:',
+                        'prompt' => false,
+                    ],
+                ],
+                'default_stage' => 'Deploy Drupal',
+                'stage' => [
+                    'launch_ode' => 'Deploy Drupal',
+                ],
+                'needs' => [
+                    'Create artifact from branch',
+                ],
+            ],
         ];
         // phpcs:enable
 
@@ -241,15 +253,15 @@ final class CodeStudioPipelinesMigrateCommand extends CommandBase
                                     }
                                 } else {
                                     $this->io->note([
-                                    $messageConfig['message'],
-                                    $command,
+                                        $messageConfig['message'],
+                                        $command,
                                     ]);
                                 }
                                 break;
                             }
 
                             if (array_key_exists($scriptName, $codeStudioJobs) && array_key_exists('script', $codeStudioJobs[$scriptName]) && in_array($command, $codeStudioJobs[$scriptName]['script'], true)) {
-                                  break;
+                                break;
                             }
                             if (!array_key_exists($scriptName, $eventMap['skip'])) {
                                 $codeStudioJobs[$scriptName]['script'][] = $command;
@@ -266,17 +278,17 @@ final class CodeStudioPipelinesMigrateCommand extends CommandBase
                         }
                     }
                     if (!array_key_exists('stage', $codeStudioJobs[$scriptName])) {
-                          $codeStudioJobs[$scriptName]['stage'] = $eventMap['default_stage'];
+                        $codeStudioJobs[$scriptName]['stage'] = $eventMap['default_stage'];
                     }
                     $codeStudioJobs[$scriptName]['needs'] = $eventMap['needs'];
                 }
                 $gitlabCiFileContents = array_merge($gitlabCiFileContents, $codeStudioJobs);
                 $this->io->success([
-                "Completed migration of the $eventName step in your acquia-pipelines.yml file",
+                    "Completed migration of the $eventName step in your acquia-pipelines.yml file",
                 ]);
             } else {
                 $this->io->writeln([
-                "acquia-pipeline.yml file does not contain $eventName step to migrate",
+                    "acquia-pipeline.yml file does not contain $eventName step to migrate",
                 ]);
             }
         }
@@ -300,8 +312,10 @@ final class CodeStudioPipelinesMigrateCommand extends CommandBase
     private function createGitLabCiFile(array $contents, string|iterable $acquiaPipelinesFileName): void
     {
         $gitlabCiFilepath = Path::join($this->projectDir, '.gitlab-ci.yml');
-        $this->localMachineHelper->getFilesystem()->dumpFile($gitlabCiFilepath, Yaml::dump($contents, Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK));
-        $this->localMachineHelper->getFilesystem()->remove($acquiaPipelinesFileName);
+        $this->localMachineHelper->getFilesystem()
+            ->dumpFile($gitlabCiFilepath, Yaml::dump($contents, Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK));
+        $this->localMachineHelper->getFilesystem()
+            ->remove($acquiaPipelinesFileName);
     }
 
     private function assignStageFromKeywords(array $keywords, string $haystack): ?string

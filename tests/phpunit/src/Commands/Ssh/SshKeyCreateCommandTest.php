@@ -28,40 +28,40 @@ class SshKeyCreateCommandTest extends CommandTestBase
     public function providerTestCreate(): array
     {
         return [
-        [
-        true,
-        // Args.
-        [
-        '--filename' => $this->filename,
-        '--password' => 'acli123',
-        ],
-        // Inputs.
-        [],
-        ],
-        [
-        true,
-        // Args.
-        [],
-        // Inputs.
-        [
-        // Enter a filename for your new local SSH key:
-        $this->filename,
-        // Enter a password for your SSH key:
-        'acli123',
-        ],
-        ],
-        [
-        false,
-        // Args.
-        [],
-        // Inputs.
-        [
-        // Enter a filename for your new local SSH key:
-        $this->filename,
-        // Enter a password for your SSH key:
-        'acli123',
-        ],
-        ],
+            [
+                true,
+                // Args.
+                [
+                    '--filename' => $this->filename,
+                    '--password' => 'acli123',
+                ],
+                // Inputs.
+                [],
+            ],
+            [
+                true,
+                // Args.
+                [],
+                // Inputs.
+                [
+                    // Enter a filename for your new local SSH key:
+                    $this->filename,
+                    // Enter a password for your SSH key:
+                    'acli123',
+                ],
+            ],
+            [
+                false,
+                // Args.
+                [],
+                // Inputs.
+                [
+                    // Enter a filename for your new local SSH key:
+                    $this->filename,
+                    // Enter a password for your SSH key:
+                    'acli123',
+                ],
+            ],
         ];
     }
 
@@ -74,13 +74,16 @@ class SshKeyCreateCommandTest extends CommandTestBase
         $sshKeyFilepath = Path::join($this->sshDir, '/' . $this->filename);
         $this->fs->remove($sshKeyFilepath);
         $localMachineHelper = $this->mockLocalMachineHelper();
-        $localMachineHelper->getLocalFilepath('~/.passphrase')->willReturn('~/.passphrase');
+        $localMachineHelper->getLocalFilepath('~/.passphrase')
+            ->willReturn('~/.passphrase');
         $fileSystem = $this->prophet->prophesize(Filesystem::class);
         $this->mockAddSshKeyToAgent($localMachineHelper, $fileSystem);
         $this->mockSshAgentList($localMachineHelper, $sshAddSuccess);
         $this->mockGenerateSshKey($localMachineHelper);
 
-        $localMachineHelper->getFilesystem()->willReturn($fileSystem->reveal())->shouldBeCalled();
+        $localMachineHelper->getFilesystem()
+            ->willReturn($fileSystem->reveal())
+            ->shouldBeCalled();
 
         $this->executeCommand($args, $inputs);
     }

@@ -25,10 +25,10 @@ class LinkCommandTest extends CommandTestBase
         $this->mockApplicationRequest();
 
         $inputs = [
-        // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
-        'n',
-        // Select a Cloud Platform application.
-        0,
+            // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
+            'n',
+            // Select a Cloud Platform application.
+            0,
         ];
         $this->executeCommand([], $inputs);
         $output = $this->getDisplay();

@@ -35,11 +35,12 @@ class ClearCacheCommandTest extends CommandTestBase
         );
         $applicationsResponse = $this->filterApplicationsResponse($applicationsResponse, 1, true);
         $this->clientProphecy->request('get', '/applications')
-        ->willReturn($applicationsResponse->{'_embedded'}->items)
-        // Ensure this is only called once, even though we execute the command twice.
-        ->shouldBeCalledTimes(1);
+            ->willReturn($applicationsResponse->{'_embedded'}->items)
+            // Ensure this is only called once, even though we execute the command twice.
+            ->shouldBeCalledTimes(1);
 
-        $this->clientProphecy->addQuery('filter', 'hosting=@*:devcloud2')->shouldBeCalled();
+        $this->clientProphecy->addQuery('filter', 'hosting=@*:devcloud2')
+            ->shouldBeCalled();
         $this->mockApplicationRequest();
         $this->mockRequest('getApplicationIdes', 'a47ac10b-58cc-4372-a567-0e02b2c3d470');
         $this->mockRequest('getAccount');
@@ -47,8 +48,8 @@ class ClearCacheCommandTest extends CommandTestBase
         $alias = 'devcloud2';
         $args = ['applicationUuid' => $alias];
         $inputs = [
-        // Would you like to link the Cloud application Sample application to this repository?
-        'n',
+            // Would you like to link the Cloud application Sample application to this repository?
+            'n',
         ];
 
         $this->executeCommand($args, $inputs);

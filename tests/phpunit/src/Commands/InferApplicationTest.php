@@ -36,14 +36,14 @@ class InferApplicationTest extends CommandTestBase
             'get',
             "/applications/{$applicationsResponse->{'_embedded'}->items[0]->uuid}/environments"
         )
-        ->willReturn([$environmentResponse, $environmentResponse2])
-        ->shouldBeCalled();
+            ->willReturn([$environmentResponse, $environmentResponse2])
+            ->shouldBeCalled();
 
         $this->executeCommand([], [
-        // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
-        'y',
-        // Would you like to link the project at ...
-        'y',
+            // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
+            'y',
+            // Would you like to link the project at ...
+            'y',
         ]);
 
         $output = $this->getDisplay();
@@ -65,22 +65,22 @@ class InferApplicationTest extends CommandTestBase
             'get',
             "/applications/{$applicationsResponse->{'_embedded'}->items[0]->uuid}/environments"
         )
-        ->willReturn([$environmentResponse, $environmentResponse])
-        ->shouldBeCalled();
+            ->willReturn([$environmentResponse, $environmentResponse])
+            ->shouldBeCalled();
         $this->clientProphecy->request(
             'get',
             "/applications/{$applicationsResponse->{'_embedded'}->items[1]->uuid}/environments"
         )
-        ->willReturn([$environmentResponse, $environmentResponse])
-        ->shouldBeCalled();
+            ->willReturn([$environmentResponse, $environmentResponse])
+            ->shouldBeCalled();
 
         $this->executeCommand([], [
-        // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
-        'y',
-        // Select a Cloud Platform application:
-        0,
-        // Would you like to link the project at ...
-        'y',
+            // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
+            'y',
+            // Select a Cloud Platform application:
+            0,
+            // Would you like to link the project at ...
+            'y',
         ]);
 
         $output = $this->getDisplay();
@@ -95,7 +95,7 @@ class InferApplicationTest extends CommandTestBase
     {
         $this->expectException(AcquiaCliException::class);
         $this->executeCommand([], [
-        'y',
+            'y',
         ]);
     }
 }

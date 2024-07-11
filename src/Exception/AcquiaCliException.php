@@ -21,10 +21,11 @@ class AcquiaCliException extends Exception
         int $code = 0
     ) {
         $eventProperties = [
-        'code' => $code,
-        'message' => $rawMessage,
+            'code' => $code,
+            'message' => $rawMessage,
         ];
-        Amplitude::getInstance()->queueEvent('Threw exception', $eventProperties);
+        Amplitude::getInstance()
+            ->queueEvent('Threw exception', $eventProperties);
 
         parent::__construct($this->interpolateString($rawMessage, $replacements), $code);
     }

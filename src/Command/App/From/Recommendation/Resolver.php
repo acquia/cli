@@ -36,8 +36,8 @@ final class Resolver
      *   A site inspector.
      * @param \Acquia\Cli\Command\App\From\Recommendation\Recommendations $recommendations
      *   A set of defined recommendations. These are *all possible*
-     *   recommendations. It is the resolves job to narrow these down by using the
-     *   site inspector to retrieve information about the source site.
+     *   recommendations. It is the resolves job to narrow these down by using
+     *     the site inspector to retrieve information about the source site.
      */
     public function __construct(SiteInspectorInterface $inspector, Recommendations $recommendations)
     {

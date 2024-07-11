@@ -32,9 +32,9 @@ class IdePhpVersionCommandTest extends CommandTestBase
     public function providerTestIdePhpVersionCommand(): array
     {
         return [
-        ['7.4'],
-        ['8.0'],
-        ['8.1'],
+            ['7.4'],
+            ['8.0'],
+            ['8.1'],
         ];
     }
 
@@ -50,12 +50,13 @@ class IdePhpVersionCommandTest extends CommandTestBase
         $phpStubFilepath = $phpFilepathPrefix . $version;
         $mockFileSystem->exists($phpStubFilepath)->willReturn(true);
         $phpVersionFilePath = $this->fs->tempnam(sys_get_temp_dir(), 'acli_php_version_file_');
-        $mockFileSystem->dumpFile($phpVersionFilePath, $version)->shouldBeCalled();
+        $mockFileSystem->dumpFile($phpVersionFilePath, $version)
+            ->shouldBeCalled();
 
         $this->command->setPhpVersionFilePath($phpVersionFilePath);
         $this->command->setIdePhpFilePathPrefix($phpFilepathPrefix);
         $this->executeCommand([
-        'version' => $version,
+            'version' => $version,
         ], []);
     }
 
@@ -65,10 +66,10 @@ class IdePhpVersionCommandTest extends CommandTestBase
     public function providerTestIdePhpVersionCommandFailure(): array
     {
         return [
-        ['6.3', AcquiaCliException::class],
-        ['6', ValidatorException::class],
-        ['7', ValidatorException::class],
-        ['7.', ValidatorException::class],
+            ['6.3', AcquiaCliException::class],
+            ['6', ValidatorException::class],
+            ['7', ValidatorException::class],
+            ['7.', ValidatorException::class],
         ];
     }
 
@@ -79,7 +80,7 @@ class IdePhpVersionCommandTest extends CommandTestBase
     {
         $this->expectException($exceptionClass);
         $this->executeCommand([
-        'version' => $version,
+            'version' => $version,
         ]);
     }
 
@@ -89,7 +90,7 @@ class IdePhpVersionCommandTest extends CommandTestBase
         $this->expectException(AcquiaCliException::class);
         $this->expectExceptionMessage('This command can only be run inside of an Acquia Cloud IDE');
         $this->executeCommand([
-        'version' => '7.3',
+            'version' => '7.3',
         ]);
     }
 
@@ -99,9 +100,9 @@ class IdePhpVersionCommandTest extends CommandTestBase
         $process->isSuccessful()->willReturn(true);
         $process->getExitCode()->willReturn(0);
         $localMachineHelper->execute([
-        'supervisorctl',
-        'restart',
-        'php-fpm',
+            'supervisorctl',
+            'restart',
+            'php-fpm',
         ], null, null, false)->willReturn($process->reveal())->shouldBeCalled();
         return $process;
     }
@@ -112,7 +113,9 @@ class IdePhpVersionCommandTest extends CommandTestBase
     protected function mockGetFilesystem(ObjectProphecy|LocalMachineHelper $localMachineHelper): ObjectProphecy|Filesystem
     {
         $fileSystem = $this->prophet->prophesize(Filesystem::class);
-        $localMachineHelper->getFilesystem()->willReturn($fileSystem)->shouldBeCalled();
+        $localMachineHelper->getFilesystem()
+            ->willReturn($fileSystem)
+            ->shouldBeCalled();
 
         return $fileSystem;
     }

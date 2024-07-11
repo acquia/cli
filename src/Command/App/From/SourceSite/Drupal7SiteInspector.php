@@ -51,17 +51,20 @@ final class Drupal7SiteInspector extends SiteInspectorBase
         // Special case to remove 'standard' from the module's list.
         unset($enabled['standard']);
         $modules = array_values(array_map(function (string $name) use ($enabled) {
-          // phpcs:disable SlevomatCodingStandard.Arrays.AlphabeticallySortedByKeys
+            // phpcs:disable SlevomatCodingStandard.Arrays.AlphabeticallySortedByKeys
             return (object) [
-            'name' => $name,
-            'status' => true,
-            'type' => 'module',
-            'humanName' => $enabled[$name]->info['name'],
-            'version' => $enabled[$name]->info['version'],
+                'name' => $name,
+                'status' => true,
+                'type' => 'module',
+                'humanName' => $enabled[$name]->info['name'],
+                'version' => $enabled[$name]->info['version'],
             ];
-          // phpcs:enable
+            // phpcs:enable
         }, array_keys($enabled)));
-        return array_map([Drupal7Extension::class, 'createFromStdClass'], $modules);
+        return array_map([
+            Drupal7Extension::class,
+            'createFromStdClass',
+        ], $modules);
     }
 
     public function getPublicFilePath(): string
@@ -98,7 +101,7 @@ final class Drupal7SiteInspector extends SiteInspectorBase
         $_SERVER['REQUEST_URI'] = $this->uri . '/';
         $_SERVER['PHP_SELF'] = $_SERVER['REQUEST_URI'] . 'index.php';
         $_SERVER['REMOTE_ADDR'] = '127.0.0.1';
-        $_SERVER['REQUEST_METHOD']  = 'GET';
+        $_SERVER['REQUEST_METHOD'] = 'GET';
         $_SERVER['SERVER_SOFTWARE'] = null;
         $_SERVER['HTTP_USER_AGENT'] = 'console';
         $_SERVER['SCRIPT_FILENAME'] = DRUPAL_ROOT . '/index.php';

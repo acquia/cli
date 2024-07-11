@@ -24,22 +24,22 @@ class AcsfServiceTest extends TestBase
     public function providerTestIsMachineAuthenticated(): array
     {
         return [
-        [
-        ['ACSF_USERNAME' => 'key', 'ACSF_KEY' => 'secret'],
-        true,
-        ],
-        [
-        ['ACSF_USERNAME' => 'key', 'ACSF_KEY' => 'secret'],
-        true,
-        ],
-        [
-        ['ACSF_USERNAME' => null, 'ACSF_KEY' => null],
-        false,
-        ],
-        [
-        ['ACSF_USERNAME' => 'key', 'ACSF_KEY' => null],
-        false,
-        ],
+            [
+                ['ACSF_USERNAME' => 'key', 'ACSF_KEY' => 'secret'],
+                true,
+            ],
+            [
+                ['ACSF_USERNAME' => 'key', 'ACSF_KEY' => 'secret'],
+                true,
+            ],
+            [
+                ['ACSF_USERNAME' => null, 'ACSF_KEY' => null],
+                false,
+            ],
+            [
+                ['ACSF_USERNAME' => 'key', 'ACSF_KEY' => null],
+                false,
+            ],
         ];
     }
 
@@ -49,7 +49,11 @@ class AcsfServiceTest extends TestBase
     public function testIsMachineAuthenticated(array $envVars, bool $isAuthenticated): void
     {
         self::setEnvVars($envVars);
-        $clientService = new AcsfClientService(new AcsfConnectorFactory(['key' => null, 'secret' => null]), $this->prophet->prophesize(Application::class)->reveal(), $this->cloudCredentials);
+        $clientService = new AcsfClientService(new AcsfConnectorFactory([
+            'key' => null,
+            'secret' => null,
+        ]), $this->prophet->prophesize(Application::class)
+            ->reveal(), $this->cloudCredentials);
         $this->assertEquals($isAuthenticated, $clientService->isMachineAuthenticated());
         self::unsetEnvVars($envVars);
     }

@@ -28,17 +28,18 @@ class IdeOpenCommandTest extends CommandTestBase
         $this->mockRequest('getApplicationIdes', $applications[0]->uuid);
         $localMachineHelper = $this->mockLocalMachineHelper();
         $localMachineHelper->isBrowserAvailable()->willReturn(true);
-        $localMachineHelper->startBrowser('https://9a83c081-ef78-4dbd-8852-11cc3eb248f7.ides.acquia.com')->willReturn(true);
+        $localMachineHelper->startBrowser('https://9a83c081-ef78-4dbd-8852-11cc3eb248f7.ides.acquia.com')
+            ->willReturn(true);
 
         $inputs = [
-        // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
-        'n',
-        // Select a Cloud Platform application:
-        0,
-        // Would you like to link the project at ... ?
-        'y',
-        // Select the IDE you'd like to open:
-        0,
+            // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
+            'n',
+            // Select a Cloud Platform application:
+            0,
+            // Would you like to link the project at ... ?
+            'y',
+            // Select the IDE you'd like to open:
+            0,
         ];
         $this->executeCommand([], $inputs);
 

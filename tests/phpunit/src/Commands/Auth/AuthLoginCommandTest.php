@@ -28,13 +28,18 @@ class AuthLoginCommandTest extends CommandTestBase
     public function testAuthLoginCommand(): void
     {
         $this->mockRequest('getAccount');
-        $this->clientServiceProphecy->setConnector(Argument::type(Connector::class))->shouldBeCalled();
-        $this->clientServiceProphecy->isMachineAuthenticated()->willReturn(false);
+        $this->clientServiceProphecy->setConnector(Argument::type(Connector::class))
+            ->shouldBeCalled();
+        $this->clientServiceProphecy->isMachineAuthenticated()
+            ->willReturn(false);
         $this->removeMockCloudConfigFile();
         $this->createDataStores();
         $this->command = $this->createCommand();
 
-        $this->executeCommand(['--key' => $this->key, '--secret' => $this->secret]);
+        $this->executeCommand([
+            '--key' => $this->key,
+            '--secret' => $this->secret,
+        ]);
         $output = $this->getDisplay();
 
         $this->assertStringContainsString('Saved credentials', $output);
@@ -44,14 +49,19 @@ class AuthLoginCommandTest extends CommandTestBase
     public function testAuthLoginNoKeysCommand(): void
     {
         $this->mockRequest('getAccount');
-        $this->clientServiceProphecy->setConnector(Argument::type(Connector::class))->shouldBeCalled();
-        $this->clientServiceProphecy->isMachineAuthenticated()->willReturn(false);
+        $this->clientServiceProphecy->setConnector(Argument::type(Connector::class))
+            ->shouldBeCalled();
+        $this->clientServiceProphecy->isMachineAuthenticated()
+            ->willReturn(false);
         $this->removeMockCloudConfigFile();
         $this->fs->dumpFile($this->cloudConfigFilepath, json_encode(['send_telemetry' => false]));
         $this->createDataStores();
         $this->command = $this->createCommand();
 
-        $this->executeCommand(['--key' => $this->key, '--secret' => $this->secret]);
+        $this->executeCommand([
+            '--key' => $this->key,
+            '--secret' => $this->secret,
+        ]);
         $output = $this->getDisplay();
 
         $this->assertStringContainsString('Saved credentials', $output);
@@ -62,18 +72,18 @@ class AuthLoginCommandTest extends CommandTestBase
     {
         yield
         [
-        [],
-        ['--key' => 'no spaces are allowed' , '--secret' => $this->secret],
+            [],
+            ['--key' => 'no spaces are allowed', '--secret' => $this->secret],
         ];
         yield
         [
-        [],
-        ['--key' => 'shorty' , '--secret' => $this->secret],
+            [],
+            ['--key' => 'shorty', '--secret' => $this->secret],
         ];
         yield
         [
-        [],
-        ['--key' => ' ', '--secret' => $this->secret],
+            [],
+            ['--key' => ' ', '--secret' => $this->secret],
         ];
     }
 
@@ -82,7 +92,8 @@ class AuthLoginCommandTest extends CommandTestBase
      */
     public function testAuthLoginInvalidInputCommand(array $inputs, array $args): void
     {
-        $this->clientServiceProphecy->isMachineAuthenticated()->willReturn(false);
+        $this->clientServiceProphecy->isMachineAuthenticated()
+            ->willReturn(false);
         $this->removeMockCloudConfigFile();
         $this->createDataStores();
         $this->command = $this->createCommand();
@@ -92,17 +103,18 @@ class AuthLoginCommandTest extends CommandTestBase
 
     public function testAuthLoginInvalidDatastore(): void
     {
-        $this->clientServiceProphecy->isMachineAuthenticated()->willReturn(false);
+        $this->clientServiceProphecy->isMachineAuthenticated()
+            ->willReturn(false);
         $this->removeMockCloudConfigFile();
         $data = [
-        'acli_key' => 'key2',
-        'keys' => [
-        'key1' => [
-        'label' => 'foo',
-        'secret' => 'foo',
-        'uuid' => 'foo',
-        ],
-        ],
+            'acli_key' => 'key2',
+            'keys' => [
+                'key1' => [
+                    'label' => 'foo',
+                    'secret' => 'foo',
+                    'uuid' => 'foo',
+                ],
+            ],
         ];
         $this->fs->dumpFile($this->cloudConfigFilepath, json_encode($data));
         $this->expectException(AcquiaCliException::class);

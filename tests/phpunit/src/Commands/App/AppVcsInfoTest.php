@@ -31,8 +31,8 @@ class AppVcsInfoTest extends CommandTestBase
             'get',
             "/applications/$application->uuid/environments"
         )
-        ->willReturn([])
-        ->shouldBeCalled();
+            ->willReturn([])
+            ->shouldBeCalled();
         $this->mockRequest('getCodeByApplicationUuid', $application->uuid);
 
         $this->expectException(AcquiaCliException::class);
@@ -40,7 +40,7 @@ class AppVcsInfoTest extends CommandTestBase
 
         $this->executeCommand(
             [
-            'applicationUuid' => 'a47ac10b-58cc-4372-a567-0e02b2c3d470',
+                'applicationUuid' => 'a47ac10b-58cc-4372-a567-0e02b2c3d470',
             ],
         );
     }
@@ -58,14 +58,14 @@ class AppVcsInfoTest extends CommandTestBase
             'get',
             "/applications/{$applications[0]->uuid}/code"
         )
-        ->willReturn([])
-        ->shouldBeCalled();
+            ->willReturn([])
+            ->shouldBeCalled();
 
         $this->expectException(AcquiaCliException::class);
         $this->expectExceptionMessage('No branch or tag is available with this application.');
         $this->executeCommand(
             [
-            'applicationUuid' => 'a47ac10b-58cc-4372-a567-0e02b2c3d470',
+                'applicationUuid' => 'a47ac10b-58cc-4372-a567-0e02b2c3d470',
             ],
         );
     }
@@ -83,7 +83,7 @@ class AppVcsInfoTest extends CommandTestBase
 
         $this->executeCommand(
             [
-            'applicationUuid' => 'a47ac10b-58cc-4372-a567-0e02b2c3d470',
+                'applicationUuid' => 'a47ac10b-58cc-4372-a567-0e02b2c3d470',
             ],
         );
 
@@ -120,16 +120,16 @@ EOD;
             'get',
             "/applications/{$application->uuid}/environments"
         )
-        ->willReturn($environments)
-        ->shouldBeCalled();
+            ->willReturn($environments)
+            ->shouldBeCalled();
         $this->mockRequest('getCodeByApplicationUuid', $application->uuid);
 
         $this->expectException(AcquiaCliException::class);
         $this->expectExceptionMessage('No branch or tag is deployed on any of the environment of this application.');
         $this->executeCommand(
             [
-            'applicationUuid' => 'a47ac10b-58cc-4372-a567-0e02b2c3d470',
-            '--deployed',
+                'applicationUuid' => 'a47ac10b-58cc-4372-a567-0e02b2c3d470',
+                '--deployed',
             ],
         );
     }
@@ -147,8 +147,8 @@ EOD;
 
         $this->executeCommand(
             [
-            'applicationUuid' => 'a47ac10b-58cc-4372-a567-0e02b2c3d470',
-            '--deployed',
+                'applicationUuid' => 'a47ac10b-58cc-4372-a567-0e02b2c3d470',
+                '--deployed',
             ],
         );
 

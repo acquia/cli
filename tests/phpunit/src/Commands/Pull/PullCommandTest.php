@@ -40,7 +40,8 @@ class PullCommandTest extends PullCommandTestBase
         $environment = $this->mockGetEnvironment();
         $this->createMockGitConfigFile();
         $localMachineHelper = $this->mockLocalMachineHelper();
-        $localMachineHelper->checkRequiredBinariesExist(["git"])->shouldBeCalled();
+        $localMachineHelper->checkRequiredBinariesExist(["git"])
+            ->shouldBeCalled();
         $finder = $this->mockFinder();
         $localMachineHelper->getFinder()->willReturn($finder->reveal());
         $process = $this->mockProcess();
@@ -62,22 +63,22 @@ class PullCommandTest extends PullCommandTestBase
         $this->mockExecuteMySqlListTables($localMachineHelper, 'drupal');
         $process = $this->mockProcess();
         $localMachineHelper
-        ->execute(Argument::type('array'), Argument::type('callable'), null, false, null, ['MYSQL_PWD' => $this->dbPassword])
-        ->willReturn($process->reveal())
-        ->shouldBeCalled();
+            ->execute(Argument::type('array'), Argument::type('callable'), null, false, null, ['MYSQL_PWD' => $this->dbPassword])
+            ->willReturn($process->reveal())
+            ->shouldBeCalled();
         $this->mockExecuteMySqlImport($localMachineHelper, true, true, 'my_db', 'my_dbdev', 'drupal');
         $this->executeCommand([
-        '--no-scripts' => true,
+            '--no-scripts' => true,
         ], [
-        // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
-        'n',
-        // Select a Cloud Platform application:
-        self::$INPUT_DEFAULT_CHOICE,
-        // Would you like to link the project at ... ?
-        'n',
-        // Choose an Acquia environment:
-        self::$INPUT_DEFAULT_CHOICE,
-        self::$INPUT_DEFAULT_CHOICE,
+            // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
+            'n',
+            // Select a Cloud Platform application:
+            self::$INPUT_DEFAULT_CHOICE,
+            // Would you like to link the project at ... ?
+            'n',
+            // Choose an Acquia environment:
+            self::$INPUT_DEFAULT_CHOICE,
+            self::$INPUT_DEFAULT_CHOICE,
         ]);
 
         $output = $this->getDisplay();
@@ -100,8 +101,8 @@ class PullCommandTest extends PullCommandTestBase
         $this->expectException(AcquiaCliException::class);
         $this->expectExceptionMessage('Execute this command from within a Drupal project directory or an empty directory');
         $inputs = [
-        // Would you like to clone a project into the current directory?
-        'n',
+            // Would you like to clone a project into the current directory?
+            'n',
         ];
         $this->executeCommand([], $inputs);
     }

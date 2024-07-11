@@ -114,14 +114,14 @@ class ExceptionListener
     private function writeApplicationAliasHelp(): void
     {
         $this->helpMessages[] = "The <bg=$this->messagesBgColor;options=bold>applicationUuid</> argument must be a valid UUID or unique application alias accessible to your Cloud Platform user." . PHP_EOL . PHP_EOL
-        . "An alias consists of an application name optionally prefixed with a hosting realm, e.g. <bg=$this->messagesBgColor;fg=$this->messagesFgColor;options=bold>myapp</> or <bg=$this->messagesBgColor;fg=$this->messagesFgColor;options=bold>prod.myapp</>." . PHP_EOL . PHP_EOL
-        . "Run <bg=$this->messagesBgColor;options=bold>acli remote:aliases:list</> to see a list of all available aliases.";
+            . "An alias consists of an application name optionally prefixed with a hosting realm, e.g. <bg=$this->messagesBgColor;fg=$this->messagesFgColor;options=bold>myapp</> or <bg=$this->messagesBgColor;fg=$this->messagesFgColor;options=bold>prod.myapp</>." . PHP_EOL . PHP_EOL
+            . "Run <bg=$this->messagesBgColor;options=bold>acli remote:aliases:list</> to see a list of all available aliases.";
     }
 
     private function writeSiteAliasHelp(): void
     {
         $this->helpMessages[] = "<bg=$this->messagesBgColor;options=bold>environmentId</> can also be a site alias. E.g. <bg=$this->messagesBgColor;fg=$this->messagesFgColor;options=bold>myapp.dev</>." . PHP_EOL
-        . "Run <bg=$this->messagesBgColor;options=bold>acli remote:aliases:list</> to see a list of all available aliases.";
+            . "Run <bg=$this->messagesBgColor;options=bold>acli remote:aliases:list</> to see a list of all available aliases.";
     }
 
     private function writeSupportTicketHelp(ConsoleErrorEvent $event): void

@@ -37,8 +37,14 @@ class ConfigurationTest extends TestCase
     public function getTestConfigurations(): array
     {
         return [
-        'bad JSON in configuration file' => ['{,}', new JsonException('Syntax error', JSON_ERROR_SYNTAX)],
-        'empty configuration file' => [json_encode((object) []), new DomainException('Missing required key: rootPackageDefinition')],
+            'bad JSON in configuration file' => [
+                '{,}',
+                new JsonException('Syntax error', JSON_ERROR_SYNTAX),
+            ],
+            'empty configuration file' => [
+                json_encode((object) []),
+                new DomainException('Missing required key: rootPackageDefinition'),
+            ],
         ];
     }
 }

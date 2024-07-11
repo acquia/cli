@@ -20,8 +20,11 @@ use AcquiaCloudApi\Connector\ConnectorInterface;
 class ClientService
 {
     protected ConnectorInterface $connector;
+
     protected ConnectorFactoryInterface|ConnectorFactory $connectorFactory;
+
     protected Application $application;
+
     protected ?bool $machineIsAuthenticated = null;
 
     public function __construct(ConnectorFactoryInterface $connectorFactory, Application $application, protected ApiCredentialsInterface $credentials)
@@ -53,7 +56,7 @@ class ClientService
     {
         $userAgent = sprintf("acli/%s", $this->application->getVersion());
         $customHeaders = [
-        'User-Agent' => [$userAgent],
+            'User-Agent' => [$userAgent],
         ];
         if ($uuid = getenv("REMOTEIDE_UUID")) {
             $customHeaders['X-Cloud-IDE-UUID'] = $uuid;
@@ -73,8 +76,8 @@ class ClientService
     protected function checkAuthentication(): bool
     {
         return (
-        $this->credentials->getCloudAccessToken() ||
-        ($this->credentials->getCloudKey() && $this->credentials->getCloudSecret())
+            $this->credentials->getCloudAccessToken() ||
+            ($this->credentials->getCloudKey() && $this->credentials->getCloudSecret())
         );
     }
 }

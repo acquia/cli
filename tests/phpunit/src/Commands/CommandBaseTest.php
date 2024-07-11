@@ -26,12 +26,13 @@ class CommandBaseTest extends CommandTestBase
 
     public function testUnauthenticatedFailure(): void
     {
-        $this->clientServiceProphecy->isMachineAuthenticated()->willReturn(false);
+        $this->clientServiceProphecy->isMachineAuthenticated()
+            ->willReturn(false);
         $this->removeMockConfigFiles();
 
         $inputs = [
-        // Would you like to share anonymous performance usage and data?
-        'n',
+            // Would you like to share anonymous performance usage and data?
+            'n',
         ];
         $this->expectException(AcquiaCliException::class);
         $this->expectExceptionMessage('This machine is not yet authenticated with the Cloud Platform.');
@@ -53,8 +54,8 @@ class CommandBaseTest extends CommandTestBase
     public function providerTestCloudAppUuidArg(): array
     {
         return [
-        ['a47ac10b-58cc-4372-a567-0e02b2c3d470'],
-        ['165c887b-7633-4f64-799d-a5d4669c768e'],
+            ['a47ac10b-58cc-4372-a567-0e02b2c3d470'],
+            ['165c887b-7633-4f64-799d-a5d4669c768e'],
         ];
     }
 
@@ -74,8 +75,14 @@ class CommandBaseTest extends CommandTestBase
     public function providerTestInvalidCloudAppUuidArg(): array
     {
         return [
-        ['a47ac10b-58cc-4372-a567-0e02b2c3d4', 'This value should have exactly 36 characters.'],
-        ['a47ac10b-58cc-4372-a567-0e02b2c3d47z', 'This is not a valid UUID.'],
+            [
+                'a47ac10b-58cc-4372-a567-0e02b2c3d4',
+                'This value should have exactly 36 characters.',
+            ],
+            [
+                'a47ac10b-58cc-4372-a567-0e02b2c3d47z',
+                'This is not a valid UUID.',
+            ],
         ];
     }
 
@@ -95,9 +102,18 @@ class CommandBaseTest extends CommandTestBase
     public function providerTestInvalidCloudEnvironmentAlias(): array
     {
         return [
-        ['bl.a', 'This value is too short. It should have 5 characters or more.'],
-        ['blarg', 'You must enter either an environment ID or alias. Environment aliases must match the pattern [app-name].[env]'],
-        ['12345', 'You must enter either an environment ID or alias. Environment aliases must match the pattern [app-name].[env]'],
+            [
+                'bl.a',
+                'This value is too short. It should have 5 characters or more.',
+            ],
+            [
+                'blarg',
+                'You must enter either an environment ID or alias. Environment aliases must match the pattern [app-name].[env]',
+            ],
+            [
+                '12345',
+                'You must enter either an environment ID or alias. Environment aliases must match the pattern [app-name].[env]',
+            ],
         ];
     }
 

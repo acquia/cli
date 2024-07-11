@@ -23,8 +23,8 @@ final class PushDatabaseCommand extends PushCommandBase
     protected function configure(): void
     {
         $this
-        ->acceptEnvironmentId()
-        ->acceptSite();
+            ->acceptEnvironmentId()
+            ->acceptSite();
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -67,11 +67,11 @@ final class PushDatabaseCommand extends PushCommandBase
         $this->logger->debug("Uploading database dump to $remoteFilepath on remote machine");
         $this->localMachineHelper->checkRequiredBinariesExist(['rsync']);
         $command = [
-        'rsync',
-        '-tDvPhe',
-        'ssh -o StrictHostKeyChecking=no',
-        $localFilepath,
-        $environment->sshUrl . ':' . $remoteFilepath,
+            'rsync',
+            '-tDvPhe',
+            'ssh -o StrictHostKeyChecking=no',
+            $localFilepath,
+            $environment->sshUrl . ':' . $remoteFilepath,
         ];
         $process = $this->localMachineHelper->execute($command, $outputCallback, null, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
         if (!$process->isSuccessful()) {

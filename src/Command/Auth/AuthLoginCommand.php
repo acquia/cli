@@ -18,9 +18,9 @@ final class AuthLoginCommand extends CommandBase
     protected function configure(): void
     {
         $this
-        ->addOption('key', 'k', InputOption::VALUE_REQUIRED, 'Your Cloud Platform API key')
-        ->addOption('secret', 's', InputOption::VALUE_REQUIRED, 'Your Cloud Platform API secret')
-        ->setHelp('Acquia CLI can store multiple sets of credentials in case you have multiple Cloud Platform accounts. However, only a single account can be active at a time. This command allows you to activate a new or existing set of credentials.');
+            ->addOption('key', 'k', InputOption::VALUE_REQUIRED, 'Your Cloud Platform API key')
+            ->addOption('secret', 's', InputOption::VALUE_REQUIRED, 'Your Cloud Platform API secret')
+            ->setHelp('Acquia CLI can store multiple sets of credentials in case you have multiple Cloud Platform accounts. However, only a single account can be active at a time. This command allows you to activate a new or existing set of credentials.');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -40,8 +40,8 @@ final class AuthLoginCommand extends CommandBase
                 $keys[$uuid]['uuid'] = $uuid;
             }
             $keys['create_new'] = [
-            'label' => 'Enter a new API key',
-            'uuid' => 'create_new',
+                'label' => 'Enter a new API key',
+                'uuid' => 'create_new',
             ];
             $selectedKey = $this->promptChooseFromObjectsOrArrays($keys, 'uuid', 'label', 'Activate a Cloud Platform API key');
             if ($selectedKey['uuid'] !== 'create_new') {
@@ -68,9 +68,9 @@ final class AuthLoginCommand extends CommandBase
         $accountInfo = $account->get();
         $keys = $this->datastoreCloud->get('keys');
         $keys[$apiKey] = [
-        'label' => $accountInfo->mail,
-        'secret' => $apiSecret,
-        'uuid' => $apiKey,
+            'label' => $accountInfo->mail,
+            'secret' => $apiSecret,
+            'uuid' => $apiKey,
         ];
         $this->datastoreCloud->set('keys', $keys);
         $this->datastoreCloud->set('acli_key', $apiKey);

@@ -39,7 +39,7 @@ class UpdateCommandTest extends CommandTestBase
     {
         $guzzleClient = $this->prophet->prophesize(Client::class);
         $guzzleClient->get('https://api.github.com/repos/acquia/cli/releases')
-        ->willThrow(RequestException::class);
+            ->willThrow(RequestException::class);
         $this->command->setUpdateClient($guzzleClient->reveal());
         $this->application->setVersion('2.8.4.9999s');
         $this->executeCommand();

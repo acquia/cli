@@ -20,8 +20,8 @@ final class IdePhpVersionCommand extends IdeCommandBase
     protected function configure(): void
     {
         $this
-        ->addArgument('version', InputArgument::REQUIRED, 'The PHP version')
-        ->setHidden(!AcquiaDrupalEnvironmentDetector::isAhIdeEnv());
+            ->addArgument('version', InputArgument::REQUIRED, 'The PHP version')
+            ->setHidden(!AcquiaDrupalEnvironmentDetector::isAhIdeEnv());
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -29,7 +29,8 @@ final class IdePhpVersionCommand extends IdeCommandBase
         $this->requireCloudIdeEnvironment();
         $version = $input->getArgument('version');
         $this->validatePhpVersion($version);
-        $this->localMachineHelper->getFilesystem()->dumpFile($this->getIdePhpVersionFilePath(), $version);
+        $this->localMachineHelper->getFilesystem()
+            ->dumpFile($this->getIdePhpVersionFilePath(), $version);
         $this->restartService('php-fpm');
 
         return Command::SUCCESS;

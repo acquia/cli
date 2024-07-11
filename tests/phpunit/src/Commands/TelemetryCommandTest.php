@@ -52,11 +52,11 @@ class TelemetryCommandTest extends CommandTestBase
     public function providerTestTelemetryPrompt(): array
     {
         return [
-        [
-        // Would you like to share anonymous performance usage and data?
-        ['n'],
-        'Ok, no data will be collected and shared with us.',
-        ],
+            [
+                // Would you like to share anonymous performance usage and data?
+                ['n'],
+                'Ok, no data will be collected and shared with us.',
+            ],
         ];
     }
 

@@ -28,17 +28,17 @@ class IdeListCommandMineTest extends CommandTestBase
             $appUuid = end($appUrlParts);
             $applicationResponse->uuid = $appUuid;
             $this->clientProphecy->request('get', '/applications/' . $appUuid)
-            ->willReturn($applicationResponse)
-            ->shouldBeCalled();
+                ->willReturn($applicationResponse)
+                ->shouldBeCalled();
         }
 
         $inputs = [
-        // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
-        'n',
-        // Select the application.
-        0,
-        // Would you like to link the project at ... ?
-        'y',
+            // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
+            'n',
+            // Select the application.
+            0,
+            // Would you like to link the project at ... ?
+            'y',
         ];
         $this->executeCommand([], $inputs);
 
@@ -70,8 +70,8 @@ class IdeListCommandMineTest extends CommandTestBase
             'get',
             '/account/ides'
         )
-        ->willReturn($response->{'_embedded'}->items)
-        ->shouldBeCalled();
+            ->willReturn($response->{'_embedded'}->items)
+            ->shouldBeCalled();
 
         return $response;
     }

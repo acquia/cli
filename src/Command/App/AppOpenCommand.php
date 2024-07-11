@@ -13,13 +13,16 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 #[RequireAuth]
-#[AsCommand(name: 'app:open', description: 'Opens your browser to view a given Cloud application', aliases: ['open', 'o'])]
+#[AsCommand(name: 'app:open', description: 'Opens your browser to view a given Cloud application', aliases: [
+    'open',
+    'o',
+])]
 final class AppOpenCommand extends CommandBase
 {
     protected function configure(): void
     {
         $this
-        ->acceptApplicationUuid();
+            ->acceptApplicationUuid();
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int

@@ -26,39 +26,39 @@ class SshKeyUploadCommandTest extends CommandTestBase
     {
         $sshKeysRequestBody = $this->getMockRequestBodyFromSpec('/account/ssh-keys');
         return [
-        [
-        // Args.
-        [],
-        // Inputs.
-        [
-        // Choose key.
-        '0',
-        // Enter a Cloud Platform label for this SSH key:
-        $sshKeysRequestBody['label'],
-        // Would you like to wait until Cloud Platform is ready? (yes/no)
-        'y',
-        // Would you like Acquia CLI to search for a Cloud application that matches your local git config? (yes/no)
-        'n',
-        ],
-        // Perms.
-        true,
-        ],
-        [
-        // Args.
-        [
-        '--filepath' => 'id_rsa.pub',
-        '--label' => $sshKeysRequestBody['label'],
-        ],
-        // Inputs.
-        [
-        // Would you like to wait until Cloud Platform is ready? (yes/no)
-        'y',
-        // Would you like Acquia CLI to search for a Cloud application that matches your local git config? (yes/no)
-        'n',
-        ],
-        // Perms.
-        false,
-        ],
+            [
+                // Args.
+                [],
+                // Inputs.
+                [
+                    // Choose key.
+                    '0',
+                    // Enter a Cloud Platform label for this SSH key:
+                    $sshKeysRequestBody['label'],
+                    // Would you like to wait until Cloud Platform is ready? (yes/no)
+                    'y',
+                    // Would you like Acquia CLI to search for a Cloud application that matches your local git config? (yes/no)
+                    'n',
+                ],
+                // Perms.
+                true,
+            ],
+            [
+                // Args.
+                [
+                    '--filepath' => 'id_rsa.pub',
+                    '--label' => $sshKeysRequestBody['label'],
+                ],
+                // Inputs.
+                [
+                    // Would you like to wait until Cloud Platform is ready? (yes/no)
+                    'y',
+                    // Would you like Acquia CLI to search for a Cloud application that matches your local git config? (yes/no)
+                    'n',
+                ],
+                // Perms.
+                false,
+            ],
         ];
     }
 
@@ -69,10 +69,10 @@ class SshKeyUploadCommandTest extends CommandTestBase
     {
         $sshKeysRequestBody = $this->getMockRequestBodyFromSpec('/account/ssh-keys');
         $body = [
-        'json' => [
-        'label' => $sshKeysRequestBody['label'],
-        'public_key' => $sshKeysRequestBody['public_key'],
-        ],
+            'json' => [
+                'label' => $sshKeysRequestBody['label'],
+                'public_key' => $sshKeysRequestBody['public_key'],
+            ],
         ];
         $this->mockRequest('postAccountSshKeys', null, $body);
         $this->mockListSshKeyRequestWithUploadedKey($sshKeysRequestBody);
@@ -87,8 +87,10 @@ class SshKeyUploadCommandTest extends CommandTestBase
 
         $localMachineHelper->getFilesystem()->willReturn($fileSystem);
         $fileSystem->exists(Argument::type('string'))->willReturn(true);
-        $localMachineHelper->getLocalFilepath(Argument::containingString('id_rsa'))->willReturn('id_rsa.pub');
-        $localMachineHelper->readFile(Argument::type('string'))->willReturn($sshKeysRequestBody['public_key']);
+        $localMachineHelper->getLocalFilepath(Argument::containingString('id_rsa'))
+            ->willReturn('id_rsa.pub');
+        $localMachineHelper->readFile(Argument::type('string'))
+            ->willReturn($sshKeysRequestBody['public_key']);
 
         if ($perms) {
             $environmentsResponse = $this->mockEnvironmentsRequest($applicationsResponse);
@@ -111,10 +113,10 @@ class SshKeyUploadCommandTest extends CommandTestBase
     {
         $sshKeysRequestBody = $this->getMockRequestBodyFromSpec('/account/ssh-keys');
         $body = [
-        'json' => [
-        'label' => $sshKeysRequestBody['label'],
-        'public_key' => $sshKeysRequestBody['public_key'],
-        ],
+            'json' => [
+                'label' => $sshKeysRequestBody['label'],
+                'public_key' => $sshKeysRequestBody['public_key'],
+            ],
         ];
         $this->mockRequest('postAccountSshKeys', null, $body);
         $this->mockListSshKeyRequestWithUploadedKey($sshKeysRequestBody);
@@ -129,8 +131,10 @@ class SshKeyUploadCommandTest extends CommandTestBase
 
         $localMachineHelper->getFilesystem()->willReturn($fileSystem);
         $fileSystem->exists(Argument::type('string'))->willReturn(true);
-        $localMachineHelper->getLocalFilepath(Argument::containingString('id_rsa'))->willReturn('id_rsa.pub');
-        $localMachineHelper->readFile(Argument::type('string'))->willReturn($sshKeysRequestBody['public_key']);
+        $localMachineHelper->getLocalFilepath(Argument::containingString('id_rsa'))
+            ->willReturn('id_rsa.pub');
+        $localMachineHelper->readFile(Argument::type('string'))
+            ->willReturn($sshKeysRequestBody['public_key']);
 
         $tamper = function ($responses): void {
             foreach ($responses as $response) {
@@ -143,14 +147,14 @@ class SshKeyUploadCommandTest extends CommandTestBase
 
         // Choose a local SSH key to upload to the Cloud Platform.
         $inputs = [
-        // Choose key.
-        '0',
-        // Enter a Cloud Platform label for this SSH key:
-        $sshKeysRequestBody['label'],
-        // Would you like to wait until Cloud Platform is ready? (yes/no)
-        'y',
-        // Would you like Acquia CLI to search for a Cloud application that matches your local git config? (yes/no)
-        'n',
+            // Choose key.
+            '0',
+            // Enter a Cloud Platform label for this SSH key:
+            $sshKeysRequestBody['label'],
+            // Would you like to wait until Cloud Platform is ready? (yes/no)
+            'y',
+            // Would you like Acquia CLI to search for a Cloud application that matches your local git config? (yes/no)
+            'n',
         ];
         $this->executeCommand([], $inputs);
 
@@ -164,10 +168,10 @@ class SshKeyUploadCommandTest extends CommandTestBase
     public function testInvalidFilepath(): void
     {
         $inputs = [
-        // Choose key.
-        '0',
-        // Label.
-        'Test',
+            // Choose key.
+            '0',
+            // Label.
+            'Test',
         ];
         $filepath = Path::join(sys_get_temp_dir(), 'notarealfile');
         $args = ['--filepath' => $filepath];

@@ -20,11 +20,11 @@ final class IdeServiceStopCommand extends IdeCommandBase
     protected function configure(): void
     {
         $this
-        ->addArgument('service', InputArgument::REQUIRED, 'The name of the service to stop')
-        ->addUsage('php')
-        ->addUsage('apache')
-        ->addUsage('mysql')
-        ->setHidden(!AcquiaDrupalEnvironmentDetector::isAhIdeEnv());
+            ->addArgument('service', InputArgument::REQUIRED, 'The name of the service to stop')
+            ->addUsage('php')
+            ->addUsage('apache')
+            ->addUsage('mysql')
+            ->setHidden(!AcquiaDrupalEnvironmentDetector::isAhIdeEnv());
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -34,12 +34,12 @@ final class IdeServiceStopCommand extends IdeCommandBase
         $this->validateService($service);
 
         $serviceNameMap = [
-        'apache' => 'apache2',
-        'apache2' => 'apache2',
-        'mysql' => 'mysqld',
-        'mysqld' => 'mysqld',
-        'php' => 'php-fpm',
-        'php-fpm' => 'php-fpm',
+            'apache' => 'apache2',
+            'apache2' => 'apache2',
+            'mysql' => 'mysqld',
+            'mysqld' => 'mysqld',
+            'php' => 'php-fpm',
+            'php-fpm' => 'php-fpm',
         ];
         $output->writeln("Stopping <options=bold>$service</>...");
         $serviceName = $serviceNameMap[$service];
@@ -52,10 +52,17 @@ final class IdeServiceStopCommand extends IdeCommandBase
     private function validateService(string $service): void
     {
         $violations = Validation::createValidator()->validate($service, [
-        new Choice([
-        'choices' => ['php', 'php-fpm', 'apache', 'apache2', 'mysql', 'mysqld'],
-        'message' => 'Specify a valid service name: php, apache, or mysql',
-        ]),
+            new Choice([
+                'choices' => [
+                    'php',
+                    'php-fpm',
+                    'apache',
+                    'apache2',
+                    'mysql',
+                    'mysqld',
+                ],
+                'message' => 'Specify a valid service name: php, apache, or mysql',
+            ]),
         ]);
         if (count($violations)) {
             throw new ValidatorException($violations->get(0)->getMessage());

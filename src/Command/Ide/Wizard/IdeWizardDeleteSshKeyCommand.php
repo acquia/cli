@@ -22,7 +22,7 @@ final class IdeWizardDeleteSshKeyCommand extends IdeWizardCommandBase
     protected function configure(): void
     {
         $this
-        ->setHidden(!CommandBase::isAcquiaCloudIde());
+            ->setHidden(!CommandBase::isAcquiaCloudIde());
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int

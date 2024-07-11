@@ -27,64 +27,64 @@ class AcsfAuthLoginCommandTest extends AcsfCommandTestBase
     public function providerTestAuthLoginCommand(): array
     {
         return [
-        // Data set 0.
-        [
-        // $machineIsAuthenticated
-        false,
-        // $inputs
-        [
-        // Would you like to share anonymous performance usage and data? (yes/no) [yes].
-        'yes',
-        // Enter the full URL of the factory.
-        $this->acsfCurrentFactoryUrl,
-        // Enter a value for username.
-        $this->acsfUsername,
-        // Enter a value for key.
-        $this->acsfKey,
-        ],
-        // No arguments, all interactive.
-        [],
-        // Output to assert.
-        'Saved credentials',
-        ],
-        // Data set 1.
-        [
-        // $machineIsAuthenticated
-        false,
-        // $inputs
-        [],
-        // Arguments.
-        [
-        // Enter the full URL of the factory.
-        '--factory-url' => $this->acsfCurrentFactoryUrl,
-        // Enter a value for key.
-        '--key' => $this->acsfKey,
-        // Enter a value for username.
-        '--username' => $this->acsfUsername,
-        ],
-        // Output to assert.
-        'Saved credentials',
-        // $config.
-        $this->getAcsfCredentialsFileContents(),
-        ],
-        // Data set 2.
-        [
-        // $machineIsAuthenticated
-        true,
-        // $inputs
-        [
-        // Choose a factory to log in to.
-        $this->acsfCurrentFactoryUrl,
-        // Choose which user to log in as.
-        $this->acsfUsername,
-        ],
-        // Arguments.
-        [],
-        // Output to assert.
-        "Acquia CLI is now logged in to $this->acsfCurrentFactoryUrl as $this->acsfUsername",
-        // $config.
-        $this->getAcsfCredentialsFileContents(),
-        ],
+            // Data set 0.
+            [
+                // $machineIsAuthenticated
+                false,
+                // $inputs
+                [
+                    // Would you like to share anonymous performance usage and data? (yes/no) [yes].
+                    'yes',
+                    // Enter the full URL of the factory.
+                    $this->acsfCurrentFactoryUrl,
+                    // Enter a value for username.
+                    $this->acsfUsername,
+                    // Enter a value for key.
+                    $this->acsfKey,
+                ],
+                // No arguments, all interactive.
+                [],
+                // Output to assert.
+                'Saved credentials',
+            ],
+            // Data set 1.
+            [
+                // $machineIsAuthenticated
+                false,
+                // $inputs
+                [],
+                // Arguments.
+                [
+                    // Enter the full URL of the factory.
+                    '--factory-url' => $this->acsfCurrentFactoryUrl,
+                    // Enter a value for key.
+                    '--key' => $this->acsfKey,
+                    // Enter a value for username.
+                    '--username' => $this->acsfUsername,
+                ],
+                // Output to assert.
+                'Saved credentials',
+                // $config.
+                $this->getAcsfCredentialsFileContents(),
+            ],
+            // Data set 2.
+            [
+                // $machineIsAuthenticated
+                true,
+                // $inputs
+                [
+                    // Choose a factory to log in to.
+                    $this->acsfCurrentFactoryUrl,
+                    // Choose which user to log in as.
+                    $this->acsfUsername,
+                ],
+                // Arguments.
+                [],
+                // Output to assert.
+                "Acquia CLI is now logged in to $this->acsfCurrentFactoryUrl as $this->acsfUsername",
+                // $config.
+                $this->getAcsfCredentialsFileContents(),
+            ],
         ];
     }
 
@@ -95,7 +95,8 @@ class AcsfAuthLoginCommandTest extends AcsfCommandTestBase
     public function testAcsfAuthLoginCommand(bool $machineIsAuthenticated, array $inputs, array $args, string $outputToAssert, array $config = []): void
     {
         if (!$machineIsAuthenticated) {
-            $this->clientServiceProphecy->isMachineAuthenticated()->willReturn(false);
+            $this->clientServiceProphecy->isMachineAuthenticated()
+                ->willReturn(false);
             $this->removeMockCloudConfigFile();
         } else {
             $this->removeMockCloudConfigFile();

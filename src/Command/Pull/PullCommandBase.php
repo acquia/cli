@@ -100,10 +100,10 @@ abstract class PullCommandBase extends CommandBase
             $dbMachineName = 'db' . $database->id;
         }
         $filename = implode('-', [
-        $environment->name,
-        $database->name,
-        $dbMachineName,
-        $backupResponse->completedAt,
+            $environment->name,
+            $database->name,
+            $dbMachineName,
+            $backupResponse->completedAt,
         ]) . '.sql.gz';
         return Path::join(sys_get_temp_dir(), $filename);
     }
@@ -182,9 +182,9 @@ abstract class PullCommandBase extends CommandBase
         // @todo Validate that an Acquia remote is configured for this repository.
         $this->localMachineHelper->checkRequiredBinariesExist(['git']);
         $this->localMachineHelper->execute([
-        'git',
-        'fetch',
-        '--all',
+            'git',
+            'fetch',
+            '--all',
         ], $outputCallback, $this->dir, false);
         $this->checkoutBranchFromEnv($chosenEnvironment, $outputCallback);
     }
@@ -196,9 +196,9 @@ abstract class PullCommandBase extends CommandBase
     {
         $this->localMachineHelper->checkRequiredBinariesExist(['git']);
         $this->localMachineHelper->execute([
-        'git',
-        'checkout',
-        $environment->vcs->path,
+            'git',
+            'checkout',
+            $environment->vcs->path,
         ], $outputCallback, $this->dir, false);
     }
 
@@ -234,8 +234,8 @@ abstract class PullCommandBase extends CommandBase
         $acquiaCloudClient = $this->cloudApiClientService->getClient();
         $acquiaCloudClient->addOption('sink', $localFilepath);
         $acquiaCloudClient->addOption('curl.options', [
-        'CURLOPT_FILE' => $localFilepath,
-        'CURLOPT_RETURNTRANSFER' => false,
+            'CURLOPT_FILE' => $localFilepath,
+            'CURLOPT_RETURNTRANSFER' => false,
         ]);
         $acquiaCloudClient->addOption(
             'progress',
@@ -260,7 +260,12 @@ abstract class PullCommandBase extends CommandBase
         } catch (RequestException $exception) {
             // Deal with broken SSL certificates.
             // @see https://timi.eu/docs/anatella/5_1_9_1_list_of_curl_error_codes.html
-            if (in_array($exception->getHandlerContext()['errno'], [51, 60], true)) {
+            if (
+                in_array($exception->getHandlerContext()['errno'], [
+                    51,
+                    60,
+                ], true)
+            ) {
                 $outputCallback('out', '<comment>The certificate for ' . $url->getHost() . ' is invalid.</comment>');
                 assert($url !== null);
                 $domainsResource = new Domains($this->cloudApiClientService->getClient());
@@ -330,7 +335,8 @@ abstract class PullCommandBase extends CommandBase
     }
 
     /**
-     * Wait for an on-demand backup to become available (Cloud API notification).
+     * Wait for an on-demand backup to become available (Cloud API
+     * notification).
      *
      * @infection-ignore-all
      */
@@ -352,21 +358,21 @@ abstract class PullCommandBase extends CommandBase
         }
         $this->localMachineHelper->checkRequiredBinariesExist(['mysql']);
         $command = [
-        'mysql',
-        '--host',
-        $dbHost,
-        '--user',
-        $dbUser,
-        $dbName,
+            'mysql',
+            '--host',
+            $dbHost,
+            '--user',
+            $dbUser,
+            $dbName,
         ];
         $process = $this->localMachineHelper->execute($command, $outputCallback, null, false, null, ['MYSQL_PWD' => $dbPassword]);
         if (!$process->isSuccessful()) {
             throw new AcquiaCliException('Unable to connect to local database using credentials mysql://{user}:{password}@{host}/{database}. {message}', [
-            'database' => $dbName,
-            'host' => $dbHost,
-            'message' => $process->getErrorOutput(),
-            'password' => $dbPassword,
-            'user' => $dbUser,
+                'database' => $dbName,
+                'host' => $dbHost,
+                'message' => $process->getErrorOutput(),
+                'password' => $dbPassword,
+                'user' => $dbUser,
             ]);
         }
     }
@@ -378,31 +384,33 @@ abstract class PullCommandBase extends CommandBase
         }
         $this->localMachineHelper->checkRequiredBinariesExist(['mysql']);
         $command = [
-        'mysql',
-        '--host',
-        $dbHost,
-        '--user',
-        $dbUser,
-        $dbName,
-        '--silent',
-        '-e',
-        'SHOW TABLES;',
-        ];
-        $process = $this->localMachineHelper->execute($command, $outputCallback, null, false, null, ['MYSQL_PWD' => $dbPassword]);
-        $tables = $this->listTablesQuoted($process->getOutput());
-        if ($tables) {
-            $sql = 'DROP TABLE ' . implode(', ', $tables);
-            $tempnam = $this->localMachineHelper->getFilesystem()->tempnam(sys_get_temp_dir(), 'acli_drop_table_', '.sql');
-            $this->localMachineHelper->getFilesystem()->dumpFile($tempnam, $sql);
-            $command = [
             'mysql',
             '--host',
             $dbHost,
             '--user',
             $dbUser,
             $dbName,
+            '--silent',
             '-e',
-            'source ' . $tempnam,
+            'SHOW TABLES;',
+        ];
+        $process = $this->localMachineHelper->execute($command, $outputCallback, null, false, null, ['MYSQL_PWD' => $dbPassword]);
+        $tables = $this->listTablesQuoted($process->getOutput());
+        if ($tables) {
+            $sql = 'DROP TABLE ' . implode(', ', $tables);
+            $tempnam = $this->localMachineHelper->getFilesystem()
+                ->tempnam(sys_get_temp_dir(), 'acli_drop_table_', '.sql');
+            $this->localMachineHelper->getFilesystem()
+                ->dumpFile($tempnam, $sql);
+            $command = [
+                'mysql',
+                '--host',
+                $dbHost,
+                '--user',
+                $dbUser,
+                $dbName,
+                '-e',
+                'source ' . $tempnam,
             ];
             $process = $this->localMachineHelper->execute($command, $outputCallback, null, false, null, ['MYSQL_PWD' => $dbPassword]);
             if (!$process->isSuccessful()) {
@@ -417,7 +425,10 @@ abstract class PullCommandBase extends CommandBase
             $outputCallback('out', "Importing downloaded file to database $dbName");
         }
         $this->logger->debug("Importing $localDumpFilepath to MySQL on local machine");
-        $this->localMachineHelper->checkRequiredBinariesExist(['gunzip', 'mysql']);
+        $this->localMachineHelper->checkRequiredBinariesExist([
+            'gunzip',
+            'mysql',
+        ]);
         if ($this->localMachineHelper->commandExists('pv')) {
             $command = "pv $localDumpFilepath --bytes --rate | gunzip | MYSQL_PWD=$dbPassword mysql --host=$dbHost --user=$dbUser $dbName";
         } else {
@@ -457,7 +468,10 @@ abstract class PullCommandBase extends CommandBase
 
     protected function determineCloneProject(OutputInterface $output): bool
     {
-        $finder = $this->localMachineHelper->getFinder()->files()->in($this->dir)->ignoreDotFiles(false);
+        $finder = $this->localMachineHelper->getFinder()
+            ->files()
+            ->in($this->dir)
+            ->ignoreDotFiles(false);
 
         // If we are in an IDE, assume we should pull into /home/ide/project.
         if ($this->dir === '/home/ide/project' && AcquiaDrupalEnvironmentDetector::isAhIdeEnv() && !$finder->hasResults()) {
@@ -489,10 +503,10 @@ abstract class PullCommandBase extends CommandBase
     {
         $this->localMachineHelper->checkRequiredBinariesExist(['git']);
         $command = [
-        'git',
-        'clone',
-        $chosenEnvironment->vcs->url,
-        $this->dir,
+            'git',
+            'clone',
+            $chosenEnvironment->vcs->url,
+            $this->dir,
         ];
         $process = $this->localMachineHelper->execute($command, $outputCallback, null, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL), null, ['GIT_SSH_COMMAND' => 'ssh -o StrictHostKeyChecking=no']);
         $this->checkoutBranchFromEnv($chosenEnvironment, $outputCallback);
@@ -521,7 +535,10 @@ abstract class PullCommandBase extends CommandBase
             if ($answer) {
                 $command = $this->getApplication()->find('ide:php-version');
                 $command->run(
-                    new ArrayInput(['command' => 'ide:php-version', 'version' => $chosenEnvironment->configuration->php->version]),
+                    new ArrayInput([
+                        'command' => 'ide:php-version',
+                        'version' => $chosenEnvironment->configuration->php->version,
+                    ]),
                     $output
                 );
             }
@@ -567,9 +584,9 @@ abstract class PullCommandBase extends CommandBase
         $dateFormatted = date("D M j G:i:s T Y", strtotime($backupResponse->completedAt));
         $webLink = "https://cloud.acquia.com/a/environments/{$sourceEnvironment->uuid}/databases";
         $messages = [
-        "Using a database backup that is $hoursInterval hours old. Backup #$backupResponse->id was created at {$dateFormatted}.",
-        "You can view your backups here: $webLink",
-        "To generate a new backup, re-run this command with the --on-demand option.",
+            "Using a database backup that is $hoursInterval hours old. Backup #$backupResponse->id was created at {$dateFormatted}.",
+            "You can view your backups here: $webLink",
+            "To generate a new backup, re-run this command with the --on-demand option.",
         ];
         if ($hoursInterval > 24) {
             $this->io->warning($messages);

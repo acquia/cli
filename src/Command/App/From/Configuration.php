@@ -30,12 +30,13 @@ final class Configuration
     protected function __construct(array $config)
     {
         $this->array = static::schema([
-        'rootPackageDefinition' => 'is_array',
+            'rootPackageDefinition' => 'is_array',
         ])($config);
     }
 
     /**
-     * Creates a configuration object from configuration given as a PHP resource.
+     * Creates a configuration object from configuration given as a PHP
+     * resource.
      *
      * The given PHP resource is usually obtained by calling fopen($location).
      *

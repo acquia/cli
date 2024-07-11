@@ -32,24 +32,24 @@ class EnvCreateCommandTest extends CommandTestBase
             'get',
             "/applications/{$applicationsResponse->{'_embedded'}->items[0]->uuid}/environments"
         )
-        ->willReturn($response1->_embedded->items, $response2->_embedded->items)
-        ->shouldBeCalled();
+            ->willReturn($response1->_embedded->items, $response2->_embedded->items)
+            ->shouldBeCalled();
 
         $codeResponse = $this->getMockResponseFromSpec("/applications/{applicationUuid}/code", 'get', '200');
         $this->clientProphecy->request(
             'get',
             "/applications/$applicationResponse->uuid/code"
         )
-        ->willReturn($codeResponse->_embedded->items)
-        ->shouldBeCalled();
+            ->willReturn($codeResponse->_embedded->items)
+            ->shouldBeCalled();
 
         $databasesResponse = $this->getMockResponseFromSpec("/applications/{applicationUuid}/databases", 'get', '200');
         $this->clientProphecy->request(
             'get',
             "/applications/$applicationResponse->uuid/databases"
         )
-        ->willReturn($databasesResponse->_embedded->items)
-        ->shouldBeCalled();
+            ->willReturn($databasesResponse->_embedded->items)
+            ->shouldBeCalled();
 
         $environmentsResponse = $this->getMockResponseFromSpec(
             '/applications/{applicationUuid}/environments',
@@ -57,8 +57,8 @@ class EnvCreateCommandTest extends CommandTestBase
             202
         );
         $this->clientProphecy->request('post', "/applications/$applicationResponse->uuid/environments", Argument::type('array'))
-        ->willReturn($environmentsResponse->{'Adding environment'}->value)
-        ->shouldBeCalled();
+            ->willReturn($environmentsResponse->{'Adding environment'}->value)
+            ->shouldBeCalled();
 
         $this->mockNotificationResponseFromObject($environmentsResponse->{'Adding environment'}->value);
         return $response2->_embedded->items[3]->domains[0];
@@ -93,12 +93,12 @@ class EnvCreateCommandTest extends CommandTestBase
         $application = $this->getApplication();
         $branch = $this->getBranch();
         return [
-        // No args, only interactive input.
-        [[null, null], ['n', 0, 0]],
-        // Branch as arg.
-        [[$branch, null], ['n', 0]],
-        // Branch and app id as args.
-        [[$branch, $application], []],
+            // No args, only interactive input.
+            [[null, null], ['n', 0, 0]],
+            // Branch as arg.
+            [[$branch, null], ['n', 0]],
+            // Branch and app id as args.
+            [[$branch, $application], []],
         ];
     }
 
@@ -112,9 +112,9 @@ class EnvCreateCommandTest extends CommandTestBase
 
         $this->executeCommand(
             [
-            'applicationUuid' => $args[1],
-            'branch' => $args[0],
-            'label' => self::$validLabel,
+                'applicationUuid' => $args[1],
+                'branch' => $args[0],
+                'label' => self::$validLabel,
             ],
             $input
         );
@@ -136,9 +136,9 @@ class EnvCreateCommandTest extends CommandTestBase
         $this->expectExceptionMessage('An environment named Dev already exists.');
         $this->executeCommand(
             [
-            'applicationUuid' => $this->getApplication(),
-            'branch' => $this->getBranch(),
-            'label' => $label,
+                'applicationUuid' => $this->getApplication(),
+                'branch' => $this->getBranch(),
+                'label' => $label,
             ]
         );
     }
@@ -154,9 +154,9 @@ class EnvCreateCommandTest extends CommandTestBase
         $this->expectExceptionMessage('There is no branch or tag with the name bogus on the remote VCS.');
         $this->executeCommand(
             [
-            'applicationUuid' => $this->getApplication(),
-            'branch' => 'bogus',
-            'label' => self::$validLabel,
+                'applicationUuid' => $this->getApplication(),
+                'branch' => 'bogus',
+                'label' => self::$validLabel,
             ]
         );
     }
