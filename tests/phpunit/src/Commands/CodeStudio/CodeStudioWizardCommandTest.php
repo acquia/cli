@@ -65,6 +65,8 @@ class CodeStudioWizardCommandTest extends WizardTestBase
                 [$this->getMockedGitLabProject($this->gitLabProjectId)],
                 // Inputs.
                 [
+                    0,
+                    0,
                     // Do you want to continue?
                     'y',
                     // Would you like to perform a one time push of code from Acquia Cloud to Code Studio now? (yes/no) [yes]:
@@ -84,6 +86,9 @@ class CodeStudioWizardCommandTest extends WizardTestBase
                 ],
                 // Inputs.
                 [
+                    0,
+                    0,
+                    'n',
                     // Found multiple projects that could match the Sample application 1 application. Choose which one to configure.
                     '0',
                     // Do you want to continue?
@@ -102,6 +107,8 @@ class CodeStudioWizardCommandTest extends WizardTestBase
                 [],
                 // Inputs.
                 [
+                    0,
+                    0,
                     // 'Would you like to create a new Code Studio project?
                     'y',
                     // Select a project type Drupal_project.
@@ -124,8 +131,6 @@ class CodeStudioWizardCommandTest extends WizardTestBase
                 [],
                 // Inputs.
                 [
-                    // 'Would you like to create a new Code Studio project?
-                    'y',
                     // Select a project type Drupal_project.
                     '0',
                     // Select PHP version 8.2.
@@ -146,11 +151,9 @@ class CodeStudioWizardCommandTest extends WizardTestBase
                 [],
                 // Inputs.
                 [
-                    // 'Would you like to create a new Code Studio project?
-                    'y',
                     // Select a project type Node_project.
                     '1',
-                    // Select NODE version 18.17.1.
+                    // Select NODE version 18.
                     '0',
                     // Do you want to continue?
                     'y',
@@ -168,11 +171,9 @@ class CodeStudioWizardCommandTest extends WizardTestBase
                 [],
                 // Inputs.
                 [
-                    // 'Would you like to create a new Code Studio project?
-                    'y',
                     // Select a project type Node_project.
                     '1',
-                    // Select NODE version 20.5.1.
+                    // Select NODE version 20.
                     '1',
                     // Do you want to continue?
                     'y',
@@ -190,8 +191,10 @@ class CodeStudioWizardCommandTest extends WizardTestBase
                 [],
                 // Inputs.
                 [
-                    // 'Would you like to create a new Code Studio project?
-                    'n',
+                    0,
+                    0,
+                    'y',
+                    'y',
                     // Choose project.
                     '0',
                     // Do you want to continue?
@@ -208,8 +211,6 @@ class CodeStudioWizardCommandTest extends WizardTestBase
                 [],
                 // Inputs.
                 [
-                    // 'Would you like to create a new Code Studio project?
-                    'y',
                     // Enter Cloud Key.
                     $this->key,
                     // Enter Cloud secret,.
@@ -229,15 +230,13 @@ class CodeStudioWizardCommandTest extends WizardTestBase
                 [],
                 // Inputs.
                 [
-                    // 'Would you like to create a new Code Studio project?
-                    'y',
                     // Enter Cloud Key.
                     $this->key,
                     // Enter Cloud secret,.
                     $this->secret,
                     // Select a project type Node_project.
                     '1',
-                    // Select NODE version 18.17.1.
+                    // Select NODE version 18.
                     '0',
                     // Do you want to continue?
                     'y',
@@ -250,8 +249,6 @@ class CodeStudioWizardCommandTest extends WizardTestBase
                 [],
                 // Inputs.
                 [
-                    // 'Would you like to create a new Code Studio project?
-                    'y',
                     // Enter Cloud Key.
                     $this->key,
                     // Enter Cloud secret,.
@@ -271,15 +268,13 @@ class CodeStudioWizardCommandTest extends WizardTestBase
                 [],
                 // Inputs.
                 [
-                    // 'Would you like to create a new Code Studio project?
-                    'y',
                     // Enter Cloud Key.
                     $this->key,
                     // Enter Cloud secret,.
                     $this->secret,
                     // Select a project type Node_project.
                     '1',
-                    // Select NODE version 20.5.1.
+                    // Select NODE version 20.
                     '1',
                     // Do you want to continue?
                     'y',
@@ -332,7 +327,7 @@ class CodeStudioWizardCommandTest extends WizardTestBase
         )->shouldBeCalled();
         $this->mockGitLabVariables($this->gitLabProjectId, $projects);
 
-        if ($inputs[0] === 'y' && ($inputs[1] === '1' || (array_key_exists(3, $inputs) && $inputs[3] === '1'))) {
+        if (($inputs[0] === '1' || (array_key_exists(2, $inputs) && $inputs[2] === '1'))) {
             $parameters = [
                 'ci_config_path' => 'gitlab-ci/Auto-DevOps.acquia.gitlab-ci.yml@acquia/node-template',
             ];
@@ -387,6 +382,7 @@ class CodeStudioWizardCommandTest extends WizardTestBase
         foreach ($output_strings as $output_string) {
             self::assertStringContainsString($output_string, $output);
         }
+        self::assertStringNotContainsString('[ERROR]', $output);
 
         // Assertions.
         $this->assertEquals(0, $this->getStatusCode());
