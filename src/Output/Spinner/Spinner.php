@@ -105,7 +105,7 @@ class Spinner
         $this->progressBar->setEmptyBarCharacter('⌛');
         $this->progressBar->setFormat($indentString . "%bar% %message%\n%detail%");
         $this->progressBar->setBarWidth(1);
-        $this->progressBar->setMessage('', 'detail');
+        $this->progressBar->setMessage(' ', 'detail');
         $this->progressBar->setOverwrite($output->getVerbosity() < OutputInterface::VERBOSITY_VERBOSE);
     }
 

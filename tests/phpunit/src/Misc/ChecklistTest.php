@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Acquia\Cli\Tests\Commands;
+namespace Acquia\Cli\Tests\Misc;
 
 use Acquia\Cli\Output\Checklist;
 use Acquia\Cli\Tests\TestBase;
@@ -28,6 +28,9 @@ class ChecklistTest extends TestBase
         putenv('PHPUNIT_RUNNING=1');
         $checklist = new Checklist($this->output);
         $checklist->addItem('Testing!');
+        $items = $checklist->getItems();
+        $progressBar = $items[0]['spinner']->getProgressBar();
+        $this->assertEquals(' ', $progressBar->getMessage('detail'));
 
         // Make the spinner spin with some output.
         $outputCallback = static function (string $type, string $buffer) use ($checklist): void {
@@ -48,7 +51,7 @@ class ChecklistTest extends TestBase
         $this->assertEquals('[38;5;202m⢸[0m', $progressBar->getProgressCharacter());
         $this->assertEquals('⌛', $progressBar->getEmptyBarCharacter());
         $this->assertEquals(1, $progressBar->getBarWidth());
-        $this->assertEquals('', $progressBar->getMessage('detail'));
+        $this->assertEquals(' ', $progressBar->getMessage('detail'));
 
         putenv('PHPUNIT_RUNNING');
     }
