@@ -34,12 +34,12 @@ final class IdeServiceRestartCommand extends IdeCommandBase
         $this->validateService($service);
 
         $serviceNameMap = [
-        'apache' => 'apache2',
-        'apache2' => 'apache2',
-        'mysql' => 'mysqld',
-        'mysqld' => 'mysqld',
-        'php' => 'php-fpm',
-        'php-fpm' => 'php-fpm',
+            'apache' => 'apache2',
+            'apache2' => 'apache2',
+            'mysql' => 'mysqld',
+            'mysqld' => 'mysqld',
+            'php' => 'php-fpm',
+            'php-fpm' => 'php-fpm',
         ];
         $output->writeln("Restarting <options=bold>$service</>...");
         $serviceName = $serviceNameMap[$service];
@@ -52,10 +52,10 @@ final class IdeServiceRestartCommand extends IdeCommandBase
     private function validateService(string $service): void
     {
         $violations = Validation::createValidator()->validate($service, [
-        new Choice([
-        'choices' => ['php', 'php-fpm', 'apache', 'apache2', 'mysql', 'mysqld'],
-        'message' => 'Specify a valid service name: php, apache, or mysql',
-        ]),
+            new Choice([
+                'choices' => ['php', 'php-fpm', 'apache', 'apache2', 'mysql', 'mysqld'],
+                'message' => 'Specify a valid service name: php, apache, or mysql',
+            ]),
         ]);
         if (count($violations)) {
             throw new ValidatorException($violations->get(0)->getMessage());

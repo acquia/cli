@@ -110,37 +110,37 @@ final class EmailInfoForSubscriptionCommand extends CommandBase
             }
 
             $allDomainsTable->addRow([
-            $domain->domain_name,
-            $domain->uuid,
-            $this->showHumanReadableStatus($domain->health->code) . ' - ' . $domain->health->code,
+                $domain->domain_name,
+                $domain->uuid,
+                $this->showHumanReadableStatus($domain->health->code) . ' - ' . $domain->health->code,
             ]);
 
             $writerAllDomains->insertOne([
-            $domain->domain_name,
-            $domain->uuid,
-            $this->showHumanReadableStatus($domain->health->code) . ' - ' . $domain->health->code,
+                $domain->domain_name,
+                $domain->uuid,
+                $this->showHumanReadableStatus($domain->health->code) . ' - ' . $domain->health->code,
             ]);
 
             foreach ($domain->dns_records as $index => $record) {
                 if ($index === 0) {
                     $writerAllDomainsDnsHealth->insertOne([
-                    $domain->domain_name,
-                    $domain->uuid,
-                    $this->showHumanReadableStatus($domain->health->code) . ' - ' . $domain->health->code,
-                    $record->name,
-                    $record->type,
-                    $record->value,
-                    $record->health->details,
+                        $domain->domain_name,
+                        $domain->uuid,
+                        $this->showHumanReadableStatus($domain->health->code) . ' - ' . $domain->health->code,
+                        $record->name,
+                        $record->type,
+                        $record->value,
+                        $record->health->details,
                     ]);
                 } else {
                     $writerAllDomainsDnsHealth->insertOne([
-                    '',
-                    '',
-                    '',
-                    $record->name,
-                    $record->type,
-                    $record->value,
-                    $record->health->details,
+                        '',
+                        '',
+                        '',
+                        $record->name,
+                        $record->type,
+                        $record->value,
+                        $record->health->details,
                     ]);
                 }
             }
@@ -204,17 +204,17 @@ final class EmailInfoForSubscriptionCommand extends CommandBase
             if (count($appDomains)) {
                 foreach ($appDomains as $domain) {
                     $appsDomainsTable->addRow([
-                    $domain->domain_name,
-                    var_export($domain->flags->associated, true),
+                        $domain->domain_name,
+                        var_export($domain->flags->associated, true),
                     ]);
                     $writerAppsDomains->insertOne([$app->name, $domain->domain_name, var_export($domain->flags->associated, true)]);
                 }
             } else {
                 $appsDomainsTable->addRow([new TableCell("No domains eligible for association.", [
-                'colspan' => 2,
-                'style' => new TableCellStyle([
-                'fg' => 'yellow',
-                ]),
+                    'colspan' => 2,
+                    'style' => new TableCellStyle([
+                        'fg' => 'yellow',
+                    ]),
                 ]),
                 ]);
                 $writerAppsDomains->insertOne([$app->name, 'No domains eligible for association', '']);

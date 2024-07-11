@@ -57,8 +57,8 @@ final class IdeShareCommand extends CommandBase
     {
         if (!isset($this->shareCodeFilepaths)) {
             $this->shareCodeFilepaths = [
-            '/usr/local/share/ide/.sharecode',
-            '/home/ide/.sharecode',
+                '/usr/local/share/ide/.sharecode',
+                '/home/ide/.sharecode',
             ];
         }
         return $this->shareCodeFilepaths;

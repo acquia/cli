@@ -57,11 +57,11 @@ abstract class PullCommandTestBase extends CommandTestBase
         ->willReturn(json_encode(['db-status' => 'Connected']));
         $localMachineHelper
         ->execute([
-        'drush',
-        'status',
-        '--fields=db-status,drush-version',
-        '--format=json',
-        '--no-interaction',
+            'drush',
+            'status',
+            '--fields=db-status,drush-version',
+            '--format=json',
+            '--no-interaction',
         ], Argument::any(), $dir, false)
         ->willReturn($drushStatusProcess->reveal())
         ->shouldBeCalled();
@@ -73,11 +73,11 @@ abstract class PullCommandTestBase extends CommandTestBase
     ): void {
         $localMachineHelper
         ->execute([
-        'drush',
-        'cache:rebuild',
-        '--yes',
-        '--no-interaction',
-        '--verbose',
+            'drush',
+            'cache:rebuild',
+            '--yes',
+            '--no-interaction',
+            '--verbose',
         ], Argument::type('callable'), $this->projectDir, false)
         ->willReturn($process->reveal())
         ->shouldBeCalled();
@@ -89,11 +89,11 @@ abstract class PullCommandTestBase extends CommandTestBase
     ): void {
         $localMachineHelper
         ->execute([
-        'drush',
-        'sql:sanitize',
-        '--yes',
-        '--no-interaction',
-        '--verbose',
+            'drush',
+            'sql:sanitize',
+            '--yes',
+            '--no-interaction',
+            '--verbose',
         ], Argument::type('callable'), $this->projectDir, false)
         ->willReturn($process->reveal())
         ->shouldBeCalled();
@@ -114,9 +114,9 @@ abstract class PullCommandTestBase extends CommandTestBase
     ): void {
         $localMachineHelper
         ->execute([
-        'composer',
-        'install',
-        '--no-interaction',
+            'composer',
+            'install',
+            '--no-interaction',
         ], Argument::type('callable'), $this->projectDir, false, null)
         ->willReturn($process->reveal())
         ->shouldBeCalled();
@@ -127,7 +127,7 @@ abstract class PullCommandTestBase extends CommandTestBase
     ): void {
         $localMachineHelper
         ->execute([
-        '/ide/drupal-setup.sh',
+            '/ide/drupal-setup.sh',
         ]);
     }
 
@@ -150,9 +150,9 @@ abstract class PullCommandTestBase extends CommandTestBase
         $process->isSuccessful()->willReturn(true)->shouldBeCalled();
         $process->getOutput()->willReturn($commitHash)->shouldBeCalled();
         $localMachineHelper->execute([
-        'git',
-        'rev-parse',
-        'HEAD',
+            'git',
+            'rev-parse',
+            'HEAD',
         ], null, $cwd, false)->willReturn($process->reveal())->shouldBeCalled();
     }
 
@@ -181,9 +181,9 @@ abstract class PullCommandTestBase extends CommandTestBase
         string $vcsPath
     ): void {
         $localMachineHelper->execute([
-        'git',
-        'fetch',
-        '--all',
+            'git',
+            'fetch',
+            '--all',
         ], Argument::type('callable'), $cwd, false)
         ->willReturn($process->reveal())
         ->shouldBeCalled();
@@ -193,9 +193,9 @@ abstract class PullCommandTestBase extends CommandTestBase
     protected function mockExecuteGitCheckout(ObjectProphecy $localMachineHelper, string $vcsPath, string $cwd, ObjectProphecy $process): void
     {
         $localMachineHelper->execute([
-        'git',
-        'checkout',
-        $vcsPath,
+            'git',
+            'checkout',
+            $vcsPath,
         ], Argument::type('callable'), $cwd, false)
         ->willReturn($process->reveal())
         ->shouldBeCalled();
@@ -210,11 +210,11 @@ abstract class PullCommandTestBase extends CommandTestBase
         $process = $this->mockProcess();
         $localMachineHelper->checkRequiredBinariesExist(['rsync'])->shouldBeCalled();
         $command = [
-        'rsync',
-        '-avPhze',
-        'ssh -o StrictHostKeyChecking=no',
-        $environment->ssh_url . ':' . $sourceDir,
-        $destinationDir,
+            'rsync',
+            '-avPhze',
+            'ssh -o StrictHostKeyChecking=no',
+            $environment->ssh_url . ':' . $sourceDir,
+            $destinationDir,
         ];
         $localMachineHelper->execute($command, Argument::type('callable'), null, true)
         ->willReturn($process->reveal())
@@ -229,12 +229,12 @@ abstract class PullCommandTestBase extends CommandTestBase
         $process = $this->mockProcess($success);
         $localMachineHelper
         ->execute([
-        'mysql',
-        '--host',
-        $this->dbHost,
-        '--user',
-        'drupal',
-        'drupal',
+            'mysql',
+            '--host',
+            $this->dbHost,
+            '--user',
+            'drupal',
+            'drupal',
         ], Argument::type('callable'), null, false, null, ['MYSQL_PWD' => 'drupal'])
         ->willReturn($process->reveal())
         ->shouldBeCalled();
@@ -248,15 +248,15 @@ abstract class PullCommandTestBase extends CommandTestBase
         $process = $this->mockProcess();
         $process->getOutput()->willReturn('table1');
         $command = [
-        'mysql',
-        '--host',
-        'localhost',
-        '--user',
-        'drupal',
-        $dbName,
-        '--silent',
-        '-e',
-        'SHOW TABLES;',
+            'mysql',
+            '--host',
+            'localhost',
+            '--user',
+            'drupal',
+            $dbName,
+            '--silent',
+            '-e',
+            'SHOW TABLES;',
         ];
         $localMachineHelper
         ->execute($command, Argument::type('callable'), null, false, null, ['MYSQL_PWD' => $this->dbPassword])
@@ -339,8 +339,8 @@ abstract class PullCommandTestBase extends CommandTestBase
         };
         $backups = new BackupsResponse(
             $this->mockRequest('getEnvironmentsDatabaseBackups', [
-            $environment->id,
-            'my_db',
+                $environment->id,
+                'my_db',
             ], null, null, $tamper)
         );
         $this->mockDownloadBackup($databases[0], $environment, $backups[0]);
@@ -370,16 +370,16 @@ abstract class PullCommandTestBase extends CommandTestBase
             $dbMachineName = 'db' . $database->id;
         }
         $filename = implode('-', [
-        $environment->name,
-        $database->name,
-        $dbMachineName,
-        $backup->completedAt,
+            $environment->name,
+            $database->name,
+            $dbMachineName,
+            $backup->completedAt,
         ]) . '.sql.gz';
         $localFilepath = Path::join(sys_get_temp_dir(), $filename);
         $this->clientProphecy->addOption('sink', $localFilepath)->shouldBeCalled();
         $this->clientProphecy->addOption('curl.options', [
-        'CURLOPT_FILE' => $localFilepath,
-        'CURLOPT_RETURNTRANSFER' => false,
+            'CURLOPT_FILE' => $localFilepath,
+            'CURLOPT_RETURNTRANSFER' => false,
         ])->shouldBeCalled();
         $this->clientProphecy->addOption('progress', Argument::type('Closure'))->shouldBeCalled();
         $this->clientProphecy->addOption('on_stats', Argument::type('Closure'))->shouldBeCalled();

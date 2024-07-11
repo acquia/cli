@@ -20,11 +20,11 @@ class AcsfConnector extends Connector
         parent::__construct($config, $baseUri, $urlAccessToken);
 
         $this->client = new GuzzleClient([
-        'auth' => [
-        $config['key'],
-        $config['secret'],
-        ],
-        'base_uri' => $this->getBaseUri(),
+            'auth' => [
+                $config['key'],
+                $config['secret'],
+            ],
+            'base_uri' => $this->getBaseUri(),
         ]);
     }
 

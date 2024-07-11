@@ -35,8 +35,8 @@ class NewCommandTest extends CommandTestBase
     public function provideTestNewDrupalCommand(): array
     {
         return [
-        [['acquia_drupal_recommended' => 'acquia/drupal-recommended-project']],
-        [['acquia_drupal_recommended' => 'acquia/drupal-recommended-project', 'test-dir']],
+            [['acquia_drupal_recommended' => 'acquia/drupal-recommended-project']],
+            [['acquia_drupal_recommended' => 'acquia/drupal-recommended-project', 'test-dir']],
         ];
     }
 
@@ -46,8 +46,8 @@ class NewCommandTest extends CommandTestBase
     public function provideTestNewNextJsAppCommand(): array
     {
         return [
-        [['acquia_next_acms' => 'acquia/next-acms']],
-        [['acquia_next_acms' => 'acquia/next-acms'], 'test-dir'],
+            [['acquia_next_acms' => 'acquia/next-acms']],
+            [['acquia_next_acms' => 'acquia/next-acms'], 'test-dir'],
         ];
     }
 
@@ -76,10 +76,10 @@ class NewCommandTest extends CommandTestBase
 
         $inputs = [
         // Choose a starting project.
-        $project,
+            $project,
         ];
         $this->executeCommand([
-        'directory' => $directory,
+            'directory' => $directory,
         ], $inputs);
 
         $output = $this->getDisplay();
@@ -116,10 +116,10 @@ class NewCommandTest extends CommandTestBase
 
         $inputs = [
         // Choose a starting project.
-        $project,
+            $project,
         ];
         $this->executeCommand([
-        'directory' => $directory,
+            'directory' => $directory,
         ], $inputs);
 
         $output = $this->getDisplay();
@@ -137,11 +137,11 @@ class NewCommandTest extends CommandTestBase
         string $project
     ): void {
         $command = [
-        'composer',
-        'create-project',
-        $project,
-        $projectDir,
-        '--no-interaction',
+            'composer',
+            'create-project',
+            $project,
+            $projectDir,
+            '--no-interaction',
         ];
         $localMachineHelper
         ->execute($command)
@@ -155,11 +155,11 @@ class NewCommandTest extends CommandTestBase
         ObjectProphecy $process,
     ): void {
         $command = [
-        'npx',
-        'create-next-app',
-        '-e',
-        'https://github.com/acquia/next-acms/tree/main/starters/basic-starter',
-        $projectDir,
+            'npx',
+            'create-next-app',
+            '-e',
+            'https://github.com/acquia/next-acms/tree/main/starters/basic-starter',
+            $projectDir,
         ];
         $localMachineHelper
         ->execute($command)
@@ -173,9 +173,9 @@ class NewCommandTest extends CommandTestBase
         ObjectProphecy $process
     ): void {
         $command = [
-        'git',
-        'init',
-        '--initial-branch=main',
+            'git',
+            'init',
+            '--initial-branch=main',
         ];
         $localMachineHelper
         ->execute($command, null, $projectDir)
@@ -189,9 +189,9 @@ class NewCommandTest extends CommandTestBase
         ObjectProphecy $process
     ): void {
         $command = [
-        'git',
-        'add',
-        '-A',
+            'git',
+            'add',
+            '-A',
         ];
         $localMachineHelper
         ->execute($command, null, $projectDir)
@@ -205,11 +205,11 @@ class NewCommandTest extends CommandTestBase
         ObjectProphecy $process
     ): void {
         $command = [
-        'git',
-        'commit',
-        '--message',
-        'Initial commit.',
-        '--quiet',
+            'git',
+            'commit',
+            '--message',
+            'Initial commit.',
+            '--quiet',
         ];
         $localMachineHelper
         ->execute($command, null, $projectDir)

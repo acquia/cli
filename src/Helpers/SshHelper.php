@@ -40,9 +40,9 @@ class SshHelper implements LoggerAwareInterface
         $process = $this->sendCommand($sshUrl, $commandArgs, $printOutput, $timeout);
 
         $this->logger->debug('Command: {command} [Exit: {exit}]', [
-        'command' => $commandSummary,
-        'env' => $sshUrl,
-        'exit' => $process->getExitCode(),
+            'command' => $commandSummary,
+            'env' => $sshUrl,
+            'exit' => $process->getExitCode(),
         ]);
 
         if (!$process->isSuccessful() && $process->getExitCode() === 255) {
@@ -107,12 +107,12 @@ class SshHelper implements LoggerAwareInterface
     private function getConnectionArgs(string $url): array
     {
         return [
-        'ssh',
-        $url,
-        '-t',
-        '-o StrictHostKeyChecking=no',
-        '-o AddressFamily inet',
-        '-o LogLevel=ERROR',
+            'ssh',
+            $url,
+            '-t',
+            '-o StrictHostKeyChecking=no',
+            '-o AddressFamily inet',
+            '-o LogLevel=ERROR',
         ];
     }
 

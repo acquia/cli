@@ -52,9 +52,9 @@ final class CodeStudioWizardCommand extends WizardCommandBase
         switch ($projectSelected) {
             case "Drupal_project":
                 $phpVersions = [
-                'PHP_version_8.1' => "8.1",
-                'PHP_version_8.2' => "8.2",
-                'PHP_version_8.3' => "8.3",
+                    'PHP_version_8.1' => "8.1",
+                    'PHP_version_8.2' => "8.2",
+                    'PHP_version_8.3' => "8.3",
                 ];
                 $project = $this->io->choice('Select a PHP version', array_values($phpVersions), "8.1");
                 $project = array_search($project, $phpVersions, true);
@@ -62,8 +62,8 @@ final class CodeStudioWizardCommand extends WizardCommandBase
                 break;
             case "Node_project":
                 $nodeVersions = [
-                'NODE_version_18.17.1' => "18.17.1",
-                'NODE_version_20.5.1' => "20.5.1",
+                    'NODE_version_18.17.1' => "18.17.1",
+                    'NODE_version_20.5.1' => "20.5.1",
                 ];
                 $project = $this->io->choice('Select a NODE version', array_values($nodeVersions), "18.17.1");
                 $project = array_search($project, $nodeVersions, true);
@@ -82,17 +82,17 @@ final class CodeStudioWizardCommand extends WizardCommandBase
             $appUuid,
             $account,
             [
-            "deploy to non-prod",
+                "deploy to non-prod",
             // Add SSH key to git repository.
-            "add ssh key to git",
+                "add ssh key to git",
             // Add SSH key to non-production environments.
-            "add ssh key to non-prod",
+                "add ssh key to non-prod",
             // Add a CD environment.
-            "add an environment",
+                "add an environment",
             // Delete a CD environment.
-            "delete an environment",
+                "delete an environment",
             // Manage environment variables on a non-production environment.
-            "administer environment variables on non-prod",
+                "administer environment variables on non-prod",
             ]
         );
         $this->setGitLabProjectDescription($appUuid);
@@ -102,12 +102,12 @@ final class CodeStudioWizardCommand extends WizardCommandBase
         $project = $this->determineGitLabProject($cloudApplication);
 
         $this->io->writeln([
-        "",
-        "This command will configure the Code Studio project <comment>{$project['path_with_namespace']}</comment> for automatic deployment to the",
-        "Acquia Cloud Platform application <comment>{$cloudApplication->name}</comment> (<comment>$appUuid</comment>)",
-        "using credentials (API Token and SSH Key) belonging to <comment>{$account->mail}</comment>.",
-        "",
-        "If the <comment>{$account->mail}</comment> Cloud account is deleted in the future, this Code Studio project will need to be re-configured.",
+            "",
+            "This command will configure the Code Studio project <comment>{$project['path_with_namespace']}</comment> for automatic deployment to the",
+            "Acquia Cloud Platform application <comment>{$cloudApplication->name}</comment> (<comment>$appUuid</comment>)",
+            "using credentials (API Token and SSH Key) belonging to <comment>{$account->mail}</comment>.",
+            "",
+            "If the <comment>{$account->mail}</comment> Cloud account is deleted in the future, this Code Studio project will need to be re-configured.",
         ]);
         $answer = $this->io->confirm('Do you want to continue?');
         if (!$answer) {
@@ -124,7 +124,7 @@ final class CodeStudioWizardCommand extends WizardCommandBase
                 break;
             case "Node_project":
                 $parameters = [
-                'ci_config_path' => 'gitlab-ci/Auto-DevOps.acquia.gitlab-ci.yml@acquia/node-template',
+                    'ci_config_path' => 'gitlab-ci/Auto-DevOps.acquia.gitlab-ci.yml@acquia/node-template',
                 ];
                 $client = $this->getGitLabClient();
                 $client->projects()->update($project['id'], $parameters);
@@ -133,14 +133,14 @@ final class CodeStudioWizardCommand extends WizardCommandBase
         }
 
         $this->io->success([
-        "Successfully configured the Code Studio project!",
-        "This project will now use Acquia's Drupal optimized AutoDevOps to build, test, and deploy your code automatically to Acquia Cloud Platform via CI/CD pipelines.",
-        "You can visit it here:",
-        $project['web_url'],
-        "",
-        "Next, you should use git to push code to your Code Studio project. E.g.,",
-        "  git remote add codestudio {$project['http_url_to_repo']}",
-        "  git push codestudio",
+            "Successfully configured the Code Studio project!",
+            "This project will now use Acquia's Drupal optimized AutoDevOps to build, test, and deploy your code automatically to Acquia Cloud Platform via CI/CD pipelines.",
+            "You can visit it here:",
+            $project['web_url'],
+            "",
+            "Next, you should use git to push code to your Code Studio project. E.g.,",
+            "  git remote add codestudio {$project['http_url_to_repo']}",
+            "  git push codestudio",
         ]);
         $this->io->note(["If the {$account->mail} Cloud account is deleted in the future, this Code Studio project will need to be re-configured."]);
 
@@ -181,8 +181,8 @@ final class CodeStudioWizardCommand extends WizardCommandBase
     private function getListOfProjectType(): ?array
     {
         $array = [
-        'Drupal_project',
-        'Node_project',
+            'Drupal_project',
+            'Node_project',
         ];
         return $array;
     }
@@ -200,10 +200,10 @@ final class CodeStudioWizardCommand extends WizardCommandBase
         $this->checklist->addItem("Creating access token named <comment>$projectAccessTokenName</comment>");
         $projectAccessToken = $this->gitLabClient->projects()
           ->createProjectAccessToken($project['id'], [
-        'expires_at' => new DateTime('+365 days'),
-        'name' => $projectAccessTokenName,
-        'scopes' => ['api', 'write_repository'],
-        ]);
+              'expires_at' => new DateTime('+365 days'),
+              'name' => $projectAccessTokenName,
+              'scopes' => ['api', 'write_repository'],
+          ]);
         $this->checklist->completePreviousItem();
         return $projectAccessToken['token'];
     }
@@ -267,17 +267,17 @@ final class CodeStudioWizardCommand extends WizardCommandBase
             $this->checklist->addItem("Creating scheduled pipeline <comment>$scheduledPipelineDescription</comment>");
             $pipeline = $this->gitLabClient->schedules()->create($project['id'], [
             // Every Thursday at midnight.
-            'cron' => '0 0 * * 4',
-            'description' => $scheduledPipelineDescription,
-            'ref' => $project['default_branch'],
+                'cron' => '0 0 * * 4',
+                'description' => $scheduledPipelineDescription,
+                'ref' => $project['default_branch'],
             ]);
             $this->gitLabClient->schedules()->addVariable($project['id'], $pipeline['id'], [
-            'key' => 'ACQUIA_JOBS_DEPRECATED_UPDATE',
-            'value' => 'true',
+                'key' => 'ACQUIA_JOBS_DEPRECATED_UPDATE',
+                'value' => 'true',
             ]);
             $this->gitLabClient->schedules()->addVariable($project['id'], $pipeline['id'], [
-            'key' => 'ACQUIA_JOBS_COMPOSER_UPDATE',
-            'value' => 'true',
+                'key' => 'ACQUIA_JOBS_COMPOSER_UPDATE',
+                'value' => 'true',
             ]);
         } else {
             $this->checklist->addItem("Scheduled pipeline named <comment>$scheduledPipelineDescription</comment> already exists");

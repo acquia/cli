@@ -62,11 +62,11 @@ class IdeCreateCommandTest extends CommandTestBase
         $inputs = [
         // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
         // Would you like to link the project at ... ?
-        'n',
-        0,
-        self::$INPUT_DEFAULT_CHOICE,
+            'n',
+            0,
+            self::$INPUT_DEFAULT_CHOICE,
         // Enter a label for your Cloud IDE:
-        'Example IDE',
+            'Example IDE',
         ];
         $this->executeCommand([], $inputs);
 

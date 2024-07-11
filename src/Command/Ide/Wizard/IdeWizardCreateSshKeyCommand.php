@@ -37,9 +37,9 @@ final class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase
             $account,
             [
             // Add SSH key to git repository.
-            "add ssh key to git",
+                "add ssh key to git",
             // Add SSH key to non-production environments.
-            "add ssh key to non-prod",
+                "add ssh key to non-prod",
             ]
         );
 

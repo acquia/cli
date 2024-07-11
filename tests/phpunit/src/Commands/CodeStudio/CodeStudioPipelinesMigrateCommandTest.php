@@ -53,24 +53,24 @@ class CodeStudioPipelinesMigrateCommandTest extends CommandTestBase
     public function providerTestCommand(): array
     {
         return [
-        [
+            [
         // One project.
-        [$this->getMockedGitLabProject($this->gitLabProjectId)],
+                [$this->getMockedGitLabProject($this->gitLabProjectId)],
         // Inputs.
-        [
+                [
         // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
-        'n',
+                    'n',
         // @todo
-        '0',
+                    '0',
         // Do you want to continue?
-        'y',
-        ],
-        // Args.
-        [
-        '--key' => $this->key,
-        '--secret' => $this->secret,
-        ],
-        ],
+                    'y',
+                ],
+                // Args.
+                [
+                    '--key' => $this->key,
+                    '--secret' => $this->secret,
+                ],
+            ],
         ];
     }
 
@@ -97,48 +97,48 @@ class CodeStudioPipelinesMigrateCommandTest extends CommandTestBase
         $this->mockGitLabPermissionsRequest($this::$applicationUuid);
         $projects = $this->mockGetGitLabProjects($this::$applicationUuid, $this->gitLabProjectId, $mockedGitlabProjects);
         $gitlabCicdVariables = [
-        [
-        'key' => 'ACQUIA_APPLICATION_UUID',
-        'masked' => true,
-        'protected' => false,
-        'value' => null,
-        'variable_type' => 'env_var',
-        ],
-        [
-        'key' => 'ACQUIA_CLOUD_API_TOKEN_KEY',
-        'masked' => true,
-        'protected' => false,
-        'value' => null,
-        'variable_type' => 'env_var',
-        ],
-        [
-        'key' => 'ACQUIA_CLOUD_API_TOKEN_SECRET',
-        'masked' => true,
-        'protected' => false,
-        'value' => null,
-        'variable_type' => 'env_var',
-        ],
-        [
-        'key' => 'ACQUIA_GLAB_TOKEN_NAME',
-        'masked' => true,
-        'protected' => false,
-        'value' => null,
-        'variable_type' => 'env_var',
-        ],
-        [
-        'key' => 'ACQUIA_GLAB_TOKEN_SECRET',
-        'masked' => true,
-        'protected' => false,
-        'value' => null,
-        'variable_type' => 'env_var',
-        ],
-        [
-        'key' => 'PHP_VERSION',
-        'masked' => false,
-        'protected' => false,
-        'value' => null,
-        'variable_type' => 'env_var',
-        ],
+            [
+                'key' => 'ACQUIA_APPLICATION_UUID',
+                'masked' => true,
+                'protected' => false,
+                'value' => null,
+                'variable_type' => 'env_var',
+            ],
+            [
+                'key' => 'ACQUIA_CLOUD_API_TOKEN_KEY',
+                'masked' => true,
+                'protected' => false,
+                'value' => null,
+                'variable_type' => 'env_var',
+            ],
+            [
+                'key' => 'ACQUIA_CLOUD_API_TOKEN_SECRET',
+                'masked' => true,
+                'protected' => false,
+                'value' => null,
+                'variable_type' => 'env_var',
+            ],
+            [
+                'key' => 'ACQUIA_GLAB_TOKEN_NAME',
+                'masked' => true,
+                'protected' => false,
+                'value' => null,
+                'variable_type' => 'env_var',
+            ],
+            [
+                'key' => 'ACQUIA_GLAB_TOKEN_SECRET',
+                'masked' => true,
+                'protected' => false,
+                'value' => null,
+                'variable_type' => 'env_var',
+            ],
+            [
+                'key' => 'PHP_VERSION',
+                'masked' => false,
+                'protected' => false,
+                'value' => null,
+                'variable_type' => 'env_var',
+            ],
         ];
         $projects->variables($this->gitLabProjectId)->willReturn($gitlabCicdVariables);
         $projects->update($this->gitLabProjectId, Argument::type('array'));

@@ -37,8 +37,8 @@ class AcsfListCommandBase extends CommandBase
 
         $command = $this->getApplication()->find('list');
         $arguments = [
-        'command' => 'list',
-        'namespace' => 'acsf',
+            'command' => 'list',
+            'namespace' => 'acsf',
         ];
         $listInput = new ArrayInput($arguments);
 

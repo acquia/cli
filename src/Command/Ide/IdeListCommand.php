@@ -36,10 +36,10 @@ final class IdeListCommand extends IdeCommandBase
             $table->setHeaders(['IDEs']);
             foreach ($applicationIdes as $ide) {
                 $table->addRows([
-                ["<comment>{$ide->label} ({$ide->owner->mail})</comment>"],
-                ["IDE URL: <href={$ide->links->ide->href}>{$ide->links->ide->href}</>"],
-                ["Web URL: <href={$ide->links->web->href}>{$ide->links->web->href}</>"],
-                new TableSeparator(),
+                    ["<comment>{$ide->label} ({$ide->owner->mail})</comment>"],
+                    ["IDE URL: <href={$ide->links->ide->href}>{$ide->links->ide->href}</>"],
+                    ["Web URL: <href={$ide->links->web->href}>{$ide->links->web->href}</>"],
+                    new TableSeparator(),
                 ]);
             }
             $table->render();

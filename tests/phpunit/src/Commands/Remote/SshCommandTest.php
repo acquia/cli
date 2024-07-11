@@ -30,13 +30,13 @@ class SshCommandTest extends SshCommandTestBase
         [$process, $localMachineHelper] = $this->mockForExecuteCommand();
         $localMachineHelper->checkRequiredBinariesExist(['ssh'])->shouldBeCalled();
         $sshCommand = [
-        'ssh',
-        'site.dev@sitedev.ssh.hosted.acquia-sites.com',
-        '-t',
-        '-o StrictHostKeyChecking=no',
-        '-o AddressFamily inet',
-        '-o LogLevel=ERROR',
-        'cd /var/www/html/devcloud2.dev; exec $SHELL -l',
+            'ssh',
+            'site.dev@sitedev.ssh.hosted.acquia-sites.com',
+            '-t',
+            '-o StrictHostKeyChecking=no',
+            '-o AddressFamily inet',
+            '-o LogLevel=ERROR',
+            'cd /var/www/html/devcloud2.dev; exec $SHELL -l',
         ];
         $localMachineHelper
         ->execute($sshCommand, Argument::type('callable'), null, true, null)
@@ -46,7 +46,7 @@ class SshCommandTest extends SshCommandTestBase
         $this->command->sshHelper = new SshHelper($this->output, $localMachineHelper->reveal(), $this->logger);
 
         $args = [
-        'alias' => 'devcloud2.dev',
+            'alias' => 'devcloud2.dev',
         ];
         $this->executeCommand($args);
 

@@ -101,12 +101,12 @@ final class PushArtifactCommand extends CommandBase
             $destinationGitUrlsString = implode(',', $destinationGitUrls);
             $refType = $this->input->getOption('destination-git-tag') ? 'tag' : 'branch';
             $this->io->note([
-            "Acquia CLI will:",
-            "- git clone $sourceGitBranch from $destinationGitUrls[0]",
-            "- Compile the contents of $this->dir into an artifact in a temporary directory",
-            "- Copy the artifact files into the checked out copy of $sourceGitBranch",
-            "- Commit changes and push the $destinationGitRef $refType to the following git remote(s):",
-            "  $destinationGitUrlsString",
+                "Acquia CLI will:",
+                "- git clone $sourceGitBranch from $destinationGitUrls[0]",
+                "- Compile the contents of $this->dir into an artifact in a temporary directory",
+                "- Copy the artifact files into the checked out copy of $sourceGitBranch",
+                "- Commit changes and push the $destinationGitRef $refType to the following git remote(s):",
+                "  $destinationGitUrlsString",
             ]);
 
             $this->checklist->addItem('Preparing artifact directory');
@@ -180,37 +180,37 @@ final class PushArtifactCommand extends CommandBase
         $outputCallback('out', "Initializing Git in $artifactDir");
         $this->localMachineHelper->checkRequiredBinariesExist(['git']);
         $process = $this->localMachineHelper->execute([
-        'git',
-        'clone',
-        '--depth=1',
-        $vcsUrl,
-        $artifactDir,
+            'git',
+            'clone',
+            '--depth=1',
+            $vcsUrl,
+            $artifactDir,
         ], $outputCallback, null, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
         if (!$process->isSuccessful()) {
             throw new AcquiaCliException('Failed to clone repository from the Cloud Platform: {message}', ['message' => $process->getErrorOutput()]);
         }
         $process = $this->localMachineHelper->execute([
-        'git',
-        'fetch',
-        '--depth=1',
-        '--update-head-ok',
-        $vcsUrl,
-        $vcsPath . ':' . $vcsPath,
+            'git',
+            'fetch',
+            '--depth=1',
+            '--update-head-ok',
+            $vcsUrl,
+            $vcsPath . ':' . $vcsPath,
         ], $outputCallback, $artifactDir, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
         if (!$process->isSuccessful()) {
             // Remote branch does not exist. Just create it locally. This will create
             // the new branch off of the current commit.
             $process = $this->localMachineHelper->execute([
-            'git',
-            'checkout',
-            '-b',
-            $vcsPath,
+                'git',
+                'checkout',
+                '-b',
+                $vcsPath,
             ], $outputCallback, $artifactDir, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
         } else {
             $process = $this->localMachineHelper->execute([
-            'git',
-            'checkout',
-            $vcsPath,
+                'git',
+                'checkout',
+                $vcsPath,
             ], $outputCallback, $artifactDir, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
         }
         if (!$process->isSuccessful()) {
@@ -273,7 +273,7 @@ final class PushArtifactCommand extends CommandBase
         ->ignoreVCS(false)
         ->directories()
         ->in(["$artifactDir/docroot",
-        "$artifactDir/vendor",
+            "$artifactDir/vendor",
         ])
         ->name('.git');
         $drushDir = "$artifactDir/drush";
@@ -295,15 +295,15 @@ final class PushArtifactCommand extends CommandBase
 
         $outputCallback('out', 'Finding other common text files');
         $filenames = [
-        'AUTHORS',
-        'CHANGELOG',
-        'CONDUCT',
-        'CONTRIBUTING',
-        'INSTALL',
-        'MAINTAINERS',
-        'PATCHES',
-        'TESTING',
-        'UPDATE',
+            'AUTHORS',
+            'CHANGELOG',
+            'CONDUCT',
+            'CONTRIBUTING',
+            'INSTALL',
+            'MAINTAINERS',
+            'PATCHES',
+            'TESTING',
+            'UPDATE',
         ];
         $textFileFinder = $this->localMachineHelper->getFinder()
         ->files()
@@ -361,10 +361,10 @@ final class PushArtifactCommand extends CommandBase
         foreach ($vcsUrls as $vcsUrl) {
             $outputCallback('out', "Pushing changes to Acquia Git ($vcsUrl)");
             $args = [
-            'git',
-            'push',
-            $vcsUrl,
-            $destGitBranch,
+                'git',
+                'push',
+                $vcsUrl,
+                $destGitBranch,
             ];
             $process = $this->localMachineHelper->execute($args, $outputCallback, $artifactDir, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
             if (!$process->isSuccessful()) {
@@ -385,7 +385,7 @@ final class PushArtifactCommand extends CommandBase
         }
 
         $this->vendorDirs = [
-        'vendor',
+            'vendor',
         ];
         if (file_exists($this->composerJsonPath)) {
             $composerJson = json_decode($this->localMachineHelper->readFile($this->composerJsonPath), true, 512, JSON_THROW_ON_ERROR);
@@ -424,8 +424,8 @@ final class PushArtifactCommand extends CommandBase
     private function validateSourceCode(): void
     {
         $requiredPaths = [
-        $this->composerJsonPath,
-        $this->docrootPath,
+            $this->composerJsonPath,
+            $this->docrootPath,
         ];
         foreach ($requiredPaths as $requiredPath) {
             if (!file_exists($requiredPath)) {
@@ -483,9 +483,9 @@ final class PushArtifactCommand extends CommandBase
     {
         $this->localMachineHelper->checkRequiredBinariesExist(['git']);
         $process = $this->localMachineHelper->execute([
-        'git',
-        'tag',
-        $tagName,
+            'git',
+            'tag',
+            $tagName,
         ], $outputCallback, $artifactDir, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
         if (!$process->isSuccessful()) {
             throw new AcquiaCliException('Failed to create Git tag: {message}', ['message' => $process->getErrorOutput()]);

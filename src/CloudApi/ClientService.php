@@ -53,7 +53,7 @@ class ClientService
     {
         $userAgent = sprintf("acli/%s", $this->application->getVersion());
         $customHeaders = [
-        'User-Agent' => [$userAgent],
+            'User-Agent' => [$userAgent],
         ];
         if ($uuid = getenv("REMOTEIDE_UUID")) {
             $customHeaders['X-Cloud-IDE-UUID'] = $uuid;

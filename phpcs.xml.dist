@@ -26,7 +26,10 @@
     <exclude name="Generic.Files.LineLength"/>
   </rule>
 
-  <rule ref="Generic.PHP.ForbiddenFunctions">
+    <rule ref="Generic.Arrays.ArrayIndent"/>
+
+
+    <rule ref="Generic.PHP.ForbiddenFunctions">
     <properties>
       <property name="forbiddenFunctions" type="array">
         <element key="echo" value="$output->writeln"/>

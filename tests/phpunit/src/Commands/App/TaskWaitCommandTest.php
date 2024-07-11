@@ -28,7 +28,7 @@ class TaskWaitCommandTest extends CommandTestBase
         $notificationUuid = '1bd3487e-71d1-4fca-a2d9-5f969b3d35c1';
         $this->mockRequest('getNotificationByUuid', $notificationUuid);
         $this->executeCommand([
-        'notification-uuid' => $notification,
+            'notification-uuid' => $notification,
         ]);
 
         $output = $this->getDisplay();
@@ -53,7 +53,7 @@ class TaskWaitCommandTest extends CommandTestBase
             }
         );
         $this->executeCommand([
-        'notification-uuid' => $notificationUuid,
+            'notification-uuid' => $notificationUuid,
         ]);
 
         self::assertStringContainsString(' [ERROR] The task with notification uuid 1bd3487e-71d1-4fca-a2d9-5f969b3d35c1 failed', $this->getDisplay());
@@ -68,14 +68,14 @@ class TaskWaitCommandTest extends CommandTestBase
     public function providerTestTaskWaitCommand(): array
     {
         return [
-        [
-        '1bd3487e-71d1-4fca-a2d9-5f969b3d35c1',
-        ],
-        [
-        'https://cloud.acquia.com/api/notifications/1bd3487e-71d1-4fca-a2d9-5f969b3d35c1',
-        ],
-        [
-        <<<'EOT'
+            [
+                '1bd3487e-71d1-4fca-a2d9-5f969b3d35c1',
+            ],
+            [
+                'https://cloud.acquia.com/api/notifications/1bd3487e-71d1-4fca-a2d9-5f969b3d35c1',
+            ],
+            [
+                <<<'EOT'
 {
   "message": "Caches are being cleared.",
   "_links": {
@@ -88,10 +88,10 @@ class TaskWaitCommandTest extends CommandTestBase
   }
 }
 EOT,
-        ],
-        [
-        '"1bd3487e-71d1-4fca-a2d9-5f969b3d35c1"',
-        ],
+            ],
+            [
+                '"1bd3487e-71d1-4fca-a2d9-5f969b3d35c1"',
+            ],
         ];
     }
 
@@ -120,7 +120,7 @@ EOT,
     {
         $this->expectException(AcquiaCliException::class);
         $this->executeCommand([
-        'notification-uuid' => $notification,
+            'notification-uuid' => $notification,
         ]);
     }
 
@@ -130,8 +130,8 @@ EOT,
     public function providerTestTaskWaitCommandWithInvalidJson(): array
     {
         return [
-        [
-        <<<'EOT'
+            [
+                <<<'EOT'
 {
   "message": "Caches are being cleared.",
   "_links": {
@@ -147,9 +147,9 @@ EOT,
   }
 }
 EOT,
-        ],
-        [
-        <<<'EOT'
+            ],
+            [
+                <<<'EOT'
 {
   "message": "Caches are being cleared.",
   "_links": {
@@ -159,10 +159,10 @@ EOT,
   }
 }
 EOT,
-        ],
-        [
-        '"11bd3487e-71d1-4fca-a2d9-5f969b3d35c1"',
-        ],
+            ],
+            [
+                '"11bd3487e-71d1-4fca-a2d9-5f969b3d35c1"',
+            ],
         ];
     }
 }

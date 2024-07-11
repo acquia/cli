@@ -40,8 +40,8 @@ final class AuthLoginCommand extends CommandBase
                 $keys[$uuid]['uuid'] = $uuid;
             }
             $keys['create_new'] = [
-            'label' => 'Enter a new API key',
-            'uuid' => 'create_new',
+                'label' => 'Enter a new API key',
+                'uuid' => 'create_new',
             ];
             $selectedKey = $this->promptChooseFromObjectsOrArrays($keys, 'uuid', 'label', 'Activate a Cloud Platform API key');
             if ($selectedKey['uuid'] !== 'create_new') {
@@ -68,9 +68,9 @@ final class AuthLoginCommand extends CommandBase
         $accountInfo = $account->get();
         $keys = $this->datastoreCloud->get('keys');
         $keys[$apiKey] = [
-        'label' => $accountInfo->mail,
-        'secret' => $apiSecret,
-        'uuid' => $apiKey,
+            'label' => $accountInfo->mail,
+            'secret' => $apiSecret,
+            'uuid' => $apiKey,
         ];
         $this->datastoreCloud->set('keys', $keys);
         $this->datastoreCloud->set('acli_key', $apiKey);

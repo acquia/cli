@@ -30,9 +30,9 @@ class IdeXdebugToggleCommandTest extends CommandTestBase
         $localMachineHelper = $this->mockLocalMachineHelper();
         $localMachineHelper
         ->execute([
-        'supervisorctl',
-        'restart',
-        'php-fpm',
+            'supervisorctl',
+            'restart',
+            'php-fpm',
         ], null, null, false)
         ->willReturn($process->reveal())
         ->shouldBeCalled();
@@ -49,9 +49,9 @@ class IdeXdebugToggleCommandTest extends CommandTestBase
     public function providerTestXdebugCommandEnable(): array
     {
         return [
-        ['7.4'],
-        ['8.0'],
-        ['8.1'],
+            ['7.4'],
+            ['8.0'],
+            ['8.1'],
         ];
     }
 

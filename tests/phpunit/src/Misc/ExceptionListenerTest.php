@@ -49,66 +49,66 @@ class ExceptionListenerTest extends TestBase
     public function providerTestHelp(): array
     {
         return [
-        [
-        new IdentityProviderException('invalid_client', 0, ''),
-        'Run <bg=blue;fg=white;options=bold>acli auth:login</> to reset your API credentials.',
-        ],
-        [
-        new RuntimeException('Not enough arguments (missing: "environmentId").'),
-        self::$siteAliasHelp,
-        ],
-        [
-        new RuntimeException('Not enough arguments (missing: "environmentUuid").'),
-        self::$siteAliasHelp,
-        ],
-        [
-        new AcquiaCliException('No applications match the alias {applicationAlias}'),
-        self::$appAliasHelp,
-        ],
-        [
-        new AcquiaCliException('Multiple applications match the alias {applicationAlias}'),
-        self::$appAliasHelp,
-        ],
-        [
-        new AcquiaCliException('{environmentId} must be a valid UUID or site alias.'),
-        self::$siteAliasHelp,
-        ],
-        [
-        new AcquiaCliException('{environmentUuid} must be a valid UUID or site alias.'),
-        self::$siteAliasHelp,
-        ],
-        [
-        new AcquiaCliException('Access token file not found at {file}'),
-        'Get help for this error at https://docs.acquia.com/ide/known-issues/#the-automated-cloud-platform-api-authentication-might-fail',
-        ],
-        [
-        new AcquiaCliException('Access token expiry file not found at {file}'),
-        'Get help for this error at https://docs.acquia.com/ide/known-issues/#the-automated-cloud-platform-api-authentication-might-fail',
-        ],
-        [
-        new AcquiaCliException('This machine is not yet authenticated with the Cloud Platform.'),
-        'Run `acli auth:login` to re-authenticated with the Cloud Platform.',
-        ],
-        [
-        new AcquiaCliException('This machine is not yet authenticated with Site Factory.'),
-        'Run `acli auth:acsf-login` to re-authenticate with Site Factory.',
-        ],
-        [
-        new AcquiaCliException('Could not extract aliases to {destination}'),
-        'Check that you have write access to the directory',
-        ],
-        [
-        new ApiErrorException((object) ['error' => '', 'message' => "There are no available Cloud IDEs for this application.\n"]),
-        'Delete an existing IDE via <bg=blue;fg=white;options=bold>acli ide:delete</> or contact your Account Manager or Acquia Sales to purchase additional IDEs.',
-        ],
-        [
-        new ApiErrorException((object) ['error' => '', 'message' => 'This resource requires additional authentication.']),
-        ['This is likely because you have Federated Authentication required for your organization.', 'Run `acli login` to authenticate via API token and then try again.'],
-        ],
-        [
-        new ApiErrorException((object) ['error' => 'asdf', 'message' => 'fdsa']),
-        'You can learn more about Cloud Platform API at https://docs.acquia.com/cloud-platform/develop/api/',
-        ],
+            [
+                new IdentityProviderException('invalid_client', 0, ''),
+                'Run <bg=blue;fg=white;options=bold>acli auth:login</> to reset your API credentials.',
+            ],
+            [
+                new RuntimeException('Not enough arguments (missing: "environmentId").'),
+                self::$siteAliasHelp,
+            ],
+            [
+                new RuntimeException('Not enough arguments (missing: "environmentUuid").'),
+                self::$siteAliasHelp,
+            ],
+            [
+                new AcquiaCliException('No applications match the alias {applicationAlias}'),
+                self::$appAliasHelp,
+            ],
+            [
+                new AcquiaCliException('Multiple applications match the alias {applicationAlias}'),
+                self::$appAliasHelp,
+            ],
+            [
+                new AcquiaCliException('{environmentId} must be a valid UUID or site alias.'),
+                self::$siteAliasHelp,
+            ],
+            [
+                new AcquiaCliException('{environmentUuid} must be a valid UUID or site alias.'),
+                self::$siteAliasHelp,
+            ],
+            [
+                new AcquiaCliException('Access token file not found at {file}'),
+                'Get help for this error at https://docs.acquia.com/ide/known-issues/#the-automated-cloud-platform-api-authentication-might-fail',
+            ],
+            [
+                new AcquiaCliException('Access token expiry file not found at {file}'),
+                'Get help for this error at https://docs.acquia.com/ide/known-issues/#the-automated-cloud-platform-api-authentication-might-fail',
+            ],
+            [
+                new AcquiaCliException('This machine is not yet authenticated with the Cloud Platform.'),
+                'Run `acli auth:login` to re-authenticated with the Cloud Platform.',
+            ],
+            [
+                new AcquiaCliException('This machine is not yet authenticated with Site Factory.'),
+                'Run `acli auth:acsf-login` to re-authenticate with Site Factory.',
+            ],
+            [
+                new AcquiaCliException('Could not extract aliases to {destination}'),
+                'Check that you have write access to the directory',
+            ],
+            [
+                new ApiErrorException((object) ['error' => '', 'message' => "There are no available Cloud IDEs for this application.\n"]),
+                'Delete an existing IDE via <bg=blue;fg=white;options=bold>acli ide:delete</> or contact your Account Manager or Acquia Sales to purchase additional IDEs.',
+            ],
+            [
+                new ApiErrorException((object) ['error' => '', 'message' => 'This resource requires additional authentication.']),
+                ['This is likely because you have Federated Authentication required for your organization.', 'Run `acli login` to authenticate via API token and then try again.'],
+            ],
+            [
+                new ApiErrorException((object) ['error' => 'asdf', 'message' => 'fdsa']),
+                'You can learn more about Cloud Platform API at https://docs.acquia.com/cloud-platform/develop/api/',
+            ],
         ];
     }
 }

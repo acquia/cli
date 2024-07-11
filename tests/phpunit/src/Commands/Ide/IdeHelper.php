@@ -27,10 +27,10 @@ class IdeHelper
     public static function getEnvVars(): array
     {
         return [
-        'ACQUIA_USER_UUID' => '4acf8956-45df-3cf4-5106-065b62cf1ac8',
-        'AH_SITE_ENVIRONMENT' => 'IDE',
-        'REMOTEIDE_LABEL' => self::$remoteIdeLabel,
-        'REMOTEIDE_UUID' => self::$remoteIdeUuid,
+            'ACQUIA_USER_UUID' => '4acf8956-45df-3cf4-5106-065b62cf1ac8',
+            'AH_SITE_ENVIRONMENT' => 'IDE',
+            'REMOTEIDE_LABEL' => self::$remoteIdeLabel,
+            'REMOTEIDE_UUID' => self::$remoteIdeUuid,
         ];
     }
 }

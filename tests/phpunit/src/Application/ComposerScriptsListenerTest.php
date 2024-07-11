@@ -25,11 +25,11 @@ class ComposerScriptsListenerTest extends ApplicationTestBase
     public function testPreScripts(): void
     {
         $json = [
-        'scripts' => [
-        'pre-acli-hello-world' => [
-        'echo "good morning world"',
-        ],
-        ],
+            'scripts' => [
+                'pre-acli-hello-world' => [
+                    'echo "good morning world"',
+                ],
+            ],
         ];
         file_put_contents(
             Path::join($this->projectDir, 'composer.json'),
@@ -37,7 +37,7 @@ class ComposerScriptsListenerTest extends ApplicationTestBase
         );
         $this->mockRequest('getAccount');
         $this->setInput([
-        'command' => 'hello-world',
+            'command' => 'hello-world',
         ]);
         $buffer = $this->runApp();
         self::assertStringContainsString('pre-acli-hello-world', $buffer);
@@ -49,11 +49,11 @@ class ComposerScriptsListenerTest extends ApplicationTestBase
     public function testPostScripts(): void
     {
         $json = [
-        'scripts' => [
-        'post-acli-hello-world' => [
-        'echo "goodbye world"',
-        ],
-        ],
+            'scripts' => [
+                'post-acli-hello-world' => [
+                    'echo "goodbye world"',
+                ],
+            ],
         ];
         file_put_contents(
             Path::join($this->projectDir, 'composer.json'),
@@ -61,7 +61,7 @@ class ComposerScriptsListenerTest extends ApplicationTestBase
         );
         $this->mockRequest('getAccount');
         $this->setInput([
-        'command' => 'hello-world',
+            'command' => 'hello-world',
         ]);
         $buffer = $this->runApp();
         self::assertStringContainsString('post-acli-hello-world', $buffer);
@@ -70,19 +70,19 @@ class ComposerScriptsListenerTest extends ApplicationTestBase
     public function testNoScripts(): void
     {
         $json = [
-        'scripts' => [
-        'pre-acli-pull-code' => [
-        'echo "goodbye world"',
-        ],
-        ],
+            'scripts' => [
+                'pre-acli-pull-code' => [
+                    'echo "goodbye world"',
+                ],
+            ],
         ];
         file_put_contents(
             Path::join($this->projectDir, 'composer.json'),
             json_encode($json, JSON_THROW_ON_ERROR)
         );
         $this->setInput([
-        '--no-scripts' => true,
-        'command' => 'pull:code',
+            '--no-scripts' => true,
+            'command' => 'pull:code',
         ]);
         $buffer = $this->runApp();
         self::assertStringNotContainsString('pre-acli-pull-code', $buffer);

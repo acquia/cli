@@ -38,10 +38,10 @@ class AliasesDownloadCommandTest extends CommandTestBase
     public function providerTestRemoteAliasesDownloadCommand(): array
     {
         return [
-        [['9'], []],
-        [['9'], ['--destination-dir' => 'testdir'], 'testdir'],
-        [['9'], ['--all' => true], null, true],
-        [['8'], []],
+            [['9'], []],
+            [['9'], ['--destination-dir' => 'testdir'], 'testdir'],
+            [['9'], ['--all' => true], null, true],
+            [['8'], []],
         ];
     }
 

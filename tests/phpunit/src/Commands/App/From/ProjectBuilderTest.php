@@ -35,29 +35,29 @@ final class ProjectBuilderTest extends TestCase
     {
         // phpcs:disable SlevomatCodingStandard.Arrays.AlphabeticallySortedByKeys
         $test_cases = [
-        'simplest case, sanity check' => [
-        json_encode([
-        'sourceModules' => [],
-        'filePaths' => [
-        'public' => 'sites/default/files',
-        'private' => null,
-        ],
-        'rootPackageDefinition' => [],
-        ]),
-        json_encode([
-        'data' => [],
-        ]),
-        [
-        'installModules' => [],
-        'filePaths' => [
-        'public' => 'sites/default/files',
-        'private' => null,
-        ],
-        'sourceModules' => [],
-        'recommendations' => [],
-        'rootPackageDefinition' => [],
-        ],
-        ],
+            'simplest case, sanity check' => [
+                json_encode([
+                    'sourceModules' => [],
+                    'filePaths' => [
+                        'public' => 'sites/default/files',
+                        'private' => null,
+                    ],
+                    'rootPackageDefinition' => [],
+                ]),
+                json_encode([
+                    'data' => [],
+                ]),
+                [
+                    'installModules' => [],
+                    'filePaths' => [
+                        'public' => 'sites/default/files',
+                        'private' => null,
+                    ],
+                    'sourceModules' => [],
+                    'recommendations' => [],
+                    'rootPackageDefinition' => [],
+                ],
+            ],
         ];
         // phpcs:enable
         return array_map(function (array $data) {

@@ -82,11 +82,11 @@ class AppVcsInfo extends CommandBase
         $table->setHeaderTitle('Status of Branches and Tags of the Application');
         foreach ($allVcs as $vscPath => $env) {
             $table->addRow([
-            $vscPath,
+                $vscPath,
             // If VCS and env name is not same, it means it is deployed.
-            $vscPath !== $env ? 'Yes' : 'No',
+                $vscPath !== $env ? 'Yes' : 'No',
             // If VCS and env name is same, it means it is deployed.
-            $vscPath !== $env ? $env : 'None',
+                $vscPath !== $env ? $env : 'None',
             ]);
         }
 

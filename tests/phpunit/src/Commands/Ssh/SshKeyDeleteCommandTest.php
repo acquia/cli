@@ -25,9 +25,9 @@ class SshKeyDeleteCommandTest extends CommandTestBase
 
         $inputs = [
         // Choose key.
-        self::$INPUT_DEFAULT_CHOICE,
+            self::$INPUT_DEFAULT_CHOICE,
         // Do you also want to delete the corresponding local key files?
-        'n',
+            'n',
         ];
         $this->executeCommand([], $inputs);
 

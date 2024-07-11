@@ -28,7 +28,7 @@ final class MakeDocsCommand extends CommandBase
 
         if (!$input->getOption('dump')) {
             $helper->describe($output, $this->getApplication(), [
-            'format' => $input->getOption('format'),
+                'format' => $input->getOption('format'),
             ]);
             return Command::SUCCESS;
         }
@@ -37,7 +37,7 @@ final class MakeDocsCommand extends CommandBase
         $this->localMachineHelper->getFilesystem()->mkdir($docs_dir);
         $buffer = new BufferedOutput();
         $helper->describe($buffer, $this->getApplication(), [
-        'format' => 'json',
+            'format' => 'json',
         ]);
         $commands = json_decode($buffer->fetch(), true);
         $index = [];
@@ -47,10 +47,10 @@ final class MakeDocsCommand extends CommandBase
             }
             $filename = $command['name'] . '.json';
             $index[] = [
-            'command' => $command['name'],
-            'help' => $command['help'],
-            'path' => $filename,
-            'usage' => $command['usage'][0],
+                'command' => $command['name'],
+                'help' => $command['help'],
+                'path' => $filename,
+                'usage' => $command['usage'][0],
             ];
             file_put_contents("$docs_dir/$filename", json_encode($command));
         }

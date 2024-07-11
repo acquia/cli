@@ -51,127 +51,127 @@ class DefinedRecommendationTest extends TestCase
     {
         // phpcs:disable SlevomatCodingStandard.Arrays.AlphabeticallySortedByKeys
         return [
-        'config is not array' => [42, new NoRecommendation()],
-        'empty array' => [[], new NoRecommendation()],
-        'missing required key' => [
-        ['package' => '', 'constraint' => ''],
-        new NoRecommendation(),
-        ],
-        'key value does not match schema' => [
-        ['package' => 42, 'constraint' => '', 'replaces' => ['name' => '']],
-        new NoRecommendation(),
-        ],
-        'nested key value does not match schema' => [
-        ['package' => '', 'constraint' => '', 'replaces' => ['name' => 42]],
-        new NoRecommendation(),
-        ],
-        'invalid patches key' => [
-        [
-        'package' => 'foo',
-        'constraint' => '^1.42',
-        'patches' => [
-        0 => 'https://example.com',
-        ],
-        'replaces' => [
-        'name' => 'foo',
-        ],
-        ],
-        new NoRecommendation(),
-        ],
-        'invalid patches key value' => [
-        [
-        'package' => 'foo',
-        'constraint' => '^1.42',
-        'patches' => [
-        'A patch description' => true,
-        ],
-        'replaces' => [
-        'name' => 'foo',
-        ],
-        ],
-        new NoRecommendation(),
-        ],
-        'missing replaces key, not universal by default' => [
-        [
-        'package' => 'foo',
-        'constraint' => '^1.42',
-        ],
-        new NoRecommendation(),
-        ],
-        'missing replaces key, explicitly not universal' => [
-        [
-        'universal' => false,
-        'package' => 'foo',
-        'constraint' => '^1.42',
-        ],
-        new NoRecommendation(),
-        ],
-        'valid config; does not apply' => [
-        [
-        'package' => 'foo',
-        'constraint' => '^1.42',
-        'replaces' => [
-        'name' => 'foo',
-        ],
-        ],
-        new TestRecommendation(false, 'foo', '^1.42'),
-        ],
-        'valid config; does apply; missing replaces key but universal is true' => [
-        [
-        'universal' => true,
-        'package' => 'foo',
-        'constraint' => '^1.42',
-        ],
-        new TestRecommendation(true, 'foo', '^1.42'),
-        ],
-        'valid config; does apply; no patches key' => [
-        [
-        'package' => 'foo',
-        'constraint' => '^1.42',
-        'replaces' => [
-        'name' => 'bar',
-        ],
-        ],
-        new TestRecommendation(true, 'foo', '^1.42'),
-        ],
-        'valid config; does apply; empty patches value' => [
-        [
-        'package' => 'foo',
-        'constraint' => '^1.42',
-        'patches' => [],
-        'replaces' => [
-        'name' => 'bar',
-        ],
-        ],
-        new TestRecommendation(true, 'foo', '^1.42'),
-        ],
-        'valid config; does apply; has patches' => [
-        [
-        'package' => 'foo',
-        'constraint' => '^1.42',
-        'patches' => [
-        'A patch description' => 'https://example.com/example.patch',
-        ],
-        'install' => ['foo'],
-        'replaces' => [
-        'name' => 'bar',
-        ],
-        ],
-        new TestRecommendation(true, 'foo', '^1.42', ['foo'], false, [
-        'A patch description' => 'https://example.com/example.patch',
-        ]),
-        ],
-        'valid config; does apply; has null package property' => [
-        [
-        'package' => null,
-        'note' => 'Example: The module bar is no longer required because its functionality has been incorporated into Drupal core.',
-        'replaces' => [
-        'name' => 'bar',
-        ],
-        'vetted' => true,
-        ],
-        new TestRecommendation(true, TestRecommendation::ABANDON),
-        ],
+            'config is not array' => [42, new NoRecommendation()],
+            'empty array' => [[], new NoRecommendation()],
+            'missing required key' => [
+                ['package' => '', 'constraint' => ''],
+                new NoRecommendation(),
+            ],
+            'key value does not match schema' => [
+                ['package' => 42, 'constraint' => '', 'replaces' => ['name' => '']],
+                new NoRecommendation(),
+            ],
+            'nested key value does not match schema' => [
+                ['package' => '', 'constraint' => '', 'replaces' => ['name' => 42]],
+                new NoRecommendation(),
+            ],
+            'invalid patches key' => [
+                [
+                    'package' => 'foo',
+                    'constraint' => '^1.42',
+                    'patches' => [
+                        0 => 'https://example.com',
+                    ],
+                    'replaces' => [
+                        'name' => 'foo',
+                    ],
+                ],
+                new NoRecommendation(),
+            ],
+            'invalid patches key value' => [
+                [
+                    'package' => 'foo',
+                    'constraint' => '^1.42',
+                    'patches' => [
+                        'A patch description' => true,
+                    ],
+                    'replaces' => [
+                        'name' => 'foo',
+                    ],
+                ],
+                new NoRecommendation(),
+            ],
+            'missing replaces key, not universal by default' => [
+                [
+                    'package' => 'foo',
+                    'constraint' => '^1.42',
+                ],
+                new NoRecommendation(),
+            ],
+            'missing replaces key, explicitly not universal' => [
+                [
+                    'universal' => false,
+                    'package' => 'foo',
+                    'constraint' => '^1.42',
+                ],
+                new NoRecommendation(),
+            ],
+            'valid config; does not apply' => [
+                [
+                    'package' => 'foo',
+                    'constraint' => '^1.42',
+                    'replaces' => [
+                        'name' => 'foo',
+                    ],
+                ],
+                new TestRecommendation(false, 'foo', '^1.42'),
+            ],
+            'valid config; does apply; missing replaces key but universal is true' => [
+                [
+                    'universal' => true,
+                    'package' => 'foo',
+                    'constraint' => '^1.42',
+                ],
+                new TestRecommendation(true, 'foo', '^1.42'),
+            ],
+            'valid config; does apply; no patches key' => [
+                [
+                    'package' => 'foo',
+                    'constraint' => '^1.42',
+                    'replaces' => [
+                        'name' => 'bar',
+                    ],
+                ],
+                new TestRecommendation(true, 'foo', '^1.42'),
+            ],
+            'valid config; does apply; empty patches value' => [
+                [
+                    'package' => 'foo',
+                    'constraint' => '^1.42',
+                    'patches' => [],
+                    'replaces' => [
+                        'name' => 'bar',
+                    ],
+                ],
+                new TestRecommendation(true, 'foo', '^1.42'),
+            ],
+            'valid config; does apply; has patches' => [
+                [
+                    'package' => 'foo',
+                    'constraint' => '^1.42',
+                    'patches' => [
+                        'A patch description' => 'https://example.com/example.patch',
+                    ],
+                    'install' => ['foo'],
+                    'replaces' => [
+                        'name' => 'bar',
+                    ],
+                ],
+                new TestRecommendation(true, 'foo', '^1.42', ['foo'], false, [
+                    'A patch description' => 'https://example.com/example.patch',
+                ]),
+            ],
+            'valid config; does apply; has null package property' => [
+                [
+                    'package' => null,
+                    'note' => 'Example: The module bar is no longer required because its functionality has been incorporated into Drupal core.',
+                    'replaces' => [
+                        'name' => 'bar',
+                    ],
+                    'vetted' => true,
+                ],
+                new TestRecommendation(true, TestRecommendation::ABANDON),
+            ],
         ];
         // phpcs:enable
     }

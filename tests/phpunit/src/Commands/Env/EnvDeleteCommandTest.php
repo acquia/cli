@@ -27,8 +27,8 @@ class EnvDeleteCommandTest extends CommandTestBase
         $environmentResponse = $this->getMockEnvironmentsResponse();
         $environment = $environmentResponse->_embedded->items[0];
         return [
-        [$environment->id],
-        [null],
+            [$environment->id],
+            [null],
         ];
     }
 
@@ -76,13 +76,13 @@ class EnvDeleteCommandTest extends CommandTestBase
 
         $this->executeCommand(
             [
-            'environmentId' => $environmentId,
+                'environmentId' => $environmentId,
             ],
             [
             // Would you like Acquia CLI to search for a Cloud application that matches your local git config?'.
-            'n',
+                'n',
             // Select a Cloud Platform application: [Sample application 1]:
-            0,
+                0,
             ]
         );
         $output = $this->getDisplay();
@@ -106,9 +106,9 @@ class EnvDeleteCommandTest extends CommandTestBase
             [],
             [
             // Would you like Acquia CLI to search for a Cloud application that matches your local git config?'.
-            'n',
+                'n',
             // Select a Cloud Platform application: [Sample application 1]:
-            0,
+                0,
             ]
         );
     }
@@ -145,9 +145,9 @@ class EnvDeleteCommandTest extends CommandTestBase
             [],
             [
             // Would you like Acquia CLI to search for a Cloud application that matches your local git config?'.
-            'n',
+                'n',
             // Select a Cloud Platform application: [Sample application 1]:
-            0,
+                0,
             ]
         );
 

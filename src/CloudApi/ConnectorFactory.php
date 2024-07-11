@@ -33,9 +33,9 @@ class ConnectorFactory implements ConnectorFactoryInterface
             if (!$accessToken->hasExpired()) {
                 // @todo Add debug log entry indicating that access token is being used.
                 return new AccessTokenConnector([
-                'access_token' => $accessToken,
-                'key' => null,
-                'secret' => null,
+                    'access_token' => $accessToken,
+                    'key' => null,
+                    'secret' => null,
                 ], $this->baseUri, $this->accountsUri);
             }
         }
@@ -47,8 +47,8 @@ class ConnectorFactory implements ConnectorFactoryInterface
     private function createAccessToken(): AccessToken
     {
         return new AccessToken([
-        'access_token' => $this->config['accessToken'],
-        'expires' => $this->config['accessTokenExpiry'],
+            'access_token' => $this->config['accessToken'],
+            'expires' => $this->config['accessTokenExpiry'],
         ]);
     }
 }

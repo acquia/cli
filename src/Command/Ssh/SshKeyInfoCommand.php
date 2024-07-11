@@ -67,10 +67,10 @@ final class SshKeyInfoCommand extends SshKeyCommandBase
             $keys[$fingerprint]['fingerprint'] = $fingerprint;
             $keys[$fingerprint]['public_key'] = $key->public_key;
             $keys[$fingerprint]['cloud'] = [
-            'created_at' => $key->created_at,
-            'fingerprint' => $key->fingerprint,
-            'label' => $key->label,
-            'uuid' => $key->uuid,
+                'created_at' => $key->created_at,
+                'fingerprint' => $key->fingerprint,
+                'label' => $key->label,
+                'uuid' => $key->uuid,
             ];
         }
         foreach ($localKeys as $key) {
@@ -78,7 +78,7 @@ final class SshKeyInfoCommand extends SshKeyCommandBase
             $keys[$fingerprint]['fingerprint'] = $fingerprint;
             $keys[$fingerprint]['public_key'] = $key->getContents();
             $keys[$fingerprint]['local'] = [
-            'filename' => $key->getFilename(),
+                'filename' => $key->getFilename(),
             ];
         }
         if ($fingerprint = $this->input->getOption('fingerprint')) {

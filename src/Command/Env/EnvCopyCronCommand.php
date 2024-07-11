@@ -73,11 +73,11 @@ final class EnvCopyCronCommand extends CommandBase
             // when environment is provisioned.
             if (!$cron->flags->system) {
                 $cronFrequency = implode(' ', [
-                $cron->minute,
-                $cron->hour,
-                $cron->dayMonth,
-                $cron->month,
-                $cron->dayWeek,
+                    $cron->minute,
+                    $cron->hour,
+                    $cron->dayMonth,
+                    $cron->month,
+                    $cron->dayWeek,
                 ]);
 
                 $this->io->info('Copying the cron task "' . $cron->label . '" from ' . $sourceEnvId . ' to ' . $destEnvId);
@@ -93,10 +93,10 @@ final class EnvCopyCronCommand extends CommandBase
                     $this->io->error('There was some error while copying the cron task "' . $cron->label . '"');
                     // Log the error for debugging purpose.
                     $this->logger->debug('Error @error while copying the cron task @cron from @source env to @dest env', [
-                    '@cron' => $cron->label,
-                    '@dest' => $destEnvId,
-                    '@error' => $e->getMessage(),
-                    '@source' => $sourceEnvId,
+                        '@cron' => $cron->label,
+                        '@dest' => $destEnvId,
+                        '@error' => $e->getMessage(),
+                        '@source' => $sourceEnvId,
                     ]);
                     return 1;
                 }

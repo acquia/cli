@@ -55,18 +55,18 @@ final class ConfigurePlatformEmailCommand extends CommandBase
         $client = $this->cloudApiClientService->getClient();
         $subscription = $this->determineCloudSubscription();
         $client->request('post', "/subscriptions/$subscription->uuid/domains", [
-        'form_params' => [
-        'domain' => $baseDomain,
-        ],
+            'form_params' => [
+                'domain' => $baseDomain,
+            ],
         ]);
 
         $domainUuid = $this->fetchDomainUuid($client, $subscription, $baseDomain);
 
         $this->io->success([
-        "Great! You've registered the domain $baseDomain to subscription $subscription->name.",
-        "We will create a file with the DNS records for your newly registered domain",
-        "Provide these records to your DNS provider",
-        "After you've done this, continue to domain verification.",
+            "Great! You've registered the domain $baseDomain to subscription $subscription->name.",
+            "We will create a file with the DNS records for your newly registered domain",
+            "Provide these records to your DNS provider",
+            "After you've done this, continue to domain verification.",
         ]);
         $fileFormat = $this->io->choice('Would you like your DNS records in BIND Zone File, JSON, or YAML format?', ['BIND Zone File', 'YAML', 'JSON'], 'BIND Zone File');
         $this->createDnsText($client, $subscription, $baseDomain, $domainUuid, $fileFormat);
@@ -330,8 +330,8 @@ final class ConfigurePlatformEmailCommand extends CommandBase
     private function determineDomain(): string
     {
         $domain = $this->io->ask("What's the domain name you'd like to register?", '', Closure::fromCallable([
-        $this,
-        'validateUrl',
+            $this,
+            'validateUrl',
         ]));
 
         $domainParts = parse_url($domain);

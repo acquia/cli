@@ -127,9 +127,9 @@ final class ProjectBuilder
         $source_modules = array_values(array_map(function (ExtensionInterface $module) {
           // phpcs:disable SlevomatCodingStandard.Arrays.AlphabeticallySortedByKeys
             return [
-            'name' => $module->getName(),
-            'humanName' => $module->getHumanName(),
-            'version' => $module->getVersion(),
+                'name' => $module->getName(),
+                'humanName' => $module->getHumanName(),
+                'version' => $module->getVersion(),
             ];
           // phpcs:enable
         }, $this->siteInspector->getExtensions(SiteInspectorInterface::FLAG_EXTENSION_MODULE | SiteInspectorInterface::FLAG_EXTENSION_ENABLED)));
@@ -141,14 +141,14 @@ final class ProjectBuilder
 
         // phpcs:disable SlevomatCodingStandard.Arrays.AlphabeticallySortedByKeys
         return [
-        'installModules' => $modules_to_install,
-        'filePaths' => [
-        'public' => $this->siteInspector->getPublicFilePath(),
-        'private' => $this->siteInspector->getPrivateFilePath(),
-        ],
-        'sourceModules' => $source_modules,
-        'recommendations' => $recommendations,
-        'rootPackageDefinition' => $composer_json,
+            'installModules' => $modules_to_install,
+            'filePaths' => [
+                'public' => $this->siteInspector->getPublicFilePath(),
+                'private' => $this->siteInspector->getPrivateFilePath(),
+            ],
+            'sourceModules' => $source_modules,
+            'recommendations' => $recommendations,
+            'rootPackageDefinition' => $composer_json,
         ];
         // phpcs:enable
     }

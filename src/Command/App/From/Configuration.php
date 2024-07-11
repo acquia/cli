@@ -30,7 +30,7 @@ final class Configuration
     protected function __construct(array $config)
     {
         $this->array = static::schema([
-        'rootPackageDefinition' => 'is_array',
+            'rootPackageDefinition' => 'is_array',
         ])($config);
     }
 

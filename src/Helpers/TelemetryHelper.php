@@ -63,7 +63,7 @@ class TelemetryHelper
             $userId = $this->getUserId();
             if (isset($userId)) {
                 $report->setUser([
-                'id' => $userId,
+                    'id' => $userId,
                 ]);
             }
             $context = $report->getContext();
@@ -143,14 +143,14 @@ class TelemetryHelper
     private function getTelemetryUserData(): array
     {
         $data = [
-        'ah_app_uuid' => getenv('AH_APPLICATION_UUID'),
-        'ah_env' => $this->normalizeAhEnv(AcquiaDrupalEnvironmentDetector::getAhEnv()),
-        'ah_group' => AcquiaDrupalEnvironmentDetector::getAhGroup(),
-        'ah_non_production' => getenv('AH_NON_PRODUCTION'),
-        'ah_realm' => getenv('AH_REALM'),
-        'CI' => getenv('CI'),
-        'env_provider' => $this->getEnvironmentProvider(),
-        'php_version' => PHP_MAJOR_VERSION . '.' . PHP_MINOR_VERSION,
+            'ah_app_uuid' => getenv('AH_APPLICATION_UUID'),
+            'ah_env' => $this->normalizeAhEnv(AcquiaDrupalEnvironmentDetector::getAhEnv()),
+            'ah_group' => AcquiaDrupalEnvironmentDetector::getAhGroup(),
+            'ah_non_production' => getenv('AH_NON_PRODUCTION'),
+            'ah_realm' => getenv('AH_REALM'),
+            'CI' => getenv('CI'),
+            'env_provider' => $this->getEnvironmentProvider(),
+            'php_version' => PHP_MAJOR_VERSION . '.' . PHP_MINOR_VERSION,
         ];
         try {
             $user = $this->getUserData();
@@ -224,8 +224,8 @@ class TelemetryHelper
         // @todo Cache this!
         $account = new Account($this->cloudApiClientService->getClient());
         return [
-        'is_acquian' => str_ends_with($account->get()->mail, 'acquia.com'),
-        'uuid' => $account->get()->uuid,
+            'is_acquian' => str_ends_with($account->get()->mail, 'acquia.com'),
+            'uuid' => $account->get()->uuid,
         ];
     }
 
@@ -241,28 +241,28 @@ class TelemetryHelper
         // Define the environment variables associated with each provider.
         // phpcs:ignore SlevomatCodingStandard.Arrays.AlphabeticallySortedByKeys.IncorrectKeyOrder
         return [
-        'lando' => ['LANDO'],
-        'ddev' => ['IS_DDEV_PROJECT'],
+            'lando' => ['LANDO'],
+            'ddev' => ['IS_DDEV_PROJECT'],
         // Check Lando and DDEV first because the hijack AH_SITE_ENVIRONMENT.
-        'acquia' => ['AH_SITE_ENVIRONMENT'],
-        'bamboo' => ['BAMBOO_BUILDNUMBER'],
-        'beanstalk' => ['BEANSTALK_ENVIRONMENT'],
-        'bitbucket' => ['BITBUCKET_BUILD_NUMBER'],
-        'bitrise' => ['BITRISE_IO'],
-        'buddy' => ['BUDDY_WORKSPACE_ID'],
-        'circleci' => ['CIRCLECI'],
-        'codebuild' => ['CODEBUILD_BUILD_ID'],
-        'docksal' => ['DOCKSAL_VERSION'],
-        'drone' => ['DRONE'],
-        'github' => ['GITHUB_ACTIONS'],
-        'gitlab' => ['GITLAB_CI'],
-        'heroku' => ['HEROKU_TEST_RUN_ID'],
-        'jenkins' => ['JENKINS_URL'],
-        'pantheon' => ['PANTHEON_ENVIRONMENT'],
-        'pipelines' => ['PIPELINE_ENV'],
-        'platformsh' => ['PLATFORM_ENVIRONMENT'],
-        'teamcity' => ['TEAMCITY_VERSION'],
-        'travis' => ['TRAVIS'],
+            'acquia' => ['AH_SITE_ENVIRONMENT'],
+            'bamboo' => ['BAMBOO_BUILDNUMBER'],
+            'beanstalk' => ['BEANSTALK_ENVIRONMENT'],
+            'bitbucket' => ['BITBUCKET_BUILD_NUMBER'],
+            'bitrise' => ['BITRISE_IO'],
+            'buddy' => ['BUDDY_WORKSPACE_ID'],
+            'circleci' => ['CIRCLECI'],
+            'codebuild' => ['CODEBUILD_BUILD_ID'],
+            'docksal' => ['DOCKSAL_VERSION'],
+            'drone' => ['DRONE'],
+            'github' => ['GITHUB_ACTIONS'],
+            'gitlab' => ['GITLAB_CI'],
+            'heroku' => ['HEROKU_TEST_RUN_ID'],
+            'jenkins' => ['JENKINS_URL'],
+            'pantheon' => ['PANTHEON_ENVIRONMENT'],
+            'pipelines' => ['PIPELINE_ENV'],
+            'platformsh' => ['PLATFORM_ENVIRONMENT'],
+            'teamcity' => ['TEAMCITY_VERSION'],
+            'travis' => ['TRAVIS'],
         ];
     }
 }

@@ -21,12 +21,12 @@ class AbandonmentRecommendationTest extends TestCase
         // @see \Acquia\Cli\Tests\Commands\App\From\DefinedRecommendationTest::getTestConfigurations()
         // phpcs:disable SlevomatCodingStandard.Arrays.AlphabeticallySortedByKeys
         $this->sut = DefinedRecommendation::createFromDefinition([
-        'package' => null,
-        'note' => 'Example: The module bar is no longer required because its functionality has been incorporated into Drupal core.',
-        'replaces' => [
-        'name' => 'bar',
-        ],
-        'vetted' => true,
+            'package' => null,
+            'note' => 'Example: The module bar is no longer required because its functionality has been incorporated into Drupal core.',
+            'replaces' => [
+                'name' => 'bar',
+            ],
+            'vetted' => true,
         ]);
         // phpcs:enable
     }

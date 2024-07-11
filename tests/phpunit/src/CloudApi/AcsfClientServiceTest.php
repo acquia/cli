@@ -23,14 +23,14 @@ class AcsfClientServiceTest extends TestBase
     public function providerTestIsMachineAuthenticated(): array
     {
         return [
-        [
-        ['ACLI_ACCESS_TOKEN' => null, 'ACLI_KEY' => null, 'ACLI_SECRET' => null],
-        false,
-        ],
-        [
-        ['ACLI_ACCESS_TOKEN' => null, 'ACLI_KEY' => 'key', 'ACLI_SECRET' => null],
-        false,
-        ],
+            [
+                ['ACLI_ACCESS_TOKEN' => null, 'ACLI_KEY' => null, 'ACLI_SECRET' => null],
+                false,
+            ],
+            [
+                ['ACLI_ACCESS_TOKEN' => null, 'ACLI_KEY' => 'key', 'ACLI_SECRET' => null],
+                false,
+            ],
         ];
     }
 

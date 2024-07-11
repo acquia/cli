@@ -48,10 +48,10 @@ class ArchiveExporterCommandTest extends PullCommandTestBase
 
         $inputs = [
         // ... Do you want to continue? (yes/no) [yes]
-        'y',
+            'y',
         ];
         $this->executeCommand([
-        'destination-dir' => $destinationDir,
+            'destination-dir' => $destinationDir,
         ], $inputs);
 
         $output = $this->getDisplay();

@@ -31,20 +31,20 @@ abstract class AcsfCommandTestBase extends CommandTestBase
     protected function getAcsfCredentialsFileContents(): array
     {
         return [
-        'acsf_active_factory' => $this->acsfCurrentFactoryUrl,
-        'acsf_factories' => [
-        $this->acsfCurrentFactoryUrl => [
-        'active_user' => $this->acsfActiveUser,
-        'url' => $this->acsfCurrentFactoryUrl,
-        'users' => [
-        $this->acsfUsername => [
-        'key' => $this->acsfKey,
-        'username' => $this->acsfUsername,
-        ],
-        ],
-        ],
-        ],
-        DataStoreContract::SEND_TELEMETRY => false,
+            'acsf_active_factory' => $this->acsfCurrentFactoryUrl,
+            'acsf_factories' => [
+                $this->acsfCurrentFactoryUrl => [
+                    'active_user' => $this->acsfActiveUser,
+                    'url' => $this->acsfCurrentFactoryUrl,
+                    'users' => [
+                        $this->acsfUsername => [
+                            'key' => $this->acsfKey,
+                            'username' => $this->acsfUsername,
+                        ],
+                    ],
+                ],
+            ],
+            DataStoreContract::SEND_TELEMETRY => false,
         ];
     }
 }

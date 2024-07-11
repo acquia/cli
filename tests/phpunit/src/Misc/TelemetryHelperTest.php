@@ -80,14 +80,14 @@ class TelemetryHelperTest extends TestBase
     public function providerTestAhEnvNormalization(): array
     {
         return [
-        ['prod', 'prod'],
-        ['01live', 'prod'],
-        ['stage', 'stage'],
-        ['stg', 'stage'],
-        ['dev1', 'dev'],
-        ['ode1', 'ode'],
-        ['ide', 'ide'],
-        ['fake', 'fake'],
+            ['prod', 'prod'],
+            ['01live', 'prod'],
+            ['stage', 'stage'],
+            ['stg', 'stage'],
+            ['dev1', 'dev'],
+            ['ode1', 'ode'],
+            ['ide', 'ide'],
+            ['fake', 'fake'],
         ];
     }
 

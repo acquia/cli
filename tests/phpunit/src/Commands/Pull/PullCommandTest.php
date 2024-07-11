@@ -67,17 +67,17 @@ class PullCommandTest extends PullCommandTestBase
         ->shouldBeCalled();
         $this->mockExecuteMySqlImport($localMachineHelper, true, true, 'my_db', 'my_dbdev', 'drupal');
         $this->executeCommand([
-        '--no-scripts' => true,
+            '--no-scripts' => true,
         ], [
         // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
-        'n',
+            'n',
         // Select a Cloud Platform application:
-        self::$INPUT_DEFAULT_CHOICE,
+            self::$INPUT_DEFAULT_CHOICE,
         // Would you like to link the project at ... ?
-        'n',
+            'n',
         // Choose an Acquia environment:
-        self::$INPUT_DEFAULT_CHOICE,
-        self::$INPUT_DEFAULT_CHOICE,
+            self::$INPUT_DEFAULT_CHOICE,
+            self::$INPUT_DEFAULT_CHOICE,
         ]);
 
         $output = $this->getDisplay();
@@ -101,7 +101,7 @@ class PullCommandTest extends PullCommandTestBase
         $this->expectExceptionMessage('Execute this command from within a Drupal project directory or an empty directory');
         $inputs = [
         // Would you like to clone a project into the current directory?
-        'n',
+            'n',
         ];
         $this->executeCommand([], $inputs);
     }

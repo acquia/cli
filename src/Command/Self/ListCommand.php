@@ -24,10 +24,10 @@ final class ListCommand extends CommandBase
         $this
         ->setName('list')
         ->setDefinition([
-        new InputArgument('namespace', InputArgument::OPTIONAL, 'The namespace name', null, fn () => array_keys((new ApplicationDescription($this->getApplication()))->getNamespaces())),
-        new InputOption('raw', null, InputOption::VALUE_NONE, 'To output raw command list'),
-        new InputOption('format', null, InputOption::VALUE_REQUIRED, 'The output format (txt, xml, json, or md)', 'txt', fn () => (new DescriptorHelper())->getFormats()),
-        new InputOption('short', null, InputOption::VALUE_NONE, 'To skip describing commands\' arguments'),
+            new InputArgument('namespace', InputArgument::OPTIONAL, 'The namespace name', null, fn () => array_keys((new ApplicationDescription($this->getApplication()))->getNamespaces())),
+            new InputOption('raw', null, InputOption::VALUE_NONE, 'To output raw command list'),
+            new InputOption('format', null, InputOption::VALUE_REQUIRED, 'The output format (txt, xml, json, or md)', 'txt', fn () => (new DescriptorHelper())->getFormats()),
+            new InputOption('short', null, InputOption::VALUE_NONE, 'To skip describing commands\' arguments'),
         ])
         ->setDescription('List commands')
         ->setHelp(<<<'EOF'
@@ -69,9 +69,9 @@ EOF
 
         $helper = new DescriptorHelper();
         $helper->describe($output, $this->getApplication(), [
-        'format' => $input->getOption('format'),
-        'namespace' => $input->getArgument('namespace'),
-        'raw_text' => $input->getOption('raw'),
+            'format' => $input->getOption('format'),
+            'namespace' => $input->getArgument('namespace'),
+            'raw_text' => $input->getOption('raw'),
         ]);
 
         return Command::SUCCESS;

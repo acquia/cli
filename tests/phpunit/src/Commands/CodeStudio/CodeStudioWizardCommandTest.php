@@ -58,230 +58,230 @@ class CodeStudioWizardCommandTest extends WizardTestBase
     public function providerTestCommand(): array
     {
         return [
-        [
+            [
         // One project.
-        [$this->getMockedGitLabProject($this->gitLabProjectId)],
+                [$this->getMockedGitLabProject($this->gitLabProjectId)],
         // Inputs.
-        [
+                [
         // Do you want to continue?
-        'y',
+                    'y',
         // Would you like to perform a one time push of code from Acquia Cloud to Code Studio now? (yes/no) [yes]:
-        'y',
-        ],
-        // Args.
-        [
-        '--key' => $this->key,
-        '--secret' => $this->secret,
-        ],
-        ],
-        // Two projects.
-        [
-        [$this->getMockedGitLabProject($this->gitLabProjectId), $this->getMockedGitLabProject($this->gitLabProjectId)],
-        // Inputs.
-        [
-        // Found multiple projects that could match the Sample application 1 application. Choose which one to configure.
-        '0',
-        // Do you want to continue?
-        'y',
-        // Would you like to perform a one time push of code from Acquia Cloud to Code Studio now? (yes/no) [yes]:
-        'y',
-        ],
-        // Args.
-        [
-        '--key' => $this->key,
-        '--secret' => $this->secret,
-        ],
-        ],
-        [
-        // No projects.
-        [],
-        // Inputs.
-        [
-        // 'Would you like to create a new Code Studio project?
-        'y',
-        // Select a project type Drupal_project.
-        '0',
-        // Select PHP version 8.1.
-        '0',
-        // Do you want to continue?
-        'y',
-        // Would you like to perform a one time push of code from Acquia Cloud to Code Studio now? (yes/no) [yes]:
-        'y',
-        ],
-        // Args.
-        [
-        '--key' => $this->key,
-        '--secret' => $this->secret,
-        ],
-        ],
-        [
-        // No projects.
-        [],
-        // Inputs.
-        [
-        // 'Would you like to create a new Code Studio project?
-        'y',
-        // Select a project type Drupal_project.
-        '0',
-        // Select PHP version 8.2.
-        '1',
-        // Do you want to continue?
-        'y',
-        // Would you like to perform a one time push of code from Acquia Cloud to Code Studio now? (yes/no) [yes]:
-        'y',
-        ],
-        // Args.
-        [
-        '--key' => $this->key,
-        '--secret' => $this->secret,
-        ],
-        ],
-        [
-        // No projects.
-        [],
-        // Inputs.
-        [
-        // 'Would you like to create a new Code Studio project?
-        'y',
-        // Select a project type Node_project.
-        '1',
-        // Select NODE version 18.17.1.
-        '0',
-        // Do you want to continue?
-        'y',
-        // Would you like to perform a one time push of code from Acquia Cloud to Code Studio now? (yes/no) [yes]:
-        'y',
-        ],
-        // Args.
-        [
-        '--key' => $this->key,
-        '--secret' => $this->secret,
-        ],
-        ],
-        [
-        // No projects.
-        [],
-        // Inputs.
-        [
-        // 'Would you like to create a new Code Studio project?
-        'y',
-        // Select a project type Node_project.
-        '1',
-        // Select NODE version 20.5.1.
-        '1',
-        // Do you want to continue?
-        'y',
-        // Would you like to perform a one time push of code from Acquia Cloud to Code Studio now? (yes/no) [yes]:
-        'y',
-        ],
-        // Args.
-        [
-        '--key' => $this->key,
-        '--secret' => $this->secret,
-        ],
-        ],
-        [
-        // No projects.
-        [],
-        // Inputs.
-        [
-        // 'Would you like to create a new Code Studio project?
-        'n',
-        // Choose project.
-        '0',
-        // Do you want to continue?
-        'y',
-        ],
-        // Args.
-        [
-        '--key' => $this->key,
-        '--secret' => $this->secret,
-        ],
-        ],
-        [
-        // No projects.
-        [],
-        // Inputs.
-        [
-        // 'Would you like to create a new Code Studio project?
-        'y',
-        // Enter Cloud Key.
-        $this->key,
-        // Enter Cloud secret,.
-        $this->secret,
-        // Select a project type Drupal_project.
-        '0',
-        // Select PHP version 8.1.
-        '0',
-        // Do you want to continue?
-        'y',
-        ],
-        // Args.
-        [],
-        ],
-        [
-        // No projects.
-        [],
-        // Inputs.
-        [
-        // 'Would you like to create a new Code Studio project?
-        'y',
-        // Enter Cloud Key.
-        $this->key,
-        // Enter Cloud secret,.
-        $this->secret,
-        // Select a project type Node_project.
-        '1',
-        // Select NODE version 18.17.1.
-        '0',
-        // Do you want to continue?
-        'y',
-        ],
-        // Args.
-        [],
-        ],
-        [
-        // No projects.
-        [],
-        // Inputs.
-        [
-        // 'Would you like to create a new Code Studio project?
-        'y',
-        // Enter Cloud Key.
-        $this->key,
-        // Enter Cloud secret,.
-        $this->secret,
-        // Select a project type Drupal_project.
-        '0',
-        // Select PHP version 8.2.
-        '1',
-        // Do you want to continue?
-        'y',
-        ],
-        // Args.
-        [],
-        ],
-        [
-        // No projects.
-        [],
-        // Inputs.
-        [
-        // 'Would you like to create a new Code Studio project?
-        'y',
-        // Enter Cloud Key.
-        $this->key,
-        // Enter Cloud secret,.
-        $this->secret,
-        // Select a project type Node_project.
-        '1',
-        // Select NODE version 20.5.1.
-        '1',
-        // Do you want to continue?
-        'y',
-        ],
-        // Args.
-        [],
-        ],
+                    'y',
+                ],
+                // Args.
+                [
+                    '--key' => $this->key,
+                    '--secret' => $this->secret,
+                ],
+            ],
+            // Two projects.
+            [
+                [$this->getMockedGitLabProject($this->gitLabProjectId), $this->getMockedGitLabProject($this->gitLabProjectId)],
+            // Inputs.
+                [
+            // Found multiple projects that could match the Sample application 1 application. Choose which one to configure.
+                    '0',
+            // Do you want to continue?
+                    'y',
+            // Would you like to perform a one time push of code from Acquia Cloud to Code Studio now? (yes/no) [yes]:
+                    'y',
+                ],
+                // Args.
+                [
+                    '--key' => $this->key,
+                    '--secret' => $this->secret,
+                ],
+            ],
+            [
+            // No projects.
+                [],
+            // Inputs.
+                [
+            // 'Would you like to create a new Code Studio project?
+                    'y',
+            // Select a project type Drupal_project.
+                    '0',
+            // Select PHP version 8.1.
+                    '0',
+            // Do you want to continue?
+                    'y',
+            // Would you like to perform a one time push of code from Acquia Cloud to Code Studio now? (yes/no) [yes]:
+                    'y',
+                ],
+                // Args.
+                [
+                    '--key' => $this->key,
+                    '--secret' => $this->secret,
+                ],
+            ],
+            [
+            // No projects.
+                [],
+            // Inputs.
+                [
+            // 'Would you like to create a new Code Studio project?
+                    'y',
+            // Select a project type Drupal_project.
+                    '0',
+            // Select PHP version 8.2.
+                    '1',
+            // Do you want to continue?
+                    'y',
+            // Would you like to perform a one time push of code from Acquia Cloud to Code Studio now? (yes/no) [yes]:
+                    'y',
+                ],
+                // Args.
+                [
+                    '--key' => $this->key,
+                    '--secret' => $this->secret,
+                ],
+            ],
+            [
+            // No projects.
+                [],
+            // Inputs.
+                [
+            // 'Would you like to create a new Code Studio project?
+                    'y',
+            // Select a project type Node_project.
+                    '1',
+            // Select NODE version 18.17.1.
+                    '0',
+            // Do you want to continue?
+                    'y',
+            // Would you like to perform a one time push of code from Acquia Cloud to Code Studio now? (yes/no) [yes]:
+                    'y',
+                ],
+                // Args.
+                [
+                    '--key' => $this->key,
+                    '--secret' => $this->secret,
+                ],
+            ],
+            [
+            // No projects.
+                [],
+            // Inputs.
+                [
+            // 'Would you like to create a new Code Studio project?
+                    'y',
+            // Select a project type Node_project.
+                    '1',
+            // Select NODE version 20.5.1.
+                    '1',
+            // Do you want to continue?
+                    'y',
+            // Would you like to perform a one time push of code from Acquia Cloud to Code Studio now? (yes/no) [yes]:
+                    'y',
+                ],
+                // Args.
+                [
+                    '--key' => $this->key,
+                    '--secret' => $this->secret,
+                ],
+            ],
+            [
+            // No projects.
+                [],
+            // Inputs.
+                [
+            // 'Would you like to create a new Code Studio project?
+                    'n',
+            // Choose project.
+                    '0',
+            // Do you want to continue?
+                    'y',
+                ],
+                // Args.
+                [
+                    '--key' => $this->key,
+                    '--secret' => $this->secret,
+                ],
+            ],
+            [
+            // No projects.
+                [],
+            // Inputs.
+                [
+            // 'Would you like to create a new Code Studio project?
+                    'y',
+            // Enter Cloud Key.
+                    $this->key,
+            // Enter Cloud secret,.
+                    $this->secret,
+            // Select a project type Drupal_project.
+                    '0',
+            // Select PHP version 8.1.
+                    '0',
+            // Do you want to continue?
+                    'y',
+                ],
+                // Args.
+                [],
+            ],
+            [
+            // No projects.
+                [],
+            // Inputs.
+                [
+            // 'Would you like to create a new Code Studio project?
+                    'y',
+            // Enter Cloud Key.
+                    $this->key,
+            // Enter Cloud secret,.
+                    $this->secret,
+            // Select a project type Node_project.
+                    '1',
+            // Select NODE version 18.17.1.
+                    '0',
+            // Do you want to continue?
+                    'y',
+                ],
+                // Args.
+                [],
+            ],
+            [
+            // No projects.
+                [],
+            // Inputs.
+                [
+            // 'Would you like to create a new Code Studio project?
+                    'y',
+            // Enter Cloud Key.
+                    $this->key,
+            // Enter Cloud secret,.
+                    $this->secret,
+            // Select a project type Drupal_project.
+                    '0',
+            // Select PHP version 8.2.
+                    '1',
+            // Do you want to continue?
+                    'y',
+                ],
+                // Args.
+                [],
+            ],
+            [
+            // No projects.
+                [],
+            // Inputs.
+                [
+            // 'Would you like to create a new Code Studio project?
+                    'y',
+            // Enter Cloud Key.
+                    $this->key,
+            // Enter Cloud secret,.
+                    $this->secret,
+            // Select a project type Node_project.
+                    '1',
+            // Select NODE version 20.5.1.
+                    '1',
+            // Do you want to continue?
+                    'y',
+                ],
+                // Args.
+                [],
+            ],
         ];
     }
 
@@ -301,21 +301,21 @@ class CodeStudioWizardCommandTest extends WizardTestBase
 
         $projects = $this->mockGetGitLabProjects($this::$applicationUuid, $this->gitLabProjectId, $mockedGitlabProjects);
         $parameters = [
-        'container_registry_access_level' => 'disabled',
-        'default_branch' => 'main',
-        'description' => 'Source repository for Acquia Cloud Platform application <comment>a47ac10b-58cc-4372-a567-0e02b2c3d470</comment>',
-        'initialize_with_readme' => true,
-        'namespace_id' => 47,
-        'topics' => 'Acquia Cloud Application',
+            'container_registry_access_level' => 'disabled',
+            'default_branch' => 'main',
+            'description' => 'Source repository for Acquia Cloud Platform application <comment>a47ac10b-58cc-4372-a567-0e02b2c3d470</comment>',
+            'initialize_with_readme' => true,
+            'namespace_id' => 47,
+            'topics' => 'Acquia Cloud Application',
         ];
         $projects->create('Sample-application-1', $parameters)->willReturn($this->getMockedGitLabProject($this->gitLabProjectId));
         $this->mockGitLabProjectsTokens($projects);
         $parameters = [
-        'container_registry_access_level' => 'disabled',
-        'default_branch' => 'main',
-        'description' => 'Source repository for Acquia Cloud Platform application <comment>a47ac10b-58cc-4372-a567-0e02b2c3d470</comment>',
-        'initialize_with_readme' => true,
-        'topics' => 'Acquia Cloud Application',
+            'container_registry_access_level' => 'disabled',
+            'default_branch' => 'main',
+            'description' => 'Source repository for Acquia Cloud Platform application <comment>a47ac10b-58cc-4372-a567-0e02b2c3d470</comment>',
+            'initialize_with_readme' => true,
+            'topics' => 'Acquia Cloud Application',
         ];
         $projects->update($this->gitLabProjectId, $parameters)->shouldBeCalled();
         $projects->uploadAvatar(
@@ -326,7 +326,7 @@ class CodeStudioWizardCommandTest extends WizardTestBase
 
         if ($inputs[0] === 'y' && ($inputs[1] === '1' || (array_key_exists(3, $inputs) && $inputs[3] === '1'))) {
             $parameters = [
-            'ci_config_path' => 'gitlab-ci/Auto-DevOps.acquia.gitlab-ci.yml@acquia/node-template',
+                'ci_config_path' => 'gitlab-ci/Auto-DevOps.acquia.gitlab-ci.yml@acquia/node-template',
             ];
             $projects->update($this->gitLabProjectId, $parameters)->shouldBeCalled();
         } else {
@@ -335,18 +335,18 @@ class CodeStudioWizardCommandTest extends WizardTestBase
             $pipeline = ['id' => 1];
             $parameters = [
             // Every Thursday at midnight.
-            'cron' => '0 0 * * 4',
-            'description' => 'Code Studio Automatic Updates',
-            'ref' => 'master',
+                'cron' => '0 0 * * 4',
+                'description' => 'Code Studio Automatic Updates',
+                'ref' => 'master',
             ];
             $schedules->create($this->gitLabProjectId, $parameters)->willReturn($pipeline);
             $schedules->addVariable($this->gitLabProjectId, $pipeline['id'], [
-            'key' => 'ACQUIA_JOBS_DEPRECATED_UPDATE',
-            'value' => 'true',
+                'key' => 'ACQUIA_JOBS_DEPRECATED_UPDATE',
+                'value' => 'true',
             ])->shouldBeCalled();
             $schedules->addVariable($this->gitLabProjectId, $pipeline['id'], [
-            'key' => 'ACQUIA_JOBS_COMPOSER_UPDATE',
-            'value' => 'true',
+                'key' => 'ACQUIA_JOBS_COMPOSER_UPDATE',
+                'value' => 'true',
             ])->shouldBeCalled();
             $gitlabClient->schedules()->willReturn($schedules->reveal());
         }
@@ -393,8 +393,8 @@ class CodeStudioWizardCommandTest extends WizardTestBase
         $this->expectException(AcquiaCliException::class);
         $this->expectExceptionMessage('Unable to authenticate with Code Studio');
         $this->executeCommand([
-        '--key' => $this->key,
-        '--secret' => $this->secret,
+            '--key' => $this->key,
+            '--secret' => $this->secret,
         ]);
     }
 
@@ -411,28 +411,28 @@ class CodeStudioWizardCommandTest extends WizardTestBase
         $this->expectException(AcquiaCliException::class);
         $this->expectExceptionMessage('Could not determine GitLab token');
         $this->executeCommand([
-        '--key' => $this->key,
-        '--secret' => $this->secret,
+            '--key' => $this->key,
+            '--secret' => $this->secret,
         ]);
     }
 
     protected function mockGitLabProjectsTokens(ObjectProphecy $projects): void
     {
         $tokens = [
-        0 => [
-        'access_level' => 40,
-        'active' => true,
-        'created_at' => '2021-12-28T20:08:21.629Z',
-        'expires_at' => new DateTime('+365 days'),
-        'id' => $this->gitLabTokenId,
-        'name' => 'acquia-codestudio',
-        'revoked' => false,
-        'scopes' => [
-        0 => 'api',
-        1 => 'write_repository',
-        ],
-        'user_id' => 154,
-        ],
+            0 => [
+                'access_level' => 40,
+                'active' => true,
+                'created_at' => '2021-12-28T20:08:21.629Z',
+                'expires_at' => new DateTime('+365 days'),
+                'id' => $this->gitLabTokenId,
+                'name' => 'acquia-codestudio',
+                'revoked' => false,
+                'scopes' => [
+                    0 => 'api',
+                    1 => 'write_repository',
+                ],
+                'user_id' => 154,
+            ],
         ];
         $projects->projectAccessTokens($this->gitLabProjectId)->willReturn($tokens)->shouldBeCalled();
         $projects->deleteProjectAccessToken($this->gitLabProjectId, $this->gitLabTokenId)->shouldBeCalled();
@@ -446,10 +446,10 @@ class CodeStudioWizardCommandTest extends WizardTestBase
         $process = $this->mockProcess();
         $process->getOutput()->willReturn('main');
         $localMachineHelper->execute([
-        'git',
-        'rev-parse',
-        '--abbrev-ref',
-        'HEAD',
+            'git',
+            'rev-parse',
+            '--abbrev-ref',
+            'HEAD',
         ], null, null, false)->willReturn($process->reveal());
     }
 
@@ -457,60 +457,60 @@ class CodeStudioWizardCommandTest extends WizardTestBase
     {
         $groups = $this->prophet->prophesize(Groups::class);
         $groups->all(Argument::type('array'))->willReturn([
-        0 => [
-        'auto_devops_enabled' => null,
-        'avatar_url' => null,
-        'created_at' => '2021-11-16T18:54:31.275Z',
-        'default_branch_protection' => 2,
-        'description' => '',
-        'emails_disabled' => null,
-        'full_name' => 'awesome-demo',
-        'full_path' => 'awesome-demo',
-        'id' => 47,
-        'ldap_access' => null,
-        'ldap_cn' => null,
-        'lfs_enabled' => true,
-        'marked_for_deletion_on' => null,
-        'mentions_disabled' => null,
-        'name' => 'awesome-demo',
-        'parent_id' => null,
-        'path' => 'awesome-demo',
-        'project_creation_level' => 'developer',
-        'request_access_enabled' => true,
-        'require_two_factor_authentication' => false,
-        'share_with_group_lock' => false,
-        'subgroup_creation_level' => 'maintainer',
-        'two_factor_grace_period' => 48,
-        'visibility' => 'private',
-        'web_url' => 'https://code.cloudservices.acquia.io/groups/awesome-demo',
-        ],
-        1 => [
-        'auto_devops_enabled' => null,
-        'avatar_url' => null,
-        'created_at' => '2021-12-14T18:49:50.724Z',
-        'default_branch_protection' => 2,
-        'description' => '',
-        'emails_disabled' => null,
-        'full_name' => 'Nestle',
-        'full_path' => 'nestle',
-        'id' => 68,
-        'ldap_access' => null,
-        'ldap_cn' => null,
-        'lfs_enabled' => true,
-        'marked_for_deletion_on' => null,
-        'mentions_disabled' => null,
-        'name' => 'Nestle',
-        'parent_id' => null,
-        'path' => 'nestle',
-        'project_creation_level' => 'developer',
-        'request_access_enabled' => true,
-        'require_two_factor_authentication' => false,
-        'share_with_group_lock' => false,
-        'subgroup_creation_level' => 'maintainer',
-        'two_factor_grace_period' => 48,
-        'visibility' => 'private',
-        'web_url' => 'https://code.cloudservices.acquia.io/groups/nestle',
-        ],
+            0 => [
+                'auto_devops_enabled' => null,
+                'avatar_url' => null,
+                'created_at' => '2021-11-16T18:54:31.275Z',
+                'default_branch_protection' => 2,
+                'description' => '',
+                'emails_disabled' => null,
+                'full_name' => 'awesome-demo',
+                'full_path' => 'awesome-demo',
+                'id' => 47,
+                'ldap_access' => null,
+                'ldap_cn' => null,
+                'lfs_enabled' => true,
+                'marked_for_deletion_on' => null,
+                'mentions_disabled' => null,
+                'name' => 'awesome-demo',
+                'parent_id' => null,
+                'path' => 'awesome-demo',
+                'project_creation_level' => 'developer',
+                'request_access_enabled' => true,
+                'require_two_factor_authentication' => false,
+                'share_with_group_lock' => false,
+                'subgroup_creation_level' => 'maintainer',
+                'two_factor_grace_period' => 48,
+                'visibility' => 'private',
+                'web_url' => 'https://code.cloudservices.acquia.io/groups/awesome-demo',
+            ],
+            1 => [
+                'auto_devops_enabled' => null,
+                'avatar_url' => null,
+                'created_at' => '2021-12-14T18:49:50.724Z',
+                'default_branch_protection' => 2,
+                'description' => '',
+                'emails_disabled' => null,
+                'full_name' => 'Nestle',
+                'full_path' => 'nestle',
+                'id' => 68,
+                'ldap_access' => null,
+                'ldap_cn' => null,
+                'lfs_enabled' => true,
+                'marked_for_deletion_on' => null,
+                'mentions_disabled' => null,
+                'name' => 'Nestle',
+                'parent_id' => null,
+                'path' => 'nestle',
+                'project_creation_level' => 'developer',
+                'request_access_enabled' => true,
+                'require_two_factor_authentication' => false,
+                'share_with_group_lock' => false,
+                'subgroup_creation_level' => 'maintainer',
+                'two_factor_grace_period' => 48,
+                'visibility' => 'private',
+                'web_url' => 'https://code.cloudservices.acquia.io/groups/nestle',
+            ],
         ]);
         $gitlabClient->groups()->willReturn($groups->reveal());
     }
@@ -519,20 +519,20 @@ class CodeStudioWizardCommandTest extends WizardTestBase
     {
         $namespaces = $this->prophet->prophesize(ProjectNamespaces::class);
         $namespaces->show(Argument::type('string'))->willReturn([
-        'avatar_url' => 'https://secure.gravatar.com/avatar/5ee7b8ad954bf7156e6eb57a45d60dec?s=80&d=identicon',
-        'billable_members_count' => 1,
-        'full_path' => 'matthew.grasmick',
-        'id' => 48,
-        'kind' => 'user',
-        'max_seats_used' => 0,
-        'name' => 'Matthew Grasmick',
-        'parent_id' => null,
-        'path' => 'matthew.grasmick',
-        'plan' => 'default',
-        'seats_in_use' => 0,
-        'trial' => false,
-        'trial_ends_on' => null,
-        'web_url' => 'https://code.cloudservices.acquia.io/matthew.grasmick',
+            'avatar_url' => 'https://secure.gravatar.com/avatar/5ee7b8ad954bf7156e6eb57a45d60dec?s=80&d=identicon',
+            'billable_members_count' => 1,
+            'full_path' => 'matthew.grasmick',
+            'id' => 48,
+            'kind' => 'user',
+            'max_seats_used' => 0,
+            'name' => 'Matthew Grasmick',
+            'parent_id' => null,
+            'path' => 'matthew.grasmick',
+            'plan' => 'default',
+            'seats_in_use' => 0,
+            'trial' => false,
+            'trial_ends_on' => null,
+            'web_url' => 'https://code.cloudservices.acquia.io/matthew.grasmick',
         ]);
         $gitlabClient->namespaces()->willReturn($namespaces->reveal());
     }

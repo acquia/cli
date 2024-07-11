@@ -37,7 +37,7 @@ final class SshCommand extends SshBaseCommand
             throw new AcquiaCliException('Cannot determine environment SSH URL. Check that you have SSH permissions on this environment.');
         }
         $sshCommand = [
-        'cd /var/www/html/' . $alias,
+            'cd /var/www/html/' . $alias,
         ];
         $arguments = $input->getArguments();
         if (empty($arguments['ssh_command'])) {

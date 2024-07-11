@@ -53,11 +53,11 @@ final class Drupal7SiteInspector extends SiteInspectorBase
         $modules = array_values(array_map(function (string $name) use ($enabled) {
           // phpcs:disable SlevomatCodingStandard.Arrays.AlphabeticallySortedByKeys
             return (object) [
-            'name' => $name,
-            'status' => true,
-            'type' => 'module',
-            'humanName' => $enabled[$name]->info['name'],
-            'version' => $enabled[$name]->info['version'],
+                'name' => $name,
+                'status' => true,
+                'type' => 'module',
+                'humanName' => $enabled[$name]->info['name'],
+                'version' => $enabled[$name]->info['version'],
             ];
           // phpcs:enable
         }, array_keys($enabled)));
