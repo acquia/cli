@@ -152,7 +152,8 @@ final class CodeStudioWizardCommand extends WizardCommandBase
      */
     private function getGitLabScheduleByDescription(array $project, string $scheduledPipelineDescription): ?array
     {
-        $existingSchedules = $this->gitLabClient->schedules()->showAll($project['id']);
+        $existingSchedules = $this->gitLabClient->schedules()
+            ->showAll($project['id']);
         foreach ($existingSchedules as $schedule) {
             if ($schedule['description'] == $scheduledPipelineDescription) {
                 return $schedule;
@@ -166,7 +167,8 @@ final class CodeStudioWizardCommand extends WizardCommandBase
      */
     private function getGitLabProjectAccessTokenByName(array $project, string $name): ?array
     {
-        $existingProjectAccessTokens = $this->gitLabClient->projects()->projectAccessTokens($project['id']);
+        $existingProjectAccessTokens = $this->gitLabClient->projects()
+            ->projectAccessTokens($project['id']);
         foreach ($existingProjectAccessTokens as $key => $token) {
             if ($token['name'] == $name) {
                 return $token;
@@ -224,10 +226,16 @@ final class CodeStudioWizardCommand extends WizardCommandBase
             $this->checklist->addItem("Setting GitLab CI/CD variables for <comment>{$variable['key']}</comment>");
             if (!array_key_exists($variable['key'], $gitlabCicdExistingVariablesKeyed)) {
                 $this->gitLabClient->projects()
-                    ->addVariable($project['id'], $variable['key'], $variable['value'], $variable['protected'], null, ['masked' => $variable['masked'], 'variable_type' => $variable['variable_type']]);
+                    ->addVariable($project['id'], $variable['key'], $variable['value'], $variable['protected'], null, [
+                        'masked' => $variable['masked'],
+                        'variable_type' => $variable['variable_type'],
+                    ]);
             } else {
                 $this->gitLabClient->projects()
-                    ->updateVariable($project['id'], $variable['key'], $variable['value'], $variable['protected'], null, ['masked' => $variable['masked'], 'variable_type' => $variable['variable_type']]);
+                    ->updateVariable($project['id'], $variable['key'], $variable['value'], $variable['protected'], null, [
+                        'masked' => $variable['masked'],
+                        'variable_type' => $variable['variable_type'],
+                    ]);
             }
             $this->checklist->completePreviousItem();
         }
@@ -249,10 +257,16 @@ final class CodeStudioWizardCommand extends WizardCommandBase
             $this->checklist->addItem("Setting CI/CD variable <comment>{$variable['key']}</comment>");
             if (!array_key_exists($variable['key'], $gitlabCicdExistingVariablesKeyed)) {
                 $this->gitLabClient->projects()
-                    ->addVariable($project['id'], $variable['key'], $variable['value'], $variable['protected'], null, ['masked' => $variable['masked'], 'variable_type' => $variable['variable_type']]);
+                    ->addVariable($project['id'], $variable['key'], $variable['value'], $variable['protected'], null, [
+                        'masked' => $variable['masked'],
+                        'variable_type' => $variable['variable_type'],
+                    ]);
             } else {
                 $this->gitLabClient->projects()
-                    ->updateVariable($project['id'], $variable['key'], $variable['value'], $variable['protected'], null, ['masked' => $variable['masked'], 'variable_type' => $variable['variable_type']]);
+                    ->updateVariable($project['id'], $variable['key'], $variable['value'], $variable['protected'], null, [
+                        'masked' => $variable['masked'],
+                        'variable_type' => $variable['variable_type'],
+                    ]);
             }
             $this->checklist->completePreviousItem();
         }
@@ -265,20 +279,23 @@ final class CodeStudioWizardCommand extends WizardCommandBase
 
         if (!$this->getGitLabScheduleByDescription($project, $scheduledPipelineDescription)) {
             $this->checklist->addItem("Creating scheduled pipeline <comment>$scheduledPipelineDescription</comment>");
-            $pipeline = $this->gitLabClient->schedules()->create($project['id'], [
-                // Every Thursday at midnight.
-                'cron' => '0 0 * * 4',
-                'description' => $scheduledPipelineDescription,
-                'ref' => $project['default_branch'],
-            ]);
-            $this->gitLabClient->schedules()->addVariable($project['id'], $pipeline['id'], [
-                'key' => 'ACQUIA_JOBS_DEPRECATED_UPDATE',
-                'value' => 'true',
-            ]);
-            $this->gitLabClient->schedules()->addVariable($project['id'], $pipeline['id'], [
-                'key' => 'ACQUIA_JOBS_COMPOSER_UPDATE',
-                'value' => 'true',
-            ]);
+            $pipeline = $this->gitLabClient->schedules()
+                ->create($project['id'], [
+                    // Every Thursday at midnight.
+                    'cron' => '0 0 * * 4',
+                    'description' => $scheduledPipelineDescription,
+                    'ref' => $project['default_branch'],
+                ]);
+            $this->gitLabClient->schedules()
+                ->addVariable($project['id'], $pipeline['id'], [
+                    'key' => 'ACQUIA_JOBS_DEPRECATED_UPDATE',
+                    'value' => 'true',
+                ]);
+            $this->gitLabClient->schedules()
+                ->addVariable($project['id'], $pipeline['id'], [
+                    'key' => 'ACQUIA_JOBS_COMPOSER_UPDATE',
+                    'value' => 'true',
+                ]);
         } else {
             $this->checklist->addItem("Scheduled pipeline named <comment>$scheduledPipelineDescription</comment> already exists");
         }
@@ -289,9 +306,11 @@ final class CodeStudioWizardCommand extends WizardCommandBase
     {
         // Setting the description to match the known pattern will allow us to automatically find the project next time.
         if ($project['description'] !== $this->gitLabProjectDescription) {
-            $this->gitLabClient->projects()->update($project['id'], $this->getGitLabProjectDefaults());
+            $this->gitLabClient->projects()
+                ->update($project['id'], $this->getGitLabProjectDefaults());
             try {
-                $this->gitLabClient->projects()->uploadAvatar($project['id'], __DIR__ . '/drupal_icon.png');
+                $this->gitLabClient->projects()
+                    ->uploadAvatar($project['id'], __DIR__ . '/drupal_icon.png');
             } catch (ValidationFailedException) {
                 $this->io->warning("Failed to upload project avatar");
             }
