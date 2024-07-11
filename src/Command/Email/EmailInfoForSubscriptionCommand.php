@@ -26,8 +26,8 @@ final class EmailInfoForSubscriptionCommand extends CommandBase
     protected function configure(): void
     {
         $this
-        ->addArgument('subscriptionUuid', InputArgument::OPTIONAL, 'The subscription UUID whose Platform Email configuration is to be checked.')
-        ->setHelp('This command lists information related to Platform Email for a subscription, including which domains have been validated, which have not, and which applications have Platform Email domains associated.');
+            ->addArgument('subscriptionUuid', InputArgument::OPTIONAL, 'The subscription UUID whose Platform Email configuration is to be checked.')
+            ->setHelp('This command lists information related to Platform Email for a subscription, including which domains have been validated, which have not, and which applications have Platform Email domains associated.');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -39,8 +39,10 @@ final class EmailInfoForSubscriptionCommand extends CommandBase
         $response = $client->request('get', "/subscriptions/$subscription->uuid/domains");
 
         if (count($response)) {
-            $this->localMachineHelper->getFilesystem()->remove("./subscription-$subscription->uuid-domains");
-            $this->localMachineHelper->getFilesystem()->mkdir("./subscription-$subscription->uuid-domains");
+            $this->localMachineHelper->getFilesystem()
+                ->remove("./subscription-$subscription->uuid-domains");
+            $this->localMachineHelper->getFilesystem()
+                ->mkdir("./subscription-$subscription->uuid-domains");
 
             $this->writeDomainsToTables($output, $subscription, $response);
 
@@ -80,7 +82,11 @@ final class EmailInfoForSubscriptionCommand extends CommandBase
         $writerFailedDomains = Writer::createFromPath("./subscription-$subscription->uuid-domains/failed-domains-summary.csv", 'w+');
         $writerAllDomainsDnsHealth = Writer::createFromPath("./subscription-$subscription->uuid-domains/all-domains-dns-health.csv", 'w+');
 
-        $allDomainsSummaryHeader = ['Domain Name', 'Domain UUID', 'Verification Status'];
+        $allDomainsSummaryHeader = [
+            'Domain Name',
+            'Domain UUID',
+            'Verification Status',
+        ];
         $writerAllDomains->insertOne($allDomainsSummaryHeader);
 
         $verifiedDomainsHeader = ['Domain Name', 'Summary'];
@@ -92,11 +98,22 @@ final class EmailInfoForSubscriptionCommand extends CommandBase
         $failedDomainsHeader = $verifiedDomainsHeader;
         $writerFailedDomains->insertOne($failedDomainsHeader);
 
-        $allDomainsDnsHealthCsvHeader = ['Domain Name', 'Domain UUID', 'Domain Health', 'DNS Record Name', 'DNS Record Type', 'DNS Record Value', 'DNS Record Health Details'];
+        $allDomainsDnsHealthCsvHeader = [
+            'Domain Name',
+            'Domain UUID',
+            'Domain Health',
+            'DNS Record Name',
+            'DNS Record Type',
+            'DNS Record Value',
+            'DNS Record Health Details',
+        ];
         $writerAllDomainsDnsHealth->insertOne($allDomainsDnsHealthCsvHeader);
 
         foreach ($domainList as $domain) {
-            $domainNameAndSummary = [$domain->domain_name, $domain->health->summary];
+            $domainNameAndSummary = [
+                $domain->domain_name,
+                $domain->health->summary,
+            ];
 
             if ($domain->health->code === '200') {
                 $verifiedDomainsTable->addRow($domainNameAndSummary);
@@ -146,7 +163,12 @@ final class EmailInfoForSubscriptionCommand extends CommandBase
             }
         }
 
-        $this->renderDomainInfoTables([$allDomainsTable, $verifiedDomainsTable, $pendingDomainsTable, $failedDomainsTable]);
+        $this->renderDomainInfoTables([
+            $allDomainsTable,
+            $verifiedDomainsTable,
+            $pendingDomainsTable,
+            $failedDomainsTable,
+        ]);
     }
 
     /**
@@ -207,17 +229,26 @@ final class EmailInfoForSubscriptionCommand extends CommandBase
                         $domain->domain_name,
                         var_export($domain->flags->associated, true),
                     ]);
-                    $writerAppsDomains->insertOne([$app->name, $domain->domain_name, var_export($domain->flags->associated, true)]);
+                    $writerAppsDomains->insertOne([
+                        $app->name,
+                        $domain->domain_name,
+                        var_export($domain->flags->associated, true),
+                    ]);
                 }
             } else {
-                $appsDomainsTable->addRow([new TableCell("No domains eligible for association.", [
-                    'colspan' => 2,
-                    'style' => new TableCellStyle([
-                        'fg' => 'yellow',
+                $appsDomainsTable->addRow([
+                    new TableCell("No domains eligible for association.", [
+                        'colspan' => 2,
+                        'style' => new TableCellStyle([
+                            'fg' => 'yellow',
+                        ]),
                     ]),
-                ]),
                 ]);
-                $writerAppsDomains->insertOne([$app->name, 'No domains eligible for association', '']);
+                $writerAppsDomains->insertOne([
+                    $app->name,
+                    'No domains eligible for association',
+                    '',
+                ]);
             }
         }
         $appsDomainsTable->render();

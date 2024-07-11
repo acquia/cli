@@ -16,7 +16,8 @@ use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Yaml\Yaml;
 
 /**
- * @property \Acquia\Cli\Command\CodeStudio\CodeStudioPipelinesMigrateCommand $command
+ * @property \Acquia\Cli\Command\CodeStudio\CodeStudioPipelinesMigrateCommand
+ *     $command
  * @requires OS linux|darwin
  */
 class CodeStudioPipelinesMigrateCommandTest extends CommandTestBase
@@ -24,9 +25,13 @@ class CodeStudioPipelinesMigrateCommandTest extends CommandTestBase
     use IdeRequiredTestTrait;
 
     private string $gitLabHost = 'gitlabhost';
+
     private string $gitLabToken = 'gitlabtoken';
+
     private int $gitLabProjectId = 33;
+
     private int $gitLabTokenId = 118;
+
     public static string $applicationUuid = 'a47ac10b-58cc-4372-a567-0e02b2c3d470';
 
     public function setUp(): void
@@ -54,15 +59,15 @@ class CodeStudioPipelinesMigrateCommandTest extends CommandTestBase
     {
         return [
             [
-        // One project.
+                // One project.
                 [$this->getMockedGitLabProject($this->gitLabProjectId)],
-        // Inputs.
+                // Inputs.
                 [
-        // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
+                    // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
                     'n',
-        // @todo
+                    // @todo
                     '0',
-        // Do you want to continue?
+                    // Do you want to continue?
                     'y',
                 ],
                 // Args.
@@ -140,10 +145,13 @@ class CodeStudioPipelinesMigrateCommandTest extends CommandTestBase
                 'variable_type' => 'env_var',
             ],
         ];
-        $projects->variables($this->gitLabProjectId)->willReturn($gitlabCicdVariables);
+        $projects->variables($this->gitLabProjectId)
+            ->willReturn($gitlabCicdVariables);
         $projects->update($this->gitLabProjectId, Argument::type('array'));
         $gitlabClient->projects()->willReturn($projects);
-        $localMachineHelper->getFilesystem()->willReturn(new Filesystem())->shouldBeCalled();
+        $localMachineHelper->getFilesystem()
+            ->willReturn(new Filesystem())
+            ->shouldBeCalled();
         $this->command->setGitLabClient($gitlabClient->reveal());
 
         $this->mockRequest('getApplications');

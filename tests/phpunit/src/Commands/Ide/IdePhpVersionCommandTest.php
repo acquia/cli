@@ -50,7 +50,8 @@ class IdePhpVersionCommandTest extends CommandTestBase
         $phpStubFilepath = $phpFilepathPrefix . $version;
         $mockFileSystem->exists($phpStubFilepath)->willReturn(true);
         $phpVersionFilePath = $this->fs->tempnam(sys_get_temp_dir(), 'acli_php_version_file_');
-        $mockFileSystem->dumpFile($phpVersionFilePath, $version)->shouldBeCalled();
+        $mockFileSystem->dumpFile($phpVersionFilePath, $version)
+            ->shouldBeCalled();
 
         $this->command->setPhpVersionFilePath($phpVersionFilePath);
         $this->command->setIdePhpFilePathPrefix($phpFilepathPrefix);
@@ -112,7 +113,9 @@ class IdePhpVersionCommandTest extends CommandTestBase
     protected function mockGetFilesystem(ObjectProphecy|LocalMachineHelper $localMachineHelper): ObjectProphecy|Filesystem
     {
         $fileSystem = $this->prophet->prophesize(Filesystem::class);
-        $localMachineHelper->getFilesystem()->willReturn($fileSystem)->shouldBeCalled();
+        $localMachineHelper->getFilesystem()
+            ->willReturn($fileSystem)
+            ->shouldBeCalled();
 
         return $fileSystem;
     }

@@ -35,7 +35,8 @@ final class Configuration
     }
 
     /**
-     * Creates a configuration object from configuration given as a PHP resource.
+     * Creates a configuration object from configuration given as a PHP
+     * resource.
      *
      * The given PHP resource is usually obtained by calling fopen($location).
      *

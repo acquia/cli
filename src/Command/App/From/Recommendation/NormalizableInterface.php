@@ -10,7 +10,8 @@ namespace Acquia\Cli\Command\App\From\Recommendation;
 interface NormalizableInterface
 {
     /**
-     * Normalizes an object into a single- or multi-dimensional array of scalars.
+     * Normalizes an object into a single- or multi-dimensional array of
+     * scalars.
      *
      * @return array<mixed>
      */

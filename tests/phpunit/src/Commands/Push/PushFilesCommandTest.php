@@ -31,17 +31,17 @@ class PushFilesCommandTest extends CommandTestBase
         $this->command->sshHelper = $sshHelper->reveal();
 
         $inputs = [
-        // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
+            // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
             'n',
-        // Select a Cloud Platform application:
+            // Select a Cloud Platform application:
             0,
-        // Would you like to link the project at ... ?
+            // Would you like to link the project at ... ?
             'n',
-        // Choose a Cloud Platform environment.
+            // Choose a Cloud Platform environment.
             0,
-        // Choose a site.
+            // Choose a site.
             0,
-        // Overwrite the public files directory.
+            // Overwrite the public files directory.
             'y',
         ];
 
@@ -70,17 +70,17 @@ class PushFilesCommandTest extends CommandTestBase
         $this->command->sshHelper = $sshHelper->reveal();
 
         $inputs = [
-        // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
+            // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
             'n',
-        // Select a Cloud Platform application:
+            // Select a Cloud Platform application:
             0,
-        // Would you like to link the project at ... ?
+            // Would you like to link the project at ... ?
             'n',
-        // Choose a Cloud Platform environment.
+            // Choose a Cloud Platform environment.
             0,
-        // Choose a site.
+            // Choose a site.
             0,
-        // Overwrite the public files directory.
+            // Overwrite the public files directory.
             'y',
         ];
 
@@ -107,17 +107,17 @@ class PushFilesCommandTest extends CommandTestBase
         $this->command->sshHelper = $sshHelper->reveal();
 
         $inputs = [
-        // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
+            // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
             'n',
-        // Select a Cloud Platform application:
+            // Select a Cloud Platform application:
             0,
-        // Would you like to link the project at ... ?
+            // Would you like to link the project at ... ?
             'n',
-        // Choose a Cloud Platform environment.
+            // Choose a Cloud Platform environment.
             0,
-        // Choose a site.
+            // Choose a site.
             0,
-        // Overwrite the public files directory.
+            // Overwrite the public files directory.
             'n',
         ];
 
@@ -137,7 +137,8 @@ class PushFilesCommandTest extends CommandTestBase
         ObjectProphecy $process,
         mixed $environment
     ): void {
-        $localMachineHelper->checkRequiredBinariesExist(['rsync'])->shouldBeCalled();
+        $localMachineHelper->checkRequiredBinariesExist(['rsync'])
+            ->shouldBeCalled();
         $parts = explode('.', $environment->ssh_url);
         $sitegroup = reset($parts);
         $command = [
@@ -148,8 +149,8 @@ class PushFilesCommandTest extends CommandTestBase
             $environment->ssh_url . ':/mnt/files/' . $sitegroup . '.' . $environment->name . '/sites/bar/files',
         ];
         $localMachineHelper->execute($command, Argument::type('callable'), null, true)
-        ->willReturn($process->reveal())
-        ->shouldBeCalled();
+            ->willReturn($process->reveal())
+            ->shouldBeCalled();
     }
 
     protected function mockExecuteAcsfRsync(
@@ -157,7 +158,8 @@ class PushFilesCommandTest extends CommandTestBase
         ObjectProphecy $process,
         string $site
     ): void {
-        $localMachineHelper->checkRequiredBinariesExist(['rsync'])->shouldBeCalled();
+        $localMachineHelper->checkRequiredBinariesExist(['rsync'])
+            ->shouldBeCalled();
         $command = [
             'rsync',
             '-avPhze',
@@ -166,7 +168,7 @@ class PushFilesCommandTest extends CommandTestBase
             'profserv2.01dev@profserv201dev.ssh.enterprise-g1.acquia-sites.com:/mnt/files/profserv2.01dev/sites/g/files/' . $site . '/files',
         ];
         $localMachineHelper->execute($command, Argument::type('callable'), null, true)
-        ->willReturn($process->reveal())
-        ->shouldBeCalled();
+            ->willReturn($process->reveal())
+            ->shouldBeCalled();
     }
 }

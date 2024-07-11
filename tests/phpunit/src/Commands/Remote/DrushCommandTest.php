@@ -48,7 +48,8 @@ class DrushCommandTest extends SshCommandTestBase
     {
         $this->mockGetEnvironment();
         [$process, $localMachineHelper] = $this->mockForExecuteCommand();
-        $localMachineHelper->checkRequiredBinariesExist(['ssh'])->shouldBeCalled();
+        $localMachineHelper->checkRequiredBinariesExist(['ssh'])
+            ->shouldBeCalled();
         $sshCommand = [
             'ssh',
             'site.dev@sitedev.ssh.hosted.acquia-sites.com',
@@ -61,9 +62,9 @@ class DrushCommandTest extends SshCommandTestBase
             '--uri=http://sitedev.hosted.acquia-sites.com status --fields=db-status',
         ];
         $localMachineHelper
-        ->execute($sshCommand, Argument::type('callable'), null, true, null)
-        ->willReturn($process->reveal())
-        ->shouldBeCalled();
+            ->execute($sshCommand, Argument::type('callable'), null, true, null)
+            ->willReturn($process->reveal())
+            ->shouldBeCalled();
 
         $this->command->sshHelper = new SshHelper($this->output, $localMachineHelper->reveal(), $this->logger);
         $this->executeCommand($args, self::inputChooseEnvironment());

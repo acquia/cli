@@ -20,8 +20,11 @@ use AcquiaCloudApi\Connector\ConnectorInterface;
 class ClientService
 {
     protected ConnectorInterface $connector;
+
     protected ConnectorFactoryInterface|ConnectorFactory $connectorFactory;
+
     protected Application $application;
+
     protected ?bool $machineIsAuthenticated = null;
 
     public function __construct(ConnectorFactoryInterface $connectorFactory, Application $application, protected ApiCredentialsInterface $credentials)
@@ -73,8 +76,8 @@ class ClientService
     protected function checkAuthentication(): bool
     {
         return (
-        $this->credentials->getCloudAccessToken() ||
-        ($this->credentials->getCloudKey() && $this->credentials->getCloudSecret())
+            $this->credentials->getCloudAccessToken() ||
+            ($this->credentials->getCloudKey() && $this->credentials->getCloudSecret())
         );
     }
 }

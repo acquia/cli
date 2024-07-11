@@ -18,8 +18,11 @@ use Symfony\Component\Validator\Exception\ValidatorException;
 class CodeStudioPhpVersionCommandTest extends CommandTestBase
 {
     private string $gitLabHost = 'gitlabhost';
+
     private string $gitLabToken = 'gitlabtoken';
+
     private int $gitLabProjectId = 33;
+
     public static string $applicationUuid = 'a47ac10b-58cc-4372-a567-0e02b2c3d470';
 
     protected function createCommand(): CommandBase
@@ -98,9 +101,10 @@ class CodeStudioPhpVersionCommandTest extends CommandTestBase
             [$mockedProject],
         );
 
-        $projects->variables($this->gitLabProjectId)->willReturn($this->getMockGitLabVariables());
+        $projects->variables($this->gitLabProjectId)
+            ->willReturn($this->getMockGitLabVariables());
         $projects->addVariable($this->gitLabProjectId, Argument::type('string'), Argument::type('string'))
-        ->willThrow(RuntimeException::class);
+            ->willThrow(RuntimeException::class);
 
         $gitlabClient->projects()->willReturn($projects);
         $this->command->setGitLabClient($gitlabClient->reveal());
@@ -131,7 +135,8 @@ class CodeStudioPhpVersionCommandTest extends CommandTestBase
             [$mockedProject],
         );
 
-        $projects->variables($this->gitLabProjectId)->willReturn($this->getMockGitLabVariables());
+        $projects->variables($this->gitLabProjectId)
+            ->willReturn($this->getMockGitLabVariables());
         $projects->addVariable($this->gitLabProjectId, Argument::type('string'), Argument::type('string'));
 
         $gitlabClient->projects()->willReturn($projects);
@@ -175,7 +180,7 @@ class CodeStudioPhpVersionCommandTest extends CommandTestBase
         ];
         $projects->variables($this->gitLabProjectId)->willReturn($variables);
         $projects->updateVariable($this->gitLabProjectId, Argument::type('string'), Argument::type('string'))
-        ->willThrow(RuntimeException::class);
+            ->willThrow(RuntimeException::class);
 
         $gitlabClient->projects()->willReturn($projects);
         $this->command->setGitLabClient($gitlabClient->reveal());

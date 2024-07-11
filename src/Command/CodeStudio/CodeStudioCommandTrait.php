@@ -173,7 +173,8 @@ trait CodeStudioCommandTrait
             return $this->gitLabClient->projects()->show($id);
         }
         // Search for existing project that matches expected description pattern.
-        $projects = $this->gitLabClient->projects()->all(['search' => $cloudApplication->uuid]);
+        $projects = $this->gitLabClient->projects()
+            ->all(['search' => $cloudApplication->uuid]);
         if ($projects) {
             if (count($projects) == 1) {
                 return reset($projects);
@@ -216,17 +217,19 @@ trait CodeStudioCommandTrait
         ]);
         $parameters = $this->getGitLabProjectDefaults();
         if ($userGroups) {
-            $userGroups[] = $this->gitLabClient->namespaces()->show($this->gitLabAccount['username']);
+            $userGroups[] = $this->gitLabClient->namespaces()
+                ->show($this->gitLabAccount['username']);
             $projectGroup = $this->promptChooseFromObjectsOrArrays($userGroups, 'id', 'path', 'Choose which group this new project should belong to:');
             $parameters['namespace_id'] = $projectGroup['id'];
         }
 
         $slugger = new AsciiSlugger();
         $projectName = (string) $slugger->slug($cloudApplication->name);
-        $project = $this->gitLabClient->projects()->create($projectName, $parameters);
+        $project = $this->gitLabClient->projects()
+            ->create($projectName, $parameters);
         try {
             $this->gitLabClient->projects()
-            ->uploadAvatar($project['id'], __DIR__ . '/drupal_icon.png');
+                ->uploadAvatar($project['id'], __DIR__ . '/drupal_icon.png');
         } catch (ValidationFailedException) {
             $this->io->warning("Failed to upload project avatar");
         }
@@ -262,8 +265,8 @@ trait CodeStudioCommandTrait
     private function acceptGitlabOptions(): static
     {
         $this->addOption('gitlab-token', null, InputOption::VALUE_REQUIRED, 'The GitLab personal access token that will be used to communicate with the GitLab instance')
-        ->addOption('gitlab-project-id', null, InputOption::VALUE_REQUIRED, 'The project ID (an integer) of the GitLab project to configure.')
-        ->addOption('gitlab-host-name', null, InputOption::VALUE_REQUIRED, 'The GitLab hostname.');
+            ->addOption('gitlab-project-id', null, InputOption::VALUE_REQUIRED, 'The project ID (an integer) of the GitLab project to configure.')
+            ->addOption('gitlab-host-name', null, InputOption::VALUE_REQUIRED, 'The GitLab hostname.');
         return $this;
     }
 }

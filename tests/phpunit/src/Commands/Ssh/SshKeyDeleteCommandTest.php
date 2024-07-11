@@ -24,9 +24,9 @@ class SshKeyDeleteCommandTest extends CommandTestBase
         $this->mockRequest('deleteAccountSshKey', $sshKeyListResponse[self::$INPUT_DEFAULT_CHOICE]->uuid, null, 'Removed key');
 
         $inputs = [
-        // Choose key.
+            // Choose key.
             self::$INPUT_DEFAULT_CHOICE,
-        // Do you also want to delete the corresponding local key files?
+            // Do you also want to delete the corresponding local key files?
             'n',
         ];
         $this->executeCommand([], $inputs);

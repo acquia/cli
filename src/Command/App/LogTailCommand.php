@@ -22,7 +22,10 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 #[RequireAuth]
-#[AsCommand(name: 'app:log:tail', description: 'Tail the logs from your environments', aliases: ['tail', 'log:tail'])]
+#[AsCommand(name: 'app:log:tail', description: 'Tail the logs from your environments', aliases: [
+    'tail',
+    'log:tail',
+])]
 final class LogTailCommand extends CommandBase
 {
     public function __construct(
@@ -44,7 +47,7 @@ final class LogTailCommand extends CommandBase
     protected function configure(): void
     {
         $this
-        ->acceptEnvironmentId();
+            ->acceptEnvironmentId();
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int

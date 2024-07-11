@@ -52,13 +52,13 @@ class PushArtifactCommandTest extends PullCommandTestBase
         $localMachineHelper = $this->mockLocalMachineHelper();
         $this->setUpPushArtifact($localMachineHelper, $environments[0]->vcs->path, [$environments[0]->vcs->url], 'master:master', true, true, true, $printOutput);
         $inputs = [
-        // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
+            // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
             'n',
-        // Select a Cloud Platform application:
+            // Select a Cloud Platform application:
             0,
-        // Would you like to link the project at ... ?
+            // Would you like to link the project at ... ?
             'y',
-        // Choose an Acquia environment:
+            // Choose an Acquia environment:
             0,
         ];
         $this->executeCommand([], $inputs, $verbosity);
@@ -100,11 +100,11 @@ class PushArtifactCommandTest extends PullCommandTestBase
         $artifactDir = Path::join(sys_get_temp_dir(), 'acli-push-artifact');
         $this->mockGitTag($localMachineHelper, $gitTag, $artifactDir);
         $inputs = [
-        // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
+            // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
             'n',
-        // Select a Cloud Platform application:
+            // Select a Cloud Platform application:
             0,
-        // Would you like to link the project at ... ?
+            // Would you like to link the project at ... ?
             'n',
         ];
         $this->executeCommand([
@@ -171,13 +171,13 @@ class PushArtifactCommandTest extends PullCommandTestBase
         $localMachineHelper = $this->mockLocalMachineHelper();
         $this->setUpPushArtifact($localMachineHelper, $environments[0]->vcs->path, [$environments[0]->vcs->url], 'master:master', true, true, false);
         $inputs = [
-        // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
+            // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
             'n',
-        // Select a Cloud Platform application:
+            // Select a Cloud Platform application:
             0,
-        // Would you like to link the project at ... ?
+            // Would you like to link the project at ... ?
             'y',
-        // Choose an Acquia environment:
+            // Choose an Acquia environment:
             0,
         ];
         $this->executeCommand(['--no-push' => true], $inputs);
@@ -197,13 +197,13 @@ class PushArtifactCommandTest extends PullCommandTestBase
         $localMachineHelper = $this->mockLocalMachineHelper();
         $this->setUpPushArtifact($localMachineHelper, $environments[0]->vcs->path, [$environments[0]->vcs->url], 'master:master', true, false, false);
         $inputs = [
-        // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
+            // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
             'n',
-        // Select a Cloud Platform application:
+            // Select a Cloud Platform application:
             0,
-        // Would you like to link the project at ... ?
+            // Would you like to link the project at ... ?
             'y',
-        // Choose an Acquia environment:
+            // Choose an Acquia environment:
             0,
         ];
         $this->executeCommand(['--no-commit' => true], $inputs);
@@ -220,13 +220,13 @@ class PushArtifactCommandTest extends PullCommandTestBase
         $localMachineHelper = $this->mockLocalMachineHelper();
         $this->setUpPushArtifact($localMachineHelper, 'nothing', [], 'something', false, false, false);
         $inputs = [
-        // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
+            // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
             'n',
-        // Select a Cloud Platform application:
+            // Select a Cloud Platform application:
             0,
-        // Would you like to link the project at ... ?
+            // Would you like to link the project at ... ?
             'y',
-        // Choose an Acquia environment:
+            // Choose an Acquia environment:
             0,
         ];
         $this->executeCommand(['--no-clone' => true], $inputs);
@@ -254,7 +254,8 @@ class PushArtifactCommandTest extends PullCommandTestBase
         $this->mockGetLocalCommitHash($localMachineHelper, $this->projectDir, $commitHash);
         $this->mockComposerInstall($localMachineHelper, $artifactDir, $printOutput);
         $this->mockReadComposerJson($localMachineHelper, $artifactDir);
-        $localMachineHelper->checkRequiredBinariesExist(['git'])->shouldBeCalled();
+        $localMachineHelper->checkRequiredBinariesExist(['git'])
+            ->shouldBeCalled();
 
         if ($clone) {
             $this->mockLocalGitConfig($localMachineHelper, $artifactDir, $printOutput);
@@ -272,47 +273,112 @@ class PushArtifactCommandTest extends PullCommandTestBase
     {
         $process = $this->prophet->prophesize(Process::class);
         $process->isSuccessful()->willReturn(true)->shouldBeCalled();
-        $localMachineHelper->execute(['git', 'clone', '--depth=1', $vcsUrl, $artifactDir], Argument::type('callable'), null, $printOutput)
-        ->willReturn($process->reveal())->shouldBeCalled();
-        $localMachineHelper->execute(['git', 'fetch', '--depth=1', '--update-head-ok', $vcsUrl, $vcsPath . ':' . $vcsPath], Argument::type('callable'), Argument::type('string'), $printOutput)
-        ->willReturn($process->reveal())->shouldBeCalled();
-        $localMachineHelper->execute(['git', 'checkout', $vcsPath], Argument::type('callable'), Argument::type('string'), $printOutput)
-        ->willReturn($process->reveal())->shouldBeCalled();
+        $localMachineHelper->execute([
+            'git',
+            'clone',
+            '--depth=1',
+            $vcsUrl,
+            $artifactDir,
+        ], Argument::type('callable'), null, $printOutput)
+            ->willReturn($process->reveal())->shouldBeCalled();
+        $localMachineHelper->execute([
+            'git',
+            'fetch',
+            '--depth=1',
+            '--update-head-ok',
+            $vcsUrl,
+            $vcsPath . ':' . $vcsPath,
+        ], Argument::type('callable'), Argument::type('string'), $printOutput)
+            ->willReturn($process->reveal())->shouldBeCalled();
+        $localMachineHelper->execute([
+            'git',
+            'checkout',
+            $vcsPath,
+        ], Argument::type('callable'), Argument::type('string'), $printOutput)
+            ->willReturn($process->reveal())->shouldBeCalled();
     }
 
     protected function mockLocalGitConfig(ObjectProphecy $localMachineHelper, string $artifactDir, bool $printOutput = true): void
     {
         $process = $this->prophet->prophesize(Process::class);
-        $localMachineHelper->execute(['git', 'config', '--local', 'core.excludesFile', 'false'], Argument::type('callable'), $artifactDir, $printOutput)
-        ->willReturn($process->reveal())->shouldBeCalled();
-        $localMachineHelper->execute(['git', 'config', '--local', 'core.fileMode', 'true'], Argument::type('callable'), $artifactDir, $printOutput)
-        ->willReturn($process->reveal())->shouldBeCalled();
+        $localMachineHelper->execute([
+            'git',
+            'config',
+            '--local',
+            'core.excludesFile',
+            'false',
+        ], Argument::type('callable'), $artifactDir, $printOutput)
+            ->willReturn($process->reveal())->shouldBeCalled();
+        $localMachineHelper->execute([
+            'git',
+            'config',
+            '--local',
+            'core.fileMode',
+            'true',
+        ], Argument::type('callable'), $artifactDir, $printOutput)
+            ->willReturn($process->reveal())->shouldBeCalled();
     }
 
     protected function mockComposerInstall(ObjectProphecy $localMachineHelper, mixed $artifactDir, bool $printOutput = true): void
     {
-        $localMachineHelper->checkRequiredBinariesExist(['composer'])->shouldBeCalled();
+        $localMachineHelper->checkRequiredBinariesExist(['composer'])
+            ->shouldBeCalled();
         $process = $this->prophet->prophesize(Process::class);
         $process->isSuccessful()->willReturn(true);
-        $localMachineHelper->execute(['composer', 'install', '--no-dev', '--no-interaction', '--optimize-autoloader'], Argument::type('callable'), $artifactDir, $printOutput)
-        ->willReturn($process->reveal())->shouldBeCalled();
+        $localMachineHelper->execute([
+            'composer',
+            'install',
+            '--no-dev',
+            '--no-interaction',
+            '--optimize-autoloader',
+        ], Argument::type('callable'), $artifactDir, $printOutput)
+            ->willReturn($process->reveal())->shouldBeCalled();
     }
 
     protected function mockGitAddCommit(ObjectProphecy $localMachineHelper, string $artifactDir, string $commitHash, bool $printOutput): void
     {
         $process = $this->mockProcess();
-        $localMachineHelper->execute(['git', 'add', '-A'], Argument::type('callable'), $artifactDir, $printOutput)
-        ->willReturn($process->reveal())->shouldBeCalled();
-        $localMachineHelper->execute(['git', 'add', '-f', 'docroot/index.php'], null, $artifactDir, false)
-        ->willReturn($process->reveal())->shouldBeCalled();
-        $localMachineHelper->execute(['git', 'add', '-f', 'docroot/autoload.php'], null, $artifactDir, false)
-        ->willReturn($process->reveal())->shouldBeCalled();
-        $localMachineHelper->execute(['git', 'add', '-f', 'docroot/core'], null, $artifactDir, false)
-        ->willReturn($process->reveal())->shouldBeCalled();
-        $localMachineHelper->execute(['git', 'add', '-f', 'vendor'], null, $artifactDir, false)
-        ->willReturn($process->reveal())->shouldBeCalled();
-        $localMachineHelper->execute(['git', 'commit', '-m', "Automated commit by Acquia CLI (source commit: $commitHash)"], Argument::type('callable'), $artifactDir, $printOutput)
-        ->willReturn($process->reveal())->shouldBeCalled();
+        $localMachineHelper->execute([
+            'git',
+            'add',
+            '-A',
+        ], Argument::type('callable'), $artifactDir, $printOutput)
+            ->willReturn($process->reveal())->shouldBeCalled();
+        $localMachineHelper->execute([
+            'git',
+            'add',
+            '-f',
+            'docroot/index.php',
+        ], null, $artifactDir, false)
+            ->willReturn($process->reveal())->shouldBeCalled();
+        $localMachineHelper->execute([
+            'git',
+            'add',
+            '-f',
+            'docroot/autoload.php',
+        ], null, $artifactDir, false)
+            ->willReturn($process->reveal())->shouldBeCalled();
+        $localMachineHelper->execute([
+            'git',
+            'add',
+            '-f',
+            'docroot/core',
+        ], null, $artifactDir, false)
+            ->willReturn($process->reveal())->shouldBeCalled();
+        $localMachineHelper->execute([
+            'git',
+            'add',
+            '-f',
+            'vendor',
+        ], null, $artifactDir, false)
+            ->willReturn($process->reveal())->shouldBeCalled();
+        $localMachineHelper->execute([
+            'git',
+            'commit',
+            '-m',
+            "Automated commit by Acquia CLI (source commit: $commitHash)",
+        ], Argument::type('callable'), $artifactDir, $printOutput)
+            ->willReturn($process->reveal())->shouldBeCalled();
     }
 
     protected function mockReadComposerJson(ObjectProphecy $localMachineHelper, string $artifactDir): void
@@ -330,17 +396,22 @@ class PushArtifactCommandTest extends PullCommandTestBase
             ],
         ]);
         $localMachineHelper->readFile(Path::join($this->projectDir, 'composer.json'))
-        ->willReturn($composerJson);
+            ->willReturn($composerJson);
         $localMachineHelper->readFile(Path::join($artifactDir, 'docroot', 'core', 'composer.json'))
-        ->willReturn($composerJson);
+            ->willReturn($composerJson);
     }
 
     protected function mockGitPush(array $gitUrls, ObjectProphecy $localMachineHelper, string $artifactDir, string $destGitRef, bool $printOutput): void
     {
         $process = $this->mockProcess();
         foreach ($gitUrls as $gitUrl) {
-            $localMachineHelper->execute(['git', 'push', $gitUrl, $destGitRef], Argument::type('callable'), $artifactDir, $printOutput)
-            ->willReturn($process->reveal())->shouldBeCalled();
+            $localMachineHelper->execute([
+                'git',
+                'push',
+                $gitUrl,
+                $destGitRef,
+            ], Argument::type('callable'), $artifactDir, $printOutput)
+                ->willReturn($process->reveal())->shouldBeCalled();
         }
     }
 
@@ -352,6 +423,6 @@ class PushArtifactCommandTest extends PullCommandTestBase
             'tag',
             $gitTag,
         ], Argument::type('callable'), $artifactDir, true)
-        ->willReturn($process->reveal())->shouldBeCalled();
+            ->willReturn($process->reveal())->shouldBeCalled();
     }
 }

@@ -18,10 +18,10 @@ final class SshKeyCreateUploadCommand extends SshKeyCommandBase
     protected function configure(): void
     {
         $this
-        ->addOption('filename', null, InputOption::VALUE_REQUIRED, 'The filename of the SSH key')
-        ->addOption('password', null, InputOption::VALUE_REQUIRED, 'The password for the SSH key')
-        ->addOption('label', null, InputOption::VALUE_REQUIRED, 'The SSH key label to be used with the Cloud Platform')
-        ->addOption('no-wait', null, InputOption::VALUE_NONE, "Don't wait for the SSH key to be uploaded to the Cloud Platform");
+            ->addOption('filename', null, InputOption::VALUE_REQUIRED, 'The filename of the SSH key')
+            ->addOption('password', null, InputOption::VALUE_REQUIRED, 'The password for the SSH key')
+            ->addOption('label', null, InputOption::VALUE_REQUIRED, 'The SSH key label to be used with the Cloud Platform')
+            ->addOption('no-wait', null, InputOption::VALUE_NONE, "Don't wait for the SSH key to be uploaded to the Cloud Platform");
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int

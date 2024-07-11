@@ -18,7 +18,7 @@ final class PushCodeCommand extends PushCommandBase
     protected function configure(): void
     {
         $this
-        ->setHidden(!AcquiaDrupalEnvironmentDetector::isAhIdeEnv() && !self::isLandoEnv());
+            ->setHidden(!AcquiaDrupalEnvironmentDetector::isAhIdeEnv() && !self::isLandoEnv());
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int

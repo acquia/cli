@@ -71,14 +71,17 @@ class ApiBaseCommand extends CommandBase
                     && array_key_exists('schema', $params[$argument->getName()])
                     && array_key_exists('enum', $params[$argument->getName()]['schema'])
                 ) {
-                      $choices = $params[$argument->getName()]['schema']['enum'];
-                      $answer = $this->io->choice("Select a value for {$argument->getName()}", $choices, $argument->getDefault());
+                    $choices = $params[$argument->getName()]['schema']['enum'];
+                    $answer = $this->io->choice("Select a value for {$argument->getName()}", $choices, $argument->getDefault());
                 } elseif (
                     array_key_exists($argument->getName(), $params)
                     && array_key_exists('type', $params[$argument->getName()])
                     && $params[$argument->getName()]['type'] === 'boolean'
                 ) {
-                    $answer = $this->io->choice("Select a value for {$argument->getName()}", ['false', 'true'], $argument->getDefault());
+                    $answer = $this->io->choice("Select a value for {$argument->getName()}", [
+                        'false',
+                        'true',
+                    ], $argument->getDefault());
                     $answer = $answer === 'true';
                 } else {
                     // Free form.
@@ -327,7 +330,7 @@ class ApiBaseCommand extends CommandBase
     {
         return static function (mixed $value) use ($constraints) {
             $violations = Validation::createValidator()
-            ->validate($value, $constraints);
+                ->validate($value, $constraints);
             if (count($violations)) {
                 throw new ValidatorException($violations->get(0)->getMessage());
             }
@@ -362,8 +365,8 @@ class ApiBaseCommand extends CommandBase
     }
 
     /**
-    * @param array|null $paramSpec
-    */
+     * @param array|null $paramSpec
+     */
     private function addPostParamToClient(string $paramName, ?array $paramSpec, mixed $paramValue, Client $acquiaCloudClient): void
     {
         $paramName = ApiCommandHelper::restoreRenamedParameter($paramName);

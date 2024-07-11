@@ -40,7 +40,10 @@ class ComposerScriptsListener
     {
         /** @var CommandBase $command */
         $command = $event->getCommand();
-        if ($event->getInput()->hasOption('no-scripts') && $event->getInput()->getOption('no-scripts')) {
+        if (
+            $event->getInput()->hasOption('no-scripts') && $event->getInput()
+                ->getOption('no-scripts')
+        ) {
             return;
         }
         // Only successful commands should be executed.
@@ -52,11 +55,17 @@ class ComposerScriptsListener
                 // Replace colons with hyphens. E.g., pull:db becomes pull-db.
                 $scriptName = $prefix . '-acli-' . str_replace(':', '-', $commandName);
                 if (array_key_exists('scripts', $composerJson) && array_key_exists($scriptName, $composerJson['scripts'])) {
-                    $event->getOutput()->writeln("Executing composer script `$scriptName` defined in `$composerJsonFilepath`", OutputInterface::VERBOSITY_VERBOSE);
+                    $event->getOutput()
+                        ->writeln("Executing composer script `$scriptName` defined in `$composerJsonFilepath`", OutputInterface::VERBOSITY_VERBOSE);
                     $event->getOutput()->writeln($scriptName);
-                    $command->localMachineHelper->execute(['composer', 'run-script', $scriptName]);
+                    $command->localMachineHelper->execute([
+                        'composer',
+                        'run-script',
+                        $scriptName,
+                    ]);
                 } else {
-                    $event->getOutput()->writeln("Notice: Composer script `$scriptName` does not exist in `$composerJsonFilepath`, skipping. This is not an error.", OutputInterface::VERBOSITY_VERBOSE);
+                    $event->getOutput()
+                        ->writeln("Notice: Composer script `$scriptName` does not exist in `$composerJsonFilepath`, skipping. This is not an error.", OutputInterface::VERBOSITY_VERBOSE);
                 }
             }
         }

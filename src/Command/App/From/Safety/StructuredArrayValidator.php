@@ -14,7 +14,8 @@ use Exception;
 final class StructuredArrayValidator
 {
     /**
-     * Schema definition key that matches an associative array w/ arbitrary keys.
+     * Schema definition key that matches an associative array w/ arbitrary
+     * keys.
      */
     protected const KEYS_ARE_STRINGS = __CLASS__ . '%array_keys_are_string%';
 
@@ -102,8 +103,8 @@ final class StructuredArrayValidator
      * @param mixed $arr
      *   An array to validate.
      * @return array<mixed>
-     *   If the given $arr is valid, the given $arr value. Array keys not defined
-     *   in the schema definition will be stripped from return value.
+     *   If the given $arr is valid, the given $arr value. Array keys not
+     *     defined in the schema definition will be stripped from return value.
      */
     public function __invoke(mixed $arr): array
     {
@@ -157,8 +158,8 @@ final class StructuredArrayValidator
      * Whether the validator is conditional.
      *
      * @return bool
-     *   TRUE if the validator may or not be applied, depending on context. FALSE
-     *   if the validator will be applied unconditionally.
+     *   TRUE if the validator may or not be applied, depending on context.
+     *     FALSE if the validator will be applied unconditionally.
      */
     public function isConditional(): bool
     {

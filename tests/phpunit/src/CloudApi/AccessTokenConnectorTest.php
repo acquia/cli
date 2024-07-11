@@ -63,7 +63,8 @@ class AccessTokenConnectorTest extends TestBase
         );
         $connector = $connectorFactory->createConnector();
         self::assertInstanceOf(AccessTokenConnector::class, $connector);
-        self::assertEquals(self::$accessToken, $connector->getAccessToken()->getToken());
+        self::assertEquals(self::$accessToken, $connector->getAccessToken()
+            ->getToken());
 
         $verb = 'get';
         $path = 'api';
@@ -71,8 +72,9 @@ class AccessTokenConnectorTest extends TestBase
         // Make sure that new access tokens are fetched using the refresh token.
         $mockProvider = $this->prophet->prophesize(GenericProvider::class);
         $mockProvider->getAuthenticatedRequest($verb, ConnectorInterface::BASE_URI . $path, Argument::type(AccessTokenInterface::class))
-        ->willReturn($this->prophet->prophesize(RequestInterface::class)->reveal())
-        ->shouldBeCalled();
+            ->willReturn($this->prophet->prophesize(RequestInterface::class)
+                ->reveal())
+            ->shouldBeCalled();
         $connector->setProvider($mockProvider->reveal());
         $connector->createRequest($verb, $path);
 
@@ -127,8 +129,8 @@ class AccessTokenConnectorTest extends TestBase
     }
 
     /**
-     * Validate that if both an access token and API key/secret pair are present,
-     * the pair is used.
+     * Validate that if both an access token and API key/secret pair are
+     * present, the pair is used.
      */
     public function testConnector(): void
     {
@@ -194,7 +196,10 @@ class AccessTokenConnectorTest extends TestBase
         $clientService = new ClientService($connectorFactory, $this->application, $this->cloudCredentials);
         $client = $clientService->getClient();
         $options = $client->getOptions();
-        $this->assertEquals(['User-Agent' => [0 => 'acli/UNKNOWN'], 'X-Cloud-IDE-UUID' => IdeHelper::$remoteIdeUuid], $options['headers']);
+        $this->assertEquals([
+            'User-Agent' => [0 => 'acli/UNKNOWN'],
+            'X-Cloud-IDE-UUID' => IdeHelper::$remoteIdeUuid,
+        ], $options['headers']);
 
         $this->prophet->checkPredictions();
         IdeHelper::unsetCloudIdeEnvVars();

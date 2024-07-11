@@ -193,14 +193,20 @@ abstract class CommandTestBase extends TestBase
      */
     protected function removeMockGitConfig(): void
     {
-        $this->fs->remove([$this->getTargetGitConfigFixture(), dirname($this->getTargetGitConfigFixture())]);
+        $this->fs->remove([
+            $this->getTargetGitConfigFixture(),
+            dirname($this->getTargetGitConfigFixture()),
+        ]);
     }
 
     protected function mockReadIdePhpVersion(string $phpVersion = '7.1'): LocalMachineHelper|ObjectProphecy
     {
         $localMachineHelper = $this->mockLocalMachineHelper();
-        $localMachineHelper->getLocalFilepath(Path::join($this->dataDir, 'acquia-cli.json'))->willReturn(Path::join($this->dataDir, 'acquia-cli.json'));
-        $localMachineHelper->readFile('/home/ide/configs/php/.version')->willReturn("$phpVersion\n")->shouldBeCalled();
+        $localMachineHelper->getLocalFilepath(Path::join($this->dataDir, 'acquia-cli.json'))
+            ->willReturn(Path::join($this->dataDir, 'acquia-cli.json'));
+        $localMachineHelper->readFile('/home/ide/configs/php/.version')
+            ->willReturn("$phpVersion\n")
+            ->shouldBeCalled();
 
         return $localMachineHelper;
     }
@@ -211,13 +217,13 @@ abstract class CommandTestBase extends TestBase
     protected static function inputChooseEnvironment(): array
     {
         return [
-        // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
+            // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
             'n',
-        // Select a Cloud Platform application:
+            // Select a Cloud Platform application:
             self::$INPUT_DEFAULT_CHOICE,
-        // Would you like to link the project at ... ?
+            // Would you like to link the project at ... ?
             'n',
-        // Choose an Acquia environment:
+            // Choose an Acquia environment:
             self::$INPUT_DEFAULT_CHOICE,
         ];
     }
@@ -254,8 +260,8 @@ abstract class CommandTestBase extends TestBase
             'get',
             "/environments/" . $environmentResponse->id
         )
-        ->willReturn($environmentResponse)
-        ->shouldBeCalled();
+            ->willReturn($environmentResponse)
+            ->shouldBeCalled();
         return $environmentResponse;
     }
 
@@ -271,8 +277,8 @@ abstract class CommandTestBase extends TestBase
             'get',
             "/applications/{$applicationsResponse->{'_embedded'}->items[0]->uuid}/environments"
         )
-        ->willReturn($environmentsResponse->_embedded->items)
-        ->shouldBeCalled();
+            ->willReturn($environmentsResponse->_embedded->items)
+            ->shouldBeCalled();
 
         return $environmentsResponse;
     }
@@ -284,7 +290,9 @@ abstract class CommandTestBase extends TestBase
     {
         $acsfMultisiteFetchProcess = $this->mockProcess();
         $multisiteConfig = file_get_contents(Path::join($this->realFixtureDir, '/multisite-config.json'));
-        $acsfMultisiteFetchProcess->getOutput()->willReturn($multisiteConfig)->shouldBeCalled();
+        $acsfMultisiteFetchProcess->getOutput()
+            ->willReturn($multisiteConfig)
+            ->shouldBeCalled();
         $sshHelper->executeCommand(
             Argument::type('string'),
             ['cat', '/var/www/site-php/profserv2.01dev/multisite-config.json'],
@@ -296,7 +304,9 @@ abstract class CommandTestBase extends TestBase
     protected function mockGetCloudSites(mixed $sshHelper, mixed $environment): void
     {
         $cloudMultisiteFetchProcess = $this->mockProcess();
-        $cloudMultisiteFetchProcess->getOutput()->willReturn("\nbar\ndefault\nfoo\n")->shouldBeCalled();
+        $cloudMultisiteFetchProcess->getOutput()
+            ->willReturn("\nbar\ndefault\nfoo\n")
+            ->shouldBeCalled();
         $parts = explode('.', $environment->ssh_url);
         $sitegroup = reset($parts);
         $sshHelper->executeCommand(
@@ -336,8 +346,8 @@ abstract class CommandTestBase extends TestBase
             'get',
             "/environments/{$environmentsResponse->id}/databases"
         )
-        ->willReturn($databasesResponse)
-        ->shouldBeCalled();
+            ->willReturn($databasesResponse)
+            ->shouldBeCalled();
 
         return $databasesResponse;
     }
@@ -361,15 +371,15 @@ abstract class CommandTestBase extends TestBase
                 'get',
                 "/environments/{$environmentsResponse->id}/databases/$dbName/backups"
             )
-                  ->willReturn($databaseBackupsResponse->_embedded->items)
-                  ->shouldBeCalled();
+                ->willReturn($databaseBackupsResponse->_embedded->items)
+                ->shouldBeCalled();
         } else {
             $this->clientProphecy->request(
                 'get',
                 "/environments/{$environmentsResponse->id}/databases/$dbName/backups"
             )
-            ->willReturn([], $databaseBackupsResponse->_embedded->items)
-            ->shouldBeCalled();
+                ->willReturn([], $databaseBackupsResponse->_embedded->items)
+                ->shouldBeCalled();
         }
 
         return $databaseBackupsResponse;
@@ -382,8 +392,8 @@ abstract class CommandTestBase extends TestBase
     ): void {
         $stream = $this->prophet->prophesize(StreamInterface::class);
         $this->clientProphecy->stream('get', "/environments/{$environmentsResponse->id}/databases/{$dbName}/backups/{$backupId}/actions/download", [])
-        ->willReturn($stream->reveal())
-        ->shouldBeCalled();
+            ->willReturn($stream->reveal())
+            ->shouldBeCalled();
     }
 
     protected function mockDatabaseBackupCreateResponse(
@@ -392,8 +402,8 @@ abstract class CommandTestBase extends TestBase
     ): mixed {
         $backupCreateResponse = $this->getMockResponseFromSpec('/environments/{environmentId}/databases/{databaseName}/backups', 'post', 202)->{'Creating backup'}->value;
         $this->clientProphecy->request('post', "/environments/$environmentsResponse->id/databases/{$dbName}/backups")
-        ->willReturn($backupCreateResponse)
-        ->shouldBeCalled();
+            ->willReturn($backupCreateResponse)
+            ->shouldBeCalled();
 
         return $backupCreateResponse;
     }
@@ -406,12 +416,14 @@ abstract class CommandTestBase extends TestBase
 
     protected function mockCreateMySqlDumpOnLocal(ObjectProphecy $localMachineHelper, bool $printOutput = true): void
     {
-        $localMachineHelper->checkRequiredBinariesExist(["mysqldump", "gzip"])->shouldBeCalled();
+        $localMachineHelper->checkRequiredBinariesExist(["mysqldump", "gzip"])
+            ->shouldBeCalled();
         $process = $this->mockProcess();
         $process->getOutput()->willReturn('');
         $command = 'MYSQL_PWD=drupal mysqldump --host=localhost --user=drupal drupal | pv --rate --bytes | gzip -9 > ' . sys_get_temp_dir() . '/acli-mysql-dump-drupal.sql.gz';
-        $localMachineHelper->executeFromCmd($command, Argument::type('callable'), null, $printOutput)->willReturn($process->reveal())
-        ->shouldBeCalled();
+        $localMachineHelper->executeFromCmd($command, Argument::type('callable'), null, $printOutput)
+            ->willReturn($process->reveal())
+            ->shouldBeCalled();
     }
 
     protected function mockExecutePvExists(
@@ -428,9 +440,9 @@ abstract class CommandTestBase extends TestBase
         ObjectProphecy $localMachineHelper
     ): void {
         $localMachineHelper
-        ->commandExists('glab')
-        ->willReturn(true)
-        ->shouldBeCalled();
+            ->commandExists('glab')
+            ->willReturn(true)
+            ->shouldBeCalled();
     }
 
     /**
@@ -441,13 +453,14 @@ abstract class CommandTestBase extends TestBase
         /** @var ObjectProphecy|\GuzzleHttp\Psr7\Response $guzzleResponse */
         $guzzleResponse = $this->prophet->prophesize(Response::class);
         $stream = $this->prophet->prophesize(StreamInterface::class);
-        $stream->__toString()->willReturn(file_get_contents(Path::join(__DIR__, '..', '..', 'fixtures', 'github-releases.json')));
+        $stream->__toString()
+            ->willReturn(file_get_contents(Path::join(__DIR__, '..', '..', 'fixtures', 'github-releases.json')));
         $guzzleResponse->getBody()->willReturn($stream->reveal());
         $guzzleResponse->getReasonPhrase()->willReturn('');
         $guzzleResponse->getStatusCode()->willReturn($statusCode);
         $guzzleClient = $this->prophet->prophesize(Client::class);
         $guzzleClient->get('https://api.github.com/repos/acquia/cli/releases')
-        ->willReturn($guzzleResponse->reveal());
+            ->willReturn($guzzleResponse->reveal());
         $this->command->setUpdateClient($guzzleClient->reveal());
     }
 
@@ -463,17 +476,17 @@ abstract class CommandTestBase extends TestBase
         // Mock Git.
         $urlParts = explode(':', $environmentsResponse[0]->vcs->url);
         $sshHelper->executeCommand($urlParts[0], ['ls'], false)
-        ->willReturn($gitProcess->reveal())
-        ->shouldBeCalled();
+            ->willReturn($gitProcess->reveal())
+            ->shouldBeCalled();
         if ($ssh) {
             // Mock non-prod.
             $sshHelper->executeCommand($environmentsResponse[0]->ssh_url, ['ls'], false)
-            ->willReturn($process->reveal())
-            ->shouldBeCalled();
+                ->willReturn($process->reveal())
+                ->shouldBeCalled();
             // Mock prod.
             $sshHelper->executeCommand($environmentsResponse[1]->ssh_url, ['ls'], false)
-            ->willReturn($process->reveal())
-            ->shouldBeCalled();
+                ->willReturn($process->reveal())
+                ->shouldBeCalled();
         }
         return $sshHelper;
     }
@@ -485,8 +498,8 @@ abstract class CommandTestBase extends TestBase
         $process->getExitCode()->willReturn(128);
         $sshHelper = $this->mockSshHelper();
         $sshHelper->executeCommand($environmentResponse->vcs->url, ['ls'], false)
-        ->willReturn($process->reveal())
-        ->shouldBeCalled();
+            ->willReturn($process->reveal())
+            ->shouldBeCalled();
         return $sshHelper;
     }
 
@@ -504,7 +517,8 @@ abstract class CommandTestBase extends TestBase
         $file->getFileName()->willReturn($fileName);
         $file->getRealPath()->willReturn('somepath');
         $localMachineHelper->readFile('somepath')->willReturn($publicKey);
-        $finder->getIterator()->willReturn(new \ArrayIterator([$file->reveal()]));
+        $finder->getIterator()
+            ->willReturn(new \ArrayIterator([$file->reveal()]));
         $localMachineHelper->getFinder()->willReturn($finder);
 
         return $fileName;
@@ -669,8 +683,8 @@ abstract class CommandTestBase extends TestBase
         $permission->name = "administer environment variables on non-prod";
         $permissions[] = $permission;
         $this->clientProphecy->request('get', "/applications/{$applicationUuid}/permissions")
-        ->willReturn($permissions)
-        ->shouldBeCalled();
+            ->willReturn($permissions)
+            ->shouldBeCalled();
         return $permissions;
     }
 
@@ -678,9 +692,9 @@ abstract class CommandTestBase extends TestBase
     {
         $projects = $this->prophet->prophesize(Projects::class);
         $projects->all(['search' => $applicationUuid])
-        ->willReturn($mockedGitlabProjects);
+            ->willReturn($mockedGitlabProjects);
         $projects->all()
-        ->willReturn([$this->getMockedGitLabProject($gitlabProjectId)]);
+            ->willReturn([$this->getMockedGitLabProject($gitlabProjectId)]);
         return $projects;
     }
 
@@ -726,7 +740,7 @@ abstract class CommandTestBase extends TestBase
         $haystack = strtr(
             $haystack,
             [
-                "\r"   => "\n",
+                "\r" => "\n",
                 "\r\n" => "\n",
             ]
         );

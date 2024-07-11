@@ -18,9 +18,9 @@ final class AuthLoginCommand extends CommandBase
     protected function configure(): void
     {
         $this
-        ->addOption('key', 'k', InputOption::VALUE_REQUIRED, 'Your Cloud Platform API key')
-        ->addOption('secret', 's', InputOption::VALUE_REQUIRED, 'Your Cloud Platform API secret')
-        ->setHelp('Acquia CLI can store multiple sets of credentials in case you have multiple Cloud Platform accounts. However, only a single account can be active at a time. This command allows you to activate a new or existing set of credentials.');
+            ->addOption('key', 'k', InputOption::VALUE_REQUIRED, 'Your Cloud Platform API key')
+            ->addOption('secret', 's', InputOption::VALUE_REQUIRED, 'Your Cloud Platform API secret')
+            ->setHelp('Acquia CLI can store multiple sets of credentials in case you have multiple Cloud Platform accounts. However, only a single account can be active at a time. This command allows you to activate a new or existing set of credentials.');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int

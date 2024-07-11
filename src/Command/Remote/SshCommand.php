@@ -21,10 +21,10 @@ final class SshCommand extends SshBaseCommand
     protected function configure(): void
     {
         $this
-        ->addArgument('alias', InputArgument::REQUIRED, 'Alias for application & environment in the format `app-name.env`')
-        ->addArgument('ssh_command', InputArgument::IS_ARRAY, 'Command to run via SSH (if not provided, opens a shell in the site directory)')
-        ->addUsage("myapp.dev # open a shell in the myapp.dev environment")
-        ->addUsage("myapp.dev -- ls -al # list files in the myapp.dev environment and return");
+            ->addArgument('alias', InputArgument::REQUIRED, 'Alias for application & environment in the format `app-name.env`')
+            ->addArgument('ssh_command', InputArgument::IS_ARRAY, 'Command to run via SSH (if not provided, opens a shell in the site directory)')
+            ->addUsage("myapp.dev # open a shell in the myapp.dev environment")
+            ->addUsage("myapp.dev -- ls -al # list files in the myapp.dev environment and return");
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): ?int
@@ -46,6 +46,7 @@ final class SshCommand extends SshBaseCommand
             $sshCommand[] = implode(' ', $arguments['ssh_command']);
         }
         $sshCommand = (array) implode('; ', $sshCommand);
-        return $this->sshHelper->executeCommand($environment->sshUrl, $sshCommand)->getExitCode();
+        return $this->sshHelper->executeCommand($environment->sshUrl, $sshCommand)
+            ->getExitCode();
     }
 }

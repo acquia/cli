@@ -20,7 +20,7 @@ final class SshKeyDeleteCommand extends SshKeyCommandBase
     protected function configure(): void
     {
         $this
-        ->addOption('cloud-key-uuid', 'uuid', InputOption::VALUE_REQUIRED);
+            ->addOption('cloud-key-uuid', 'uuid', InputOption::VALUE_REQUIRED);
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int

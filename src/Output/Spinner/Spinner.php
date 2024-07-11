@@ -14,6 +14,7 @@ use Symfony\Component\Console\Terminal;
 class Spinner
 {
     private const CHARS = ['⠏', '⠛', '⠹', '⢸', '⣰', '⣤', '⣆', '⡇'];
+
     private const COLORS = [
         196,
         196,
@@ -188,7 +189,7 @@ class Spinner
     private function spinnerIsSupported(): bool
     {
         return $this->output instanceof ConsoleOutput
-        && (getenv('CI') !== 'true' || getenv('PHPUNIT_RUNNING'));
+            && (getenv('CI') !== 'true' || getenv('PHPUNIT_RUNNING'));
     }
 
     public function getProgressBar(): ProgressBar

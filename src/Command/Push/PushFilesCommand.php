@@ -19,8 +19,8 @@ final class PushFilesCommand extends PushCommandBase
     protected function configure(): void
     {
         $this
-        ->acceptEnvironmentId()
-        ->acceptSite();
+            ->acceptEnvironmentId()
+            ->acceptSite();
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int

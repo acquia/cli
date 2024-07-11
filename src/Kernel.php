@@ -51,11 +51,11 @@ class Kernel extends BaseKernel
         // Search for plugins.
         $finder = new Finder();
         $extensions = $finder->files()
-        ->in([
-            __DIR__ . '/../../',
-        ])
-        ->depth(1)
-        ->name('acli.services.yml');
+            ->in([
+                __DIR__ . '/../../',
+            ])
+            ->depth(1)
+            ->name('acli.services.yml');
         foreach ($extensions as $extension) {
             $loader->load($extension->getRealPath());
         }

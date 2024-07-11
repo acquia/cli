@@ -9,6 +9,7 @@ use Acquia\Cli\Tests\TestBase;
 class IdeHelper
 {
     public static string $remoteIdeUuid = '215824ff-272a-4a8c-9027-df32ed1d68a9';
+
     public static string $remoteIdeLabel = 'ExampleIDE';
 
     public static function setCloudIdeEnvVars(): void

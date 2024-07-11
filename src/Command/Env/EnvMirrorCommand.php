@@ -27,13 +27,13 @@ final class EnvMirrorCommand extends CommandBase
     protected function configure(): void
     {
         $this->addArgument('source-environment', InputArgument::REQUIRED, 'The Cloud Platform source environment ID or alias')
-        ->addUsage('[<environmentAlias>]')
-        ->addUsage('myapp.dev')
-        ->addUsage('12345-abcd1234-1111-2222-3333-0e02b2c3d470');
+            ->addUsage('[<environmentAlias>]')
+            ->addUsage('myapp.dev')
+            ->addUsage('12345-abcd1234-1111-2222-3333-0e02b2c3d470');
         $this->addArgument('destination-environment', InputArgument::REQUIRED, 'The Cloud Platform destination environment ID or alias')
-        ->addUsage('[<environmentAlias>]')
-        ->addUsage('myapp.dev')
-        ->addUsage('12345-abcd1234-1111-2222-3333-0e02b2c3d470');
+            ->addUsage('[<environmentAlias>]')
+            ->addUsage('myapp.dev')
+            ->addUsage('12345-abcd1234-1111-2222-3333-0e02b2c3d470');
         $this->addOption('no-code', 'c');
         $this->addOption('no-databases', 'd');
         $this->addOption('no-files', 'f');

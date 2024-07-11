@@ -15,18 +15,21 @@ interface SiteInspectorInterface
      * @see \Acquia\Cli\Command\App\From\SourceSite\SiteInspectorInterface::getExtensions()
      */
     public const FLAG_EXTENSION_DISABLED = 1 << 1;
+
     /**
      * Flag adding themes.
      *
      * @see \Acquia\Cli\Command\App\From\SourceSite\SiteInspectorInterface::getExtensions()
      */
     public const FLAG_EXTENSION_THEME = 1 << 3;
+
     /**
      * Flag adding modules.
      *
      * @see \Acquia\Cli\Command\App\From\SourceSite\SiteInspectorInterface::getExtensions()
      */
     public const FLAG_EXTENSION_MODULE = 1 << 2;
+
     /**
      * Flag adding enabled extensions.
      *
@@ -39,11 +42,11 @@ interface SiteInspectorInterface
      *
      * @param int $flags
      *   Bitwise flags indicting various subsets of extensions to be returned.
-     *   Omitting flags omits those extensions from the return value. I.e. if the
-     *   FLAG_EXTENSION_ENABLED flag is given, but not the FLAG_EXTENSION_DISABLED
-     *   flag, then only enabled extensions will be returned. In the example
-     *   below, all enabled modules will be returned. Themes and disabled modules
-     *   will be excluded.
+     *   Omitting flags omits those extensions from the return value. I.e. if
+     *     the FLAG_EXTENSION_ENABLED flag is given, but not the
+     *     FLAG_EXTENSION_DISABLED flag, then only enabled extensions will be
+     *     returned. In the example below, all enabled modules will be
+     *     returned. Themes and disabled modules will be excluded.
      * @code
      *   $inspector->getExtensions(Drupal7SiteInspector::FLAG_EXTENSION_ENABLED|Drupal7SiteInspector::FLAG_EXTENSION_MODULE);
      * @endcode

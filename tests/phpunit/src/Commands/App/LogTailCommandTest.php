@@ -57,21 +57,23 @@ class LogTailCommandTest extends CommandTestBase
     public function testLogTailCommand(?int $stream): void
     {
         $this->logStreamManagerProphecy->setColourise(true)->shouldBeCalled();
-        $this->logStreamManagerProphecy->setParams(Argument::type('object'))->shouldBeCalled();
-        $this->logStreamManagerProphecy->setLogTypeFilter(["bal-request"])->shouldBeCalled();
+        $this->logStreamManagerProphecy->setParams(Argument::type('object'))
+            ->shouldBeCalled();
+        $this->logStreamManagerProphecy->setLogTypeFilter(["bal-request"])
+            ->shouldBeCalled();
         $this->logStreamManagerProphecy->stream()->shouldBeCalled();
         $this->mockGetEnvironment();
         $this->mockLogStreamRequest();
         $this->executeCommand([], [
-        // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
+            // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
             'n',
-        // Select the application.
+            // Select the application.
             0,
-        // Would you like to link the project at ... ?
+            // Would you like to link the project at ... ?
             'y',
-        // Select environment.
+            // Select environment.
             0,
-        // Select log.
+            // Select log.
             $stream,
         ]);
 
@@ -113,15 +115,15 @@ class LogTailCommandTest extends CommandTestBase
         $this->expectException(AcquiaCliException::class);
         $this->expectExceptionMessage('No compatible environments found');
         $this->executeCommand([], [
-        // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
+            // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
             'n',
-        // Select the application.
+            // Select the application.
             0,
-        // Would you like to link the project at ... ?
+            // Would you like to link the project at ... ?
             'y',
-        // Select environment.
+            // Select environment.
             0,
-        // Select log.
+            // Select log.
             0,
         ]);
     }
@@ -137,7 +139,7 @@ class LogTailCommandTest extends CommandTestBase
             'get',
             '/environments/24-a47ac10b-58cc-4372-a567-0e02b2c3d470/logstream'
         )
-        ->willReturn($response)
-        ->shouldBeCalled();
+            ->willReturn($response)
+            ->shouldBeCalled();
     }
 }

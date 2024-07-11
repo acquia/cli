@@ -24,8 +24,8 @@ final class IdeShareCommand extends CommandBase
     protected function configure(): void
     {
         $this
-        ->addOption('regenerate', '', InputOption::VALUE_NONE, 'regenerate the share code')
-        ->setHidden(!AcquiaDrupalEnvironmentDetector::isAhIdeEnv());
+            ->addOption('regenerate', '', InputOption::VALUE_NONE, 'regenerate the share code')
+            ->setHidden(!AcquiaDrupalEnvironmentDetector::isAhIdeEnv());
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int

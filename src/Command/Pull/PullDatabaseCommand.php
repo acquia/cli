@@ -20,33 +20,33 @@ final class PullDatabaseCommand extends PullCommandBase
     protected function configure(): void
     {
         $this
-        ->setHelp('This uses the latest available database backup, which may be up to 24 hours old. If no backup exists, one will be created.')
-        ->acceptEnvironmentId()
-        ->acceptSite()
-        ->addOption(
-            'no-scripts',
-            null,
-            InputOption::VALUE_NONE,
-            'Do not run any additional scripts after the database is pulled. E.g., drush cache-rebuild, drush sql-sanitize, etc.'
-        )
-        ->addOption(
-            'on-demand',
-            null,
-            InputOption::VALUE_NONE,
-            'Force creation of an on-demand backup. This takes much longer than using an existing backup (when one is available)'
-        )
-        ->addOption(
-            'no-import',
-            null,
-            InputOption::VALUE_NONE,
-            'Download the backup but do not import it (implies --no-scripts)'
-        )
-        ->addOption(
-            'multiple-dbs',
-            null,
-            InputOption::VALUE_NONE,
-            'Download multiple dbs. Defaults to FALSE.'
-        );
+            ->setHelp('This uses the latest available database backup, which may be up to 24 hours old. If no backup exists, one will be created.')
+            ->acceptEnvironmentId()
+            ->acceptSite()
+            ->addOption(
+                'no-scripts',
+                null,
+                InputOption::VALUE_NONE,
+                'Do not run any additional scripts after the database is pulled. E.g., drush cache-rebuild, drush sql-sanitize, etc.'
+            )
+            ->addOption(
+                'on-demand',
+                null,
+                InputOption::VALUE_NONE,
+                'Force creation of an on-demand backup. This takes much longer than using an existing backup (when one is available)'
+            )
+            ->addOption(
+                'no-import',
+                null,
+                InputOption::VALUE_NONE,
+                'Download the backup but do not import it (implies --no-scripts)'
+            )
+            ->addOption(
+                'multiple-dbs',
+                null,
+                InputOption::VALUE_NONE,
+                'Download multiple dbs. Defaults to FALSE.'
+            );
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int

@@ -23,9 +23,9 @@ use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Validator\Exception\ValidatorException;
 
 #[AsCommand(name: 'app:new:from:drupal7', description: 'Generate a new Drupal 9+ project from a Drupal 7 application using the default Acquia Migrate Accelerate recommendations.', aliases: [
-  // Currently only "from Drupal 7", more to potentially follow.
+    // Currently only "from Drupal 7", more to potentially follow.
     'from:d7',
-  // A nod to its roots.
+    // A nod to its roots.
     'ama',
 ])]
 final class NewFromDrupal7Command extends CommandBase
@@ -41,19 +41,19 @@ final class NewFromDrupal7Command extends CommandBase
     /**
      * Exit code raised when a Drupal 7 installation cannot be determined.
      *
-     * This indicates the --drupal7-uri was not given and a sane default site could not be
-     * determined.
+     * This indicates the --drupal7-uri was not given and a sane default site
+     * could not be determined.
      */
     public const ERR_INDETERMINATE_SITE = 4;
 
     protected function configure(): void
     {
         $this
-        ->addOption('drupal7-directory', 'source', InputOption::VALUE_OPTIONAL, 'The root of the Drupal 7 application')
-        ->addOption('drupal7-uri', 'uri', InputOption::VALUE_OPTIONAL, 'Only necessary in case of a multisite. If a single site, this will be computed automatically.')
-        ->addOption('stored-analysis', 'analysis', InputOption::VALUE_OPTIONAL, 'As an alternative to drupal7-directory, it is possible to pass a stored analysis.')
-        ->addOption('recommendations', 'recommendations', InputOption::VALUE_OPTIONAL, 'Overrides the default recommendations.')
-        ->addOption('directory', 'destination', InputOption::VALUE_OPTIONAL, 'The directory where to generate the new application.');
+            ->addOption('drupal7-directory', 'source', InputOption::VALUE_OPTIONAL, 'The root of the Drupal 7 application')
+            ->addOption('drupal7-uri', 'uri', InputOption::VALUE_OPTIONAL, 'Only necessary in case of a multisite. If a single site, this will be computed automatically.')
+            ->addOption('stored-analysis', 'analysis', InputOption::VALUE_OPTIONAL, 'As an alternative to drupal7-directory, it is possible to pass a stored analysis.')
+            ->addOption('recommendations', 'recommendations', InputOption::VALUE_OPTIONAL, 'Overrides the default recommendations.')
+            ->addOption('directory', 'destination', InputOption::VALUE_OPTIONAL, 'The directory where to generate the new application.');
     }
 
     private function getInspector(InputInterface $input): SiteInspectorInterface
@@ -114,8 +114,8 @@ final class NewFromDrupal7Command extends CommandBase
         $extensions = $inspector->getExtensions(SiteInspectorInterface::FLAG_EXTENSION_MODULE | SiteInspectorInterface::FLAG_EXTENSION_ENABLED);
         $module_count = count($extensions);
         $system_module_version = array_reduce(
-            array_filter($extensions, fn (ExtensionInterface $extension) => $extension->isModule() && $extension->getName() === 'system'),
-            fn (mixed $carry, ExtensionInterface $extension) => $extension->getVersion()
+            array_filter($extensions, fn(ExtensionInterface $extension) => $extension->isModule() && $extension->getName() === 'system'),
+            fn(mixed $carry, ExtensionInterface $extension) => $extension->getVersion()
         );
         $site_location = property_exists($inspector, 'uri') ? 'sites/' . $inspector->uri : '<location unknown>';
         $output->writeln(sprintf("<info>👍 Found Drupal 7 site (%s to be precise) at %s, with %d modules enabled!</info>", $system_module_version, $site_location, $module_count));
@@ -151,7 +151,7 @@ final class NewFromDrupal7Command extends CommandBase
         $results = $project_builder->buildProject();
         $unique_patch_count = array_reduce(
             $results['rootPackageDefinition']['extra']['patches'],
-            fn (array $unique_patches, array $patches) => array_unique(array_merge($unique_patches, array_values($patches))),
+            fn(array $unique_patches, array $patches) => array_unique(array_merge($unique_patches, array_values($patches))),
             []
         );
         $output->writeln(sprintf(
@@ -218,7 +218,10 @@ final class NewFromDrupal7Command extends CommandBase
 
     private function initializeGitRepository(string $dir): void
     {
-        if ($this->localMachineHelper->getFilesystem()->exists(Path::join($dir, '.git'))) {
+        if (
+            $this->localMachineHelper->getFilesystem()
+            ->exists(Path::join($dir, '.git'))
+        ) {
             $this->logger->debug('.git directory detected, skipping Git repo initialization');
             return;
         }

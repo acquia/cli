@@ -17,8 +17,8 @@ final class DocsCommand extends CommandBase
     protected function configure(): void
     {
         $this
-        ->addArgument('product', InputArgument::OPTIONAL, 'Acquia Product Name')
-        ->addUsage('acli');
+            ->addArgument('product', InputArgument::OPTIONAL, 'Acquia Product Name')
+            ->addUsage('acli');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -33,7 +33,13 @@ final class DocsCommand extends CommandBase
                 'url' => 'acquia-cms',
             ],
             'Acquia DAM Classic' => [
-                'alias' => ['dam', 'acquia_dam', 'dam_classic', 'acquiadam', 'damclassic'],
+                'alias' => [
+                    'dam',
+                    'acquia_dam',
+                    'dam_classic',
+                    'acquiadam',
+                    'damclassic',
+                ],
                 'url' => 'dam',
             ],
             'Acquia Migrate Accelerate' => [
@@ -45,7 +51,11 @@ final class DocsCommand extends CommandBase
                 'url' => 'blt',
             ],
             'Campaign Factory' => [
-                'alias' => ['campaign-factory', 'campaign_factory', 'campaignfactory'],
+                'alias' => [
+                    'campaign-factory',
+                    'campaign_factory',
+                    'campaignfactory',
+                ],
                 'url' => 'campaign-factory',
             ],
             'Campaign Studio' => [
@@ -57,7 +67,13 @@ final class DocsCommand extends CommandBase
                 'url' => 'ide',
             ],
             'Cloud Platform' => [
-                'alias' => ['cloud-platform', 'acquiacloud', 'acquia_cloud', 'acquia-cloud', 'cloud'],
+                'alias' => [
+                    'cloud-platform',
+                    'acquiacloud',
+                    'acquia_cloud',
+                    'acquia-cloud',
+                    'cloud',
+                ],
                 'url' => 'cloud-platform',
             ],
             'Code Studio' => [

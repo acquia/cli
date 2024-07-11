@@ -57,15 +57,17 @@ class IdeCreateCommandTest extends CommandTestBase
         /** @var \Prophecy\Prophecy\ObjectProphecy|\GuzzleHttp\Psr7\Response $guzzleResponse */
         $guzzleResponse = $this->prophet->prophesize(Response::class);
         $guzzleResponse->getStatusCode()->willReturn(200);
-        $this->httpClientProphecy->request('GET', 'https://215824ff-272a-4a8c-9027-df32ed1d68a9.ides.acquia.com/health', ['http_errors' => false])->willReturn($guzzleResponse->reveal())->shouldBeCalled();
+        $this->httpClientProphecy->request('GET', 'https://215824ff-272a-4a8c-9027-df32ed1d68a9.ides.acquia.com/health', ['http_errors' => false])
+            ->willReturn($guzzleResponse->reveal())
+            ->shouldBeCalled();
 
         $inputs = [
-        // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
-        // Would you like to link the project at ... ?
+            // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
+            // Would you like to link the project at ... ?
             'n',
             0,
             self::$INPUT_DEFAULT_CHOICE,
-        // Enter a label for your Cloud IDE:
+            // Enter a label for your Cloud IDE:
             'Example IDE',
         ];
         $this->executeCommand([], $inputs);

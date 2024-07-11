@@ -58,11 +58,19 @@ class DefinedRecommendationTest extends TestCase
                 new NoRecommendation(),
             ],
             'key value does not match schema' => [
-                ['package' => 42, 'constraint' => '', 'replaces' => ['name' => '']],
+                [
+                    'package' => 42,
+                    'constraint' => '',
+                    'replaces' => ['name' => ''],
+                ],
                 new NoRecommendation(),
             ],
             'nested key value does not match schema' => [
-                ['package' => '', 'constraint' => '', 'replaces' => ['name' => 42]],
+                [
+                    'package' => '',
+                    'constraint' => '',
+                    'replaces' => ['name' => 42],
+                ],
                 new NoRecommendation(),
             ],
             'invalid patches key' => [

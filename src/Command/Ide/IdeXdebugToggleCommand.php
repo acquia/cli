@@ -19,7 +19,7 @@ final class IdeXdebugToggleCommand extends IdeCommandBase
     protected function configure(): void
     {
         $this
-        ->setHidden(!AcquiaDrupalEnvironmentDetector::isAhIdeEnv());
+            ->setHidden(!AcquiaDrupalEnvironmentDetector::isAhIdeEnv());
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int

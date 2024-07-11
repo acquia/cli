@@ -63,7 +63,8 @@ class TelemetryHelperTest extends TestBase
     }
 
     /**
-     * Test the getEnvironmentProvider method when no environment provider is detected.
+     * Test the getEnvironmentProvider method when no environment provider is
+     * detected.
      */
     public function testGetEnvironmentProviderWithoutAnyEnvSet(): void
     {
