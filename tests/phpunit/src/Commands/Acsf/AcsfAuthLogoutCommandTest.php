@@ -27,20 +27,20 @@ class AcsfAuthLogoutCommandTest extends AcsfCommandTestBase
     public function providerTestAuthLogoutCommand(): array
     {
         return [
-        // Data set 0.
+            // Data set 0.
             [
-        // $machineIsAuthenticated
+                // $machineIsAuthenticated
                 false,
-        // $inputs
+                // $inputs
                 [],
             ],
             // Data set 1.
             [
-            // $machineIsAuthenticated
+                // $machineIsAuthenticated
                 true,
-            // $inputs
+                // $inputs
                 [
-            // Choose a Factory to logout of.
+                    // Choose a Factory to logout of.
                     0,
                 ],
                 // $config.
@@ -55,7 +55,8 @@ class AcsfAuthLogoutCommandTest extends AcsfCommandTestBase
     public function testAcsfAuthLogoutCommand(bool $machineIsAuthenticated, array $inputs, array $config = []): void
     {
         if (!$machineIsAuthenticated) {
-            $this->clientServiceProphecy->isMachineAuthenticated()->willReturn(false);
+            $this->clientServiceProphecy->isMachineAuthenticated()
+                ->willReturn(false);
             $this->removeMockCloudConfigFile();
         } else {
             $this->createMockCloudConfigFile($config);

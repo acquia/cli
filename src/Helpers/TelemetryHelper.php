@@ -231,8 +231,9 @@ class TelemetryHelper
 
     /**
      * @infection-ignore-all
-     *   Skipping infection testing for this because, it most cases, we expect that when a row from this array is changed
-     *   it won't affect the return value.
+     *   Skipping infection testing for this because, it most cases, we expect
+     *     that when a row from this array is changed it won't affect the
+     *     return value.
      * @return array<mixed>
      *   An array of providers and their associated environment variables.
      */
@@ -243,7 +244,7 @@ class TelemetryHelper
         return [
             'lando' => ['LANDO'],
             'ddev' => ['IS_DDEV_PROJECT'],
-        // Check Lando and DDEV first because the hijack AH_SITE_ENVIRONMENT.
+            // Check Lando and DDEV first because the hijack AH_SITE_ENVIRONMENT.
             'acquia' => ['AH_SITE_ENVIRONMENT'],
             'bamboo' => ['BAMBOO_BUILDNUMBER'],
             'beanstalk' => ['BEANSTALK_ENVIRONMENT'],

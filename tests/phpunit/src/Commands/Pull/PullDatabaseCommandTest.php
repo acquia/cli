@@ -92,8 +92,11 @@ class PullDatabaseCommandTest extends PullCommandTestBase
         $sshHelper = $this->mockSshHelper();
         $process = $this->mockProcess();
         $process->getOutput()->willReturn('default')->shouldBeCalled();
-        $sshHelper->executeCommand(Argument::type('string'), ['ls', '/mnt/files/site.prod/sites'], false)
-        ->willReturn($process->reveal())->shouldBeCalled();
+        $sshHelper->executeCommand(Argument::type('string'), [
+            'ls',
+            '/mnt/files/site.prod/sites',
+        ], false)
+            ->willReturn($process->reveal())->shouldBeCalled();
         $this->mockGetBackup($environment);
         $this->mockExecuteMySqlListTables($localMachineHelper, 'drupal');
         $fs = $this->prophet->prophesize(Filesystem::class);
@@ -105,13 +108,13 @@ class PullDatabaseCommandTest extends PullCommandTestBase
         $this->executeCommand([
             '--no-scripts' => true,
         ], [
-        // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
+            // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
             'n',
-        // Select a Cloud Platform application:
+            // Select a Cloud Platform application:
             self::$INPUT_DEFAULT_CHOICE,
-        // Would you like to link the project at ... ?
+            // Would you like to link the project at ... ?
             'n',
-        // Choose an Acquia environment:
+            // Choose an Acquia environment:
             1,
         ]);
 
@@ -166,17 +169,17 @@ class PullDatabaseCommandTest extends PullCommandTestBase
     {
         $this->setupPullDatabase(true, true, false, true, true);
         $inputs = [
-        // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
+            // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
             'n',
-        // Select a Cloud Platform application:
+            // Select a Cloud Platform application:
             0,
-        // Would you like to link the project at ... ?
+            // Would you like to link the project at ... ?
             'n',
-        // Choose a Cloud Platform environment [Dev, dev (vcs: master)]:
+            // Choose a Cloud Platform environment [Dev, dev (vcs: master)]:
             0,
-        // Choose a site [jxr5000596dev (oracletest1.dev-profserv2.acsitefactory.com)]:
+            // Choose a site [jxr5000596dev (oracletest1.dev-profserv2.acsitefactory.com)]:
             0,
-        // Choose databases. You may choose multiple. Use commas to separate choices. [profserv2 (default)]:
+            // Choose databases. You may choose multiple. Use commas to separate choices. [profserv2 (default)]:
             '10,27',
         ];
         $this->executeCommand([
@@ -390,13 +393,13 @@ class PullDatabaseCommandTest extends PullCommandTestBase
         $this->executeCommand([
             '--no-scripts' => true,
         ], [
-        // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
+            // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
             'n',
-        // Select a Cloud Platform application:
+            // Select a Cloud Platform application:
             self::$INPUT_DEFAULT_CHOICE,
-        // Would you like to link the project at ... ?
+            // Would you like to link the project at ... ?
             'n',
-        // Choose an Acquia environment:
+            // Choose an Acquia environment:
             1,
         ]);
     }

@@ -9,7 +9,8 @@ use Acquia\Cli\Command\Ide\Wizard\IdeWizardCreateSshKeyCommand;
 use Acquia\Cli\Tests\Commands\Ide\IdeHelper;
 
 /**
- * @property \Acquia\Cli\Command\Ide\Wizard\IdeWizardCreateSshKeyCommand $command
+ * @property \Acquia\Cli\Command\Ide\Wizard\IdeWizardCreateSshKeyCommand
+ *     $command
  * @requires OS linux|darwin
  */
 class IdeWizardCreateSshKeyCommandTest extends IdeWizardTestBase

@@ -15,6 +15,7 @@ use GuzzleHttp\Psr7\Response;
 class AcsfClientServiceTest extends TestBase
 {
     protected string $apiSpecFixtureFilePath = __DIR__ . '/../../../../assets/acsf-spec.json';
+
     protected string $apiCommandPrefix = 'acsf';
 
     /**
@@ -24,11 +25,19 @@ class AcsfClientServiceTest extends TestBase
     {
         return [
             [
-                ['ACLI_ACCESS_TOKEN' => null, 'ACLI_KEY' => null, 'ACLI_SECRET' => null],
+                [
+                    'ACLI_ACCESS_TOKEN' => null,
+                    'ACLI_KEY' => null,
+                    'ACLI_SECRET' => null,
+                ],
                 false,
             ],
             [
-                ['ACLI_ACCESS_TOKEN' => null, 'ACLI_KEY' => 'key', 'ACLI_SECRET' => null],
+                [
+                    'ACLI_ACCESS_TOKEN' => null,
+                    'ACLI_KEY' => 'key',
+                    'ACLI_SECRET' => null,
+                ],
                 false,
             ],
         ];
@@ -41,7 +50,11 @@ class AcsfClientServiceTest extends TestBase
     {
         self::setEnvVars($envVars);
         $cloudDatastore = $this->prophet->prophesize(CloudDataStore::class);
-        $clientService = new AcsfClientService(new AcsfConnectorFactory(['key' => null, 'secret' => null, 'accessToken' => null]), $this->application, new AcsfCredentials($cloudDatastore->reveal()));
+        $clientService = new AcsfClientService(new AcsfConnectorFactory([
+            'accessToken' => null,
+            'key' => null,
+            'secret' => null,
+        ]), $this->application, new AcsfCredentials($cloudDatastore->reveal()));
         $this->assertEquals($isAuthenticated, $clientService->isMachineAuthenticated());
         $clientService->getClient();
         self::unsetEnvVars($envVars);
@@ -51,7 +64,11 @@ class AcsfClientServiceTest extends TestBase
     {
         putenv('ACQUIA_CLI_USE_CLOUD_API_SPEC_CACHE=1');
         $cloudDatastore = $this->prophet->prophesize(CloudDataStore::class);
-        $clientService = new AcsfClientService(new AcsfConnectorFactory(['key' => null, 'secret' => null, 'accessToken' => null]), $this->application, new AcsfCredentials($cloudDatastore->reveal()));
+        $clientService = new AcsfClientService(new AcsfConnectorFactory([
+            'accessToken' => null,
+            'key' => null,
+            'secret' => null,
+        ]), $this->application, new AcsfCredentials($cloudDatastore->reveal()));
         $client = $clientService->getClient();
         $mockBody = ['_embedded' => ['items' => 'foo']];
         $response = new Response(200, [], json_encode($mockBody));
@@ -63,7 +80,11 @@ class AcsfClientServiceTest extends TestBase
     {
         putenv('ACQUIA_CLI_USE_CLOUD_API_SPEC_CACHE=1');
         $cloudDatastore = $this->prophet->prophesize(CloudDataStore::class);
-        $clientService = new AcsfClientService(new AcsfConnectorFactory(['key' => null, 'secret' => null, 'accessToken' => null]), $this->application, new AcsfCredentials($cloudDatastore->reveal()));
+        $clientService = new AcsfClientService(new AcsfConnectorFactory([
+            'accessToken' => null,
+            'key' => null,
+            'secret' => null,
+        ]), $this->application, new AcsfCredentials($cloudDatastore->reveal()));
         $client = $clientService->getClient();
         $mockBody = ['error' => 'foo', 'message' => 'bar'];
         $response = new Response(200, [], json_encode($mockBody));
@@ -76,7 +97,11 @@ class AcsfClientServiceTest extends TestBase
     {
         putenv('ACQUIA_CLI_USE_CLOUD_API_SPEC_CACHE=1');
         $cloudDatastore = $this->prophet->prophesize(CloudDataStore::class);
-        $clientService = new AcsfClientService(new AcsfConnectorFactory(['key' => null, 'secret' => null, 'accessToken' => null]), $this->application, new AcsfCredentials($cloudDatastore->reveal()));
+        $clientService = new AcsfClientService(new AcsfConnectorFactory([
+            'accessToken' => null,
+            'key' => null,
+            'secret' => null,
+        ]), $this->application, new AcsfCredentials($cloudDatastore->reveal()));
         $client = $clientService->getClient();
         $mockBody = ['message' => 'bar'];
         $response = new Response(400, [], json_encode($mockBody));

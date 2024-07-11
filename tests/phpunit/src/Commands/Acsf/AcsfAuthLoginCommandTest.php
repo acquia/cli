@@ -27,19 +27,19 @@ class AcsfAuthLoginCommandTest extends AcsfCommandTestBase
     public function providerTestAuthLoginCommand(): array
     {
         return [
-        // Data set 0.
+            // Data set 0.
             [
-        // $machineIsAuthenticated
+                // $machineIsAuthenticated
                 false,
-        // $inputs
+                // $inputs
                 [
-        // Would you like to share anonymous performance usage and data? (yes/no) [yes].
+                    // Would you like to share anonymous performance usage and data? (yes/no) [yes].
                     'yes',
-        // Enter the full URL of the factory.
+                    // Enter the full URL of the factory.
                     $this->acsfCurrentFactoryUrl,
-        // Enter a value for username.
+                    // Enter a value for username.
                     $this->acsfUsername,
-        // Enter a value for key.
+                    // Enter a value for key.
                     $this->acsfKey,
                 ],
                 // No arguments, all interactive.
@@ -49,17 +49,17 @@ class AcsfAuthLoginCommandTest extends AcsfCommandTestBase
             ],
             // Data set 1.
             [
-            // $machineIsAuthenticated
+                // $machineIsAuthenticated
                 false,
-            // $inputs
+                // $inputs
                 [],
-            // Arguments.
+                // Arguments.
                 [
-            // Enter the full URL of the factory.
+                    // Enter the full URL of the factory.
                     '--factory-url' => $this->acsfCurrentFactoryUrl,
-            // Enter a value for key.
+                    // Enter a value for key.
                     '--key' => $this->acsfKey,
-            // Enter a value for username.
+                    // Enter a value for username.
                     '--username' => $this->acsfUsername,
                 ],
                 // Output to assert.
@@ -69,13 +69,13 @@ class AcsfAuthLoginCommandTest extends AcsfCommandTestBase
             ],
             // Data set 2.
             [
-            // $machineIsAuthenticated
+                // $machineIsAuthenticated
                 true,
-            // $inputs
+                // $inputs
                 [
-            // Choose a factory to log in to.
+                    // Choose a factory to log in to.
                     $this->acsfCurrentFactoryUrl,
-            // Choose which user to log in as.
+                    // Choose which user to log in as.
                     $this->acsfUsername,
                 ],
                 // Arguments.
@@ -95,7 +95,8 @@ class AcsfAuthLoginCommandTest extends AcsfCommandTestBase
     public function testAcsfAuthLoginCommand(bool $machineIsAuthenticated, array $inputs, array $args, string $outputToAssert, array $config = []): void
     {
         if (!$machineIsAuthenticated) {
-            $this->clientServiceProphecy->isMachineAuthenticated()->willReturn(false);
+            $this->clientServiceProphecy->isMachineAuthenticated()
+                ->willReturn(false);
             $this->removeMockCloudConfigFile();
         } else {
             $this->removeMockCloudConfigFile();

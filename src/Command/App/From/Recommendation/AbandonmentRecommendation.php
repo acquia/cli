@@ -18,7 +18,8 @@ class AbandonmentRecommendation implements RecommendationInterface, Normalizable
     use ArrayValidationTrait;
 
     /**
-     * An anonymous function that determines if this recommendation is applicable.
+     * An anonymous function that determines if this recommendation is
+     * applicable.
      */
     protected \Closure $evaluateExtension;
 
@@ -55,12 +56,12 @@ class AbandonmentRecommendation implements RecommendationInterface, Normalizable
      * Creates a new recommendation.
      *
      * @param mixed $definition
-     *   A static recommendation definition. This must be an array. However, other
-     *   value types are accepted because this method performs validation on the
-     *   given value.
+     *   A static recommendation definition. This must be an array. However,
+     *     other value types are accepted because this method performs
+     *     validation on the given value.
      * @return \Acquia\Cli\Command\App\From\Recommendation\RecommendationInterface
-     *   A new AbandonmentRecommendation object if the given definition is valid or
-     *   a new NoRecommendation object otherwise.
+     *   A new AbandonmentRecommendation object if the given definition is
+     *     valid or a new NoRecommendation object otherwise.
      */
     public static function createFromDefinition(mixed $definition): RecommendationInterface
     {

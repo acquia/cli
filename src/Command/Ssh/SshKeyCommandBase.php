@@ -55,7 +55,8 @@ abstract class SshKeyCommandBase extends CommandBase
     }
 
     /**
-     * Normalizes public SSH key by trimming and removing user and machine suffix.
+     * Normalizes public SSH key by trimming and removing user and machine
+     * suffix.
      */
     protected function normalizePublicSshKey(string $publicKey): string
     {
@@ -91,7 +92,8 @@ abstract class SshKeyCommandBase extends CommandBase
     {
         // We must use a separate script to mimic user input due to the limitations of the `ssh-add` command.
         // @see https://www.linux.com/topic/networking/manage-ssh-key-file-passphrase/
-        $tempFilepath = $this->localMachineHelper->getFilesystem()->tempnam(sys_get_temp_dir(), 'acli');
+        $tempFilepath = $this->localMachineHelper->getFilesystem()
+            ->tempnam(sys_get_temp_dir(), 'acli');
         $this->localMachineHelper->writeFile($tempFilepath, <<<'EOT'
 #!/usr/bin/env bash
 echo $SSH_PASS
@@ -107,8 +109,8 @@ EOT
     }
 
     /**
-     * Polls the Cloud Platform until a successful SSH request is made to the dev
-     * environment.
+     * Polls the Cloud Platform until a successful SSH request is made to the
+     * dev environment.
      *
      * @infection-ignore-all
      */
@@ -119,7 +121,8 @@ EOT
         $timers = [];
         $startTime = time();
         $cloudAppUuid = $this->determineCloudApplication(true);
-        $permissions = $this->cloudApiClientService->getClient()->request('get', "/applications/$cloudAppUuid/permissions");
+        $permissions = $this->cloudApiClientService->getClient()
+            ->request('get', "/applications/$cloudAppUuid/permissions");
         $perms = array_column($permissions, 'name');
         $mappings = $this->checkPermissions($perms, $cloudAppUuid, $output);
         foreach ($mappings as $envName => $config) {
@@ -153,7 +156,11 @@ EOT
             }
             if (empty($mappings)) {
                 // SSH key is available on every host.
-                Amplitude::getInstance()->queueEvent('SSH key upload', ['result' => 'success', 'duration' => time() - $startTime]);
+                Amplitude::getInstance()
+                    ->queueEvent('SSH key upload', [
+                        'duration' => time() - $startTime,
+                        'result' => 'success',
+                    ]);
                 $output->writeln("\n<info>Your SSH key is ready for use!</info>\n");
                 foreach ($timers as $timer) {
                     Loop::cancelTimer($timer);
@@ -167,7 +174,8 @@ EOT
         $timers[] = Loop::addTimer(60 * 60, static function () use ($output, &$timers): void {
             // Upload timed out.
             $output->writeln("\n<comment>This is taking longer than usual. It will happen eventually!</comment>\n");
-            Amplitude::getInstance()->queueEvent('SSH key upload', ['result' => 'timeout']);
+            Amplitude::getInstance()
+                ->queueEvent('SSH key upload', ['result' => 'timeout']);
             foreach ($timers as $timer) {
                 Loop::cancelTimer($timer);
             }
@@ -182,7 +190,11 @@ EOT
     private function checkPermissions(array $userPerms, string $cloudAppUuid, OutputInterface $output): array
     {
         $mappings = [];
-        $requiredPerms = ['add ssh key to git', 'add ssh key to non-prod', 'add ssh key to prod'];
+        $requiredPerms = [
+            'add ssh key to git',
+            'add ssh key to non-prod',
+            'add ssh key to prod',
+        ];
         foreach ($requiredPerms as $index => $requiredPerm) {
             if (in_array($requiredPerm, $userPerms, true)) {
                 switch ($requiredPerm) {
@@ -193,7 +205,7 @@ EOT
                         break;
                     case 'add ssh key to non-prod':
                         if ($nonProdEnv = $this->getAnyNonProdAhEnvironment($cloudAppUuid)) {
-                              $mappings['nonprod']['ssh_target'] = $nonProdEnv->sshUrl;
+                            $mappings['nonprod']['ssh_target'] = $nonProdEnv->sshUrl;
                         }
                         break;
                     case 'add ssh key to prod':
@@ -267,7 +279,10 @@ EOT
         $violations = Validation::createValidator()->validate($filename, [
             new Length(['min' => 5]),
             new NotBlank(),
-            new Regex(['pattern' => '/^\S*$/', 'message' => 'The value may not contain spaces']),
+            new Regex([
+                'message' => 'The value may not contain spaces',
+                'pattern' => '/^\S*$/',
+            ]),
         ]);
         if (count($violations)) {
             throw new ValidatorException($violations->get(0)->getMessage());
@@ -324,7 +339,10 @@ EOT
         }
 
         if ($filepath) {
-            if (!$this->localMachineHelper->getFilesystem()->exists($filepath)) {
+            if (
+                !$this->localMachineHelper->getFilesystem()
+                ->exists($filepath)
+            ) {
                 throw new AcquiaCliException('The filepath {filepath} is not valid', ['filepath' => $filepath]);
             }
             if (!str_contains($filepath, '.pub')) {

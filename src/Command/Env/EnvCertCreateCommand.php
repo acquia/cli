@@ -21,13 +21,13 @@ final class EnvCertCreateCommand extends CommandBase
     protected function configure(): void
     {
         $this
-        ->addArgument('certificate', InputArgument::REQUIRED, 'Filename of the SSL certificate being installed')
-        ->addArgument('private-key', InputArgument::REQUIRED, 'Filename of the SSL private key')
-        ->addOption('legacy', '', InputOption::VALUE_OPTIONAL, 'True for legacy certificates', false)
-        ->addOption('ca-certificates', '', InputOption::VALUE_OPTIONAL, 'Filename of the CA intermediary certificates')
-        ->addOption('csr-id', '', InputOption::VALUE_OPTIONAL, 'The CSR (certificate signing request) to associate with this certificate')
-        ->addOption('label', '', InputOption::VALUE_OPTIONAL, 'The label for this certificate. Required for standard certificates. Optional for legacy certificates', 'My certificate')
-        ->acceptEnvironmentId();
+            ->addArgument('certificate', InputArgument::REQUIRED, 'Filename of the SSL certificate being installed')
+            ->addArgument('private-key', InputArgument::REQUIRED, 'Filename of the SSL private key')
+            ->addOption('legacy', '', InputOption::VALUE_OPTIONAL, 'True for legacy certificates', false)
+            ->addOption('ca-certificates', '', InputOption::VALUE_OPTIONAL, 'Filename of the CA intermediary certificates')
+            ->addOption('csr-id', '', InputOption::VALUE_OPTIONAL, 'The CSR (certificate signing request) to associate with this certificate')
+            ->addOption('label', '', InputOption::VALUE_OPTIONAL, 'The label for this certificate. Required for standard certificates. Optional for legacy certificates', 'My certificate')
+            ->acceptEnvironmentId();
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int

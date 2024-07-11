@@ -30,8 +30,8 @@ final class AliasesDownloadCommand extends SshBaseCommand
     protected function configure(): void
     {
         $this
-        ->addOption('destination-dir', null, InputOption::VALUE_REQUIRED, 'The directory to which aliases will be downloaded')
-        ->addOption('all', null, InputOption::VALUE_NONE, 'Download the aliases for all applications that you have access to, not just the current one.');
+            ->addOption('destination-dir', null, InputOption::VALUE_REQUIRED, 'The directory to which aliases will be downloaded')
+            ->addOption('all', null, InputOption::VALUE_NONE, 'Download the aliases for all applications that you have access to, not just the current one.');
         $this->acceptApplicationUuid();
     }
 
@@ -41,7 +41,8 @@ final class AliasesDownloadCommand extends SshBaseCommand
         $drushArchiveTempFilepath = $this->getDrushArchiveTempFilepath();
         $drushAliasesDir = $this->getDrushAliasesDir($aliasVersion);
         $this->localMachineHelper->getFilesystem()->mkdir($drushAliasesDir);
-        $this->localMachineHelper->getFilesystem()->chmod($drushAliasesDir, 0700);
+        $this->localMachineHelper->getFilesystem()
+            ->chmod($drushAliasesDir, 0700);
 
         if ($aliasVersion === '9') {
             $this->downloadDrush9Aliases($input, $aliasVersion, $drushArchiveTempFilepath, $drushAliasesDir);

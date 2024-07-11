@@ -20,7 +20,7 @@ final class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase
     protected function configure(): void
     {
         $this
-        ->setHidden(!CommandBase::isAcquiaCloudIde());
+            ->setHidden(!CommandBase::isAcquiaCloudIde());
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -36,9 +36,9 @@ final class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase
             self::getThisCloudIdeCloudAppUuid(),
             $account,
             [
-            // Add SSH key to git repository.
+                // Add SSH key to git repository.
                 "add ssh key to git",
-            // Add SSH key to non-production environments.
+                // Add SSH key to non-production environments.
                 "add ssh key to non-prod",
             ]
         );

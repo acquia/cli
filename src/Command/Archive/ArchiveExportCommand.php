@@ -39,10 +39,10 @@ final class ArchiveExportCommand extends CommandBase
     protected function configure(): void
     {
         $this
-        ->addArgument('destination-dir', InputArgument::REQUIRED, 'The destination directory for the archive file')
-        ->addOption('source-dir', 'dir', InputOption::VALUE_REQUIRED, 'The directory containing the Drupal project to be pushed')
-        ->addOption('no-files', null, InputOption::VALUE_NONE, 'Exclude public files directory from archive')
-        ->addOption('no-database', 'no-db', InputOption::VALUE_NONE, 'Exclude database dump from archive');
+            ->addArgument('destination-dir', InputArgument::REQUIRED, 'The destination directory for the archive file')
+            ->addOption('source-dir', 'dir', InputOption::VALUE_REQUIRED, 'The directory containing the Drupal project to be pushed')
+            ->addOption('no-files', null, InputOption::VALUE_NONE, 'Exclude public files directory from archive')
+            ->addOption('no-database', 'no-db', InputOption::VALUE_NONE, 'Exclude database dump from archive');
     }
 
     protected function initialize(InputInterface $input, OutputInterface $output): void
@@ -110,17 +110,21 @@ final class ArchiveExportCommand extends CommandBase
         $this->checklist->updateProgressBar("Mirroring source files from {$this->dir} to {$artifactDir}");
         $originFinder = $this->localMachineHelper->getFinder();
         $originFinder->files()->in($this->dir)
-        // Include dot files like .htaccess.
-        ->ignoreDotFiles(false)
-        // If .gitignore exists, ignore VCS files like vendor.
-        ->ignoreVCSIgnored(file_exists(Path::join($this->dir, '.gitignore')));
+            // Include dot files like .htaccess.
+            ->ignoreDotFiles(false)
+            // If .gitignore exists, ignore VCS files like vendor.
+            ->ignoreVCSIgnored(file_exists(Path::join($this->dir, '.gitignore')));
         if ($this->input->getOption('no-files')) {
             $this->checklist->updateProgressBar('Skipping ' . self::PUBLIC_FILES_DIR);
             $originFinder->exclude([self::PUBLIC_FILES_DIR]);
         }
         $targetFinder = $this->localMachineHelper->getFinder();
         $targetFinder->files()->in($artifactDir)->ignoreDotFiles(false);
-        $this->localMachineHelper->getFilesystem()->mirror($this->dir, $artifactDir, $originFinder, ['override' => true, 'delete' => true], $targetFinder);
+        $this->localMachineHelper->getFilesystem()
+            ->mirror($this->dir, $artifactDir, $originFinder, [
+                'delete' => true,
+                'override' => true,
+            ], $targetFinder);
     }
 
     private function exportDatabaseToArchiveDir(
@@ -147,7 +151,14 @@ final class ArchiveExportCommand extends CommandBase
         $destinationFilename = basename($archiveDir) . '.tar.gz';
         $destinationFilepath = Path::join($destinationDir, $destinationFilename);
         $this->localMachineHelper->checkRequiredBinariesExist(['tar']);
-        $process = $this->localMachineHelper->execute(['tar', '-zcvf', $destinationFilepath, '--directory', $archiveDir, '.'], $outputCallback, null, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
+        $process = $this->localMachineHelper->execute([
+            'tar',
+            '-zcvf',
+            $destinationFilepath,
+            '--directory',
+            $archiveDir,
+            '.',
+        ], $outputCallback, null, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
         if (!$process->isSuccessful()) {
             throw new AcquiaCliException('Unable to create tarball: {message}', ['message' => $process->getErrorOutput()]);
         }

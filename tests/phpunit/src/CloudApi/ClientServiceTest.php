@@ -19,19 +19,35 @@ class ClientServiceTest extends TestBase
     {
         return [
             [
-                ['ACLI_ACCESS_TOKEN' => 'token', 'ACLI_KEY' => 'key', 'ACLI_SECRET' => 'secret'],
+                [
+                    'ACLI_ACCESS_TOKEN' => 'token',
+                    'ACLI_KEY' => 'key',
+                    'ACLI_SECRET' => 'secret',
+                ],
                 true,
             ],
             [
-                ['ACLI_ACCESS_TOKEN' => null, 'ACLI_KEY' => 'key', 'ACLI_SECRET' => 'secret'],
+                [
+                    'ACLI_ACCESS_TOKEN' => null,
+                    'ACLI_KEY' => 'key',
+                    'ACLI_SECRET' => 'secret',
+                ],
                 true,
             ],
             [
-                ['ACLI_ACCESS_TOKEN' => null, 'ACLI_KEY' => null, 'ACLI_SECRET' => null],
+                [
+                    'ACLI_ACCESS_TOKEN' => null,
+                    'ACLI_KEY' => null,
+                    'ACLI_SECRET' => null,
+                ],
                 false,
             ],
             [
-                ['ACLI_ACCESS_TOKEN' => null, 'ACLI_KEY' => 'key', 'ACLI_SECRET' => null],
+                [
+                    'ACLI_ACCESS_TOKEN' => null,
+                    'ACLI_KEY' => 'key',
+                    'ACLI_SECRET' => null,
+                ],
                 false,
             ],
         ];
@@ -44,7 +60,11 @@ class ClientServiceTest extends TestBase
     {
         self::setEnvVars($envVars);
         $cloudDatastore = $this->prophet->prophesize(CloudDataStore::class);
-        $clientService = new ClientService(new ConnectorFactory(['key' => null, 'secret' => null, 'accessToken' => null]), $this->application, new CloudCredentials($cloudDatastore->reveal()));
+        $clientService = new ClientService(new ConnectorFactory([
+            'accessToken' => null,
+            'key' => null,
+            'secret' => null,
+        ]), $this->application, new CloudCredentials($cloudDatastore->reveal()));
         $this->assertEquals($isAuthenticated, $clientService->isMachineAuthenticated());
         self::unsetEnvVars($envVars);
     }

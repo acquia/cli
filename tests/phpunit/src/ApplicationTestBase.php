@@ -25,8 +25,10 @@ class ApplicationTestBase extends TestBase
         parent::setUp();
         $this->kernel = new Kernel('dev', false);
         $this->kernel->boot();
-        $this->kernel->getContainer()->set(CloudDataStore::class, $this->datastoreCloud);
-        $this->kernel->getContainer()->set(ClientService::class, $this->clientServiceProphecy->reveal());
+        $this->kernel->getContainer()
+            ->set(CloudDataStore::class, $this->datastoreCloud);
+        $this->kernel->getContainer()
+            ->set(ClientService::class, $this->clientServiceProphecy->reveal());
         $output = new BufferedOutput();
         $this->kernel->getContainer()->set(OutputInterface::class, $output);
     }

@@ -20,11 +20,11 @@ final class IdeServiceStopCommand extends IdeCommandBase
     protected function configure(): void
     {
         $this
-        ->addArgument('service', InputArgument::REQUIRED, 'The name of the service to stop')
-        ->addUsage('php')
-        ->addUsage('apache')
-        ->addUsage('mysql')
-        ->setHidden(!AcquiaDrupalEnvironmentDetector::isAhIdeEnv());
+            ->addArgument('service', InputArgument::REQUIRED, 'The name of the service to stop')
+            ->addUsage('php')
+            ->addUsage('apache')
+            ->addUsage('mysql')
+            ->setHidden(!AcquiaDrupalEnvironmentDetector::isAhIdeEnv());
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -53,7 +53,14 @@ final class IdeServiceStopCommand extends IdeCommandBase
     {
         $violations = Validation::createValidator()->validate($service, [
             new Choice([
-                'choices' => ['php', 'php-fpm', 'apache', 'apache2', 'mysql', 'mysqld'],
+                'choices' => [
+                    'php',
+                    'php-fpm',
+                    'apache',
+                    'apache2',
+                    'mysql',
+                    'mysqld',
+                ],
                 'message' => 'Specify a valid service name: php, apache, or mysql',
             ]),
         ]);

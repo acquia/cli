@@ -21,9 +21,9 @@ final class CodeStudioPhpVersionCommand extends CommandBase
     protected function configure(): void
     {
         $this
-        ->addArgument('php-version', InputArgument::REQUIRED, 'The PHP version that needs to configured or updated')
-        ->addUsage('8.1 myapp')
-        ->addUsage('8.1 abcd1234-1111-2222-3333-0e02b2c3d470');
+            ->addArgument('php-version', InputArgument::REQUIRED, 'The PHP version that needs to configured or updated')
+            ->addUsage('8.1 myapp')
+            ->addUsage('8.1 abcd1234-1111-2222-3333-0e02b2c3d470');
         $this->acceptApplicationUuid();
         $this->acceptGitlabOptions();
     }
@@ -48,17 +48,20 @@ final class CodeStudioPhpVersionCommand extends CommandBase
         try {
             $phpVersionAlreadySet = false;
             // Get all variables of the project.
-            $allProjectVariables = $this->gitLabClient->projects()->variables($project['id']);
+            $allProjectVariables = $this->gitLabClient->projects()
+                ->variables($project['id']);
             if (!empty($allProjectVariables)) {
                 $variables = array_column($allProjectVariables, 'value', 'key');
                 $phpVersionAlreadySet = $variables['PHP_VERSION'] ?? false;
             }
             // If PHP version is not set in variables.
             if (!$phpVersionAlreadySet) {
-                $this->gitLabClient->projects()->addVariable($project['id'], 'PHP_VERSION', $phpVersion);
+                $this->gitLabClient->projects()
+                    ->addVariable($project['id'], 'PHP_VERSION', $phpVersion);
             } else {
                 // If variable already exists, updating the variable.
-                $this->gitLabClient->projects()->updateVariable($project['id'], 'PHP_VERSION', $phpVersion);
+                $this->gitLabClient->projects()
+                    ->updateVariable($project['id'], 'PHP_VERSION', $phpVersion);
             }
         } catch (RuntimeException) {
             $this->io->error("Unable to update the PHP version to $phpVersion");

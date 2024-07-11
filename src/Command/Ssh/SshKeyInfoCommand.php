@@ -21,8 +21,8 @@ final class SshKeyInfoCommand extends SshKeyCommandBase
     protected function configure(): void
     {
         $this
-        ->addOption('fingerprint', null, InputOption::VALUE_REQUIRED, 'sha256 fingerprint')
-        ->addUsage('--fingerprint=pyarUa1mt2ln4fmrp7alWKpv1IPneqFwE+ErTC71IvY=');
+            ->addOption('fingerprint', null, InputOption::VALUE_REQUIRED, 'sha256 fingerprint')
+            ->addUsage('--fingerprint=pyarUa1mt2ln4fmrp7alWKpv1IPneqFwE+ErTC71IvY=');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int

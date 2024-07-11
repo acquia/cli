@@ -62,7 +62,8 @@ class AliasesDownloadCommandTest extends CommandTestBase
 
         $stream = Utils::streamFor(file_get_contents($drushAliasesTarballFixtureFilepath . '.tar.gz'));
         $this->clientProphecy->addQuery('version', $aliasVersion);
-        $this->clientProphecy->stream('get', '/account/drush-aliases/download')->willReturn($stream);
+        $this->clientProphecy->stream('get', '/account/drush-aliases/download')
+            ->willReturn($stream);
         $drushArchiveFilepath = $this->command->getDrushArchiveTempFilepath();
 
         $destinationDir = $destinationDir ?? Path::join($this->acliRepoRoot, 'drush');
@@ -102,7 +103,8 @@ class AliasesDownloadCommandTest extends CommandTestBase
 
         $stream = Utils::streamFor(file_get_contents($drushAliasesTarballFixtureFilepath . '.tar.gz'));
         $this->clientProphecy->addQuery('version', '9');
-        $this->clientProphecy->stream('get', '/account/drush-aliases/download')->willReturn($stream);
+        $this->clientProphecy->stream('get', '/account/drush-aliases/download')
+            ->willReturn($stream);
 
         $destinationDir = Path::join($this->acliRepoRoot, 'drush');
         $sitesDir = Path::join($destinationDir, 'sites');
@@ -110,6 +112,9 @@ class AliasesDownloadCommandTest extends CommandTestBase
         chmod($sitesDir, 000);
         $this->expectException(AcquiaCliException::class);
         $this->expectExceptionMessage("Could not extract aliases to $destinationDir");
-        $this->executeCommand(['--all' => true, '--destination-dir' => $destinationDir], ['9']);
+        $this->executeCommand([
+            '--all' => true,
+            '--destination-dir' => $destinationDir,
+        ], ['9']);
     }
 }

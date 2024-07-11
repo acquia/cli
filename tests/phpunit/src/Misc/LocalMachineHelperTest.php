@@ -55,7 +55,10 @@ class LocalMachineHelperTest extends TestBase
     {
         $this->setupFsFixture();
         $localMachineHelper = $this->localMachineHelper;
-        $process = $localMachineHelper->execute(['ls', '-lash'], null, $this->fixtureDir, false);
+        $process = $localMachineHelper->execute([
+            'ls',
+            '-lash',
+        ], null, $this->fixtureDir, false);
         $this->assertTrue($process->isSuccessful());
         $this->assertStringContainsString('xdebug.ini', $process->getOutput());
     }

@@ -28,13 +28,13 @@ class IdeInfoCommandTest extends CommandTestBase
         $ides = $this->mockRequest('getApplicationIdes', $applications[0]->uuid);
         $this->mockRequest('getIde', $ides[0]->uuid);
         $inputs = [
-        // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
+            // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
             'n',
-        // Select the application.
+            // Select the application.
             0,
-        // Would you like to link the project at ... ?
+            // Would you like to link the project at ... ?
             'y',
-        // Select an IDE ...
+            // Select an IDE ...
             0,
         ];
         $this->executeCommand([], $inputs);

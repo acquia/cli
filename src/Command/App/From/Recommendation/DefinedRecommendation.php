@@ -26,7 +26,8 @@ class DefinedRecommendation implements RecommendationInterface, NormalizableInte
     protected const NOTE_PLACEHOLDER_STRING = '%note%';
 
     /**
-     * An anonymous function that determines if this recommendation is applicable.
+     * An anonymous function that determines if this recommendation is
+     * applicable.
      */
     protected \Closure $evaluateExtension;
 
@@ -60,8 +61,8 @@ class DefinedRecommendation implements RecommendationInterface, NormalizableInte
     /**
      * A list of recommended patches.
      *
-     * The keys of the array should be descriptions of the patch contents and the
-     * values should be URLs where the recommended patch can be downloaded.
+     * The keys of the array should be descriptions of the patch contents and
+     * the values should be URLs where the recommended patch can be downloaded.
      *
      * @var array<mixed>
      */
@@ -108,9 +109,9 @@ class DefinedRecommendation implements RecommendationInterface, NormalizableInte
      * Creates a new recommendation.
      *
      * @param mixed $definition
-     *   A static recommendation definition. This must be an array. However, other
-     *   value types are accepted because this method performs validation on the
-     *   given value.
+     *   A static recommendation definition. This must be an array. However,
+     *     other value types are accepted because this method performs
+     *     validation on the given value.
      * @return \Acquia\Cli\Command\App\From\Recommendation\RecommendationInterface
      *   A new DefinedRecommendation object if the given definition is valid or
      *   a new NoRecommendation object otherwise.

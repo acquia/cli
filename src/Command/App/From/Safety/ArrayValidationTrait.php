@@ -34,8 +34,8 @@ trait ArrayValidationTrait
      *   The schema definition for the array to be validated.
      * @param callable $conditional
      *   A callable which receives the context array and returns TRUE if the
-     *   schema should be applied, or FALSE otherwise. If FALSE, the element will
-     *   be omitted from the final validated array.
+     *   schema should be applied, or FALSE otherwise. If FALSE, the element
+     *     will be omitted from the final validated array.
      * @param array $defaults
      *   Defaults for the array to be validated.
      * @return \Acquia\Cli\Command\App\From\Safety\StructuredArrayValidator
@@ -60,7 +60,8 @@ trait ArrayValidationTrait
     }
 
     /**
-     * Creates a validator for an associative array with arbitrary string as keys.
+     * Creates a validator for an associative array with arbitrary string as
+     * keys.
      *
      * @param callable $entry_validator
      *   A validator to apply to each entry in a validated array.

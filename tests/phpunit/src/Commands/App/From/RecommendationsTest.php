@@ -20,7 +20,8 @@ class RecommendationsTest extends TestCase
      * @param string $configuration
      *   A JSON string from which to create a configuration object.
      * @param \Acquia\Cli\Command\App\From\Recommendation\RecommendationInterface|\JsonException $expectation
-     *   An expected recommendation or a JSON exception in the case that the given
+     *   An expected recommendation or a JSON exception in the case that the
+     *     given
      *   $configuration is malformed.
      * @dataProvider getTestConfigurations
      */

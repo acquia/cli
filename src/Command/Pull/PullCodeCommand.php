@@ -21,14 +21,14 @@ final class PullCodeCommand extends PullCommandBase
     protected function configure(): void
     {
         $this
-        ->acceptEnvironmentId()
-        ->addOption('dir', null, InputArgument::OPTIONAL, 'The directory containing the Drupal project to be refreshed')
-        ->addOption(
-            'no-scripts',
-            null,
-            InputOption::VALUE_NONE,
-            'Do not run any additional scripts after code is pulled. E.g., composer install , drush cache-rebuild, etc.'
-        );
+            ->acceptEnvironmentId()
+            ->addOption('dir', null, InputArgument::OPTIONAL, 'The directory containing the Drupal project to be refreshed')
+            ->addOption(
+                'no-scripts',
+                null,
+                InputOption::VALUE_NONE,
+                'Do not run any additional scripts after code is pulled. E.g., composer install , drush cache-rebuild, etc.'
+            );
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int

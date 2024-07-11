@@ -18,8 +18,8 @@ final class SshKeyCreateCommand extends SshKeyCommandBase
     protected function configure(): void
     {
         $this
-        ->addOption('filename', null, InputOption::VALUE_REQUIRED, 'The filename of the SSH key')
-        ->addOption('password', null, InputOption::VALUE_REQUIRED, 'The password for the SSH key');
+            ->addOption('filename', null, InputOption::VALUE_REQUIRED, 'The filename of the SSH key')
+            ->addOption('password', null, InputOption::VALUE_REQUIRED, 'The password for the SSH key');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int

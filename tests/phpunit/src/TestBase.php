@@ -119,9 +119,9 @@ abstract class TestBase extends TestCase
     /**
      * Filter an applications response in order to simulate query filters.
      *
-     * The CXAPI spec returns two sample applications with identical hosting ids.
-     * While hosting ids are not guaranteed to be unique, in practice they are
-     * unique. This renames one of the applications to be unique.
+     * The CXAPI spec returns two sample applications with identical hosting
+     * ids. While hosting ids are not guaranteed to be unique, in practice they
+     * are unique. This renames one of the applications to be unique.
      *
      * @see CXAPI-9647
      */
@@ -136,7 +136,8 @@ abstract class TestBase extends TestCase
     }
 
     /**
-     * @todo get rid of this method and use virtual file systems (setupVfsFixture)
+     * @todo get rid of this method and use virtual file systems
+     *     (setupVfsFixture)
      */
     public function setupFsFixture(): void
     {
@@ -176,9 +177,15 @@ abstract class TestBase extends TestCase
         $this->setIo();
 
         $this->vfsRoot = vfsStream::setup();
-        $this->projectDir = vfsStream::newDirectory('project')->at($this->vfsRoot)->url();
-        $this->sshDir = vfsStream::newDirectory('ssh')->at($this->vfsRoot)->url();
-        $this->dataDir = vfsStream::newDirectory('.acquia')->at($this->vfsRoot)->url();
+        $this->projectDir = vfsStream::newDirectory('project')
+            ->at($this->vfsRoot)
+            ->url();
+        $this->sshDir = vfsStream::newDirectory('ssh')
+            ->at($this->vfsRoot)
+            ->url();
+        $this->dataDir = vfsStream::newDirectory('.acquia')
+            ->at($this->vfsRoot)
+            ->url();
         $this->cloudConfigFilepath = Path::join($this->dataDir, 'cloud_api.conf');
         $this->acliConfigFilename = '.acquia-cli.yml';
         $this->acliConfigFilepath = Path::join($this->projectDir, $this->acliConfigFilename);
@@ -326,10 +333,10 @@ abstract class TestBase extends TestCase
     /**
      * Build and return a command with common dependencies.
      *
-     * All commands inherit from a common base and use the same constructor with a
-     * bunch of dependencies injected. It would be tedious for every command test
-     * to inject every dependency as part of createCommand(). They can use this
-     * instead.
+     * All commands inherit from a common base and use the same constructor
+     * with a bunch of dependencies injected. It would be tedious for every
+     * command test to inject every dependency as part of createCommand(). They
+     * can use this instead.
      */
     protected function injectCommand(string $commandName): Command
     {
@@ -382,7 +389,7 @@ abstract class TestBase extends TestCase
         $apiSpecChecksumItem = $cache->getItem($cacheKey . '.checksum');
         // If there's an invalid entry OR there's no entry, return false.
         return !(!$apiSpecChecksumItem->isHit() || ($apiSpecChecksumItem->isHit()
-        && $apiSpecChecksumItem->get() !== $acquiaCloudSpecFileChecksum));
+                && $apiSpecChecksumItem->get() !== $acquiaCloudSpecFileChecksum));
     }
 
     private function saveApiSpecCacheItems(
@@ -446,9 +453,11 @@ abstract class TestBase extends TestCase
     }
 
     /**
-     * This is the preferred generic way of mocking requests and responses. We still maintain a lot of boilerplate mocking methods for legacy reasons.
+     * This is the preferred generic way of mocking requests and responses. We
+     * still maintain a lot of boilerplate mocking methods for legacy reasons.
      *
-     * Auto-completion and return type inferencing is provided by .phpstorm.meta.php.
+     * Auto-completion and return type inferencing is provided by
+     * .phpstorm.meta.php.
      */
     protected function mockRequest(string $operationId, string|array|null $params = null, ?array $body = null, ?string $exampleResponse = null, Closure $tamper = null): object|array
     {
@@ -457,7 +466,11 @@ abstract class TestBase extends TestCase
         } elseif (is_null($params)) {
             $params = [];
         }
-        [$path, $method, $code] = $this->getPathMethodCodeFromSpec($operationId);
+        [
+            $path,
+            $method,
+            $code,
+        ] = $this->getPathMethodCodeFromSpec($operationId);
         if (count($params) !== substr_count($path, '{')) {
             throw new RuntimeException('Invalid number of parameters');
         }
@@ -478,13 +491,14 @@ abstract class TestBase extends TestCase
             $path = preg_replace('/\{\w*}/', $param, $path, 1);
         }
         $this->clientProphecy->request($method, $path, $body)
-        ->willReturn($response)
-        ->shouldBeCalled();
+            ->willReturn($response)
+            ->shouldBeCalled();
         return $response;
     }
 
     /**
-     * @param int $count The number of applications to return. Use this to simulate query filters.
+     * @param int $count The number of applications to return. Use this to
+     *     simulate query filters.
      */
     public function mockApplicationsRequest(int $count = 2, bool $unique = true): object
     {
@@ -496,8 +510,8 @@ abstract class TestBase extends TestCase
         );
         $applicationsResponse = $this->filterApplicationsResponse($applicationsResponse, $count, $unique);
         $this->clientProphecy->request('get', '/applications')
-        ->willReturn($applicationsResponse->{'_embedded'}->items)
-        ->shouldBeCalled();
+            ->willReturn($applicationsResponse->{'_embedded'}->items)
+            ->shouldBeCalled();
         return $applicationsResponse;
     }
 
@@ -508,7 +522,7 @@ abstract class TestBase extends TestCase
             'error_description' => 'Client credentials were not found in the headers or body',
         ];
         $this->clientProphecy->request('get', Argument::type('string'))
-        ->willThrow(new IdentityProviderException($response['error'], 0, $response));
+            ->willThrow(new IdentityProviderException($response['error'], 0, $response));
     }
 
     public function mockApiError(): void
@@ -518,7 +532,7 @@ abstract class TestBase extends TestCase
             'message' => 'some error',
         ];
         $this->clientProphecy->request('get', Argument::type('string'))
-        ->willThrow(new ApiErrorException($response, $response->message));
+            ->willThrow(new ApiErrorException($response, $response->message));
     }
 
     public function mockNoAvailableIdes(): void
@@ -528,7 +542,7 @@ abstract class TestBase extends TestCase
             'message' => "There are no available Cloud IDEs for this application.\n",
         ];
         $this->clientProphecy->request('get', Argument::type('string'))
-        ->willThrow(new ApiErrorException($response, $response->message));
+            ->willThrow(new ApiErrorException($response, $response->message));
     }
 
     protected function mockApplicationRequest(): object
@@ -543,8 +557,8 @@ abstract class TestBase extends TestCase
             'get',
             '/applications/' . $applicationsResponse->{'_embedded'}->items[0]->uuid
         )
-        ->willReturn($applicationResponse)
-        ->shouldBeCalled();
+            ->willReturn($applicationResponse)
+            ->shouldBeCalled();
 
         return $applicationResponse;
     }
@@ -572,8 +586,8 @@ abstract class TestBase extends TestCase
             'get',
             '/applications/' . $applicationResponse->uuid . '/permissions'
         )
-        ->willReturn($permissionsResponse->_embedded->items)
-        ->shouldBeCalled();
+            ->willReturn($permissionsResponse->_embedded->items)
+            ->shouldBeCalled();
 
         return $permissionsResponse;
     }
@@ -586,8 +600,8 @@ abstract class TestBase extends TestCase
             'get',
             "/applications/{$applicationsResponse->{'_embedded'}->items[0]->uuid}/environments"
         )
-        ->willReturn($response->_embedded->items)
-        ->shouldBeCalled();
+            ->willReturn($response->_embedded->items)
+            ->shouldBeCalled();
 
         return $response;
     }
@@ -623,8 +637,8 @@ abstract class TestBase extends TestCase
         $mockBody = $this->getMockResponseFromSpec('/account/ssh-keys', 'get', '200');
         $mockBody->{'_embedded'}->items[0]->label = preg_replace('/\W/', '', 'IDE_' . $ideLabel . '_' . $ideUuid);
         $this->clientProphecy->request('get', '/account/ssh-keys')
-        ->willReturn($mockBody->{'_embedded'}->items)
-        ->shouldBeCalled();
+            ->willReturn($mockBody->{'_embedded'}->items)
+            ->shouldBeCalled();
         return $mockBody;
     }
 
@@ -635,23 +649,28 @@ abstract class TestBase extends TestCase
         $process = $this->prophet->prophesize(Process::class);
         $process->isSuccessful()->willReturn(true);
         $process->getOutput()->willReturn($keyContents);
-        $localMachineHelper->checkRequiredBinariesExist(["ssh-keygen"])->shouldBeCalled();
+        $localMachineHelper->checkRequiredBinariesExist(["ssh-keygen"])
+            ->shouldBeCalled();
         $localMachineHelper->execute(Argument::withEntry(0, 'ssh-keygen'), null, null, false)
-        ->willReturn($process->reveal())
-        ->shouldBeCalled();
+            ->willReturn($process->reveal())
+            ->shouldBeCalled();
         $localMachineHelper->readFile($publicKeyPath)->willReturn($keyContents);
-        $localMachineHelper->readFile(Argument::containingString('id_rsa'))->willReturn($keyContents);
+        $localMachineHelper->readFile(Argument::containingString('id_rsa'))
+            ->willReturn($keyContents);
     }
 
     protected function mockAddSshKeyToAgent(mixed $localMachineHelper, mixed $fileSystem): void
     {
         $process = $this->prophet->prophesize(Process::class);
         $process->isSuccessful()->willReturn(true);
-        $localMachineHelper->executeFromCmd(Argument::containingString('SSH_PASS'), null, null, false)->willReturn($process->reveal());
-        $fileSystem->tempnam(Argument::type('string'), 'acli')->willReturn('something');
+        $localMachineHelper->executeFromCmd(Argument::containingString('SSH_PASS'), null, null, false)
+            ->willReturn($process->reveal());
+        $fileSystem->tempnam(Argument::type('string'), 'acli')
+            ->willReturn('something');
         $fileSystem->chmod('something', 493)->shouldBeCalled();
         $fileSystem->remove('something')->shouldBeCalled();
-        $localMachineHelper->writeFile('something', Argument::type('string'))->shouldBeCalled();
+        $localMachineHelper->writeFile('something', Argument::type('string'))
+            ->shouldBeCalled();
     }
 
     protected function mockSshAgentList(ObjectProphecy|LocalMachineHelper $localMachineHelper, bool $success = false): void
@@ -661,7 +680,7 @@ abstract class TestBase extends TestCase
         $process->getExitCode()->willReturn($success ? 0 : 1);
         $process->getOutput()->willReturn('thekey!');
         $localMachineHelper->getLocalFilepath($this->passphraseFilepath)
-        ->willReturn('/tmp/.passphrase');
+            ->willReturn('/tmp/.passphrase');
         $localMachineHelper->execute([
             'ssh-add',
             '-L',
@@ -684,8 +703,8 @@ abstract class TestBase extends TestCase
         $newItem = array_merge((array) $mockBody->_embedded->items[2], $mockRequestArgs);
         $mockBody->_embedded->items[3] = (object) $newItem;
         $this->clientProphecy->request('get', '/account/ssh-keys')
-        ->willReturn($mockBody->{'_embedded'}->items)
-        ->shouldBeCalled();
+            ->willReturn($mockBody->{'_embedded'}->items)
+            ->shouldBeCalled();
     }
 
     protected function mockStartPhp(ObjectProphecy|LocalMachineHelper $localMachineHelper): ObjectProphecy
@@ -732,7 +751,9 @@ abstract class TestBase extends TestCase
      */
     protected function mockGetFilesystem(ObjectProphecy|LocalMachineHelper $localMachineHelper): ObjectProphecy|Filesystem
     {
-        $localMachineHelper->getFilesystem()->willReturn($this->fs)->shouldBeCalled();
+        $localMachineHelper->getFilesystem()
+            ->willReturn($this->fs)
+            ->shouldBeCalled();
 
         return $this->fs;
     }
@@ -761,7 +782,7 @@ abstract class TestBase extends TestCase
         $response->getBody()->willReturn($stream->reveal());
         $guzzleClient = $this->prophet->prophesize(\GuzzleHttp\Client::class);
         $guzzleClient->request('GET', Argument::containingString('https://api.github.com/repos'), Argument::type('array'))
-        ->willReturn($response->reveal());
+            ->willReturn($response->reveal());
 
         $stream = $this->prophet->prophesize(StreamInterface::class);
         $pharContents = file_get_contents(Path::join($this->fixtureDir, 'test.phar'));
@@ -784,9 +805,9 @@ abstract class TestBase extends TestCase
         $this->clientProphecy->addOption('debug', Argument::type(OutputInterface::class));
         $this->clientServiceProphecy = $this->prophet->prophesize(ClientService::class);
         $this->clientServiceProphecy->getClient()
-        ->willReturn($this->clientProphecy->reveal());
+            ->willReturn($this->clientProphecy->reveal());
         $this->clientServiceProphecy->isMachineAuthenticated()
-        ->willReturn(true);
+            ->willReturn(true);
     }
 
     protected function createDataStores(): void

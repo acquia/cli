@@ -35,13 +35,13 @@ class PullScriptsCommandTest extends PullCommandTestBase
         $this->mockExecuteDrushSqlSanitize($localMachineHelper, $process);
 
         $inputs = [
-        // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
+            // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
             'n',
-        // Select a Cloud Platform application:
+            // Select a Cloud Platform application:
             0,
-        // Would you like to link the project at ... ?
+            // Would you like to link the project at ... ?
             'n',
-        // Choose an Acquia environment:
+            // Choose an Acquia environment:
             0,
         ];
 

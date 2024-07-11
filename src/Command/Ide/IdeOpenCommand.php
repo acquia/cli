@@ -19,7 +19,7 @@ final class IdeOpenCommand extends IdeCommandBase
     protected function configure(): void
     {
         $this
-        ->setHidden(AcquiaDrupalEnvironmentDetector::isAhIdeEnv());
+            ->setHidden(AcquiaDrupalEnvironmentDetector::isAhIdeEnv());
         $this->acceptApplicationUuid();
         // @todo Add option to accept an ide UUID.
     }

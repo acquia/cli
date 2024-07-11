@@ -29,13 +29,13 @@ class IdeXdebugToggleCommandTest extends CommandTestBase
         $process->getExitCode()->willReturn(0);
         $localMachineHelper = $this->mockLocalMachineHelper();
         $localMachineHelper
-        ->execute([
-            'supervisorctl',
-            'restart',
-            'php-fpm',
-        ], null, null, false)
-        ->willReturn($process->reveal())
-        ->shouldBeCalled();
+            ->execute([
+                'supervisorctl',
+                'restart',
+                'php-fpm',
+            ], null, null, false)
+            ->willReturn($process->reveal())
+            ->shouldBeCalled();
     }
 
     protected function createCommand(): CommandBase

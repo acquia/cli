@@ -33,8 +33,8 @@ trait SshCommandTrait
                         $localFile->getRealPath(),
                         $privateKeyPath,
                     ]);
-                      $this->io->success("Deleted $publicKeyPath and $privateKeyPath");
-                      return 0;
+                    $this->io->success("Deleted $publicKeyPath and $privateKeyPath");
+                    return 0;
                 }
             }
         }
@@ -62,7 +62,10 @@ trait SshCommandTrait
     protected function findLocalSshKeys(): array
     {
         $finder = $this->localMachineHelper->getFinder();
-        $finder->files()->in($this->sshDir)->name('*.pub')->ignoreUnreadableDirs();
+        $finder->files()
+            ->in($this->sshDir)
+            ->name('*.pub')
+            ->ignoreUnreadableDirs();
         return iterator_to_array($finder);
     }
 
@@ -70,7 +73,8 @@ trait SshCommandTrait
     {
         $io->note("It may take an hour or more before the SSH key is installed on all of your application's servers. Create a Support ticket for further assistance.");
         $wait = $io->confirm("Would you like to wait until your key is installed on all of your application's servers?");
-        Amplitude::getInstance()->queueEvent('User waited for SSH key upload', ['wait' => $wait]);
+        Amplitude::getInstance()
+            ->queueEvent('User waited for SSH key upload', ['wait' => $wait]);
         return $wait;
     }
 }

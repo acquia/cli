@@ -36,13 +36,13 @@ class InferApplicationTest extends CommandTestBase
             'get',
             "/applications/{$applicationsResponse->{'_embedded'}->items[0]->uuid}/environments"
         )
-        ->willReturn([$environmentResponse, $environmentResponse2])
-        ->shouldBeCalled();
+            ->willReturn([$environmentResponse, $environmentResponse2])
+            ->shouldBeCalled();
 
         $this->executeCommand([], [
-        // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
+            // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
             'y',
-        // Would you like to link the project at ...
+            // Would you like to link the project at ...
             'y',
         ]);
 
@@ -65,21 +65,21 @@ class InferApplicationTest extends CommandTestBase
             'get',
             "/applications/{$applicationsResponse->{'_embedded'}->items[0]->uuid}/environments"
         )
-        ->willReturn([$environmentResponse, $environmentResponse])
-        ->shouldBeCalled();
+            ->willReturn([$environmentResponse, $environmentResponse])
+            ->shouldBeCalled();
         $this->clientProphecy->request(
             'get',
             "/applications/{$applicationsResponse->{'_embedded'}->items[1]->uuid}/environments"
         )
-        ->willReturn([$environmentResponse, $environmentResponse])
-        ->shouldBeCalled();
+            ->willReturn([$environmentResponse, $environmentResponse])
+            ->shouldBeCalled();
 
         $this->executeCommand([], [
-        // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
+            // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
             'y',
-        // Select a Cloud Platform application:
+            // Select a Cloud Platform application:
             0,
-        // Would you like to link the project at ...
+            // Would you like to link the project at ...
             'y',
         ]);
 

@@ -54,7 +54,9 @@ abstract class WizardTestBase extends CommandTestBase
     protected function runTestCreate(): void
     {
         $environmentsResponse = $this->getMockEnvironmentsResponse();
-        $this->clientProphecy->request('get', "/applications/{$this::$applicationUuid}/environments")->willReturn($environmentsResponse->_embedded->items)->shouldBeCalled();
+        $this->clientProphecy->request('get', "/applications/{$this::$applicationUuid}/environments")
+            ->willReturn($environmentsResponse->_embedded->items)
+            ->shouldBeCalled();
         $request = $this->getMockRequestBodyFromSpec('/account/ssh-keys');
 
         $body = [
@@ -73,11 +75,14 @@ abstract class WizardTestBase extends CommandTestBase
 
         $fileSystem = $this->prophet->prophesize(Filesystem::class);
         $this->mockGenerateSshKey($localMachineHelper, $request['public_key']);
-        $localMachineHelper->getLocalFilepath($this->passphraseFilepath)->willReturn($this->passphraseFilepath);
+        $localMachineHelper->getLocalFilepath($this->passphraseFilepath)
+            ->willReturn($this->passphraseFilepath);
         $fileSystem->remove(Argument::size(2))->shouldBeCalled();
         $this->mockAddSshKeyToAgent($localMachineHelper, $fileSystem);
         $this->mockSshAgentList($localMachineHelper);
-        $localMachineHelper->getFilesystem()->willReturn($fileSystem->reveal())->shouldBeCalled();
+        $localMachineHelper->getFilesystem()
+            ->willReturn($fileSystem->reveal())
+            ->shouldBeCalled();
 
         /** @var SshKeyCreateCommand $sshKeyCreateCommand */
         $sshKeyCreateCommand = $this->application->find(SshKeyCreateCommand::getDefaultName());
@@ -94,7 +99,7 @@ abstract class WizardTestBase extends CommandTestBase
 
         // Set properties and execute.
         $this->executeCommand([], [
-        // Would you like to link the project at ... ?
+            // Would you like to link the project at ... ?
             'y',
         ]);
 
@@ -108,23 +113,23 @@ abstract class WizardTestBase extends CommandTestBase
         // Make the uploaded key match the created one.
         $sshKeysResponse->_embedded->items[0]->public_key = $mockRequestArgs['public_key'];
         $this->clientProphecy->request('get', '/account/ssh-keys')
-        ->willReturn($sshKeysResponse->{'_embedded'}->items)
-        ->shouldBeCalled();
+            ->willReturn($sshKeysResponse->{'_embedded'}->items)
+            ->shouldBeCalled();
 
         $this->clientProphecy->request('get', '/account/ssh-keys/' . $sshKeysResponse->_embedded->items[0]->uuid)
-        ->willReturn($sshKeysResponse->{'_embedded'}->items[0])
-        ->shouldBeCalled();
+            ->willReturn($sshKeysResponse->{'_embedded'}->items[0])
+            ->shouldBeCalled();
 
         $deleteResponse = $this->prophet->prophesize(ResponseInterface::class);
         $deleteResponse->getStatusCode()->willReturn(202);
         $this->clientProphecy->makeRequest('delete', '/account/ssh-keys/' . $sshKeysResponse->_embedded->items[0]->uuid)
-        ->willReturn($deleteResponse->reveal())
-        ->shouldBeCalled();
+            ->willReturn($deleteResponse->reveal())
+            ->shouldBeCalled();
 
         $environmentsResponse = $this->getMockEnvironmentsResponse();
         $this->clientProphecy->request('get', "/applications/{$this::$applicationUuid}/environments")
-        ->willReturn($environmentsResponse->_embedded->items)
-        ->shouldBeCalled();
+            ->willReturn($environmentsResponse->_embedded->items)
+            ->shouldBeCalled();
 
         $localMachineHelper = $this->mockLocalMachineHelper();
 
@@ -145,8 +150,8 @@ abstract class WizardTestBase extends CommandTestBase
         $fileSystem->remove(Argument::size(2))->shouldBeCalled();
         $this->mockAddSshKeyToAgent($localMachineHelper, $fileSystem);
         $localMachineHelper->getFilesystem()
-        ->willReturn($fileSystem->reveal())
-        ->shouldBeCalled();
+            ->willReturn($fileSystem->reveal())
+            ->shouldBeCalled();
         $this->mockSshAgentList($localMachineHelper);
 
         $this->application->find(SshKeyCreateCommand::getDefaultName())->localMachineHelper = $this->command->localMachineHelper;
@@ -158,9 +163,9 @@ abstract class WizardTestBase extends CommandTestBase
     }
 
     /**
-   * @return string[]
-   *   An array of strings to inspect the output for.
-   */
+     * @return string[]
+     *   An array of strings to inspect the output for.
+     */
     protected function getOutputStrings(): array
     {
         return [

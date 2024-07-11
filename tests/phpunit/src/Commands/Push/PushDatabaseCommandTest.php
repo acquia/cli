@@ -39,7 +39,12 @@ class PushDatabaseCommandTest extends CommandTestBase
 
     public function setUp(): void
     {
-        self::unsetEnvVars(['ACLI_DB_HOST', 'ACLI_DB_USER', 'ACLI_DB_PASSWORD', 'ACLI_DB_NAME']);
+        self::unsetEnvVars([
+            'ACLI_DB_HOST',
+            'ACLI_DB_USER',
+            'ACLI_DB_PASSWORD',
+            'ACLI_DB_NAME',
+        ]);
         parent::setUp();
     }
 
@@ -62,7 +67,8 @@ class PushDatabaseCommandTest extends CommandTestBase
         $process = $this->mockProcess();
 
         $localMachineHelper = $this->mockLocalMachineHelper();
-        $localMachineHelper->checkRequiredBinariesExist(['ssh'])->shouldBeCalled();
+        $localMachineHelper->checkRequiredBinariesExist(['ssh'])
+            ->shouldBeCalled();
         $this->mockGetAcsfSitesLMH($localMachineHelper);
 
         // Database.
@@ -74,17 +80,17 @@ class PushDatabaseCommandTest extends CommandTestBase
         $this->command->sshHelper = new SshHelper($this->output, $localMachineHelper->reveal(), $this->logger);
 
         $inputs = [
-        // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
+            // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
             'n',
-        // Select a Cloud Platform application:
+            // Select a Cloud Platform application:
             0,
-        // Would you like to link the project at ... ?
+            // Would you like to link the project at ... ?
             'n',
-        // Choose a Cloud Platform environment.
+            // Choose a Cloud Platform environment.
             0,
-        // Choose a database.
+            // Choose a database.
             0,
-        // Overwrite the profserv2 database on dev with a copy of the database from the current machine?
+            // Overwrite the profserv2 database on dev with a copy of the database from the current machine?
             'y',
         ];
 
@@ -107,7 +113,8 @@ class PushDatabaseCommandTest extends CommandTestBase
         ObjectProphecy $process,
         bool $printOutput = true,
     ): void {
-        $localMachineHelper->checkRequiredBinariesExist(['rsync'])->shouldBeCalled();
+        $localMachineHelper->checkRequiredBinariesExist(['rsync'])
+            ->shouldBeCalled();
         $command = [
             'rsync',
             '-tDvPhe',
@@ -116,8 +123,8 @@ class PushDatabaseCommandTest extends CommandTestBase
             'profserv2.01dev@profserv201dev.ssh.enterprise-g1.acquia-sites.com:/mnt/tmp/profserv2.01dev/acli-mysql-dump-drupal.sql.gz',
         ];
         $localMachineHelper->execute($command, Argument::type('callable'), null, $printOutput, null)
-        ->willReturn($process->reveal())
-        ->shouldBeCalled();
+            ->willReturn($process->reveal())
+            ->shouldBeCalled();
     }
 
     protected function mockExecuteMySqlImport(
@@ -126,22 +133,24 @@ class PushDatabaseCommandTest extends CommandTestBase
     ): void {
         // MySQL import command.
         $localMachineHelper
-        ->executeFromCmd(
-            Argument::type('string'),
-            Argument::type('callable'),
-            null,
-            true,
-            null
-        )
-        ->willReturn($process->reveal())
-        ->shouldBeCalled();
+            ->executeFromCmd(
+                Argument::type('string'),
+                Argument::type('callable'),
+                null,
+                true,
+                null
+            )
+            ->willReturn($process->reveal())
+            ->shouldBeCalled();
     }
 
     protected function mockGetAcsfSitesLMH(ObjectProphecy $localMachineHelper): void
     {
         $acsfMultisiteFetchProcess = $this->mockProcess();
         $multisiteConfig = file_get_contents(Path::join($this->realFixtureDir, '/multisite-config.json'));
-        $acsfMultisiteFetchProcess->getOutput()->willReturn($multisiteConfig)->shouldBeCalled();
+        $acsfMultisiteFetchProcess->getOutput()
+            ->willReturn($multisiteConfig)
+            ->shouldBeCalled();
         $cmd = [
             0 => 'ssh',
             1 => 'profserv2.01dev@profserv201dev.ssh.enterprise-g1.acquia-sites.com',
@@ -152,7 +161,9 @@ class PushDatabaseCommandTest extends CommandTestBase
             6 => 'cat',
             7 => '/var/www/site-php/profserv2.01dev/multisite-config.json',
         ];
-        $localMachineHelper->execute($cmd, Argument::type('callable'), null, false, null)->willReturn($acsfMultisiteFetchProcess->reveal())->shouldBeCalled();
+        $localMachineHelper->execute($cmd, Argument::type('callable'), null, false, null)
+            ->willReturn($acsfMultisiteFetchProcess->reveal())
+            ->shouldBeCalled();
     }
 
     private function mockImportDatabaseDumpOnRemote(ObjectProphecy|LocalMachineHelper $localMachineHelper, Process|ObjectProphecy $process, bool $printOutput = true): void
@@ -167,7 +178,7 @@ class PushDatabaseCommandTest extends CommandTestBase
             6 => 'pv /mnt/tmp/profserv2.01dev/acli-mysql-dump-drupal.sql.gz --bytes --rate | gunzip | MYSQL_PWD=password mysql --host=fsdb-74.enterprise-g1.hosting.acquia.com.enterprise-g1.hosting.acquia.com --user=s164 profserv2db14390',
         ];
         $localMachineHelper->execute($cmd, Argument::type('callable'), null, $printOutput, null)
-        ->willReturn($process->reveal())
-        ->shouldBeCalled();
+            ->willReturn($process->reveal())
+            ->shouldBeCalled();
     }
 }

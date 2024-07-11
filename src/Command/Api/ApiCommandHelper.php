@@ -67,7 +67,10 @@ class ApiCommandHelper
 
         // Parameters to be used in the request query and path.
         if (array_key_exists('parameters', $schema)) {
-            [$queryInputDefinition, $queryParamUsageSuffix] = $this->addApiCommandParametersForPathAndQuery($schema, $acquiaCloudSpec);
+            [
+                $queryInputDefinition,
+                $queryParamUsageSuffix,
+            ] = $this->addApiCommandParametersForPathAndQuery($schema, $acquiaCloudSpec);
             /** @var \Symfony\Component\Console\Input\InputOption|InputArgument $parameterDefinition */
             foreach ($queryInputDefinition as $parameterDefinition) {
                 $parameterSpecification = $this->getParameterDefinitionFromSpec($parameterDefinition->getName(), $acquiaCloudSpec, $schema);
@@ -175,11 +178,11 @@ class ApiCommandHelper
                                 $usage .= $prefix . "\"$value\" ";
                             }
                         } else {
-                              // @todo Pretty sure prevents the user from using the arguments.
-                              // Probably a bug. How can we allow users to specify a multidimensional array as an
-                              // argument?
-                              $value = json_encode($example[$propKey], JSON_THROW_ON_ERROR);
-                              $usage .= $prefix . "\"$value\" ";
+                            // @todo Pretty sure prevents the user from using the arguments.
+                            // Probably a bug. How can we allow users to specify a multidimensional array as an
+                            // argument?
+                            $value = json_encode($example[$propKey], JSON_THROW_ON_ERROR);
+                            $usage .= $prefix . "\"$value\" ";
                         }
                         break;
 
@@ -365,10 +368,10 @@ class ApiCommandHelper
     protected function getSkippedApiCommands(): array
     {
         return [
-        // Skip accounts:drush-aliases since we have remote:aliases:download instead and it actually returns
-        // application/gzip content.
+            // Skip accounts:drush-aliases since we have remote:aliases:download instead and it actually returns
+            // application/gzip content.
             'accounts:drush-aliases',
-        // Skip any command that has a duplicative corresponding ACLI command.
+            // Skip any command that has a duplicative corresponding ACLI command.
             'ide:create',
             'log:tail',
             'ssh-key:create',
@@ -376,7 +379,7 @@ class ApiCommandHelper
             'ssh-key:delete',
             'ssh-key:list',
             'ssh-key:upload',
-        // Skip buggy or unsupported endpoints.
+            // Skip buggy or unsupported endpoints.
             'environments:stack-metrics-data-metric',
         ];
     }
@@ -439,9 +442,9 @@ class ApiCommandHelper
     {
         // Format should be ['original => new'].
         return [
-        // @see api:environments:cron-create
+            // @see api:environments:cron-create
             'command' => 'cron_command',
-        // @see api:environments:update.
+            // @see api:environments:update.
             'version' => 'lang_version',
         ];
     }

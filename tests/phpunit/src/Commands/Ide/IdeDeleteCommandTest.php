@@ -43,15 +43,15 @@ class IdeDeleteCommandTest extends CommandTestBase
         $this->mockDeleteSshKeyRequest($sshKeyGetResponse->{'_embedded'}->items[0]->uuid);
 
         $inputs = [
-        // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
+            // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
             'n',
-        // Select the application for which you'd like to create a new IDE.
+            // Select the application for which you'd like to create a new IDE.
             0,
-        // Would you like to link the project at ... ?
+            // Would you like to link the project at ... ?
             'y',
-        // Select the IDE you'd like to delete:
+            // Select the IDE you'd like to delete:
             0,
-        // Are you sure you want to delete ExampleIDE?
+            // Are you sure you want to delete ExampleIDE?
             'y',
         ];
 
@@ -71,7 +71,7 @@ class IdeDeleteCommandTest extends CommandTestBase
         $this->mockDeleteSshKeyRequest($sshKeyGetResponse->{'_embedded'}->items[0]->uuid);
 
         $inputs = [
-        // Would you like to delete the SSH key associated with this IDE from your Cloud Platform account?
+            // Would you like to delete the SSH key associated with this IDE from your Cloud Platform account?
             'y',
         ];
 
@@ -88,15 +88,15 @@ class IdeDeleteCommandTest extends CommandTestBase
         $this->mockRequest('getApplicationByUuid', $applications[0]->uuid);
         $this->mockRequest('getApplicationIdes', $applications[0]->uuid);
         $inputs = [
-        // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
+            // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
             'n',
-        // Select the application for which you'd like to create a new IDE.
+            // Select the application for which you'd like to create a new IDE.
             0,
-        // Would you like to link the project at ... ?
+            // Would you like to link the project at ... ?
             'y',
-        // Select the IDE you'd like to delete:
+            // Select the IDE you'd like to delete:
             0,
-        // Are you sure you want to delete ExampleIDE?
+            // Are you sure you want to delete ExampleIDE?
             'n',
         ];
 

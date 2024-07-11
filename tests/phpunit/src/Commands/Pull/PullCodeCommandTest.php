@@ -50,19 +50,20 @@ class PullCodeCommandTest extends PullCommandTestBase
         $process = $this->mockProcess();
         $dir = Path::join($this->vfsRoot->url(), 'empty-dir');
         mkdir($dir);
-        $localMachineHelper->checkRequiredBinariesExist(["git"])->shouldBeCalled();
+        $localMachineHelper->checkRequiredBinariesExist(["git"])
+            ->shouldBeCalled();
         $this->mockExecuteGitClone($localMachineHelper, $environment, $process, $dir);
         $this->mockExecuteGitCheckout($localMachineHelper, $environment->vcs->path, $dir, $process);
         $localMachineHelper->getFinder()->willReturn(new Finder());
 
         $inputs = [
-        // Would you like to clone a project into the current directory?
+            // Would you like to clone a project into the current directory?
             'y',
-        // Select a Cloud Platform application:
+            // Select a Cloud Platform application:
             self::$INPUT_DEFAULT_CHOICE,
-        // Would you like to link the project at ... ?
+            // Would you like to link the project at ... ?
             'n',
-        // Choose an Acquia environment:
+            // Choose an Acquia environment:
             self::$INPUT_DEFAULT_CHOICE,
         ];
         $this->executeCommand([
@@ -77,7 +78,8 @@ class PullCodeCommandTest extends PullCommandTestBase
         $this->createMockGitConfigFile();
 
         $localMachineHelper = $this->mockReadIdePhpVersion();
-        $localMachineHelper->checkRequiredBinariesExist(["git"])->shouldBeCalled();
+        $localMachineHelper->checkRequiredBinariesExist(["git"])
+            ->shouldBeCalled();
         $finder = $this->mockFinder();
         $localMachineHelper->getFinder()->willReturn($finder->reveal());
 
@@ -104,7 +106,8 @@ class PullCodeCommandTest extends PullCommandTestBase
         $this->createMockGitConfigFile();
 
         $localMachineHelper = $this->mockReadIdePhpVersion();
-        $localMachineHelper->checkRequiredBinariesExist(["git"])->shouldBeCalled();
+        $localMachineHelper->checkRequiredBinariesExist(["git"])
+            ->shouldBeCalled();
         $finder = $this->mockFinder();
         $localMachineHelper->getFinder()->willReturn($finder->reveal());
 
@@ -134,7 +137,8 @@ class PullCodeCommandTest extends PullCommandTestBase
         $this->createMockGitConfigFile();
 
         $localMachineHelper = $this->mockReadIdePhpVersion();
-        $localMachineHelper->checkRequiredBinariesExist(["git"])->shouldBeCalled();
+        $localMachineHelper->checkRequiredBinariesExist(["git"])
+            ->shouldBeCalled();
         $finder = $this->mockFinder();
         $localMachineHelper->getFinder()->willReturn($finder->reveal());
 
@@ -161,7 +165,8 @@ class PullCodeCommandTest extends PullCommandTestBase
         $this->createMockGitConfigFile();
 
         $localMachineHelper = $this->mockReadIdePhpVersion();
-        $localMachineHelper->checkRequiredBinariesExist(["git"])->shouldBeCalled();
+        $localMachineHelper->checkRequiredBinariesExist(["git"])
+            ->shouldBeCalled();
         $finder = $this->mockFinder();
         $localMachineHelper->getFinder()->willReturn($finder->reveal());
 
@@ -170,9 +175,9 @@ class PullCodeCommandTest extends PullCommandTestBase
         $this->mockExecuteGitStatus(false, $localMachineHelper, $this->projectDir);
         $process = $this->mockProcess();
         $localMachineHelper
-        ->commandExists('composer')
-        ->willReturn(false)
-        ->shouldBeCalled();
+            ->commandExists('composer')
+            ->willReturn(false)
+            ->shouldBeCalled();
         $this->mockExecuteDrushExists($localMachineHelper);
         $this->mockExecuteDrushStatus($localMachineHelper, $this->projectDir);
         $this->mockExecuteDrushCacheRebuild($localMachineHelper, $process);
@@ -194,7 +199,8 @@ class PullCodeCommandTest extends PullCommandTestBase
         $this->createMockGitConfigFile();
 
         $localMachineHelper = $this->mockReadIdePhpVersion();
-        $localMachineHelper->checkRequiredBinariesExist(["git"])->shouldBeCalled();
+        $localMachineHelper->checkRequiredBinariesExist(["git"])
+            ->shouldBeCalled();
         $finder = $this->mockFinder();
         $localMachineHelper->getFinder()->willReturn($finder->reveal());
 
@@ -241,7 +247,7 @@ class PullCodeCommandTest extends PullCommandTestBase
 
         $localMachineHelper = $this->mockReadIdePhpVersion($phpVersion);
         $localMachineHelper->checkRequiredBinariesExist(["git"])
-        ->shouldBeCalled();
+            ->shouldBeCalled();
         $finder = $this->mockFinder();
         $localMachineHelper->getFinder()->willReturn($finder->reveal());
 
@@ -256,18 +262,18 @@ class PullCodeCommandTest extends PullCommandTestBase
             'get',
             "/environments/" . $environmentResponse->id
         )
-        ->willReturn($environmentResponse)
-        ->shouldBeCalled();
+            ->willReturn($environmentResponse)
+            ->shouldBeCalled();
 
         $this->executeCommand([
             '--dir' => $dir,
             '--no-scripts' => true,
-        // @todo Execute ONLY match php aspect, not the code pull.
+            // @todo Execute ONLY match php aspect, not the code pull.
             'environmentId' => $environmentResponse->id,
         ], [
-        // Choose an Acquia environment:
+            // Choose an Acquia environment:
             self::$INPUT_DEFAULT_CHOICE,
-        // Would you like to change the PHP version on this IDE to match the PHP version on ... ?
+            // Would you like to change the PHP version on this IDE to match the PHP version on ... ?
             'n',
         ]);
 
@@ -294,7 +300,7 @@ class PullCodeCommandTest extends PullCommandTestBase
             $dir,
         ];
         $localMachineHelper->execute($command, Argument::type('callable'), null, true, null, ['GIT_SSH_COMMAND' => 'ssh -o StrictHostKeyChecking=no'])
-        ->willReturn($process->reveal())
-        ->shouldBeCalled();
+            ->willReturn($process->reveal())
+            ->shouldBeCalled();
     }
 }

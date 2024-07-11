@@ -21,11 +21,11 @@ final class EnvCopyCronCommand extends CommandBase
     protected function configure(): void
     {
         $this
-        ->addArgument('source_env', InputArgument::REQUIRED, 'Alias of the source environment in the format `app-name.env` or the environment uuid')
-        ->addArgument('dest_env', InputArgument::REQUIRED, 'Alias of the destination environment in the format `app-name.env` or the environment uuid')
-        ->addUsage('<srcEnvironmentAlias> <destEnvironmentAlias>')
-        ->addUsage('myapp.dev myapp.prod')
-        ->addUsage('abcd1234-1111-2222-3333-0e02b2c3d470 efgh1234-1111-2222-3333-0e02b2c3d470');
+            ->addArgument('source_env', InputArgument::REQUIRED, 'Alias of the source environment in the format `app-name.env` or the environment uuid')
+            ->addArgument('dest_env', InputArgument::REQUIRED, 'Alias of the destination environment in the format `app-name.env` or the environment uuid')
+            ->addUsage('<srcEnvironmentAlias> <destEnvironmentAlias>')
+            ->addUsage('myapp.dev myapp.prod')
+            ->addUsage('abcd1234-1111-2222-3333-0e02b2c3d470 efgh1234-1111-2222-3333-0e02b2c3d470');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -82,13 +82,13 @@ final class EnvCopyCronCommand extends CommandBase
 
                 $this->io->info('Copying the cron task "' . $cron->label . '" from ' . $sourceEnvId . ' to ' . $destEnvId);
                 try {
-                      // Copying the cron on destination environment.
-                      $cronResource->create(
-                          $destEnvId,
-                          $cron->command,
-                          $cronFrequency,
-                          $cron->label,
-                      );
+                    // Copying the cron on destination environment.
+                    $cronResource->create(
+                        $destEnvId,
+                        $cron->command,
+                        $cronFrequency,
+                        $cron->label,
+                    );
                 } catch (Exception $e) {
                     $this->io->error('There was some error while copying the cron task "' . $cron->label . '"');
                     // Log the error for debugging purpose.

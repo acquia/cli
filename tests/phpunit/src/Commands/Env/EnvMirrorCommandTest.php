@@ -35,16 +35,16 @@ class EnvMirrorCommandTest extends CommandTestBase
                 ],
             ]
         )
-        ->willReturn($response)
-        ->shouldBeCalled();
+            ->willReturn($response)
+            ->shouldBeCalled();
 
         $databasesResponse = $this->getMockResponseFromSpec("/environments/{environmentId}/databases", 'get', '200');
         $this->clientProphecy->request(
             'get',
             "/environments/{$environmentResponse->id}/databases"
         )
-        ->willReturn($databasesResponse->_embedded->items)
-        ->shouldBeCalled();
+            ->willReturn($databasesResponse->_embedded->items)
+            ->shouldBeCalled();
 
         $dbCopyResponse = $this->getMockResponseFromSpec("/environments/{environmentId}/databases", 'post', '202');
         $response = $dbCopyResponse->{'Database being copied'}->value;
@@ -56,8 +56,8 @@ class EnvMirrorCommandTest extends CommandTestBase
                 'source' => $environmentResponse->id,
             ],
         ])
-        ->willReturn($response)
-        ->shouldBeCalled();
+            ->willReturn($response)
+            ->shouldBeCalled();
 
         $filesCopyResponse = $this->getMockResponseFromSpec("/environments/{environmentId}/files", 'post', '202');
         $response = $filesCopyResponse->{'Files queued for copying'}->value;
@@ -68,13 +68,13 @@ class EnvMirrorCommandTest extends CommandTestBase
                 'source' => $environmentResponse->id,
             ],
         ])
-        ->willReturn($response)
-        ->shouldBeCalled();
+            ->willReturn($response)
+            ->shouldBeCalled();
 
         $environmentUpdateResponse = $this->getMockResponseFromSpec("/environments/{environmentId}", 'put', '202');
         $this->clientProphecy->request('put', "/environments/{$environmentResponse->id}", Argument::type('array'))
-        ->willReturn($environmentUpdateResponse)
-        ->shouldBeCalled();
+            ->willReturn($environmentUpdateResponse)
+            ->shouldBeCalled();
         $this->mockNotificationResponseFromObject($environmentUpdateResponse);
 
         $this->executeCommand(
@@ -83,7 +83,7 @@ class EnvMirrorCommandTest extends CommandTestBase
                 'source-environment' => $environmentResponse->id,
             ],
             [
-            // Are you sure that you want to overwrite everything ...
+                // Are you sure that you want to overwrite everything ...
                 'y',
             ]
         );

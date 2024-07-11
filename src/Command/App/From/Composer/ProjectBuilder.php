@@ -50,14 +50,15 @@ final class ProjectBuilder
     }
 
     /**
-     * Gets an array representing a D9+ composer.json file for the current site.
+     * Gets an array representing a D9+ composer.json file for the current
+     * site.
      *
      * @return array<mixed>
      *   An array that can be encoded as JSON and written to a file. Calling
-     *   `composer install` in the same directory as that file should yield a new
-     *   Drupal project with Drupal 9+ installed, in addition to the Acquia
-     *   Migrate module, and some of all of the D9 replacements for the current
-     *   site's Drupal 7 modules.
+     *   `composer install` in the same directory as that file should yield a
+     *     new Drupal project with Drupal 9+ installed, in addition to the
+     *     Acquia Migrate module, and some of all of the D9 replacements for
+     *     the current site's Drupal 7 modules.
      */
     public function buildProject(): array
     {
@@ -125,13 +126,13 @@ final class ProjectBuilder
         }
 
         $source_modules = array_values(array_map(function (ExtensionInterface $module) {
-          // phpcs:disable SlevomatCodingStandard.Arrays.AlphabeticallySortedByKeys
+            // phpcs:disable SlevomatCodingStandard.Arrays.AlphabeticallySortedByKeys
             return [
                 'name' => $module->getName(),
                 'humanName' => $module->getHumanName(),
                 'version' => $module->getVersion(),
             ];
-          // phpcs:enable
+            // phpcs:enable
         }, $this->siteInspector->getExtensions(SiteInspectorInterface::FLAG_EXTENSION_MODULE | SiteInspectorInterface::FLAG_EXTENSION_ENABLED)));
         $module_names = array_column($source_modules, 'name');
         array_multisort($module_names, SORT_STRING, $source_modules);

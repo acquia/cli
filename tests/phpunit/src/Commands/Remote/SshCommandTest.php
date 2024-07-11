@@ -28,7 +28,8 @@ class SshCommandTest extends SshCommandTestBase
         ClearCacheCommand::clearCaches();
         $this->mockForGetEnvironmentFromAliasArg();
         [$process, $localMachineHelper] = $this->mockForExecuteCommand();
-        $localMachineHelper->checkRequiredBinariesExist(['ssh'])->shouldBeCalled();
+        $localMachineHelper->checkRequiredBinariesExist(['ssh'])
+            ->shouldBeCalled();
         $sshCommand = [
             'ssh',
             'site.dev@sitedev.ssh.hosted.acquia-sites.com',
@@ -39,9 +40,9 @@ class SshCommandTest extends SshCommandTestBase
             'cd /var/www/html/devcloud2.dev; exec $SHELL -l',
         ];
         $localMachineHelper
-        ->execute($sshCommand, Argument::type('callable'), null, true, null)
-        ->willReturn($process->reveal())
-        ->shouldBeCalled();
+            ->execute($sshCommand, Argument::type('callable'), null, true, null)
+            ->willReturn($process->reveal())
+            ->shouldBeCalled();
 
         $this->command->sshHelper = new SshHelper($this->output, $localMachineHelper->reveal(), $this->logger);
 

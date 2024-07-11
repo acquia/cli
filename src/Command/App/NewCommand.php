@@ -20,7 +20,7 @@ final class NewCommand extends CommandBase
     protected function configure(): void
     {
         $this
-        ->addArgument('directory', InputArgument::OPTIONAL, 'The destination directory');
+            ->addArgument('directory', InputArgument::OPTIONAL, 'The destination directory');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -93,7 +93,10 @@ final class NewCommand extends CommandBase
 
     private function initializeGitRepository(string $dir): void
     {
-        if ($this->localMachineHelper->getFilesystem()->exists(Path::join($dir, '.git'))) {
+        if (
+            $this->localMachineHelper->getFilesystem()
+            ->exists(Path::join($dir, '.git'))
+        ) {
             $this->logger->debug('.git directory detected, skipping Git repo initialization');
             return;
         }

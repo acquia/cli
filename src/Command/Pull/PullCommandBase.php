@@ -260,7 +260,12 @@ abstract class PullCommandBase extends CommandBase
         } catch (RequestException $exception) {
             // Deal with broken SSL certificates.
             // @see https://timi.eu/docs/anatella/5_1_9_1_list_of_curl_error_codes.html
-            if (in_array($exception->getHandlerContext()['errno'], [51, 60], true)) {
+            if (
+                in_array($exception->getHandlerContext()['errno'], [
+                    51,
+                    60,
+                ], true)
+            ) {
                 $outputCallback('out', '<comment>The certificate for ' . $url->getHost() . ' is invalid.</comment>');
                 assert($url !== null);
                 $domainsResource = new Domains($this->cloudApiClientService->getClient());
@@ -330,7 +335,8 @@ abstract class PullCommandBase extends CommandBase
     }
 
     /**
-     * Wait for an on-demand backup to become available (Cloud API notification).
+     * Wait for an on-demand backup to become available (Cloud API
+     * notification).
      *
      * @infection-ignore-all
      */
@@ -392,8 +398,10 @@ abstract class PullCommandBase extends CommandBase
         $tables = $this->listTablesQuoted($process->getOutput());
         if ($tables) {
             $sql = 'DROP TABLE ' . implode(', ', $tables);
-            $tempnam = $this->localMachineHelper->getFilesystem()->tempnam(sys_get_temp_dir(), 'acli_drop_table_', '.sql');
-            $this->localMachineHelper->getFilesystem()->dumpFile($tempnam, $sql);
+            $tempnam = $this->localMachineHelper->getFilesystem()
+                ->tempnam(sys_get_temp_dir(), 'acli_drop_table_', '.sql');
+            $this->localMachineHelper->getFilesystem()
+                ->dumpFile($tempnam, $sql);
             $command = [
                 'mysql',
                 '--host',
@@ -417,7 +425,10 @@ abstract class PullCommandBase extends CommandBase
             $outputCallback('out', "Importing downloaded file to database $dbName");
         }
         $this->logger->debug("Importing $localDumpFilepath to MySQL on local machine");
-        $this->localMachineHelper->checkRequiredBinariesExist(['gunzip', 'mysql']);
+        $this->localMachineHelper->checkRequiredBinariesExist([
+            'gunzip',
+            'mysql',
+        ]);
         if ($this->localMachineHelper->commandExists('pv')) {
             $command = "pv $localDumpFilepath --bytes --rate | gunzip | MYSQL_PWD=$dbPassword mysql --host=$dbHost --user=$dbUser $dbName";
         } else {
@@ -457,7 +468,10 @@ abstract class PullCommandBase extends CommandBase
 
     protected function determineCloneProject(OutputInterface $output): bool
     {
-        $finder = $this->localMachineHelper->getFinder()->files()->in($this->dir)->ignoreDotFiles(false);
+        $finder = $this->localMachineHelper->getFinder()
+            ->files()
+            ->in($this->dir)
+            ->ignoreDotFiles(false);
 
         // If we are in an IDE, assume we should pull into /home/ide/project.
         if ($this->dir === '/home/ide/project' && AcquiaDrupalEnvironmentDetector::isAhIdeEnv() && !$finder->hasResults()) {
@@ -521,7 +535,10 @@ abstract class PullCommandBase extends CommandBase
             if ($answer) {
                 $command = $this->getApplication()->find('ide:php-version');
                 $command->run(
-                    new ArrayInput(['command' => 'ide:php-version', 'version' => $chosenEnvironment->configuration->php->version]),
+                    new ArrayInput([
+                        'command' => 'ide:php-version',
+                        'version' => $chosenEnvironment->configuration->php->version,
+                    ]),
                     $output
                 );
             }

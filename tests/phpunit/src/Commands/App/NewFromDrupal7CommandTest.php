@@ -62,14 +62,16 @@ class NewFromDrupal7CommandTest extends CommandTestBase
     /**
      * Test the app:new:from:drupal7 command.
      *
-     * Since this command inspects an actual Drupal site to determine its enabled
-     * modules, the inspector must be mocked. A set of Drupal 7 extensions is
-     * given by the extensions file. This project provides a shell script to help
-     * generate that file from an existing Drupal 7 site. An example shell command
-     * is given below.
+     * Since this command inspects an actual Drupal site to determine its
+     * enabled modules, the inspector must be mocked. A set of Drupal 7
+     * extensions is given by the extensions file. This project provides a
+     * shell script to help generate that file from an existing Drupal 7 site.
+     * An example shell command is given below.
      *
      * @code
-     * drush pm:list --pipe --format=json | /path/to/this/project/tests/fixtures/drupal7/drush_to_extensions_test_file_format.sh > extensions.json
+     * drush pm:list --pipe --format=json |
+     *     /path/to/this/project/tests/fixtures/drupal7/drush_to_extensions_test_file_format.sh
+     *     > extensions.json
      * @endcode
      * @param string $extensions_file
      *   An extensions file. See above.
@@ -100,9 +102,11 @@ class NewFromDrupal7CommandTest extends CommandTestBase
         $localMachineHelper = $this->mockLocalMachineHelper();
 
         $mockFileSystem = $this->mockGetFilesystem($localMachineHelper);
-        $localMachineHelper->checkRequiredBinariesExist(["composer"])->shouldBeCalled();
+        $localMachineHelper->checkRequiredBinariesExist(["composer"])
+            ->shouldBeCalled();
         $this->mockExecuteComposerCreate($race_condition_proof_tmpdir, $localMachineHelper, $process);
-        $localMachineHelper->checkRequiredBinariesExist(["git"])->shouldBeCalled();
+        $localMachineHelper->checkRequiredBinariesExist(["git"])
+            ->shouldBeCalled();
         $this->mockExecuteGitInit($localMachineHelper, $race_condition_proof_tmpdir, $process);
         $this->mockExecuteGitAdd($localMachineHelper, $race_condition_proof_tmpdir, $process);
         $this->mockExecuteGitCommit($localMachineHelper, $race_condition_proof_tmpdir, $process);
@@ -145,9 +149,9 @@ class NewFromDrupal7CommandTest extends CommandTestBase
             '--no-interaction',
         ];
         $localMachineHelper
-        ->execute($command)
-        ->willReturn($process->reveal())
-        ->shouldBeCalled();
+            ->execute($command)
+            ->willReturn($process->reveal())
+            ->shouldBeCalled();
     }
 
     protected function mockExecuteGitInit(
@@ -162,9 +166,9 @@ class NewFromDrupal7CommandTest extends CommandTestBase
             '--quiet',
         ];
         $localMachineHelper
-        ->execute($command, null, $projectDir)
-        ->willReturn($process->reveal())
-        ->shouldBeCalled();
+            ->execute($command, null, $projectDir)
+            ->willReturn($process->reveal())
+            ->shouldBeCalled();
     }
 
     protected function mockExecuteGitAdd(
@@ -178,9 +182,9 @@ class NewFromDrupal7CommandTest extends CommandTestBase
             '-A',
         ];
         $localMachineHelper
-        ->execute($command, null, $projectDir)
-        ->willReturn($process->reveal())
-        ->shouldBeCalled();
+            ->execute($command, null, $projectDir)
+            ->willReturn($process->reveal())
+            ->shouldBeCalled();
     }
 
     protected function mockExecuteGitCommit(
@@ -196,8 +200,8 @@ class NewFromDrupal7CommandTest extends CommandTestBase
             '--quiet',
         ];
         $localMachineHelper
-        ->execute($command, null, $projectDir)
-        ->willReturn($process->reveal())
-        ->shouldBeCalled();
+            ->execute($command, null, $projectDir)
+            ->willReturn($process->reveal())
+            ->shouldBeCalled();
     }
 }

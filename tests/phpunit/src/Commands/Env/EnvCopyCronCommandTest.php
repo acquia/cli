@@ -28,8 +28,8 @@ class EnvCopyCronCommandTest extends CommandTestBase
             'get',
             '/environments/' . $environmentsResponse->{'_embedded'}->items[0]->id . '/crons'
         )
-        ->willReturn($sourceCronsListResponse->{'_embedded'}->items)
-        ->shouldBeCalled();
+            ->willReturn($sourceCronsListResponse->{'_embedded'}->items)
+            ->shouldBeCalled();
 
         $createCronResponse = $this->getMockResponseFromSpec('/environments/{environmentId}/crons', 'post', '202');
         $this->clientProphecy->request(
@@ -37,8 +37,8 @@ class EnvCopyCronCommandTest extends CommandTestBase
             '/environments/' . $environmentsResponse->{'_embedded'}->items[2]->id . '/crons',
             Argument::type('array')
         )
-        ->willReturn($createCronResponse->{'Adding cron'}->value)
-        ->shouldBeCalled();
+            ->willReturn($createCronResponse->{'Adding cron'}->value)
+            ->shouldBeCalled();
 
         $source = '24-a47ac10b-58cc-4372-a567-0e02b2c3d470';
         $dest = '32-a47ac10b-58cc-4372-a567-0e02b2c3d470';
@@ -80,8 +80,8 @@ class EnvCopyCronCommandTest extends CommandTestBase
             'get',
             '/environments/' . $environmentsResponse->{'_embedded'}->items[0]->id . '/crons'
         )
-        ->willReturn([])
-        ->shouldBeCalled();
+            ->willReturn([])
+            ->shouldBeCalled();
 
         $source = '24-a47ac10b-58cc-4372-a567-0e02b2c3d470';
         $dest = '32-a47ac10b-58cc-4372-a567-0e02b2c3d470';
@@ -110,8 +110,8 @@ class EnvCopyCronCommandTest extends CommandTestBase
             'get',
             '/environments/' . $environmentsResponse->{'_embedded'}->items[0]->id . '/crons'
         )
-        ->willReturn($sourceCronsListResponse->{'_embedded'}->items)
-        ->shouldBeCalled();
+            ->willReturn($sourceCronsListResponse->{'_embedded'}->items)
+            ->shouldBeCalled();
 
         $this->getMockResponseFromSpec('/environments/{environmentId}/crons', 'post', '202');
         $this->clientProphecy->request(
@@ -119,7 +119,7 @@ class EnvCopyCronCommandTest extends CommandTestBase
             '/environments/' . $environmentsResponse->{'_embedded'}->items[2]->id . '/crons',
             Argument::type('array')
         )
-        ->willThrow(Exception::class);
+            ->willThrow(Exception::class);
 
         $source = '24-a47ac10b-58cc-4372-a567-0e02b2c3d470';
         $dest = '32-a47ac10b-58cc-4372-a567-0e02b2c3d470';

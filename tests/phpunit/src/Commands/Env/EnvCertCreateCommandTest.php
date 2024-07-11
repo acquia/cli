@@ -27,8 +27,12 @@ class EnvCertCreateCommandTest extends CommandTestBase
         $keyName = 'key.pem';
         $label = 'My certificate';
         $csrId = 123;
-        $localMachineHelper->readFile($certName)->willReturn($certContents)->shouldBeCalled();
-        $localMachineHelper->readFile($keyName)->willReturn($keyContents)->shouldBeCalled();
+        $localMachineHelper->readFile($certName)
+            ->willReturn($certContents)
+            ->shouldBeCalled();
+        $localMachineHelper->readFile($keyName)
+            ->willReturn($keyContents)
+            ->shouldBeCalled();
 
         $sslResponse = $this->getMockResponseFromSpec(
             '/environments/{environmentId}/ssl/certificates',
@@ -46,8 +50,8 @@ class EnvCertCreateCommandTest extends CommandTestBase
             ],
         ];
         $this->clientProphecy->request('post', "/environments/{$environments[1]->id}/ssl/certificates", $options)
-        ->willReturn($sslResponse->{'Site is being imported'}->value)
-        ->shouldBeCalled();
+            ->willReturn($sslResponse->{'Site is being imported'}->value)
+            ->shouldBeCalled();
         $this->mockNotificationResponseFromObject($sslResponse->{'Site is being imported'}->value);
 
         $this->executeCommand(
@@ -59,9 +63,9 @@ class EnvCertCreateCommandTest extends CommandTestBase
                 'private-key' => $keyName,
             ],
             [
-            // Would you like Acquia CLI to search for a Cloud application that matches your local git config?'.
+                // Would you like Acquia CLI to search for a Cloud application that matches your local git config?'.
                 'n',
-            // Select a Cloud Platform application: [Sample application 1]:
+                // Select a Cloud Platform application: [Sample application 1]:
                 0,
                 'n',
                 1,
@@ -87,8 +91,12 @@ class EnvCertCreateCommandTest extends CommandTestBase
         $keyName = 'key.pem';
         $label = 'My certificate';
         $csrId = 123;
-        $localMachineHelper->readFile($certName)->willReturn($certContents)->shouldBeCalled();
-        $localMachineHelper->readFile($keyName)->willReturn($keyContents)->shouldBeCalled();
+        $localMachineHelper->readFile($certName)
+            ->willReturn($certContents)
+            ->shouldBeCalled();
+        $localMachineHelper->readFile($keyName)
+            ->willReturn($keyContents)
+            ->shouldBeCalled();
 
         $sslResponse = $this->getMockResponseFromSpec(
             '/environments/{environmentId}/ssl/certificates',
@@ -106,8 +114,8 @@ class EnvCertCreateCommandTest extends CommandTestBase
             ],
         ];
         $this->clientProphecy->request('post', "/environments/{$environments[0]->id}/ssl/certificates", $options)
-        ->willReturn($sslResponse->{'Site is being imported'}->value)
-        ->shouldBeCalled();
+            ->willReturn($sslResponse->{'Site is being imported'}->value)
+            ->shouldBeCalled();
         $this->mockNotificationResponseFromObject($sslResponse->{'Site is being imported'}->value);
 
         $this->executeCommand(
@@ -119,9 +127,9 @@ class EnvCertCreateCommandTest extends CommandTestBase
                 'private-key' => $keyName,
             ],
             [
-            // Would you like Acquia CLI to search for a Cloud application that matches your local git config?'.
+                // Would you like Acquia CLI to search for a Cloud application that matches your local git config?'.
                 'n',
-            // Select a Cloud Platform application: [Sample application 1]:
+                // Select a Cloud Platform application: [Sample application 1]:
                 0,
             ]
         );

@@ -23,7 +23,8 @@ class AppOpenCommandTest extends CommandTestBase
     {
         $applicationUuid = 'a47ac10b-58cc-4372-a567-0e02b2c3d470';
         $localMachineHelper = $this->mockLocalMachineHelper();
-        $localMachineHelper->startBrowser('https://cloud.acquia.com/a/applications/' . $applicationUuid)->shouldBeCalled();
+        $localMachineHelper->startBrowser('https://cloud.acquia.com/a/applications/' . $applicationUuid)
+            ->shouldBeCalled();
         $localMachineHelper->isBrowserAvailable()->willReturn(true);
         $this->mockRequest('getApplicationByUuid', $applicationUuid);
         $this->executeCommand(['applicationUuid' => $applicationUuid]);
