@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "94d7cb39421243e4ac74c5f67b895fc3",
+    "content-hash": "cf656c7a733183495270ef1b8d92ade8",
     "packages": [
         {
             "name": "acquia/drupal-environment-detector",
@@ -6438,16 +6438,16 @@
         },
         {
             "name": "zumba/amplitude-php",
-            "version": "1.0.7",
+            "version": "1.0.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/zumba/amplitude-php.git",
-                "reference": "b1fd002f562a1d073c40d2f1d4b9a1f59b857083"
+                "reference": "5288ede9c4bcee3dd4c6e6bb928fc32d489ffddd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/zumba/amplitude-php/zipball/b1fd002f562a1d073c40d2f1d4b9a1f59b857083",
-                "reference": "b1fd002f562a1d073c40d2f1d4b9a1f59b857083",
+                "url": "https://api.github.com/repos/zumba/amplitude-php/zipball/5288ede9c4bcee3dd4c6e6bb928fc32d489ffddd",
+                "reference": "5288ede9c4bcee3dd4c6e6bb928fc32d489ffddd",
                 "shasum": ""
             },
             "require": {
@@ -6493,24 +6493,24 @@
             ],
             "support": {
                 "issues": "https://github.com/zumba/amplitude-php/issues",
-                "source": "https://github.com/zumba/amplitude-php/tree/1.0.7"
+                "source": "https://github.com/zumba/amplitude-php/tree/1.0.8"
             },
-            "time": "2023-03-08T16:59:22+00:00"
+            "time": "2024-07-11T14:35:33+00:00"
         }
     ],
     "packages-dev": [
         {
             "name": "acquia/coding-standards",
-            "version": "v3.0.0",
+            "version": "v3.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/acquia/coding-standards-php.git",
-                "reference": "ca05888f8dd2e2378f7efc18a0096d41b1a5a66e"
+                "reference": "7315583494b81cbcbd8817d7e00dd8f4fba34b88"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/acquia/coding-standards-php/zipball/ca05888f8dd2e2378f7efc18a0096d41b1a5a66e",
-                "reference": "ca05888f8dd2e2378f7efc18a0096d41b1a5a66e",
+                "url": "https://api.github.com/repos/acquia/coding-standards-php/zipball/7315583494b81cbcbd8817d7e00dd8f4fba34b88",
+                "reference": "7315583494b81cbcbd8817d7e00dd8f4fba34b88",
                 "shasum": ""
             },
             "require": {
@@ -6556,7 +6556,7 @@
                 "issues": "https://github.com/acquia/coding-standards/issues",
                 "source": "https://github.com/acquia/coding-standards"
             },
-            "time": "2024-07-10T21:13:42+00:00"
+            "time": "2024-07-11T20:08:50+00:00"
         },
         {
             "name": "amphp/amp",
@@ -12355,23 +12355,23 @@
         },
         {
             "name": "seld/jsonlint",
-            "version": "1.10.2",
+            "version": "1.11.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Seldaek/jsonlint.git",
-                "reference": "9bb7db07b5d66d90f6ebf542f09fc67d800e5259"
+                "reference": "1748aaf847fc731cfad7725aec413ee46f0cc3a2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Seldaek/jsonlint/zipball/9bb7db07b5d66d90f6ebf542f09fc67d800e5259",
-                "reference": "9bb7db07b5d66d90f6ebf542f09fc67d800e5259",
+                "url": "https://api.github.com/repos/Seldaek/jsonlint/zipball/1748aaf847fc731cfad7725aec413ee46f0cc3a2",
+                "reference": "1748aaf847fc731cfad7725aec413ee46f0cc3a2",
                 "shasum": ""
             },
             "require": {
                 "php": "^5.3 || ^7.0 || ^8.0"
             },
             "require-dev": {
-                "phpstan/phpstan": "^1.5",
+                "phpstan/phpstan": "^1.11",
                 "phpunit/phpunit": "^4.8.35 || ^5.7 || ^6.0 || ^8.5.13"
             },
             "bin": [
@@ -12403,7 +12403,7 @@
             ],
             "support": {
                 "issues": "https://github.com/Seldaek/jsonlint/issues",
-                "source": "https://github.com/Seldaek/jsonlint/tree/1.10.2"
+                "source": "https://github.com/Seldaek/jsonlint/tree/1.11.0"
             },
             "funding": [
                 {
@@ -12415,7 +12415,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-02-07T12:57:50+00:00"
+            "time": "2024-07-11T14:55:45+00:00"
         },
         {
             "name": "seld/phar-utils",
