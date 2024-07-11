@@ -137,8 +137,8 @@ class LocalMachineHelper
         $process->wait($callback);
 
         $this->logger->notice('Command: {command} [Exit: {exit}]', [
-        'command' => $process->getCommandLine(),
-        'exit' => $process->getExitCode(),
+            'command' => $process->getCommandLine(),
+            'exit' => $process->getExitCode(),
         ]);
 
         return $process;
@@ -274,7 +274,7 @@ class LocalMachineHelper
     public static function getProjectDir(): ?string
     {
         $possibleProjectRoots = [
-        getcwd(),
+            getcwd(),
         ];
         // Check for PWD - some local environments will not have this key.
         if (getenv('PWD') && !in_array(getenv('PWD'), $possibleProjectRoots, true)) {

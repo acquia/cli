@@ -119,11 +119,11 @@ class DefinedRecommendation implements RecommendationInterface, NormalizableInte
     {
         // phpcs:disable SlevomatCodingStandard.Arrays.AlphabeticallySortedByKeys
         $defaults = [
-        'universal' => false,
-        'patches' => [],
-        'install' => [],
-        'vetted' => false,
-        'note' => static::NOTE_PLACEHOLDER_STRING,
+            'universal' => false,
+            'patches' => [],
+            'install' => [],
+            'vetted' => false,
+            'note' => static::NOTE_PLACEHOLDER_STRING,
         ];
         $validate_if_universal_is_false = Closure::fromCallable(function ($context) {
             return $context['universal'] === false;
@@ -134,16 +134,16 @@ class DefinedRecommendation implements RecommendationInterface, NormalizableInte
         }
 
         $validator = static::schema([
-        'universal' => 'is_bool',
-        'install' => static::listOf('is_string'),
-        'package' => 'is_string',
-        'constraint' => 'is_string',
-        'note' => 'is_string',
-        'replaces' => static::conditionalSchema([
-        'name' => 'is_string',
-        ], $validate_if_universal_is_false),
-        'patches' => static::dictionaryOf('is_string'),
-        'vetted' => 'is_bool',
+            'universal' => 'is_bool',
+            'install' => static::listOf('is_string'),
+            'package' => 'is_string',
+            'constraint' => 'is_string',
+            'note' => 'is_string',
+            'replaces' => static::conditionalSchema([
+                'name' => 'is_string',
+            ], $validate_if_universal_is_false),
+            'patches' => static::dictionaryOf('is_string'),
+            'vetted' => 'is_bool',
         ], $defaults);
         // phpcs:enable
         try {
@@ -226,16 +226,16 @@ class DefinedRecommendation implements RecommendationInterface, NormalizableInte
     {
         // phpcs:disable SlevomatCodingStandard.Arrays.AlphabeticallySortedByKeys
         $normalized = [
-        'type' => 'packageRecommendation',
-        'id' => "{$this->packageName}:{$this->versionConstraint}",
-        'attributes' => [
-        'requirePackage' => [
-        'name' => $this->packageName,
-        'versionConstraint' => $this->versionConstraint,
-        ],
-        'installModules' => $this->install,
-        'vetted' => $this->vetted,
-        ],
+            'type' => 'packageRecommendation',
+            'id' => "{$this->packageName}:{$this->versionConstraint}",
+            'attributes' => [
+                'requirePackage' => [
+                    'name' => $this->packageName,
+                    'versionConstraint' => $this->versionConstraint,
+                ],
+                'installModules' => $this->install,
+                'vetted' => $this->vetted,
+            ],
         ];
 
         if (!empty($this->note) && $this->note !== static::NOTE_PLACEHOLDER_STRING) {
@@ -243,12 +243,12 @@ class DefinedRecommendation implements RecommendationInterface, NormalizableInte
         }
 
         $recommended_for = [
-        'data' => array_map(function (ExtensionInterface $extension) {
-            return [
-            'type' => $extension->isModule() ? 'module' : 'theme',
-            'id' => $extension->getName(),
-            ];
-        }, $this->appliedTo),
+            'data' => array_map(function (ExtensionInterface $extension) {
+                return [
+                    'type' => $extension->isModule() ? 'module' : 'theme',
+                    'id' => $extension->getName(),
+                ];
+            }, $this->appliedTo),
         ];
         // phpcs:enable
         if (!empty($recommended_for['data'])) {
@@ -257,9 +257,9 @@ class DefinedRecommendation implements RecommendationInterface, NormalizableInte
 
         $links = array_reduce(array_keys($this->patches), function (array $links, string $patch_description) {
             $links['patch-file--' . md5($patch_description)] = [
-            'href' => $this->patches[$patch_description],
-            'rel' => 'https://github.com/acquia/acquia_migrate#link-rel-patch-file',
-            'title' => $patch_description,
+                'href' => $this->patches[$patch_description],
+                'rel' => 'https://github.com/acquia/acquia_migrate#link-rel-patch-file',
+                'title' => $patch_description,
             ];
             return $links;
         }, []);

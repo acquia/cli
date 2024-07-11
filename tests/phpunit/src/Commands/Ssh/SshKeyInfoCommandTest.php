@@ -28,7 +28,7 @@ class SshKeyInfoCommandTest extends CommandTestBase
 
         $inputs = [
         // Choose key.
-        '0',
+            '0',
         ];
         $this->executeCommand([], $inputs);
 

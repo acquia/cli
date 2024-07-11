@@ -92,9 +92,9 @@ final class EnvMirrorCommand extends CommandBase
         }
 
         $this->io->success([
-        "Done! {$destinationEnvironment->label} now matches {$sourceEnvironment->label}",
-        "You can visit it here:",
-        "https://" . $destinationEnvironment->domains[0],
+            "Done! {$destinationEnvironment->label} now matches {$sourceEnvironment->label}",
+            "You can visit it here:",
+            "https://" . $destinationEnvironment->domains[0],
         ]);
 
         return Command::SUCCESS;
@@ -130,9 +130,9 @@ final class EnvMirrorCommand extends CommandBase
         $this->checklist->addItem("Initiating code switch");
         $outputCallback('out', "Switching to {$sourceEnvironment->vcs->path}");
         $codeCopyResponse = $acquiaCloudClient->request('post', "/environments/$destinationEnvironmentUuid/code/actions/switch", [
-        'form_params' => [
-        'branch' => $sourceEnvironment->vcs->path,
-        ],
+            'form_params' => [
+                'branch' => $sourceEnvironment->vcs->path,
+            ],
         ]);
         $codeCopyResponse->links = $codeCopyResponse->_links;
         $this->checklist->completePreviousItem();

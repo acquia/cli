@@ -23,7 +23,7 @@ class IdeDeleteCommandTest extends CommandTestBase
         parent::setUp();
         $this->getCommandTester();
         $this->application->addCommands([
-        $this->injectCommand(SshKeyDeleteCommand::class),
+            $this->injectCommand(SshKeyDeleteCommand::class),
         ]);
     }
 
@@ -44,15 +44,15 @@ class IdeDeleteCommandTest extends CommandTestBase
 
         $inputs = [
         // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
-        'n',
+            'n',
         // Select the application for which you'd like to create a new IDE.
-        0,
+            0,
         // Would you like to link the project at ... ?
-        'y',
+            'y',
         // Select the IDE you'd like to delete:
-        0,
+            0,
         // Are you sure you want to delete ExampleIDE?
-        'y',
+            'y',
         ];
 
         $this->executeCommand([], $inputs);
@@ -72,7 +72,7 @@ class IdeDeleteCommandTest extends CommandTestBase
 
         $inputs = [
         // Would you like to delete the SSH key associated with this IDE from your Cloud Platform account?
-        'y',
+            'y',
         ];
 
         $this->executeCommand(['--uuid' => IdeHelper::$remoteIdeUuid], $inputs);
@@ -89,15 +89,15 @@ class IdeDeleteCommandTest extends CommandTestBase
         $this->mockRequest('getApplicationIdes', $applications[0]->uuid);
         $inputs = [
         // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
-        'n',
+            'n',
         // Select the application for which you'd like to create a new IDE.
-        0,
+            0,
         // Would you like to link the project at ... ?
-        'y',
+            'y',
         // Select the IDE you'd like to delete:
-        0,
+            0,
         // Are you sure you want to delete ExampleIDE?
-        'n',
+            'n',
         ];
 
         $this->executeCommand([], $inputs);

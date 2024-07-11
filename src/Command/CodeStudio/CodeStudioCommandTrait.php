@@ -41,24 +41,24 @@ trait CodeStudioCommandTrait
             throw new AcquiaCliException("Install glab to continue: https://gitlab.com/gitlab-org/cli#installation");
         }
         $process = $this->localMachineHelper->execute([
-        'glab',
-        'config',
-        'get',
-        'token',
-        '--host=' . $gitlabHost,
+            'glab',
+            'config',
+            'get',
+            'token',
+            '--host=' . $gitlabHost,
         ], null, null, false);
         if ($process->isSuccessful() && trim($process->getOutput())) {
             return trim($process->getOutput());
         }
 
         $this->io->writeln([
-        "",
-        "You must first authenticate with Code Studio by creating a personal access token:",
-        "* Visit https://$gitlabHost/-/profile/personal_access_tokens",
-        "* Create a token and grant it both <comment>api</comment> and <comment>write repository</comment> scopes",
-        "* Copy the token to your clipboard",
-        "* Run <comment>glab auth login --hostname=$gitlabHost</comment> and paste the token when prompted",
-        "* Try this command again.",
+            "",
+            "You must first authenticate with Code Studio by creating a personal access token:",
+            "* Visit https://$gitlabHost/-/profile/personal_access_tokens",
+            "* Create a token and grant it both <comment>api</comment> and <comment>write repository</comment> scopes",
+            "* Copy the token to your clipboard",
+            "* Run <comment>glab auth login --hostname=$gitlabHost</comment> and paste the token when prompted",
+            "* Try this command again.",
         ]);
 
         throw new AcquiaCliException("Could not determine GitLab token");
@@ -80,10 +80,10 @@ trait CodeStudioCommandTrait
             throw new AcquiaCliException("Install glab to continue: https://gitlab.com/gitlab-org/cli#installation");
         }
         $process = $this->localMachineHelper->execute([
-        'glab',
-        'config',
-        'get',
-        'host',
+            'glab',
+            'config',
+            'get',
+            'host',
         ], null, null, false);
         if (!$process->isSuccessful()) {
             throw new AcquiaCliException("Could not determine GitLab host: {error_message}", ['error_message' => $process->getErrorOutput()]);
@@ -120,17 +120,17 @@ trait CodeStudioCommandTrait
         if (!$input->getOption('key') || !$input->getOption('secret')) {
             $tokenUrl = 'https://cloud.acquia.com/a/profile/tokens';
             $this->io->writeln([
-            "",
-            "This will configure AutoDevOps for a Code Studio project using credentials",
-            "(an API Token and SSH Key) belonging to your current Acquia Cloud Platform user account.",
-            "Before continuing, make sure that you're logged into the right Acquia Cloud Platform user account.",
-            "",
-            "<comment>Typically this command should only be run once per application</comment>",
-            "but if your Cloud Platform account is deleted in the future, the Code Studio project will",
-            "need to be re-configured using a different user account.",
-            "",
-            "<options=bold>To begin, visit this URL and create a new API Token for Code Studio to use:</>",
-            "<href=$tokenUrl>$tokenUrl</>",
+                "",
+                "This will configure AutoDevOps for a Code Studio project using credentials",
+                "(an API Token and SSH Key) belonging to your current Acquia Cloud Platform user account.",
+                "Before continuing, make sure that you're logged into the right Acquia Cloud Platform user account.",
+                "",
+                "<comment>Typically this command should only be run once per application</comment>",
+                "but if your Cloud Platform account is deleted in the future, the Code Studio project will",
+                "need to be re-configured using a different user account.",
+                "",
+                "<options=bold>To begin, visit this URL and create a new API Token for Code Studio to use:</>",
+                "<href=$tokenUrl>$tokenUrl</>",
             ]);
         }
     }
@@ -152,11 +152,11 @@ trait CodeStudioCommandTrait
             $this->gitLabAccount = $this->gitLabClient->users()->me();
         } catch (RuntimeException $exception) {
             $this->io->error([
-            "Unable to authenticate with Code Studio",
-            "Did you set a valid token with the <options=bold>api</> and <options=bold>write_repository</> scopes?",
-            "Try running `glab auth login` to re-authenticate.",
-            "Alternatively,  pass the <options=bold>--gitlab-token</> option.",
-            "Then try again.",
+                "Unable to authenticate with Code Studio",
+                "Did you set a valid token with the <options=bold>api</> and <options=bold>write_repository</> scopes?",
+                "Try running `glab auth login` to re-authenticate.",
+                "Alternatively,  pass the <options=bold>--gitlab-token</> option.",
+                "Then try again.",
             ]);
             throw new AcquiaCliException("Unable to authenticate with Code Studio");
         }
@@ -188,9 +188,9 @@ trait CodeStudioCommandTrait
         }
         // Prompt to create project.
         $this->io->writeln([
-        "",
-        "Could not find any existing Code Studio project for Acquia Cloud Platform application <comment>{$cloudApplication->name}</comment>.",
-        "Searched for UUID <comment>{$cloudApplication->uuid}</comment> in project descriptions.",
+            "",
+            "Could not find any existing Code Studio project for Acquia Cloud Platform application <comment>{$cloudApplication->name}</comment>.",
+            "Searched for UUID <comment>{$cloudApplication->uuid}</comment> in project descriptions.",
         ]);
         $createProject = $this->io->confirm('Would you like to create a new Code Studio project? If you select "no" you may choose from a full list of existing projects.');
         if ($createProject) {
@@ -211,8 +211,8 @@ trait CodeStudioCommandTrait
     private function createGitLabProject(ApplicationResponse $cloudApplication): array
     {
         $userGroups = $this->gitLabClient->groups()->all([
-        'all_available' => true,
-        'min_access_level' => 40,
+            'all_available' => true,
+            'min_access_level' => 40,
         ]);
         $parameters = $this->getGitLabProjectDefaults();
         if ($userGroups) {
@@ -246,11 +246,11 @@ trait CodeStudioCommandTrait
     private function getGitLabProjectDefaults(): array
     {
         return [
-        'container_registry_access_level' => 'disabled',
-        'default_branch' => 'main',
-        'description' => $this->gitLabProjectDescription,
-        'initialize_with_readme' => true,
-        'topics' => 'Acquia Cloud Application',
+            'container_registry_access_level' => 'disabled',
+            'default_branch' => 'main',
+            'description' => $this->gitLabProjectDescription,
+            'initialize_with_readme' => true,
+            'topics' => 'Acquia Cloud Application',
         ];
     }
 

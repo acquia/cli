@@ -62,18 +62,18 @@ class AuthLoginCommandTest extends CommandTestBase
     {
         yield
         [
-        [],
-        ['--key' => 'no spaces are allowed' , '--secret' => $this->secret],
+            [],
+            ['--key' => 'no spaces are allowed' , '--secret' => $this->secret],
         ];
         yield
         [
-        [],
-        ['--key' => 'shorty' , '--secret' => $this->secret],
+            [],
+            ['--key' => 'shorty' , '--secret' => $this->secret],
         ];
         yield
         [
-        [],
-        ['--key' => ' ', '--secret' => $this->secret],
+            [],
+            ['--key' => ' ', '--secret' => $this->secret],
         ];
     }
 
@@ -95,14 +95,14 @@ class AuthLoginCommandTest extends CommandTestBase
         $this->clientServiceProphecy->isMachineAuthenticated()->willReturn(false);
         $this->removeMockCloudConfigFile();
         $data = [
-        'acli_key' => 'key2',
-        'keys' => [
-        'key1' => [
-        'label' => 'foo',
-        'secret' => 'foo',
-        'uuid' => 'foo',
-        ],
-        ],
+            'acli_key' => 'key2',
+            'keys' => [
+                'key1' => [
+                    'label' => 'foo',
+                    'secret' => 'foo',
+                    'uuid' => 'foo',
+                ],
+            ],
         ];
         $this->fs->dumpFile($this->cloudConfigFilepath, json_encode($data));
         $this->expectException(AcquiaCliException::class);

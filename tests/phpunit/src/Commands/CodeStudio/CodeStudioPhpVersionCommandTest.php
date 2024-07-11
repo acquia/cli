@@ -33,10 +33,10 @@ class CodeStudioPhpVersionCommandTest extends CommandTestBase
     public function providerTestPhpVersionFailure(): array
     {
         return [
-        ['', ValidatorException::class],
-        ['8', ValidatorException::class],
-        ['8 1', ValidatorException::class],
-        ['ABC', ValidatorException::class],
+            ['', ValidatorException::class],
+            ['8', ValidatorException::class],
+            ['8 1', ValidatorException::class],
+            ['ABC', ValidatorException::class],
         ];
     }
 
@@ -49,8 +49,8 @@ class CodeStudioPhpVersionCommandTest extends CommandTestBase
     {
         $this->expectException(ValidatorException::class);
         $this->executeCommand([
-        'applicationUuid' => self::$applicationUuid,
-        'php-version' => $phpVersion,
+            'applicationUuid' => self::$applicationUuid,
+            'php-version' => $phpVersion,
         ]);
     }
 
@@ -72,10 +72,10 @@ class CodeStudioPhpVersionCommandTest extends CommandTestBase
 
         $this->command->setGitLabClient($gitlabClient->reveal());
         $this->executeCommand([
-        '--gitlab-host-name' => $this->gitLabHost,
-        '--gitlab-token' => $this->gitLabToken,
-        'applicationUuid' => self::$applicationUuid,
-        'php-version' => '8.1',
+            '--gitlab-host-name' => $this->gitLabHost,
+            '--gitlab-token' => $this->gitLabToken,
+            'applicationUuid' => self::$applicationUuid,
+            'php-version' => '8.1',
         ]);
 
         $output = $this->getDisplay();
@@ -105,10 +105,10 @@ class CodeStudioPhpVersionCommandTest extends CommandTestBase
         $gitlabClient->projects()->willReturn($projects);
         $this->command->setGitLabClient($gitlabClient->reveal());
         $this->executeCommand([
-        '--gitlab-host-name' => $this->gitLabHost,
-        '--gitlab-token' => $this->gitLabToken,
-        'applicationUuid' => self::$applicationUuid,
-        'php-version' => '8.1',
+            '--gitlab-host-name' => $this->gitLabHost,
+            '--gitlab-token' => $this->gitLabToken,
+            'applicationUuid' => self::$applicationUuid,
+            'php-version' => '8.1',
         ]);
 
         $output = $this->getDisplay();
@@ -138,10 +138,10 @@ class CodeStudioPhpVersionCommandTest extends CommandTestBase
 
         $this->command->setGitLabClient($gitlabClient->reveal());
         $this->executeCommand([
-        '--gitlab-host-name' => $this->gitLabHost,
-        '--gitlab-token' => $this->gitLabToken,
-        'applicationUuid' => self::$applicationUuid,
-        'php-version' => '8.1',
+            '--gitlab-host-name' => $this->gitLabHost,
+            '--gitlab-token' => $this->gitLabToken,
+            'applicationUuid' => self::$applicationUuid,
+            'php-version' => '8.1',
         ]);
 
         $output = $this->getDisplay();
@@ -166,12 +166,12 @@ class CodeStudioPhpVersionCommandTest extends CommandTestBase
 
         $variables = $this->getMockGitLabVariables();
         $variables[] = [
-        'environment_scope' => '*',
-        'key' => 'PHP_VERSION',
-        'masked' => false,
-        'protected' => false,
-        'value' => '8.1',
-        'variable_type' => 'env_var',
+            'environment_scope' => '*',
+            'key' => 'PHP_VERSION',
+            'masked' => false,
+            'protected' => false,
+            'value' => '8.1',
+            'variable_type' => 'env_var',
         ];
         $projects->variables($this->gitLabProjectId)->willReturn($variables);
         $projects->updateVariable($this->gitLabProjectId, Argument::type('string'), Argument::type('string'))
@@ -180,10 +180,10 @@ class CodeStudioPhpVersionCommandTest extends CommandTestBase
         $gitlabClient->projects()->willReturn($projects);
         $this->command->setGitLabClient($gitlabClient->reveal());
         $this->executeCommand([
-        '--gitlab-host-name' => $this->gitLabHost,
-        '--gitlab-token' => $this->gitLabToken,
-        'applicationUuid' => self::$applicationUuid,
-        'php-version' => '8.1',
+            '--gitlab-host-name' => $this->gitLabHost,
+            '--gitlab-token' => $this->gitLabToken,
+            'applicationUuid' => self::$applicationUuid,
+            'php-version' => '8.1',
         ]);
 
         $output = $this->getDisplay();
@@ -208,12 +208,12 @@ class CodeStudioPhpVersionCommandTest extends CommandTestBase
 
         $variables = $this->getMockGitLabVariables();
         $variables[] = [
-        'environment_scope' => '*',
-        'key' => 'PHP_VERSION',
-        'masked' => false,
-        'protected' => false,
-        'value' => '8.1',
-        'variable_type' => 'env_var',
+            'environment_scope' => '*',
+            'key' => 'PHP_VERSION',
+            'masked' => false,
+            'protected' => false,
+            'value' => '8.1',
+            'variable_type' => 'env_var',
         ];
         $projects->variables($this->gitLabProjectId)->willReturn($variables);
         $projects->updateVariable($this->gitLabProjectId, Argument::type('string'), Argument::type('string'));
@@ -222,10 +222,10 @@ class CodeStudioPhpVersionCommandTest extends CommandTestBase
 
         $this->command->setGitLabClient($gitlabClient->reveal());
         $this->executeCommand([
-        '--gitlab-host-name' => $this->gitLabHost,
-        '--gitlab-token' => $this->gitLabToken,
-        'applicationUuid' => self::$applicationUuid,
-        'php-version' => '8.1',
+            '--gitlab-host-name' => $this->gitLabHost,
+            '--gitlab-token' => $this->gitLabToken,
+            'applicationUuid' => self::$applicationUuid,
+            'php-version' => '8.1',
         ]);
 
         $output = $this->getDisplay();

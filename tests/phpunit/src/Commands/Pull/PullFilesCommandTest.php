@@ -47,15 +47,15 @@ class PullFilesCommandTest extends PullCommandTestBase
 
         $inputs = [
         // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
-        'n',
+            'n',
         // Select a Cloud Platform application:
-        0,
+            0,
         // Would you like to link the project at ... ?
-        'n',
+            'n',
         // Choose an Acquia environment:
-        0,
+            0,
         // Choose site from which to copy files:
-        0,
+            0,
         ];
 
         $this->executeCommand([], $inputs);
@@ -86,15 +86,15 @@ class PullFilesCommandTest extends PullCommandTestBase
 
         $inputs = [
         // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
-        'n',
+            'n',
         // Select a Cloud Platform application:
-        0,
+            0,
         // Would you like to link the project at ... ?
-        'n',
+            'n',
         // Choose an Acquia environment:
-        0,
+            0,
         // Choose site from which to copy files:
-        0,
+            0,
         ];
 
         $this->executeCommand([], $inputs);

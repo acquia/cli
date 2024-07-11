@@ -66,12 +66,12 @@ class AbandonmentRecommendation implements RecommendationInterface, Normalizable
     {
         // phpcs:disable SlevomatCodingStandard.Arrays.AlphabeticallySortedByKeys
         $validator = static::schema([
-        'package' => 'is_null',
-        'note' => 'is_string',
-        'replaces' => static::schema([
-        'name' => 'is_string',
-        ]),
-        'vetted' => 'is_bool',
+            'package' => 'is_null',
+            'note' => 'is_string',
+            'replaces' => static::schema([
+                'name' => 'is_string',
+            ]),
+            'vetted' => 'is_bool',
         ]);
         // phpcs:enable
         try {
@@ -145,20 +145,20 @@ class AbandonmentRecommendation implements RecommendationInterface, Normalizable
     {
         // phpcs:disable SlevomatCodingStandard.Arrays.AlphabeticallySortedByKeys
         $normalized = [
-        'type' => 'abandonmentRecommendation',
-        'id' => "abandon:{$this->definition['replaces']['name']}",
-        'attributes' => [
-        'note' => $this->definition['note'],
-        ],
+            'type' => 'abandonmentRecommendation',
+            'id' => "abandon:{$this->definition['replaces']['name']}",
+            'attributes' => [
+                'note' => $this->definition['note'],
+            ],
         ];
 
         $recommended_for = [
-        'data' => array_map(function (ExtensionInterface $extension) {
-            return [
-            'type' => $extension->isModule() ? 'module' : 'theme',
-            'id' => $extension->getName(),
-            ];
-        }, $this->appliedTo),
+            'data' => array_map(function (ExtensionInterface $extension) {
+                return [
+                    'type' => $extension->isModule() ? 'module' : 'theme',
+                    'id' => $extension->getName(),
+                ];
+            }, $this->appliedTo),
         ];
         // phpcs:enable
         if (!empty($recommended_for['data'])) {

@@ -162,8 +162,8 @@ abstract class TestBase extends TestCase
     protected function setUp(): void
     {
         self::setEnvVars([
-        'COLUMNS' => '85',
-        'HOME' => '/home/test',
+            'COLUMNS' => '85',
+            'HOME' => '/home/test',
         ]);
         $this->output = new BufferedOutput();
         $this->input = new ArrayInput([]);
@@ -423,15 +423,15 @@ abstract class TestBase extends TestCase
     {
         if (!$defaultValues) {
             $defaultValues = [
-            'acli_key' => $this->key,
-            'keys' => [
-            (string) ($this->key) => [
-            'label' => 'Test Key',
-            'secret' => $this->secret,
-            'uuid' => $this->key,
-            ],
-            ],
-            DataStoreContract::SEND_TELEMETRY => false,
+                'acli_key' => $this->key,
+                'keys' => [
+                    (string) ($this->key) => [
+                        'label' => 'Test Key',
+                        'secret' => $this->secret,
+                        'uuid' => $this->key,
+                    ],
+                ],
+                DataStoreContract::SEND_TELEMETRY => false,
             ];
         }
         $cloudConfig = array_merge($defaultValues, $this->cloudConfig);
@@ -504,8 +504,8 @@ abstract class TestBase extends TestCase
     public function mockUnauthorizedRequest(): void
     {
         $response = [
-        'error' => 'invalid_client',
-        'error_description' => 'Client credentials were not found in the headers or body',
+            'error' => 'invalid_client',
+            'error_description' => 'Client credentials were not found in the headers or body',
         ];
         $this->clientProphecy->request('get', Argument::type('string'))
         ->willThrow(new IdentityProviderException($response['error'], 0, $response));
@@ -514,8 +514,8 @@ abstract class TestBase extends TestCase
     public function mockApiError(): void
     {
         $response = (object) [
-        'error' => 'some error',
-        'message' => 'some error',
+            'error' => 'some error',
+            'message' => 'some error',
         ];
         $this->clientProphecy->request('get', Argument::type('string'))
         ->willThrow(new ApiErrorException($response, $response->message));
@@ -524,8 +524,8 @@ abstract class TestBase extends TestCase
     public function mockNoAvailableIdes(): void
     {
         $response = (object) [
-        'error' => "There are no available Cloud IDEs for this application.\n",
-        'message' => "There are no available Cloud IDEs for this application.\n",
+            'error' => "There are no available Cloud IDEs for this application.\n",
+            'message' => "There are no available Cloud IDEs for this application.\n",
         ];
         $this->clientProphecy->request('get', Argument::type('string'))
         ->willThrow(new ApiErrorException($response, $response->message));
@@ -558,9 +558,9 @@ abstract class TestBase extends TestCase
         );
         if (!$perms) {
             $deletePerms = [
-            'add ssh key to git',
-            'add ssh key to non-prod',
-            'add ssh key to prod',
+                'add ssh key to git',
+                'add ssh key to non-prod',
+                'add ssh key to prod',
             ];
             foreach ($permissionsResponse->_embedded->items as $index => $item) {
                 if (in_array($item->name, $deletePerms, true)) {
@@ -663,8 +663,8 @@ abstract class TestBase extends TestCase
         $localMachineHelper->getLocalFilepath($this->passphraseFilepath)
         ->willReturn('/tmp/.passphrase');
         $localMachineHelper->execute([
-        'ssh-add',
-        '-L',
+            'ssh-add',
+            '-L',
         ], null, null, false)->shouldBeCalled()->willReturn($process->reveal());
     }
 
@@ -694,9 +694,9 @@ abstract class TestBase extends TestCase
         $process->isSuccessful()->willReturn(true);
         $process->getExitCode()->willReturn(0);
         $localMachineHelper->execute([
-        'supervisorctl',
-        'start',
-        'php-fpm',
+            'supervisorctl',
+            'start',
+            'php-fpm',
         ], null, null, false)->willReturn($process->reveal())->shouldBeCalled();
         return $process;
     }
@@ -707,9 +707,9 @@ abstract class TestBase extends TestCase
         $process->isSuccessful()->willReturn(true);
         $process->getExitCode()->willReturn(0);
         $localMachineHelper->execute([
-        'supervisorctl',
-        'stop',
-        'php-fpm',
+            'supervisorctl',
+            'stop',
+            'php-fpm',
         ], null, null, false)->willReturn($process->reveal())->shouldBeCalled();
         return $process;
     }
@@ -720,9 +720,9 @@ abstract class TestBase extends TestCase
         $process->isSuccessful()->willReturn(true);
         $process->getExitCode()->willReturn(0);
         $localMachineHelper->execute([
-        'supervisorctl',
-        'restart',
-        'php-fpm',
+            'supervisorctl',
+            'restart',
+            'php-fpm',
         ], null, null, false)->willReturn($process->reveal())->shouldBeCalled();
         return $process;
     }

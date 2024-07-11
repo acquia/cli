@@ -91,98 +91,98 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase
     {
 
         return [
-        [
-        'test.com',
-        'zone',
-        self::ZONE_TEST_OUTPUT,
-        [
+            [
+                'test.com',
+                'zone',
+                self::ZONE_TEST_OUTPUT,
+                [
         // What's the domain name you'd like to register?
-        'test.com',
+                    'test.com',
         // Select a Cloud Platform subscription.
-        '0',
+                    '0',
         // Would you like your DNS records in BIND Zone File, JSON, or YAML format?
-        '0',
+                    '0',
         // Have you finished providing the DNS records to your DNS provider?
-        'y',
+                    'y',
         // What are the environments you'd like to enable email for? You may enter multiple separated by a comma.
-        '0',
-        ],
-        // Status code.
-        0,
-        // Expected text.
-        ["You're all set to start using Platform Email!"],
-        // Domain registration responses.
-        "200",
-        ],
-        [
-        'test.com',
-        'yaml',
-        self::YAML_TEST_OUTPUT,
-        [
-        // What's the domain name you'd like to register?
-        'test.com',
-        // Select a Cloud Platform subscription.
-        '0',
-        // Would you like your DNS records in BIND Zone File, JSON, or YAML format?
-        '1',
-        // Have you finished providing the DNS records to your DNS provider?
-        'n',
-        ],
-        // Status code.
-        1,
-        // Expected text.
-        ["Make sure to give these records to your DNS provider"],
-        // Domain registration responses.
-        "404",
-        ],
-        [
-        'test.com',
-        'json',
-        self::JSON_TEST_OUTPUT,
-        [
-        // What's the domain name you'd like to register?
-        'test.com',
-        // Select a Cloud Platform subscription.
-        '0',
-        // Would you like your DNS records in BIND Zone File, JSON, or YAML format?
-        '2',
-        // Have you finished providing the DNS records to your DNS provider?
-        'y',
-        // Would you like to retry verification?
-        'n',
-        ],
-        // Status code.
-        1,
-        // Expected text.
-        ["Verification pending...", "Check your DNS records with your DNS provider"],
-        // Domain registration responses.
-        "202",
-        ],
-        [
-        'test.com',
-        'zone',
-        self::ZONE_TEST_OUTPUT,
-        [
-        // What's the domain name you'd like to register?
-        'test.com',
-        // Select a Cloud Platform subscription.
-        '0',
-        // Would you like your DNS records in BIND Zone File, JSON, or YAML format?
-        '0',
-        // Have you finished providing the DNS records to your DNS provider?
-        'y',
-        // Would you like to refresh?
-        'y',
-        // Would you like to re-check domain verification?
-        'n',
-        ],
-        // Status code.
-        1,
-        // Expected text.
-        ["Refreshing...", "Check your DNS records with your DNS provider"],
-        // Domain registration responses.
-        "404",
-        ],
+                    '0',
+                ],
+                // Status code.
+                0,
+                // Expected text.
+                ["You're all set to start using Platform Email!"],
+                // Domain registration responses.
+                "200",
+            ],
+            [
+                'test.com',
+                'yaml',
+                self::YAML_TEST_OUTPUT,
+                [
+            // What's the domain name you'd like to register?
+                    'test.com',
+            // Select a Cloud Platform subscription.
+                    '0',
+            // Would you like your DNS records in BIND Zone File, JSON, or YAML format?
+                    '1',
+            // Have you finished providing the DNS records to your DNS provider?
+                    'n',
+                ],
+                // Status code.
+                1,
+                // Expected text.
+                ["Make sure to give these records to your DNS provider"],
+                // Domain registration responses.
+                "404",
+            ],
+            [
+                'test.com',
+                'json',
+                self::JSON_TEST_OUTPUT,
+                [
+            // What's the domain name you'd like to register?
+                    'test.com',
+            // Select a Cloud Platform subscription.
+                    '0',
+            // Would you like your DNS records in BIND Zone File, JSON, or YAML format?
+                    '2',
+            // Have you finished providing the DNS records to your DNS provider?
+                    'y',
+            // Would you like to retry verification?
+                    'n',
+                ],
+                // Status code.
+                1,
+                // Expected text.
+                ["Verification pending...", "Check your DNS records with your DNS provider"],
+                // Domain registration responses.
+                "202",
+            ],
+            [
+                'test.com',
+                'zone',
+                self::ZONE_TEST_OUTPUT,
+                [
+            // What's the domain name you'd like to register?
+                    'test.com',
+            // Select a Cloud Platform subscription.
+                    '0',
+            // Would you like your DNS records in BIND Zone File, JSON, or YAML format?
+                    '0',
+            // Have you finished providing the DNS records to your DNS provider?
+                    'y',
+            // Would you like to refresh?
+                    'y',
+            // Would you like to re-check domain verification?
+                    'n',
+                ],
+                // Status code.
+                1,
+                // Expected text.
+                ["Refreshing...", "Check your DNS records with your DNS provider"],
+                // Domain registration responses.
+                "404",
+            ],
         ];
     }
 
@@ -192,52 +192,52 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase
     public function providerTestConfigurePlatformEmailEnableEnv(): array
     {
         return [
-        [
-        'example.com',
-        [
+            [
+                'example.com',
+                [
         // What's the domain name you'd like to register?
-        'example.com',
+                    'example.com',
         // Select a Cloud Platform subscription.
-        '0',
+                    '0',
         // Would you like your DNS records in BIND Zone File, JSON, or YAML format?
-        '0',
+                    '0',
         // Have you finished providing the DNS records to your DNS provider?
-        'y',
+                    'y',
         // What are the environments you'd like to enable email for? You may enter multiple separated by a comma.
-        '0',
-        ],
-        // Status code.
-        0,
-        // Enablement response code.
-        '409',
-        // Spec key for enablement response code.
-        'Already enabled',
-        // Expected text.
-        ['already enabled', "You're all set to start using Platform Email!"],
-        ],
-        [
-        'example.com',
-        [
-        // What's the domain name you'd like to register?
-        'example.com',
-        // Select a Cloud Platform subscription.
-        '0',
-        // Would you like your DNS records in BIND Zone File, JSON, or YAML format?
-        '0',
-        // Have you finished providing the DNS records to your DNS provider?
-        'y',
-        // What are the environments you'd like to enable email for? You may enter multiple separated by a comma.
-        '0',
-        ],
-        // Status code.
-        1,
-        // Enablement response code.
-        '403',
-        // Spec key for enablement response code.
-        'No permission',
-        // Expected text.
-        ['You do not have permission', 'Something went wrong'],
-        ],
+                    '0',
+                ],
+                // Status code.
+                0,
+                // Enablement response code.
+                '409',
+                // Spec key for enablement response code.
+                'Already enabled',
+                // Expected text.
+                ['already enabled', "You're all set to start using Platform Email!"],
+            ],
+            [
+                'example.com',
+                [
+            // What's the domain name you'd like to register?
+                    'example.com',
+            // Select a Cloud Platform subscription.
+                    '0',
+            // Would you like your DNS records in BIND Zone File, JSON, or YAML format?
+                    '0',
+            // Have you finished providing the DNS records to your DNS provider?
+                    'y',
+            // What are the environments you'd like to enable email for? You may enter multiple separated by a comma.
+                    '0',
+                ],
+                // Status code.
+                1,
+                // Enablement response code.
+                '403',
+                // Spec key for enablement response code.
+                'No permission',
+                // Expected text.
+                ['You do not have permission', 'Something went wrong'],
+            ],
         ];
     }
 
@@ -256,9 +256,9 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase
 
         $postDomainsResponse = $this->getMockResponseFromSpec('/subscriptions/{subscriptionUuid}/domains', 'post', '200');
         $this->clientProphecy->request('post', "/subscriptions/{$subscriptionsResponse->_embedded->items[0]->uuid}/domains", [
-        'form_params' => [
-        'domain' => $baseDomain,
-        ],
+            'form_params' => [
+                'domain' => $baseDomain,
+            ],
         ])->willReturn($postDomainsResponse);
 
         $getDomainsResponse = $this->getMockResponseFromSpec('/subscriptions/{subscriptionUuid}/domains', 'get', '200');
@@ -305,19 +305,19 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase
     {
         $inputs = [
         // What's the domain name you'd like to register?
-        'test.com',
+            'test.com',
         // Select a Cloud Platform subscription.
-        '0',
+            '0',
         // Would you like your DNS records in BIND Zone File, JSON, or YAML format?
-        '0',
+            '0',
         // Have you finished providing the DNS records to your DNS provider?
-        'y',
+            'y',
         // What are the applications you'd like to associate this domain with? You may enter multiple separated by a comma.
-        '0,1',
+            '0,1',
         // What are the environments you'd like to enable email for? You may enter multiple separated by a comma. - Application 0.
-        '0,1',
+            '0,1',
         // What are the environments you'd like to enable email for? You may enter multiple separated by a comma. - Application 1.
-        '0',
+            '0',
         ];
         $localMachineHelper = $this->mockLocalMachineHelper();
         $mockFileSystem = $this->mockGetFilesystem($localMachineHelper);
@@ -329,9 +329,9 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase
 
         $postDomainsResponse = $this->getMockResponseFromSpec('/subscriptions/{subscriptionUuid}/domains', 'post', '200');
         $this->clientProphecy->request('post', "/subscriptions/{$subscriptionsResponse->_embedded->items[0]->uuid}/domains", [
-        'form_params' => [
-        'domain' => 'test.com',
-        ],
+            'form_params' => [
+                'domain' => 'test.com',
+            ],
         ])->willReturn($postDomainsResponse);
 
         $getDomainsResponse = $this->getMockResponseFromSpec('/subscriptions/{subscriptionUuid}/domains', 'get', '200');
@@ -387,13 +387,13 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase
         $baseDomain = 'test.com';
         $inputs = [
         // What's the domain name you'd like to register?
-        $baseDomain,
+            $baseDomain,
         // Select a Cloud Platform subscription.
-        '0',
+            '0',
         // Would you like your DNS records in BIND Zone File, JSON, or YAML format?
-        '0',
+            '0',
         // Have you finished providing the DNS records to your DNS provider?
-        'y',
+            'y',
         ];
 
         $subscriptionsResponse = $this->getMockResponseFromSpec('/subscriptions', 'get', '200');
@@ -403,9 +403,9 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase
 
         $postDomainsResponse = $this->getMockResponseFromSpec('/subscriptions/{subscriptionUuid}/domains', 'post', '200');
         $this->clientProphecy->request('post', "/subscriptions/{$subscriptionsResponse->_embedded->items[0]->uuid}/domains", [
-        'form_params' => [
-        'domain' => $baseDomain,
-        ],
+            'form_params' => [
+                'domain' => $baseDomain,
+            ],
         ])->willReturn($postDomainsResponse);
 
         $getDomainsResponse = $this->getMockResponseFromSpec('/subscriptions/{subscriptionUuid}/domains', 'get', '200');
@@ -439,13 +439,13 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase
         $baseDomain = 'test.com';
         $inputs = [
         // What's the domain name you'd like to register?
-        $baseDomain,
+            $baseDomain,
         // Select a Cloud Platform subscription.
-        '0',
+            '0',
         // Would you like your DNS records in BIND Zone File, JSON, or YAML format?
-        '0',
+            '0',
         // Have you finished providing the DNS records to your DNS provider?
-        'y',
+            'y',
         ];
 
         $subscriptionsResponse = $this->getMockResponseFromSpec('/subscriptions', 'get', '200');
@@ -455,9 +455,9 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase
 
         $postDomainsResponse = $this->getMockResponseFromSpec('/subscriptions/{subscriptionUuid}/domains', 'post', '200');
         $this->clientProphecy->request('post', "/subscriptions/{$subscriptionsResponse->_embedded->items[0]->uuid}/domains", [
-        'form_params' => [
-        'domain' => $baseDomain,
-        ],
+            'form_params' => [
+                'domain' => $baseDomain,
+            ],
         ])->willReturn($postDomainsResponse);
 
         $getDomainsResponse = $this->getMockResponseFromSpec('/subscriptions/{subscriptionUuid}/domains', 'get', '200');
@@ -474,13 +474,13 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase
         $baseDomain = 'test.com';
         $inputs = [
         // What's the domain name you'd like to register?
-        $baseDomain,
+            $baseDomain,
         // Select a Cloud Platform subscription.
-        '0',
+            '0',
         // Would you like your DNS records in BIND Zone File, JSON, or YAML format?
-        '0',
+            '0',
         // Have you finished providing the DNS records to your DNS provider?
-        'y',
+            'y',
         ];
 
         $subscriptionsResponse = $this->getMockResponseFromSpec('/subscriptions', 'get', '200');
@@ -490,9 +490,9 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase
 
         $postDomainsResponse = $this->getMockResponseFromSpec('/subscriptions/{subscriptionUuid}/domains', 'post', '200');
         $this->clientProphecy->request('post', "/subscriptions/{$subscriptionsResponse->_embedded->items[0]->uuid}/domains", [
-        'form_params' => [
-        'domain' => $baseDomain,
-        ],
+            'form_params' => [
+                'domain' => $baseDomain,
+            ],
         ])->willReturn($postDomainsResponse);
 
         $getDomainsResponse = $this->getMockResponseFromSpec('/subscriptions/{subscriptionUuid}/domains', 'get', '200');
@@ -517,15 +517,15 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase
 
         $inputs = [
         // What's the domain name you'd like to register?
-        'test.com',
+            'test.com',
         // Select a Cloud Platform subscription.
-        '0',
+            '0',
         // Would you like your DNS records in BIND Zone File, JSON, or YAML format?
-        '2',
+            '2',
         // Have you finished providing the DNS records to your DNS provider?
-        'y',
+            'y',
         // What are the environments you'd like to enable email for? You may enter multiple separated by a comma.
-        '0',
+            '0',
         ];
         $subscriptionsResponse = $this->getMockResponseFromSpec('/subscriptions', 'get', '200');
         $this->clientProphecy->request('get', '/subscriptions')
@@ -533,9 +533,9 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase
 
         $postDomainsResponse = $this->getMockResponseFromSpec('/subscriptions/{subscriptionUuid}/domains', 'post', '200');
         $this->clientProphecy->request('post', "/subscriptions/{$subscriptionsResponse->_embedded->items[0]->uuid}/domains", [
-        'form_params' => [
-        'domain' => 'test.com',
-        ],
+            'form_params' => [
+                'domain' => 'test.com',
+            ],
         ])->willReturn($postDomainsResponse);
 
         $getDomainsResponse = $this->getMockResponseFromSpec('/subscriptions/{subscriptionUuid}/domains', 'get', '200');
@@ -585,9 +585,9 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase
 
         $postDomainsResponse = $this->getMockResponseFromSpec('/subscriptions/{subscriptionUuid}/domains', 'post', '200');
         $this->clientProphecy->request('post', "/subscriptions/{$subscriptionsResponse->_embedded->items[0]->uuid}/domains", [
-        'form_params' => [
-        'domain' => $baseDomain,
-        ],
+            'form_params' => [
+                'domain' => $baseDomain,
+            ],
         ])->willReturn($postDomainsResponse);
 
         $getDomainsResponse = $this->getMockResponseFromSpec('/subscriptions/{subscriptionUuid}/domains', 'get', '200');

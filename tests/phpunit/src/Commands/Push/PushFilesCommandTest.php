@@ -32,17 +32,17 @@ class PushFilesCommandTest extends CommandTestBase
 
         $inputs = [
         // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
-        'n',
+            'n',
         // Select a Cloud Platform application:
-        0,
+            0,
         // Would you like to link the project at ... ?
-        'n',
+            'n',
         // Choose a Cloud Platform environment.
-        0,
+            0,
         // Choose a site.
-        0,
+            0,
         // Overwrite the public files directory.
-        'y',
+            'y',
         ];
 
         $this->executeCommand([], $inputs);
@@ -71,17 +71,17 @@ class PushFilesCommandTest extends CommandTestBase
 
         $inputs = [
         // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
-        'n',
+            'n',
         // Select a Cloud Platform application:
-        0,
+            0,
         // Would you like to link the project at ... ?
-        'n',
+            'n',
         // Choose a Cloud Platform environment.
-        0,
+            0,
         // Choose a site.
-        0,
+            0,
         // Overwrite the public files directory.
-        'y',
+            'y',
         ];
 
         $this->executeCommand([], $inputs);
@@ -108,17 +108,17 @@ class PushFilesCommandTest extends CommandTestBase
 
         $inputs = [
         // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
-        'n',
+            'n',
         // Select a Cloud Platform application:
-        0,
+            0,
         // Would you like to link the project at ... ?
-        'n',
+            'n',
         // Choose a Cloud Platform environment.
-        0,
+            0,
         // Choose a site.
-        0,
+            0,
         // Overwrite the public files directory.
-        'n',
+            'n',
         ];
 
         $this->executeCommand([], $inputs);
@@ -141,11 +141,11 @@ class PushFilesCommandTest extends CommandTestBase
         $parts = explode('.', $environment->ssh_url);
         $sitegroup = reset($parts);
         $command = [
-        'rsync',
-        '-avPhze',
-        'ssh -o StrictHostKeyChecking=no',
-        $this->projectDir . '/docroot/sites/bar/files/',
-        $environment->ssh_url . ':/mnt/files/' . $sitegroup . '.' . $environment->name . '/sites/bar/files',
+            'rsync',
+            '-avPhze',
+            'ssh -o StrictHostKeyChecking=no',
+            $this->projectDir . '/docroot/sites/bar/files/',
+            $environment->ssh_url . ':/mnt/files/' . $sitegroup . '.' . $environment->name . '/sites/bar/files',
         ];
         $localMachineHelper->execute($command, Argument::type('callable'), null, true)
         ->willReturn($process->reveal())
@@ -159,11 +159,11 @@ class PushFilesCommandTest extends CommandTestBase
     ): void {
         $localMachineHelper->checkRequiredBinariesExist(['rsync'])->shouldBeCalled();
         $command = [
-        'rsync',
-        '-avPhze',
-        'ssh -o StrictHostKeyChecking=no',
-        $this->projectDir . '/docroot/sites/' . $site . '/files/',
-        'profserv2.01dev@profserv201dev.ssh.enterprise-g1.acquia-sites.com:/mnt/files/profserv2.01dev/sites/g/files/' . $site . '/files',
+            'rsync',
+            '-avPhze',
+            'ssh -o StrictHostKeyChecking=no',
+            $this->projectDir . '/docroot/sites/' . $site . '/files/',
+            'profserv2.01dev@profserv201dev.ssh.enterprise-g1.acquia-sites.com:/mnt/files/profserv2.01dev/sites/g/files/' . $site . '/files',
         ];
         $localMachineHelper->execute($command, Argument::type('callable'), null, true)
         ->willReturn($process->reveal())

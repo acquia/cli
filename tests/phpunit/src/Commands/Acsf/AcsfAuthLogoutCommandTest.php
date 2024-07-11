@@ -28,24 +28,24 @@ class AcsfAuthLogoutCommandTest extends AcsfCommandTestBase
     {
         return [
         // Data set 0.
-        [
+            [
         // $machineIsAuthenticated
-        false,
+                false,
         // $inputs
-        [],
-        ],
-        // Data set 1.
-        [
-        // $machineIsAuthenticated
-        true,
-        // $inputs
-        [
-        // Choose a Factory to logout of.
-        0,
-        ],
-        // $config.
-        $this->getAcsfCredentialsFileContents(),
-        ],
+                [],
+            ],
+            // Data set 1.
+            [
+            // $machineIsAuthenticated
+                true,
+            // $inputs
+                [
+            // Choose a Factory to logout of.
+                    0,
+                ],
+                // $config.
+                $this->getAcsfCredentialsFileContents(),
+            ],
         ];
     }
 

@@ -212,13 +212,13 @@ abstract class CommandTestBase extends TestBase
     {
         return [
         // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
-        'n',
+            'n',
         // Select a Cloud Platform application:
-        self::$INPUT_DEFAULT_CHOICE,
+            self::$INPUT_DEFAULT_CHOICE,
         // Would you like to link the project at ... ?
-        'n',
+            'n',
         // Choose an Acquia environment:
-        self::$INPUT_DEFAULT_CHOICE,
+            self::$INPUT_DEFAULT_CHOICE,
         ];
     }
 
@@ -557,18 +557,18 @@ abstract class CommandTestBase extends TestBase
     protected function getMockedGitLabProject(mixed $projectId): array
     {
         return [
-        'default_branch' => 'master',
-        'description' => '',
-        'http_url_to_repo' => 'https://code.cloudservices.acquia.io/matthew.grasmick/codestudiodemo.git',
-        'id' => $projectId,
-        'name' => 'codestudiodemo',
-        'name_with_namespace' => 'Matthew Grasmick / codestudiodemo',
-        'path' => 'codestudiodemo',
-        'path_with_namespace' => 'matthew.grasmick/codestudiodemo',
-        'topics' => [
-        0 => 'Acquia Cloud Application',
-        ],
-        'web_url' => 'https://code.cloudservices.acquia.io/matthew.grasmick/codestudiodemo',
+            'default_branch' => 'master',
+            'description' => '',
+            'http_url_to_repo' => 'https://code.cloudservices.acquia.io/matthew.grasmick/codestudiodemo.git',
+            'id' => $projectId,
+            'name' => 'codestudiodemo',
+            'name_with_namespace' => 'Matthew Grasmick / codestudiodemo',
+            'path' => 'codestudiodemo',
+            'path_with_namespace' => 'matthew.grasmick/codestudiodemo',
+            'topics' => [
+                0 => 'Acquia Cloud Application',
+            ],
+            'web_url' => 'https://code.cloudservices.acquia.io/matthew.grasmick/codestudiodemo',
         ];
     }
 
@@ -589,11 +589,11 @@ abstract class CommandTestBase extends TestBase
         $process = $this->mockProcess($success);
         $process->getOutput()->willReturn($gitlabToken);
         $localMachineHelper->execute([
-        'glab',
-        'config',
-        'get',
-        'token',
-        '--host=' . $gitlabHost,
+            'glab',
+            'config',
+            'get',
+            'token',
+            '--host=' . $gitlabHost,
         ], null, null, false)->willReturn($process->reveal());
     }
 
@@ -602,10 +602,10 @@ abstract class CommandTestBase extends TestBase
         $process = $this->mockProcess();
         $process->getOutput()->willReturn($gitlabHost);
         $localMachineHelper->execute([
-        'glab',
-        'config',
-        'get',
-        'host',
+            'glab',
+            'config',
+            'get',
+            'host',
         ], null, null, false)->willReturn($process->reveal());
     }
 
@@ -613,45 +613,45 @@ abstract class CommandTestBase extends TestBase
     {
         $users = $this->prophet->prophesize(Users::class);
         $me = [
-        'avatar_url' => 'https://secure.gravatar.com/avatar/5ee7b8ad954bf7156e6eb57a45d60dec?s=80&d=identicon',
-        'bio' => '',
-        'bot' => false,
-        'can_create_group' => true,
-        'can_create_project' => true,
-        'color_scheme_id' => 1,
-        'commit_email' => 'matthew.grasmick@acquia.com',
-        'confirmed_at' => '2021-12-21T02:26:51.898Z',
-        'created_at' => '2021-12-21T02:26:52.240Z',
-        'current_sign_in_at' => '2022-01-22T01:40:55.418Z',
-        'email' => 'matthew.grasmick@acquia.com',
-        'external' => false,
-        'followers' => 0,
-        'following' => 0,
-        'id' => 20,
-        'identities' => [],
-        'is_admin' => true,
-        'job_title' => '',
-        'last_activity_on' => '2022-01-22',
-        'last_sign_in_at' => '2022-01-21T23:00:49.035Z',
-        'linkedin' => '',
-        'local_time' => '2:00 AM',
-        'location' => null,
-        'name' => 'Matthew Grasmick',
-        'note' => '',
-        'organization' => null,
-        'private_profile' => false,
-        'projects_limit' => 100000,
-        'pronouns' => null,
-        'public_email' => '',
-        'skype' => '',
-        'state' => 'active',
-        'theme_id' => 1,
-        'twitter' => '',
-        'two_factor_enabled' => false,
-        'username' => 'matthew.grasmick',
-        'website_url' => '',
-        'web_url' => 'https://code.dev.cloudservices.acquia.io/matthew.grasmick',
-        'work_information' => null,
+            'avatar_url' => 'https://secure.gravatar.com/avatar/5ee7b8ad954bf7156e6eb57a45d60dec?s=80&d=identicon',
+            'bio' => '',
+            'bot' => false,
+            'can_create_group' => true,
+            'can_create_project' => true,
+            'color_scheme_id' => 1,
+            'commit_email' => 'matthew.grasmick@acquia.com',
+            'confirmed_at' => '2021-12-21T02:26:51.898Z',
+            'created_at' => '2021-12-21T02:26:52.240Z',
+            'current_sign_in_at' => '2022-01-22T01:40:55.418Z',
+            'email' => 'matthew.grasmick@acquia.com',
+            'external' => false,
+            'followers' => 0,
+            'following' => 0,
+            'id' => 20,
+            'identities' => [],
+            'is_admin' => true,
+            'job_title' => '',
+            'last_activity_on' => '2022-01-22',
+            'last_sign_in_at' => '2022-01-21T23:00:49.035Z',
+            'linkedin' => '',
+            'local_time' => '2:00 AM',
+            'location' => null,
+            'name' => 'Matthew Grasmick',
+            'note' => '',
+            'organization' => null,
+            'private_profile' => false,
+            'projects_limit' => 100000,
+            'pronouns' => null,
+            'public_email' => '',
+            'skype' => '',
+            'state' => 'active',
+            'theme_id' => 1,
+            'twitter' => '',
+            'two_factor_enabled' => false,
+            'username' => 'matthew.grasmick',
+            'website_url' => '',
+            'web_url' => 'https://code.dev.cloudservices.acquia.io/matthew.grasmick',
+            'work_information' => null,
         ];
         $users->me()->willReturn($me);
         $gitlabClient->users()->willReturn($users->reveal());
@@ -690,29 +690,29 @@ abstract class CommandTestBase extends TestBase
     protected function getMockGitLabVariables(): array
     {
         return [
-        0 => [
-        'environment_scope' => '*',
-        'key' => 'ACQUIA_APPLICATION_UUID',
-        'masked' => true,
-        'protected' => false,
-        'value' => 'a47ac10b-58cc-4372-a567-0e02b2c3d470',
-        'variable_type' => 'env_var',
-        ],
-        1 => [
-        'environment_scope' => '*',
-        'key' => 'ACQUIA_CLOUD_API_TOKEN_KEY',
-        'masked' => true,
-        'protected' => false,
-        'value' => '17feaf34-5d04-402b-9a67-15d5161d24e1',
-        'variable_type' => 'env_var',
-        ],
-        2 => [
-        'key' => 'ACQUIA_CLOUD_API_TOKEN_SECRET',
-        'masked' => false,
-        'protected' => false,
-        'value' => 'X1u\/PIQXtYaoeui.4RJSJpGZjwmWYmfl5AUQkAebYE=',
-        'variable_type' => 'env_var',
-        ],
+            0 => [
+                'environment_scope' => '*',
+                'key' => 'ACQUIA_APPLICATION_UUID',
+                'masked' => true,
+                'protected' => false,
+                'value' => 'a47ac10b-58cc-4372-a567-0e02b2c3d470',
+                'variable_type' => 'env_var',
+            ],
+            1 => [
+                'environment_scope' => '*',
+                'key' => 'ACQUIA_CLOUD_API_TOKEN_KEY',
+                'masked' => true,
+                'protected' => false,
+                'value' => '17feaf34-5d04-402b-9a67-15d5161d24e1',
+                'variable_type' => 'env_var',
+            ],
+            2 => [
+                'key' => 'ACQUIA_CLOUD_API_TOKEN_SECRET',
+                'masked' => false,
+                'protected' => false,
+                'value' => 'X1u\/PIQXtYaoeui.4RJSJpGZjwmWYmfl5AUQkAebYE=',
+                'variable_type' => 'env_var',
+            ],
         ];
     }
 
@@ -726,8 +726,8 @@ abstract class CommandTestBase extends TestBase
         $haystack = strtr(
             $haystack,
             [
-            "\r"   => "\n",
-            "\r\n" => "\n",
+                "\r"   => "\n",
+                "\r\n" => "\n",
             ]
         );
         static::assertThat($haystack, new StringContains($needle, false), $message);

@@ -57,8 +57,8 @@ final class EnvCreateCommand extends CommandBase
             }
             if (isset($environment)) {
                 $this->output->writeln([
-                '',
-                "<comment>Your CDE URL:</comment> <href=https://{$environment->domains[0]}>{$environment->domains[0]}</>",
+                    '',
+                    "<comment>Your CDE URL:</comment> <href=https://{$environment->domains[0]}>{$environment->domains[0]}</>",
                 ]);
             }
         };

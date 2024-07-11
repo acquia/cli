@@ -29,9 +29,9 @@ final class SshKeyListCommand extends SshKeyCommandBase
                 if (trim($localFile->getContents()) === trim($cloudKey->public_key)) {
                     $hash = self::getFingerprint($cloudKey->public_key);
                     $table->addRow([
-                    $cloudKey->label,
-                    $localFile->getFilename(),
-                    $hash,
+                        $cloudKey->label,
+                        $localFile->getFilename(),
+                        $hash,
                     ]);
                     unset($cloudKeys[$index], $localKeys[$localIndex]);
                     break;
@@ -45,9 +45,9 @@ final class SshKeyListCommand extends SshKeyCommandBase
         foreach ($cloudKeys as $cloudKey) {
             $hash = self::getFingerprint($cloudKey->public_key);
             $table->addRow([
-            $cloudKey->label,
-            'none',
-            $hash,
+                $cloudKey->label,
+                'none',
+                $hash,
             ]);
         }
         $table->render();
@@ -57,9 +57,9 @@ final class SshKeyListCommand extends SshKeyCommandBase
         foreach ($localKeys as $localFile) {
             $hash = self::getFingerprint($localFile->getContents());
             $table->addRow([
-            'none',
-            $localFile->getFilename(),
-            $hash,
+                'none',
+                $localFile->getFilename(),
+                $hash,
             ]);
         }
         $table->render();

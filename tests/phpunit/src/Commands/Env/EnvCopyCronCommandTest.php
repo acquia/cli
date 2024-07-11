@@ -44,11 +44,11 @@ class EnvCopyCronCommandTest extends CommandTestBase
         $dest = '32-a47ac10b-58cc-4372-a567-0e02b2c3d470';
         $this->executeCommand(
             [
-            'dest_env' => $dest,
-            'source_env' => $source,
+                'dest_env' => $dest,
+                'source_env' => $source,
             ],
             [
-            'y',
+                'y',
             ]
         );
 
@@ -63,8 +63,8 @@ class EnvCopyCronCommandTest extends CommandTestBase
     public function testCopyCronTasksCommandTestFail(): void
     {
         $this->executeCommand([
-        'dest_env' => 'app.test',
-        'source_env' => 'app.test',
+            'dest_env' => 'app.test',
+            'source_env' => 'app.test',
         ],);
         $output = $this->getDisplay();
         $this->assertStringContainsString('The source and destination environments can not be same', $output);
@@ -87,11 +87,11 @@ class EnvCopyCronCommandTest extends CommandTestBase
         $dest = '32-a47ac10b-58cc-4372-a567-0e02b2c3d470';
         $this->executeCommand(
             [
-            'dest_env' => $dest,
-            'source_env' => $source,
+                'dest_env' => $dest,
+                'source_env' => $source,
             ],
             [
-            'y',
+                'y',
             ]
         );
 
@@ -125,11 +125,11 @@ class EnvCopyCronCommandTest extends CommandTestBase
         $dest = '32-a47ac10b-58cc-4372-a567-0e02b2c3d470';
         $this->executeCommand(
             [
-            'dest_env' => $dest,
-            'source_env' => $source,
+                'dest_env' => $dest,
+                'source_env' => $source,
             ],
             [
-            'y',
+                'y',
             ]
         );
 

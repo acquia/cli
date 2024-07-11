@@ -66,8 +66,8 @@ final class AliasesDownloadCommand extends SshBaseCommand
         $this->io->writeln('Drush changed how aliases are defined in Drush 9. Drush 8 aliases are PHP-based and stored in your home directory, while Drush 9+ aliases are YAML-based and stored with your project.');
         $question = 'Choose your preferred alias compatibility:';
         $choices = [
-        '8' => 'Drush 8 / Drupal 7 (PHP)',
-        '9' => 'Drush 9+ / Drupal 8+ (YAML)',
+            '8' => 'Drush 8 / Drupal 7 (PHP)',
+            '9' => 'Drush 9+ / Drupal 8+ (YAML)',
         ];
         return (string) array_search($this->io->choice($question, $choices, '9'), $choices, true);
     }

@@ -71,8 +71,8 @@ abstract class SshKeyCommandBase extends CommandBase
     protected function sshKeyIsAddedToKeychain(): bool
     {
         $process = $this->localMachineHelper->execute([
-        'ssh-add',
-        '-L',
+            'ssh-add',
+            '-L',
         ], null, null, false);
 
         if ($process->isSuccessful()) {
@@ -232,15 +232,15 @@ EOT
 
         $this->localMachineHelper->checkRequiredBinariesExist(['ssh-keygen']);
         $process = $this->localMachineHelper->execute([
-        'ssh-keygen',
-        '-t',
-        'rsa',
-        '-b',
-        '4096',
-        '-f',
-        $filepath,
-        '-N',
-        $password,
+            'ssh-keygen',
+            '-t',
+            'rsa',
+            '-b',
+            '4096',
+            '-f',
+            $filepath,
+            '-N',
+            $password,
         ], null, null, false);
         if (!$process->isSuccessful()) {
             throw new AcquiaCliException($process->getOutput() . $process->getErrorOutput());
@@ -265,9 +265,9 @@ EOT
     private function validateFilename(string $filename): string
     {
         $violations = Validation::createValidator()->validate($filename, [
-        new Length(['min' => 5]),
-        new NotBlank(),
-        new Regex(['pattern' => '/^\S*$/', 'message' => 'The value may not contain spaces']),
+            new Length(['min' => 5]),
+            new NotBlank(),
+            new Regex(['pattern' => '/^\S*$/', 'message' => 'The value may not contain spaces']),
         ]);
         if (count($violations)) {
             throw new ValidatorException($violations->get(0)->getMessage());
@@ -291,8 +291,8 @@ EOT
     private function validatePassword(string $password): string
     {
         $violations = Validation::createValidator()->validate($password, [
-        new Length(['min' => 5]),
-        new NotBlank(),
+            new Length(['min' => 5]),
+            new NotBlank(),
         ]);
         if (count($violations)) {
             throw new ValidatorException($violations->get(0)->getMessage());

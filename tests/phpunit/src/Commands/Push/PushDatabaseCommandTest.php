@@ -26,8 +26,8 @@ class PushDatabaseCommandTest extends CommandTestBase
     public function providerTestPushDatabase(): array
     {
         return [
-        [OutputInterface::VERBOSITY_NORMAL, false],
-        [OutputInterface::VERBOSITY_VERY_VERBOSE, true],
+            [OutputInterface::VERBOSITY_NORMAL, false],
+            [OutputInterface::VERBOSITY_VERY_VERBOSE, true],
         ];
     }
 
@@ -75,17 +75,17 @@ class PushDatabaseCommandTest extends CommandTestBase
 
         $inputs = [
         // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
-        'n',
+            'n',
         // Select a Cloud Platform application:
-        0,
+            0,
         // Would you like to link the project at ... ?
-        'n',
+            'n',
         // Choose a Cloud Platform environment.
-        0,
+            0,
         // Choose a database.
-        0,
+            0,
         // Overwrite the profserv2 database on dev with a copy of the database from the current machine?
-        'y',
+            'y',
         ];
 
         $this->executeCommand([], $inputs, $verbosity);
@@ -109,11 +109,11 @@ class PushDatabaseCommandTest extends CommandTestBase
     ): void {
         $localMachineHelper->checkRequiredBinariesExist(['rsync'])->shouldBeCalled();
         $command = [
-        'rsync',
-        '-tDvPhe',
-        'ssh -o StrictHostKeyChecking=no',
-        sys_get_temp_dir() . '/acli-mysql-dump-drupal.sql.gz',
-        'profserv2.01dev@profserv201dev.ssh.enterprise-g1.acquia-sites.com:/mnt/tmp/profserv2.01dev/acli-mysql-dump-drupal.sql.gz',
+            'rsync',
+            '-tDvPhe',
+            'ssh -o StrictHostKeyChecking=no',
+            sys_get_temp_dir() . '/acli-mysql-dump-drupal.sql.gz',
+            'profserv2.01dev@profserv201dev.ssh.enterprise-g1.acquia-sites.com:/mnt/tmp/profserv2.01dev/acli-mysql-dump-drupal.sql.gz',
         ];
         $localMachineHelper->execute($command, Argument::type('callable'), null, $printOutput, null)
         ->willReturn($process->reveal())
@@ -143,14 +143,14 @@ class PushDatabaseCommandTest extends CommandTestBase
         $multisiteConfig = file_get_contents(Path::join($this->realFixtureDir, '/multisite-config.json'));
         $acsfMultisiteFetchProcess->getOutput()->willReturn($multisiteConfig)->shouldBeCalled();
         $cmd = [
-        0 => 'ssh',
-        1 => 'profserv2.01dev@profserv201dev.ssh.enterprise-g1.acquia-sites.com',
-        2 => '-t',
-        3 => '-o StrictHostKeyChecking=no',
-        4 => '-o AddressFamily inet',
-        5 => '-o LogLevel=ERROR',
-        6 => 'cat',
-        7 => '/var/www/site-php/profserv2.01dev/multisite-config.json',
+            0 => 'ssh',
+            1 => 'profserv2.01dev@profserv201dev.ssh.enterprise-g1.acquia-sites.com',
+            2 => '-t',
+            3 => '-o StrictHostKeyChecking=no',
+            4 => '-o AddressFamily inet',
+            5 => '-o LogLevel=ERROR',
+            6 => 'cat',
+            7 => '/var/www/site-php/profserv2.01dev/multisite-config.json',
         ];
         $localMachineHelper->execute($cmd, Argument::type('callable'), null, false, null)->willReturn($acsfMultisiteFetchProcess->reveal())->shouldBeCalled();
     }
@@ -158,13 +158,13 @@ class PushDatabaseCommandTest extends CommandTestBase
     private function mockImportDatabaseDumpOnRemote(ObjectProphecy|LocalMachineHelper $localMachineHelper, Process|ObjectProphecy $process, bool $printOutput = true): void
     {
         $cmd = [
-        0 => 'ssh',
-        1 => 'profserv2.01dev@profserv201dev.ssh.enterprise-g1.acquia-sites.com',
-        2 => '-t',
-        3 => '-o StrictHostKeyChecking=no',
-        4 => '-o AddressFamily inet',
-        5 => '-o LogLevel=ERROR',
-        6 => 'pv /mnt/tmp/profserv2.01dev/acli-mysql-dump-drupal.sql.gz --bytes --rate | gunzip | MYSQL_PWD=password mysql --host=fsdb-74.enterprise-g1.hosting.acquia.com.enterprise-g1.hosting.acquia.com --user=s164 profserv2db14390',
+            0 => 'ssh',
+            1 => 'profserv2.01dev@profserv201dev.ssh.enterprise-g1.acquia-sites.com',
+            2 => '-t',
+            3 => '-o StrictHostKeyChecking=no',
+            4 => '-o AddressFamily inet',
+            5 => '-o LogLevel=ERROR',
+            6 => 'pv /mnt/tmp/profserv2.01dev/acli-mysql-dump-drupal.sql.gz --bytes --rate | gunzip | MYSQL_PWD=password mysql --host=fsdb-74.enterprise-g1.hosting.acquia.com.enterprise-g1.hosting.acquia.com --user=s164 profserv2db14390',
         ];
         $localMachineHelper->execute($cmd, Argument::type('callable'), null, $printOutput, null)
         ->willReturn($process->reveal())

@@ -40,9 +40,9 @@ final class DrushCommand extends SshBaseCommand
             array_unshift($drushArguments, "--uri=http://$environment->default_domain");
         }
         $drushCommandArguments = [
-        "cd /var/www/html/$alias/docroot; ",
-        'drush',
-        implode(' ', $drushArguments),
+            "cd /var/www/html/$alias/docroot; ",
+            'drush',
+            implode(' ', $drushArguments),
         ];
 
         return $this->sshHelper->executeCommand($environment->sshUrl, $drushCommandArguments)->getExitCode();

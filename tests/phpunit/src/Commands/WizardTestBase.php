@@ -29,9 +29,9 @@ abstract class WizardTestBase extends CommandTestBase
         parent::setUp();
         $this->getCommandTester();
         $this->application->addCommands([
-        $this->injectCommand(SshKeyCreateCommand::class),
-        $this->injectCommand(SshKeyDeleteCommand::class),
-        $this->injectCommand(SshKeyUploadCommand::class),
+            $this->injectCommand(SshKeyCreateCommand::class),
+            $this->injectCommand(SshKeyDeleteCommand::class),
+            $this->injectCommand(SshKeyUploadCommand::class),
         ]);
     }
 
@@ -47,7 +47,7 @@ abstract class WizardTestBase extends CommandTestBase
     public static function getEnvVars(): array
     {
         return [
-        'ACQUIA_APPLICATION_UUID' => self::$applicationUuid,
+            'ACQUIA_APPLICATION_UUID' => self::$applicationUuid,
         ];
     }
 
@@ -58,10 +58,10 @@ abstract class WizardTestBase extends CommandTestBase
         $request = $this->getMockRequestBodyFromSpec('/account/ssh-keys');
 
         $body = [
-        'json' => [
-        'label' => 'IDE_ExampleIDE_215824ff272a4a8c9027df32ed1d68a9',
-        'public_key' => $request['public_key'],
-        ],
+            'json' => [
+                'label' => 'IDE_ExampleIDE_215824ff272a4a8c9027df32ed1d68a9',
+                'public_key' => $request['public_key'],
+            ],
         ];
         $this->mockRequest('postAccountSshKeys', null, $body);
 
@@ -95,7 +95,7 @@ abstract class WizardTestBase extends CommandTestBase
         // Set properties and execute.
         $this->executeCommand([], [
         // Would you like to link the project at ... ?
-        'y',
+            'y',
         ]);
 
         // Assertions.
@@ -129,10 +129,10 @@ abstract class WizardTestBase extends CommandTestBase
         $localMachineHelper = $this->mockLocalMachineHelper();
 
         $body = [
-        'json' => [
-        'label' => 'IDE_ExampleIDE_215824ff272a4a8c9027df32ed1d68a9',
-        'public_key' => $mockRequestArgs['public_key'],
-        ],
+            'json' => [
+                'label' => 'IDE_ExampleIDE_215824ff272a4a8c9027df32ed1d68a9',
+                'public_key' => $mockRequestArgs['public_key'],
+            ],
         ];
         $this->mockRequest('postAccountSshKeys', null, $body);
 
@@ -164,7 +164,7 @@ abstract class WizardTestBase extends CommandTestBase
     protected function getOutputStrings(): array
     {
         return [
-        "Setting GitLab CI/CD variables for",
+            "Setting GitLab CI/CD variables for",
         ];
     }
 }

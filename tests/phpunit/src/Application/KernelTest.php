@@ -14,7 +14,7 @@ class KernelTest extends ApplicationTestBase
     public function testRun(): void
     {
         $this->setInput([
-        'command' => 'list',
+            'command' => 'list',
         ]);
         $buffer = $this->runApp();
         // A bit dumb that we need to break these up, but the available commands vary based on whether a browser is available or the session is interactive.

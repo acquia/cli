@@ -36,14 +36,14 @@ class EnvCertCreateCommandTest extends CommandTestBase
             '202'
         );
         $options = [
-        'json' => [
-        'ca_certificates' => null,
-        'certificate' => $certContents,
-        'csr_id' => $csrId,
-        'label' => $label,
-        'legacy' => false,
-        'private_key' => $keyContents,
-        ],
+            'json' => [
+                'ca_certificates' => null,
+                'certificate' => $certContents,
+                'csr_id' => $csrId,
+                'label' => $label,
+                'legacy' => false,
+                'private_key' => $keyContents,
+            ],
         ];
         $this->clientProphecy->request('post', "/environments/{$environments[1]->id}/ssl/certificates", $options)
         ->willReturn($sslResponse->{'Site is being imported'}->value)
@@ -52,20 +52,20 @@ class EnvCertCreateCommandTest extends CommandTestBase
 
         $this->executeCommand(
             [
-            '--csr-id' => $csrId,
-            '--label' => $label,
-            '--legacy' => false,
-            'certificate' => $certName,
-            'private-key' => $keyName,
+                '--csr-id' => $csrId,
+                '--label' => $label,
+                '--legacy' => false,
+                'certificate' => $certName,
+                'private-key' => $keyName,
             ],
             [
             // Would you like Acquia CLI to search for a Cloud application that matches your local git config?'.
-            'n',
+                'n',
             // Select a Cloud Platform application: [Sample application 1]:
-            0,
-            'n',
-            1,
-            '',
+                0,
+                'n',
+                1,
+                '',
             ]
         );
     }
@@ -96,14 +96,14 @@ class EnvCertCreateCommandTest extends CommandTestBase
             '202'
         );
         $options = [
-        'json' => [
-        'ca_certificates' => null,
-        'certificate' => $certContents,
-        'csr_id' => $csrId,
-        'label' => $label,
-        'legacy' => false,
-        'private_key' => $keyContents,
-        ],
+            'json' => [
+                'ca_certificates' => null,
+                'certificate' => $certContents,
+                'csr_id' => $csrId,
+                'label' => $label,
+                'legacy' => false,
+                'private_key' => $keyContents,
+            ],
         ];
         $this->clientProphecy->request('post', "/environments/{$environments[0]->id}/ssl/certificates", $options)
         ->willReturn($sslResponse->{'Site is being imported'}->value)
@@ -112,17 +112,17 @@ class EnvCertCreateCommandTest extends CommandTestBase
 
         $this->executeCommand(
             [
-            '--csr-id' => $csrId,
-            '--label' => $label,
-            '--legacy' => false,
-            'certificate' => $certName,
-            'private-key' => $keyName,
+                '--csr-id' => $csrId,
+                '--label' => $label,
+                '--legacy' => false,
+                'certificate' => $certName,
+                'private-key' => $keyName,
             ],
             [
             // Would you like Acquia CLI to search for a Cloud application that matches your local git config?'.
-            'n',
+                'n',
             // Select a Cloud Platform application: [Sample application 1]:
-            0,
+                0,
             ]
         );
     }

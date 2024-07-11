@@ -28,8 +28,8 @@ final class NewCommand extends CommandBase
         $this->output->writeln('Acquia recommends most customers use <options=bold>acquia/drupal-recommended-project</> to setup a Drupal project, which includes useful utilities such as Acquia Connector.');
         $this->output->writeln('<options=bold>acquia/next-acms</> is a starter template for building a headless site powered by Acquia CMS and Next.js.');
         $distros = [
-        'acquia_drupal_recommended' => 'acquia/drupal-recommended-project',
-        'acquia_next_acms' => 'acquia/next-acms',
+            'acquia_drupal_recommended' => 'acquia/drupal-recommended-project',
+            'acquia_next_acms' => 'acquia/next-acms',
         ];
         $project = $this->io->choice('Choose a starting project', array_values($distros), $distros['acquia_drupal_recommended']);
         $project = array_search($project, $distros, true);
@@ -66,11 +66,11 @@ final class NewCommand extends CommandBase
     private function createNextJsProject(string $dir): void
     {
         $process = $this->localMachineHelper->execute([
-        'npx',
-        'create-next-app',
-        '-e',
-        'https://github.com/acquia/next-acms/tree/main/starters/basic-starter',
-        $dir,
+            'npx',
+            'create-next-app',
+            '-e',
+            'https://github.com/acquia/next-acms/tree/main/starters/basic-starter',
+            $dir,
         ]);
         if (!$process->isSuccessful()) {
             throw new AcquiaCliException("Unable to create new next-acms project.");
@@ -80,11 +80,11 @@ final class NewCommand extends CommandBase
     private function createDrupalProject(string $project, string $dir): void
     {
         $process = $this->localMachineHelper->execute([
-        'composer',
-        'create-project',
-        $project,
-        $dir,
-        '--no-interaction',
+            'composer',
+            'create-project',
+            $project,
+            $dir,
+            '--no-interaction',
         ]);
         if (!$process->isSuccessful()) {
             throw new AcquiaCliException("Unable to create new project.");
@@ -99,23 +99,23 @@ final class NewCommand extends CommandBase
         }
         $this->localMachineHelper->checkRequiredBinariesExist(['git']);
         $this->localMachineHelper->execute([
-        'git',
-        'init',
-        '--initial-branch=main',
+            'git',
+            'init',
+            '--initial-branch=main',
         ], null, $dir);
 
         $this->localMachineHelper->execute([
-        'git',
-        'add',
-        '-A',
+            'git',
+            'add',
+            '-A',
         ], null, $dir);
 
         $this->localMachineHelper->execute([
-        'git',
-        'commit',
-        '--message',
-        'Initial commit.',
-        '--quiet',
+            'git',
+            'commit',
+            '--message',
+            'Initial commit.',
+            '--quiet',
         ], null, $dir);
         // @todo Check that this was successful!
     }

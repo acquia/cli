@@ -25,18 +25,18 @@ class DrushCommandTest extends SshCommandTestBase
     public function providerTestRemoteDrushCommand(): array
     {
         return [
-        [
-        [
-        '-vvv' => '',
-        'drush_command' => 'status --fields=db-status',
-        ],
-        ],
-        [
-        [
-        '-vvv' => '',
-        'drush_command' => 'status --fields=db-status',
-        ],
-        ],
+            [
+                [
+                    '-vvv' => '',
+                    'drush_command' => 'status --fields=db-status',
+                ],
+            ],
+            [
+                [
+                    '-vvv' => '',
+                    'drush_command' => 'status --fields=db-status',
+                ],
+            ],
         ];
     }
 
@@ -50,15 +50,15 @@ class DrushCommandTest extends SshCommandTestBase
         [$process, $localMachineHelper] = $this->mockForExecuteCommand();
         $localMachineHelper->checkRequiredBinariesExist(['ssh'])->shouldBeCalled();
         $sshCommand = [
-        'ssh',
-        'site.dev@sitedev.ssh.hosted.acquia-sites.com',
-        '-t',
-        '-o StrictHostKeyChecking=no',
-        '-o AddressFamily inet',
-        '-o LogLevel=ERROR',
-        'cd /var/www/html/site.dev/docroot; ',
-        'drush',
-        '--uri=http://sitedev.hosted.acquia-sites.com status --fields=db-status',
+            'ssh',
+            'site.dev@sitedev.ssh.hosted.acquia-sites.com',
+            '-t',
+            '-o StrictHostKeyChecking=no',
+            '-o AddressFamily inet',
+            '-o LogLevel=ERROR',
+            'cd /var/www/html/site.dev/docroot; ',
+            'drush',
+            '--uri=http://sitedev.hosted.acquia-sites.com status --fields=db-status',
         ];
         $localMachineHelper
         ->execute($sshCommand, Argument::type('callable'), null, true, null)

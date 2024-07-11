@@ -36,8 +36,8 @@ class PushArtifactCommandTest extends PullCommandTestBase
     public function providerTestPushArtifact(): array
     {
         return [
-        [OutputInterface::VERBOSITY_NORMAL, false],
-        [OutputInterface::VERBOSITY_VERY_VERBOSE, true],
+            [OutputInterface::VERBOSITY_NORMAL, false],
+            [OutputInterface::VERBOSITY_VERY_VERBOSE, true],
         ];
     }
 
@@ -53,13 +53,13 @@ class PushArtifactCommandTest extends PullCommandTestBase
         $this->setUpPushArtifact($localMachineHelper, $environments[0]->vcs->path, [$environments[0]->vcs->url], 'master:master', true, true, true, $printOutput);
         $inputs = [
         // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
-        'n',
+            'n',
         // Select a Cloud Platform application:
-        0,
+            0,
         // Would you like to link the project at ... ?
-        'y',
+            'y',
         // Choose an Acquia environment:
-        0,
+            0,
         ];
         $this->executeCommand([], $inputs, $verbosity);
 
@@ -101,15 +101,15 @@ class PushArtifactCommandTest extends PullCommandTestBase
         $this->mockGitTag($localMachineHelper, $gitTag, $artifactDir);
         $inputs = [
         // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
-        'n',
+            'n',
         // Select a Cloud Platform application:
-        0,
+            0,
         // Would you like to link the project at ... ?
-        'n',
+            'n',
         ];
         $this->executeCommand([
-        '--destination-git-tag' => $gitTag,
-        '--source-git-tag' => '1.2.0',
+            '--destination-git-tag' => $gitTag,
+            '--source-git-tag' => '1.2.0',
         ], $inputs);
 
         $output = $this->getDisplay();
@@ -126,13 +126,13 @@ class PushArtifactCommandTest extends PullCommandTestBase
         $this->mockRequest('getApplicationByUuid', $applications[0]->uuid);
         $this->mockRequest('getApplicationEnvironments', $applications[0]->uuid);
         $this->datastoreAcli->set('push.artifact.destination-git-urls', [
-        'https://github.com/example1/cli.git',
-        'https://github.com/example2/cli.git',
+            'https://github.com/example1/cli.git',
+            'https://github.com/example2/cli.git',
         ]);
         $localMachineHelper = $this->mockLocalMachineHelper();
         $this->setUpPushArtifact($localMachineHelper, 'master', $this->datastoreAcli->get('push.artifact.destination-git-urls'));
         $this->executeCommand([
-        '--destination-git-branch' => 'master',
+            '--destination-git-branch' => 'master',
         ]);
 
         $output = $this->getDisplay();
@@ -147,14 +147,14 @@ class PushArtifactCommandTest extends PullCommandTestBase
         $this->mockRequest('getApplicationByUuid', $applications[0]->uuid);
         $this->mockRequest('getApplicationEnvironments', $applications[0]->uuid);
         $destinationGitUrls = [
-        'https://github.com/example1/cli.git',
-        'https://github.com/example2/cli.git',
+            'https://github.com/example1/cli.git',
+            'https://github.com/example2/cli.git',
         ];
         $localMachineHelper = $this->mockLocalMachineHelper();
         $this->setUpPushArtifact($localMachineHelper, 'master', $destinationGitUrls);
         $this->executeCommand([
-        '--destination-git-branch' => 'master',
-        '--destination-git-urls' => $destinationGitUrls,
+            '--destination-git-branch' => 'master',
+            '--destination-git-urls' => $destinationGitUrls,
         ]);
 
         $output = $this->getDisplay();
@@ -172,13 +172,13 @@ class PushArtifactCommandTest extends PullCommandTestBase
         $this->setUpPushArtifact($localMachineHelper, $environments[0]->vcs->path, [$environments[0]->vcs->url], 'master:master', true, true, false);
         $inputs = [
         // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
-        'n',
+            'n',
         // Select a Cloud Platform application:
-        0,
+            0,
         // Would you like to link the project at ... ?
-        'y',
+            'y',
         // Choose an Acquia environment:
-        0,
+            0,
         ];
         $this->executeCommand(['--no-push' => true], $inputs);
 
@@ -198,13 +198,13 @@ class PushArtifactCommandTest extends PullCommandTestBase
         $this->setUpPushArtifact($localMachineHelper, $environments[0]->vcs->path, [$environments[0]->vcs->url], 'master:master', true, false, false);
         $inputs = [
         // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
-        'n',
+            'n',
         // Select a Cloud Platform application:
-        0,
+            0,
         // Would you like to link the project at ... ?
-        'y',
+            'y',
         // Choose an Acquia environment:
-        0,
+            0,
         ];
         $this->executeCommand(['--no-commit' => true], $inputs);
 
@@ -221,13 +221,13 @@ class PushArtifactCommandTest extends PullCommandTestBase
         $this->setUpPushArtifact($localMachineHelper, 'nothing', [], 'something', false, false, false);
         $inputs = [
         // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
-        'n',
+            'n',
         // Select a Cloud Platform application:
-        0,
+            0,
         // Would you like to link the project at ... ?
-        'y',
+            'y',
         // Choose an Acquia environment:
-        0,
+            0,
         ];
         $this->executeCommand(['--no-clone' => true], $inputs);
 
@@ -318,16 +318,16 @@ class PushArtifactCommandTest extends PullCommandTestBase
     protected function mockReadComposerJson(ObjectProphecy $localMachineHelper, string $artifactDir): void
     {
         $composerJson = json_encode([
-        'extra' => [
-        'drupal-scaffold' => [
-          'file-mapping' => [
-            '[web-root]/index.php' => [],
-          ],
-        ],
-        'installer-paths' => [
-          'docroot/core' => [],
-        ],
-        ],
+            'extra' => [
+                'drupal-scaffold' => [
+                    'file-mapping' => [
+                        '[web-root]/index.php' => [],
+                    ],
+                ],
+                'installer-paths' => [
+                    'docroot/core' => [],
+                ],
+            ],
         ]);
         $localMachineHelper->readFile(Path::join($this->projectDir, 'composer.json'))
         ->willReturn($composerJson);
@@ -348,9 +348,9 @@ class PushArtifactCommandTest extends PullCommandTestBase
     {
         $process = $this->mockProcess();
         $localMachineHelper->execute([
-        'git',
-        'tag',
-        $gitTag,
+            'git',
+            'tag',
+            $gitTag,
         ], Argument::type('callable'), $artifactDir, true)
         ->willReturn($process->reveal())->shouldBeCalled();
     }

@@ -134,8 +134,8 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
     protected static function getUuidRegexConstraint(): Regex
     {
         return new Regex([
-        'message' => 'This is not a valid UUID.',
-        'pattern' => '/^[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}$/i',
+            'message' => 'This is not a valid UUID.',
+            'pattern' => '/^[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}$/i',
         ]);
     }
 
@@ -266,13 +266,13 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
             return $exitCode;
         }
         $eventProperties = [
-        'app_version' => $this->getApplication()->getVersion(),
-        'arguments' => $input->getArguments(),
-        'exit_code' => $exitCode,
-        'options' => $input->getOptions(),
-        'os_name' => OsInfo::os(),
-        'os_version' => OsInfo::version(),
-        'platform' => OsInfo::family(),
+            'app_version' => $this->getApplication()->getVersion(),
+            'arguments' => $input->getArguments(),
+            'exit_code' => $exitCode,
+            'options' => $input->getOptions(),
+            'os_name' => OsInfo::os(),
+            'os_version' => OsInfo::version(),
+            'platform' => OsInfo::family(),
         ];
         Amplitude::getInstance()->queueEvent('Ran command', $eventProperties);
 
@@ -392,8 +392,8 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
     {
         $logs = array_map(static function (mixed $logType, mixed $logLabel): array {
             return [
-            'label' => $logLabel,
-            'type' => $logType,
+                'label' => $logLabel,
+                'type' => $logType,
             ];
         }, array_keys(LogstreamManager::AVAILABLE_TYPES), LogstreamManager::AVAILABLE_TYPES);
         return $this->promptChooseFromObjectsOrArrays(
@@ -473,17 +473,17 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
     {
         $this->localMachineHelper->checkRequiredBinariesExist(['rsync']);
         $command = [
-        'rsync',
+            'rsync',
         // -a archive mode; same as -rlptgoD.
         // -z compress file data during the transfer.
         // -v increase verbosity.
         // -P show progress during transfer.
         // -h output numbers in a human-readable format.
         // -e specify the remote shell to use.
-        '-avPhze',
-        'ssh -o StrictHostKeyChecking=no',
-        $sourceDir . '/',
-        $destinationDir,
+            '-avPhze',
+            'ssh -o StrictHostKeyChecking=no',
+            $sourceDir . '/',
+            $destinationDir,
         ];
         $process = $this->localMachineHelper->execute($command, $outputCallback, null, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
         if (!$process->isSuccessful()) {
@@ -656,9 +656,9 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
     {
         $this->localMachineHelper->checkRequiredBinariesExist(['git']);
         $process = $this->localMachineHelper->execute([
-        'git',
-        'rev-parse',
-        'HEAD',
+            'git',
+            'rev-parse',
+            'HEAD',
         ], null, $this->dir, false);
 
         if (!$process->isSuccessful()) {
@@ -941,10 +941,10 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
     public static function validateUuid(string $uuid): string
     {
         $violations = Validation::createValidator()->validate($uuid, [
-        new Length([
-        'value' => 36,
-        ]),
-        self::getUuidRegexConstraint(),
+            new Length([
+                'value' => 36,
+            ]),
+            self::getUuidRegexConstraint(),
         ]);
         if (count($violations)) {
             throw new ValidatorException($violations->get(0)->getMessage());
@@ -1039,9 +1039,9 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
     public static function validateEnvironmentAlias(string $alias): string
     {
         $violations = Validation::createValidator()->validate($alias, [
-        new Length(['min' => 5]),
-        new NotBlank(),
-        new Regex(['pattern' => '/.+\..+/', 'message' => 'You must enter either an environment ID or alias. Environment aliases must match the pattern [app-name].[env]']),
+            new Length(['min' => 5]),
+            new NotBlank(),
+            new Regex(['pattern' => '/.+\..+/', 'message' => 'You must enter either an environment ID or alias. Environment aliases must match the pattern [app-name].[env]']),
         ]);
         if (count($violations)) {
             throw new ValidatorException($violations->get(0)->getMessage());
@@ -1488,8 +1488,8 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
         // this is being run as a sub-command.
         // @see https://github.com/acquia/cli/issues/403
         $this->cloudApiClientService->setConnector(new Connector([
-        'key' => $apiKey,
-        'secret' => $apiSecret,
+            'key' => $apiKey,
+            'secret' => $apiSecret,
         ], $baseUri, $accountsUri));
     }
 
@@ -1563,11 +1563,11 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
             $checklist->addItem('Clearing Drupal caches via Drush');
             // @todo Add support for Drush 8.
             $process = $this->localMachineHelper->execute([
-            'drush',
-            'cache:rebuild',
-            '--yes',
-            '--no-interaction',
-            '--verbose',
+                'drush',
+                'cache:rebuild',
+                '--yes',
+                '--no-interaction',
+                '--verbose',
             ], $outputCallback, $this->dir, false);
             if (!$process->isSuccessful()) {
                   throw new AcquiaCliException('Unable to rebuild Drupal caches via Drush. {message}', ['message' => $process->getErrorOutput()]);
@@ -1583,11 +1583,11 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
         if ($this->getDrushDatabaseConnectionStatus()) {
             $checklist->addItem('Sanitizing database via Drush');
             $process = $this->localMachineHelper->execute([
-            'drush',
-            'sql:sanitize',
-            '--yes',
-            '--no-interaction',
-            '--verbose',
+                'drush',
+                'sql:sanitize',
+                '--yes',
+                '--no-interaction',
+                '--verbose',
             ], $outputCallback, $this->dir, false);
             if (!$process->isSuccessful()) {
                   throw new AcquiaCliException('Unable to sanitize Drupal database via Drush. {message}', ['message' => $process->getErrorOutput()]);
@@ -1603,9 +1603,9 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
     private function composerInstall(?callable $outputCallback): void
     {
         $process = $this->localMachineHelper->execute([
-        'composer',
-        'install',
-        '--no-interaction',
+            'composer',
+            'install',
+            '--no-interaction',
         ], $outputCallback, $this->dir, false);
         if (!$process->isSuccessful()) {
             throw new AcquiaCliException(
@@ -1622,11 +1622,11 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
         }
         if ($this->localMachineHelper->commandExists('drush')) {
             $process = $this->localMachineHelper->execute([
-            'drush',
-            'status',
-            '--fields=db-status,drush-version',
-            '--format=json',
-            '--no-interaction',
+                'drush',
+                'status',
+                '--fields=db-status,drush-version',
+                '--format=json',
+                '--no-interaction',
             ], $outputCallback, $this->dir, false);
             if ($process->isSuccessful()) {
                 $drushStatusReturnOutput = json_decode($process->getOutput(), true);
@@ -1690,9 +1690,9 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
     private function validateApiKey(mixed $key): string
     {
         $violations = Validation::createValidator()->validate($key, [
-        new Length(['min' => 10]),
-        new NotBlank(),
-        new Regex(['pattern' => '/^\S*$/', 'message' => 'The value may not contain spaces']),
+            new Length(['min' => 10]),
+            new NotBlank(),
+            new Regex(['pattern' => '/^\S*$/', 'message' => 'The value may not contain spaces']),
         ]);
         if (count($violations)) {
             throw new ValidatorException($violations->get(0)->getMessage());
@@ -1925,8 +1925,8 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
         foreach ($requiredPermissions as $name) {
             if (!array_key_exists($name, $keyedPermissions)) {
                 throw new AcquiaCliException("The Acquia Cloud Platform account {account} does not have the required '{name}' permission. Add the permissions to this user or use an API Token belonging to a different Acquia Cloud Platform user.", [
-                'account' => $account->mail,
-                'name' => $name,
+                    'account' => $account->mail,
+                    'name' => $name,
                 ]);
             }
         }
@@ -1935,10 +1935,10 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
     protected function validatePhpVersion(string $version): string
     {
         $violations = Validation::createValidator()->validate($version, [
-        new Length(['min' => 3]),
-        new NotBlank(),
-        new Regex(['pattern' => '/^\S*$/', 'message' => 'The value may not contain spaces']),
-        new Regex(['pattern' => '/[0-9]{1}\.[0-9]{1}/', 'message' => 'The value must be in the format "x.y"']),
+            new Length(['min' => 3]),
+            new NotBlank(),
+            new Regex(['pattern' => '/^\S*$/', 'message' => 'The value may not contain spaces']),
+            new Regex(['pattern' => '/[0-9]{1}\.[0-9]{1}/', 'message' => 'The value must be in the format "x.y"']),
         ]);
         if (count($violations)) {
             throw new ValidatorException($violations->get(0)->getMessage());

@@ -30,7 +30,7 @@ class EmailInfoForSubscriptionCommandTest extends CommandTestBase
     {
         $inputs = [
         // Select a Cloud Platform subscription.
-        0,
+            0,
         ];
         $subscriptions = $this->mockRequest('getSubscriptions');
 
@@ -82,7 +82,7 @@ class EmailInfoForSubscriptionCommandTest extends CommandTestBase
     {
         $inputs = [
         // Select a Cloud Platform subscription.
-        0,
+            0,
         ];
         $subscriptions = $this->mockRequest('getSubscriptions');
 
@@ -100,9 +100,9 @@ class EmailInfoForSubscriptionCommandTest extends CommandTestBase
     {
         $inputs = [
         // Select a Cloud Platform subscription.
-        0,
+            0,
         // Do you wish to continue?
-        'no',
+            'no',
         ];
         $subscriptions = $this->mockRequest('getSubscriptions');
 
@@ -134,7 +134,7 @@ class EmailInfoForSubscriptionCommandTest extends CommandTestBase
     {
         $inputs = [
         // Select a Cloud Platform subscription.
-        0,
+            0,
         ];
         $subscriptions = $this->mockRequest('getSubscriptions');
 
@@ -149,7 +149,7 @@ class EmailInfoForSubscriptionCommandTest extends CommandTestBase
     {
         $inputs = [
         // Select a Cloud Platform subscription.
-        0,
+            0,
         ];
         $subscriptions = $this->mockRequest('getSubscriptions');
 
@@ -171,7 +171,7 @@ class EmailInfoForSubscriptionCommandTest extends CommandTestBase
     {
         $inputs = [
         // Select a Cloud Platform subscription.
-        0,
+            0,
         ];
         $this->clientProphecy->request('get', '/subscriptions')
         ->willReturn([])

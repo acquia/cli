@@ -26,39 +26,39 @@ class SshKeyUploadCommandTest extends CommandTestBase
     {
         $sshKeysRequestBody = $this->getMockRequestBodyFromSpec('/account/ssh-keys');
         return [
-        [
+            [
         // Args.
-        [],
+                [],
         // Inputs.
-        [
+                [
         // Choose key.
-        '0',
+                    '0',
         // Enter a Cloud Platform label for this SSH key:
-        $sshKeysRequestBody['label'],
+                    $sshKeysRequestBody['label'],
         // Would you like to wait until Cloud Platform is ready? (yes/no)
-        'y',
+                    'y',
         // Would you like Acquia CLI to search for a Cloud application that matches your local git config? (yes/no)
-        'n',
-        ],
-        // Perms.
-        true,
-        ],
-        [
-        // Args.
-        [
-        '--filepath' => 'id_rsa.pub',
-        '--label' => $sshKeysRequestBody['label'],
-        ],
-        // Inputs.
-        [
-        // Would you like to wait until Cloud Platform is ready? (yes/no)
-        'y',
-        // Would you like Acquia CLI to search for a Cloud application that matches your local git config? (yes/no)
-        'n',
-        ],
-        // Perms.
-        false,
-        ],
+                    'n',
+                ],
+                // Perms.
+                true,
+            ],
+            [
+            // Args.
+                [
+                    '--filepath' => 'id_rsa.pub',
+                    '--label' => $sshKeysRequestBody['label'],
+                ],
+                // Inputs.
+                [
+                // Would you like to wait until Cloud Platform is ready? (yes/no)
+                    'y',
+                // Would you like Acquia CLI to search for a Cloud application that matches your local git config? (yes/no)
+                    'n',
+                ],
+                // Perms.
+                false,
+            ],
         ];
     }
 
@@ -69,10 +69,10 @@ class SshKeyUploadCommandTest extends CommandTestBase
     {
         $sshKeysRequestBody = $this->getMockRequestBodyFromSpec('/account/ssh-keys');
         $body = [
-        'json' => [
-        'label' => $sshKeysRequestBody['label'],
-        'public_key' => $sshKeysRequestBody['public_key'],
-        ],
+            'json' => [
+                'label' => $sshKeysRequestBody['label'],
+                'public_key' => $sshKeysRequestBody['public_key'],
+            ],
         ];
         $this->mockRequest('postAccountSshKeys', null, $body);
         $this->mockListSshKeyRequestWithUploadedKey($sshKeysRequestBody);
@@ -111,10 +111,10 @@ class SshKeyUploadCommandTest extends CommandTestBase
     {
         $sshKeysRequestBody = $this->getMockRequestBodyFromSpec('/account/ssh-keys');
         $body = [
-        'json' => [
-        'label' => $sshKeysRequestBody['label'],
-        'public_key' => $sshKeysRequestBody['public_key'],
-        ],
+            'json' => [
+                'label' => $sshKeysRequestBody['label'],
+                'public_key' => $sshKeysRequestBody['public_key'],
+            ],
         ];
         $this->mockRequest('postAccountSshKeys', null, $body);
         $this->mockListSshKeyRequestWithUploadedKey($sshKeysRequestBody);
@@ -144,13 +144,13 @@ class SshKeyUploadCommandTest extends CommandTestBase
         // Choose a local SSH key to upload to the Cloud Platform.
         $inputs = [
         // Choose key.
-        '0',
+            '0',
         // Enter a Cloud Platform label for this SSH key:
-        $sshKeysRequestBody['label'],
+            $sshKeysRequestBody['label'],
         // Would you like to wait until Cloud Platform is ready? (yes/no)
-        'y',
+            'y',
         // Would you like Acquia CLI to search for a Cloud application that matches your local git config? (yes/no)
-        'n',
+            'n',
         ];
         $this->executeCommand([], $inputs);
 
@@ -165,9 +165,9 @@ class SshKeyUploadCommandTest extends CommandTestBase
     {
         $inputs = [
         // Choose key.
-        '0',
+            '0',
         // Label.
-        'Test',
+            'Test',
         ];
         $filepath = Path::join(sys_get_temp_dir(), 'notarealfile');
         $args = ['--filepath' => $filepath];

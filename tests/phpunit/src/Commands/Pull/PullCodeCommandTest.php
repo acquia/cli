@@ -57,17 +57,17 @@ class PullCodeCommandTest extends PullCommandTestBase
 
         $inputs = [
         // Would you like to clone a project into the current directory?
-        'y',
+            'y',
         // Select a Cloud Platform application:
-        self::$INPUT_DEFAULT_CHOICE,
+            self::$INPUT_DEFAULT_CHOICE,
         // Would you like to link the project at ... ?
-        'n',
+            'n',
         // Choose an Acquia environment:
-        self::$INPUT_DEFAULT_CHOICE,
+            self::$INPUT_DEFAULT_CHOICE,
         ];
         $this->executeCommand([
-        '--dir' => $dir,
-        '--no-scripts' => true,
+            '--dir' => $dir,
+            '--no-scripts' => true,
         ], $inputs);
     }
 
@@ -86,7 +86,7 @@ class PullCodeCommandTest extends PullCommandTestBase
         $this->mockExecuteGitStatus(false, $localMachineHelper, $this->projectDir);
 
         $this->executeCommand([
-        '--no-scripts' => true,
+            '--no-scripts' => true,
         ], self::inputChooseEnvironment());
 
         $output = $this->getDisplay();
@@ -220,9 +220,9 @@ class PullCodeCommandTest extends PullCommandTestBase
     public function providerTestMatchPhpVersion(): array
     {
         return [
-        ['7.1'],
-        ['7.2'],
-        [''],
+            ['7.1'],
+            ['7.2'],
+            [''],
         ];
     }
 
@@ -233,7 +233,7 @@ class PullCodeCommandTest extends PullCommandTestBase
     {
         IdeHelper::setCloudIdeEnvVars();
         $this->application->addCommands([
-        $this->injectCommand(IdePhpVersionCommand::class),
+            $this->injectCommand(IdePhpVersionCommand::class),
         ]);
         $this->command = $this->createCommand();
         $dir = '/home/ide/project';
@@ -260,15 +260,15 @@ class PullCodeCommandTest extends PullCommandTestBase
         ->shouldBeCalled();
 
         $this->executeCommand([
-        '--dir' => $dir,
-        '--no-scripts' => true,
+            '--dir' => $dir,
+            '--no-scripts' => true,
         // @todo Execute ONLY match php aspect, not the code pull.
-        'environmentId' => $environmentResponse->id,
+            'environmentId' => $environmentResponse->id,
         ], [
         // Choose an Acquia environment:
-        self::$INPUT_DEFAULT_CHOICE,
+            self::$INPUT_DEFAULT_CHOICE,
         // Would you like to change the PHP version on this IDE to match the PHP version on ... ?
-        'n',
+            'n',
         ]);
 
         $output = $this->getDisplay();
@@ -288,10 +288,10 @@ class PullCodeCommandTest extends PullCommandTestBase
         mixed $dir
     ): void {
         $command = [
-        'git',
-        'clone',
-        $environmentsResponse->vcs->url,
-        $dir,
+            'git',
+            'clone',
+            $environmentsResponse->vcs->url,
+            $dir,
         ];
         $localMachineHelper->execute($command, Argument::type('callable'), null, true, null, ['GIT_SSH_COMMAND' => 'ssh -o StrictHostKeyChecking=no'])
         ->willReturn($process->reveal())

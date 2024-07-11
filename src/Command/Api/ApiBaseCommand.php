@@ -62,8 +62,8 @@ class ApiBaseCommand extends CommandBase
         foreach ($this->getDefinition()->getArguments() as $argument) {
             if ($argument->isRequired() && !$input->getArgument($argument->getName())) {
                 $this->io->note([
-                "{$argument->getName()} is a required argument.",
-                $argument->getDescription(),
+                    "{$argument->getName()} is a required argument.",
+                    $argument->getDescription(),
                 ]);
                 // Choice question.
                 if (
@@ -103,7 +103,7 @@ class ApiBaseCommand extends CommandBase
         // API calls returning octet streams (e.g., db backups). It's safe to use
         // here because the API command should always return JSON.
         $acquiaCloudClient->addOption('headers', [
-        'Accept' => 'application/hal+json, version=2',
+            'Accept' => 'application/hal+json, version=2',
         ]);
 
         try {
@@ -265,7 +265,7 @@ class ApiBaseCommand extends CommandBase
         if (array_key_exists($argument->getName(), $params)) {
             $paramSpec = $params[$argument->getName()];
             $constraints = [
-            new NotBlank(),
+                new NotBlank(),
             ];
             if ($type = $this->getParamType($paramSpec)) {
                 if (in_array($type, ['int', 'integer'])) {
@@ -316,8 +316,8 @@ class ApiBaseCommand extends CommandBase
             }
         } elseif (array_key_exists('pattern', $schema)) {
             $constraints[] = new Regex([
-            'message' => 'It must match the pattern ' . $schema['pattern'],
-            'pattern' => '/' . $schema['pattern'] . '/',
+                'message' => 'It must match the pattern ' . $schema['pattern'],
+                'pattern' => '/' . $schema['pattern'] . '/',
             ]);
         }
         return $constraints;
@@ -372,10 +372,10 @@ class ApiBaseCommand extends CommandBase
         }
         if ($paramSpec && array_key_exists('format', $paramSpec) && $paramSpec["format"] === 'binary') {
             $acquiaCloudClient->addOption('multipart', [
-            [
-            'contents' => Utils::tryFopen($paramValue, 'r'),
-            'name' => $paramName,
-            ],
+                [
+                    'contents' => Utils::tryFopen($paramValue, 'r'),
+                    'name' => $paramName,
+                ],
             ]);
         } else {
             $acquiaCloudClient->addOption('json', [$paramName => $paramValue]);

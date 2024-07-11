@@ -42,9 +42,9 @@ abstract class IdeCommandBase extends CommandBase
     protected function startService(string $service): void
     {
         $process = $this->localMachineHelper->execute([
-        'supervisorctl',
-        'start',
-        $service,
+            'supervisorctl',
+            'start',
+            $service,
         ], null, null, false);
         if (!$process->isSuccessful()) {
             throw new AcquiaCliException('Unable to start ' . $service . ' in the IDE: {error}', ['error' => $process->getErrorOutput()]);
@@ -57,9 +57,9 @@ abstract class IdeCommandBase extends CommandBase
     protected function stopService(string $service): void
     {
         $process = $this->localMachineHelper->execute([
-        'supervisorctl',
-        'stop',
-        $service,
+            'supervisorctl',
+            'stop',
+            $service,
         ], null, null, false);
         if (!$process->isSuccessful()) {
             throw new AcquiaCliException('Unable to stop ' . $service . ' in the IDE: {error}', ['error' => $process->getErrorOutput()]);
@@ -72,9 +72,9 @@ abstract class IdeCommandBase extends CommandBase
     protected function restartService(string $service): void
     {
         $process = $this->localMachineHelper->execute([
-        'supervisorctl',
-        'restart',
-        $service,
+            'supervisorctl',
+            'restart',
+            $service,
         ], null, null, false);
         if (!$process->isSuccessful()) {
             throw new AcquiaCliException('Unable to restart ' . $service . ' in the IDE: {error}', ['error' => $process->getErrorOutput()]);

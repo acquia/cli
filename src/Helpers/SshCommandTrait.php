@@ -30,8 +30,8 @@ trait SshCommandTrait
                 $answer = $this->io->confirm("Do you also want to delete the corresponding local key files {$localFile->getRealPath()} and $privateKeyPath ?", false);
                 if ($answer) {
                     $this->localMachineHelper->getFilesystem()->remove([
-                    $localFile->getRealPath(),
-                    $privateKeyPath,
+                        $localFile->getRealPath(),
+                        $privateKeyPath,
                     ]);
                       $this->io->success("Deleted $publicKeyPath and $privateKeyPath");
                       return 0;

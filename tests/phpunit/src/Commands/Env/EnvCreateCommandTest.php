@@ -94,11 +94,11 @@ class EnvCreateCommandTest extends CommandTestBase
         $branch = $this->getBranch();
         return [
         // No args, only interactive input.
-        [[null, null], ['n', 0, 0]],
+            [[null, null], ['n', 0, 0]],
         // Branch as arg.
-        [[$branch, null], ['n', 0]],
+            [[$branch, null], ['n', 0]],
         // Branch and app id as args.
-        [[$branch, $application], []],
+            [[$branch, $application], []],
         ];
     }
 
@@ -112,9 +112,9 @@ class EnvCreateCommandTest extends CommandTestBase
 
         $this->executeCommand(
             [
-            'applicationUuid' => $args[1],
-            'branch' => $args[0],
-            'label' => self::$validLabel,
+                'applicationUuid' => $args[1],
+                'branch' => $args[0],
+                'label' => self::$validLabel,
             ],
             $input
         );
@@ -136,9 +136,9 @@ class EnvCreateCommandTest extends CommandTestBase
         $this->expectExceptionMessage('An environment named Dev already exists.');
         $this->executeCommand(
             [
-            'applicationUuid' => $this->getApplication(),
-            'branch' => $this->getBranch(),
-            'label' => $label,
+                'applicationUuid' => $this->getApplication(),
+                'branch' => $this->getBranch(),
+                'label' => $label,
             ]
         );
     }
@@ -154,9 +154,9 @@ class EnvCreateCommandTest extends CommandTestBase
         $this->expectExceptionMessage('There is no branch or tag with the name bogus on the remote VCS.');
         $this->executeCommand(
             [
-            'applicationUuid' => $this->getApplication(),
-            'branch' => 'bogus',
-            'label' => self::$validLabel,
+                'applicationUuid' => $this->getApplication(),
+                'branch' => 'bogus',
+                'label' => self::$validLabel,
             ]
         );
     }

@@ -52,40 +52,40 @@ class RecommendationsTest extends TestCase
     {
         // phpcs:disable SlevomatCodingStandard.Arrays.AlphabeticallySortedByKeys
         return [
-        'bad JSON in configuration file' => [
-        '{,}',
-        static::NO_RECOMMENDATIONS,
-        ],
-        'empty configuration file' => [
-        json_encode((object) []),
-        static::NO_RECOMMENDATIONS,
-        ],
-        'unexpected recommendations value' => [
-        json_encode(['data' => true]),
-        static::NO_RECOMMENDATIONS,
-        ],
-        'empty recommendations key' => [
-        json_encode(['data' => []]),
-        static::NO_RECOMMENDATIONS,
-        ],
-        'populated recommendations key with invalid item' => [
-        json_encode(['recommendations' => [[]]]),
-        static::NO_RECOMMENDATIONS,
-        ],
-        'populated recommendations key with valid item' => [
-        json_encode([
-        'data' => [
-        [
-        'package' => 'foo',
-        'constraint' => '^1.42',
-        'replaces' => [
-        'name' => 'foo',
-        ],
-        ],
-        ],
-        ]),
-        new TestRecommendation(true, 'foo', '^1.42'),
-        ],
+            'bad JSON in configuration file' => [
+                '{,}',
+                static::NO_RECOMMENDATIONS,
+            ],
+            'empty configuration file' => [
+                json_encode((object) []),
+                static::NO_RECOMMENDATIONS,
+            ],
+            'unexpected recommendations value' => [
+                json_encode(['data' => true]),
+                static::NO_RECOMMENDATIONS,
+            ],
+            'empty recommendations key' => [
+                json_encode(['data' => []]),
+                static::NO_RECOMMENDATIONS,
+            ],
+            'populated recommendations key with invalid item' => [
+                json_encode(['recommendations' => [[]]]),
+                static::NO_RECOMMENDATIONS,
+            ],
+            'populated recommendations key with valid item' => [
+                json_encode([
+                    'data' => [
+                        [
+                            'package' => 'foo',
+                            'constraint' => '^1.42',
+                            'replaces' => [
+                                'name' => 'foo',
+                            ],
+                        ],
+                    ],
+                ]),
+                new TestRecommendation(true, 'foo', '^1.42'),
+            ],
         ];
         // phpcs:enable
     }

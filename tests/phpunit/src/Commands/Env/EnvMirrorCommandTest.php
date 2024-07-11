@@ -30,9 +30,9 @@ class EnvMirrorCommandTest extends CommandTestBase
             'post',
             "/environments/{$environmentResponse->id}/code/actions/switch",
             [
-            'form_params' => [
-            'branch' => $environmentResponse->vcs->path,
-            ],
+                'form_params' => [
+                    'branch' => $environmentResponse->vcs->path,
+                ],
             ]
         )
         ->willReturn($response)
@@ -51,10 +51,10 @@ class EnvMirrorCommandTest extends CommandTestBase
         $this->mockNotificationResponseFromObject($response);
         $response->links = $response->{'_links'};
         $this->clientProphecy->request('post', "/environments/{$environmentResponse->id}/databases", [
-        'json' => [
-        'name' => $databasesResponse->_embedded->items[0]->name,
-        'source' => $environmentResponse->id,
-        ],
+            'json' => [
+                'name' => $databasesResponse->_embedded->items[0]->name,
+                'source' => $environmentResponse->id,
+            ],
         ])
         ->willReturn($response)
         ->shouldBeCalled();
@@ -64,9 +64,9 @@ class EnvMirrorCommandTest extends CommandTestBase
         $this->mockNotificationResponseFromObject($response);
         $response->links = $response->{'_links'};
         $this->clientProphecy->request('post', "/environments/{$environmentResponse->id}/files", [
-        'json' => [
-        'source' => $environmentResponse->id,
-        ],
+            'json' => [
+                'source' => $environmentResponse->id,
+            ],
         ])
         ->willReturn($response)
         ->shouldBeCalled();
@@ -79,12 +79,12 @@ class EnvMirrorCommandTest extends CommandTestBase
 
         $this->executeCommand(
             [
-            'destination-environment' => $environmentResponse->id,
-            'source-environment' => $environmentResponse->id,
+                'destination-environment' => $environmentResponse->id,
+                'source-environment' => $environmentResponse->id,
             ],
             [
             // Are you sure that you want to overwrite everything ...
-            'y',
+                'y',
             ]
         );
 

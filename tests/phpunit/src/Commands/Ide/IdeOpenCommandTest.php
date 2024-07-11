@@ -32,13 +32,13 @@ class IdeOpenCommandTest extends CommandTestBase
 
         $inputs = [
         // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
-        'n',
+            'n',
         // Select a Cloud Platform application:
-        0,
+            0,
         // Would you like to link the project at ... ?
-        'y',
+            'y',
         // Select the IDE you'd like to open:
-        0,
+            0,
         ];
         $this->executeCommand([], $inputs);
 

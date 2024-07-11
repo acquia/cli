@@ -25,8 +25,8 @@ class LogTailCommandTest extends CommandTestBase
     public function providerLogTailCommand(): array
     {
         return [
-        [0],
-        [null],
+            [0],
+            [null],
         ];
     }
 
@@ -64,15 +64,15 @@ class LogTailCommandTest extends CommandTestBase
         $this->mockLogStreamRequest();
         $this->executeCommand([], [
         // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
-        'n',
+            'n',
         // Select the application.
-        0,
+            0,
         // Would you like to link the project at ... ?
-        'y',
+            'y',
         // Select environment.
-        0,
+            0,
         // Select log.
-        $stream,
+            $stream,
         ]);
 
         // Assert.
@@ -114,15 +114,15 @@ class LogTailCommandTest extends CommandTestBase
         $this->expectExceptionMessage('No compatible environments found');
         $this->executeCommand([], [
         // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
-        'n',
+            'n',
         // Select the application.
-        0,
+            0,
         // Would you like to link the project at ... ?
-        'y',
+            'y',
         // Select environment.
-        0,
+            0,
         // Select log.
-        0,
+            0,
         ]);
     }
 

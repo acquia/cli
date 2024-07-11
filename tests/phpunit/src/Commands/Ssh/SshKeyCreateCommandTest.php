@@ -28,40 +28,40 @@ class SshKeyCreateCommandTest extends CommandTestBase
     public function providerTestCreate(): array
     {
         return [
-        [
-        true,
+            [
+                true,
         // Args.
-        [
-        '--filename' => $this->filename,
-        '--password' => 'acli123',
-        ],
-        // Inputs.
-        [],
-        ],
-        [
-        true,
-        // Args.
-        [],
-        // Inputs.
-        [
-        // Enter a filename for your new local SSH key:
-        $this->filename,
-        // Enter a password for your SSH key:
-        'acli123',
-        ],
-        ],
-        [
-        false,
-        // Args.
-        [],
-        // Inputs.
-        [
-        // Enter a filename for your new local SSH key:
-        $this->filename,
-        // Enter a password for your SSH key:
-        'acli123',
-        ],
-        ],
+                [
+                    '--filename' => $this->filename,
+                    '--password' => 'acli123',
+                ],
+                // Inputs.
+                [],
+            ],
+            [
+                true,
+            // Args.
+                [],
+            // Inputs.
+                [
+            // Enter a filename for your new local SSH key:
+                    $this->filename,
+            // Enter a password for your SSH key:
+                    'acli123',
+                ],
+            ],
+            [
+                false,
+            // Args.
+                [],
+            // Inputs.
+                [
+            // Enter a filename for your new local SSH key:
+                    $this->filename,
+            // Enter a password for your SSH key:
+                    'acli123',
+                ],
+            ],
         ];
     }
 

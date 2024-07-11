@@ -23,8 +23,8 @@ class ExceptionApplicationTest extends ApplicationTestBase
     public function testInvalidApiCredentials(): void
     {
         $this->setInput([
-        'applicationUuid' => '2ed281d4-9dec-4cc3-ac63-691c3ba002c2',
-        'command' => 'aliases',
+            'applicationUuid' => '2ed281d4-9dec-4cc3-ac63-691c3ba002c2',
+            'command' => 'aliases',
         ]);
         $this->mockUnauthorizedRequest();
         $buffer = $this->runApp();

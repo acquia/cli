@@ -37,8 +37,8 @@ class ApiCommandTest extends CommandTestBase
     {
         $this->command = $this->getApiCommandByName('api:environments:log-download');
         $this->executeCommand([], [
-        '289576-53785bca-1946-4adc-a022-e50d24686c20',
-        'apache-access',
+            '289576-53785bca-1946-4adc-a022-e50d24686c20',
+            'apache-access',
         ]);
         $output = $this->getDisplay();
         $this->assertStringContainsString('Enter a value for environmentId', $output);
@@ -53,9 +53,9 @@ class ApiCommandTest extends CommandTestBase
         $this->command = $this->getApiCommandByName('api:environments:variable-update');
         try {
             $this->executeCommand([], [
-            '289576-53785bca-1946-4adc-a022-e50d24686c20',
-            'AH_SOMETHING',
-            'AH_SOMETHING',
+                '289576-53785bca-1946-4adc-a022-e50d24686c20',
+                'AH_SOMETHING',
+                'AH_SOMETHING',
             ]);
         } catch (MissingInputException) {
         }
@@ -68,7 +68,7 @@ class ApiCommandTest extends CommandTestBase
         $this->command = $this->getApiCommandByName('api:notifications:find');
         try {
             $this->executeCommand([], [
-            'test',
+                'test',
             ]);
         } catch (MissingInputException) {
         }
@@ -93,11 +93,11 @@ class ApiCommandTest extends CommandTestBase
 
         $this->executeCommand(['applicationUuid' => $invalidUuid], [
         // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
-        'n',
+            'n',
         // Select a Cloud Platform application:
-        '0',
+            '0',
         // Would you like to link the Cloud application Sample application to this repository?
-        'n',
+            'n',
         ]);
 
         // Assert.
@@ -135,8 +135,8 @@ class ApiCommandTest extends CommandTestBase
         $this->mockRequest('putEnvironmentCloudActions', '24-a47ac10b-58cc-4372-a567-0e02b2c3d470');
         $this->command = $this->getApiCommandByName('api:environments:cloud-actions-update');
         $this->executeCommand([
-        'cloud-actions' => '{"fb4aa87a-8be2-42c6-bdf0-ef9d09a3de70":true}',
-        'environmentId' => '24-a47ac10b-58cc-4372-a567-0e02b2c3d470',
+            'cloud-actions' => '{"fb4aa87a-8be2-42c6-bdf0-ef9d09a3de70":true}',
+            'environmentId' => '24-a47ac10b-58cc-4372-a567-0e02b2c3d470',
         ]);
         $output = $this->getDisplay();
         $this->assertStringContainsString('Cloud Actions have been updated.', $output);
@@ -150,11 +150,11 @@ class ApiCommandTest extends CommandTestBase
         $this->command = $this->getApiCommandByName('api:applications:find');
         $this->executeCommand([], [
         // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
-        'n',
+            'n',
         // Select a Cloud Platform application:
-        '0',
+            '0',
         // Would you like to link the Cloud application Sample application to this repository?
-        'n',
+            'n',
         ]);
 
         // Assert.
@@ -170,8 +170,8 @@ class ApiCommandTest extends CommandTestBase
     public function providerTestConvertApplicationAliasToUuidArgument(): array
     {
         return [
-        [false],
-        [true],
+            [false],
+            [true],
         ];
     }
 
@@ -202,11 +202,11 @@ class ApiCommandTest extends CommandTestBase
 
         $this->executeCommand(['applicationUuid' => $alias], [
         // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
-        'n',
+            'n',
         // Select a Cloud Platform application:
-        self::$INPUT_DEFAULT_CHOICE,
+            self::$INPUT_DEFAULT_CHOICE,
         // Would you like to link the Cloud application Sample application to this repository?
-        'n',
+            'n',
         ]);
 
         // Assert.
@@ -279,11 +279,11 @@ class ApiCommandTest extends CommandTestBase
 
         $this->executeCommand(['environmentId' => $alias], [
         // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
-        'n',
+            'n',
         // Select a Cloud Platform application:
-        '0',
+            '0',
         // Would you like to link the Cloud application Sample application to this repository?
-        'n',
+            'n',
         ]);
 
         // Assert.
@@ -363,12 +363,12 @@ class ApiCommandTest extends CommandTestBase
     {
         $apiAccountsSshKeysListUsage = '--from="-7d" --to="-1d" --sort="field1,-field2" --limit="10" --offset="10"';
         return [
-        ['0', 'api:accounts:ssh-keys-list', 'get', $apiAccountsSshKeysListUsage],
-        ['1', 'api:accounts:ssh-keys-list', 'get', $apiAccountsSshKeysListUsage],
-        ['1', 'api:accounts:ssh-keys-list', 'get', $apiAccountsSshKeysListUsage],
-        ['1', 'api:environments:domain-clear-caches', 'post', '12-d314739e-296f-11e9-b210-d663bd873d93 example.com'],
-        ['1', 'api:applications:find', 'get', 'da1c0a8e-ff69-45db-88fc-acd6d2affbb7'],
-        ['1', 'api:applications:find', 'get', 'myapp'],
+            ['0', 'api:accounts:ssh-keys-list', 'get', $apiAccountsSshKeysListUsage],
+            ['1', 'api:accounts:ssh-keys-list', 'get', $apiAccountsSshKeysListUsage],
+            ['1', 'api:accounts:ssh-keys-list', 'get', $apiAccountsSshKeysListUsage],
+            ['1', 'api:environments:domain-clear-caches', 'post', '12-d314739e-296f-11e9-b210-d663bd873d93 example.com'],
+            ['1', 'api:applications:find', 'get', 'da1c0a8e-ff69-45db-88fc-acd6d2affbb7'],
+            ['1', 'api:applications:find', 'get', 'myapp'],
         ];
     }
 
@@ -415,8 +415,8 @@ class ApiCommandTest extends CommandTestBase
     public function providerTestApiCommandDefinitionRequestBody(): array
     {
         return [
-        ['api:accounts:ssh-key-create', 'post', 'api:accounts:ssh-key-create "mykey" "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQChwPHzTTDKDpSbpa2+d22LcbQmsw92eLsUK3Fmei1fiGDkd34NsYCN8m7lsi3NbvdMS83CtPQPWiCveYPzFs1/hHc4PYj8opD2CNnr5iWVVbyaulCYHCgVv4aB/ojcexg8q483A4xJeF15TiCr/gu34rK6ucTvC/tn/rCwJBudczvEwt0klqYwv8Cl/ytaQboSuem5KgSjO3lMrb6CWtfSNhE43ZOw+UBFBqxIninN868vGMkIv9VY34Pwj54rPn/ItQd6Ef4B0KHHaGmzK0vfP+AK7FxNMoHnj3iYT33KZNqtDozdn5tYyH/bThPebEtgqUn+/w5l6wZIC/8zzvls/127ngHk+jNa0PlNyS2TxhPUK4NaPHIEnnrlp07JEYC4ImcBjaYCWAdcTcUkcJjwZQkN4bGmyO9cjICH98SdLD/HxqzTHeaYDbAX/Hu9HfaBb5dXLWsjw3Xc6hoVnUUZbMQyfgb0KgxDLh92eNGxJkpZiL0VDNOWCxDWsNpzwhLNkLqCvI6lyxiLaUzvJAk6dPaRhExmCbU1lDO2eR0FdSwC1TEhJOT9eDIK1r2hztZKs2oa5FNFfB/IFHVWasVFC9N2h/r/egB5zsRxC9MqBLRBq95NBxaRSFng6ML5WZSw41Qi4C/JWVm89rdj2WqScDHYyAdwyyppWU4T5c9Fmw== example@example.com"'],
-        ['api:environments:file-copy', 'post', '12-d314739e-296f-11e9-b210-d663bd873d93 --source="14-0c7e79ab-1c4a-424e-8446-76ae8be7e851"'],
+            ['api:accounts:ssh-key-create', 'post', 'api:accounts:ssh-key-create "mykey" "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQChwPHzTTDKDpSbpa2+d22LcbQmsw92eLsUK3Fmei1fiGDkd34NsYCN8m7lsi3NbvdMS83CtPQPWiCveYPzFs1/hHc4PYj8opD2CNnr5iWVVbyaulCYHCgVv4aB/ojcexg8q483A4xJeF15TiCr/gu34rK6ucTvC/tn/rCwJBudczvEwt0klqYwv8Cl/ytaQboSuem5KgSjO3lMrb6CWtfSNhE43ZOw+UBFBqxIninN868vGMkIv9VY34Pwj54rPn/ItQd6Ef4B0KHHaGmzK0vfP+AK7FxNMoHnj3iYT33KZNqtDozdn5tYyH/bThPebEtgqUn+/w5l6wZIC/8zzvls/127ngHk+jNa0PlNyS2TxhPUK4NaPHIEnnrlp07JEYC4ImcBjaYCWAdcTcUkcJjwZQkN4bGmyO9cjICH98SdLD/HxqzTHeaYDbAX/Hu9HfaBb5dXLWsjw3Xc6hoVnUUZbMQyfgb0KgxDLh92eNGxJkpZiL0VDNOWCxDWsNpzwhLNkLqCvI6lyxiLaUzvJAk6dPaRhExmCbU1lDO2eR0FdSwC1TEhJOT9eDIK1r2hztZKs2oa5FNFfB/IFHVWasVFC9N2h/r/egB5zsRxC9MqBLRBq95NBxaRSFng6ML5WZSw41Qi4C/JWVm89rdj2WqScDHYyAdwyyppWU4T5c9Fmw== example@example.com"'],
+            ['api:environments:file-copy', 'post', '12-d314739e-296f-11e9-b210-d663bd873d93 --source="14-0c7e79ab-1c4a-424e-8446-76ae8be7e851"'],
         ];
     }
 
@@ -465,8 +465,8 @@ class ApiCommandTest extends CommandTestBase
         $this->command = $this->getApiCommandByName('api:organizations:member-delete');
         $this->executeCommand(
             [
-            'organizationUuid' => $orgId,
-            'userUuid' => $memberUuid,
+                'organizationUuid' => $orgId,
+                'userUuid' => $memberUuid,
             ],
         );
 
@@ -493,8 +493,8 @@ class ApiCommandTest extends CommandTestBase
         $this->command = $this->getApiCommandByName('api:organizations:member-delete');
         $this->executeCommand(
             [
-            'organizationUuid' => $orgId,
-            'userUuid' => $memberMail,
+                'organizationUuid' => $orgId,
+                'userUuid' => $memberMail,
             ],
         );
 
@@ -521,8 +521,8 @@ class ApiCommandTest extends CommandTestBase
         $this->expectExceptionMessage('No matching user found in this organization');
         $this->executeCommand(
             [
-            'organizationUuid' => $orgId,
-            'userUuid' => $memberUuid,
+                'organizationUuid' => $orgId,
+                'userUuid' => $memberUuid,
             ],
         );
     }
@@ -543,8 +543,8 @@ class ApiCommandTest extends CommandTestBase
         $this->expectExceptionMessage('Organization has no members');
         $this->executeCommand(
             [
-            'organizationUuid' => $orgId,
-            'userUuid' => $memberUuid,
+                'organizationUuid' => $orgId,
+                'userUuid' => $memberUuid,
             ],
         );
     }

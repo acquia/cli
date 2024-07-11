@@ -41,9 +41,9 @@ class InferApplicationTest extends CommandTestBase
 
         $this->executeCommand([], [
         // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
-        'y',
+            'y',
         // Would you like to link the project at ...
-        'y',
+            'y',
         ]);
 
         $output = $this->getDisplay();
@@ -76,11 +76,11 @@ class InferApplicationTest extends CommandTestBase
 
         $this->executeCommand([], [
         // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
-        'y',
+            'y',
         // Select a Cloud Platform application:
-        0,
+            0,
         // Would you like to link the project at ...
-        'y',
+            'y',
         ]);
 
         $output = $this->getDisplay();
@@ -95,7 +95,7 @@ class InferApplicationTest extends CommandTestBase
     {
         $this->expectException(AcquiaCliException::class);
         $this->executeCommand([], [
-        'y',
+            'y',
         ]);
     }
 }
