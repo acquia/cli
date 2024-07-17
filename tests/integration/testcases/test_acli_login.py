@@ -7,6 +7,7 @@ import json
 unittest.TestLoader.sortTestMethodsUsing = None
 
 class TestExecutableWithPrompt(unittest.TestCase):
+
     application_uuid = "2ed281d4-9dec-4cc3-ac63-691c3ba002c2"
     environment_name = "automated_tests_"+str(time.time()).split(".")[0]
     branch = "master"
@@ -40,7 +41,7 @@ class TestExecutableWithPrompt(unittest.TestCase):
                 proc_stdin.flush()
 
         # input_lines = inputs + numeric_input
-        # # Start a thread to write input to avoid blocking
+        # Start a thread to write input to avoid blocking
 
         # Read output lines
         with process.stdout:
@@ -72,11 +73,8 @@ class TestExecutableWithPrompt(unittest.TestCase):
                                                           numeric_input=numeric_input)
 
         # Assertions to verify the behavior
-        print("stdout is: " + stdout)
-        print(stderr)
-        print(output_list)
-        self.assertEqual(return_code, 0)
-        self.assertTrue("Saved credentials" in output_list, "Saved credentials not found in output")
+        self.assertEqual(return_code, 0, stderr)
+        self.assertTrue("Saved credentials" in output_list, output_list)
 
     def test_01_auth_login_with_telemetry_disabled(self):
         parameters = ['telemetry:disable']
@@ -85,11 +83,9 @@ class TestExecutableWithPrompt(unittest.TestCase):
                                                           params=parameters)
 
         # Assertions to verify the behavior
-        print("stdout is: " + stdout)
         print(stderr)
-        print(output_list)
-        self.assertEqual(return_code, 0)
-        self.assertTrue("[OK] Telemetry has been disabled." in output_list, "Telemetry disabled not found in output")
+        self.assertEqual(return_code, 0, stderr)
+        self.assertTrue("[OK] Telemetry has been disabled." in output_list, output_list)
 
     def test_02_environment_create(self):
         '''
@@ -104,14 +100,10 @@ class TestExecutableWithPrompt(unittest.TestCase):
         return_code, stdout, stderr, output_list = self.run_executable(user_inputs,
                                                           params=parameters)
 
-        print("stdout is: " + stdout)
-        print(stderr)
-        print("output list")
-        print(output_list)
         global notification_id
         notification_id = output_list["_links"]['notification']['href'].split("notifications\\/")[1]
-        self.assertEqual(return_code, 0)
-        self.assertTrue("Adding an environment" in output_list, "Adding environment not found in output")
+        self.assertEqual(return_code, 0, stderr)
+        self.assertTrue("Adding an environment" in output_list, output_list)
 
     def test_03_notifications(self):
 
@@ -122,19 +114,12 @@ class TestExecutableWithPrompt(unittest.TestCase):
         return_code, stdout, stderr, output_list = self.run_executable(user_inputs,
                                                           params=parameters)
 
-        print("stdout is: " + stdout)
-        print(stderr)
-        print("output list")
-        print(output_list)
-        print(type(output_list))
+        output_json_string = ''.join(output_list)
+        output_json_object = json.loads(output_json_string)
 
-        json_string = ''.join(output_list)
-        json_object = json.loads(json_string)
-
-        self.assertEqual(return_code, 0)
-        self.assertEqual(json_object.get('event'),"EnvironmentAdded")
-        assert json_object.get("status") in ["in-progress", "completed"]
-
+        self.assertEqual(return_code, 0, stderr)
+        self.assertEqual(output_json_object.get('event'),"EnvironmentAdded", output_json_object)
+        self.assertTrue(output_json_object.get("status") in ["in-progress", "completed"], output_json_object)
 
         # Getting environment id
         parameters_2 = ["api:applications:environment-list",self.application_uuid]
@@ -142,11 +127,7 @@ class TestExecutableWithPrompt(unittest.TestCase):
         return_code_2, stdout_2, stderr_2, output_list_2 = self.run_executable(user_inputs_2,
                                                           params=parameters_2)
 
-        print("stdout is: " + stdout_2)
-        print(stderr_2)
-        print("output list")
-        print(output_list_2)
-        self.assertEqual(return_code, 0)
+        self.assertEqual(return_code, 0, stderr_2)
 
         json_string_2 = ''.join(output_list_2)
         json_object_2 = json.loads(json_string_2)
@@ -158,26 +139,20 @@ class TestExecutableWithPrompt(unittest.TestCase):
                 global environment_id
                 environment_id = item.get('id')
                 print(environment_id)
-                assert item.get('status')=="normal", "expected normal received {item.get('status'}"
+                self.assertTrue(item.get('status')=="normal", item)
                 break
 
-    def test_05_environment_delete(self):
+    def test_04_environment_delete(self):
         # Verify environment is deleted
         parameters = ["api:environments:delete", environment_id]
         user_inputs = None
         return_code, stdout, stderr, output_list = self.run_executable(user_inputs,
                                                           params=parameters)
 
-        print("stdout is: " + stdout)
-        print(stderr)
-        print("output list")
-        print(output_list)
-        self.assertEqual(return_code, 0)
+        self.assertEqual(return_code, 0, stderr)
         message = '"message": "The environment is being deleted.",'
-        self.assertTrue(message in output_list, "Environment is being deleted not found in output")
+        self.assertTrue(message in output_list, output_list)
 
-
-# Additional test methods and test cases...
 
 if __name__ == '__main__':
     unittest.main()
