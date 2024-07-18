@@ -420,7 +420,7 @@ abstract class CommandTestBase extends TestBase
             ->shouldBeCalled();
         $process = $this->mockProcess();
         $process->getOutput()->willReturn('');
-        $command = 'MYSQL_PWD=drupal mysqldump --host=localhost --user=drupal drupal | pv --rate --bytes | gzip -9 > ' . sys_get_temp_dir() . '/acli-mysql-dump-drupal.sql.gz';
+        $command = 'bash -c "set -o pipefail; MYSQL_PWD=drupal mysqldump --host=localhost --user=drupal drupal | pv --rate --bytes | gzip -9 > ' . sys_get_temp_dir() . '/acli-mysql-dump-drupal.sql.gz"';
         $localMachineHelper->executeFromCmd($command, Argument::type('callable'), null, $printOutput)
             ->willReturn($process->reveal())
             ->shouldBeCalled();
