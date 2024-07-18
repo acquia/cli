@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "12272152a35bb1b133adbdcf9c2e54c2",
+    "content-hash": "c49bd75c4ca413cd16cd85fe278e6352",
     "packages": [
         {
             "name": "acquia/drupal-environment-detector",
@@ -407,16 +407,16 @@
         },
         {
             "name": "consolidation/self-update",
-            "version": "dev-CLI-19",
+            "version": "dev-main",
             "source": {
                 "type": "git",
-                "url": "https://github.com/danepowell/self-update.git",
-                "reference": "62acfb2d90bb0834c4270865e4f4592b0dac3347"
+                "url": "https://github.com/consolidation/self-update.git",
+                "reference": "e3cc75a07c36b68bd5ab72ead23a375529fba71f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/danepowell/self-update/zipball/62acfb2d90bb0834c4270865e4f4592b0dac3347",
-                "reference": "62acfb2d90bb0834c4270865e4f4592b0dac3347",
+                "url": "https://api.github.com/repos/consolidation/self-update/zipball/e3cc75a07c36b68bd5ab72ead23a375529fba71f",
+                "reference": "e3cc75a07c36b68bd5ab72ead23a375529fba71f",
                 "shasum": ""
             },
             "require": {
@@ -426,6 +426,7 @@
                 "symfony/filesystem": "^5.4 || ^6.4 || ^7",
                 "symfony/http-client": "^5.4 || ^6.4 || ^7"
             },
+            "default-branch": true,
             "bin": [
                 "scripts/release"
             ],
@@ -440,11 +441,7 @@
                     "SelfUpdate\\": "src"
                 }
             },
-            "scripts": {
-                "release": [
-                    "./scripts/release VERSION"
-                ]
-            },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -460,9 +457,10 @@
             ],
             "description": "Provides a self:update command for Symfony Console applications.",
             "support": {
-                "source": "https://github.com/danepowell/self-update/tree/CLI-19"
+                "issues": "https://github.com/consolidation/self-update/issues",
+                "source": "https://github.com/consolidation/self-update/tree/main"
             },
-            "time": "2024-07-17T22:16:59+00:00"
+            "time": "2024-07-18T18:42:07+00:00"
         },
         {
             "name": "dflydev/dot-access-data",
@@ -13393,7 +13391,7 @@
     "aliases": [
         {
             "package": "consolidation/self-update",
-            "version": "dev-CLI-19",
+            "version": "dev-main",
             "alias": "2.1.0",
             "alias_normalized": "2.1.0.0"
         }
