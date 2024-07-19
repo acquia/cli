@@ -414,13 +414,17 @@ abstract class CommandTestBase extends TestBase
         return $this->mockRequest('getNotificationByUuid', $uuid);
     }
 
-    protected function mockCreateMySqlDumpOnLocal(ObjectProphecy $localMachineHelper, bool $printOutput = true): void
+    protected function mockCreateMySqlDumpOnLocal(ObjectProphecy $localMachineHelper, bool $printOutput = true, bool $pv = true): void
     {
         $localMachineHelper->checkRequiredBinariesExist(["mysqldump", "gzip"])
             ->shouldBeCalled();
         $process = $this->mockProcess();
         $process->getOutput()->willReturn('');
-        $command = 'MYSQL_PWD=drupal mysqldump --host=localhost --user=drupal drupal | pv --rate --bytes | gzip -9 > ' . sys_get_temp_dir() . '/acli-mysql-dump-drupal.sql.gz';
+        if ($pv) {
+            $command = 'bash -c "set -o pipefail; MYSQL_PWD=drupal mysqldump --host=localhost --user=drupal drupal | pv --rate --bytes | gzip -9 > ' . sys_get_temp_dir() . '/acli-mysql-dump-drupal.sql.gz"';
+        } else {
+            $command = 'bash -c "set -o pipefail; MYSQL_PWD=drupal mysqldump --host=localhost --user=drupal drupal | gzip -9 > ' . sys_get_temp_dir() . '/acli-mysql-dump-drupal.sql.gz"';
+        }
         $localMachineHelper->executeFromCmd($command, Argument::type('callable'), null, $printOutput)
             ->willReturn($process->reveal())
             ->shouldBeCalled();
