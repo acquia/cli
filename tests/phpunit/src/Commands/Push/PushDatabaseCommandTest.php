@@ -26,8 +26,8 @@ class PushDatabaseCommandTest extends CommandTestBase
     public function providerTestPushDatabase(): array
     {
         return [
-            [OutputInterface::VERBOSITY_NORMAL, false],
-            [OutputInterface::VERBOSITY_VERY_VERBOSE, true],
+            [OutputInterface::VERBOSITY_NORMAL, false, false],
+            [OutputInterface::VERBOSITY_VERY_VERBOSE, true, true],
         ];
     }
 
@@ -51,7 +51,7 @@ class PushDatabaseCommandTest extends CommandTestBase
     /**
      * @dataProvider providerTestPushDatabase
      */
-    public function testPushDatabase(int $verbosity, bool $printOutput): void
+    public function testPushDatabase(int $verbosity, bool $printOutput, bool $pv): void
     {
         $applications = $this->mockRequest('getApplications');
         $application = $this->mockRequest('getApplicationByUuid', $applications[self::$INPUT_DEFAULT_CHOICE]->uuid);
@@ -72,8 +72,8 @@ class PushDatabaseCommandTest extends CommandTestBase
         $this->mockGetAcsfSitesLMH($localMachineHelper);
 
         // Database.
-        $this->mockExecutePvExists($localMachineHelper);
-        $this->mockCreateMySqlDumpOnLocal($localMachineHelper, $printOutput);
+        $this->mockExecutePvExists($localMachineHelper, $pv);
+        $this->mockCreateMySqlDumpOnLocal($localMachineHelper, $printOutput, $pv);
         $this->mockUploadDatabaseDump($localMachineHelper, $process, $printOutput);
         $this->mockImportDatabaseDumpOnRemote($localMachineHelper, $process, $printOutput);
 
