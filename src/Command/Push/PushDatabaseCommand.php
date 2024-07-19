@@ -34,7 +34,7 @@ final class PushDatabaseCommand extends PushCommandBase
         $databases = $this->determineCloudDatabases($acquiaCloudClient, $destinationEnvironment, $input->getArgument('site'));
         // We only support pushing a single database.
         $database = $databases[0];
-        $answer = $this->io->confirm("Overwrite the <bg=cyan;options=bold>$database->name</> database on <bg=cyan;options=bold>{$destinationEnvironment->name}</> with a copy of the database from the current machine?");
+        $answer = $this->io->confirm("Overwrite the <bg=cyan;options=bold>$database->name</> database on <bg=cyan;options=bold>$destinationEnvironment->name</> with a copy of the database from the current machine?");
         if (!$answer) {
             return Command::SUCCESS;
         }
@@ -87,7 +87,7 @@ final class PushDatabaseCommand extends PushCommandBase
     private function importDatabaseDumpOnRemote(EnvironmentResponse $environment, string $remoteDumpFilepath, DatabaseResponse $database): void
     {
         $this->logger->debug("Importing $remoteDumpFilepath to MySQL on remote machine");
-        $command = "pv $remoteDumpFilepath --bytes --rate | gunzip | MYSQL_PWD={$database->password} mysql --host={$this->getHostFromDatabaseResponse($environment, $database)} --user={$database->user_name} {$this->getNameFromDatabaseResponse($database)}";
+        $command = "pv $remoteDumpFilepath --bytes --rate | gunzip | MYSQL_PWD=$database->password mysql --host={$this->getHostFromDatabaseResponse($environment, $database)} --user=$database->user_name {$this->getNameFromDatabaseResponse($database)}";
         $process = $this->sshHelper->executeCommand($environment->sshUrl, [$command], ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
         if (!$process->isSuccessful()) {
             throw new AcquiaCliException('Unable to import database on remote machine. {message}', ['message' => $process->getErrorOutput()]);

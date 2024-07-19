@@ -374,7 +374,7 @@ abstract class PullCommandTestBase extends CommandTestBase
             $requestException = $this->prophet->prophesize(RequestException::class);
             $requestException->getHandlerContext()
                 ->willReturn(['errno' => $curlCode]);
-            $this->clientProphecy->stream('get', "/environments/{$environment->id}/databases/{$database->name}/backups/1/actions/download", [])
+            $this->clientProphecy->stream('get', "/environments/$environment->id/databases/$database->name/backups/1/actions/download", [])
                 ->willThrow($requestException->reveal())
                 ->shouldBeCalled();
             $response = $this->prophet->prophesize(ResponseInterface::class);
@@ -382,7 +382,7 @@ abstract class PullCommandTestBase extends CommandTestBase
                 ->willReturn($response->reveal())
                 ->shouldBeCalled();
             $domainsResponse = $this->getMockResponseFromSpec('/environments/{environmentId}/domains', 'get', 200);
-            $this->clientProphecy->request('get', "/environments/{$environment->id}/domains")
+            $this->clientProphecy->request('get', "/environments/$environment->id/domains")
                 ->willReturn($domainsResponse->_embedded->items);
             $this->command->setBackupDownloadUrl(new Uri('https://www.example.com/download-backup'));
         } else {

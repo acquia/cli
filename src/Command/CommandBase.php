@@ -743,7 +743,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
         $terminalWidth = (new Terminal())->getWidth();
         foreach ($customerApplications as $application) {
             // Ensure that the message takes up the full terminal width to prevent display artifacts.
-            $message = "Searching <options=bold>{$application->name}</> for matching git URLs";
+            $message = "Searching <options=bold>$application->name</> for matching git URLs";
             $suffixLength = $terminalWidth - strlen($message) - 17;
             $suffix = $suffixLength > 0 ? str_repeat(' ', $suffixLength) : '';
             $progressBar->setMessage($message . $suffix);
@@ -789,7 +789,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
     ): ?ApplicationResponse {
         foreach ($applicationEnvironments as $environment) {
             if ($environment->flags->production && in_array($environment->vcs->url, $localGitRemotes, true)) {
-                $this->logger->debug("Found matching Cloud application! {$application->name} with uuid {$application->uuid} matches local git URL {$environment->vcs->url}");
+                $this->logger->debug("Found matching Cloud application! $application->name with uuid $application->uuid matches local git URL {$environment->vcs->url}");
 
                 return $application;
             }
@@ -809,7 +809,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
         Client $acquiaCloudClient
     ): ?ApplicationResponse {
         if ($this->projectDir && $this->input->isInteractive()) {
-            $this->output->writeln("There is no Cloud Platform application linked to <options=bold>{$this->projectDir}/.git</>.");
+            $this->output->writeln("There is no Cloud Platform application linked to <options=bold>$this->projectDir/.git</>.");
             $answer = $this->io->confirm('Would you like Acquia CLI to search for a Cloud application that matches your local git config?');
             if ($answer) {
                 $this->output->writeln('Searching for a matching Cloud application...');
@@ -976,7 +976,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
     private function saveCloudUuidToDatastore(ApplicationResponse $application): bool
     {
         $this->datastoreAcli->set('cloud_app_uuid', $application->uuid);
-        $this->io->success("The Cloud application {$application->name} has been linked to this repository by writing to {$this->datastoreAcli->filepath}");
+        $this->io->success("The Cloud application $application->name has been linked to this repository by writing to {$this->datastoreAcli->filepath}");
 
         return true;
     }
@@ -1102,7 +1102,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
         $environments = $environmentsResource->getAll($customerApplication->uuid);
         foreach ($environments as $environment) {
             if ($environment->name === $environmentAlias) {
-                $this->logger->debug("Found environment {$environment->uuid} matching $environmentAlias.");
+                $this->logger->debug("Found environment $environment->uuid matching $environmentAlias.");
 
                 return $environment;
             }
@@ -1158,7 +1158,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
 
         $customerApplication = $customerApplications[0];
 
-        $this->logger->debug("Found application {$customerApplication->uuid} matching alias $applicationAlias.");
+        $this->logger->debug("Found application $customerApplication->uuid matching alias $applicationAlias.");
 
         return $customerApplication;
     }
@@ -1474,9 +1474,9 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
     protected function getCloudSitesPath(mixed $cloudEnvironment, mixed $sitegroup): string
     {
         if ($cloudEnvironment->platform === 'cloud-next') {
-            $path = "/home/clouduser/{$cloudEnvironment->name}/sites";
+            $path = "/home/clouduser/$cloudEnvironment->name/sites";
         } else {
-            $path = "/mnt/files/$sitegroup.{$cloudEnvironment->name}/sites";
+            $path = "/mnt/files/$sitegroup.$cloudEnvironment->name/sites";
         }
         return $path;
     }
@@ -1680,7 +1680,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
             'mysqldump',
             'gzip',
         ]);
-        $filename = "acli-mysql-dump-{$dbName}.sql.gz";
+        $filename = "acli-mysql-dump-$dbName.sql.gz";
         $localTempDir = sys_get_temp_dir();
         $localFilepath = $localTempDir . '/' . $filename;
         $this->logger->debug("Dumping MySQL database to $localFilepath on this machine");
@@ -1692,10 +1692,10 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
             $outputCallback('out', "Dumping MySQL database to $localFilepath on this machine");
         }
         if ($this->localMachineHelper->commandExists('pv')) {
-            $command = "bash -c \"set -o pipefail; MYSQL_PWD={$dbPassword} mysqldump --host={$dbHost} --user={$dbUser} {$dbName} | pv --rate --bytes | gzip -9 > $localFilepath\"";
+            $command = "bash -c \"set -o pipefail; MYSQL_PWD=$dbPassword mysqldump --host=$dbHost --user=$dbUser $dbName | pv --rate --bytes | gzip -9 > $localFilepath\"";
         } else {
             $this->io->warning('Install `pv` to see progress bar');
-            $command = "bash -c \"set -o pipefail; MYSQL_PWD={$dbPassword} mysqldump --host={$dbHost} --user={$dbUser} {$dbName} | gzip -9 > $localFilepath\"";
+            $command = "bash -c \"set -o pipefail; MYSQL_PWD=$dbPassword mysqldump --host=$dbHost --user=$dbUser $dbName | gzip -9 > $localFilepath\"";
         }
 
         $process = $this->localMachineHelper->executeFromCmd($command, $outputCallback, null, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
@@ -1918,17 +1918,17 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
     private function writeCompletedMessage(NotificationResponse $notification): void
     {
         if ($notification->status === 'completed') {
-            $this->io->success("The task with notification uuid {$notification->uuid} completed");
+            $this->io->success("The task with notification uuid $notification->uuid completed");
         } elseif ($notification->status === 'failed') {
-            $this->io->error("The task with notification uuid {$notification->uuid} failed");
+            $this->io->error("The task with notification uuid $notification->uuid failed");
         } else {
-            throw new AcquiaCliException("Unknown task status: {$notification->status}");
+            throw new AcquiaCliException("Unknown task status: $notification->status");
         }
         $duration = strtotime($notification->completed_at) - strtotime($notification->created_at);
         $completedAt = date("D M j G:i:s T Y", strtotime($notification->completed_at));
-        $this->io->writeln("Progress: {$notification->progress}");
+        $this->io->writeln("Progress: $notification->progress");
         $this->io->writeln("Completed: $completedAt");
-        $this->io->writeln("Task type: {$notification->label}");
+        $this->io->writeln("Task type: $notification->label");
         $this->io->writeln("Duration: $duration seconds");
     }
 
@@ -1959,7 +1959,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
 
     protected function validateRequiredCloudPermissions(Client $acquiaCloudClient, ?string $cloudApplicationUuid, AccountResponse $account, array $requiredPermissions): void
     {
-        $permissions = $acquiaCloudClient->request('get', "/applications/{$cloudApplicationUuid}/permissions");
+        $permissions = $acquiaCloudClient->request('get', "/applications/$cloudApplicationUuid/permissions");
         $keyedPermissions = [];
         foreach ($permissions as $permission) {
             $keyedPermissions[$permission->name] = $permission;

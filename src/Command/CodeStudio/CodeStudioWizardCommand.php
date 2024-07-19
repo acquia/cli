@@ -104,10 +104,10 @@ final class CodeStudioWizardCommand extends WizardCommandBase
         $this->io->writeln([
             "",
             "This command will configure the Code Studio project <comment>{$project['path_with_namespace']}</comment> for automatic deployment to the",
-            "Acquia Cloud Platform application <comment>{$cloudApplication->name}</comment> (<comment>$appUuid</comment>)",
-            "using credentials (API Token and SSH Key) belonging to <comment>{$account->mail}</comment>.",
+            "Acquia Cloud Platform application <comment>$cloudApplication->name</comment> (<comment>$appUuid</comment>)",
+            "using credentials (API Token and SSH Key) belonging to <comment>$account->mail</comment>.",
             "",
-            "If the <comment>{$account->mail}</comment> Cloud account is deleted in the future, this Code Studio project will need to be re-configured.",
+            "If the <comment>$account->mail</comment> Cloud account is deleted in the future, this Code Studio project will need to be re-configured.",
         ]);
         $answer = $this->io->confirm('Do you want to continue?');
         if (!$answer) {
@@ -142,7 +142,7 @@ final class CodeStudioWizardCommand extends WizardCommandBase
             "  git remote add codestudio {$project['http_url_to_repo']}",
             "  git push codestudio",
         ]);
-        $this->io->note(["If the {$account->mail} Cloud account is deleted in the future, this Code Studio project will need to be re-configured."]);
+        $this->io->note(["If the $account->mail Cloud account is deleted in the future, this Code Studio project will need to be re-configured."]);
 
         return Command::SUCCESS;
     }

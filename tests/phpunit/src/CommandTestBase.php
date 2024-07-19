@@ -155,7 +155,7 @@ abstract class CommandTestBase extends TestBase
         $terminalWidth = (new Terminal())->getWidth();
         $paddingLen = (int) (($terminalWidth - strlen($message)) / 2);
         $pad = $paddingLen > 0 ? str_repeat('-', $paddingLen) : '';
-        $output->writeln("<comment>{$pad}{$message}{$pad}</comment>");
+        $output->writeln("<comment>$pad$message$pad</comment>");
     }
 
     /**
@@ -311,7 +311,7 @@ abstract class CommandTestBase extends TestBase
         $sitegroup = reset($parts);
         $sshHelper->executeCommand(
             Argument::type('string'),
-            ['ls', "/mnt/files/$sitegroup.{$environment->name}/sites"],
+            ['ls', "/mnt/files/$sitegroup.$environment->name/sites"],
             false
         )->willReturn($cloudMultisiteFetchProcess->reveal())->shouldBeCalled();
     }
@@ -344,7 +344,7 @@ abstract class CommandTestBase extends TestBase
         );
         $this->clientProphecy->request(
             'get',
-            "/environments/{$environmentsResponse->id}/databases"
+            "/environments/$environmentsResponse->id/databases"
         )
             ->willReturn($databasesResponse)
             ->shouldBeCalled();
@@ -369,14 +369,14 @@ abstract class CommandTestBase extends TestBase
         if ($existingBackups) {
             $this->clientProphecy->request(
                 'get',
-                "/environments/{$environmentsResponse->id}/databases/$dbName/backups"
+                "/environments/$environmentsResponse->id/databases/$dbName/backups"
             )
                 ->willReturn($databaseBackupsResponse->_embedded->items)
                 ->shouldBeCalled();
         } else {
             $this->clientProphecy->request(
                 'get',
-                "/environments/{$environmentsResponse->id}/databases/$dbName/backups"
+                "/environments/$environmentsResponse->id/databases/$dbName/backups"
             )
                 ->willReturn([], $databaseBackupsResponse->_embedded->items)
                 ->shouldBeCalled();
@@ -391,7 +391,7 @@ abstract class CommandTestBase extends TestBase
         mixed $backupId
     ): void {
         $stream = $this->prophet->prophesize(StreamInterface::class);
-        $this->clientProphecy->stream('get', "/environments/{$environmentsResponse->id}/databases/{$dbName}/backups/{$backupId}/actions/download", [])
+        $this->clientProphecy->stream('get', "/environments/$environmentsResponse->id/databases/$dbName/backups/$backupId/actions/download", [])
             ->willReturn($stream->reveal())
             ->shouldBeCalled();
     }
@@ -401,7 +401,7 @@ abstract class CommandTestBase extends TestBase
         mixed $dbName
     ): mixed {
         $backupCreateResponse = $this->getMockResponseFromSpec('/environments/{environmentId}/databases/{databaseName}/backups', 'post', 202)->{'Creating backup'}->value;
-        $this->clientProphecy->request('post', "/environments/$environmentsResponse->id/databases/{$dbName}/backups")
+        $this->clientProphecy->request('post', "/environments/$environmentsResponse->id/databases/$dbName/backups")
             ->willReturn($backupCreateResponse)
             ->shouldBeCalled();
 
@@ -686,7 +686,7 @@ abstract class CommandTestBase extends TestBase
         $permission = clone reset($permissions);
         $permission->name = "administer environment variables on non-prod";
         $permissions[] = $permission;
-        $this->clientProphecy->request('get', "/applications/{$applicationUuid}/permissions")
+        $this->clientProphecy->request('get', "/applications/$applicationUuid/permissions")
             ->willReturn($permissions)
             ->shouldBeCalled();
         return $permissions;

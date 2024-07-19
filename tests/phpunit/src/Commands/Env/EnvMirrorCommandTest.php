@@ -28,7 +28,7 @@ class EnvMirrorCommandTest extends CommandTestBase
         $response->links = $response->{'_links'};
         $this->clientProphecy->request(
             'post',
-            "/environments/{$environmentResponse->id}/code/actions/switch",
+            "/environments/$environmentResponse->id/code/actions/switch",
             [
                 'form_params' => [
                     'branch' => $environmentResponse->vcs->path,
@@ -41,7 +41,7 @@ class EnvMirrorCommandTest extends CommandTestBase
         $databasesResponse = $this->getMockResponseFromSpec("/environments/{environmentId}/databases", 'get', '200');
         $this->clientProphecy->request(
             'get',
-            "/environments/{$environmentResponse->id}/databases"
+            "/environments/$environmentResponse->id/databases"
         )
             ->willReturn($databasesResponse->_embedded->items)
             ->shouldBeCalled();
@@ -50,7 +50,7 @@ class EnvMirrorCommandTest extends CommandTestBase
         $response = $dbCopyResponse->{'Database being copied'}->value;
         $this->mockNotificationResponseFromObject($response);
         $response->links = $response->{'_links'};
-        $this->clientProphecy->request('post', "/environments/{$environmentResponse->id}/databases", [
+        $this->clientProphecy->request('post', "/environments/$environmentResponse->id/databases", [
             'json' => [
                 'name' => $databasesResponse->_embedded->items[0]->name,
                 'source' => $environmentResponse->id,
@@ -63,7 +63,7 @@ class EnvMirrorCommandTest extends CommandTestBase
         $response = $filesCopyResponse->{'Files queued for copying'}->value;
         $this->mockNotificationResponseFromObject($response);
         $response->links = $response->{'_links'};
-        $this->clientProphecy->request('post', "/environments/{$environmentResponse->id}/files", [
+        $this->clientProphecy->request('post', "/environments/$environmentResponse->id/files", [
             'json' => [
                 'source' => $environmentResponse->id,
             ],
@@ -72,7 +72,7 @@ class EnvMirrorCommandTest extends CommandTestBase
             ->shouldBeCalled();
 
         $environmentUpdateResponse = $this->getMockResponseFromSpec("/environments/{environmentId}", 'put', '202');
-        $this->clientProphecy->request('put', "/environments/{$environmentResponse->id}", Argument::type('array'))
+        $this->clientProphecy->request('put', "/environments/$environmentResponse->id", Argument::type('array'))
             ->willReturn($environmentUpdateResponse)
             ->shouldBeCalled();
         $this->mockNotificationResponseFromObject($environmentUpdateResponse);
@@ -94,6 +94,6 @@ class EnvMirrorCommandTest extends CommandTestBase
         $this->assertStringContainsString("Switching to {$environmentResponse->vcs->path}", $output);
         $this->assertStringContainsString("Copying {$databasesResponse->_embedded->items[0]->name}", $output);
         $this->assertStringContainsString("Copying PHP version, acpu memory limit, etc.", $output);
-        $this->assertStringContainsString("[OK] Done! {$environmentResponse->label} now matches {$environmentResponse->label}", $output);
+        $this->assertStringContainsString("[OK] Done! $environmentResponse->label now matches $environmentResponse->label", $output);
     }
 }

@@ -582,9 +582,9 @@ abstract class PullCommandBase extends CommandBase
         $interval = time() - strtotime($backupResponse->completedAt);
         $hoursInterval = floor($interval / 60 / 60);
         $dateFormatted = date("D M j G:i:s T Y", strtotime($backupResponse->completedAt));
-        $webLink = "https://cloud.acquia.com/a/environments/{$sourceEnvironment->uuid}/databases";
+        $webLink = "https://cloud.acquia.com/a/environments/$sourceEnvironment->uuid/databases";
         $messages = [
-            "Using a database backup that is $hoursInterval hours old. Backup #$backupResponse->id was created at {$dateFormatted}.",
+            "Using a database backup that is $hoursInterval hours old. Backup #$backupResponse->id was created at $dateFormatted.",
             "You can view your backups here: $webLink",
             "To generate a new backup, re-run this command with the --on-demand option.",
         ];
@@ -603,11 +603,11 @@ abstract class PullCommandBase extends CommandBase
         } elseif (AcquiaDrupalEnvironmentDetector::isAhIdeEnv() && !getenv('IDE_ENABLE_MULTISITE')) {
             // Import non-default db into default db. Needed on legacy IDE without multiple dbs.
             // @todo remove this case once all IDEs support multiple dbs.
-            $this->io->note("Cloud IDE only supports importing into the default Drupal database. Acquia CLI will import the NON-DEFAULT database {$database->name} into the DEFAULT database {$this->getLocalDbName()}");
+            $this->io->note("Cloud IDE only supports importing into the default Drupal database. Acquia CLI will import the NON-DEFAULT database $database->name into the DEFAULT database {$this->getLocalDbName()}");
             $this->doImportRemoteDatabase($this->getLocalDbHost(), $this->getLocalDbUser(), $this->getLocalDbName(), $this->getLocalDbPassword(), $localFilepath, $outputCallback);
         } else {
             // Import non-default db into non-default db.
-            $this->io->note("Acquia CLI assumes that the local name for the {$database->name} database is also {$database->name}");
+            $this->io->note("Acquia CLI assumes that the local name for the $database->name database is also $database->name");
             if (AcquiaDrupalEnvironmentDetector::isLandoEnv() || AcquiaDrupalEnvironmentDetector::isAhIdeEnv()) {
                 $this->doImportRemoteDatabase($this->getLocalDbHost(), 'root', $database->name, '', $localFilepath, $outputCallback);
             } else {

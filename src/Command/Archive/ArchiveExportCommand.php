@@ -61,7 +61,7 @@ final class ArchiveExportCommand extends CommandBase
         $randomString = (string) random_int(10000, 100000);
         $tempDirName = 'acli-archive-' . basename($this->dir) . '-' . time() . '-' . $randomString;
         $archiveTempDir = Path::join(sys_get_temp_dir(), $tempDirName);
-        $this->io->confirm("This will generate a new archive in <options=bold>{$this->destinationDir}</> containing the contents of your Drupal application at <options=bold>{$this->dir}</>.\n Do you want to continue?");
+        $this->io->confirm("This will generate a new archive in <options=bold>$this->destinationDir</> containing the contents of your Drupal application at <options=bold>$this->dir</>.\n Do you want to continue?");
 
         $this->checklist->addItem('Removing temporary artifact directory');
         $this->checklist->updateProgressBar("Removing $archiveTempDir");
@@ -98,7 +98,7 @@ final class ArchiveExportCommand extends CommandBase
     {
         $this->destinationDir = $input->getArgument('destination-dir');
         if (!$this->fs->exists($this->destinationDir)) {
-            throw new AcquiaCliException("The destination directory {$this->destinationDir} does not exist!");
+            throw new AcquiaCliException("The destination directory $this->destinationDir does not exist!");
         }
     }
 
@@ -107,7 +107,7 @@ final class ArchiveExportCommand extends CommandBase
      */
     private function createArchiveDirectory(string $artifactDir): void
     {
-        $this->checklist->updateProgressBar("Mirroring source files from {$this->dir} to {$artifactDir}");
+        $this->checklist->updateProgressBar("Mirroring source files from $this->dir to $artifactDir");
         $originFinder = $this->localMachineHelper->getFinder();
         $originFinder->files()->in($this->dir)
             // Include dot files like .htaccess.

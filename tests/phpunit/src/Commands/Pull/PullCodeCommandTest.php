@@ -279,7 +279,7 @@ class PullCodeCommandTest extends PullCommandTestBase
 
         $output = $this->getDisplay();
         IdeHelper::unsetCloudIdeEnvVars();
-        $message = "Would you like to change the PHP version on this IDE to match the PHP version on the {$environmentResponse->label} ({$environmentResponse->configuration->php->version}) environment?";
+        $message = "Would you like to change the PHP version on this IDE to match the PHP version on the $environmentResponse->label ({$environmentResponse->configuration->php->version}) environment?";
         if ($phpVersion === '7.1') {
             $this->assertStringNotContainsString($message, $output);
         } else {

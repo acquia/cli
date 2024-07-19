@@ -73,7 +73,7 @@ if (in_array($input->getFirstArgument(), ['clear-kernel-cache', 'ckc'])) {
   $kernel_cache_dir = $kernel->getCacheDir();
   $filesystem->remove([$kernel_cache_dir]);
   $filesystem->mkdir($kernel_cache_dir);
-  $filesystem->touch("{$kernel_cache_dir}/.gitkeep");
+  $filesystem->touch("$kernel_cache_dir/.gitkeep");
   exit;
 }
 

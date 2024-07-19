@@ -25,7 +25,7 @@ final class UnlinkCommand extends CommandBase
 
         $application = $this->getCloudApplication($this->datastoreAcli->get('cloud_app_uuid'));
         $this->datastoreAcli->set('cloud_app_uuid', null);
-        $output->writeln("<info>Unlinked <options=bold>$projectDir</> from Cloud application <options=bold>{$application->name}</></info>");
+        $output->writeln("<info>Unlinked <options=bold>$projectDir</> from Cloud application <options=bold>$application->name</></info>");
 
         return Command::SUCCESS;
     }

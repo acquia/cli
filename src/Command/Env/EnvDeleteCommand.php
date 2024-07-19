@@ -33,7 +33,7 @@ final class EnvDeleteCommand extends CommandBase
         $environmentsResource->delete($environment->uuid);
 
         $this->io->success([
-            "The {$environment->label} environment is being deleted",
+            "The $environment->label environment is being deleted",
         ]);
 
         return Command::SUCCESS;

@@ -54,7 +54,7 @@ abstract class WizardTestBase extends CommandTestBase
     protected function runTestCreate(): void
     {
         $environmentsResponse = $this->getMockEnvironmentsResponse();
-        $this->clientProphecy->request('get', "/applications/{$this::$applicationUuid}/environments")
+        $this->clientProphecy->request('get', "/applications/" . $this::$applicationUuid . "/environments")
             ->willReturn($environmentsResponse->_embedded->items)
             ->shouldBeCalled();
         $request = $this->getMockRequestBodyFromSpec('/account/ssh-keys');
@@ -127,7 +127,7 @@ abstract class WizardTestBase extends CommandTestBase
             ->shouldBeCalled();
 
         $environmentsResponse = $this->getMockEnvironmentsResponse();
-        $this->clientProphecy->request('get', "/applications/{$this::$applicationUuid}/environments")
+        $this->clientProphecy->request('get', "/applications/" . $this::$applicationUuid . "/environments")
             ->willReturn($environmentsResponse->_embedded->items)
             ->shouldBeCalled();
 

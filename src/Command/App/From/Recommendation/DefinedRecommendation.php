@@ -228,7 +228,7 @@ class DefinedRecommendation implements RecommendationInterface, NormalizableInte
         // phpcs:disable SlevomatCodingStandard.Arrays.AlphabeticallySortedByKeys
         $normalized = [
             'type' => 'packageRecommendation',
-            'id' => "{$this->packageName}:{$this->versionConstraint}",
+            'id' => "$this->packageName:$this->versionConstraint",
             'attributes' => [
                 'requirePackage' => [
                     'name' => $this->packageName,

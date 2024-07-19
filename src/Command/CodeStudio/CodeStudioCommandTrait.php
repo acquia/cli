@@ -184,14 +184,14 @@ trait CodeStudioCommandTrait
                 $projects,
                 'id',
                 'path_with_namespace',
-                "Found multiple projects that could match the {$cloudApplication->name} application. Choose which one to configure."
+                "Found multiple projects that could match the $cloudApplication->name application. Choose which one to configure."
             );
         }
         // Prompt to create project.
         $this->io->writeln([
             "",
-            "Could not find any existing Code Studio project for Acquia Cloud Platform application <comment>{$cloudApplication->name}</comment>.",
-            "Searched for UUID <comment>{$cloudApplication->uuid}</comment> in project descriptions.",
+            "Could not find any existing Code Studio project for Acquia Cloud Platform application <comment>$cloudApplication->name</comment>.",
+            "Searched for UUID <comment>$cloudApplication->uuid</comment> in project descriptions.",
         ]);
         $createProject = $this->io->confirm('Would you like to create a new Code Studio project? If you select "no" you may choose from a full list of existing projects.');
         if ($createProject) {
@@ -202,7 +202,7 @@ trait CodeStudioCommandTrait
             $this->gitLabClient->projects()->all(),
             'id',
             'path_with_namespace',
-            "Choose a Code Studio project to configure for the {$cloudApplication->name} application"
+            "Choose a Code Studio project to configure for the $cloudApplication->name application"
         );
     }
 

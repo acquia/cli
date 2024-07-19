@@ -127,7 +127,7 @@ class EmailInfoForSubscriptionCommandTest extends CommandTestBase
             ->willReturn($applicationsResponse->_embedded->items);
 
         foreach ($applicationsResponse->_embedded->items as $app) {
-            $this->clientProphecy->request('get', "/applications/{$app->uuid}/email/domains")
+            $this->clientProphecy->request('get', "/applications/$app->uuid/email/domains")
                 ->willReturn([]);
         }
 

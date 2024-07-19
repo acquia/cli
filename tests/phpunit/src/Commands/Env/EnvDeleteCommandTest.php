@@ -126,7 +126,7 @@ class EnvDeleteCommandTest extends CommandTestBase
         }
         $this->clientProphecy->request(
             'get',
-            "/applications/{$application->uuid}/environments"
+            "/applications/$application->uuid/environments"
         )
             ->willReturn($environments)
             ->shouldBeCalled();

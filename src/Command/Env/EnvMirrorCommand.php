@@ -57,7 +57,7 @@ final class EnvMirrorCommand extends CommandBase
         $destinationEnvironment = $environmentsResource->get($destinationEnvironmentUuid);
         $this->checklist->completePreviousItem();
 
-        $answer = $this->io->confirm("Are you sure that you want to overwrite everything on {$destinationEnvironment->label} ({$destinationEnvironment->name}) and replace it with source data from {$sourceEnvironment->label} ({$sourceEnvironment->name})");
+        $answer = $this->io->confirm("Are you sure that you want to overwrite everything on $destinationEnvironment->label ($destinationEnvironment->name) and replace it with source data from $sourceEnvironment->label ($sourceEnvironment->name)");
         if (!$answer) {
             return 1;
         }
@@ -92,7 +92,7 @@ final class EnvMirrorCommand extends CommandBase
         }
 
         $this->io->success([
-            "Done! {$destinationEnvironment->label} now matches {$sourceEnvironment->label}",
+            "Done! $destinationEnvironment->label now matches $sourceEnvironment->label",
             "You can visit it here:",
             "https://" . $destinationEnvironment->domains[0],
         ]);
@@ -117,7 +117,7 @@ final class EnvMirrorCommand extends CommandBase
         $databasesResource = new Databases($acquiaCloudClient);
         $databases = $acquiaCloudClient->request('get', "/environments/$sourceEnvironmentUuid/databases");
         $defaultDatabase = $this->getDefaultDatabase($databases);
-        $outputCallback('out', "Copying {$defaultDatabase->name}");
+        $outputCallback('out', "Copying $defaultDatabase->name");
 
         // @todo Create database if its missing.
         $dbCopyResponse = $databasesResource->copy($sourceEnvironmentUuid, $defaultDatabase->name, $destinationEnvironmentUuid);

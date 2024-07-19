@@ -164,7 +164,7 @@ class ApiCommandHelper
 
         if (array_key_exists('example', $requestBodyContent)) {
             $example = $requestBodyContent['example'];
-            $prefix = $type === 'argument' ? '' : "--{$propKey}=";
+            $prefix = $type === 'argument' ? '' : "--$propKey=";
             if (array_key_exists($propKey, $example)) {
                 switch ($paramDefinition['type']) {
                     case 'object':
@@ -194,7 +194,7 @@ class ApiCommandHelper
                         } else {
                             $value = $example[$propKey];
                         }
-                        $usage .= $prefix . "\"{$value}\" ";
+                        $usage .= $prefix . "\"$value\" ";
                         break;
                 }
             }
@@ -486,7 +486,7 @@ class ApiCommandHelper
                 $command->setName($name);
                 $command->setNamespace($name);
                 $command->setAliases([]);
-                $command->setDescription("List all API commands for the {$namespace} resource");
+                $command->setDescription("List all API commands for the $namespace resource");
                 $apiListCommands[$name] = $command;
             }
         }

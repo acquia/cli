@@ -88,7 +88,7 @@ final class CodeStudioPipelinesMigrateCommand extends CommandBase
         $existingKeys = array_column($gitlabCicdExistingVariables, 'key');
         foreach ($gitlabCicdVariables as $gitlabCicdVariable) {
             if (!in_array($gitlabCicdVariable, $existingKeys, true)) {
-                throw new AcquiaCliException("Code Studio CI/CD variable {$gitlabCicdVariable} is not configured properly");
+                throw new AcquiaCliException("Code Studio CI/CD variable $gitlabCicdVariable is not configured properly");
             }
         }
     }
