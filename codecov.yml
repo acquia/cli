@@ -1,3 +1,8 @@
 ignore:
   # It's not feasible to spin up a working Drupal 7 site as part of ACLI's test suite.
   - src/Command/App/From/SourceSite/Drupal7SiteInspector.php
+coverage:
+    status:
+        project:
+            default:
+                only_pulls: false
