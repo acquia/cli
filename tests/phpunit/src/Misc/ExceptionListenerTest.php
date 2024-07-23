@@ -103,6 +103,13 @@ class ExceptionListenerTest extends TestBase
                 'Check that you have write access to the directory',
             ],
             [
+                new AcquiaCliException('Unable to import local database. {message}'),
+                [
+                    'Check for MySQL warnings above or in the server log (/var/log/mysql/error.log)',
+                    'Frequently, `MySQL server has gone away` messages are caused by max_allowed_packet being exceeded.',
+                ],
+            ],
+            [
                 new ApiErrorException((object) [
                     'error' => '',
                     'message' => "There are no available Cloud IDEs for this application.\n",
