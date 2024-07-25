@@ -9,10 +9,10 @@ unittest.TestLoader.sortTestMethodsUsing = None
 
 class TestExecutableWithPrompt(unittest.TestCase):
 
-    application_uuid = "2ed281d4-9dec-4cc3-ac63-691c3ba002c2"
+    application_uuid = os.environ.get("APPLICATION_UUID", "xxx")
     environment_name = "automated_tests_"+str(time.time()).split(".")[0]
     branch = "master"
-    application_name = "pipelinesvalidation2"
+    application_name = os.environ.get("APPLICATION_NAME", "xxx")
     acli_auth_token = os.environ.get("ACLI_AUTH_TOKEN", "xxx")
     acli_auth_secret = os.environ.get("ACLI_AUTH_SECRET", "xxx")
 
@@ -21,7 +21,7 @@ class TestExecutableWithPrompt(unittest.TestCase):
         output_list = []
         params = params if params is not None else []
 
-        command = ['acli'] + params
+        command = ['./bin/acli'] + params
         process = subprocess.Popen(command,
                                    stdin=subprocess.PIPE,
                                    stdout=subprocess.PIPE,
