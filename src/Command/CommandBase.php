@@ -54,6 +54,7 @@ use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\LoggerInterface;
 use Safe\Exceptions\FilesystemException;
+use SelfUpdate\SelfUpdateCommand;
 use stdClass;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\Console\Command\Command;
@@ -1204,52 +1205,14 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
             return false;
         }
         try {
-            if ($latest = $this->hasUpdate()) {
-                return $latest;
+            /** @var SelfUpdateCommand $selfUpdateCommand */
+            $selfUpdateCommand = $this->getApplication()->get('self:update');
+            $selfUpdateManager = $selfUpdateCommand->getSelfUpdateManager([]);
+            if (!$selfUpdateManager->isUpToDate()) {
+                return $selfUpdateManager->getLatestReleaseFromGithub()['tag_name'];
             }
-        } catch (Exception) {
+        } catch (Exception $exception) {
             $this->logger->debug("Could not determine if Acquia CLI has a new version available.");
-        }
-        return false;
-    }
-
-    /**
-     * Check if an update is available.
-     *
-     * @todo unify with consolidation/self-update and support unstable channels
-     */
-    protected function hasUpdate(): bool|string
-    {
-        $versionParser = new VersionParser();
-        // Fail fast on development builds (throw UnexpectedValueException).
-        $currentVersion = $versionParser->normalize($this->getApplication()
-            ->getVersion());
-        $client = $this->getUpdateClient();
-        $response = $client->get('https://api.github.com/repos/acquia/cli/releases');
-        if ($response->getStatusCode() !== 200) {
-            $this->logger->debug('Encountered ' . $response->getStatusCode() . ' error when attempting to check for new ACLI releases on GitHub: ' . $response->getReasonPhrase());
-            return false;
-        }
-
-        $releases = json_decode((string) $response->getBody(), false, 512, JSON_THROW_ON_ERROR);
-        if (!isset($releases[0])) {
-            $this->logger->debug('No releases found at GitHub repository acquia/cli');
-            return false;
-        }
-
-        foreach ($releases as $release) {
-            if (!$release->prerelease) {
-                /**
-                 * @var string $version
-                 */
-                $version = $release->tag_name;
-                $versionStability = VersionParser::parseStability($version);
-                $versionIsNewer = Comparator::greaterThan($versionParser->normalize($version), $currentVersion);
-                if ($versionStability === 'stable' && $versionIsNewer) {
-                    return $version;
-                }
-                return false;
-            }
         }
         return false;
     }
