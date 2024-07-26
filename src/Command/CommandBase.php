@@ -1211,7 +1211,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
             if (!$selfUpdateManager->isUpToDate()) {
                 return $selfUpdateManager->getLatestReleaseFromGithub()['tag_name'];
             }
-        } catch (Exception $exception) {
+        } catch (Exception) {
             $this->logger->debug("Could not determine if Acquia CLI has a new version available.");
         }
         return false;
