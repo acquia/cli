@@ -41,14 +41,8 @@ use AcquiaCloudApi\Response\SubscriptionResponse;
 use AcquiaLogstream\LogstreamManager;
 use ArrayObject;
 use Closure;
-use Composer\Semver\Comparator;
-use Composer\Semver\VersionParser;
 use Exception;
-use GuzzleHttp\HandlerStack;
 use JsonException;
-use Kevinrob\GuzzleCache\CacheMiddleware;
-use Kevinrob\GuzzleCache\Storage\Psr6CacheStorage;
-use Kevinrob\GuzzleCache\Strategy\PrivateCacheStrategy;
 use loophp\phposinfo\OsInfo;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
@@ -56,7 +50,6 @@ use Psr\Log\LoggerInterface;
 use Safe\Exceptions\FilesystemException;
 use SelfUpdate\SelfUpdateCommand;
 use stdClass;
-use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\FormatterHelper;
 use Symfony\Component\Console\Helper\ProgressBar;
@@ -103,8 +96,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
     protected string $localDbHost = 'localhost';
 
     protected bool $drushHasActiveDatabaseConnection;
-
-    protected \GuzzleHttp\Client $updateClient;
 
     public function __construct(
         public LocalMachineHelper $localMachineHelper,
@@ -1215,31 +1206,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
             $this->logger->debug("Could not determine if Acquia CLI has a new version available.");
         }
         return false;
-    }
-
-    public function setUpdateClient(\GuzzleHttp\Client $client): void
-    {
-        $this->updateClient = $client;
-    }
-
-    public function getUpdateClient(): \GuzzleHttp\Client
-    {
-        if (!isset($this->updateClient)) {
-            $stack = HandlerStack::create();
-            $stack->push(
-                new CacheMiddleware(
-                    new PrivateCacheStrategy(
-                        new Psr6CacheStorage(
-                            new FilesystemAdapter('acli')
-                        )
-                    )
-                ),
-                'cache'
-            );
-            $client = new \GuzzleHttp\Client(['handler' => $stack]);
-            $this->setUpdateClient($client);
-        }
-        return $this->updateClient;
     }
 
     protected function fillMissingRequiredApplicationUuid(InputInterface $input, OutputInterface $output): void
