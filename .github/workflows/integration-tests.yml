@@ -1,0 +1,39 @@
+name: Run Tests on Release
+
+on:
+  release:
+    types: [created]
+
+jobs:
+  test:
+    runs-on: ubuntu-22.04
+    steps:
+    - name: Check out repository code
+      uses: actions/checkout@v2
+
+    - uses: shivammathur/setup-php@v2
+        with:
+          coverage: none
+          php-version: '8.1'
+
+    - name: Build
+      run: |
+        composer install --no-dev --optimize-autoloader
+        composer box-install
+        # Warm the symfony cache so it gets bundled with phar.
+        ./bin/acli
+        composer box-compile
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.8'
+
+    - name: Run tests
+      env:
+        APPLICATION_UUID: ${{ secrets.APPLICATION_UUID }}
+        APPLICATION_NAME: ${{ secrets.APPLICATION_NAME }}
+        ACLI_AUTH_TOKEN: ${{ secrets.ACLI_AUTH_TOKEN }}
+        ACLI_AUTH_SECRET: ${{ secrets.ACLI_AUTH_SECRET }}
+        # Add more secret environment variables as needed
+      run: python3 -m unittest discover -s tests/integration/testcases
