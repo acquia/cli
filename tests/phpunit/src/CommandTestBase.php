@@ -408,10 +408,16 @@ abstract class CommandTestBase extends TestBase
         return $backupCreateResponse;
     }
 
-    protected function mockNotificationResponseFromObject(object $responseWithNotificationLink): array|object
+    protected function mockNotificationResponseFromObject(object $responseWithNotificationLink, ?bool $success = true): array|object
     {
         $uuid = substr($responseWithNotificationLink->_links->notification->href, -36);
-        return $this->mockRequest('getNotificationByUuid', $uuid);
+        if ($success) {
+            return $this->mockRequest('getNotificationByUuid', $uuid);
+        }
+
+        return $this->mockRequest('getNotificationByUuid', $uuid, null, null, function ($response): void {
+            $response->status = 'failed';
+        });
     }
 
     protected function mockCreateMySqlDumpOnLocal(ObjectProphecy $localMachineHelper, bool $printOutput = true, bool $pv = true): void

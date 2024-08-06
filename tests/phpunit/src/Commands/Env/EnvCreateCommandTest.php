@@ -17,7 +17,7 @@ class EnvCreateCommandTest extends CommandTestBase
 {
     private static string $validLabel = 'New CDE';
 
-    private function setupCdeTest(string $label): string
+    private function setupCdeTest(string $label, ?bool $apiSuccess = true): string
     {
         $applicationsResponse = $this->mockApplicationsRequest();
         $applicationResponse = $this->mockApplicationRequest();
@@ -60,7 +60,7 @@ class EnvCreateCommandTest extends CommandTestBase
             ->willReturn($environmentsResponse->{'Adding environment'}->value)
             ->shouldBeCalled();
 
-        $this->mockNotificationResponseFromObject($environmentsResponse->{'Adding environment'}->value);
+        $this->mockNotificationResponseFromObject($environmentsResponse->{'Adding environment'}->value, $apiSuccess);
         return $response2->_embedded->items[3]->domains[0];
     }
 
@@ -156,6 +156,25 @@ class EnvCreateCommandTest extends CommandTestBase
             [
                 'applicationUuid' => $this->getApplication(),
                 'branch' => 'bogus',
+                'label' => self::$validLabel,
+            ]
+        );
+    }
+
+    /**
+     * @group brokenProphecy
+     */
+    public function testCreateCdeApiFailure(): void
+    {
+        $this->setupCdeTest(self::$validLabel, false);
+
+        $this->expectException(AcquiaCliException::class);
+        $this->expectExceptionMessage('Cloud API failed to create environment');
+
+        $this->executeCommand(
+            [
+                'applicationUuid' => $this->getApplication(),
+                'branch' => $this->getBranch(),
                 'label' => self::$validLabel,
             ]
         );
