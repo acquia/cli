@@ -344,6 +344,9 @@ class PullDatabaseCommandTest extends PullCommandTestBase
             $this->mockNotificationResponseFromObject($backupResponse, $onDemandSuccess);
         }
 
+        $localMachineHelper = $this->mockLocalMachineHelper();
+        $this->mockExecuteMySqlConnect($localMachineHelper, $mysqlConnectSuccessful);
+
         if (!$onDemandSuccess) {
             return;
         }
@@ -352,8 +355,6 @@ class PullDatabaseCommandTest extends PullCommandTestBase
         $this->mockDownloadBackup($databaseResponse, $selectedEnvironment, $databaseBackupsResponse->_embedded->items[0], $curlCode);
 
         $fs = $this->prophet->prophesize(Filesystem::class);
-        $localMachineHelper = $this->mockLocalMachineHelper();
-        $this->mockExecuteMySqlConnect($localMachineHelper, $mysqlConnectSuccessful);
         // Set up file system.
         $localMachineHelper->getFilesystem()->willReturn($fs)->shouldBeCalled();
 
