@@ -208,6 +208,19 @@ class PullDatabaseCommandTest extends PullCommandTestBase
         $this->assertStringContainsString('jxr5000596dev (oracletest1.dev-profserv2.acsitefactory.com)', $output);
     }
 
+    public function testPullDatabasesOnDemandFail(): void
+    {
+        $this->setupPullDatabase(true, true, true, true, false, 0, true, false);
+        $inputs = self::inputChooseEnvironment();
+
+        $this->expectException(AcquiaCliException::class);
+        $this->expectExceptionMessage('Cloud API failed to create a backup');
+        $this->executeCommand([
+            '--no-scripts' => true,
+            '--on-demand' => true,
+        ], $inputs);
+    }
+
     public function testPullDatabasesNoExistingBackup(): void
     {
         $this->setupPullDatabase(true, true, true, true, false, 0, false);
@@ -302,7 +315,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase
         $this->assertStringContainsString('Trying alternative host other.example.com', $output);
     }
 
-    protected function setupPullDatabase(bool $mysqlConnectSuccessful, bool $mockIdeFs = false, bool $onDemand = false, bool $mockGetAcsfSites = true, bool $multiDb = false, int $curlCode = 0, bool $existingBackups = true): void
+    protected function setupPullDatabase(bool $mysqlConnectSuccessful, bool $mockIdeFs = false, bool $onDemand = false, bool $mockGetAcsfSites = true, bool $multiDb = false, int $curlCode = 0, bool $existingBackups = true, bool $onDemandSuccess = true): void
     {
         $applicationsResponse = $this->mockApplicationsRequest();
         $this->mockApplicationRequest();
@@ -312,8 +325,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase
 
         $databasesResponse = $this->mockAcsfDatabasesResponse($selectedEnvironment);
         $databaseResponse = $databasesResponse[array_search('jxr5000596dev', array_column($databasesResponse, 'name'), true)];
-        $databaseBackupsResponse = $this->mockDatabaseBackupsResponse($selectedEnvironment, $databaseResponse->name, 1, $existingBackups);
-        $selectedDatabase = $this->mockDownloadBackup($databaseResponse, $selectedEnvironment, $databaseBackupsResponse->_embedded->items[0], $curlCode);
+        $selectedDatabase = $databaseResponse;
 
         if ($multiDb) {
             $databaseResponse2 = $databasesResponse[array_search('profserv2', array_column($databasesResponse, 'name'), true)];
@@ -329,12 +341,20 @@ class PullDatabaseCommandTest extends PullCommandTestBase
         if ($onDemand) {
             $backupResponse = $this->mockDatabaseBackupCreateResponse($selectedEnvironment, $selectedDatabase->name);
             // Cloud API does not provide the notification UUID as part of the backup response, so we must hardcode it.
-            $this->mockNotificationResponseFromObject($backupResponse);
+            $this->mockNotificationResponseFromObject($backupResponse, $onDemandSuccess);
         }
 
-        $fs = $this->prophet->prophesize(Filesystem::class);
         $localMachineHelper = $this->mockLocalMachineHelper();
         $this->mockExecuteMySqlConnect($localMachineHelper, $mysqlConnectSuccessful);
+
+        if (!$onDemandSuccess) {
+            return;
+        }
+
+        $databaseBackupsResponse = $this->mockDatabaseBackupsResponse($selectedEnvironment, $databaseResponse->name, 1, $existingBackups);
+        $this->mockDownloadBackup($databaseResponse, $selectedEnvironment, $databaseBackupsResponse->_embedded->items[0], $curlCode);
+
+        $fs = $this->prophet->prophesize(Filesystem::class);
         // Set up file system.
         $localMachineHelper->getFilesystem()->willReturn($fs)->shouldBeCalled();
 

@@ -6,6 +6,7 @@ namespace Acquia\Cli\Command\Env;
 
 use Acquia\Cli\Attribute\RequireAuth;
 use Acquia\Cli\Command\CommandBase;
+use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Output\Checklist;
 use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Endpoints\Databases;
@@ -78,17 +79,17 @@ final class EnvMirrorCommand extends CommandBase
             $configCopyResponse = $this->mirrorConfig($sourceEnvironment, $destinationEnvironment, $environmentsResource, $destinationEnvironmentUuid, $outputCallback);
         }
 
-        if (isset($codeCopyResponse)) {
-            $this->waitForNotificationToComplete($acquiaCloudClient, CommandBase::getNotificationUuidFromResponse($codeCopyResponse), 'Waiting for code copy to complete');
+        if (isset($codeCopyResponse) && !$this->waitForNotificationToComplete($acquiaCloudClient, CommandBase::getNotificationUuidFromResponse($codeCopyResponse), 'Waiting for code copy to complete')) {
+            throw new AcquiaCliException('Cloud API failed to copy code');
         }
-        if (isset($dbCopyResponse)) {
-            $this->waitForNotificationToComplete($acquiaCloudClient, CommandBase::getNotificationUuidFromResponse($dbCopyResponse), 'Waiting for database copy to complete');
+        if (isset($dbCopyResponse) && !$this->waitForNotificationToComplete($acquiaCloudClient, CommandBase::getNotificationUuidFromResponse($dbCopyResponse), 'Waiting for database copy to complete')) {
+            throw new AcquiaCliException('Cloud API failed to copy database');
         }
-        if (isset($filesCopyResponse)) {
-            $this->waitForNotificationToComplete($acquiaCloudClient, CommandBase::getNotificationUuidFromResponse($filesCopyResponse), 'Waiting for files copy to complete');
+        if (isset($filesCopyResponse) && !$this->waitForNotificationToComplete($acquiaCloudClient, CommandBase::getNotificationUuidFromResponse($filesCopyResponse), 'Waiting for files copy to complete')) {
+            throw new AcquiaCliException('Cloud API failed to copy files');
         }
-        if (isset($configCopyResponse)) {
-            $this->waitForNotificationToComplete($acquiaCloudClient, CommandBase::getNotificationUuidFromResponse($configCopyResponse), 'Waiting for config copy to complete');
+        if (isset($configCopyResponse) && !$this->waitForNotificationToComplete($acquiaCloudClient, CommandBase::getNotificationUuidFromResponse($configCopyResponse), 'Waiting for config copy to complete')) {
+            throw new AcquiaCliException('Cloud API failed to copy config');
         }
 
         $this->io->success([
