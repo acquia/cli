@@ -347,8 +347,11 @@ abstract class PullCommandBase extends CommandBase
             $this->output->writeln('');
             $this->output->writeln('<info>Database backup is ready!</info>');
         };
-        $this->waitForNotificationToComplete($acquiaCloudClient, $notificationUuid, $spinnerMessage, $successCallback);
+        $success = $this->waitForNotificationToComplete($acquiaCloudClient, $notificationUuid, $spinnerMessage, $successCallback);
         Loop::run();
+        if (!$success) {
+            throw new AcquiaCliException('Cloud API failed to create a backup');
+        }
     }
 
     private function connectToLocalDatabase(string $dbHost, string $dbUser, string $dbName, string $dbPassword, callable $outputCallback = null): void

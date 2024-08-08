@@ -6,6 +6,7 @@ namespace Acquia\Cli\Command\Env;
 
 use Acquia\Cli\Attribute\RequireAuth;
 use Acquia\Cli\Command\CommandBase;
+use Acquia\Cli\Exception\AcquiaCliException;
 use AcquiaCloudApi\Endpoints\SslCertificates;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -53,7 +54,10 @@ final class EnvCertCreateCommand extends CommandBase
             $legacy
         );
         $notificationUuid = CommandBase::getNotificationUuidFromResponse($response);
-        $this->waitForNotificationToComplete($acquiaCloudClient, $notificationUuid, 'Installing certificate');
+        $success = $this->waitForNotificationToComplete($acquiaCloudClient, $notificationUuid, 'Installing certificate');
+        if (!$success) {
+            throw new AcquiaCliException('Cloud API failed to install certificate');
+        }
         return Command::SUCCESS;
     }
 }

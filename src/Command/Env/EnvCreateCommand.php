@@ -62,7 +62,10 @@ final class EnvCreateCommand extends CommandBase
                 ]);
             }
         };
-        $this->waitForNotificationToComplete($acquiaCloudClient, $notificationUuid, "Waiting for the environment to be ready. This usually takes 2 - 15 minutes.", $success);
+        $success = $this->waitForNotificationToComplete($acquiaCloudClient, $notificationUuid, "Waiting for the environment to be ready. This usually takes 2 - 15 minutes.", $success);
+        if (!$success) {
+            throw new AcquiaCliException('Cloud API failed to create environment');
+        }
 
         return Command::SUCCESS;
     }
