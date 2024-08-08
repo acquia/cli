@@ -41,21 +41,15 @@ use AcquiaCloudApi\Response\SubscriptionResponse;
 use AcquiaLogstream\LogstreamManager;
 use ArrayObject;
 use Closure;
-use Composer\Semver\Comparator;
-use Composer\Semver\VersionParser;
 use Exception;
-use GuzzleHttp\HandlerStack;
 use JsonException;
-use Kevinrob\GuzzleCache\CacheMiddleware;
-use Kevinrob\GuzzleCache\Storage\Psr6CacheStorage;
-use Kevinrob\GuzzleCache\Strategy\PrivateCacheStrategy;
 use loophp\phposinfo\OsInfo;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\LoggerInterface;
 use Safe\Exceptions\FilesystemException;
+use SelfUpdate\SelfUpdateCommand;
 use stdClass;
-use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\FormatterHelper;
 use Symfony\Component\Console\Helper\ProgressBar;
@@ -102,8 +96,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
     protected string $localDbHost = 'localhost';
 
     protected bool $drushHasActiveDatabaseConnection;
-
-    protected \GuzzleHttp\Client $updateClient;
 
     public function __construct(
         public LocalMachineHelper $localMachineHelper,
@@ -1204,79 +1196,16 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
             return false;
         }
         try {
-            if ($latest = $this->hasUpdate()) {
-                return $latest;
+            /** @var SelfUpdateCommand $selfUpdateCommand */
+            $selfUpdateCommand = $this->getApplication()->get(SelfUpdateCommand::SELF_UPDATE_COMMAND_NAME);
+            $selfUpdateManager = $selfUpdateCommand->getSelfUpdateManager();
+            if (!$selfUpdateManager->isUpToDate()) {
+                return $selfUpdateManager->getLatestReleaseFromGithub()['tag_name'];
             }
         } catch (Exception) {
             $this->logger->debug("Could not determine if Acquia CLI has a new version available.");
         }
         return false;
-    }
-
-    /**
-     * Check if an update is available.
-     *
-     * @todo unify with consolidation/self-update and support unstable channels
-     */
-    protected function hasUpdate(): bool|string
-    {
-        $versionParser = new VersionParser();
-        // Fail fast on development builds (throw UnexpectedValueException).
-        $currentVersion = $versionParser->normalize($this->getApplication()
-            ->getVersion());
-        $client = $this->getUpdateClient();
-        $response = $client->get('https://api.github.com/repos/acquia/cli/releases');
-        if ($response->getStatusCode() !== 200) {
-            $this->logger->debug('Encountered ' . $response->getStatusCode() . ' error when attempting to check for new ACLI releases on GitHub: ' . $response->getReasonPhrase());
-            return false;
-        }
-
-        $releases = json_decode((string) $response->getBody(), false, 512, JSON_THROW_ON_ERROR);
-        if (!isset($releases[0])) {
-            $this->logger->debug('No releases found at GitHub repository acquia/cli');
-            return false;
-        }
-
-        foreach ($releases as $release) {
-            if (!$release->prerelease) {
-                /**
-                 * @var string $version
-                 */
-                $version = $release->tag_name;
-                $versionStability = VersionParser::parseStability($version);
-                $versionIsNewer = Comparator::greaterThan($versionParser->normalize($version), $currentVersion);
-                if ($versionStability === 'stable' && $versionIsNewer) {
-                    return $version;
-                }
-                return false;
-            }
-        }
-        return false;
-    }
-
-    public function setUpdateClient(\GuzzleHttp\Client $client): void
-    {
-        $this->updateClient = $client;
-    }
-
-    public function getUpdateClient(): \GuzzleHttp\Client
-    {
-        if (!isset($this->updateClient)) {
-            $stack = HandlerStack::create();
-            $stack->push(
-                new CacheMiddleware(
-                    new PrivateCacheStrategy(
-                        new Psr6CacheStorage(
-                            new FilesystemAdapter('acli')
-                        )
-                    )
-                ),
-                'cache'
-            );
-            $client = new \GuzzleHttp\Client(['handler' => $stack]);
-            $this->setUpdateClient($client);
-        }
-        return $this->updateClient;
     }
 
     protected function fillMissingRequiredApplicationUuid(InputInterface $input, OutputInterface $output): void

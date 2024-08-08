@@ -66,18 +66,10 @@ Be sure to validate and test your code locally using the provided Composer test 
 To test changes in production mode, build and run `acli.phar` using this process. The _build-release_ stage of [`.github/workflows/ci.yml`](.github/workflows/ci.yml) follows a similar process.
 
 1. Install Composer production dependencies: `composer install --no-dev --optimize-autoloader`
-2. Create a `.env` file with Bugsnag and Amplitude keys
+2. Populate `.env`: `cp .env.example .env`
 3. Clear and rebuild your Symfony caches: `./bin/acli ckc && ./bin/acli cc`
 4. Install Box (only need to do this once): `composer box-install`
 5. Compile phar: `composer box-compile`
-
-### Testing the `update` command
-
-Any changes to the `acli update` command should be manually tested using the following steps:
-
-1. Replace `@package_version@` on this line with `1.0.0` or any older version string: https://github.com/acquia/cli/blob/v1.0.0/bin/acli#L84
-1. Build acli.phar as described above.
-1. Now test: `./var/acli.phar self:update`
 
 ### Writing tests
 
