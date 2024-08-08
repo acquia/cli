@@ -13,8 +13,8 @@
     "minimum-stability": "dev",
     "repositories": [
         {
-            "type": "path",
-            "url": "../../consolidation/self-update"
+            "type": "vcs",
+            "url": "https://github.com/danepowell/self-update"
         }
     ],
     "require": {
@@ -23,7 +23,7 @@
         "acquia/drupal-environment-detector": "^1.2.0",
         "bugsnag/bugsnag": "^3.0",
         "composer/semver": "^3.3",
-        "consolidation/self-update": "dev-main as 2.1.0",
+        "consolidation/self-update": "dev-issue-8 as 2.1.0",
         "dflydev/dot-access-data": "^3",
         "grasmash/expander": "^3",
         "guzzlehttp/guzzle": "^7.4",
