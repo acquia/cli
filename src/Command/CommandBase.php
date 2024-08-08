@@ -1197,8 +1197,8 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
         }
         try {
             /** @var SelfUpdateCommand $selfUpdateCommand */
-            $selfUpdateCommand = $this->getApplication()->get('self:update');
-            $selfUpdateManager = $selfUpdateCommand->getSelfUpdateManager([]);
+            $selfUpdateCommand = $this->getApplication()->get(SelfUpdateCommand::SELF_UPDATE_COMMAND_NAME);
+            $selfUpdateManager = $selfUpdateCommand->getSelfUpdateManager();
             if (!$selfUpdateManager->isUpToDate()) {
                 return $selfUpdateManager->getLatestReleaseFromGithub()['tag_name'];
             }

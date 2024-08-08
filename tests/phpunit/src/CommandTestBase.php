@@ -449,25 +449,6 @@ abstract class CommandTestBase extends TestBase
             ->shouldBeCalled();
     }
 
-    /**
-     * Mock guzzle requests for update checks, so we don't actually hit GitHub.
-     */
-    protected function setUpdateClient(int $statusCode = 200): void
-    {
-        /** @var ObjectProphecy|\GuzzleHttp\Psr7\Response $guzzleResponse */
-        $guzzleResponse = $this->prophet->prophesize(Response::class);
-        $stream = $this->prophet->prophesize(StreamInterface::class);
-        $stream->__toString()
-            ->willReturn(file_get_contents(Path::join(__DIR__, '..', '..', 'fixtures', 'github-releases.json')));
-        $guzzleResponse->getBody()->willReturn($stream->reveal());
-        $guzzleResponse->getReasonPhrase()->willReturn('');
-        $guzzleResponse->getStatusCode()->willReturn($statusCode);
-        $guzzleClient = $this->prophet->prophesize(Client::class);
-        $guzzleClient->get('https://api.github.com/repos/acquia/cli/releases')
-            ->willReturn($guzzleResponse->reveal());
-        $this->command->setUpdateClient($guzzleClient->reveal());
-    }
-
     protected function mockPollCloudViaSsh(array $environmentsResponse, bool $ssh = true): ObjectProphecy
     {
         $process = $this->prophet->prophesize(Process::class);
