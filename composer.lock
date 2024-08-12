@@ -411,12 +411,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/danepowell/self-update.git",
-                "reference": "ed37ade626d320b4aaf4c96e36091fe0097c0c29"
+                "reference": "62d7a7d30700830efb928284ade1e31e6a3bfe33"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/danepowell/self-update/zipball/ed37ade626d320b4aaf4c96e36091fe0097c0c29",
-                "reference": "ed37ade626d320b4aaf4c96e36091fe0097c0c29",
+                "url": "https://api.github.com/repos/danepowell/self-update/zipball/62d7a7d30700830efb928284ade1e31e6a3bfe33",
+                "reference": "62d7a7d30700830efb928284ade1e31e6a3bfe33",
                 "shasum": ""
             },
             "require": {
@@ -464,7 +464,7 @@
             "support": {
                 "source": "https://github.com/danepowell/self-update/tree/issue-8"
             },
-            "time": "2024-08-08T20:38:00+00:00"
+            "time": "2024-08-12T22:32:18+00:00"
         },
         {
             "name": "dflydev/dot-access-data",

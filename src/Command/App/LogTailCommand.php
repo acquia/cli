@@ -16,6 +16,7 @@ use Acquia\Cli\Helpers\TelemetryHelper;
 use AcquiaCloudApi\Endpoints\Logs;
 use AcquiaLogstream\LogstreamManager;
 use Psr\Log\LoggerInterface;
+use SelfUpdate\SelfUpdateManager;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -40,8 +41,9 @@ final class LogTailCommand extends CommandBase
         protected string $sshDir,
         LoggerInterface $logger,
         protected LogstreamManager $logstreamManager,
+        protected SelfUpdateManager $selfUpdateManager,
     ) {
-        parent::__construct($this->localMachineHelper, $this->datastoreCloud, $this->datastoreAcli, $this->cloudCredentials, $this->telemetryHelper, $this->projectDir, $this->cloudApiClientService, $this->sshHelper, $this->sshDir, $logger);
+        parent::__construct($this->localMachineHelper, $this->datastoreCloud, $this->datastoreAcli, $this->cloudCredentials, $this->telemetryHelper, $this->projectDir, $this->cloudApiClientService, $this->sshHelper, $this->sshDir, $logger, $this->selfUpdateManager);
     }
 
     protected function configure(): void

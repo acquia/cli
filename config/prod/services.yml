@@ -148,3 +148,9 @@ services:
 
   # Guzzle service.
   GuzzleHttp\Client: ~
+
+  SelfUpdate\SelfUpdateManager:
+      arguments:
+          $applicationName: '@=service("Acquia\\Cli\\Application").getName()'
+          $currentVersion: '@=service("Acquia\\Cli\\Application").getVersion()'
+          $gitHubRepository: 'acquia/cli'

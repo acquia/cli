@@ -13,6 +13,7 @@ use Acquia\Cli\Helpers\LocalMachineHelper;
 use Acquia\Cli\Helpers\SshHelper;
 use Acquia\Cli\Helpers\TelemetryHelper;
 use Psr\Log\LoggerInterface;
+use SelfUpdate\SelfUpdateManager;
 
 class ApiCommandFactory implements CommandFactoryInterface
 {
@@ -27,6 +28,7 @@ class ApiCommandFactory implements CommandFactoryInterface
         private SshHelper $sshHelper,
         private string $sshDir,
         private LoggerInterface $logger,
+        private SelfUpdateManager $selfUpdateManager,
     ) {
     }
 
@@ -43,6 +45,7 @@ class ApiCommandFactory implements CommandFactoryInterface
             $this->sshHelper,
             $this->sshDir,
             $this->logger,
+            $this->selfUpdateManager,
         );
     }
 
@@ -59,6 +62,7 @@ class ApiCommandFactory implements CommandFactoryInterface
             $this->sshHelper,
             $this->sshDir,
             $this->logger,
+            $this->selfUpdateManager,
         );
     }
 }

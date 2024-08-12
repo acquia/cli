@@ -29,6 +29,7 @@ use GuzzleHttp\TransferStats;
 use Psr\Http\Message\UriInterface;
 use Psr\Log\LoggerInterface;
 use React\EventLoop\Loop;
+use SelfUpdate\SelfUpdateManager;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
@@ -58,9 +59,10 @@ abstract class PullCommandBase extends CommandBase
         public SshHelper $sshHelper,
         protected string $sshDir,
         LoggerInterface $logger,
+        protected SelfUpdateManager $selfUpdateManager,
         protected \GuzzleHttp\Client $httpClient
     ) {
-        parent::__construct($this->localMachineHelper, $this->datastoreCloud, $this->datastoreAcli, $this->cloudCredentials, $this->telemetryHelper, $this->projectDir, $this->cloudApiClientService, $this->sshHelper, $this->sshDir, $logger);
+        parent::__construct($this->localMachineHelper, $this->datastoreCloud, $this->datastoreAcli, $this->cloudCredentials, $this->telemetryHelper, $this->projectDir, $this->cloudApiClientService, $this->sshHelper, $this->sshDir, $logger, $this->selfUpdateManager);
     }
 
     /**

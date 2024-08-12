@@ -48,7 +48,7 @@ use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\LoggerInterface;
 use Safe\Exceptions\FilesystemException;
-use SelfUpdate\SelfUpdateCommand;
+use SelfUpdate\SelfUpdateManager;
 use stdClass;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\FormatterHelper;
@@ -108,6 +108,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
         public SshHelper $sshHelper,
         protected string $sshDir,
         LoggerInterface $logger,
+        protected SelfUpdateManager $selfUpdateManager,
     ) {
         $this->logger = $logger;
         $this->setLocalDbPassword();
@@ -1195,12 +1196,13 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
         if (AcquiaDrupalEnvironmentDetector::isAhIdeEnv()) {
             return false;
         }
+        // Bail when running from source.
+        if (empty(\Phar::running())) {
+            return false;
+        }
         try {
-            /** @var SelfUpdateCommand $selfUpdateCommand */
-            $selfUpdateCommand = $this->getApplication()->get(SelfUpdateCommand::SELF_UPDATE_COMMAND_NAME);
-            $selfUpdateManager = $selfUpdateCommand->getSelfUpdateManager();
-            if (!$selfUpdateManager->isUpToDate()) {
-                return $selfUpdateManager->getLatestReleaseFromGithub()['tag_name'];
+            if (!$this->selfUpdateManager->isUpToDate()) {
+                return $this->selfUpdateManager->getLatestReleaseFromGithub()['tag_name'];
             }
         } catch (Exception) {
             $this->logger->debug("Could not determine if Acquia CLI has a new version available.");

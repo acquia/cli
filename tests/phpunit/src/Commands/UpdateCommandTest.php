@@ -7,12 +7,7 @@ namespace Acquia\Cli\Tests\Commands;
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Command\HelloWorldCommand;
 use Acquia\Cli\Tests\CommandTestBase;
-use GuzzleHttp\Client;
-use GuzzleHttp\Exception\RequestException;
-use Prophecy\Argument;
-use SelfUpdate\SelfUpdateCommand;
 use SelfUpdate\SelfUpdateManager;
-use Symfony\Component\Console\Input\InputDefinition;
 
 class UpdateCommandTest extends CommandTestBase
 {
@@ -53,19 +48,6 @@ class UpdateCommandTest extends CommandTestBase
                 ->willReturn(['tag_name' => '2.8.5'])
                 ->shouldBeCalled();
         }
-        $selfUpdateCommand = $this->prophet->prophesize(SelfUpdateCommand::class);
-        $selfUpdateCommand->getSelfUpdateManager()
-            ->willReturn($selfUpdateManager->reveal())
-            ->shouldBeCalled();
-        $selfUpdateCommand->isEnabled()->willReturn(true)->shouldBeCalled();
-        $selfUpdateCommand->getDefinition()
-            ->willReturn(new InputDefinition())
-            ->shouldBeCalled();
-        $selfUpdateCommand->getName()
-            ->willReturn('self:update')
-            ->shouldBeCalled();
-        $selfUpdateCommand->getAliases()->willReturn([])->shouldBeCalled();
-        $selfUpdateCommand->setApplication(Argument::any())->shouldBeCalled();
-        $this->application->add($selfUpdateCommand->reveal());
+        $this->selfUpdateManager = $selfUpdateManager->reveal();
     }
 }
