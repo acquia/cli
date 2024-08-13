@@ -47,7 +47,7 @@ final class IdeCreateCommand extends IdeCommandBase
         public SshHelper $sshHelper,
         protected string $sshDir,
         LoggerInterface $logger,
-        protected SelfUpdateManager $selfUpdateManager,
+        public selfUpdateManager $selfUpdateManager,
         protected Client $httpClient
     ) {
         parent::__construct($this->localMachineHelper, $this->datastoreCloud, $this->datastoreAcli, $this->cloudCredentials, $this->telemetryHelper, $this->projectDir, $this->cloudApiClientService, $this->sshHelper, $this->sshDir, $logger, $this->selfUpdateManager);

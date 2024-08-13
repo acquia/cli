@@ -59,7 +59,7 @@ abstract class PullCommandBase extends CommandBase
         public SshHelper $sshHelper,
         protected string $sshDir,
         LoggerInterface $logger,
-        protected SelfUpdateManager $selfUpdateManager,
+        public selfUpdateManager $selfUpdateManager,
         protected \GuzzleHttp\Client $httpClient
     ) {
         parent::__construct($this->localMachineHelper, $this->datastoreCloud, $this->datastoreAcli, $this->cloudCredentials, $this->telemetryHelper, $this->projectDir, $this->cloudApiClientService, $this->sshHelper, $this->sshDir, $logger, $this->selfUpdateManager);

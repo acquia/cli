@@ -111,7 +111,7 @@ abstract class TestBase extends TestCase
 
     protected ConsoleLogger $logger;
 
-    protected SelfUpdateManager $selfUpdateManager;
+    public selfUpdateManager $selfUpdateManager;
 
     protected string $passphraseFilepath = '~/.passphrase';
 

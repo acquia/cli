@@ -7,10 +7,13 @@ namespace Acquia\Cli\Tests\Commands;
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Command\HelloWorldCommand;
 use Acquia\Cli\Tests\CommandTestBase;
+use Exception;
 use SelfUpdate\SelfUpdateManager;
 
 class UpdateCommandTest extends CommandTestBase
 {
+    private string $startVersion = '1.0.0';
+    private string $endVersion = '2.8.5';
     protected function createCommand(): CommandBase
     {
         return $this->injectCommand(HelloWorldCommand::class);
@@ -18,18 +21,20 @@ class UpdateCommandTest extends CommandTestBase
 
     public function testSelfUpdate(): void
     {
+        $this->application->setVersion($this->startVersion);
         $this->mockSelfUpdateCommand();
         $this->executeCommand();
         self::assertEquals(0, $this->getStatusCode());
-        self::assertStringContainsString('Acquia CLI 2.8.5 is available', $this->getDisplay());
+        self::assertStringContainsString("Acquia CLI $this->endVersion is available", $this->getDisplay());
     }
 
     public function testBadResponseFailsSilently(): void
     {
+        $this->application->setVersion($this->startVersion);
         $this->mockSelfUpdateCommand(true);
         $this->executeCommand();
         self::assertEquals(0, $this->getStatusCode());
-        self::assertStringNotContainsString('Acquia CLI 2.8.5 is available', $this->getDisplay());
+        self::assertStringNotContainsString("Acquia CLI $this->endVersion is available", $this->getDisplay());
     }
 
     /**
@@ -37,17 +42,17 @@ class UpdateCommandTest extends CommandTestBase
      */
     private function mockSelfUpdateCommand(bool $exception = false): void
     {
-        $selfUpdateManager = $this->prophet->prophesize(SelfUpdateManager::class);
+        $selfUpdateManagerProphecy = $this->prophet->prophesize(SelfUpdateManager::class);
         if ($exception) {
-            $selfUpdateManager->isUpToDate()->willThrow(new \Exception())->shouldBeCalled();
+            $selfUpdateManagerProphecy->isUpToDate()->willThrow(new Exception())->shouldBeCalled();
         } else {
-            $selfUpdateManager->isUpToDate()
+            $selfUpdateManagerProphecy->isUpToDate()
                 ->willReturn(false)
                 ->shouldBeCalled();
-            $selfUpdateManager->getLatestReleaseFromGithub()
-                ->willReturn(['tag_name' => '2.8.5'])
+            $selfUpdateManagerProphecy->getLatestReleaseFromGithub()
+                ->willReturn(['tag_name' => $this->endVersion])
                 ->shouldBeCalled();
         }
-        $this->selfUpdateManager = $selfUpdateManager->reveal();
+        $this->command->selfUpdateManager = $selfUpdateManagerProphecy->reveal();
     }
 }

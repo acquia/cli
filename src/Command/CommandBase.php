@@ -108,7 +108,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
         public SshHelper $sshHelper,
         protected string $sshDir,
         LoggerInterface $logger,
-        protected SelfUpdateManager $selfUpdateManager,
+        public selfUpdateManager $selfUpdateManager,
     ) {
         $this->logger = $logger;
         $this->setLocalDbPassword();
@@ -1196,8 +1196,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
         if (AcquiaDrupalEnvironmentDetector::isAhIdeEnv()) {
             return false;
         }
-        // Bail when running from source.
-        if (empty(\Phar::running())) {
+        if ($this->getApplication()->getVersion() === 'UNKNOWN') {
             return false;
         }
         try {

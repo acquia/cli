@@ -40,8 +40,8 @@ final class LogTailCommand extends CommandBase
         public SshHelper $sshHelper,
         protected string $sshDir,
         LoggerInterface $logger,
+        public selfUpdateManager $selfUpdateManager,
         protected LogstreamManager $logstreamManager,
-        protected SelfUpdateManager $selfUpdateManager,
     ) {
         parent::__construct($this->localMachineHelper, $this->datastoreCloud, $this->datastoreAcli, $this->cloudCredentials, $this->telemetryHelper, $this->projectDir, $this->cloudApiClientService, $this->sshHelper, $this->sshDir, $logger, $this->selfUpdateManager);
     }
