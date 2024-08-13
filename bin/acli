@@ -94,8 +94,6 @@ if (!getenv('ACLI_REPO_ROOT')) {
 $application = $container->get(Application::class);
 /** @var OutputInterface $output */
 $output = $container->get(OutputInterface::class);
-$application->setName('Acquia CLI');
-$application->setVersion(getenv('ACLI_VERSION'));
 /** @var ApiCommandHelper $helper */
 $helper = $container->get(ApiCommandHelper::class);
 $application->addCommands($helper->getApiCommands( __DIR__ . '/../assets/acquia-spec.json', 'api', $container->get(ApiCommandFactory::class)));
