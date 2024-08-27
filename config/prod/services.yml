@@ -1,6 +1,8 @@
 ---
 parameters:
   env(ACLI_REPO_ROOT): "%kernel.project_dir%"
+  app.name: 'Acquia CLI'
+  app.version: "%env(ACLI_VERSION)%"
   app.data_dir: "%env(ACLI_HOME)%"
   app.project_dir: "%env(ACLI_REPO_ROOT)%"
   app.ssh_dir: "%env(HOME)%/.ssh"
@@ -131,7 +133,10 @@ services:
       Acquia\Cli\ApiCredentialsInterface: '@acsf.credentials'
 
   # Symfony services.
-  Acquia\Cli\Application: ~
+  Acquia\Cli\Application:
+      arguments:
+          $name: '%app.name%'
+          $version: '%app.version%'
   Symfony\Component\Console\Input\ArgvInput: ~
   Symfony\Component\Console\Input\InputInterface:
     alias: Symfony\Component\Console\Input\ArgvInput
@@ -148,3 +153,9 @@ services:
 
   # Guzzle service.
   GuzzleHttp\Client: ~
+
+  SelfUpdate\SelfUpdateManager:
+      arguments:
+          $applicationName: '%app.name%'
+          $currentVersion: '%app.version%'
+          $gitHubRepository: 'acquia/cli'

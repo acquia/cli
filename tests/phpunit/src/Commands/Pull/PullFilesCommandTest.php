@@ -27,6 +27,7 @@ class PullFilesCommandTest extends PullCommandTestBase
             $this->sshHelper,
             $this->sshDir,
             $this->logger,
+            $this->selfUpdateManager,
             $this->httpClientProphecy->reveal()
         );
     }

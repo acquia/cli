@@ -23,6 +23,7 @@ use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Helpers\LocalMachineHelper;
 use Dotenv\Dotenv;
 use SelfUpdate\SelfUpdateCommand;
+use SelfUpdate\SelfUpdateManager;
 use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Filesystem;
@@ -93,14 +94,14 @@ if (!getenv('ACLI_REPO_ROOT')) {
 $application = $container->get(Application::class);
 /** @var OutputInterface $output */
 $output = $container->get(OutputInterface::class);
-$application->setName('Acquia CLI');
-$application->setVersion(getenv('ACLI_VERSION'));
 /** @var ApiCommandHelper $helper */
 $helper = $container->get(ApiCommandHelper::class);
 $application->addCommands($helper->getApiCommands( __DIR__ . '/../assets/acquia-spec.json', 'api', $container->get(ApiCommandFactory::class)));
 $application->addCommands($helper->getApiCommands( __DIR__ . '/../assets/acsf-spec.json', 'acsf', $container->get(AcsfCommandFactory::class)));
 try {
-  $application->add(new SelfUpdateCommand($application->getName(), $application->getVersion(), 'acquia/cli'));
+  /** @var SelfUpdateManager $selfUpdateManager*/
+  $selfUpdateManager = $container->get(SelfUpdateManager::class);
+  $application->add(new SelfUpdateCommand($selfUpdateManager));
 }
 catch (\UnexpectedValueException) {
   // Do nothing for development builds.
