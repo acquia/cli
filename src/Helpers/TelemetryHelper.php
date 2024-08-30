@@ -54,9 +54,9 @@ class TelemetryHelper
                 // Exclude reports from app:from, which bootstraps Drupal.
                 case str_starts_with($report->getContext(), 'GET'):
                     // Exclude memory exhaustion errors.
-                case str_starts_with($report->getContext(), 'Allowed memory size'):
+                case str_starts_with($report->getMessage(), 'Allowed memory size'):
                     // Exclude i/o errors.
-                case str_starts_with($report->getContext(), 'fgets'):
+                case str_starts_with($report->getMessage(), 'fgets'):
                     return false;
             }
             // Set user info.
