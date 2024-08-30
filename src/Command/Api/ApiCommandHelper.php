@@ -450,7 +450,7 @@ class ApiCommandHelper
         ];
     }
 
-    protected static function renameParameter(string $propKey): string
+    private static function renameParameter(string $propKey): string
     {
         $parameterRenameMap = self::getParameterRenameMap();
         if (array_key_exists($propKey, $parameterRenameMap)) {
