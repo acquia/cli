@@ -432,11 +432,12 @@ class ApiCommandHelper
 
     private function getPropertySpecFromRequestBodyParam(array $requestBodySchema, mixed $parameterDefinition): mixed
     {
-        return $requestBodySchema['properties'][$parameterDefinition->getName()] ?? null;
+        $name = self::restoreRenamedParameter($parameterDefinition->getName());
+        return $requestBodySchema['properties'][$name] ?? null;
     }
 
     /**
-     * @return array<mixed>
+     * @return array<string>
      */
     protected static function getParameterRenameMap(): array
     {
@@ -449,7 +450,7 @@ class ApiCommandHelper
         ];
     }
 
-    public static function renameParameter(mixed $propKey): mixed
+    public static function renameParameter(string $propKey): string
     {
         $parameterRenameMap = self::getParameterRenameMap();
         if (array_key_exists($propKey, $parameterRenameMap)) {
@@ -458,7 +459,7 @@ class ApiCommandHelper
         return $propKey;
     }
 
-    public static function restoreRenamedParameter(string $propKey): int|string
+    public static function restoreRenamedParameter(string $propKey): string
     {
         $parameterRenameMap = array_flip(self::getParameterRenameMap());
         if (array_key_exists($propKey, $parameterRenameMap)) {
