@@ -125,12 +125,12 @@ class PushArtifactCommandTest extends PullCommandTestBase
         $applications = $this->mockRequest('getApplications');
         $this->mockRequest('getApplicationByUuid', $applications[0]->uuid);
         $this->mockRequest('getApplicationEnvironments', $applications[0]->uuid);
-        $this->datastoreAcli->set('push.artifact.destination-git-urls', [
+        $this->datastoreAcli->set('push.artifact.destination_git_urls', [
             'https://github.com/example1/cli.git',
             'https://github.com/example2/cli.git',
         ]);
         $localMachineHelper = $this->mockLocalMachineHelper();
-        $this->setUpPushArtifact($localMachineHelper, 'master', $this->datastoreAcli->get('push.artifact.destination-git-urls'));
+        $this->setUpPushArtifact($localMachineHelper, 'master', $this->datastoreAcli->get('push.artifact.destination_git_urls'));
         $this->executeCommand([
             '--destination-git-branch' => 'master',
         ]);
