@@ -60,7 +60,8 @@ final class PushArtifactCommand extends CommandBase
                 . 'To run additional build or sanitization steps (e.g. <options=bold>npm install</>), add a <options=bold>post-install-cmd</> script to your <options=bold>composer.json</> file: https://getcomposer.org/doc/articles/scripts.md#command-events')
             ->addUsage('--destination-git-branch=main-build')
             ->addUsage('--source-git-tag=foo-build --destination-git-tag=1.0.0')
-            ->addUsage('--destination-git-urls=example@svn-1.prod.hosting.acquia.com:example.git --destination-git-branch=main-build');
+            ->addUsage('--destination-git-urls=example@svn-1.prod.hosting.acquia.com:example.git --destination-git-branch=main-build')
+            ->addUsage('--destination-git-urls=example@svn-1.prod.hosting.acquia.com:example.git --destination-git-urls=example@svn-2.prod.hosting.acquia.com:example.git --destination-git-branch=main-build');
     }
 
     protected function initialize(InputInterface $input, OutputInterface $output): void
