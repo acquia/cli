@@ -47,6 +47,7 @@ class LogTailCommandTest extends CommandTestBase
             $this->sshHelper,
             $this->sshDir,
             $this->logger,
+            $this->selfUpdateManager,
             $this->logStreamManagerProphecy->reveal()
         );
     }

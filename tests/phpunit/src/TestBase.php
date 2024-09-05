@@ -30,6 +30,7 @@ use Prophecy\Prophecy\ObjectProphecy;
 use Prophecy\Prophet;
 use Psr\Http\Message\StreamInterface;
 use RuntimeException;
+use SelfUpdate\SelfUpdateManager;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\Cache\Adapter\PhpArrayAdapter;
 use Symfony\Component\Cache\CacheItem;
@@ -110,6 +111,8 @@ abstract class TestBase extends TestCase
 
     protected ConsoleLogger $logger;
 
+    public selfUpdateManager $selfUpdateManager;
+
     protected string $passphraseFilepath = '~/.passphrase';
 
     protected vfsStreamDirectory $vfsRoot;
@@ -175,6 +178,7 @@ abstract class TestBase extends TestCase
         $this->consoleOutput = new ConsoleOutput();
         $this->setClientProphecies();
         $this->setIo();
+        $this->selfUpdateManager = $this->prophet->prophesize(SelfUpdateManager::class)->reveal();
 
         $this->vfsRoot = vfsStream::setup();
         $this->projectDir = vfsStream::newDirectory('project')
@@ -351,6 +355,7 @@ abstract class TestBase extends TestCase
             $this->sshHelper,
             $this->sshDir,
             $this->logger,
+            $this->selfUpdateManager,
         );
     }
 

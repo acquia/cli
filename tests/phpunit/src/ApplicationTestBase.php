@@ -36,6 +36,7 @@ class ApplicationTestBase extends TestBase
     protected function runApp(): string
     {
         putenv("ACLI_REPO_ROOT=" . $this->projectDir);
+        putenv("ACLI_VERSION=" . 'UNKNOWN');
         $input = $this->kernel->getContainer()->get(InputInterface::class);
         $output = $this->kernel->getContainer()->get(OutputInterface::class);
         /** @var Application $application */
