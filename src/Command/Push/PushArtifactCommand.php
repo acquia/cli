@@ -160,11 +160,11 @@ final class PushArtifactCommand extends CommandBase
         if ($envVar = getenv('ACLI_PUSH_ARTIFACT_DESTINATION_GIT_URLS')) {
             return explode(',', $envVar);
         }
-        
+
         if ($this->datastoreAcli->get('push.artifact.destination-git-urls')) {
             return $this->datastoreAcli->get('push.artifact.destination-git-urls');
         }
-        
+
         $applicationUuid = $this->determineCloudApplication();
         return [$this->getAnyVcsUrl($applicationUuid)];
     }

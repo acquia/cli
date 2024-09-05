@@ -122,9 +122,6 @@ class PushArtifactCommandTest extends PullCommandTestBase
 
     public function testPushArtifactWithAcquiaCliFile(): void
     {
-        $applications = $this->mockRequest('getApplications');
-        $this->mockRequest('getApplicationByUuid', $applications[0]->uuid);
-        $this->mockRequest('getApplicationEnvironments', $applications[0]->uuid);
         $this->datastoreAcli->set('push.artifact.destination-git-urls', [
             'https://github.com/example1/cli.git',
             'https://github.com/example2/cli.git',
