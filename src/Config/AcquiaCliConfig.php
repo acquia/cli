@@ -19,10 +19,20 @@ class AcquiaCliConfig implements ConfigurationInterface
         $treeBuilder = new TreeBuilder('acquia_cli');
         $treeBuilder
             ->getRootNode()
-            ->children()
-            ->scalarNode('cloud_app_uuid')
-            ->end()
-            ->end();
+                ->children()
+                    ->scalarNode('cloud_app_uuid')->end()
+                    ->arrayNode('push')
+                        ->children()
+                            ->arrayNode('artifact')
+                                ->children()
+                                    ->arrayNode('destination_git_urls')
+                                        ->scalarPrototype()->end()
+                                    ->end()
+                                ->end()
+                            ->end()
+                        ->end()
+                    ->end()
+                ->end();
         return $treeBuilder;
     }
 }
