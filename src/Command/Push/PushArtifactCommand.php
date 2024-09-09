@@ -95,8 +95,7 @@ final class PushArtifactCommand extends CommandBase
         $destinationGitUrls = [];
         $destinationGitRef = '';
         if (!$input->getOption('no-clone')) {
-            $applicationUuid = $this->determineCloudApplication();
-            $destinationGitUrls = $this->determineDestinationGitUrls($applicationUuid);
+            $destinationGitUrls = $this->determineDestinationGitUrls();
             $destinationGitRef = $this->determineDestinationGitRef();
             $sourceGitBranch = $this->determineSourceGitRef();
             $destinationGitUrlsString = implode(',', $destinationGitUrls);
@@ -153,7 +152,7 @@ final class PushArtifactCommand extends CommandBase
     /**
      * @return string[]
      */
-    private function determineDestinationGitUrls(?string $applicationUuid): array
+    private function determineDestinationGitUrls(): array
     {
         if ($this->input->getOption('destination-git-urls')) {
             return $this->input->getOption('destination-git-urls');
@@ -161,10 +160,12 @@ final class PushArtifactCommand extends CommandBase
         if ($envVar = getenv('ACLI_PUSH_ARTIFACT_DESTINATION_GIT_URLS')) {
             return explode(',', $envVar);
         }
+
         if ($this->datastoreAcli->get('push.artifact.destination-git-urls')) {
             return $this->datastoreAcli->get('push.artifact.destination-git-urls');
         }
 
+        $applicationUuid = $this->determineCloudApplication();
         return [$this->getAnyVcsUrl($applicationUuid)];
     }
 
