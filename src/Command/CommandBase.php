@@ -1197,7 +1197,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
         if (AcquiaDrupalEnvironmentDetector::isAhIdeEnv()) {
             return false;
         }
-        if ($this->getApplication()->getVersion() === 'UNKNOWN') {
+        if ($this->getApplication()->getVersion() === 'dev-unknown') {
             return false;
         }
         try {

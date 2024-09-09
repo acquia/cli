@@ -26,7 +26,7 @@ class KernelTest extends ApplicationTestBase
     private function getStart(): string
     {
         return <<<EOD
-Acquia CLI
+Acquia CLI dev-unknown
 
 Usage:
   command [options] [arguments]

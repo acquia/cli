@@ -178,7 +178,9 @@ abstract class TestBase extends TestCase
         $this->consoleOutput = new ConsoleOutput();
         $this->setClientProphecies();
         $this->setIo();
-        $this->selfUpdateManager = $this->prophet->prophesize(SelfUpdateManager::class)->reveal();
+        $selfUpdateManagerProphecy = $this->prophet->prophesize(SelfUpdateManager::class);
+        $selfUpdateManagerProphecy->isUpToDate()->willReturn(true);
+        $this->selfUpdateManager = $selfUpdateManagerProphecy->reveal();
 
         $this->vfsRoot = vfsStream::setup();
         $this->projectDir = vfsStream::newDirectory('project')

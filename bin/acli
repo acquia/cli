@@ -80,7 +80,7 @@ if (in_array($input->getFirstArgument(), ['clear-kernel-cache', 'ckc'])) {
 
 putenv('BUGSNAG_KEY=');
 putenv('AMPLITUDE_KEY=');
-putenv('ACLI_VERSION=UNKNOWN');
+putenv('ACLI_VERSION=dev-unknown');
 $dotenv = Dotenv::createUnsafeMutable(__DIR__ . '/..');
 $dotenv->safeLoad();
 
