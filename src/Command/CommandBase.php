@@ -878,12 +878,13 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
             throw new AcquiaCliException("Could not determine Cloud Application. Run this command interactively or use `acli link` to link a Cloud Application before running non-interactively.");
         }
 
-        $application = $this->getCloudApplication($applicationUuid);
         // No point in trying to link a directory that's not a repo.
         if (!empty($this->projectDir) && !$this->getCloudUuidFromDatastore()) {
             if ($promptLinkApp) {
+                $application = $this->getCloudApplication($applicationUuid);
                 $this->saveCloudUuidToDatastore($application);
             } elseif (!AcquiaDrupalEnvironmentDetector::isAhIdeEnv() && !$this->getCloudApplicationUuidFromBltYaml()) {
+                $application = $this->getCloudApplication($applicationUuid);
                 $this->promptLinkApplication($application);
             }
         }
