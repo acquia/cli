@@ -50,7 +50,7 @@ final class PushArtifactCommand extends CommandBase
             ->addOption('no-push', null, InputOption::VALUE_NONE, 'Do not push changes to Acquia Cloud')
             ->addOption('no-commit', null, InputOption::VALUE_NONE, 'Do not commit changes. Implies no-push')
             ->addOption('no-clone', null, InputOption::VALUE_NONE, 'Do not clone repository. Implies no-commit and no-push')
-            ->addOption('destination-git-urls', 'u', InputOption::VALUE_IS_ARRAY | InputOption::VALUE_REQUIRED, 'The URL(s) of your git repository to which the artifact branch will be pushed')
+            ->addOption('destination-git-urls', 'u', InputOption::VALUE_IS_ARRAY | InputOption::VALUE_REQUIRED, 'The URL of your git repository to which the artifact branch will be pushed. Use multiple times for multiple URLs.')
             ->addOption('destination-git-branch', 'b', InputOption::VALUE_REQUIRED, 'The destination branch to push the artifact to')
             ->addOption('destination-git-tag', 't', InputOption::VALUE_REQUIRED, 'The destination tag to push the artifact to. Using this option requires also using the --source-git-tag option')
             ->addOption('source-git-tag', 's', InputOption::VALUE_REQUIRED, 'The source tag from which to create the tag artifact')
@@ -60,7 +60,6 @@ final class PushArtifactCommand extends CommandBase
                 . 'To run additional build or sanitization steps (e.g. <options=bold>npm install</>), add a <options=bold>post-install-cmd</> script to your <options=bold>composer.json</> file: https://getcomposer.org/doc/articles/scripts.md#command-events')
             ->addUsage('--destination-git-branch=main-build')
             ->addUsage('--source-git-tag=foo-build --destination-git-tag=1.0.0')
-            ->addUsage('--destination-git-urls=example@svn-1.prod.hosting.acquia.com:example.git --destination-git-branch=main-build')
             ->addUsage('--destination-git-urls=example@svn-1.prod.hosting.acquia.com:example.git --destination-git-urls=example@svn-2.prod.hosting.acquia.com:example.git --destination-git-branch=main-build');
     }
 
