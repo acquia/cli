@@ -16,8 +16,6 @@ use Exception;
 use Gitlab\Api\Projects;
 use Gitlab\Api\Users;
 use Gitlab\Exception\RuntimeException;
-use GuzzleHttp\Client;
-use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\Constraint\StringContains;
 use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;

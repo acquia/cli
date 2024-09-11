@@ -43,6 +43,8 @@ class LinkCommandTest extends CommandTestBase
     public function testLinkCommandAlreadyLinked(): void
     {
         $this->createMockAcliConfigFile('a47ac10b-58cc-4372-a567-0e02b2c3d470');
+        $this->createDataStores();
+        $this->command = $this->injectCommand(LinkCommand::class);
         $this->mockApplicationRequest();
         $this->executeCommand();
         $output = $this->getDisplay();

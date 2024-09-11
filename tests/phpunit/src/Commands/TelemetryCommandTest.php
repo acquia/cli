@@ -68,8 +68,7 @@ class TelemetryCommandTest extends CommandTestBase
      */
     public function testTelemetryPrompt(array $inputs, mixed $message): void
     {
-        $this->cloudConfig = [DataStoreContract::SEND_TELEMETRY => null];
-        $this->createMockConfigFiles();
+        $this->createMockCloudConfigFile([DataStoreContract::SEND_TELEMETRY => null]);
         $this->createMockAcliConfigFile('a47ac10b-58cc-4372-a567-0e02b2c3d470');
         $this->createDataStores();
         $this->mockApplicationRequest();
@@ -86,8 +85,6 @@ class TelemetryCommandTest extends CommandTestBase
      */
     public function testAmplitudeDisabled(): void
     {
-        $this->cloudConfig = [DataStoreContract::SEND_TELEMETRY => false];
-        $this->createMockConfigFiles();
         $this->executeCommand();
 
         $this->assertEquals(0, $this->getStatusCode());
@@ -95,8 +92,7 @@ class TelemetryCommandTest extends CommandTestBase
 
     public function testMigrateLegacyTelemetryPreference(): void
     {
-        $this->cloudConfig = [DataStoreContract::SEND_TELEMETRY => null];
-        $this->createMockConfigFiles();
+        $this->createMockCloudConfigFile([DataStoreContract::SEND_TELEMETRY => null]);
         $this->fs->remove($this->legacyAcliConfigFilepath);
         $legacyAcliConfig = ['send_telemetry' => false];
         $contents = json_encode($legacyAcliConfig);

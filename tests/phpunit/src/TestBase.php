@@ -69,16 +69,6 @@ abstract class TestBase extends TestCase
 
     protected Client|ObjectProphecy $clientProphecy;
 
-    /**
-     * @var array<mixed>
-     */
-    protected array $acliConfig = [];
-
-    /**
-     * @var array<mixed>
-     */
-    protected array $cloudConfig = [];
-
     protected string $key = '17feaf34-5d04-402b-9a67-15d5161d24e1';
 
     protected string $secret = 'X1u\/PIQXtYaoeui.4RJSJpGZjwmWYmfl5AUQkAebYE=';
@@ -425,18 +415,13 @@ abstract class TestBase extends TestCase
     protected function createMockConfigFiles(): void
     {
         $this->createMockCloudConfigFile();
-
-        $defaultValues = [];
-        $acliConfig = array_merge($defaultValues, $this->acliConfig);
-        $contents = json_encode($acliConfig, JSON_THROW_ON_ERROR);
-        $filepath = $this->acliConfigFilepath;
-        $this->fs->dumpFile($filepath, $contents);
+        $this->createMockAcliConfigFile();
     }
 
-    protected function createMockCloudConfigFile(mixed $defaultValues = []): void
+    protected function createMockCloudConfigFile(mixed $cloudConfig = []): void
     {
-        if (!$defaultValues) {
-            $defaultValues = [
+        if (!$cloudConfig) {
+            $cloudConfig = [
                 'acli_key' => $this->key,
                 'keys' => [
                     (string) ($this->key) => [
@@ -448,15 +433,20 @@ abstract class TestBase extends TestCase
                 DataStoreContract::SEND_TELEMETRY => false,
             ];
         }
-        $cloudConfig = array_merge($defaultValues, $this->cloudConfig);
         $contents = json_encode($cloudConfig, JSON_THROW_ON_ERROR);
         $filepath = $this->cloudConfigFilepath;
         $this->fs->dumpFile($filepath, $contents);
     }
 
-    protected function createMockAcliConfigFile(string $cloudAppUuid): void
+    protected function createMockAcliConfigFile(mixed $cloudAppUuid = null): void
     {
-        $this->datastoreAcli->set('cloud_app_uuid', $cloudAppUuid);
+        $acliConfig = [];
+        if (is_string($cloudAppUuid)) {
+            $acliConfig['cloud_app_uuid'] = $cloudAppUuid;
+        } elseif (is_array($cloudAppUuid)) {
+            $acliConfig = $cloudAppUuid;
+        }
+        $this->fs->dumpFile($this->acliConfigFilepath, json_encode($acliConfig, JSON_THROW_ON_ERROR));
     }
 
     /**
