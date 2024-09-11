@@ -29,6 +29,8 @@ class UnlinkCommandTest extends CommandTestBase
         $cloudApplication = $applicationsResponse->{'_embedded'}->items[0];
         $cloudApplicationUuid = $cloudApplication->uuid;
         $this->createMockAcliConfigFile($cloudApplicationUuid);
+        $this->createDataStores();
+        $this->command = $this->injectCommand(UnlinkCommand::class);
         $this->mockApplicationRequest();
 
         // Assert we set it correctly.

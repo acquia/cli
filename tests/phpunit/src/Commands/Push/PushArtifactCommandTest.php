@@ -122,12 +122,15 @@ class PushArtifactCommandTest extends PullCommandTestBase
 
     public function testPushArtifactWithAcquiaCliFile(): void
     {
-        $this->datastoreAcli->set('push.artifact.destination_git_urls', [
+        $destinationGitUrls = [
             'https://github.com/example1/cli.git',
             'https://github.com/example2/cli.git',
-        ]);
+        ];
+        $this->createMockAcliConfigFile(['push' => ['artifact' => ['destination_git_urls' => $destinationGitUrls],],]);
+        $this->createDataStores();
+        $this->command = $this->injectCommand(PushArtifactCommand::class);
         $localMachineHelper = $this->mockLocalMachineHelper();
-        $this->setUpPushArtifact($localMachineHelper, 'master', $this->datastoreAcli->get('push.artifact.destination_git_urls'));
+        $this->setUpPushArtifact($localMachineHelper, 'master', $destinationGitUrls);
         $this->executeCommand([
             '--destination-git-branch' => 'master',
         ]);

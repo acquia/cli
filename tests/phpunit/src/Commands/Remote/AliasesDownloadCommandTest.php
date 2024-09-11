@@ -77,6 +77,8 @@ class AliasesDownloadCommandTest extends CommandTestBase
             $cloudApplication = $applicationsResponse->{'_embedded'}->items[0];
             $cloudApplicationUuid = $cloudApplication->uuid;
             $this->createMockAcliConfigFile($cloudApplicationUuid);
+            $this->createDataStores();
+            $this->command = $this->injectCommand(AliasesDownloadCommand::class);
             $this->mockApplicationRequest();
         }
 
