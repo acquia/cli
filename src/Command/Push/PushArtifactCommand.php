@@ -52,8 +52,8 @@ final class PushArtifactCommand extends CommandBase
             ->addOption('no-clone', null, InputOption::VALUE_NONE, 'Do not clone repository. Implies no-commit and no-push')
             ->addOption('destination-git-urls', 'u', InputOption::VALUE_IS_ARRAY | InputOption::VALUE_REQUIRED, 'The URL of your git repository to which the artifact branch will be pushed. Use multiple times for multiple URLs.')
             ->addOption('destination-git-branch', 'b', InputOption::VALUE_REQUIRED, 'The destination branch to push the artifact to')
-            ->addOption('destination-git-tag', 't', InputOption::VALUE_REQUIRED, 'The destination tag to push the artifact to. Using this option requires also using the --source-git-tag option')
-            ->addOption('source-git-tag', 's', InputOption::VALUE_REQUIRED, 'The source tag from which to create the tag artifact')
+            ->addOption('destination-git-tag', 't', InputOption::VALUE_REQUIRED, 'The destination tag to push the artifact to. Using this option requires also using the --destination-git-branch option')
+            ->addOption('source-git-tag', 's', InputOption::VALUE_REQUIRED, 'Deprecated: Use destination-git-branch instead')
             ->acceptEnvironmentId()
             ->setHelp('This command builds a sanitized deploy artifact by running <options=bold>composer install</>, removing sensitive files, and committing vendor directories.' . PHP_EOL . PHP_EOL
                 . 'Vendor directories and scaffold files are committed to the build artifact even if they are ignored in the source repository.' . PHP_EOL . PHP_EOL
@@ -475,6 +475,9 @@ final class PushArtifactCommand extends CommandBase
         }
         if ($envVar = getenv('ACLI_PUSH_ARTIFACT_SOURCE_GIT_TAG')) {
             return $envVar;
+        }
+        if ($this->input->getOption('destination-git-branch')) {
+            return $this->input->getOption('destination-git-branch');
         }
         if ($this->input->getOption('destination-git-tag')) {
             throw new AcquiaCliException('You must also set the --source-git-tag option when setting the --destination-git-tag option.');
