@@ -9,6 +9,7 @@ on:
     - cron: '0 2 * * *'
   release:
     types: [published]
+  workflow_dispatch:
 defaults:
   run:
     # Run Git Bash on Windows. Otherwise, it uses PowerShell Core, and we'd need
