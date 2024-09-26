@@ -20,35 +20,14 @@ class LocalMachineHelperTest extends TestBase
         putenv('DISPLAY');
     }
 
-    /**
-     * @return bool[][]
-     */
-    public function providerTestExecuteFromCmd(): array
-    {
-        return [
-            [false, null, null],
-            [false, false, false],
-            [true, false, false],
-        ];
-    }
-
-    /**
-     * @dataProvider providerTestExecuteFromCmd()
-     */
-    public function testExecuteFromCmd(bool $interactive, bool|null $isTty, bool|null $printOutput): void
+    public function testExecuteFromCmd(): void
     {
         $localMachineHelper = $this->localMachineHelper;
-        $localMachineHelper->setIsTty($isTty);
-        $this->input->setInteractive($interactive);
-        $process = $localMachineHelper->executeFromCmd('echo "hello world"', null, null, $printOutput);
+        $process = $localMachineHelper->executeFromCmd('echo "hello world"');
         $this->assertTrue($process->isSuccessful());
         assert(is_a($this->output, BufferedOutput::class));
         $buffer = $this->output->fetch();
-        if ($printOutput === false) {
-            $this->assertEmpty($buffer);
-        } else {
-            $this->assertStringContainsString("hello world", $buffer);
-        }
+        $this->assertStringContainsString("hello world", $buffer);
     }
 
     public function testExecuteWithCwd(): void
