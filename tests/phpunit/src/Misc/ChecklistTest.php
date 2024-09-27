@@ -23,6 +23,9 @@ class ChecklistTest extends TestBase
         $this->output = new ConsoleOutput();
     }
 
+    /**
+     * @group serial
+     */
     public function testSpinner(): void
     {
         putenv('PHPUNIT_RUNNING=1');

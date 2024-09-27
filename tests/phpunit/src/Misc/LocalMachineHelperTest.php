@@ -34,6 +34,7 @@ class LocalMachineHelperTest extends TestBase
 
     /**
      * @dataProvider providerTestExecuteFromCmd()
+     * @group serial
      */
     public function testExecuteFromCmd(bool $interactive, bool|null $isTty, bool|null $printOutput): void
     {
