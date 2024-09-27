@@ -20,6 +20,9 @@ class LocalMachineHelperTest extends TestBase
         putenv('DISPLAY');
     }
 
+    /**
+     * @group serial
+     */
     public function testExecuteFromCmd(): void
     {
         $localMachineHelper = $this->localMachineHelper;
