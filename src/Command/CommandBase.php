@@ -761,17 +761,19 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
         return null;
     }
 
-    protected function createTable(OutputInterface $output, string $title, array $headers, mixed $widths): Table
+    protected function createTable(OutputInterface $output, string $title, array $headers, ?array $widths = null): Table
     {
         $terminalWidth = (new Terminal())->getWidth();
         $terminalWidth *= .90;
         $table = new Table($output);
         $table->setHeaders($headers);
         $table->setHeaderTitle($title);
-        $setWidths = static function (mixed $width) use ($terminalWidth) {
-            return (int) ($terminalWidth * $width);
-        };
-        $table->setColumnWidths(array_map($setWidths, $widths));
+        if ($widths !== null) {
+            $setWidths = static function (float $width) use ($terminalWidth) {
+                return (int) ($terminalWidth * $width);
+            };
+            $table->setColumnWidths(array_map($setWidths, $widths));
+        }
         return $table;
     }
 

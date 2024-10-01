@@ -17,9 +17,7 @@ final class SelfInfoCommand extends CommandBase
 {
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $table = new Table($output);
-        $table->setStyle('borderless');
-        $table->setHeaders(['Property', 'Value']);
+        $table = $this->createTable($output, 'Acquia CLI information', ['Property', 'Value']);
         $table->addRow(['Version', $this->getApplication()->getVersion()]);
         $table->addRow(['Cloud datastore', $this->datastoreCloud->filepath]);
         $table->addRow(['ACLI datastore', $this->datastoreAcli->filepath]);
