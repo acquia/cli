@@ -33,5 +33,6 @@ class SelfInfoCommandTest extends CommandTestBase
         $this->assertStringContainsString('ACLI datastore', $output);
         $this->assertStringContainsString('Telemetry enabled', $output);
         $this->assertStringContainsString('User ID', $output);
+        $this->assertStringContainsString('is_acquian', $output);
     }
 }
