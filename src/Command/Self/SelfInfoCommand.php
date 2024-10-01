@@ -11,9 +11,9 @@ use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-#[AsCommand(name: 'self:status')]
+#[AsCommand(name: 'self:info', description: 'Print information about the running version of Acquia CLI')]
 
-final class SelfStatusCommand extends CommandBase
+final class SelfInfoCommand extends CommandBase
 {
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
