@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Acquia\Cli\Tests\Commands;
+namespace Acquia\Cli\Tests\Commands\Self;
 
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Command\Ide\IdeListCommand;

@@ -105,6 +105,7 @@ EOD;
   remote:ssh               [ssh] Use SSH to open a shell or run a command in a Cloud Platform environment
  self
   self:clear-caches        [cc|cr] Clears local Acquia CLI caches
+  self:info                Print information about the running version of Acquia CLI
   self:telemetry:disable   [telemetry:disable] Disable anonymous sharing of usage and performance data
   self:telemetry:enable    [telemetry:enable] Enable anonymous sharing of usage and performance data
   self:telemetry:toggle    [telemetry] Toggle anonymous sharing of usage and performance data

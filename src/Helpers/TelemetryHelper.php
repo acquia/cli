@@ -39,8 +39,7 @@ class TelemetryHelper
         if (empty($this->bugSnagKey)) {
             return;
         }
-        $sendTelemetry = $this->datastoreCloud->get(DataStoreContract::SEND_TELEMETRY);
-        if ($sendTelemetry === false) {
+        if (!$this->telemetryEnabled()) {
             return;
         }
         // It's safe-ish to make this key public.
@@ -89,11 +88,10 @@ class TelemetryHelper
         if (empty($this->amplitudeKey)) {
             return;
         }
-        $sendTelemetry = $this->datastoreCloud->get(DataStoreContract::SEND_TELEMETRY);
         $amplitude = Amplitude::getInstance();
-        $amplitude->setOptOut($sendTelemetry === false);
+        $amplitude->setOptOut($this->telemetryEnabled());
 
-        if ($sendTelemetry === false) {
+        if (!$this->telemetryEnabled()) {
             return;
         }
         try {
@@ -107,6 +105,11 @@ class TelemetryHelper
         } catch (IdentityProviderException $e) {
             // If something is wrong with the Cloud API client, don't bother users.
         }
+    }
+
+    public function telemetryEnabled(): bool
+    {
+        return (bool) $this->datastoreCloud->get(DataStoreContract::SEND_TELEMETRY);
     }
 
     /**
@@ -140,7 +143,7 @@ class TelemetryHelper
      *
      * @return array<mixed> Telemetry user data.
      */
-    private function getTelemetryUserData(): array
+    public function getTelemetryUserData(): array
     {
         $data = [
             'ah_app_uuid' => getenv('AH_APPLICATION_UUID'),
@@ -179,7 +182,7 @@ class TelemetryHelper
         return null;
     }
 
-    private function getUserId(): ?string
+    public function getUserId(): ?string
     {
         $user = $this->getUserData();
         if ($user && isset($user['uuid'])) {
