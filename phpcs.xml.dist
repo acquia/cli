@@ -24,8 +24,12 @@
 
   <rule ref="AcquiaPHPStrict">
     <exclude name="Generic.Files.LineLength"/>
+    <exclude name="PHPCompatibility"/>
   </rule>
-
+  <config name="testVersion" value="8.2-"/>
+  <rule ref="PHPCompatibility">
+    <exclude name="PHPCompatibility.Extensions.RemovedExtensions.famRemoved"/>
+  </rule>
     <rule ref="Generic.PHP.ForbiddenFunctions">
     <properties>
       <property name="forbiddenFunctions" type="array">
