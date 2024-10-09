@@ -94,7 +94,7 @@ class ExceptionListener
         }
 
         if ($error instanceof \TypeError && str_contains($error->getMessage(), 'AcquiaCloudApi\Response')) {
-            $newErrorMessage = 'Cloud Platform API returned an unexpected data type. This is not an issue with Acquia CLI but could indicate a problem with your Cloud Platform application.';
+            $newErrorMessage = 'Cloud Platform API returned an unexpected data type. This could be due to missing permissions or a problem with your Cloud Platform application.';
         }
 
         if (!empty($this->helpMessages)) {
