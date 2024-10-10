@@ -56,6 +56,8 @@ class TelemetryHelper
                 case str_starts_with($report->getMessage(), 'Allowed memory size'):
                     // Exclude i/o errors.
                 case str_starts_with($report->getMessage(), 'fgets'):
+                    // Exclude exhausted disk space.
+                case str_starts_with($report->getMessage(), 'fwrite'):
                     return false;
             }
             // Set user info.
