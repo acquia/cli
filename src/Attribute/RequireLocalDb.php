@@ -8,6 +8,6 @@ namespace Acquia\Cli\Attribute;
  * Specify that a command requires authentication.
  */
 #[\Attribute(\Attribute::TARGET_CLASS)]
-class RequireDb
+class RequireLocalDb
 {
 }
