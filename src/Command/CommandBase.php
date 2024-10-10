@@ -70,7 +70,6 @@ use Symfony\Component\Validator\Constraints\Regex;
 use Symfony\Component\Validator\Exception\ValidatorException;
 use Symfony\Component\Validator\Validation;
 use Symfony\Component\Yaml\Yaml;
-use TypeError;
 use Zumba\Amplitude\Amplitude;
 
 abstract class CommandBase extends Command implements LoggerAwareInterface
