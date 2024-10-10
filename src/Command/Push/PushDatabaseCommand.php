@@ -5,7 +5,8 @@ declare(strict_types=1);
 namespace Acquia\Cli\Command\Push;
 
 use Acquia\Cli\Attribute\RequireAuth;
-use Acquia\Cli\Attribute\RequireDb;
+use Acquia\Cli\Attribute\RequireLocalDb;
+use Acquia\Cli\Attribute\RequireRemoteDb;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Output\Checklist;
 use AcquiaCloudApi\Response\DatabaseResponse;
@@ -16,7 +17,8 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 #[RequireAuth]
-#[RequireDb]
+#[RequireLocalDb]
+#[RequireRemoteDb]
 #[AsCommand(name: 'push:database', description: 'Push a database from your local environment to a Cloud Platform environment', aliases: ['push:db'])]
 final class PushDatabaseCommand extends PushCommandBase
 {
