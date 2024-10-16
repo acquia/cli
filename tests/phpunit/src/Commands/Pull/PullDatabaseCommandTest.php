@@ -82,6 +82,14 @@ class PullDatabaseCommandTest extends PullCommandTestBase
         $this->assertStringContainsString('Downloading backup 1', $output);
     }
 
+    public function testPullDbHelp(): void
+    {
+        $help = $this->command->getHelp();
+        $this->assertStringContainsString('This command requires authentication via the Cloud Platform API.', $help);
+        $this->assertStringContainsString('This command requires an active database connection. Set the following environment variables prior to running this command: ACLI_DB_HOST, ACLI_DB_NAME, ACLI_DB_USER, ACLI_DB_PASSWORD', $help);
+        $this->assertStringContainsString('This command requires the \'View database connection details\' permission.', $help);
+    }
+
     public function testPullProdDatabase(): void
     {
         $localMachineHelper = $this->mockLocalMachineHelper();
