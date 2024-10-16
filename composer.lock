@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "4d77b0ce2e0830db8a50cf7305df60c5",
+    "content-hash": "beac6fb88c2275980a5ce7b23a9d6173",
     "packages": [
         {
             "name": "acquia/drupal-environment-detector",
@@ -6298,7 +6298,7 @@
         },
         {
             "name": "typhonius/acquia-php-sdk-v2",
-            "version": "dev-master",
+            "version": "3.3.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/typhonius/acquia-php-sdk-v2.git",
@@ -6329,7 +6329,6 @@
                 "slevomat/coding-standard": "^8.4",
                 "squizlabs/php_codesniffer": "^3.9.1"
             },
-            "default-branch": true,
             "type": "library",
             "autoload": {
                 "psr-4": {
@@ -6352,7 +6351,7 @@
             "description": "A PHP SDK for Acquia CloudAPI v2",
             "support": {
                 "issues": "https://github.com/typhonius/acquia-php-sdk-v2/issues",
-                "source": "https://github.com/typhonius/acquia-php-sdk-v2/tree/master"
+                "source": "https://github.com/typhonius/acquia-php-sdk-v2/tree/3.3.2"
             },
             "funding": [
                 {
@@ -6879,16 +6878,16 @@
         },
         {
             "name": "amphp/parallel",
-            "version": "v2.2.9",
+            "version": "v2.3.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/amphp/parallel.git",
-                "reference": "73d293f1fc4df1bebc3c4fce1432e82dd7032238"
+                "reference": "9777db1460d1535bc2a843840684fb1205225b87"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/amphp/parallel/zipball/73d293f1fc4df1bebc3c4fce1432e82dd7032238",
-                "reference": "73d293f1fc4df1bebc3c4fce1432e82dd7032238",
+                "url": "https://api.github.com/repos/amphp/parallel/zipball/9777db1460d1535bc2a843840684fb1205225b87",
+                "reference": "9777db1460d1535bc2a843840684fb1205225b87",
                 "shasum": ""
             },
             "require": {
@@ -6951,7 +6950,7 @@
             ],
             "support": {
                 "issues": "https://github.com/amphp/parallel/issues",
-                "source": "https://github.com/amphp/parallel/tree/v2.2.9"
+                "source": "https://github.com/amphp/parallel/tree/v2.3.0"
             },
             "funding": [
                 {
@@ -6959,7 +6958,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2024-03-24T18:27:44+00:00"
+            "time": "2024-09-14T19:16:14+00:00"
         },
         {
             "name": "amphp/parser",
@@ -9864,16 +9863,16 @@
         },
         {
             "name": "overtrue/phplint",
-            "version": "9.4.1",
+            "version": "9.4.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/overtrue/phplint.git",
-                "reference": "cec4a0dbb9d00077dafa2f0cd89f4ca532814276"
+                "reference": "bb849f012fa44839f5ba4a079dda6d2ef29d6fce"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/overtrue/phplint/zipball/cec4a0dbb9d00077dafa2f0cd89f4ca532814276",
-                "reference": "cec4a0dbb9d00077dafa2f0cd89f4ca532814276",
+                "url": "https://api.github.com/repos/overtrue/phplint/zipball/bb849f012fa44839f5ba4a079dda6d2ef29d6fce",
+                "reference": "bb849f012fa44839f5ba4a079dda6d2ef29d6fce",
                 "shasum": ""
             },
             "require": {
@@ -9947,7 +9946,7 @@
             ],
             "support": {
                 "issues": "https://github.com/overtrue/phplint/issues",
-                "source": "https://github.com/overtrue/phplint/tree/9.4.1"
+                "source": "https://github.com/overtrue/phplint/tree/9.4.2"
             },
             "funding": [
                 {
@@ -9955,7 +9954,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2024-07-05T14:16:33+00:00"
+            "time": "2024-10-11T07:44:07+00:00"
         },
         {
             "name": "phar-io/manifest",
@@ -10601,16 +10600,16 @@
         },
         {
             "name": "phpstan/phpdoc-parser",
-            "version": "1.32.0",
+            "version": "1.33.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpstan/phpdoc-parser.git",
-                "reference": "6ca22b154efdd9e3c68c56f5d94670920a1c19a4"
+                "reference": "82a311fd3690fb2bf7b64d5c98f912b3dd746140"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpdoc-parser/zipball/6ca22b154efdd9e3c68c56f5d94670920a1c19a4",
-                "reference": "6ca22b154efdd9e3c68c56f5d94670920a1c19a4",
+                "url": "https://api.github.com/repos/phpstan/phpdoc-parser/zipball/82a311fd3690fb2bf7b64d5c98f912b3dd746140",
+                "reference": "82a311fd3690fb2bf7b64d5c98f912b3dd746140",
                 "shasum": ""
             },
             "require": {
@@ -10642,9 +10641,9 @@
             "description": "PHPDoc parser with support for nullable, intersection and generic types",
             "support": {
                 "issues": "https://github.com/phpstan/phpdoc-parser/issues",
-                "source": "https://github.com/phpstan/phpdoc-parser/tree/1.32.0"
+                "source": "https://github.com/phpstan/phpdoc-parser/tree/1.33.0"
             },
-            "time": "2024-09-26T07:23:32+00:00"
+            "time": "2024-10-13T11:25:22+00:00"
         },
         {
             "name": "phpstan/phpstan",
@@ -13242,18 +13241,10 @@
             "version": "3.0.0.0-alpha2",
             "alias": "2.1.0",
             "alias_normalized": "2.1.0.0"
-        },
-        {
-            "package": "typhonius/acquia-php-sdk-v2",
-            "version": "9999999-dev",
-            "alias": "3.3.1",
-            "alias_normalized": "3.3.1.0"
         }
     ],
     "minimum-stability": "dev",
-    "stability-flags": {
-        "typhonius/acquia-php-sdk-v2": 20
-    },
+    "stability-flags": {},
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
