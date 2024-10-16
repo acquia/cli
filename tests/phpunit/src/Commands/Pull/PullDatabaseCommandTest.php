@@ -310,6 +310,22 @@ class PullDatabaseCommandTest extends PullCommandTestBase
         ], self::inputChooseEnvironment());
     }
 
+    public function testPullDatabaseWithMissingPermission(): void
+    {
+        $localMachineHelper = $this->mockLocalMachineHelper();
+        $this->mockExecuteMySqlConnect($localMachineHelper, true);
+        $environment = $this->mockGetEnvironment();
+        $sshHelper = $this->mockSshHelper();
+        $this->mockListSites($sshHelper);
+        $this->mockGetBackup($environment, false);
+
+        $this->expectException(AcquiaCliException::class);
+        $this->expectExceptionMessage('Database connection details missing');
+        $this->executeCommand([
+            '--no-scripts' => true,
+        ], self::inputChooseEnvironment());
+    }
+
     /**
      * @dataProvider providerTestPullDatabaseWithInvalidSslCertificate
      */

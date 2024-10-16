@@ -351,10 +351,17 @@ abstract class PullCommandTestBase extends CommandTestBase
             ->willReturn($process->reveal())->shouldBeCalled();
     }
 
-    public function mockGetBackup(mixed $environment): void
+    public function mockGetBackup(mixed $environment, bool $perms = true): void
     {
+        if (!$perms) {
+            $tamper = static function ($databases): void {
+                $databases[0]->user_name = null;
+            };
+            $this->mockRequest('getEnvironmentsDatabases', $environment->id, null, null, $tamper);
+            return;
+        }
         $databases = $this->mockRequest('getEnvironmentsDatabases', $environment->id);
-        $tamper = function ($backups): void {
+        $tamper = static function ($backups): void {
             $backups[0]->completedAt = $backups[0]->completed_at;
         };
         $backups = new BackupsResponse(
