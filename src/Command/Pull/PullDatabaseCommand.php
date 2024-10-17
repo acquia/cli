@@ -5,7 +5,8 @@ declare(strict_types=1);
 namespace Acquia\Cli\Command\Pull;
 
 use Acquia\Cli\Attribute\RequireAuth;
-use Acquia\Cli\Attribute\RequireDb;
+use Acquia\Cli\Attribute\RequireLocalDb;
+use Acquia\Cli\Attribute\RequireRemoteDb;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -13,7 +14,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 #[RequireAuth]
-#[RequireDb]
+#[RequireLocalDb]
 #[AsCommand(name: 'pull:database', description: 'Import database backup from a Cloud Platform environment', aliases: ['pull:db'])]
 final class PullDatabaseCommand extends PullCommandBase
 {
@@ -49,6 +50,9 @@ final class PullDatabaseCommand extends PullCommandBase
             );
     }
 
+    /**
+     * @throws \Acquia\Cli\Exception\AcquiaCliException
+     */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $noScripts = $input->hasOption('no-scripts') && $input->getOption('no-scripts');

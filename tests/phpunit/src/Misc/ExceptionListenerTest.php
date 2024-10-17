@@ -110,6 +110,10 @@ class ExceptionListenerTest extends TestBase
                 ],
             ],
             [
+                new AcquiaCliException('Database connection details missing'),
+                'Check that you have the \'View database connection details\' permission',
+            ],
+            [
                 new ApiErrorException((object) [
                     'error' => '',
                     'message' => "There are no available Cloud IDEs for this application.\n",

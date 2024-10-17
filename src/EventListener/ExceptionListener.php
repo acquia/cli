@@ -75,6 +75,9 @@ class ExceptionListener
                     $this->helpMessages[] = 'Check for MySQL warnings above or in the server log (/var/log/mysql/error.log)';
                     $this->helpMessages[] = 'Frequently, `MySQL server has gone away` messages are caused by max_allowed_packet being exceeded.';
                     break;
+                case 'Database connection details missing':
+                    $this->helpMessages[] = 'Check that you have the \'View database connection details\' permission';
+                    break;
             }
         }
 

@@ -7,7 +7,8 @@ namespace Acquia\Cli\Command;
 use Acquia\Cli\AcsfApi\AcsfClientService;
 use Acquia\Cli\ApiCredentialsInterface;
 use Acquia\Cli\Attribute\RequireAuth;
-use Acquia\Cli\Attribute\RequireDb;
+use Acquia\Cli\Attribute\RequireLocalDb;
+use Acquia\Cli\Attribute\RequireRemoteDb;
 use Acquia\Cli\CloudApi\ClientService;
 use Acquia\Cli\Command\Ssh\SshKeyCommandBase;
 use Acquia\Cli\DataStore\AcquiaCliDatastore;
@@ -119,9 +120,12 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
         if ((new \ReflectionClass(static::class))->getAttributes(RequireAuth::class)) {
             $this->appendHelp('This command requires authentication via the Cloud Platform API.');
         }
-        if ((new \ReflectionClass(static::class))->getAttributes(RequireDb::class)) {
+        if ((new \ReflectionClass(static::class))->getAttributes(RequireLocalDb::class)) {
             $this->appendHelp('This command requires an active database connection. Set the following environment variables prior to running this command: '
                 . 'ACLI_DB_HOST, ACLI_DB_NAME, ACLI_DB_USER, ACLI_DB_PASSWORD');
+        }
+        if ((new \ReflectionClass(static::class))->getAttributes(RequireRemoteDb::class)) {
+            $this->appendHelp('This command requires the \'View database connection details\' permission.');
         }
     }
 

@@ -131,6 +131,7 @@ abstract class PullCommandBase extends CommandBase
     /**
      * @param bool $onDemand Force on-demand backup.
      * @param bool $noImport Skip import.
+     * @throws \Acquia\Cli\Exception\AcquiaCliException
      */
     protected function pullDatabase(InputInterface $input, OutputInterface $output, EnvironmentResponse $sourceEnvironment, bool $onDemand = false, bool $noImport = false, bool $multipleDbs = false): void
     {
