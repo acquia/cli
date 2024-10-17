@@ -525,17 +525,11 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
     /**
      * @param string|null $site
      * @return DatabaseResponse[]
-     * @throws \Acquia\Cli\Exception\AcquiaCliException
      */
     protected function determineCloudDatabases(Client $acquiaCloudClient, EnvironmentResponse $chosenEnvironment, string $site = null, bool $multipleDbs = false): array
     {
         $databasesRequest = new Databases($acquiaCloudClient);
         $databases = $databasesRequest->getAll($chosenEnvironment->uuid);
-        foreach ($databases as $database) {
-            if ($database->user_name === null) {
-                throw new AcquiaCliException('Database connection details missing');
-            }
-        }
 
         if (count($databases) === 1) {
             $this->logger->debug('Only a single database detected on Cloud');

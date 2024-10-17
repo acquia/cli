@@ -29,6 +29,9 @@ final class PushDatabaseCommand extends PushCommandBase
             ->acceptSite();
     }
 
+    /**
+     * @throws \Acquia\Cli\Exception\AcquiaCliException
+     */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $destinationEnvironment = $this->determineEnvironment($input, $output);
@@ -36,6 +39,9 @@ final class PushDatabaseCommand extends PushCommandBase
         $databases = $this->determineCloudDatabases($acquiaCloudClient, $destinationEnvironment, $input->getArgument('site'));
         // We only support pushing a single database.
         $database = $databases[0];
+        if ($database->user_name === null) {
+            throw new AcquiaCliException('Database connection details missing');
+        }
         $answer = $this->io->confirm("Overwrite the <bg=cyan;options=bold>$database->name</> database on <bg=cyan;options=bold>$destinationEnvironment->name</> with a copy of the database from the current machine?");
         if (!$answer) {
             return Command::SUCCESS;

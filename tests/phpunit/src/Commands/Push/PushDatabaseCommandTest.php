@@ -6,6 +6,7 @@ namespace Acquia\Cli\Tests\Commands\Push;
 
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Command\Push\PushDatabaseCommand;
+use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Helpers\LocalMachineHelper;
 use Acquia\Cli\Helpers\SshHelper;
 use Acquia\Cli\Tests\CommandTestBase;
@@ -106,6 +107,30 @@ class PushDatabaseCommandTest extends CommandTestBase
         $this->assertStringContainsString('jxr5000596dev (oracletest1.dev-profserv2.acsitefactory.com)', $output);
         $this->assertStringContainsString('profserv2 (default)', $output);
         $this->assertStringContainsString('Overwrite the jxr136 database on dev with a copy of the database from the current machine?', $output);
+    }
+
+    public function testPushDbHelp(): void
+    {
+        $help = $this->command->getHelp();
+        $this->assertStringContainsString('This command requires authentication via the Cloud Platform API.', $help);
+        $this->assertStringContainsString('This command requires an active database connection. Set the following environment variables prior to running this command: ACLI_DB_HOST, ACLI_DB_NAME, ACLI_DB_USER, ACLI_DB_PASSWORD', $help);
+        $this->assertStringContainsString('This command requires the \'View database connection details\' permission.', $help);
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function testPushDatabaseWithMissingPermission(): void
+    {
+        $environment = $this->mockGetEnvironment();
+        $tamper = static function ($databases): void {
+            $databases[0]->user_name = null;
+        };
+        $this->mockRequest('getEnvironmentsDatabases', $environment->id, null, null, $tamper);
+
+        $this->expectException(AcquiaCliException::class);
+        $this->expectExceptionMessage('Database connection details missing');
+        $this->executeCommand([], self::inputChooseEnvironment());
     }
 
     protected function mockUploadDatabaseDump(

@@ -15,7 +15,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 #[RequireAuth]
 #[RequireLocalDb]
-#[RequireRemoteDb]
 #[AsCommand(name: 'pull:database', description: 'Import database backup from a Cloud Platform environment', aliases: ['pull:db'])]
 final class PullDatabaseCommand extends PullCommandBase
 {
@@ -51,6 +50,9 @@ final class PullDatabaseCommand extends PullCommandBase
             );
     }
 
+    /**
+     * @throws \Acquia\Cli\Exception\AcquiaCliException
+     */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $noScripts = $input->hasOption('no-scripts') && $input->getOption('no-scripts');
