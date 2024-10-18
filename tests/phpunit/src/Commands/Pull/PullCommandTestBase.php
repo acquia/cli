@@ -354,7 +354,7 @@ abstract class PullCommandTestBase extends CommandTestBase
     public function mockGetBackup(mixed $environment): void
     {
         $databases = $this->mockRequest('getEnvironmentsDatabases', $environment->id);
-        $tamper = function ($backups): void {
+        $tamper = static function ($backups): void {
             $backups[0]->completedAt = $backups[0]->completed_at;
         };
         $backups = new BackupsResponse(
