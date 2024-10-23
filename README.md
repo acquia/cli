@@ -9,3 +9,8 @@ Acquia CLI is not a local development environment. If you are looking for an int
 ## Installation and usage
 
 Install instructions and official documentation are available at https://docs.acquia.com/acquia-cli/install/
+
+## Support
+
+- To receive support from Acquia, visit the [Acquia Support Portal](https://acquia.my.site.com/s/).
+- To receive support and discuss ideas with other Acquia CLI users, visit the [discussions section](https://github.com/acquia/cli/discussions) on GitHub.
