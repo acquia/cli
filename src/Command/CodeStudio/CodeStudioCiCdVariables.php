@@ -18,7 +18,7 @@ class CodeStudioCiCdVariables
     /**
      * @return array<mixed>
      */
-    public static function getDefaultsForNode(?string $cloudApplicationUuid = null, ?string $cloudKey = null, ?string $cloudSecret = null, ?string $projectAccessTokenName = null, ?string $projectAccessToken = null, ?string $nodeVersion = null): array
+    public static function getDefaultsForNode(?string $cloudApplicationUuid = null, ?string $cloudKey = null, ?string $cloudSecret = null, ?string $projectAccessTokenName = null, ?string $projectAccessToken = null, ?string $nodeVersion = null, ?string $nodeHosting = null): array
     {
         return [
             [
@@ -61,6 +61,13 @@ class CodeStudioCiCdVariables
                 'masked' => false,
                 'protected' => false,
                 'value' => $nodeVersion,
+                'variable_type' => 'env_var',
+            ],
+            [
+                'key' => 'NODE_HOSTING_TYPE',
+                'masked' => false,
+                'protected' => false,
+                'value' => $nodeHosting,
                 'variable_type' => 'env_var',
             ],
         ];

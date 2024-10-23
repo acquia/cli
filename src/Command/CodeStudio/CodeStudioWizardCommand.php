@@ -48,6 +48,7 @@ final class CodeStudioWizardCommand extends WizardCommandBase
         $nodeVersion = null;
         $projectType = $this->getListOfProjectType();
         $projectSelected = $this->io->choice('Select a project type', $projectType, "Drupal_project");
+        $nodeHosting = "basic";
 
         switch ($projectSelected) {
             case "Drupal_project":
@@ -128,7 +129,7 @@ final class CodeStudioWizardCommand extends WizardCommandBase
                 ];
                 $client = $this->getGitLabClient();
                 $client->projects()->update($project['id'], $parameters);
-                $this->setGitLabCiCdVariablesForNodeProject($project, $appUuid, $cloudKey, $cloudSecret, $projectAccessTokenName, $projectAccessToken, $nodeVersion);
+                $this->setGitLabCiCdVariablesForNodeProject($project, $appUuid, $cloudKey, $cloudSecret, $projectAccessTokenName, $projectAccessToken, $nodeVersion, $nodeHosting);
                 break;
         }
 
@@ -241,10 +242,10 @@ final class CodeStudioWizardCommand extends WizardCommandBase
         }
     }
 
-    private function setGitLabCiCdVariablesForNodeProject(array $project, string $cloudApplicationUuid, string $cloudKey, string $cloudSecret, string $projectAccessTokenName, string $projectAccessToken, string $nodeVersion): void
+    private function setGitLabCiCdVariablesForNodeProject(array $project, string $cloudApplicationUuid, string $cloudKey, string $cloudSecret, string $projectAccessTokenName, string $projectAccessToken, string $nodeVersion, string $nodeHosting): void
     {
         $this->io->writeln("Setting GitLab CI/CD variables for {$project['path_with_namespace']}..");
-        $gitlabCicdVariables = CodeStudioCiCdVariables::getDefaultsForNode($cloudApplicationUuid, $cloudKey, $cloudSecret, $projectAccessTokenName, $projectAccessToken, $nodeVersion);
+        $gitlabCicdVariables = CodeStudioCiCdVariables::getDefaultsForNode($cloudApplicationUuid, $cloudKey, $cloudSecret, $projectAccessTokenName, $projectAccessToken, $nodeVersion, $nodeHosting);
         $gitlabCicdExistingVariables = $this->gitLabClient->projects()
             ->variables($project['id']);
         $gitlabCicdExistingVariablesKeyed = [];
