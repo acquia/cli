@@ -53,6 +53,7 @@ class TelemetryHelperTest extends TestBase
     }
 
     /**
+     * @group serial
      * @dataProvider providerTestEnvironmentProvider()
      */
     public function testEnvironmentProvider(string $provider, array $envVars): void
@@ -65,6 +66,8 @@ class TelemetryHelperTest extends TestBase
     /**
      * Test the getEnvironmentProvider method when no environment provider is
      * detected.
+     *
+     * @group serial
      */
     public function testGetEnvironmentProviderWithoutAnyEnvSet(): void
     {
@@ -98,6 +101,7 @@ class TelemetryHelperTest extends TestBase
      *   The Acquia hosting environment.
      * @param string $expected
      *   The expected normalized environment.
+     * @group serial
      */
     public function testAhEnvNormalization(string $ah_env, string $expected): void
     {
