@@ -29,7 +29,7 @@ class IdePhpVersionCommandTest extends CommandTestBase
     /**
      * @return array<mixed>
      */
-    public function providerTestIdePhpVersionCommand(): array
+    public static function providerTestIdePhpVersionCommand(): array
     {
         return [
             ['7.4'],
@@ -63,7 +63,7 @@ class IdePhpVersionCommandTest extends CommandTestBase
     /**
      * @return array<mixed>
      */
-    public function providerTestIdePhpVersionCommandFailure(): array
+    public static function providerTestIdePhpVersionCommandFailure(): array
     {
         return [
             ['6.3', AcquiaCliException::class],

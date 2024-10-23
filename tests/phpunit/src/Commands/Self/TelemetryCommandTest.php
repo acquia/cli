@@ -49,7 +49,7 @@ class TelemetryCommandTest extends CommandTestBase
     /**
      * @return string[][]
      */
-    public function providerTestTelemetryPrompt(): array
+    public static function providerTestTelemetryPrompt(): array
     {
         return [
             [

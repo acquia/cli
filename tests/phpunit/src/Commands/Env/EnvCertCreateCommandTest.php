@@ -35,7 +35,7 @@ class EnvCertCreateCommandTest extends CommandTestBase
             ->willReturn($keyContents)
             ->shouldBeCalled();
 
-        $sslResponse = $this->getMockResponseFromSpec(
+        $sslResponse = self::getMockResponseFromSpec(
             '/environments/{environmentId}/ssl/certificates',
             'post',
             '202'
@@ -94,7 +94,7 @@ class EnvCertCreateCommandTest extends CommandTestBase
             ->willReturn($keyContents)
             ->shouldBeCalled();
 
-        $sslResponse = $this->getMockResponseFromSpec(
+        $sslResponse = self::getMockResponseFromSpec(
             '/environments/{environmentId}/ssl/certificates',
             'post',
             '202'
@@ -160,7 +160,7 @@ class EnvCertCreateCommandTest extends CommandTestBase
             ->willReturn($keyContents)
             ->shouldBeCalled();
 
-        $sslResponse = $this->getMockResponseFromSpec(
+        $sslResponse = self::getMockResponseFromSpec(
             '/environments/{environmentId}/ssl/certificates',
             'post',
             '202'

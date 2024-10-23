@@ -19,7 +19,7 @@ class TelemetryHelperTest extends TestBase
             $envVars = array_merge($envVars, $args[1]);
         }
 
-        TestBase::unsetEnvVars($envVars);
+        self::unsetEnvVars($envVars);
     }
 
     public function unsetGitHubEnvVars(): void
@@ -31,13 +31,13 @@ class TelemetryHelperTest extends TestBase
         foreach ($providers['github'] as $var) {
             $github_env_vars[$var] = self::ENV_VAR_DEFAULT_VALUE;
         }
-        TestBase::unsetEnvVars($github_env_vars);
+        self::unsetEnvVars($github_env_vars);
     }
 
     /**
      * @return array<mixed>
      */
-    public function providerTestEnvironmentProvider(): array
+    public static function providerTestEnvironmentProvider(): array
     {
         $providersList = TelemetryHelper::getProviders();
         $providersArray = [];
@@ -58,7 +58,7 @@ class TelemetryHelperTest extends TestBase
     public function testEnvironmentProvider(string $provider, array $envVars): void
     {
         $this->unsetGitHubEnvVars();
-        TestBase::setEnvVars($envVars);
+        self::setEnvVars($envVars);
         $this->assertEquals($provider, TelemetryHelper::getEnvironmentProvider());
     }
 
@@ -78,7 +78,7 @@ class TelemetryHelperTest extends TestBase
      * @return mixed[]
      *   The data provider.
      */
-    public function providerTestAhEnvNormalization(): array
+    public static function providerTestAhEnvNormalization(): array
     {
         return [
             ['prod', 'prod'],

@@ -32,7 +32,7 @@ class CodeStudioWizardCommandTest extends WizardTestBase
 
     private string $gitLabToken = 'gitlabtoken';
 
-    private int $gitLabProjectId = 33;
+    private static int $gitLabProjectId = 33;
 
     private int $gitLabTokenId = 118;
 
@@ -40,13 +40,13 @@ class CodeStudioWizardCommandTest extends WizardTestBase
     {
         parent::setUp();
         $this->mockApplicationRequest();
-        TestBase::setEnvVars(['GITLAB_HOST' => 'code.cloudservices.acquia.io']);
+        self::setEnvVars(['GITLAB_HOST' => 'code.cloudservices.acquia.io']);
     }
 
     public function tearDown(): void
     {
         parent::tearDown();
-        TestBase::unsetEnvVars(['GITLAB_HOST' => 'code.cloudservices.acquia.io']);
+        self::unsetEnvVars(['GITLAB_HOST' => 'code.cloudservices.acquia.io']);
     }
 
     protected function createCommand(): CommandBase
@@ -57,12 +57,12 @@ class CodeStudioWizardCommandTest extends WizardTestBase
     /**
      * @return array<mixed>
      */
-    public function providerTestCommand(): array
+    public static function providerTestCommand(): array
     {
         return [
             [
                 // One project.
-                [$this->getMockedGitLabProject($this->gitLabProjectId)],
+                [self::getMockedGitLabProject(self::$gitLabProjectId)],
                 // Inputs.
                 [
                     0,
@@ -74,15 +74,15 @@ class CodeStudioWizardCommandTest extends WizardTestBase
                 ],
                 // Args.
                 [
-                    '--key' => $this->key,
-                    '--secret' => $this->secret,
+                    '--key' => self::$key,
+                    '--secret' => self::$secret,
                 ],
             ],
             // Two projects.
             [
                 [
-                    $this->getMockedGitLabProject($this->gitLabProjectId),
-                    $this->getMockedGitLabProject($this->gitLabProjectId),
+                    self::getMockedGitLabProject(self::$gitLabProjectId),
+                    self::getMockedGitLabProject(self::$gitLabProjectId),
                 ],
                 // Inputs.
                 [
@@ -98,8 +98,8 @@ class CodeStudioWizardCommandTest extends WizardTestBase
                 ],
                 // Args.
                 [
-                    '--key' => $this->key,
-                    '--secret' => $this->secret,
+                    '--key' => self::$key,
+                    '--secret' => self::$secret,
                 ],
             ],
             [
@@ -122,8 +122,8 @@ class CodeStudioWizardCommandTest extends WizardTestBase
                 ],
                 // Args.
                 [
-                    '--key' => $this->key,
-                    '--secret' => $this->secret,
+                    '--key' => self::$key,
+                    '--secret' => self::$secret,
                 ],
             ],
             [
@@ -142,8 +142,8 @@ class CodeStudioWizardCommandTest extends WizardTestBase
                 ],
                 // Args.
                 [
-                    '--key' => $this->key,
-                    '--secret' => $this->secret,
+                    '--key' => self::$key,
+                    '--secret' => self::$secret,
                 ],
             ],
             [
@@ -162,8 +162,8 @@ class CodeStudioWizardCommandTest extends WizardTestBase
                 ],
                 // Args.
                 [
-                    '--key' => $this->key,
-                    '--secret' => $this->secret,
+                    '--key' => self::$key,
+                    '--secret' => self::$secret,
                 ],
             ],
             [
@@ -182,8 +182,8 @@ class CodeStudioWizardCommandTest extends WizardTestBase
                 ],
                 // Args.
                 [
-                    '--key' => $this->key,
-                    '--secret' => $this->secret,
+                    '--key' => self::$key,
+                    '--secret' => self::$secret,
                 ],
             ],
             [
@@ -202,8 +202,8 @@ class CodeStudioWizardCommandTest extends WizardTestBase
                 ],
                 // Args.
                 [
-                    '--key' => $this->key,
-                    '--secret' => $this->secret,
+                    '--key' => self::$key,
+                    '--secret' => self::$secret,
                 ],
             ],
             [
@@ -212,9 +212,9 @@ class CodeStudioWizardCommandTest extends WizardTestBase
                 // Inputs.
                 [
                     // Enter Cloud Key.
-                    $this->key,
+                    self::$key,
                     // Enter Cloud secret,.
-                    $this->secret,
+                    self::$secret,
                     // Select a project type Drupal_project.
                     '0',
                     // Select PHP version 8.1.
@@ -231,9 +231,9 @@ class CodeStudioWizardCommandTest extends WizardTestBase
                 // Inputs.
                 [
                     // Enter Cloud Key.
-                    $this->key,
+                    self::$key,
                     // Enter Cloud secret,.
-                    $this->secret,
+                    self::$secret,
                     // Select a project type Node_project.
                     '1',
                     // Select NODE version 18.
@@ -250,9 +250,9 @@ class CodeStudioWizardCommandTest extends WizardTestBase
                 // Inputs.
                 [
                     // Enter Cloud Key.
-                    $this->key,
+                    self::$key,
                     // Enter Cloud secret,.
-                    $this->secret,
+                    self::$secret,
                     // Select a project type Drupal_project.
                     '0',
                     // Select PHP version 8.2.
@@ -269,9 +269,9 @@ class CodeStudioWizardCommandTest extends WizardTestBase
                 // Inputs.
                 [
                     // Enter Cloud Key.
-                    $this->key,
+                    self::$key,
                     // Enter Cloud secret,.
-                    $this->secret,
+                    self::$secret,
                     // Select a project type Node_project.
                     '1',
                     // Select NODE version 20.
@@ -300,7 +300,7 @@ class CodeStudioWizardCommandTest extends WizardTestBase
         $this->mockGitLabGroups($gitlabClient);
         $this->mockGitLabNamespaces($gitlabClient);
 
-        $projects = $this->mockGetGitLabProjects($this::$applicationUuid, $this->gitLabProjectId, $mockedGitlabProjects);
+        $projects = $this->mockGetGitLabProjects($this::$applicationUuid, self::$gitLabProjectId, $mockedGitlabProjects);
         $parameters = [
             'container_registry_access_level' => 'disabled',
             'default_branch' => 'main',
@@ -310,7 +310,7 @@ class CodeStudioWizardCommandTest extends WizardTestBase
             'topics' => 'Acquia Cloud Application',
         ];
         $projects->create('Sample-application-1', $parameters)
-            ->willReturn($this->getMockedGitLabProject($this->gitLabProjectId));
+            ->willReturn(self::getMockedGitLabProject(self::$gitLabProjectId));
         $this->mockGitLabProjectsTokens($projects);
         $parameters = [
             'container_registry_access_level' => 'disabled',
@@ -319,23 +319,23 @@ class CodeStudioWizardCommandTest extends WizardTestBase
             'initialize_with_readme' => true,
             'topics' => 'Acquia Cloud Application',
         ];
-        $projects->update($this->gitLabProjectId, $parameters)
+        $projects->update(self::$gitLabProjectId, $parameters)
             ->shouldBeCalled();
         $projects->uploadAvatar(
             33,
             Argument::type('string'),
         )->shouldBeCalled();
-        $this->mockGitLabVariables($this->gitLabProjectId, $projects);
+        $this->mockGitLabVariables(self::$gitLabProjectId, $projects);
 
         if (($inputs[0] === '1' || (array_key_exists(2, $inputs) && $inputs[2] === '1'))) {
             $parameters = [
                 'ci_config_path' => 'gitlab-ci/Auto-DevOps.acquia.gitlab-ci.yml@acquia/node-template',
             ];
-            $projects->update($this->gitLabProjectId, $parameters)
+            $projects->update(self::$gitLabProjectId, $parameters)
                 ->shouldBeCalled();
         } else {
             $schedules = $this->prophet->prophesize(Schedules::class);
-            $schedules->showAll($this->gitLabProjectId)->willReturn([]);
+            $schedules->showAll(self::$gitLabProjectId)->willReturn([]);
             $pipeline = ['id' => 1];
             $parameters = [
                 // Every Thursday at midnight.
@@ -343,13 +343,13 @@ class CodeStudioWizardCommandTest extends WizardTestBase
                 'description' => 'Code Studio Automatic Updates',
                 'ref' => 'master',
             ];
-            $schedules->create($this->gitLabProjectId, $parameters)
+            $schedules->create(self::$gitLabProjectId, $parameters)
                 ->willReturn($pipeline);
-            $schedules->addVariable($this->gitLabProjectId, $pipeline['id'], [
+            $schedules->addVariable(self::$gitLabProjectId, $pipeline['id'], [
                 'key' => 'ACQUIA_JOBS_DEPRECATED_UPDATE',
                 'value' => 'true',
             ])->shouldBeCalled();
-            $schedules->addVariable($this->gitLabProjectId, $pipeline['id'], [
+            $schedules->addVariable(self::$gitLabProjectId, $pipeline['id'], [
                 'key' => 'ACQUIA_JOBS_COMPOSER_UPDATE',
                 'value' => 'true',
             ])->shouldBeCalled();
@@ -401,8 +401,8 @@ class CodeStudioWizardCommandTest extends WizardTestBase
         $this->expectException(AcquiaCliException::class);
         $this->expectExceptionMessage('Unable to authenticate with Code Studio');
         $this->executeCommand([
-            '--key' => $this->key,
-            '--secret' => $this->secret,
+            '--key' => self::$key,
+            '--secret' => self::$secret,
         ]);
     }
 
@@ -419,8 +419,8 @@ class CodeStudioWizardCommandTest extends WizardTestBase
         $this->expectException(AcquiaCliException::class);
         $this->expectExceptionMessage('Could not determine GitLab token');
         $this->executeCommand([
-            '--key' => $this->key,
-            '--secret' => $this->secret,
+            '--key' => self::$key,
+            '--secret' => self::$secret,
         ]);
     }
 
@@ -442,14 +442,14 @@ class CodeStudioWizardCommandTest extends WizardTestBase
                 'user_id' => 154,
             ],
         ];
-        $projects->projectAccessTokens($this->gitLabProjectId)
+        $projects->projectAccessTokens(self::$gitLabProjectId)
             ->willReturn($tokens)
             ->shouldBeCalled();
-        $projects->deleteProjectAccessToken($this->gitLabProjectId, $this->gitLabTokenId)
+        $projects->deleteProjectAccessToken(self::$gitLabProjectId, $this->gitLabTokenId)
             ->shouldBeCalled();
         $token = $tokens[0];
         $token['token'] = 'token';
-        $projects->createProjectAccessToken($this->gitLabProjectId, Argument::type('array'))
+        $projects->createProjectAccessToken(self::$gitLabProjectId, Argument::type('array'))
             ->willReturn($token);
     }
 
@@ -560,7 +560,7 @@ class CodeStudioWizardCommandTest extends WizardTestBase
             ])->shouldBeCalled();
         }
         foreach ($variables as $variable) {
-            $projects->updateVariable($this->gitLabProjectId, $variable['key'], $variable['value'], false, null, [
+            $projects->updateVariable(self::$gitLabProjectId, $variable['key'], $variable['value'], false, null, [
                 'masked' => true,
                 'variable_type' => 'env_var',
             ])->shouldBeCalled();

@@ -35,7 +35,7 @@ class AliasesDownloadCommandTest extends CommandTestBase
      *
      * @return array<array<mixed>>
      */
-    public function providerTestRemoteAliasesDownloadCommand(): array
+    public static function providerTestRemoteAliasesDownloadCommand(): array
     {
         return [
             [['9'], []],
@@ -73,7 +73,7 @@ class AliasesDownloadCommandTest extends CommandTestBase
             $destinationDir = Path::join($homeDir, '.drush');
         }
         if ($aliasVersion === '9' && !$all) {
-            $applicationsResponse = $this->getMockResponseFromSpec('/applications', 'get', '200');
+            $applicationsResponse = self::getMockResponseFromSpec('/applications', 'get', '200');
             $cloudApplication = $applicationsResponse->{'_embedded'}->items[0];
             $cloudApplicationUuid = $cloudApplication->uuid;
             $this->createMockAcliConfigFile($cloudApplicationUuid);

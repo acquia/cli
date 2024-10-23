@@ -22,7 +22,7 @@ class LogTailCommandTest extends CommandTestBase
     /**
      * @return int[]
      */
-    public function providerLogTailCommand(): array
+    public static function providerLogTailCommand(): array
     {
         return [
             [0],
@@ -131,7 +131,7 @@ class LogTailCommandTest extends CommandTestBase
 
     private function mockLogStreamRequest(): void
     {
-        $response = $this->getMockResponseFromSpec(
+        $response = self::getMockResponseFromSpec(
             '/environments/{environmentId}/logstream',
             'get',
             '200'

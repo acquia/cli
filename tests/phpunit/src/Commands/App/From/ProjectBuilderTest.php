@@ -31,7 +31,7 @@ final class ProjectBuilderTest extends TestCase
     /**
      * @return array<mixed>
      */
-    public function getTestResources(): array
+    public static function getTestResources(): array
     {
         // phpcs:disable SlevomatCodingStandard.Arrays.AlphabeticallySortedByKeys
         $test_cases = [

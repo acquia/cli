@@ -16,7 +16,6 @@ use Exception;
 use Gitlab\Api\Projects;
 use Gitlab\Api\Users;
 use Gitlab\Exception\RuntimeException;
-use PHPUnit\Framework\Constraint\StringContains;
 use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
 use Psr\Http\Message\StreamInterface;
@@ -63,7 +62,7 @@ abstract class CommandTestBase extends TestBase
     protected function tearDown(): void
     {
         parent::tearDown();
-        if (!in_array('brokenProphecy', $this->getGroups())) {
+        if (!in_array('brokenProphecy', $this->groups())) {
             $this->prophet->checkPredictions();
         }
     }
@@ -163,7 +162,7 @@ abstract class CommandTestBase extends TestBase
     {
         if (getenv('ACLI_PRINT_COMMAND_OUTPUT')) {
             $this->consoleOutput->writeln("");
-            $this->writeFullWidthLine(get_class($this) . "::" . $this->getName(), $this->consoleOutput);
+            $this->writeFullWidthLine(get_class($this) . "::" . $this->name(), $this->consoleOutput);
         }
     }
 
@@ -266,7 +265,7 @@ abstract class CommandTestBase extends TestBase
     public function mockAcsfEnvironmentsRequest(
         object $applicationsResponse
     ): object {
-        $environmentsResponse = $this->getMockEnvironmentsResponse();
+        $environmentsResponse = self::getMockEnvironmentsResponse();
         foreach ($environmentsResponse->_embedded->items as $environment) {
             $environment->ssh_url = 'profserv2.01dev@profserv201dev.ssh.enterprise-g1.acquia-sites.com';
             $environment->domains = ["profserv201dev.enterprise-g1.acquia-sites.com"];
@@ -356,7 +355,7 @@ abstract class CommandTestBase extends TestBase
         int $backupId,
         bool $existingBackups = true
     ): object {
-        $databaseBackupsResponse = $this->getMockResponseFromSpec('/environments/{environmentId}/databases/{databaseName}/backups', 'get', 200);
+        $databaseBackupsResponse = self::getMockResponseFromSpec('/environments/{environmentId}/databases/{databaseName}/backups', 'get', 200);
         foreach ($databaseBackupsResponse->_embedded->items as $backup) {
             $backup->_links->download->href = "/environments/$environmentsResponse->id/databases/$dbName/backups/$backupId/actions/download";
             $backup->database->name = $dbName;
@@ -398,7 +397,7 @@ abstract class CommandTestBase extends TestBase
         mixed $environmentsResponse,
         mixed $dbName
     ): mixed {
-        $backupCreateResponse = $this->getMockResponseFromSpec('/environments/{environmentId}/databases/{databaseName}/backups', 'post', 202)->{'Creating backup'}->value;
+        $backupCreateResponse = self::getMockResponseFromSpec('/environments/{environmentId}/databases/{databaseName}/backups', 'post', 202)->{'Creating backup'}->value;
         $this->clientProphecy->request('post', "/environments/$environmentsResponse->id/databases/$dbName/backups")
             ->willReturn($backupCreateResponse)
             ->shouldBeCalled();
@@ -540,7 +539,7 @@ abstract class CommandTestBase extends TestBase
     {
         $apiCommandHelper = new ApiCommandHelper($this->logger);
         $commandFactory = $this->getCommandFactory();
-        return $apiCommandHelper->getApiCommands($this->apiSpecFixtureFilePath, $this->apiCommandPrefix, $commandFactory);
+        return $apiCommandHelper->getApiCommands(self::$apiSpecFixtureFilePath, $this->apiCommandPrefix, $commandFactory);
     }
 
     protected function getApiCommandByName(string $name): ApiBaseCommand|null
@@ -558,7 +557,7 @@ abstract class CommandTestBase extends TestBase
     /**
      * @return array<mixed>
      */
-    protected function getMockedGitLabProject(mixed $projectId): array
+    protected static function getMockedGitLabProject(int $projectId): array
     {
         return [
             'default_branch' => 'master',
@@ -667,7 +666,7 @@ abstract class CommandTestBase extends TestBase
      */
     protected function mockGitLabPermissionsRequest(mixed $applicationUuid): array
     {
-        $permissionsResponse = $this->getMockResponseFromSpec('/applications/{applicationUuid}/permissions', 'get', 200);
+        $permissionsResponse = self::getMockResponseFromSpec('/applications/{applicationUuid}/permissions', 'get', 200);
         $permissions = $permissionsResponse->_embedded->items;
         $permission = clone reset($permissions);
         $permission->name = "administer environment variables on non-prod";
@@ -684,7 +683,7 @@ abstract class CommandTestBase extends TestBase
         $projects->all(['search' => $applicationUuid])
             ->willReturn($mockedGitlabProjects);
         $projects->all()
-            ->willReturn([$this->getMockedGitLabProject($gitlabProjectId)]);
+            ->willReturn([self::getMockedGitLabProject($gitlabProjectId)]);
         return $projects;
     }
 
@@ -718,22 +717,5 @@ abstract class CommandTestBase extends TestBase
                 'variable_type' => 'env_var',
             ],
         ];
-    }
-
-    /**
-     * Normalize strings for Windows tests.
-     *
-     * @todo Remove for PHPUnit 10.
-     */
-    final public static function assertStringContainsStringIgnoringLineEndings(string $needle, string $haystack, string $message = ''): void
-    {
-        $haystack = strtr(
-            $haystack,
-            [
-                "\r" => "\n",
-                "\r\n" => "\n",
-            ]
-        );
-        static::assertThat($haystack, new StringContains($needle, false), $message);
     }
 }

@@ -23,8 +23,8 @@ class EnvCreateCommandTest extends CommandTestBase
         $applicationResponse = $this->mockApplicationRequest();
         $this->mockEnvironmentsRequest($applicationsResponse);
 
-        $response1 = $this->getMockEnvironmentsResponse();
-        $response2 = $this->getMockEnvironmentsResponse();
+        $response1 = self::getMockEnvironmentsResponse();
+        $response2 = self::getMockEnvironmentsResponse();
         $cde = $response2->_embedded->items[0];
         $cde->label = $label;
         $response2->_embedded->items[3] = $cde;
@@ -35,7 +35,7 @@ class EnvCreateCommandTest extends CommandTestBase
             ->willReturn($response1->_embedded->items, $response2->_embedded->items)
             ->shouldBeCalled();
 
-        $codeResponse = $this->getMockResponseFromSpec("/applications/{applicationUuid}/code", 'get', '200');
+        $codeResponse = self::getMockResponseFromSpec("/applications/{applicationUuid}/code", 'get', '200');
         $this->clientProphecy->request(
             'get',
             "/applications/$applicationResponse->uuid/code"
@@ -43,7 +43,7 @@ class EnvCreateCommandTest extends CommandTestBase
             ->willReturn($codeResponse->_embedded->items)
             ->shouldBeCalled();
 
-        $databasesResponse = $this->getMockResponseFromSpec("/applications/{applicationUuid}/databases", 'get', '200');
+        $databasesResponse = self::getMockResponseFromSpec("/applications/{applicationUuid}/databases", 'get', '200');
         $this->clientProphecy->request(
             'get',
             "/applications/$applicationResponse->uuid/databases"
@@ -51,7 +51,7 @@ class EnvCreateCommandTest extends CommandTestBase
             ->willReturn($databasesResponse->_embedded->items)
             ->shouldBeCalled();
 
-        $environmentsResponse = $this->getMockResponseFromSpec(
+        $environmentsResponse = self::getMockResponseFromSpec(
             '/applications/{applicationUuid}/environments',
             'post',
             202
@@ -64,15 +64,15 @@ class EnvCreateCommandTest extends CommandTestBase
         return $response2->_embedded->items[3]->domains[0];
     }
 
-    private function getBranch(): string
+    private static function getBranch(): string
     {
-        $codeResponse = $this->getMockResponseFromSpec("/applications/{applicationUuid}/code", 'get', '200');
+        $codeResponse = self::getMockResponseFromSpec("/applications/{applicationUuid}/code", 'get', '200');
         return $codeResponse->_embedded->items[0]->name;
     }
 
-    private function getApplication(): string
+    private static function getApplication(): string
     {
-        $applicationsResponse = $this->getMockResponseFromSpec(
+        $applicationsResponse = self::getMockResponseFromSpec(
             '/applications',
             'get',
             '200'
@@ -88,10 +88,10 @@ class EnvCreateCommandTest extends CommandTestBase
     /**
      * @return array<mixed>
      */
-    public function providerTestCreateCde(): array
+    public static function providerTestCreateCde(): array
     {
-        $application = $this->getApplication();
-        $branch = $this->getBranch();
+        $application = self::getApplication();
+        $branch = self::getBranch();
         return [
             // No args, only interactive input.
             [[null, null], ['n', 0, 0]],
@@ -136,8 +136,8 @@ class EnvCreateCommandTest extends CommandTestBase
         $this->expectExceptionMessage('An environment named Dev already exists.');
         $this->executeCommand(
             [
-                'applicationUuid' => $this->getApplication(),
-                'branch' => $this->getBranch(),
+                'applicationUuid' => EnvCreateCommandTest::getApplication(),
+                'branch' => EnvCreateCommandTest::getBranch(),
                 'label' => $label,
             ]
         );
@@ -154,7 +154,7 @@ class EnvCreateCommandTest extends CommandTestBase
         $this->expectExceptionMessage('There is no branch or tag with the name bogus on the remote VCS.');
         $this->executeCommand(
             [
-                'applicationUuid' => $this->getApplication(),
+                'applicationUuid' => EnvCreateCommandTest::getApplication(),
                 'branch' => 'bogus',
                 'label' => self::$validLabel,
             ]
@@ -173,8 +173,8 @@ class EnvCreateCommandTest extends CommandTestBase
 
         $this->executeCommand(
             [
-                'applicationUuid' => $this->getApplication(),
-                'branch' => $this->getBranch(),
+                'applicationUuid' => EnvCreateCommandTest::getApplication(),
+                'branch' => EnvCreateCommandTest::getBranch(),
                 'label' => self::$validLabel,
             ]
         );

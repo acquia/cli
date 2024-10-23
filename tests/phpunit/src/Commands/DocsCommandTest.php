@@ -36,7 +36,7 @@ class DocsCommandTest extends CommandTestBase
     /**
      * @return array<mixed>
      */
-    public function providerTestDocsCommand(): array
+    public static function providerTestDocsCommand(): array
     {
         return [
             [

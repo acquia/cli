@@ -65,7 +65,7 @@ class TaskWaitCommandTest extends CommandTestBase
      *
      * @return (string|int)[][]
      */
-    public function providerTestTaskWaitCommand(): array
+    public static function providerTestTaskWaitCommand(): array
     {
         return [
             [
@@ -127,7 +127,7 @@ EOT,
     /**
      * @return string[]
      */
-    public function providerTestTaskWaitCommandWithInvalidJson(): array
+    public static function providerTestTaskWaitCommandWithInvalidJson(): array
     {
         return [
             [

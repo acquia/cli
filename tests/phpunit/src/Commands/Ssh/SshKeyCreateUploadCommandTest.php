@@ -34,7 +34,7 @@ class SshKeyCreateUploadCommandTest extends CommandTestBase
 
     public function testCreateUpload(): void
     {
-        $mockRequestArgs = $this->getMockRequestBodyFromSpec('/account/ssh-keys');
+        $mockRequestArgs = self::getMockRequestBodyFromSpec('/account/ssh-keys');
 
         $sshKeyFilename = 'id_rsa';
         $localMachineHelper = $this->mockLocalMachineHelper();

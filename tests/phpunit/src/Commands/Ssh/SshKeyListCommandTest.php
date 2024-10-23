@@ -28,11 +28,11 @@ class SshKeyListCommandTest extends CommandTestBase
     public function testList(): void
     {
 
-        $mockBody = $this->getMockResponseFromSpec('/account/ssh-keys', 'get', '200');
+        $mockBody = self::getMockResponseFromSpec('/account/ssh-keys', 'get', '200');
         $this->clientProphecy->request('get', '/account/ssh-keys')
             ->willReturn($mockBody->{'_embedded'}->items)
             ->shouldBeCalled();
-        $mockRequestArgs = $this->getMockRequestBodyFromSpec('/account/ssh-keys');
+        $mockRequestArgs = self::getMockRequestBodyFromSpec('/account/ssh-keys');
         $tempFileName = $this->createLocalSshKey($mockRequestArgs['public_key']);
         $baseFilename = basename($tempFileName);
         $this->executeCommand();

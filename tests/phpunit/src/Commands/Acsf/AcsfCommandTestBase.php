@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 namespace Acquia\Cli\Tests\Commands\Acsf;
 
+use Acquia\Cli\Command\Api\ApiCommandHelper;
 use Acquia\Cli\Helpers\DataStoreContract;
 use Acquia\Cli\Tests\CommandTestBase;
+use Symfony\Component\Cache\Adapter\FilesystemAdapter;
+use Symfony\Component\Cache\Adapter\PhpArrayAdapter;
 
 /**
  * @property \Acquia\Cli\Command\Api\ApiBaseCommand $command
@@ -13,33 +16,43 @@ use Acquia\Cli\Tests\CommandTestBase;
 abstract class AcsfCommandTestBase extends CommandTestBase
 {
     // Test URLs with hyphens to ensure they don't get normalized to underscores.
-    protected string $acsfCurrentFactoryUrl = 'https://www.test-something.com';
+    protected static string $acsfCurrentFactoryUrl = 'https://www.test-something.com';
 
-    protected string $acsfActiveUser = 'tester';
+    protected static string $acsfActiveUser = 'tester';
 
-    protected string $acsfUsername = 'tester';
+    protected static string $acsfUsername = 'tester';
 
-    protected string $acsfKey = 'h@x0r';
+    protected static string $acsfKey = 'h@x0r';
 
     protected string $apiCommandPrefix = 'acsf';
 
-    protected string $apiSpecFixtureFilePath = __DIR__ . '/../../../../../assets/acsf-spec.json';
+    protected static string $apiSpecFixtureFilePath = __DIR__ . '/../../../../../assets/acsf-spec.json';
 
     /**
      * @return array<mixed>
      */
-    protected function getAcsfCredentialsFileContents(): array
+    protected function getApiCommands(): array
+    {
+        $apiCommandHelper = new ApiCommandHelper($this->logger);
+        $commandFactory = $this->getCommandFactory();
+        return $apiCommandHelper->getApiCommands(self::$apiSpecFixtureFilePath, $this->apiCommandPrefix, $commandFactory);
+    }
+
+    /**
+     * @return array<mixed>
+     */
+    protected static function getAcsfCredentialsFileContents(): array
     {
         return [
-            'acsf_active_factory' => $this->acsfCurrentFactoryUrl,
+            'acsf_active_factory' => self::$acsfCurrentFactoryUrl,
             'acsf_factories' => [
-                $this->acsfCurrentFactoryUrl => [
-                    'active_user' => $this->acsfActiveUser,
-                    'url' => $this->acsfCurrentFactoryUrl,
+                self::$acsfCurrentFactoryUrl => [
+                    'active_user' => self::$acsfActiveUser,
+                    'url' => self::$acsfCurrentFactoryUrl,
                     'users' => [
-                        $this->acsfUsername => [
-                            'key' => $this->acsfKey,
-                            'username' => $this->acsfUsername,
+                        self::$acsfUsername => [
+                            'key' => self::$acsfKey,
+                            'username' => self::$acsfUsername,
                         ],
                     ],
                 ],
