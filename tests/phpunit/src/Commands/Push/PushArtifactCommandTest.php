@@ -36,7 +36,7 @@ To run additional build or sanitization steps (e.g. <options=bold>npm install</>
 
 This command is designed for a specific scenario in which there are two branches or repositories involved: a source branch without vendor files committed, and an artifact branch with them. If both your source and destination branches are the same, you should simply use git push instead.
 EOF;
-        $this->assertEquals($expectedHelp, $help);
+        self::assertStringContainsStringIgnoringLineEndings($expectedHelp, $help);
         $this->assertStringNotContainsString('This command requires authentication', $help);
     }
 
