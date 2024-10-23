@@ -28,9 +28,7 @@ class CodeStudioPipelinesMigrateCommandTest extends CommandTestBase
 
     private string $gitLabToken = 'gitlabtoken';
 
-    private int $gitLabProjectId = 33;
-
-    private int $gitLabTokenId = 118;
+    private static int $gitLabProjectId = 33;
 
     public static string $applicationUuid = 'a47ac10b-58cc-4372-a567-0e02b2c3d470';
 
@@ -38,13 +36,13 @@ class CodeStudioPipelinesMigrateCommandTest extends CommandTestBase
     {
         parent::setUp();
         $this->mockApplicationRequest();
-        TestBase::setEnvVars(['GITLAB_HOST' => 'code.cloudservices.acquia.io']);
+        self::setEnvVars(['GITLAB_HOST' => 'code.cloudservices.acquia.io']);
     }
 
     public function tearDown(): void
     {
         parent::tearDown();
-        TestBase::unsetEnvVars(['GITLAB_HOST' => 'code.cloudservices.acquia.io']);
+        self::unsetEnvVars(['GITLAB_HOST' => 'code.cloudservices.acquia.io']);
     }
 
     protected function createCommand(): CommandBase
@@ -55,12 +53,12 @@ class CodeStudioPipelinesMigrateCommandTest extends CommandTestBase
     /**
      * @return array<mixed>
      */
-    public function providerTestCommand(): array
+    public static function providerTestCommand(): array
     {
         return [
             [
                 // One project.
-                [$this->getMockedGitLabProject($this->gitLabProjectId)],
+                [self::getMockedGitLabProject(self::$gitLabProjectId)],
                 // Inputs.
                 [
                     // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
@@ -72,8 +70,8 @@ class CodeStudioPipelinesMigrateCommandTest extends CommandTestBase
                 ],
                 // Args.
                 [
-                    '--key' => $this->key,
-                    '--secret' => $this->secret,
+                    '--key' => self::$key,
+                    '--secret' => self::$secret,
                 ],
             ],
         ];
@@ -100,7 +98,7 @@ class CodeStudioPipelinesMigrateCommandTest extends CommandTestBase
         $this->mockGitLabUsersMe($gitlabClient);
         $this->mockRequest('getAccount');
         $this->mockGitLabPermissionsRequest($this::$applicationUuid);
-        $projects = $this->mockGetGitLabProjects($this::$applicationUuid, $this->gitLabProjectId, $mockedGitlabProjects);
+        $projects = $this->mockGetGitLabProjects($this::$applicationUuid, self::$gitLabProjectId, $mockedGitlabProjects);
         $gitlabCicdVariables = [
             [
                 'key' => 'ACQUIA_APPLICATION_UUID',
@@ -145,9 +143,9 @@ class CodeStudioPipelinesMigrateCommandTest extends CommandTestBase
                 'variable_type' => 'env_var',
             ],
         ];
-        $projects->variables($this->gitLabProjectId)
+        $projects->variables(self::$gitLabProjectId)
             ->willReturn($gitlabCicdVariables);
-        $projects->update($this->gitLabProjectId, Argument::type('array'));
+        $projects->update(self::$gitLabProjectId, Argument::type('array'));
         $gitlabClient->projects()->willReturn($projects);
         $localMachineHelper->getFilesystem()
             ->willReturn(new Filesystem())

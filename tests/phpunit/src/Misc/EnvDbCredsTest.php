@@ -25,14 +25,14 @@ class EnvDbCredsTest extends CommandTestBase
         $this->dbPassword = 'mypasswordisgreat';
         $this->dbName = 'mynameisgrand';
         $this->dbHost = 'myhostismeh';
-        TestBase::setEnvVars($this->getEnvVars());
+        self::setEnvVars($this->getEnvVars());
         parent::setUp();
     }
 
     public function tearDown(): void
     {
         parent::tearDown();
-        TestBase::unsetEnvVars($this->getEnvVars());
+        self::unsetEnvVars($this->getEnvVars());
     }
 
     /**

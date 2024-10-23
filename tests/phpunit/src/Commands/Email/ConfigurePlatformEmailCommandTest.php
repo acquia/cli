@@ -87,7 +87,7 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase
     /**
      * @return array<mixed>
      */
-    public function providerTestConfigurePlatformEmail(): array
+    public static function providerTestConfigurePlatformEmail(): array
     {
 
         return [
@@ -189,7 +189,7 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase
     /**
      * @return array<mixed>
      */
-    public function providerTestConfigurePlatformEmailEnableEnv(): array
+    public static function providerTestConfigurePlatformEmailEnableEnv(): array
     {
         return [
             [
@@ -249,23 +249,23 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase
         $localMachineHelper = $this->mockLocalMachineHelper();
         $mockFileSystem = $this->mockGetFilesystem($localMachineHelper);
 
-        $subscriptionsResponse = $this->getMockResponseFromSpec('/subscriptions', 'get', '200');
+        $subscriptionsResponse = self::getMockResponseFromSpec('/subscriptions', 'get', '200');
         $this->clientProphecy->request('get', '/subscriptions')
         ->willReturn($subscriptionsResponse->{'_embedded'}->items)
         ->shouldBeCalledTimes(1);
 
-        $postDomainsResponse = $this->getMockResponseFromSpec('/subscriptions/{subscriptionUuid}/domains', 'post', '200');
+        $postDomainsResponse = self::getMockResponseFromSpec('/subscriptions/{subscriptionUuid}/domains', 'post', '200');
         $this->clientProphecy->request('post', "/subscriptions/{$subscriptionsResponse->_embedded->items[0]->uuid}/domains", [
             'form_params' => [
                 'domain' => $baseDomain,
             ],
         ])->willReturn($postDomainsResponse);
 
-        $getDomainsResponse = $this->getMockResponseFromSpec('/subscriptions/{subscriptionUuid}/domains', 'get', '200');
+        $getDomainsResponse = self::getMockResponseFromSpec('/subscriptions/{subscriptionUuid}/domains', 'get', '200');
         $getDomainsResponse->_embedded->items[0]->domain_name = 'test.com';
         $this->clientProphecy->request('get', "/subscriptions/{$subscriptionsResponse->_embedded->items[0]->uuid}/domains")->willReturn($getDomainsResponse->_embedded->items);
 
-        $domainsRegistrationResponse = $this->getMockResponseFromSpec('/subscriptions/{subscriptionUuid}/domains/{domainRegistrationUuid}', 'get', '200');
+        $domainsRegistrationResponse = self::getMockResponseFromSpec('/subscriptions/{subscriptionUuid}/domains/{domainRegistrationUuid}', 'get', '200');
         $domainsRegistrationResponse->health->code = $responseCode;
         $this->clientProphecy->request('get', "/subscriptions/{$subscriptionsResponse->_embedded->items[0]->uuid}/domains/{$getDomainsResponse->_embedded->items[0]->uuid}")
         ->willReturn($domainsRegistrationResponse);
@@ -277,7 +277,7 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase
         $mockFileSystem->dumpFile('dns-records.' . $fileDumpFormat, $fileDump)->shouldBeCalled();
 
         if ($responseCode == '404') {
-            $reverifyResponse = $this->getMockResponseFromSpec('/subscriptions/{subscriptionUuid}/domains/{domainRegistrationUuid}/actions/verify', 'post', '200');
+            $reverifyResponse = self::getMockResponseFromSpec('/subscriptions/{subscriptionUuid}/domains/{domainRegistrationUuid}/actions/verify', 'post', '200');
             $this->clientProphecy->request('post', "/subscriptions/{$subscriptionsResponse->_embedded->items[0]->uuid}/domains/{$getDomainsResponse->_embedded->items[0]->uuid}/actions/verify")
             ->willReturn($reverifyResponse);
         } elseif ($responseCode == '200') {
@@ -285,10 +285,10 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase
             // We need the application to belong to the subscription.
             $applicationsResponse->_embedded->items[0]->subscription->uuid = $subscriptionsResponse->_embedded->items[0]->uuid;
 
-            $associateResponse = $this->getMockResponseFromSpec('/applications/{applicationUuid}/email/domains/{domainRegistrationUuid}/actions/associate', 'post', '200');
+            $associateResponse = self::getMockResponseFromSpec('/applications/{applicationUuid}/email/domains/{domainRegistrationUuid}/actions/associate', 'post', '200');
             $this->clientProphecy->request('post', "/applications/{$applicationsResponse->_embedded->items[0]->uuid}/email/domains/{$getDomainsResponse->_embedded->items[0]->uuid}/actions/associate")->willReturn($associateResponse);
             $environmentsResponse = $this->mockEnvironmentsRequest($applicationsResponse);
-            $enableResponse = $this->getMockResponseFromSpec('/environments/{environmentId}/email/actions/enable', 'post', '200');
+            $enableResponse = self::getMockResponseFromSpec('/environments/{environmentId}/email/actions/enable', 'post', '200');
             $this->clientProphecy->request('post', "/environments/{$environmentsResponse->_embedded->items[0]->id}/email/actions/enable")->willReturn($enableResponse);
         }
 
@@ -322,23 +322,23 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase
         $localMachineHelper = $this->mockLocalMachineHelper();
         $mockFileSystem = $this->mockGetFilesystem($localMachineHelper);
 
-        $subscriptionsResponse = $this->getMockResponseFromSpec('/subscriptions', 'get', '200');
+        $subscriptionsResponse = self::getMockResponseFromSpec('/subscriptions', 'get', '200');
         $this->clientProphecy->request('get', '/subscriptions')
         ->willReturn($subscriptionsResponse->{'_embedded'}->items)
         ->shouldBeCalledTimes(1);
 
-        $postDomainsResponse = $this->getMockResponseFromSpec('/subscriptions/{subscriptionUuid}/domains', 'post', '200');
+        $postDomainsResponse = self::getMockResponseFromSpec('/subscriptions/{subscriptionUuid}/domains', 'post', '200');
         $this->clientProphecy->request('post', "/subscriptions/{$subscriptionsResponse->_embedded->items[0]->uuid}/domains", [
             'form_params' => [
                 'domain' => 'test.com',
             ],
         ])->willReturn($postDomainsResponse);
 
-        $getDomainsResponse = $this->getMockResponseFromSpec('/subscriptions/{subscriptionUuid}/domains', 'get', '200');
+        $getDomainsResponse = self::getMockResponseFromSpec('/subscriptions/{subscriptionUuid}/domains', 'get', '200');
         $getDomainsResponse->_embedded->items[0]->domain_name = 'test.com';
         $this->clientProphecy->request('get', "/subscriptions/{$subscriptionsResponse->_embedded->items[0]->uuid}/domains")->willReturn($getDomainsResponse->_embedded->items);
 
-        $domainsRegistrationResponse = $this->getMockResponseFromSpec('/subscriptions/{subscriptionUuid}/domains/{domainRegistrationUuid}', 'get', '200');
+        $domainsRegistrationResponse = self::getMockResponseFromSpec('/subscriptions/{subscriptionUuid}/domains/{domainRegistrationUuid}', 'get', '200');
         $domainsRegistrationResponse200 = $domainsRegistrationResponse;
         $domainsRegistrationResponse200->health->code = '200';
         // Passing in two responses will return the first response the first time
@@ -356,17 +356,17 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase
         $applicationsResponse->_embedded->items[0]->subscription->uuid = $subscriptionsResponse->_embedded->items[0]->uuid;
         $applicationsResponse->_embedded->items[1]->subscription->uuid = $subscriptionsResponse->_embedded->items[0]->uuid;
 
-        $associateResponse = $this->getMockResponseFromSpec('/applications/{applicationUuid}/email/domains/{domainRegistrationUuid}/actions/associate', 'post', '200');
+        $associateResponse = self::getMockResponseFromSpec('/applications/{applicationUuid}/email/domains/{domainRegistrationUuid}/actions/associate', 'post', '200');
         $this->clientProphecy->request('post', "/applications/{$applicationsResponse->_embedded->items[0]->uuid}/email/domains/{$getDomainsResponse->_embedded->items[0]->uuid}/actions/associate")->willReturn($associateResponse);
         $this->clientProphecy->request('post', "/applications/{$applicationsResponse->_embedded->items[1]->uuid}/email/domains/{$getDomainsResponse->_embedded->items[1]->uuid}/actions/associate")->willReturn($associateResponse);
 
-        $environmentResponseApp1 = $this->getMockEnvironmentsResponse();
+        $environmentResponseApp1 = self::getMockEnvironmentsResponse();
         $environmentResponseApp2 = $environmentResponseApp1;
 
         $this->clientProphecy->request('get', "/applications/{$applicationsResponse->_embedded->items[0]->uuid}/environments")->willReturn($environmentResponseApp1->_embedded->items);
         $this->clientProphecy->request('get', "/applications/{$applicationsResponse->_embedded->items[1]->uuid}/environments")->willReturn($environmentResponseApp2->_embedded->items);
 
-        $enableResponse = $this->getMockResponseFromSpec('/environments/{environmentId}/email/actions/enable', 'post', '200');
+        $enableResponse = self::getMockResponseFromSpec('/environments/{environmentId}/email/actions/enable', 'post', '200');
         $this->clientProphecy->request('post', "/environments/{$environmentResponseApp1->_embedded->items[0]->id}/email/actions/enable")->willReturn($enableResponse);
         $this->clientProphecy->request('post', "/environments/{$environmentResponseApp1->_embedded->items[1]->id}/email/actions/enable")->willReturn($enableResponse);
 
@@ -396,23 +396,23 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase
             'y',
         ];
 
-        $subscriptionsResponse = $this->getMockResponseFromSpec('/subscriptions', 'get', '200');
+        $subscriptionsResponse = self::getMockResponseFromSpec('/subscriptions', 'get', '200');
         $this->clientProphecy->request('get', '/subscriptions')
         ->willReturn($subscriptionsResponse->{'_embedded'}->items)
         ->shouldBeCalledTimes(1);
 
-        $postDomainsResponse = $this->getMockResponseFromSpec('/subscriptions/{subscriptionUuid}/domains', 'post', '200');
+        $postDomainsResponse = self::getMockResponseFromSpec('/subscriptions/{subscriptionUuid}/domains', 'post', '200');
         $this->clientProphecy->request('post', "/subscriptions/{$subscriptionsResponse->_embedded->items[0]->uuid}/domains", [
             'form_params' => [
                 'domain' => $baseDomain,
             ],
         ])->willReturn($postDomainsResponse);
 
-        $getDomainsResponse = $this->getMockResponseFromSpec('/subscriptions/{subscriptionUuid}/domains', 'get', '200');
+        $getDomainsResponse = self::getMockResponseFromSpec('/subscriptions/{subscriptionUuid}/domains', 'get', '200');
         $getDomainsResponse->_embedded->items[0]->domain_name = 'test.com';
         $this->clientProphecy->request('get', "/subscriptions/{$subscriptionsResponse->_embedded->items[0]->uuid}/domains")->willReturn($getDomainsResponse->_embedded->items);
 
-        $domainsRegistrationResponse = $this->getMockResponseFromSpec('/subscriptions/{subscriptionUuid}/domains/{domainRegistrationUuid}', 'get', '200');
+        $domainsRegistrationResponse = self::getMockResponseFromSpec('/subscriptions/{subscriptionUuid}/domains/{domainRegistrationUuid}', 'get', '200');
         $domainsRegistrationResponse200 = $domainsRegistrationResponse;
         $domainsRegistrationResponse200->health->code = '200';
 
@@ -448,19 +448,19 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase
             'y',
         ];
 
-        $subscriptionsResponse = $this->getMockResponseFromSpec('/subscriptions', 'get', '200');
+        $subscriptionsResponse = self::getMockResponseFromSpec('/subscriptions', 'get', '200');
         $this->clientProphecy->request('get', '/subscriptions')
         ->willReturn($subscriptionsResponse->{'_embedded'}->items)
         ->shouldBeCalledTimes(1);
 
-        $postDomainsResponse = $this->getMockResponseFromSpec('/subscriptions/{subscriptionUuid}/domains', 'post', '200');
+        $postDomainsResponse = self::getMockResponseFromSpec('/subscriptions/{subscriptionUuid}/domains', 'post', '200');
         $this->clientProphecy->request('post', "/subscriptions/{$subscriptionsResponse->_embedded->items[0]->uuid}/domains", [
             'form_params' => [
                 'domain' => $baseDomain,
             ],
         ])->willReturn($postDomainsResponse);
 
-        $getDomainsResponse = $this->getMockResponseFromSpec('/subscriptions/{subscriptionUuid}/domains', 'get', '200');
+        $getDomainsResponse = self::getMockResponseFromSpec('/subscriptions/{subscriptionUuid}/domains', 'get', '200');
         $getDomainsResponse->_embedded->items[0]->domain_name = 'mismatch-test.com';
         $this->clientProphecy->request('get', "/subscriptions/{$subscriptionsResponse->_embedded->items[0]->uuid}/domains")->willReturn($getDomainsResponse->_embedded->items);
 
@@ -483,23 +483,23 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase
             'y',
         ];
 
-        $subscriptionsResponse = $this->getMockResponseFromSpec('/subscriptions', 'get', '200');
+        $subscriptionsResponse = self::getMockResponseFromSpec('/subscriptions', 'get', '200');
         $this->clientProphecy->request('get', '/subscriptions')
         ->willReturn($subscriptionsResponse->{'_embedded'}->items)
         ->shouldBeCalledTimes(1);
 
-        $postDomainsResponse = $this->getMockResponseFromSpec('/subscriptions/{subscriptionUuid}/domains', 'post', '200');
+        $postDomainsResponse = self::getMockResponseFromSpec('/subscriptions/{subscriptionUuid}/domains', 'post', '200');
         $this->clientProphecy->request('post', "/subscriptions/{$subscriptionsResponse->_embedded->items[0]->uuid}/domains", [
             'form_params' => [
                 'domain' => $baseDomain,
             ],
         ])->willReturn($postDomainsResponse);
 
-        $getDomainsResponse = $this->getMockResponseFromSpec('/subscriptions/{subscriptionUuid}/domains', 'get', '200');
+        $getDomainsResponse = self::getMockResponseFromSpec('/subscriptions/{subscriptionUuid}/domains', 'get', '200');
         $getDomainsResponse->_embedded->items[0]->domain_name = 'test.com';
         $this->clientProphecy->request('get', "/subscriptions/{$subscriptionsResponse->_embedded->items[0]->uuid}/domains")->willReturn($getDomainsResponse->_embedded->items);
 
-        $domainsRegistrationResponse404 = $this->getMockResponseFromSpec('/subscriptions/{subscriptionUuid}/domains/{domainRegistrationUuid}', 'get', '404');
+        $domainsRegistrationResponse404 = self::getMockResponseFromSpec('/subscriptions/{subscriptionUuid}/domains/{domainRegistrationUuid}', 'get', '404');
 
         $this->clientProphecy->request('get', "/subscriptions/{$subscriptionsResponse->_embedded->items[0]->uuid}/domains/{$getDomainsResponse->_embedded->items[0]->uuid}")->willReturn($domainsRegistrationResponse404);
         $this->expectException(AcquiaCliException::class);
@@ -527,22 +527,22 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase
         // What are the environments you'd like to enable email for? You may enter multiple separated by a comma.
             '0',
         ];
-        $subscriptionsResponse = $this->getMockResponseFromSpec('/subscriptions', 'get', '200');
+        $subscriptionsResponse = self::getMockResponseFromSpec('/subscriptions', 'get', '200');
         $this->clientProphecy->request('get', '/subscriptions')
         ->willReturn($subscriptionsResponse->{'_embedded'}->items);
 
-        $postDomainsResponse = $this->getMockResponseFromSpec('/subscriptions/{subscriptionUuid}/domains', 'post', '200');
+        $postDomainsResponse = self::getMockResponseFromSpec('/subscriptions/{subscriptionUuid}/domains', 'post', '200');
         $this->clientProphecy->request('post', "/subscriptions/{$subscriptionsResponse->_embedded->items[0]->uuid}/domains", [
             'form_params' => [
                 'domain' => 'test.com',
             ],
         ])->willReturn($postDomainsResponse);
 
-        $getDomainsResponse = $this->getMockResponseFromSpec('/subscriptions/{subscriptionUuid}/domains', 'get', '200');
+        $getDomainsResponse = self::getMockResponseFromSpec('/subscriptions/{subscriptionUuid}/domains', 'get', '200');
         $getDomainsResponse->_embedded->items[0]->domain_name = 'test.com';
         $this->clientProphecy->request('get', "/subscriptions/{$subscriptionsResponse->_embedded->items[0]->uuid}/domains")->willReturn($getDomainsResponse->_embedded->items);
 
-        $domainsRegistrationResponse = $this->getMockResponseFromSpec('/subscriptions/{subscriptionUuid}/domains/{domainRegistrationUuid}', 'get', '200');
+        $domainsRegistrationResponse = self::getMockResponseFromSpec('/subscriptions/{subscriptionUuid}/domains/{domainRegistrationUuid}', 'get', '200');
         $domainsRegistrationResponse200 = $domainsRegistrationResponse;
         $domainsRegistrationResponse200->health->code = '200';
 
@@ -553,17 +553,17 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase
         $mockFileSystem->dumpFile('dns-records.json', self::JSON_TEST_OUTPUT)->shouldBeCalled();
         $applicationsResponse = $this->mockApplicationsRequest();
 
-        $appDomainsResponse = $this->getMockResponseFromSpec('/applications/{applicationUuid}/email/domains', 'get', '200');
+        $appDomainsResponse = self::getMockResponseFromSpec('/applications/{applicationUuid}/email/domains', 'get', '200');
         $appDomainsResponse->_embedded->items[0]->domain_name = 'test.com';
         $this->clientProphecy->request('get', "/applications/{$applicationsResponse->_embedded->items[0]->uuid}/email/domains")->willReturn($appDomainsResponse->_embedded->items);
         // We need the application to belong to the subscription.
         $applicationsResponse->_embedded->items[0]->subscription->uuid = $subscriptionsResponse->_embedded->items[0]->uuid;
 
-        $associateResponse = $this->getMockResponseFromSpec('/applications/{applicationUuid}/email/domains/{domainRegistrationUuid}/actions/associate', 'post', '200');
+        $associateResponse = self::getMockResponseFromSpec('/applications/{applicationUuid}/email/domains/{domainRegistrationUuid}/actions/associate', 'post', '200');
         $this->clientProphecy->request('post', "/applications/{$applicationsResponse->_embedded->items[0]->uuid}/email/domains/{$getDomainsResponse->_embedded->items[0]->uuid}/actions/associate")->willReturn($associateResponse);
 
         $environmentsResponse = $this->mockEnvironmentsRequest($applicationsResponse);
-        $enableResponse = $this->getMockResponseFromSpec('/environments/{environmentId}/email/actions/enable', 'post', '200');
+        $enableResponse = self::getMockResponseFromSpec('/environments/{environmentId}/email/actions/enable', 'post', '200');
         $this->clientProphecy->request('post', "/environments/{$environmentsResponse->_embedded->items[0]->id}/email/actions/enable")->willReturn($enableResponse);
 
         $this->executeCommand([], $inputs);
@@ -578,23 +578,23 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase
      */
     public function testConfigurePlatformEmailWithAlreadyEnabledEnvs(mixed $baseDomain, mixed $inputs, mixed $expectedExitCode, mixed $responseCode, mixed $specKey, mixed $expectedText): void
     {
-        $subscriptionsResponse = $this->getMockResponseFromSpec('/subscriptions', 'get', '200');
+        $subscriptionsResponse = self::getMockResponseFromSpec('/subscriptions', 'get', '200');
         $this->clientProphecy->request('get', '/subscriptions')
         ->willReturn($subscriptionsResponse->{'_embedded'}->items)
         ->shouldBeCalledTimes(1);
 
-        $postDomainsResponse = $this->getMockResponseFromSpec('/subscriptions/{subscriptionUuid}/domains', 'post', '200');
+        $postDomainsResponse = self::getMockResponseFromSpec('/subscriptions/{subscriptionUuid}/domains', 'post', '200');
         $this->clientProphecy->request('post', "/subscriptions/{$subscriptionsResponse->_embedded->items[0]->uuid}/domains", [
             'form_params' => [
                 'domain' => $baseDomain,
             ],
         ])->willReturn($postDomainsResponse);
 
-        $getDomainsResponse = $this->getMockResponseFromSpec('/subscriptions/{subscriptionUuid}/domains', 'get', '200');
+        $getDomainsResponse = self::getMockResponseFromSpec('/subscriptions/{subscriptionUuid}/domains', 'get', '200');
         $getDomainsResponse->_embedded->items[0]->domain_name = 'example.com';
         $this->clientProphecy->request('get', "/subscriptions/{$subscriptionsResponse->_embedded->items[0]->uuid}/domains")->willReturn($getDomainsResponse->_embedded->items);
 
-        $domainsRegistrationResponse = $this->getMockResponseFromSpec('/subscriptions/{subscriptionUuid}/domains/{domainRegistrationUuid}', 'get', '200');
+        $domainsRegistrationResponse = self::getMockResponseFromSpec('/subscriptions/{subscriptionUuid}/domains/{domainRegistrationUuid}', 'get', '200');
         $domainsRegistrationResponse200 = $domainsRegistrationResponse;
         $domainsRegistrationResponse200->health->code = '200';
 
@@ -602,19 +602,19 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase
 
         $applicationsResponse = $this->mockApplicationsRequest();
 
-        $appDomainsResponse = $this->getMockResponseFromSpec('/applications/{applicationUuid}/email/domains', 'get', '200');
+        $appDomainsResponse = self::getMockResponseFromSpec('/applications/{applicationUuid}/email/domains', 'get', '200');
         $appDomainsResponse->_embedded->items[0]->domain_name = 'example.com';
         $this->clientProphecy->request('get', "/applications/{$applicationsResponse->_embedded->items[0]->uuid}/email/domains")->willReturn($appDomainsResponse->_embedded->items);
         // We need the application to belong to the subscription.
         $applicationsResponse->_embedded->items[0]->subscription->uuid = $subscriptionsResponse->_embedded->items[0]->uuid;
 
-        $associateResponse = $this->getMockResponseFromSpec('/applications/{applicationUuid}/email/domains/{domainRegistrationUuid}/actions/associate', 'post', '409');
+        $associateResponse = self::getMockResponseFromSpec('/applications/{applicationUuid}/email/domains/{domainRegistrationUuid}/actions/associate', 'post', '409');
 
         $this->clientProphecy->request('post', "/applications/{$applicationsResponse->_embedded->items[0]->uuid}/email/domains/{$getDomainsResponse->_embedded->items[0]->uuid}/actions/associate")
         ->willThrow(new ApiErrorException($associateResponse->{'Already associated'}->value));
 
         $environmentsResponse = $this->mockEnvironmentsRequest($applicationsResponse);
-        $enableResponse = $this->getMockResponseFromSpec('/environments/{environmentId}/email/actions/enable', 'post', $responseCode);
+        $enableResponse = self::getMockResponseFromSpec('/environments/{environmentId}/email/actions/enable', 'post', $responseCode);
         $this->clientProphecy->request('post', "/environments/{$environmentsResponse->_embedded->items[0]->id}/email/actions/enable")
         ->willThrow(new ApiErrorException($enableResponse->{$specKey}->value));
 

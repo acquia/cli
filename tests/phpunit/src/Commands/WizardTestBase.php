@@ -25,7 +25,7 @@ abstract class WizardTestBase extends CommandTestBase
      */
     public function setUp(): void
     {
-        TestBase::setEnvVars(self::getEnvVars());
+        self::setEnvVars(self::getEnvVars());
         parent::setUp();
         $this->getCommandTester();
         $this->application->addCommands([
@@ -38,7 +38,7 @@ abstract class WizardTestBase extends CommandTestBase
     protected function tearDown(): void
     {
         parent::tearDown();
-        TestBase::unsetEnvVars(self::getEnvVars());
+        self::unsetEnvVars(self::getEnvVars());
     }
 
     /**
@@ -53,11 +53,11 @@ abstract class WizardTestBase extends CommandTestBase
 
     protected function runTestCreate(): void
     {
-        $environmentsResponse = $this->getMockEnvironmentsResponse();
+        $environmentsResponse = self::getMockEnvironmentsResponse();
         $this->clientProphecy->request('get', "/applications/" . $this::$applicationUuid . "/environments")
             ->willReturn($environmentsResponse->_embedded->items)
             ->shouldBeCalled();
-        $request = $this->getMockRequestBodyFromSpec('/account/ssh-keys');
+        $request = self::getMockRequestBodyFromSpec('/account/ssh-keys');
 
         $body = [
             'json' => [
@@ -108,8 +108,8 @@ abstract class WizardTestBase extends CommandTestBase
 
     protected function runTestSshKeyAlreadyUploaded(): void
     {
-        $mockRequestArgs = $this->getMockRequestBodyFromSpec('/account/ssh-keys');
-        $sshKeysResponse = $this->getMockResponseFromSpec('/account/ssh-keys', 'get', '200');
+        $mockRequestArgs = self::getMockRequestBodyFromSpec('/account/ssh-keys');
+        $sshKeysResponse = self::getMockResponseFromSpec('/account/ssh-keys', 'get', '200');
         // Make the uploaded key match the created one.
         $sshKeysResponse->_embedded->items[0]->public_key = $mockRequestArgs['public_key'];
         $this->clientProphecy->request('get', '/account/ssh-keys')
@@ -126,7 +126,7 @@ abstract class WizardTestBase extends CommandTestBase
             ->willReturn($deleteResponse->reveal())
             ->shouldBeCalled();
 
-        $environmentsResponse = $this->getMockEnvironmentsResponse();
+        $environmentsResponse = self::getMockEnvironmentsResponse();
         $this->clientProphecy->request('get', "/applications/" . $this::$applicationUuid . "/environments")
             ->willReturn($environmentsResponse->_embedded->items)
             ->shouldBeCalled();

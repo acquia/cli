@@ -37,8 +37,8 @@ class AuthLoginCommandTest extends CommandTestBase
         $this->command = $this->createCommand();
 
         $this->executeCommand([
-            '--key' => $this->key,
-            '--secret' => $this->secret,
+            '--key' => self::$key,
+            '--secret' => self::$secret,
         ]);
         $output = $this->getDisplay();
 
@@ -59,8 +59,8 @@ class AuthLoginCommandTest extends CommandTestBase
         $this->command = $this->createCommand();
 
         $this->executeCommand([
-            '--key' => $this->key,
-            '--secret' => $this->secret,
+            '--key' => self::$key,
+            '--secret' => self::$secret,
         ]);
         $output = $this->getDisplay();
 
@@ -68,22 +68,22 @@ class AuthLoginCommandTest extends CommandTestBase
         $this->assertKeySavedCorrectly();
     }
 
-    public function providerTestAuthLoginInvalidInputCommand(): Generator
+    public static function providerTestAuthLoginInvalidInputCommand(): Generator
     {
         yield
         [
             [],
-            ['--key' => 'no spaces are allowed', '--secret' => $this->secret],
+            ['--key' => 'no spaces are allowed', '--secret' => self::$secret],
         ];
         yield
         [
             [],
-            ['--key' => 'shorty', '--secret' => $this->secret],
+            ['--key' => 'shorty', '--secret' => self::$secret],
         ];
         yield
         [
             [],
-            ['--key' => ' ', '--secret' => $this->secret],
+            ['--key' => ' ', '--secret' => self::$secret],
         ];
     }
 
@@ -137,12 +137,12 @@ class AuthLoginCommandTest extends CommandTestBase
         $this->assertFileExists($credsFile);
         $config = new CloudDataStore($this->localMachineHelper, new CloudDataConfig(), $credsFile);
         $this->assertTrue($config->exists('acli_key'));
-        $this->assertEquals($this->key, $config->get('acli_key'));
+        $this->assertEquals(self::$key, $config->get('acli_key'));
         $this->assertTrue($config->exists('keys'));
         $keys = $config->get('keys');
-        $this->assertArrayHasKey($this->key, $keys);
-        $this->assertArrayHasKey('label', $keys[$this->key]);
-        $this->assertArrayHasKey('secret', $keys[$this->key]);
-        $this->assertEquals($this->secret, $keys[$this->key]['secret']);
+        $this->assertArrayHasKey(self::$key, $keys);
+        $this->assertArrayHasKey('label', $keys[self::$key]);
+        $this->assertArrayHasKey('secret', $keys[self::$key]);
+        $this->assertEquals(self::$secret, $keys[self::$key]['secret']);
     }
 }

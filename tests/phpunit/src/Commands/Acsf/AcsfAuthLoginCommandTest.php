@@ -24,7 +24,7 @@ class AcsfAuthLoginCommandTest extends AcsfCommandTestBase
     /**
      * @return array<mixed>
      */
-    public function providerTestAuthLoginCommand(): array
+    public static function providerTestAuthLoginCommand(): array
     {
         return [
             // Data set 0.
@@ -36,11 +36,11 @@ class AcsfAuthLoginCommandTest extends AcsfCommandTestBase
                     // Would you like to share anonymous performance usage and data? (yes/no) [yes].
                     'yes',
                     // Enter the full URL of the factory.
-                    $this->acsfCurrentFactoryUrl,
+                    self::$acsfCurrentFactoryUrl,
                     // Enter a value for username.
-                    $this->acsfUsername,
+                    self::$acsfUsername,
                     // Enter a value for key.
-                    $this->acsfKey,
+                    self::$acsfKey,
                 ],
                 // No arguments, all interactive.
                 [],
@@ -56,16 +56,16 @@ class AcsfAuthLoginCommandTest extends AcsfCommandTestBase
                 // Arguments.
                 [
                     // Enter the full URL of the factory.
-                    '--factory-url' => $this->acsfCurrentFactoryUrl,
+                    '--factory-url' => self::$acsfCurrentFactoryUrl,
                     // Enter a value for key.
-                    '--key' => $this->acsfKey,
+                    '--key' => self::$acsfKey,
                     // Enter a value for username.
-                    '--username' => $this->acsfUsername,
+                    '--username' => self::$acsfUsername,
                 ],
                 // Output to assert.
                 'Saved credentials',
                 // $config.
-                $this->getAcsfCredentialsFileContents(),
+                AcsfCommandTestBase::getAcsfCredentialsFileContents(),
             ],
             // Data set 2.
             [
@@ -74,16 +74,16 @@ class AcsfAuthLoginCommandTest extends AcsfCommandTestBase
                 // $inputs
                 [
                     // Choose a factory to log in to.
-                    $this->acsfCurrentFactoryUrl,
+                    self::$acsfCurrentFactoryUrl,
                     // Choose which user to log in as.
-                    $this->acsfUsername,
+                    self::$acsfUsername,
                 ],
                 // Arguments.
                 [],
                 // Output to assert.
-                "Acquia CLI is now logged in to $this->acsfCurrentFactoryUrl as $this->acsfUsername",
+                'Acquia CLI is now logged in to ' . self::$acsfCurrentFactoryUrl . ' as ' . self::$acsfUsername,
                 // $config.
-                $this->getAcsfCredentialsFileContents(),
+                AcsfCommandTestBase::getAcsfCredentialsFileContents(),
             ],
         ];
     }
@@ -112,9 +112,9 @@ class AcsfAuthLoginCommandTest extends AcsfCommandTestBase
             $this->assertStringContainsString('Enter your Site Factory key (option -k, --key) (input will be hidden):', $output);
         }
         $this->assertKeySavedCorrectly();
-        $this->assertEquals($this->acsfActiveUser, $this->cloudCredentials->getCloudKey());
-        $this->assertEquals($this->acsfKey, $this->cloudCredentials->getCloudSecret());
-        $this->assertEquals($this->acsfCurrentFactoryUrl, $this->cloudCredentials->getBaseUri());
+        $this->assertEquals(self::$acsfActiveUser, $this->cloudCredentials->getCloudKey());
+        $this->assertEquals(self::$acsfKey, $this->cloudCredentials->getCloudSecret());
+        $this->assertEquals(self::$acsfCurrentFactoryUrl, $this->cloudCredentials->getBaseUri());
     }
 
     protected function assertKeySavedCorrectly(): void
@@ -130,13 +130,13 @@ class AcsfAuthLoginCommandTest extends AcsfCommandTestBase
         $factory = $factories[$factoryUrl];
         $this->assertArrayHasKey('users', $factory);
         $this->assertArrayHasKey('active_user', $factory);
-        $this->assertEquals($this->acsfUsername, $factory['active_user']);
+        $this->assertEquals(self::$acsfUsername, $factory['active_user']);
         $users = $factory['users'];
         $this->assertArrayHasKey($factory['active_user'], $users);
         $user = $users[$factory['active_user']];
         $this->assertArrayHasKey('username', $user);
         $this->assertArrayHasKey('key', $user);
-        $this->assertEquals($this->acsfUsername, $user['username']);
-        $this->assertEquals($this->acsfKey, $user['key']);
+        $this->assertEquals(self::$acsfUsername, $user['username']);
+        $this->assertEquals(self::$acsfKey, $user['key']);
     }
 }

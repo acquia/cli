@@ -28,7 +28,7 @@ class ClearCacheCommandTest extends CommandTestBase
         $this->command = $this->injectCommand(IdeListCommand::class);
 
         // Request for applications.
-        $applicationsResponse = $this->getMockResponseFromSpec(
+        $applicationsResponse = self::getMockResponseFromSpec(
             '/applications',
             'get',
             '200'

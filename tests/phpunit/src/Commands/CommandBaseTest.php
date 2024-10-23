@@ -51,7 +51,7 @@ class CommandBaseTest extends CommandTestBase
     /**
      * @return string[][]
      */
-    public function providerTestCloudAppUuidArg(): array
+    public static function providerTestCloudAppUuidArg(): array
     {
         return [
             ['a47ac10b-58cc-4372-a567-0e02b2c3d470'],
@@ -72,7 +72,7 @@ class CommandBaseTest extends CommandTestBase
     /**
      * @return array<mixed>
      */
-    public function providerTestInvalidCloudAppUuidArg(): array
+    public static function providerTestInvalidCloudAppUuidArg(): array
     {
         return [
             [
@@ -99,7 +99,7 @@ class CommandBaseTest extends CommandTestBase
     /**
      * @return array<mixed>
      */
-    public function providerTestInvalidCloudEnvironmentAlias(): array
+    public static function providerTestInvalidCloudEnvironmentAlias(): array
     {
         return [
             [

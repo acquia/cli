@@ -381,7 +381,7 @@ abstract class PullCommandTestBase extends CommandTestBase
             $this->httpClientProphecy->request('GET', 'https://other.example.com/download-backup', Argument::type('array'))
                 ->willReturn($response->reveal())
                 ->shouldBeCalled();
-            $domainsResponse = $this->getMockResponseFromSpec('/environments/{environmentId}/domains', 'get', 200);
+            $domainsResponse = self::getMockResponseFromSpec('/environments/{environmentId}/domains', 'get', 200);
             $this->clientProphecy->request('get', "/environments/$environment->id/domains")
                 ->willReturn($domainsResponse->_embedded->items);
             $this->command->setBackupDownloadUrl(new Uri('https://www.example.com/download-backup'));

@@ -21,10 +21,11 @@ class SshKeyUploadCommandTest extends CommandTestBase
 
     /**
      * @return array<mixed>
+     * @throws \Psr\Cache\InvalidArgumentException
      */
-    public function providerTestUpload(): array
+    public static function providerTestUpload(): array
     {
-        $sshKeysRequestBody = $this->getMockRequestBodyFromSpec('/account/ssh-keys');
+        $sshKeysRequestBody = self::getMockRequestBodyFromSpec('/account/ssh-keys');
         return [
             [
                 // Args.
@@ -67,7 +68,7 @@ class SshKeyUploadCommandTest extends CommandTestBase
      */
     public function testUpload(array $args, array $inputs, bool $perms): void
     {
-        $sshKeysRequestBody = $this->getMockRequestBodyFromSpec('/account/ssh-keys');
+        $sshKeysRequestBody = self::getMockRequestBodyFromSpec('/account/ssh-keys');
         $body = [
             'json' => [
                 'label' => $sshKeysRequestBody['label'],
@@ -111,7 +112,7 @@ class SshKeyUploadCommandTest extends CommandTestBase
     // Ensure permission checks aren't against a Node environment.
     public function testUploadNode(): void
     {
-        $sshKeysRequestBody = $this->getMockRequestBodyFromSpec('/account/ssh-keys');
+        $sshKeysRequestBody = self::getMockRequestBodyFromSpec('/account/ssh-keys');
         $body = [
             'json' => [
                 'label' => $sshKeysRequestBody['label'],

@@ -23,7 +23,7 @@ class LocalMachineHelperTest extends TestBase
     /**
      * @return bool[][]
      */
-    public function providerTestExecuteFromCmd(): array
+    public static function providerTestExecuteFromCmd(): array
     {
         return [
             [false, null, null],

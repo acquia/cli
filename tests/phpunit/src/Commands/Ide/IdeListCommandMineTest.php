@@ -20,7 +20,7 @@ class IdeListCommandMineTest extends CommandTestBase
 
     public function testIdeListMineCommand(): void
     {
-        $applicationsResponse = $this->getMockResponseFromSpec('/applications', 'get', '200');
+        $applicationsResponse = self::getMockResponseFromSpec('/applications', 'get', '200');
         $idesResponse = $this->mockAccountIdeListRequest();
         foreach ($idesResponse->{'_embedded'}->items as $key => $ide) {
             $applicationResponse = $applicationsResponse->{'_embedded'}->items[$key];
@@ -61,7 +61,7 @@ class IdeListCommandMineTest extends CommandTestBase
 
     protected function mockAccountIdeListRequest(): object
     {
-        $response = $this->getMockResponseFromSpec(
+        $response = self::getMockResponseFromSpec(
             '/account/ides',
             'get',
             '200'

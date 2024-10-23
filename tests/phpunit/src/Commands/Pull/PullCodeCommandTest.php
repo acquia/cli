@@ -224,7 +224,7 @@ class PullCodeCommandTest extends PullCommandTestBase
     /**
      * @return string[][]
      */
-    public function providerTestMatchPhpVersion(): array
+    public static function providerTestMatchPhpVersion(): array
     {
         return [
             ['7.1'],

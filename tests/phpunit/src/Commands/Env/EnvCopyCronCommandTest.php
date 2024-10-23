@@ -22,8 +22,8 @@ class EnvCopyCronCommandTest extends CommandTestBase
 
     public function testCopyCronTasksCommandTest(): void
     {
-        $environmentsResponse = $this->getMockEnvironmentsResponse();
-        $sourceCronsListResponse = $this->getMockResponseFromSpec('/environments/{environmentId}/crons', 'get', '200');
+        $environmentsResponse = self::getMockEnvironmentsResponse();
+        $sourceCronsListResponse = self::getMockResponseFromSpec('/environments/{environmentId}/crons', 'get', '200');
         $this->clientProphecy->request(
             'get',
             '/environments/' . $environmentsResponse->{'_embedded'}->items[0]->id . '/crons'
@@ -31,7 +31,7 @@ class EnvCopyCronCommandTest extends CommandTestBase
             ->willReturn($sourceCronsListResponse->{'_embedded'}->items)
             ->shouldBeCalled();
 
-        $createCronResponse = $this->getMockResponseFromSpec('/environments/{environmentId}/crons', 'post', '202');
+        $createCronResponse = self::getMockResponseFromSpec('/environments/{environmentId}/crons', 'post', '202');
         $this->clientProphecy->request(
             'post',
             '/environments/' . $environmentsResponse->{'_embedded'}->items[2]->id . '/crons',
@@ -75,7 +75,7 @@ class EnvCopyCronCommandTest extends CommandTestBase
      */
     public function testNoCronJobOnSource(): void
     {
-        $environmentsResponse = $this->getMockEnvironmentsResponse();
+        $environmentsResponse = self::getMockEnvironmentsResponse();
         $this->clientProphecy->request(
             'get',
             '/environments/' . $environmentsResponse->{'_embedded'}->items[0]->id . '/crons'
@@ -104,8 +104,8 @@ class EnvCopyCronCommandTest extends CommandTestBase
      */
     public function testExceptionOnCronJobCopy(): void
     {
-        $environmentsResponse = $this->getMockEnvironmentsResponse();
-        $sourceCronsListResponse = $this->getMockResponseFromSpec('/environments/{environmentId}/crons', 'get', '200');
+        $environmentsResponse = self::getMockEnvironmentsResponse();
+        $sourceCronsListResponse = self::getMockResponseFromSpec('/environments/{environmentId}/crons', 'get', '200');
         $this->clientProphecy->request(
             'get',
             '/environments/' . $environmentsResponse->{'_embedded'}->items[0]->id . '/crons'
@@ -113,7 +113,7 @@ class EnvCopyCronCommandTest extends CommandTestBase
             ->willReturn($sourceCronsListResponse->{'_embedded'}->items)
             ->shouldBeCalled();
 
-        $this->getMockResponseFromSpec('/environments/{environmentId}/crons', 'post', '202');
+        self::getMockResponseFromSpec('/environments/{environmentId}/crons', 'post', '202');
         $this->clientProphecy->request(
             'post',
             '/environments/' . $environmentsResponse->{'_embedded'}->items[2]->id . '/crons',

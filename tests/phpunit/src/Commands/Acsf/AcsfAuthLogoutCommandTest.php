@@ -24,7 +24,7 @@ class AcsfAuthLogoutCommandTest extends AcsfCommandTestBase
     /**
      * @return array<mixed>
      */
-    public function providerTestAuthLogoutCommand(): array
+    public static function providerTestAuthLogoutCommand(): array
     {
         return [
             // Data set 0.
@@ -44,7 +44,7 @@ class AcsfAuthLogoutCommandTest extends AcsfCommandTestBase
                     0,
                 ],
                 // $config.
-                $this->getAcsfCredentialsFileContents(),
+                AcsfCommandTestBase::getAcsfCredentialsFileContents(),
             ],
         ];
     }

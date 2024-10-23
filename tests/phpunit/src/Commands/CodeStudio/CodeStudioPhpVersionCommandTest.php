@@ -21,7 +21,7 @@ class CodeStudioPhpVersionCommandTest extends CommandTestBase
 
     private string $gitLabToken = 'gitlabtoken';
 
-    private int $gitLabProjectId = 33;
+    private static int $gitLabProjectId = 33;
 
     public static string $applicationUuid = 'a47ac10b-58cc-4372-a567-0e02b2c3d470';
 
@@ -33,7 +33,7 @@ class CodeStudioPhpVersionCommandTest extends CommandTestBase
     /**
      * @return array<mixed>
      */
-    public function providerTestPhpVersionFailure(): array
+    public static function providerTestPhpVersionFailure(): array
     {
         return [
             ['', ValidatorException::class],
@@ -67,8 +67,8 @@ class CodeStudioPhpVersionCommandTest extends CommandTestBase
         $this->mockGitLabUsersMe($gitlabClient);
         $projects = $this->mockGetGitLabProjects(
             self::$applicationUuid,
-            $this->gitLabProjectId,
-            [$this->getMockedGitLabProject($this->gitLabProjectId)],
+            self::$gitLabProjectId,
+            [self::getMockedGitLabProject(self::$gitLabProjectId)],
         );
 
         $gitlabClient->projects()->willReturn($projects);
@@ -93,17 +93,17 @@ class CodeStudioPhpVersionCommandTest extends CommandTestBase
         $this->mockApplicationRequest();
         $gitlabClient = $this->prophet->prophesize(Client::class);
         $this->mockGitLabUsersMe($gitlabClient);
-        $mockedProject = $this->getMockedGitLabProject($this->gitLabProjectId);
+        $mockedProject = self::getMockedGitLabProject(self::$gitLabProjectId);
         $mockedProject['jobs_enabled'] = true;
         $projects = $this->mockGetGitLabProjects(
             self::$applicationUuid,
-            $this->gitLabProjectId,
+            self::$gitLabProjectId,
             [$mockedProject],
         );
 
-        $projects->variables($this->gitLabProjectId)
+        $projects->variables(self::$gitLabProjectId)
             ->willReturn($this->getMockGitLabVariables());
-        $projects->addVariable($this->gitLabProjectId, Argument::type('string'), Argument::type('string'))
+        $projects->addVariable(self::$gitLabProjectId, Argument::type('string'), Argument::type('string'))
             ->willThrow(RuntimeException::class);
 
         $gitlabClient->projects()->willReturn($projects);
@@ -127,17 +127,17 @@ class CodeStudioPhpVersionCommandTest extends CommandTestBase
         $this->mockApplicationRequest();
         $gitlabClient = $this->prophet->prophesize(Client::class);
         $this->mockGitLabUsersMe($gitlabClient);
-        $mockedProject = $this->getMockedGitLabProject($this->gitLabProjectId);
+        $mockedProject = self::getMockedGitLabProject(self::$gitLabProjectId);
         $mockedProject['jobs_enabled'] = true;
         $projects = $this->mockGetGitLabProjects(
             self::$applicationUuid,
-            $this->gitLabProjectId,
+            self::$gitLabProjectId,
             [$mockedProject],
         );
 
-        $projects->variables($this->gitLabProjectId)
+        $projects->variables(self::$gitLabProjectId)
             ->willReturn($this->getMockGitLabVariables());
-        $projects->addVariable($this->gitLabProjectId, Argument::type('string'), Argument::type('string'));
+        $projects->addVariable(self::$gitLabProjectId, Argument::type('string'), Argument::type('string'));
 
         $gitlabClient->projects()->willReturn($projects);
 
@@ -161,11 +161,11 @@ class CodeStudioPhpVersionCommandTest extends CommandTestBase
         $this->mockApplicationRequest();
         $gitlabClient = $this->prophet->prophesize(Client::class);
         $this->mockGitLabUsersMe($gitlabClient);
-        $mockedProject = $this->getMockedGitLabProject($this->gitLabProjectId);
+        $mockedProject = self::getMockedGitLabProject(self::$gitLabProjectId);
         $mockedProject['jobs_enabled'] = true;
         $projects = $this->mockGetGitLabProjects(
             self::$applicationUuid,
-            $this->gitLabProjectId,
+            self::$gitLabProjectId,
             [$mockedProject],
         );
 
@@ -178,8 +178,8 @@ class CodeStudioPhpVersionCommandTest extends CommandTestBase
             'value' => '8.1',
             'variable_type' => 'env_var',
         ];
-        $projects->variables($this->gitLabProjectId)->willReturn($variables);
-        $projects->updateVariable($this->gitLabProjectId, Argument::type('string'), Argument::type('string'))
+        $projects->variables(self::$gitLabProjectId)->willReturn($variables);
+        $projects->updateVariable(self::$gitLabProjectId, Argument::type('string'), Argument::type('string'))
             ->willThrow(RuntimeException::class);
 
         $gitlabClient->projects()->willReturn($projects);
@@ -203,11 +203,11 @@ class CodeStudioPhpVersionCommandTest extends CommandTestBase
         $this->mockApplicationRequest();
         $gitlabClient = $this->prophet->prophesize(Client::class);
         $this->mockGitLabUsersMe($gitlabClient);
-        $mockedProject = $this->getMockedGitLabProject($this->gitLabProjectId);
+        $mockedProject = self::getMockedGitLabProject(self::$gitLabProjectId);
         $mockedProject['jobs_enabled'] = true;
         $projects = $this->mockGetGitLabProjects(
             self::$applicationUuid,
-            $this->gitLabProjectId,
+            self::$gitLabProjectId,
             [$mockedProject],
         );
 
@@ -220,8 +220,8 @@ class CodeStudioPhpVersionCommandTest extends CommandTestBase
             'value' => '8.1',
             'variable_type' => 'env_var',
         ];
-        $projects->variables($this->gitLabProjectId)->willReturn($variables);
-        $projects->updateVariable($this->gitLabProjectId, Argument::type('string'), Argument::type('string'));
+        $projects->variables(self::$gitLabProjectId)->willReturn($variables);
+        $projects->updateVariable(self::$gitLabProjectId, Argument::type('string'), Argument::type('string'));
 
         $gitlabClient->projects()->willReturn($projects);
 

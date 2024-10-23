@@ -17,6 +17,7 @@ use Acquia\Cli\Helpers\DataStoreContract;
 use Acquia\Cli\Helpers\LocalMachineHelper;
 use Acquia\Cli\Helpers\SshHelper;
 use Acquia\Cli\Helpers\TelemetryHelper;
+use Acquia\Cli\Tests\Commands\Acsf\AcsfCommandTestBase;
 use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Exception\ApiErrorException;
 use Closure;
@@ -49,7 +50,7 @@ use Symfony\Component\Process\Process;
  */
 abstract class TestBase extends TestCase
 {
-    protected string $apiSpecFixtureFilePath = __DIR__ . '/../../../assets/acquia-spec.json';
+    protected static string $apiSpecFixtureFilePath = __DIR__ . '/../../../assets/acquia-spec.json';
 
     protected ConsoleOutput $consoleOutput;
 
@@ -69,9 +70,9 @@ abstract class TestBase extends TestCase
 
     protected Client|ObjectProphecy $clientProphecy;
 
-    protected string $key = '17feaf34-5d04-402b-9a67-15d5161d24e1';
+    protected static string $key = '17feaf34-5d04-402b-9a67-15d5161d24e1';
 
-    protected string $secret = 'X1u\/PIQXtYaoeui.4RJSJpGZjwmWYmfl5AUQkAebYE=';
+    protected static string $secret = 'X1u\/PIQXtYaoeui.4RJSJpGZjwmWYmfl5AUQkAebYE=';
 
     protected string $dataDir;
 
@@ -260,9 +261,12 @@ abstract class TestBase extends TestCase
         $this->sshHelper = new SshHelper($this->output, $this->localMachineHelper, $this->logger);
     }
 
-    protected function getResourceFromSpec(mixed $path, mixed $method): mixed
+    /**
+     * @throws \Psr\Cache\InvalidArgumentException
+     */
+    protected static function getResourceFromSpec(string $path, string $method, ?bool $acsf = false): mixed
     {
-        $acquiaCloudSpec = $this->getCloudApiSpec();
+        $acquiaCloudSpec = self::getCloudApiSpec($acsf);
         return $acquiaCloudSpec['paths'][$path][$method];
     }
 
@@ -277,9 +281,9 @@ abstract class TestBase extends TestCase
      * @param $httpCode
      * @see CXAPI-7208
      */
-    public function getMockResponseFromSpec(mixed $path, mixed $method, mixed $httpCode): object
+    public static function getMockResponseFromSpec(mixed $path, mixed $method, mixed $httpCode, ?bool $acsf = false): object
     {
-        $endpoint = $this->getResourceFromSpec($path, $method);
+        $endpoint = self::getResourceFromSpec($path, $method, $acsf);
         $response = $endpoint['responses'][$httpCode];
         if (array_key_exists('application/hal+json', $response['content'])) {
             $content = $response['content']['application/hal+json'];
@@ -297,7 +301,7 @@ abstract class TestBase extends TestCase
         ) {
             $ref = $content['schema']['$ref'];
             $paramKey = str_replace('#/components/schemas/', '', $ref);
-            $spec = $this->getCloudApiSpec();
+            $spec = self::getCloudApiSpec($acsf);
             return (object) $spec['components']['schemas'][$paramKey]['properties'];
         } else {
             return (object) [];
@@ -311,7 +315,7 @@ abstract class TestBase extends TestCase
      */
     protected function getPathMethodCodeFromSpec(string $operationId): array
     {
-        $acquiaCloudSpec = $this->getCloudApiSpec();
+        $acquiaCloudSpec = self::getCloudApiSpec();
         foreach ($acquiaCloudSpec['paths'] as $path => $methodEndpoint) {
             foreach ($methodEndpoint as $method => $endpoint) {
                 if ($endpoint['operationId'] === $operationId) {
@@ -351,9 +355,12 @@ abstract class TestBase extends TestCase
         );
     }
 
-    public function getMockRequestBodyFromSpec(string $path, string $method = 'post'): mixed
+    /**
+     * @throws \Psr\Cache\InvalidArgumentException
+     */
+    public static function getMockRequestBodyFromSpec(string $path, string $method = 'post'): mixed
     {
-        $endpoint = $this->getResourceFromSpec($path, $method);
+        $endpoint = self::getResourceFromSpec($path, $method);
         if (array_key_exists('application/json', $endpoint['requestBody']['content'])) {
             return $endpoint['requestBody']['content']['application/json']['example'];
         }
@@ -361,35 +368,46 @@ abstract class TestBase extends TestCase
         return $endpoint['requestBody']['content']['application/hal+json']['example'];
     }
 
-    protected function getCloudApiSpec(): mixed
+    /**
+     * @throws \Psr\Cache\InvalidArgumentException
+     */
+    protected static function getCloudApiSpec(?bool $acsf = false): mixed
     {
         // We cache the yaml file because it's 20k+ lines and takes FOREVER
         // to parse when xDebug is enabled.
-        $acquiaCloudSpecFile = $this->apiSpecFixtureFilePath;
+        $acquiaCloudSpecFile = self::$apiSpecFixtureFilePath;
+        if ($acsf) {
+            $acquiaCloudSpecFile = AcsfCommandTestBase::$apiSpecFixtureFilePath;
+        }
         $acquiaCloudSpecFileChecksum = md5_file($acquiaCloudSpecFile);
 
         $cacheKey = basename($acquiaCloudSpecFile);
         $cache = new PhpArrayAdapter(__DIR__ . '/../../../var/cache/' . $cacheKey . '.cache', new FilesystemAdapter());
-        $isCommandCacheValid = $this->isApiSpecCacheValid($cache, $cacheKey, $acquiaCloudSpecFileChecksum);
+        $isCommandCacheValid = self::isApiSpecCacheValid($cache, $cacheKey, $acquiaCloudSpecFileChecksum);
         $apiSpecCacheItem = $cache->getItem($cacheKey);
         if ($isCommandCacheValid && $apiSpecCacheItem->isHit()) {
             return $apiSpecCacheItem->get();
         }
         $apiSpec = json_decode(file_get_contents($acquiaCloudSpecFile), true);
-        $this->saveApiSpecCacheItems($cache, $acquiaCloudSpecFileChecksum, $apiSpecCacheItem, $apiSpec);
+        self::saveApiSpecCacheItems($cache, $acquiaCloudSpecFileChecksum, $apiSpecCacheItem, $apiSpec);
 
         return $apiSpec;
     }
 
-    private function isApiSpecCacheValid(PhpArrayAdapter $cache, mixed $cacheKey, string $acquiaCloudSpecFileChecksum): bool
+    /**
+     * @throws \Psr\Cache\InvalidArgumentException
+     */
+    private static function isApiSpecCacheValid(PhpArrayAdapter $cache, mixed $cacheKey, string $acquiaCloudSpecFileChecksum): bool
     {
         $apiSpecChecksumItem = $cache->getItem($cacheKey . '.checksum');
         // If there's an invalid entry OR there's no entry, return false.
-        return !(!$apiSpecChecksumItem->isHit() || ($apiSpecChecksumItem->isHit()
-                && $apiSpecChecksumItem->get() !== $acquiaCloudSpecFileChecksum));
+        return !(!$apiSpecChecksumItem->isHit() || ($apiSpecChecksumItem->get() !== $acquiaCloudSpecFileChecksum));
     }
 
-    private function saveApiSpecCacheItems(
+    /**
+     * @throws \Psr\Cache\InvalidArgumentException
+     */
+    private static function saveApiSpecCacheItems(
         PhpArrayAdapter $cache,
         string $acquiaCloudSpecFileChecksum,
         CacheItem $apiSpecCacheItem,
@@ -422,12 +440,12 @@ abstract class TestBase extends TestCase
     {
         if (!$cloudConfig) {
             $cloudConfig = [
-                'acli_key' => $this->key,
+                'acli_key' => self::$key,
                 'keys' => [
-                    (string) ($this->key) => [
+                    (string) (self::$key) => [
                         'label' => 'Test Key',
-                        'secret' => $this->secret,
-                        'uuid' => $this->key,
+                        'secret' => self::$secret,
+                        'uuid' => self::$key,
                     ],
                 ],
                 DataStoreContract::SEND_TELEMETRY => false,
@@ -471,7 +489,7 @@ abstract class TestBase extends TestCase
         if (count($params) !== substr_count($path, '{')) {
             throw new RuntimeException('Invalid number of parameters');
         }
-        $response = $this->getMockResponseFromSpec($path, $method, $code);
+        $response = self::getMockResponseFromSpec($path, $method, $code);
 
         // This is a set of example responses.
         if (isset($exampleResponse) && property_exists($response, $exampleResponse)) {
@@ -500,7 +518,7 @@ abstract class TestBase extends TestCase
     public function mockApplicationsRequest(int $count = 2, bool $unique = true): object
     {
         // Request for applications.
-        $applicationsResponse = $this->getMockResponseFromSpec(
+        $applicationsResponse = self::getMockResponseFromSpec(
             '/applications',
             'get',
             '200'
@@ -544,7 +562,7 @@ abstract class TestBase extends TestCase
 
     protected function mockApplicationRequest(): object
     {
-        $applicationsResponse = $this->getMockResponseFromSpec(
+        $applicationsResponse = self::getMockResponseFromSpec(
             '/applications',
             'get',
             '200'
@@ -562,7 +580,7 @@ abstract class TestBase extends TestCase
 
     protected function mockPermissionsRequest(mixed $applicationResponse, mixed $perms = true): object
     {
-        $permissionsResponse = $this->getMockResponseFromSpec(
+        $permissionsResponse = self::getMockResponseFromSpec(
             "/applications/{applicationUuid}/permissions",
             'get',
             '200'
@@ -592,7 +610,7 @@ abstract class TestBase extends TestCase
     public function mockEnvironmentsRequest(
         object $applicationsResponse
     ): object {
-        $response = $this->getMockEnvironmentsResponse();
+        $response = self::getMockEnvironmentsResponse();
         $this->clientProphecy->request(
             'get',
             "/applications/{$applicationsResponse->{'_embedded'}->items[0]->uuid}/environments"
@@ -605,16 +623,16 @@ abstract class TestBase extends TestCase
 
     protected function getMockEnvironmentResponse(string $method = 'get', string $httpCode = '200'): object
     {
-        return $this->getMockResponseFromSpec(
+        return self::getMockResponseFromSpec(
             '/environments/{environmentId}',
             $method,
             $httpCode
         );
     }
 
-    protected function getMockEnvironmentsResponse(): object
+    protected static function getMockEnvironmentsResponse(): object
     {
-        return $this->getMockResponseFromSpec(
+        return self::getMockResponseFromSpec(
             '/applications/{applicationUuid}/environments',
             'get',
             200
@@ -631,7 +649,7 @@ abstract class TestBase extends TestCase
 
     protected function mockListSshKeysRequestWithIdeKey(string $ideLabel, string $ideUuid): object
     {
-        $mockBody = $this->getMockResponseFromSpec('/account/ssh-keys', 'get', '200');
+        $mockBody = self::getMockResponseFromSpec('/account/ssh-keys', 'get', '200');
         $mockBody->{'_embedded'}->items[0]->label = preg_replace('/\W/', '', 'IDE_' . $ideLabel . '_' . $ideUuid);
         $this->clientProphecy->request('get', '/account/ssh-keys')
             ->willReturn($mockBody->{'_embedded'}->items)
@@ -692,7 +710,7 @@ abstract class TestBase extends TestCase
     protected function mockListSshKeyRequestWithUploadedKey(
         mixed $mockRequestArgs
     ): void {
-        $mockBody = $this->getMockResponseFromSpec(
+        $mockBody = self::getMockResponseFromSpec(
             '/account/ssh-keys',
             'get',
             '200'
