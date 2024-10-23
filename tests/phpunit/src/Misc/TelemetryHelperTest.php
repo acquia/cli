@@ -19,7 +19,7 @@ class TelemetryHelperTest extends TestBase
             $envVars = array_merge($envVars, $args[1]);
         }
 
-        self::unsetEnvVars($envVars);
+        TestBase::unsetEnvVars($envVars);
     }
 
     public function unsetGitHubEnvVars(): void
@@ -31,7 +31,7 @@ class TelemetryHelperTest extends TestBase
         foreach ($providers['github'] as $var) {
             $github_env_vars[$var] = self::ENV_VAR_DEFAULT_VALUE;
         }
-        self::unsetEnvVars($github_env_vars);
+        TestBase::unsetEnvVars($github_env_vars);
     }
 
     /**
@@ -58,7 +58,7 @@ class TelemetryHelperTest extends TestBase
     public function testEnvironmentProvider(string $provider, array $envVars): void
     {
         $this->unsetGitHubEnvVars();
-        self::setEnvVars($envVars);
+        TestBase::setEnvVars($envVars);
         $this->assertEquals($provider, TelemetryHelper::getEnvironmentProvider());
     }
 
