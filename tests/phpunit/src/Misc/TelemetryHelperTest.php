@@ -15,7 +15,7 @@ class TelemetryHelperTest extends TestBase
     {
         parent::tearDown();
         $envVars = [];
-        foreach ($this->providerTestEnvironmentProvider() as $args) {
+        foreach (self::providerTestEnvironmentProvider() as $args) {
             $envVars = array_merge($envVars, $args[1]);
         }
 
