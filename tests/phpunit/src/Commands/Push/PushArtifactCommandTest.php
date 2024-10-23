@@ -24,9 +24,19 @@ class PushArtifactCommandTest extends PullCommandTestBase
         return $this->injectCommand(PushArtifactCommand::class);
     }
 
-    public function testNoAuthenticationRequired(): void
+    public function testPushArtifactHelp(): void
     {
         $help = $this->command->getHelp();
+        $expectedHelp = <<<EOF
+This command builds a sanitized deploy artifact by running <options=bold>composer install</>, removing sensitive files, and committing vendor directories.
+
+Vendor directories and scaffold files are committed to the build artifact even if they are ignored in the source repository.
+
+To run additional build or sanitization steps (e.g. <options=bold>npm install</>), add a <options=bold>post-install-cmd</> script to your <options=bold>composer.json</> file: https://getcomposer.org/doc/articles/scripts.md#command-events
+
+This command is designed for a specific scenario in which there are two branches or repositories involved: a source branch without vendor files committed, and an artifact branch with them. If both your source and destination branches are the same, you should simply use git push instead.
+EOF;
+        self::assertStringContainsStringIgnoringLineEndings($expectedHelp, $help);
         $this->assertStringNotContainsString('This command requires authentication', $help);
     }
 
