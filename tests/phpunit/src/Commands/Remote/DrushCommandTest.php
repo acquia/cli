@@ -22,7 +22,7 @@ class DrushCommandTest extends SshCommandTestBase
     /**
      * @return array<array<array<string>>>
      */
-    public function providerTestRemoteDrushCommand(): array
+    public static function providerTestRemoteDrushCommand(): array
     {
         return [
             [

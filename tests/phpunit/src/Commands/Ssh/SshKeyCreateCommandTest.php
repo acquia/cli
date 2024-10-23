@@ -15,7 +15,7 @@ use Symfony\Component\Filesystem\Path;
  */
 class SshKeyCreateCommandTest extends CommandTestBase
 {
-    protected string $filename = 'id_rsa_acli_test';
+    protected static string $filename = 'id_rsa_acli_test';
 
     protected function createCommand(): CommandBase
     {
@@ -25,14 +25,14 @@ class SshKeyCreateCommandTest extends CommandTestBase
     /**
      * @return array<mixed>
      */
-    public function providerTestCreate(): array
+    public static function providerTestCreate(): array
     {
         return [
             [
                 true,
                 // Args.
                 [
-                    '--filename' => $this->filename,
+                    '--filename' => self::$filename,
                     '--password' => 'acli123',
                 ],
                 // Inputs.
@@ -45,7 +45,7 @@ class SshKeyCreateCommandTest extends CommandTestBase
                 // Inputs.
                 [
                     // Enter a filename for your new local SSH key:
-                    $this->filename,
+                    self::$filename,
                     // Enter a password for your SSH key:
                     'acli123',
                 ],
@@ -57,7 +57,7 @@ class SshKeyCreateCommandTest extends CommandTestBase
                 // Inputs.
                 [
                     // Enter a filename for your new local SSH key:
-                    $this->filename,
+                    self::$filename,
                     // Enter a password for your SSH key:
                     'acli123',
                 ],
@@ -71,7 +71,7 @@ class SshKeyCreateCommandTest extends CommandTestBase
      */
     public function testCreate(mixed $sshAddSuccess, mixed $args, mixed $inputs): void
     {
-        $sshKeyFilepath = Path::join($this->sshDir, '/' . $this->filename);
+        $sshKeyFilepath = Path::join($this->sshDir, '/' . self::$filename);
         $this->fs->remove($sshKeyFilepath);
         $localMachineHelper = $this->mockLocalMachineHelper();
         $localMachineHelper->getLocalFilepath('~/.passphrase')

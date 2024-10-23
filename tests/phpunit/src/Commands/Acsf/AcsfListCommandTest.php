@@ -25,6 +25,9 @@ class AcsfListCommandTest extends AcsfCommandTestBase
         return $this->injectCommand(AcsfListCommand::class);
     }
 
+    /**
+     * @throws \Exception
+     */
     public function testAcsfListCommand(): void
     {
         $this->executeCommand();
@@ -34,6 +37,9 @@ class AcsfListCommandTest extends AcsfCommandTestBase
         $this->assertStringContainsString('acsf:info:audit-events-find', $output);
     }
 
+    /**
+     * @throws \Exception
+     */
     public function testApiNamespaceListCommand(): void
     {
         $this->command = $this->injectCommand(AcsfListCommandBase::class);
@@ -46,6 +52,9 @@ class AcsfListCommandTest extends AcsfCommandTestBase
         $this->assertStringNotContainsString('acsf:groups', $output);
     }
 
+    /**
+     * @throws \Exception
+     */
     public function testListCommand(): void
     {
         $this->command = $this->injectCommand(ListCommand::class);

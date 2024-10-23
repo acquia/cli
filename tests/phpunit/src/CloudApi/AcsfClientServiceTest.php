@@ -14,14 +14,14 @@ use GuzzleHttp\Psr7\Response;
 
 class AcsfClientServiceTest extends TestBase
 {
-    protected string $apiSpecFixtureFilePath = __DIR__ . '/../../../../assets/acsf-spec.json';
+    protected static string $apiSpecFixtureFilePath = __DIR__ . '/../../../../assets/acsf-spec.json';
 
     protected string $apiCommandPrefix = 'acsf';
 
     /**
      * @return array<mixed>
      */
-    public function providerTestIsMachineAuthenticated(): array
+    public static function providerTestIsMachineAuthenticated(): array
     {
         return [
             [

@@ -24,7 +24,7 @@ class PushDatabaseCommandTest extends CommandTestBase
     /**
      * @return mixed[]
      */
-    public function providerTestPushDatabase(): array
+    public static function providerTestPushDatabase(): array
     {
         return [
             [OutputInterface::VERBOSITY_NORMAL, false, false],

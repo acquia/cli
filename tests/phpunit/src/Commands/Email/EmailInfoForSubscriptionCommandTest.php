@@ -34,9 +34,9 @@ class EmailInfoForSubscriptionCommandTest extends CommandTestBase
         ];
         $subscriptions = $this->mockRequest('getSubscriptions');
 
-        $getDomainsResponse = $this->getMockResponseFromSpec('/subscriptions/{subscriptionUuid}/domains', 'get', '200');
+        $getDomainsResponse = self::getMockResponseFromSpec('/subscriptions/{subscriptionUuid}/domains', 'get', '200');
         // Duplicating the request to ensure there is at least one domain with a successful, pending, and failed health code.
-        $getDomainsResponse2 = $this->getMockResponseFromSpec('/subscriptions/{subscriptionUuid}/domains', 'get', '200');
+        $getDomainsResponse2 = self::getMockResponseFromSpec('/subscriptions/{subscriptionUuid}/domains', 'get', '200');
         $totalDomainsList = array_merge($getDomainsResponse->_embedded->items, $getDomainsResponse2->_embedded->items);
         $this->clientProphecy->request('get', "/subscriptions/{$subscriptions[0]->uuid}/domains")
             ->willReturn($totalDomainsList);
@@ -51,9 +51,9 @@ class EmailInfoForSubscriptionCommandTest extends CommandTestBase
 
         $applicationsResponse->_embedded->items[0]->subscription->uuid = $subscriptions[0]->uuid;
 
-        $getAppDomainsResponse = $this->getMockResponseFromSpec('/applications/{applicationUuid}/email/domains', 'get', '200');
+        $getAppDomainsResponse = self::getMockResponseFromSpec('/applications/{applicationUuid}/email/domains', 'get', '200');
         // Duplicating the request to ensure added domains are included in association list.
-        $getAppDomainsResponse2 = $this->getMockResponseFromSpec('/applications/{applicationUuid}/email/domains', 'get', '200');
+        $getAppDomainsResponse2 = self::getMockResponseFromSpec('/applications/{applicationUuid}/email/domains', 'get', '200');
         $totalAppDomainsList = array_merge($getAppDomainsResponse->_embedded->items, $getAppDomainsResponse2->_embedded->items);
         $this->clientProphecy->request('get', "/applications/{$applicationsResponse->_embedded->items[0]->uuid}/email/domains")
             ->willReturn($totalAppDomainsList);
@@ -88,7 +88,7 @@ class EmailInfoForSubscriptionCommandTest extends CommandTestBase
         ];
         $subscriptions = $this->mockRequest('getSubscriptions');
 
-        $getDomainsResponse = $this->getMockResponseFromSpec('/subscriptions/{subscriptionUuid}/domains', 'get', '200');
+        $getDomainsResponse = self::getMockResponseFromSpec('/subscriptions/{subscriptionUuid}/domains', 'get', '200');
         $this->clientProphecy->request('get', "/subscriptions/{$subscriptions[0]->uuid}/domains")
             ->willReturn($getDomainsResponse->_embedded->items);
 
@@ -109,15 +109,15 @@ class EmailInfoForSubscriptionCommandTest extends CommandTestBase
         ];
         $subscriptions = $this->mockRequest('getSubscriptions');
 
-        $getDomainsResponse = $this->getMockResponseFromSpec('/subscriptions/{subscriptionUuid}/domains', 'get', '200');
+        $getDomainsResponse = self::getMockResponseFromSpec('/subscriptions/{subscriptionUuid}/domains', 'get', '200');
         $this->clientProphecy->request('get', "/subscriptions/{$subscriptions[0]->uuid}/domains")
             ->willReturn($getDomainsResponse->_embedded->items);
 
-        $applicationsResponse = $this->getMockResponseFromSpec('/applications', 'get', '200');
+        $applicationsResponse = self::getMockResponseFromSpec('/applications', 'get', '200');
         $applicationsResponse->_embedded->items[0]->subscription->uuid = $subscriptions[0]->uuid;
         $applicationsResponse->_embedded->items[1]->subscription->uuid = $subscriptions[0]->uuid;
 
-        $app = $this->getMockResponseFromSpec('/applications/{applicationUuid}', 'get', '200');
+        $app = self::getMockResponseFromSpec('/applications/{applicationUuid}', 'get', '200');
         for ($i = 2; $i < 101; $i++) {
             $applicationsResponse->_embedded->items[$i] = $app;
             $applicationsResponse->_embedded->items[$i]->subscription->uuid = $subscriptions[0]->uuid;
@@ -160,7 +160,7 @@ class EmailInfoForSubscriptionCommandTest extends CommandTestBase
         ];
         $subscriptions = $this->mockRequest('getSubscriptions');
 
-        $getDomainsResponse = $this->getMockResponseFromSpec('/subscriptions/{subscriptionUuid}/domains', 'get', '200');
+        $getDomainsResponse = self::getMockResponseFromSpec('/subscriptions/{subscriptionUuid}/domains', 'get', '200');
         $this->clientProphecy->request('get', "/subscriptions/{$subscriptions[0]->uuid}/domains")
             ->willReturn($getDomainsResponse->_embedded->items);
 

@@ -23,7 +23,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase
     /**
      * @return int[][]
      */
-    public function providerTestPullDatabaseWithInvalidSslCertificate(): array
+    public static function providerTestPullDatabaseWithInvalidSslCertificate(): array
     {
         return [[51], [60]];
     }

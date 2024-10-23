@@ -34,7 +34,7 @@ class ConfigurationTest extends TestCase
     /**
      * @return array<mixed>
      */
-    public function getTestConfigurations(): array
+    public static function getTestConfigurations(): array
     {
         return [
             'bad JSON in configuration file' => [

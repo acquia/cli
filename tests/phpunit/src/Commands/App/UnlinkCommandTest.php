@@ -21,7 +21,7 @@ class UnlinkCommandTest extends CommandTestBase
 
     public function testUnlinkCommand(): void
     {
-        $applicationsResponse = $this->getMockResponseFromSpec(
+        $applicationsResponse = self::getMockResponseFromSpec(
             '/applications',
             'get',
             '200'

@@ -9,15 +9,15 @@ use Acquia\Cli\Tests\TestBase;
 
 class EnvVarAcsfAuthenticationTest extends TestBase
 {
-    private string $acsfCurrentFactoryUrl = 'https://www.test-something.com';
+    private static string $acsfCurrentFactoryUrl = 'https://www.test-something.com';
 
     public function setUp(mixed $output = null): void
     {
         parent::setUp();
         $this->cloudCredentials = new AcsfCredentials($this->datastoreCloud);
-        putenv('ACSF_USERNAME=' . $this->key);
-        putenv('ACSF_KEY=' . $this->secret);
-        putenv('ACSF_FACTORY_URI=' . $this->acsfCurrentFactoryUrl);
+        putenv('ACSF_USERNAME=' . self::$key);
+        putenv('ACSF_KEY=' . self::$secret);
+        putenv('ACSF_FACTORY_URI=' . self::$acsfCurrentFactoryUrl);
     }
 
     protected function tearDown(): void
@@ -30,8 +30,8 @@ class EnvVarAcsfAuthenticationTest extends TestBase
     public function testKeyAndSecret(): void
     {
         $this->removeMockCloudConfigFile();
-        self::assertEquals($this->key, $this->cloudCredentials->getCloudKey());
-        self::assertEquals($this->secret, $this->cloudCredentials->getCloudSecret());
-        self::assertEquals($this->acsfCurrentFactoryUrl, $this->cloudCredentials->getBaseUri());
+        self::assertEquals(self::$key, $this->cloudCredentials->getCloudKey());
+        self::assertEquals(self::$secret, $this->cloudCredentials->getCloudSecret());
+        self::assertEquals(self::$acsfCurrentFactoryUrl, $this->cloudCredentials->getBaseUri());
     }
 }

@@ -31,7 +31,7 @@ class NewFromDrupal7CommandTest extends CommandTestBase
     /**
      * @return array<mixed>
      */
-    public function provideTestNewFromDrupal7Command(): array
+    public static function provideTestNewFromDrupal7Command(): array
     {
         $repo_root = dirname(dirname(dirname(dirname(dirname(dirname(__FILE__))))));
         // Windows accepts paths with either slash (/) or backslash (\), but will

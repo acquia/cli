@@ -47,7 +47,7 @@ class DefinedRecommendationTest extends TestCase
     /**
      * @return array<mixed>
      */
-    public function getTestConfigurations(): array
+    public static function getTestConfigurations(): array
     {
         // phpcs:disable SlevomatCodingStandard.Arrays.AlphabeticallySortedByKeys
         return [

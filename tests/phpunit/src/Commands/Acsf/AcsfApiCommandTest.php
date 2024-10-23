@@ -29,15 +29,19 @@ class AcsfApiCommandTest extends AcsfCommandTestBase
 
     protected function createCommand(): CommandBase
     {
-        $this->createMockCloudConfigFile($this->getAcsfCredentialsFileContents());
+        $this->createMockCloudConfigFile(AcsfCommandTestBase::getAcsfCredentialsFileContents());
         $this->cloudCredentials = new AcsfCredentials($this->datastoreCloud);
         $this->setClientProphecies();
         return $this->injectCommand(ApiBaseCommand::class);
     }
 
+    /**
+     * @throws \JsonException
+     * @throws \Exception
+     */
     public function testAcsfCommandExecutionForHttpPostWithMultipleDataTypes(): void
     {
-        $mockBody = $this->getMockResponseFromSpec('/api/v1/groups/{group_id}/members', 'post', '200');
+        $mockBody = self::getMockResponseFromSpec('/api/v1/groups/{group_id}/members', 'post', '200', true);
         $this->clientProphecy->request('post', '/api/v1/groups/1/members')
             ->willReturn($mockBody)
             ->shouldBeCalled();
@@ -50,14 +54,11 @@ class AcsfApiCommandTest extends AcsfCommandTestBase
             // group_id.
             '1',
         ]);
-
-        // Assert.
-        $output = $this->getDisplay();
     }
 
     public function testAcsfCommandExecutionBool(): void
     {
-        $mockBody = $this->getMockResponseFromSpec('/api/v1/update/pause', 'post', '200');
+        $mockBody = self::getMockResponseFromSpec('/api/v1/update/pause', 'post', '200', true);
         $this->clientProphecy->request('post', '/api/v1/update/pause')
             ->willReturn($mockBody)
             ->shouldBeCalled();
@@ -68,13 +69,11 @@ class AcsfApiCommandTest extends AcsfCommandTestBase
             // Pause.
             '1',
         ]);
-
-        // Assert.
     }
 
     public function testAcsfCommandExecutionForHttpGet(): void
     {
-        $mockBody = $this->getMockResponseFromSpec('/api/v1/audit', 'get', '200');
+        $mockBody = self::getMockResponseFromSpec('/api/v1/audit', 'get', '200', true);
         $this->clientProphecy->addQuery('limit', '1')->shouldBeCalled();
         $this->clientProphecy->request('get', '/api/v1/audit')
             ->willReturn($mockBody)
@@ -95,7 +94,7 @@ class AcsfApiCommandTest extends AcsfCommandTestBase
     /**
      * @return array<mixed>
      */
-    public function providerTestAcsfCommandExecutionForHttpGetMultiple(): array
+    public static function providerTestAcsfCommandExecutionForHttpGetMultiple(): array
     {
         return [
             [
@@ -170,7 +169,7 @@ class AcsfApiCommandTest extends AcsfCommandTestBase
      */
     public function testAcsfCommandExecutionForHttpGetMultiple(string $method, string $specPath, string $path, string $command, array $arguments = [], array $jsonArguments = []): void
     {
-        $mockBody = $this->getMockResponseFromSpec($specPath, $method, '200');
+        $mockBody = self::getMockResponseFromSpec($specPath, $method, '200', true);
         $this->clientProphecy->request($method, $path)
             ->willReturn($mockBody)
             ->shouldBeCalled();

@@ -22,9 +22,9 @@ class EnvDeleteCommandTest extends CommandTestBase
     /**
      * @return array<mixed>
      */
-    public function providerTestDeleteCde(): array
+    public static function providerTestDeleteCde(): array
     {
-        $environmentResponse = $this->getMockEnvironmentsResponse();
+        $environmentResponse = self::getMockEnvironmentsResponse();
         $environment = $environmentResponse->_embedded->items[0];
         return [
             [$environment->id],
@@ -42,8 +42,8 @@ class EnvDeleteCommandTest extends CommandTestBase
         $this->mockApplicationRequest();
         $this->mockEnvironmentsRequest($applicationsResponse);
 
-        $this->getMockEnvironmentsResponse();
-        $response2 = $this->getMockEnvironmentsResponse();
+        self::getMockEnvironmentsResponse();
+        $response2 = self::getMockEnvironmentsResponse();
         $cde = $response2->_embedded->items[0];
         $cde->flags->cde = true;
         $label = "New CDE";
@@ -56,7 +56,7 @@ class EnvDeleteCommandTest extends CommandTestBase
             ->willReturn($response2->_embedded->items)
             ->shouldBeCalled();
 
-        $environmentsResponse = $this->getMockResponseFromSpec(
+        $environmentsResponse = self::getMockResponseFromSpec(
             '/environments/{environmentId}',
             'delete',
             202
@@ -65,7 +65,7 @@ class EnvDeleteCommandTest extends CommandTestBase
             ->willReturn($environmentsResponse)
             ->shouldBeCalled();
 
-        $this->getMockResponseFromSpec(
+        self::getMockResponseFromSpec(
             '/environments/{environmentId}',
             'get',
             200
@@ -132,7 +132,7 @@ class EnvDeleteCommandTest extends CommandTestBase
             ->shouldBeCalled();
 
         $cde = $environments[0];
-        $environmentsResponse = $this->getMockResponseFromSpec(
+        $environmentsResponse = self::getMockResponseFromSpec(
             '/environments/{environmentId}',
             'delete',
             202

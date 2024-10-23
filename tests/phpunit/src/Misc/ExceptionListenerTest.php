@@ -51,7 +51,7 @@ class ExceptionListenerTest extends TestBase
     /**
      * @return string[][]
      */
-    public function providerTestHelp(): array
+    public static function providerTestHelp(): array
     {
         return [
             [
