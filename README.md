@@ -13,4 +13,4 @@ Install instructions and official documentation are available at https://docs.ac
 ## Support
 
 - To receive support from Acquia, visit the [Acquia Support Portal](https://acquia.my.site.com/s/).
-- To receive support and discuss ideas with other Acquia CLI users, visit the [discussions section](https://github.com/acquia/cli/discussions) on GitHub.
+- To receive support from and discuss ideas with other Acquia CLI users, visit the [discussions section](https://github.com/acquia/cli/discussions) on GitHub.
