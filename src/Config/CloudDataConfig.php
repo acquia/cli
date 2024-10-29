@@ -67,7 +67,7 @@ class CloudDataConfig implements ConfigurationInterface
             ->end()
             ->validate()
             ->ifTrue(function ($config) {
-                return is_array($config['keys']) && !empty($config['keys']) && !array_key_exists($config['acli_key'], $config['keys']);
+                return !empty($config['acli_key']) && (!is_array($config['keys']) || empty($config['keys']) || !array_key_exists($config['acli_key'], $config['keys']));
             })
             ->thenInvalid('acli_key must exist in keys');
         return $treeBuilder;
