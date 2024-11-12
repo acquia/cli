@@ -17,7 +17,7 @@
         "acquia/drupal-environment-detector": "^1.2.0",
         "bugsnag/bugsnag": "^3.0",
         "composer/semver": "^3.3",
-        "consolidation/self-update": "3.0.0-alpha2 as 2.1.0",
+        "consolidation/self-update": "^3",
         "dflydev/dot-access-data": "^3",
         "grasmash/expander": "^3",
         "guzzlehttp/guzzle": "^7.4",
@@ -46,7 +46,7 @@
         "symfony/validator": "^6.3",
         "symfony/yaml": "^6.3",
         "thecodingmachine/safe": "^2.4",
-        "typhonius/acquia-logstream": "^0.0.13",
+        "typhonius/acquia-logstream": "^0.0.14",
         "typhonius/acquia-php-sdk-v2": "^3.3.2",
         "vlucas/phpdotenv": "^5.5",
         "zumba/amplitude-php": "^1.0.4"
