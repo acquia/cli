@@ -87,6 +87,37 @@ class AcsfAuthLoginCommandTest extends AcsfCommandTestBase
                 // $config.
                 AcsfCommandTestBase::getAcsfCredentialsFileContents(),
             ],
+            // Data set 3.
+            [
+                true,
+                [
+                    'Enter a new factory URL',
+                    self::$acsfCurrentFactoryUrl,
+                    'Enter a new user',
+                    self::$acsfUsername,
+                    self::$acsfKey,
+                ],
+                [],
+                // Output to assert.
+                'Enter your Site Factory URL (including https://) (option -f, --factory-url):',
+                // $config.
+                AcsfCommandTestBase::getAcsfCredentialsFileContents(),
+            ],
+            // Data set 4.
+            [
+                false,
+                [
+                    'Enter a new factory URL',
+                    self::$acsfCurrentFactoryUrl,
+                    self::$acsfUsername,
+                    self::$acsfKey,
+                ],
+                [],
+                // Output to assert.
+                'Enter your Site Factory URL (including https://) (option -f, --factory-url):',
+                // $config.
+                AcsfCommandTestBase::getAcsfCredentialsFileContents(),
+            ],
         ];
     }
 
@@ -160,17 +191,6 @@ class AcsfAuthLoginCommandTest extends AcsfCommandTestBase
         $this->command = $this->createCommand();
         $this->expectException(MissingInputException::class);
         $this->executeCommand([], ['Enter a new factory URL', 'example.com']);
-    }
-
-    public function testAcsfAuthLoginValidInput(): void
-    {
-        $this->removeMockCloudConfigFile();
-        $this->createMockCloudConfigFile(AcsfCommandTestBase::getAcsfCredentialsFileContents());
-        $this->createDataStores();
-        $this->command = $this->createCommand();
-        $this->executeCommand([], ['Enter a new factory URL', 'https://example.com', 'Enter a new user', 'asdfasdf', 'asdfasdfasdf']);
-        $output = $this->getDisplay();
-        $this->assertStringContainsString('Enter your Site Factory URL (including https://) (option -f, --factory-url):', $output);
     }
 
     protected function assertKeySavedCorrectly(): void
