@@ -73,7 +73,7 @@ class LogTailCommandTest extends CommandTestBase
             // Would you like to link the project at ... ?
             'y',
             // Select environment.
-            0,
+            2,
             // Select log.
             $stream,
         ]);
