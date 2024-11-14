@@ -31,6 +31,9 @@ final class DrushCommand extends SshBaseCommand
             ->addUsage('myapp.dev -- status --fields=db-status');
     }
 
+    /**
+     * @throws \Acquia\Cli\Exception\AcquiaCliException
+     */
     protected function execute(InputInterface $input, OutputInterface $output): ?int
     {
         $environment = $this->determineEnvironment($input, $output, true);

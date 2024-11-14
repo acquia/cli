@@ -9,6 +9,8 @@ use Acquia\Cli\Command\Auth\AuthAcsfLoginCommand;
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Config\CloudDataConfig;
 use Acquia\Cli\DataStore\CloudDataStore;
+use Symfony\Component\Console\Exception\MissingInputException;
+use Symfony\Component\Validator\Exception\ValidatorException;
 
 /**
  * @property \Acquia\Cli\Command\Auth\AuthLoginCommand $command
@@ -85,6 +87,37 @@ class AcsfAuthLoginCommandTest extends AcsfCommandTestBase
                 // $config.
                 AcsfCommandTestBase::getAcsfCredentialsFileContents(),
             ],
+            // Data set 3.
+            [
+                true,
+                [
+                    'Enter a new factory URL',
+                    self::$acsfCurrentFactoryUrl,
+                    'Enter a new user',
+                    self::$acsfUsername,
+                    self::$acsfKey,
+                ],
+                [],
+                // Output to assert.
+                'Enter your Site Factory URL (including https://) (option -f, --factory-url):',
+                // $config.
+                AcsfCommandTestBase::getAcsfCredentialsFileContents(),
+            ],
+            // Data set 4.
+            [
+                false,
+                [
+                    'Enter a new factory URL',
+                    self::$acsfCurrentFactoryUrl,
+                    self::$acsfUsername,
+                    self::$acsfKey,
+                ],
+                [],
+                // Output to assert.
+                'Enter your Site Factory URL (including https://) (option -f, --factory-url):',
+                // $config.
+                AcsfCommandTestBase::getAcsfCredentialsFileContents(),
+            ],
         ];
     }
 
@@ -115,6 +148,68 @@ class AcsfAuthLoginCommandTest extends AcsfCommandTestBase
         $this->assertEquals(self::$acsfActiveUser, $this->cloudCredentials->getCloudKey());
         $this->assertEquals(self::$acsfKey, $this->cloudCredentials->getCloudSecret());
         $this->assertEquals(self::$acsfCurrentFactoryUrl, $this->cloudCredentials->getBaseUri());
+    }
+
+    /**
+     * @return string[][]
+     */
+    public static function providerTestAcsfAuthLoginInvalid(): array
+    {
+        return [
+            [
+                ['--factory-url' => 'example.com', '--key' => 'asdfasdfasdf','--username' => 'asdf'],
+                'This value is not a valid URL.',
+            ],
+            [
+                ['--factory-url' => 'https://example.com', '--key' => 'asdf','--username' => 'asdf'],
+                'This value is too short. It should have 10 characters or more.',
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider providerTestAcsfAuthLoginInvalid
+     * @throws \Exception
+     */
+    public function testAcsfAuthLoginInvalid(array $args, string $message): void
+    {
+        $this->clientServiceProphecy->isMachineAuthenticated()
+            ->willReturn(false);
+        $this->removeMockCloudConfigFile();
+        $this->createDataStores();
+        $this->command = $this->createCommand();
+        $this->expectException(ValidatorException::class);
+        $this->expectExceptionMessage($message);
+        $this->executeCommand($args);
+    }
+
+    /**
+     * @return string[][]
+     */
+    public static function providerTestAcsfAuthLoginInvalidInput(): array
+    {
+        return [
+            [
+                ['Enter a new factory URL', 'example.com'],
+            ],
+            [
+                ['Enter a new factory URL', ''],
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider providerTestAcsfAuthLoginInvalidInput
+     * @throws \JsonException
+     */
+    public function testAcsfAuthLoginInvalidInput(array $input): void
+    {
+        $this->removeMockCloudConfigFile();
+        $this->createMockCloudConfigFile(AcsfCommandTestBase::getAcsfCredentialsFileContents());
+        $this->createDataStores();
+        $this->command = $this->createCommand();
+        $this->expectException(MissingInputException::class);
+        $this->executeCommand([], $input);
     }
 
     protected function assertKeySavedCorrectly(): void

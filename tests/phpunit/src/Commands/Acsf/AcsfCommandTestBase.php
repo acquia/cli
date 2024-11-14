@@ -22,7 +22,7 @@ abstract class AcsfCommandTestBase extends CommandTestBase
 
     protected static string $acsfUsername = 'tester';
 
-    protected static string $acsfKey = 'h@x0r';
+    protected static string $acsfKey = 'abcdefghijklmnop';
 
     protected string $apiCommandPrefix = 'acsf';
 

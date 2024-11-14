@@ -22,10 +22,14 @@ final class AuthAcsfLoginCommand extends CommandBase
             ->addOption('factory-url', 'f', InputOption::VALUE_REQUIRED, "Your Site Factory URL (including https://)");
     }
 
+    /**
+     * @throws \Acquia\Cli\Exception\AcquiaCliException
+     */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         if ($input->getOption('factory-url')) {
             $factoryUrl = $input->getOption('factory-url');
+            self::validateUrl($factoryUrl);
         } elseif ($input->isInteractive() && $this->datastoreCloud->get('acsf_factories')) {
             $factories = $this->datastoreCloud->get('acsf_factories');
             $factoryChoices = $factories;
@@ -37,7 +41,7 @@ final class AuthAcsfLoginCommand extends CommandBase
             ];
             $factory = $this->promptChooseFromObjectsOrArrays($factoryChoices, 'url', 'url', 'Choose a Factory to login to');
             if ($factory['url'] === 'Enter a new factory URL') {
-                $factoryUrl = $this->io->ask('Enter the full URL of the factory');
+                $factoryUrl = $this->determineOption('factory-url', false, $this->validateUrl(...));
                 $factory = [
                     'url' => $factoryUrl,
                     'users' => [],
@@ -61,11 +65,11 @@ final class AuthAcsfLoginCommand extends CommandBase
                 return Command::SUCCESS;
             }
         } else {
-            $factoryUrl = $this->determineOption('factory-url');
+            $factoryUrl = $this->determineOption('factory-url', false, $this->validateUrl(...));
         }
 
         $username = $this->determineOption('username');
-        $key = $this->determineOption('key', true);
+        $key = $this->determineOption('key', true, $this->validateApiKey(...));
 
         $this->writeAcsfCredentialsToDisk($factoryUrl, $username, $key);
         $output->writeln("<info>Saved credentials</info>");
