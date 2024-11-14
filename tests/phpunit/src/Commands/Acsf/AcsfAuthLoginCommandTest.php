@@ -183,14 +183,33 @@ class AcsfAuthLoginCommandTest extends AcsfCommandTestBase
         $this->executeCommand($args);
     }
 
-    public function testAcsfAuthLoginInvalidInput(): void
+    /**
+     * @return string[][]
+     */
+    public static function providerTestAcsfAuthLoginInvalidInput(): array
+    {
+        return [
+            [
+                ['Enter a new factory URL', 'example.com'],
+            ],
+            [
+                ['Enter a new factory URL', ''],
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider providerTestAcsfAuthLoginInvalidInput
+     * @throws \JsonException
+     */
+    public function testAcsfAuthLoginInvalidInput(array $input): void
     {
         $this->removeMockCloudConfigFile();
         $this->createMockCloudConfigFile(AcsfCommandTestBase::getAcsfCredentialsFileContents());
         $this->createDataStores();
         $this->command = $this->createCommand();
         $this->expectException(MissingInputException::class);
-        $this->executeCommand([], ['Enter a new factory URL', 'example.com']);
+        $this->executeCommand([], $input);
     }
 
     protected function assertKeySavedCorrectly(): void
