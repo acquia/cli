@@ -36,7 +36,7 @@ final class DrushCommand extends SshBaseCommand
      */
     protected function execute(InputInterface $input, OutputInterface $output): ?int
     {
-        $environment = $this->determineEnvironment($input, $output, true);
+        $environment = $this->determineEnvironment($input, $output);
         $alias = self::getEnvironmentAlias($environment);
         $acliArguments = $input->getArguments();
         $drushArguments = (array) $acliArguments['drush_command'];

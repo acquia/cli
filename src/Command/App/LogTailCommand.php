@@ -54,7 +54,7 @@ final class LogTailCommand extends CommandBase
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $environment = $this->determineEnvironment($input, $output, true);
+        $environment = $this->determineEnvironment($input, $output);
         $acquiaCloudClient = $this->cloudApiClientService->getClient();
         $logs = $this->promptChooseLogs();
         $logTypes = array_map(static function (mixed $log) {
