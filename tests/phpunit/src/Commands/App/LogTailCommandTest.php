@@ -73,7 +73,7 @@ class LogTailCommandTest extends CommandTestBase
             // Would you like to link the project at ... ?
             'y',
             // Select environment.
-            2,
+            0,
             // Select log.
             $stream,
         ]);
@@ -95,6 +95,34 @@ class LogTailCommandTest extends CommandTestBase
             ['environmentId' => '24-a47ac10b-58cc-4372-a567-0e02b2c3d470'],
             // Select log.
             [0]
+        );
+
+        // Assert.
+        $output = $this->getDisplay();
+        $this->assertStringContainsString('Apache request', $output);
+        $this->assertStringContainsString('Drupal request', $output);
+    }
+
+    public function testLogTailProd(): void
+    {
+        $applications = $this->mockRequest('getApplications');
+        $application = $this->mockRequest('getApplicationByUuid', $applications[self::$INPUT_DEFAULT_CHOICE]->uuid);
+        $this->mockRequest('getApplicationEnvironments', $application->uuid);
+        $this->mockLogStreamRequest('15-a47ac10b-58cc-4372-a567-0e02b2c3d470');
+        $this->executeCommand(
+            [],
+            [
+                // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
+                'n',
+                // Select the application.
+                0,
+                // Would you like to link the project at ... ?
+                'y',
+                // Select environment.
+                1,
+                // Select log.
+                0,
+            ]
         );
 
         // Assert.
@@ -129,7 +157,7 @@ class LogTailCommandTest extends CommandTestBase
         ]);
     }
 
-    private function mockLogStreamRequest(): void
+    private function mockLogStreamRequest(string $environment = '24-a47ac10b-58cc-4372-a567-0e02b2c3d470'): void
     {
         $response = self::getMockResponseFromSpec(
             '/environments/{environmentId}/logstream',
@@ -138,7 +166,7 @@ class LogTailCommandTest extends CommandTestBase
         );
         $this->clientProphecy->request(
             'get',
-            '/environments/24-a47ac10b-58cc-4372-a567-0e02b2c3d470/logstream'
+            '/environments/' . $environment . '/logstream'
         )
             ->willReturn($response)
             ->shouldBeCalled();
