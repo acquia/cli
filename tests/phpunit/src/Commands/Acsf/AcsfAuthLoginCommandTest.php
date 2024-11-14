@@ -9,6 +9,7 @@ use Acquia\Cli\Command\Auth\AuthAcsfLoginCommand;
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Config\CloudDataConfig;
 use Acquia\Cli\DataStore\CloudDataStore;
+use Symfony\Component\Validator\Exception\ValidatorException;
 
 /**
  * @property \Acquia\Cli\Command\Auth\AuthLoginCommand $command
@@ -115,6 +116,39 @@ class AcsfAuthLoginCommandTest extends AcsfCommandTestBase
         $this->assertEquals(self::$acsfActiveUser, $this->cloudCredentials->getCloudKey());
         $this->assertEquals(self::$acsfKey, $this->cloudCredentials->getCloudSecret());
         $this->assertEquals(self::$acsfCurrentFactoryUrl, $this->cloudCredentials->getBaseUri());
+    }
+
+    /**
+     * @return string[][]
+     */
+    public static function providerTestAcsfAuthLoginInvalid(): array
+    {
+        return [
+            [
+                ['--factory-url' => 'example.com', '--key' => 'asdfasdfasdf','--username' => 'asdf'],
+                'This value is not a valid URL.',
+            ],
+            [
+                ['--factory-url' => 'https://example.com', '--key' => 'asdf','--username' => 'asdf'],
+                'This value is too short. It should have 10 characters or more.',
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider providerTestAcsfAuthLoginInvalid
+     * @throws \Exception
+     */
+    public function testAcsfAuthLoginInvalid(array $args, string $message): void
+    {
+        $this->clientServiceProphecy->isMachineAuthenticated()
+            ->willReturn(false);
+        $this->removeMockCloudConfigFile();
+        $this->createDataStores();
+        $this->command = $this->createCommand();
+        $this->expectException(ValidatorException::class);
+        $this->expectExceptionMessage($message);
+        $this->executeCommand($args);
     }
 
     protected function assertKeySavedCorrectly(): void

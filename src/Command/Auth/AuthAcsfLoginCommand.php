@@ -29,6 +29,7 @@ final class AuthAcsfLoginCommand extends CommandBase
     {
         if ($input->getOption('factory-url')) {
             $factoryUrl = $input->getOption('factory-url');
+            self::validateUrl($factoryUrl);
         } elseif ($input->isInteractive() && $this->datastoreCloud->get('acsf_factories')) {
             $factories = $this->datastoreCloud->get('acsf_factories');
             $factoryChoices = $factories;
