@@ -67,6 +67,7 @@ use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Regex;
+use Symfony\Component\Validator\Constraints\Url;
 use Symfony\Component\Validator\Exception\ValidatorException;
 use Symfony\Component\Validator\Validation;
 use Symfony\Component\Yaml\Yaml;
@@ -610,6 +611,9 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
         return [$environmentDatabases[$chosenDatabaseIndex]];
     }
 
+    /**
+     * @throws \Acquia\Cli\Exception\AcquiaCliException
+     */
     protected function determineEnvironment(InputInterface $input, OutputInterface $output, bool $allowProduction = false, bool $allowNode = false): array|string|EnvironmentResponse
     {
         if ($input->getArgument('environmentId')) {
@@ -628,6 +632,10 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
     }
 
     // Todo: obviously combine this with promptChooseEnvironment.
+
+    /**
+     * @throws \Acquia\Cli\Exception\AcquiaCliException
+     */
     private function promptChooseEnvironmentConsiderProd(Client $acquiaCloudClient, string $applicationUuid, bool $allowProduction, bool $allowNode): EnvironmentResponse
     {
         $environmentResource = new Environments($acquiaCloudClient);
@@ -1657,12 +1665,15 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
         }
     }
 
+    /**
+     * @throws \Acquia\Cli\Exception\AcquiaCliException
+     */
     protected function determineApiKey(): string
     {
         return $this->determineOption('key', false, $this->validateApiKey(...));
     }
 
-    private function validateApiKey(mixed $key): string
+    protected static function validateApiKey(mixed $key): string
     {
         $violations = Validation::createValidator()->validate($key, [
             new Length(['min' => 10]),
@@ -1676,6 +1687,18 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
             throw new ValidatorException($violations->get(0)->getMessage());
         }
         return $key;
+    }
+
+    protected static function validateUrl(?string $url): string
+    {
+        $violations = Validation::createValidator()->validate($url, [
+            new NotBlank(),
+            new Url(),
+        ]);
+        if (count($violations)) {
+            throw new ValidatorException($violations->get(0)->getMessage());
+        }
+        return $url;
     }
 
     protected function determineApiSecret(): string

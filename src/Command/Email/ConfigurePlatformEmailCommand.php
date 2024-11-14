@@ -225,7 +225,7 @@ final class ConfigurePlatformEmailCommand extends CommandBase
     /**
      * Validates the URL entered as the base domain name.
      */
-    public static function validateUrl(string $url): string
+    public static function validateUrl(?string $url): string
     {
         $constraintsList = [new NotBlank()];
         $urlParts = parse_url($url);
