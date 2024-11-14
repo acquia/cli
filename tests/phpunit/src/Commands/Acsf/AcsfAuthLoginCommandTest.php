@@ -159,7 +159,18 @@ class AcsfAuthLoginCommandTest extends AcsfCommandTestBase
         $this->createDataStores();
         $this->command = $this->createCommand();
         $this->expectException(MissingInputException::class);
-        $this->executeCommand([], ['n', 'Enter a new factory URL', 'example.com']);
+        $this->executeCommand([], ['Enter a new factory URL', 'example.com']);
+    }
+
+    public function testAcsfAuthLoginValidInput(): void
+    {
+        $this->removeMockCloudConfigFile();
+        $this->createMockCloudConfigFile(AcsfCommandTestBase::getAcsfCredentialsFileContents());
+        $this->createDataStores();
+        $this->command = $this->createCommand();
+        $this->executeCommand([], ['Enter a new factory URL', 'https://example.com', 'Enter a new user', 'asdfasdf', 'asdfasdfasdf']);
+        $output = $this->getDisplay();
+        $this->assertStringContainsString('Enter your Site Factory URL (including https://) (option -f, --factory-url):', $output);
     }
 
     protected function assertKeySavedCorrectly(): void
