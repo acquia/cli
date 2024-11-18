@@ -61,6 +61,9 @@ EOD;
 
     public function testArgumentsInteraction(): void
     {
+        $this->clientProphecy->addOption('headers', ['Accept' => 'application/hal+json, version=2'])
+            ->shouldBeCalled();
+        $this->mockRequest('getEnvironmentsLog', ['289576-53785bca-1946-4adc-a022-e50d24686c20', 'apache-access']);
         $this->command = $this->getApiCommandByName('api:environments:log-download');
         $this->executeCommand([], [
             '289576-53785bca-1946-4adc-a022-e50d24686c20',
