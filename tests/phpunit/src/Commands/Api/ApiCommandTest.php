@@ -30,6 +30,35 @@ class ApiCommandTest extends CommandTestBase
         return $this->injectCommand(ApiBaseCommand::class);
     }
 
+    public function testTaskWait(): void
+    {
+        $environmentId = '24-a47ac10b-58cc-4372-a567-0e02b2c3d470';
+        $branch = 'my-feature-branch';
+        $this->mockRequest('postEnvironmentsSwitchCode', $environmentId, null, 'Switching code');
+        $this->clientProphecy->addOption('json', ['branch' => $branch])->shouldBeCalled();
+        $this->clientProphecy->addOption('headers', ['Accept' => 'application/hal+json, version=2'])
+            ->shouldBeCalled();
+        $this->mockRequest('getNotificationByUuid', 'bfd9a39b-a85e-4de3-8a70-042d1c7e607a');
+        $this->command = $this->getApiCommandByName('api:environments:code-switch');
+        $this->executeCommand([
+            '--task-wait' => true,
+            'branch' => $branch,
+            'environmentId' => $environmentId,
+        ]);
+        $output = $this->getDisplay();
+        // PhpStorm will trim trailing space in a HEREDOC.
+        $expected = "\n [OK] The task with notification uuid 1bd3487e-71d1-4fca-a2d9-5f969b3d35c1 completed " . <<<EOD
+
+
+Progress: 100
+Completed: Mon Jul 29 20:47:13 UTC 2019
+Task type: Application added to recents list
+Duration: 0 seconds
+
+EOD;
+        $this->assertEquals($expected, $output);
+    }
+
     /**
      * @group brokenProphecy
      */
