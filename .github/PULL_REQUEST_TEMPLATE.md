@@ -12,5 +12,6 @@ Fixes #NNN
 <!-- How can we replicate the issue and verify that this PR fixes it? -->
 
 1. Follow the [contribution guide](https://github.com/acquia/cli/blob/HEAD/CONTRIBUTING.md#building-and-testing) to set up your development environment or [download a pre-built acli.phar](https://github.com/acquia/cli/blob/HEAD/CONTRIBUTING.md#automatic-dev-builds) for this PR.
-2. Clear the kernel cache to pick up new and changed commands: `./bin/acli ckc`
-3. (add specific steps for this pr)
+2. If running from source, clear the kernel cache to pick up new and changed commands: `./bin/acli ckc`
+3. Check for regressions: (add specific steps for this pr)
+4. Check new functionality: (add specific steps for this pr)
