@@ -94,6 +94,10 @@ class ApiBaseCommand extends CommandBase
         parent::interact($input, $output);
     }
 
+    /**
+     * @throws \Acquia\Cli\Exception\AcquiaCliException
+     * @throws \JsonException
+     */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         if ($this->getName() === 'api:base') {
@@ -124,10 +128,9 @@ class ApiBaseCommand extends CommandBase
             $exitCode = 1;
         }
 
-        $contents = json_encode($response, JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT);
-        $this->output->writeln($contents);
-
         if ($exitCode || !$this->getParamFromInput($input, 'task-wait')) {
+            $contents = json_encode($response, JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT);
+            $this->output->writeln($contents);
             return $exitCode;
         }
         $notificationUuid = CommandBase::getNotificationUuidFromResponse($response);
