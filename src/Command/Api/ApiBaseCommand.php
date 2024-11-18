@@ -127,7 +127,7 @@ class ApiBaseCommand extends CommandBase
         $contents = json_encode($response, JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT);
         $this->output->writeln($contents);
 
-        if (!$this->getParamFromInput($input, 'task-wait')) {
+        if ($exitCode || !$this->getParamFromInput($input, 'task-wait')) {
             return $exitCode;
         }
         $notificationUuid = CommandBase::getNotificationUuidFromResponse($response);

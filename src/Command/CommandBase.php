@@ -1892,6 +1892,9 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
         $this->io->writeln("Duration: $duration seconds");
     }
 
+    /**
+     * @throws \Acquia\Cli\Exception\AcquiaCliException
+     */
     protected static function getNotificationUuidFromResponse(object $response): string
     {
         if (property_exists($response, 'links')) {
