@@ -59,9 +59,6 @@ EOD;
         $this->assertEquals($expected, $output);
     }
 
-    /**
-     * @group brokenProphecy
-     */
     public function testArgumentsInteraction(): void
     {
         $this->command = $this->getApiCommandByName('api:environments:log-download');
@@ -135,7 +132,14 @@ EOD;
         // Assert.
         $output = $this->getDisplay();
         $this->assertJson($output);
-        $this->assertStringContainsString($mockBody->message, $output);
+        $expected = <<<EOD
+{
+    "error": "not_found",
+    "message": "The application you are trying to access does not exist, or you do not have permission to access it."
+}
+
+EOD;
+        $this->assertEquals($expected, $output);
         $this->assertEquals(1, $this->getStatusCode());
     }
 
@@ -162,12 +166,12 @@ EOD;
         $this->assertArrayHasKey('uuid', $contents[0]);
     }
 
-    /**
-     * @group brokenProphecy
-     */
     public function testObjectParam(): void
     {
+        $this->clientProphecy->addOption('headers', ['Accept' => 'application/hal+json, version=2'])
+            ->shouldBeCalled();
         $this->mockRequest('putEnvironmentCloudActions', '24-a47ac10b-58cc-4372-a567-0e02b2c3d470');
+        $this->clientProphecy->addOption('json', ['cloud-actions' => (object)['fb4aa87a-8be2-42c6-bdf0-ef9d09a3de70' => true]]);
         $this->command = $this->getApiCommandByName('api:environments:cloud-actions-update');
         $this->executeCommand([
             'cloud-actions' => '{"fb4aa87a-8be2-42c6-bdf0-ef9d09a3de70":true}',
@@ -607,9 +611,6 @@ EOD;
         $this->assertStringContainsString("Organization member removed", $output);
     }
 
-    /**
-     * @group brokenProphecy
-     */
     public function testOrganizationMemberDeleteInvalidEmail(): void
     {
         $membersResponse = self::getMockResponseFromSpec('/organizations/{organizationUuid}/members', 'get', 200);
@@ -617,11 +618,6 @@ EOD;
         $memberUuid = $membersResponse->_embedded->items[0]->mail . 'INVALID';
         $this->clientProphecy->request('get', '/organizations/' . $orgId . '/members')
             ->willReturn($membersResponse->_embedded->items)->shouldBeCalled();
-
-        $this->mockRequest('postOrganizationMemberDelete', [
-            $orgId,
-            $memberUuid,
-        ], null, 'Member removed');
 
         $this->command = $this->getApiCommandByName('api:organizations:member-delete');
         $this->expectException(AcquiaCliException::class);
