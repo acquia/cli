@@ -57,6 +57,7 @@ Duration: 0 seconds
 
 EOD;
         $this->assertEquals($expected, $output);
+        $this->assertEquals(0, $this->getStatusCode());
     }
 
     public function testArgumentsInteraction(): void
