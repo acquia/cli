@@ -10,8 +10,8 @@ use Acquia\Cli\Command\Self\ClearCacheCommand;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Tests\CommandTestBase;
 use AcquiaCloudApi\Exception\ApiErrorException;
-use Overtrue\PHPLint\Output\OutputInterface;
 use Symfony\Component\Console\Exception\MissingInputException;
+use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Yaml\Yaml;
 
@@ -76,6 +76,30 @@ EOD;
         $this->assertStringContainsString('Select a value for logType', $output);
     }
 
+    /**
+     * @throws \AcquiaCloudApi\Exception\ApiErrorException
+     * @throws \JsonException
+     * @throws \Exception
+     */
+    public function testInteractiveException(): void
+    {
+        $this->command = $this->getApiCommandByName('api:environments:log-download');
+        $this->clientProphecy->addOption('headers', ['Accept' => 'application/hal+json, version=2'])
+            ->shouldBeCalled();
+        $mockBody = self::getMockResponseFromSpec($this->command->getPath(), $this->command->getMethod(), '404');
+        $this->clientProphecy->request('get', '/environments/289576-53785bca-1946-4adc-a022-e50d24686c20/logs/apache-access')
+            ->willThrow(new ApiErrorException($mockBody->{'Not found'}->value))
+            ->shouldBeCalled();
+        $this->expectException(ApiErrorException::class);
+        $this->executeCommand([], [
+            '289576-53785bca-1946-4adc-a022-e50d24686c20',
+            'apache-access',
+        ]);
+    }
+
+    /**
+     * @throws \Exception
+     */
     public function testArgumentsInteractionValidation(): void
     {
         $this->command = $this->getApiCommandByName('api:environments:variable-update');
