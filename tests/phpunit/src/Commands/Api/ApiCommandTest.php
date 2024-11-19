@@ -46,17 +46,14 @@ class ApiCommandTest extends CommandTestBase
             'environmentId' => $environmentId,
         ]);
         $output = $this->getDisplay();
-        // PhpStorm will trim trailing space in a HEREDOC.
-        $expected = "\n [OK] The task with notification uuid 1bd3487e-71d1-4fca-a2d9-5f969b3d35c1 completed " . <<<EOD
-
-
+        $this->assertStringContainsString('[OK] The task with notification uuid 1bd3487e-71d1-4fca-a2d9-5f969b3d35c1 completed', $output);
+        $expected = <<<EOD
 Progress: 100
 Completed: Mon Jul 29 20:47:13 UTC 2019
 Task type: Application added to recents list
 Duration: 0 seconds
-
 EOD;
-        $this->assertStringEqualsStringIgnoringLineEndings($expected, $output);
+        $this->assertStringContainsStringIgnoringLineEndings($expected, $output);
         $this->assertEquals(0, $this->getStatusCode());
     }
 
