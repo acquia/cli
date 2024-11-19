@@ -101,7 +101,7 @@ class ApiCommandHelper
         }
 
         // Add --task-wait parameter for responses with notifications.
-        if (array_key_exists('responses', $schema) && array_key_exists(202, $schema['responses'])) {
+        if (array_key_exists(202, $schema['responses'])) {
             $inputDefinition[] = new InputOption('task-wait', null, InputOption::VALUE_NONE, 'Wait for this task to complete');
         }
 
