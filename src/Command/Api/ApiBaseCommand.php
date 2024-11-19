@@ -12,6 +12,7 @@ use AcquiaCloudApi\Exception\ApiErrorException;
 use Closure;
 use GuzzleHttp\Psr7\Utils;
 use Symfony\Component\Console\Attribute\AsCommand;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -93,6 +94,10 @@ class ApiBaseCommand extends CommandBase
         parent::interact($input, $output);
     }
 
+    /**
+     * @throws \Acquia\Cli\Exception\AcquiaCliException
+     * @throws \JsonException
+     */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         if ($this->getName() === 'api:base') {
@@ -123,10 +128,14 @@ class ApiBaseCommand extends CommandBase
             $exitCode = 1;
         }
 
-        $contents = json_encode($response, JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT);
-        $this->output->writeln($contents);
-
-        return $exitCode;
+        if ($exitCode || !$this->getParamFromInput($input, 'task-wait')) {
+            $contents = json_encode($response, JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT);
+            $this->output->writeln($contents);
+            return $exitCode;
+        }
+        $notificationUuid = CommandBase::getNotificationUuidFromResponse($response);
+        $success = $this->waitForNotificationToComplete($this->cloudApiClientService->getClient(), $notificationUuid, "Waiting for task $notificationUuid to complete");
+        return $success ? Command::SUCCESS : Command::FAILURE;
     }
 
     public function setMethod(string $method): void
