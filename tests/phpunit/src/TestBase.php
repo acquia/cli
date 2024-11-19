@@ -312,6 +312,7 @@ abstract class TestBase extends TestCase
 
     /**
      * @return array<mixed>
+     * @throws \Psr\Cache\InvalidArgumentException
      */
     protected function getPathMethodCodeFromSpec(string $operationId): array
     {
@@ -473,6 +474,9 @@ abstract class TestBase extends TestCase
      *
      * Auto-completion and return type inferencing is provided by
      * .phpstorm.meta.php.
+     *
+     * @throws \JsonException
+     * @throws \Exception
      */
     protected function mockRequest(string $operationId, string|array|null $params = null, ?array $body = null, ?string $exampleResponse = null, Closure $tamper = null): object|array
     {

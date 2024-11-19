@@ -42,6 +42,7 @@ class ExceptionListenerTest extends TestBase
         $applicationProphecy->setHelpMessages($messages)->shouldBeCalled();
         $commandProphecy->getApplication()
             ->willReturn($applicationProphecy->reveal());
+        $commandProphecy->getName()->willReturn('api:environments:log-download');
         $consoleErrorEvent = new ConsoleErrorEvent($this->input, $this->output, $error, $commandProphecy->reveal());
         $exceptionListener->onConsoleError($consoleErrorEvent);
         $this->prophet->checkPredictions();
@@ -136,6 +137,16 @@ class ExceptionListenerTest extends TestBase
                     'message' => 'fdsa',
                 ]),
                 'You can learn more about Cloud Platform API at https://docs.acquia.com/cloud-platform/develop/api/',
+            ],
+            [
+                new ApiErrorException((object) [
+                    'error' => 'not_found',
+                    'message' => 'fdsa',
+                ]),
+                [
+                    'You must create logs (api:environments:log-create) prior to downloading them',
+                    'You can learn more about Cloud Platform API at https://docs.acquia.com/cloud-platform/develop/api/',
+                ],
             ],
         ];
     }

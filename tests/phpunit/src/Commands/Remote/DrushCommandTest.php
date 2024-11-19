@@ -27,13 +27,11 @@ class DrushCommandTest extends SshCommandTestBase
         return [
             [
                 [
-                    '-vvv' => '',
                     'drush_command' => 'status --fields=db-status',
                 ],
             ],
             [
                 [
-                    '-vvv' => '',
                     'drush_command' => 'status --fields=db-status',
                 ],
             ],
@@ -42,7 +40,6 @@ class DrushCommandTest extends SshCommandTestBase
 
     /**
      * @dataProvider providerTestRemoteDrushCommand
-     * @group serial
      */
     public function testRemoteDrushCommand(array $args): void
     {
