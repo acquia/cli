@@ -81,7 +81,7 @@ abstract class CommandTestBase extends TestBase
      *   An array of strings representing each input passed to the command input
      *   stream.
      */
-    protected function executeCommand(array $args = [], array $inputs = [], int $verbosity = Output::VERBOSITY_VERY_VERBOSE): void
+    protected function executeCommand(array $args = [], array $inputs = [], int $verbosity = OutputInterface::VERBOSITY_VERY_VERBOSE, ?bool $interactive = true): void
     {
         $cwd = $this->projectDir;
         $tester = $this->getCommandTester();
@@ -96,7 +96,7 @@ abstract class CommandTestBase extends TestBase
         }
 
         try {
-            $tester->execute($args, ['verbosity' => $verbosity]);
+            $tester->execute($args, ['verbosity' => $verbosity, 'interactive' => $interactive]);
         } catch (Exception $e) {
             if (getenv('ACLI_PRINT_COMMAND_OUTPUT')) {
                 print $this->getDisplay();

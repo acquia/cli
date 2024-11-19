@@ -10,6 +10,7 @@ use Acquia\Cli\Command\Self\ClearCacheCommand;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Tests\CommandTestBase;
 use AcquiaCloudApi\Exception\ApiErrorException;
+use Overtrue\PHPLint\Output\OutputInterface;
 use Symfony\Component\Console\Exception\MissingInputException;
 use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Yaml\Yaml;
@@ -105,6 +106,10 @@ EOD;
 
     /**
      * Tests invalid UUID.
+     *
+     * @throws \JsonException
+     * @throws \AcquiaCloudApi\Exception\ApiErrorException
+     * @throws \Exception
      */
     public function testApiCommandErrorResponse(): void
     {
@@ -117,7 +122,7 @@ EOD;
             ->willThrow(new ApiErrorException($mockBody))
             ->shouldBeCalled();
 
-        // ApiCommandBase::convertApplicationAliastoUuid() will try to convert the invalid string to a uuid:
+        // ApiCommandBase::convertApplicationAliasToUuid() will try to convert the invalid string to a UUID:
         $this->clientProphecy->addQuery('filter', 'hosting=@*:' . $invalidUuid);
         $this->clientProphecy->request('get', '/applications')->willReturn([]);
 
@@ -128,7 +133,7 @@ EOD;
             '0',
             // Would you like to link the Cloud application Sample application to this repository?
             'n',
-        ]);
+        ], \Symfony\Component\Console\Output\OutputInterface::VERBOSITY_VERY_VERBOSE, false);
 
         // Assert.
         $output = $this->getDisplay();

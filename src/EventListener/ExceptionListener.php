@@ -10,6 +10,7 @@ use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use Symfony\Component\Console\Event\ConsoleErrorEvent;
 use Symfony\Component\Console\Exception\CommandNotFoundException;
 use Symfony\Component\Console\Exception\RuntimeException;
+use TypeError;
 
 /**
  * Make exceptions warm and cuddly.
@@ -82,6 +83,9 @@ class ExceptionListener
         }
 
         if ($error instanceof ApiErrorException) {
+            if (($command = $event->getCommand()) && $error->getResponseBody()->error === 'not_found' && $command->getName() === 'api:environments:log-download') {
+                $this->helpMessages[] = "You must create logs (api:environments:log-create) prior to downloading them";
+            }
             switch ($errorMessage) {
                 case "There are no available Cloud IDEs for this application.\n":
                     $this->helpMessages[] = "Delete an existing IDE via <bg=$this->messagesBgColor;fg=$this->messagesFgColor;options=bold>acli ide:delete</> or contact your Account Manager or Acquia Sales to purchase additional IDEs.";
@@ -96,7 +100,7 @@ class ExceptionListener
             }
         }
 
-        if ($error instanceof \TypeError && str_contains($error->getMessage(), 'AcquiaCloudApi\Response')) {
+        if ($error instanceof TypeError && str_contains($error->getMessage(), 'AcquiaCloudApi\Response')) {
             $newErrorMessage = 'Cloud Platform API returned an unexpected data type. This could be due to missing permissions or a problem with your Cloud Platform application.';
         }
 

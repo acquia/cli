@@ -40,7 +40,6 @@ class LocalMachineHelperTest extends TestBase
     {
         $localMachineHelper = $this->localMachineHelper;
         $localMachineHelper->setIsTty($isTty);
-        $this->input->setInteractive($interactive);
         $process = $localMachineHelper->executeFromCmd('echo "hello world"', null, null, $printOutput);
         $this->assertTrue($process->isSuccessful());
         assert(is_a($this->output, BufferedOutput::class));

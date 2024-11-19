@@ -97,6 +97,7 @@ class ApiBaseCommand extends CommandBase
     /**
      * @throws \Acquia\Cli\Exception\AcquiaCliException
      * @throws \JsonException
+     * @throws \AcquiaCloudApi\Exception\ApiErrorException
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
@@ -122,8 +123,9 @@ class ApiBaseCommand extends CommandBase
             $response = $acquiaCloudClient->request($this->method, $path);
             $exitCode = 0;
         } catch (ApiErrorException $exception) {
-            // Ignore PhpStorm warning here.
-            // @see https://youtrack.jetbrains.com/issue/WI-77190/Exception-is-never-thrown-when-thrown-from-submethod
+            if ($input->isInteractive()) {
+                throw $exception;
+            }
             $response = $exception->getResponseBody();
             $exitCode = 1;
         }
