@@ -56,7 +56,7 @@ Task type: Application added to recents list
 Duration: 0 seconds
 
 EOD;
-        $this->assertEquals($expected, $output);
+        $this->assertStringEqualsStringIgnoringLineEndings($expected, $output);
         $this->assertEquals(0, $this->getStatusCode());
     }
 
@@ -143,7 +143,7 @@ EOD;
 }
 
 EOD;
-        $this->assertEquals($expected, $output);
+        $this->assertStringEqualsStringIgnoringLineEndings($expected, $output);
         $this->assertEquals(1, $this->getStatusCode());
     }
 
