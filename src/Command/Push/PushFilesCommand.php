@@ -44,7 +44,7 @@ final class PushFilesCommand extends PushCommandBase
         return Command::SUCCESS;
     }
 
-    private function rsyncFilesToCloud(EnvironmentResponse $chosenEnvironment, callable $outputCallback = null, string $site = null): void
+    private function rsyncFilesToCloud(EnvironmentResponse $chosenEnvironment, ?callable $outputCallback = null, ?string $site = null): void
     {
         $sourceDir = $this->getLocalFilesDir($site);
         $destinationDir = $chosenEnvironment->sshUrl . ':' . $this->getCloudFilesDir($chosenEnvironment, $site);

@@ -79,7 +79,7 @@ class LocalMachineHelper
     /**
      * Executes a buffered command.
      */
-    public function execute(array $cmd, callable $callback = null, string $cwd = null, ?bool $printOutput = true, float $timeout = null, array $env = null, bool $stdin = true): Process
+    public function execute(array $cmd, ?callable $callback = null, ?string $cwd = null, ?bool $printOutput = true, ?float $timeout = null, ?array $env = null, bool $stdin = true): Process
     {
         $process = new Process($cmd);
         $process = $this->configureProcess($process, $cwd, $printOutput, $timeout, $env, $stdin);
@@ -95,12 +95,9 @@ class LocalMachineHelper
      *
      * Windows does not support prepending commands with environment variables.
      *
-     * @param callable|null $callback
-     * @param string|null $cwd
-     * @param int|null $timeout
      * @param array|null $env
      */
-    public function executeFromCmd(string $cmd, callable $callback = null, string $cwd = null, ?bool $printOutput = true, int $timeout = null, array $env = null): Process
+    public function executeFromCmd(string $cmd, ?callable $callback = null, ?string $cwd = null, ?bool $printOutput = true, ?int $timeout = null, ?array $env = null): Process
     {
         $process = Process::fromShellCommandline($cmd);
         $process = $this->configureProcess($process, $cwd, $printOutput, $timeout, $env);
@@ -109,10 +106,9 @@ class LocalMachineHelper
     }
 
     /**
-     * @param string|null $cwd
      * @param array|null $env
      */
-    private function configureProcess(Process $process, string $cwd = null, ?bool $printOutput = true, float $timeout = null, array $env = null, bool $stdin = true): Process
+    private function configureProcess(Process $process, ?string $cwd = null, ?bool $printOutput = true, ?float $timeout = null, ?array $env = null, bool $stdin = true): Process
     {
         if (function_exists('posix_isatty') && $stdin && !@posix_isatty(STDIN)) {
             $process->setInput(STDIN);
@@ -131,7 +127,7 @@ class LocalMachineHelper
         return $process;
     }
 
-    private function executeProcess(Process $process, callable $callback = null, ?bool $printOutput = true): Process
+    private function executeProcess(Process $process, ?callable $callback = null, ?bool $printOutput = true): Process
     {
         if ($callback === null && $printOutput !== false) {
             $callback = function (mixed $type, mixed $buffer): void {
@@ -366,7 +362,7 @@ class LocalMachineHelper
      *     by the user or a default browser could not be found.
      * @infection-ignore-all
      */
-    public function startBrowser(string $uri = null, string $browser = null): bool
+    public function startBrowser(?string $uri = null, ?string $browser = null): bool
     {
         // We can only open a browser if we have a DISPLAY environment variable on
         // POSIX or are running Windows or OS X.

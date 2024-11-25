@@ -12,10 +12,8 @@ class AcsfConnector extends Connector
 {
     /**
      * @param array<string> $config
-     * @param string|null $baseUri
-     * @param string|null $urlAccessToken
      */
-    public function __construct(array $config, string $baseUri = null, string $urlAccessToken = null)
+    public function __construct(array $config, ?string $baseUri = null, ?string $urlAccessToken = null)
     {
         parent::__construct($config, $baseUri, $urlAccessToken);
 

@@ -10,10 +10,8 @@ class JsonDataStore extends Datastore
 {
     /**
      * Creates a new store.
-     *
-     * @param \Symfony\Component\Config\Definition\ConfigurationInterface|null $configDefinition
      */
-    public function __construct(string $path, ConfigurationInterface $configDefinition = null)
+    public function __construct(string $path, ?ConfigurationInterface $configDefinition = null)
     {
         parent::__construct($path);
         if ($this->fileSystem->exists($path)) {

@@ -10,11 +10,19 @@
             "role": "Maintainer"
         }
     ],
+    "repositories": [
+        {
+            "type": "path", "url": "../drupal-environment-detector"
+        },
+        {
+            "type": "path", "url": "../../typhonius/acquia-php-sdk-v2"
+        }
+    ],
     "minimum-stability": "dev",
     "require": {
         "php": "^8.1",
         "ext-json": "*",
-        "acquia/drupal-environment-detector": "^1.2.0",
+        "acquia/drupal-environment-detector": "*",
         "bugsnag/bugsnag": "^3.0",
         "composer/semver": "^3.3",
         "consolidation/self-update": "^3",
@@ -45,9 +53,9 @@
         "symfony/process": "^6.3",
         "symfony/validator": "^6.3",
         "symfony/yaml": "^6.3",
-        "thecodingmachine/safe": "^2.4",
+        "shish/safe": "^2.4",
         "typhonius/acquia-logstream": "^0.0.14",
-        "typhonius/acquia-php-sdk-v2": "^3.4.0",
+        "typhonius/acquia-php-sdk-v2": "dev-master as 3.4.0",
         "vlucas/phpdotenv": "^5.5",
         "zumba/amplitude-php": "^1.0.4"
     },
