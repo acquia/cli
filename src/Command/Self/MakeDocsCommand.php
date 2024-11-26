@@ -7,6 +7,7 @@ namespace Acquia\Cli\Command\Self;
 use Acquia\Cli\Command\CommandBase;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Formatter\OutputFormatter;
 use Symfony\Component\Console\Helper\DescriptorHelper;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -19,7 +20,7 @@ final class MakeDocsCommand extends CommandBase
     protected function configure(): void
     {
         $this->addOption('format', 'f', InputOption::VALUE_OPTIONAL, 'The format to describe the docs in.', 'rst');
-        $this->addOption('dump', 'd', InputOption::VALUE_OPTIONAL, 'Dump docs to directory');
+        $this->addOption('dump', 'd', InputOption::VALUE_OPTIONAL, 'Dump docs to directory (implies JSON format)');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -46,6 +47,7 @@ final class MakeDocsCommand extends CommandBase
                 continue;
             }
             $filename = $command['name'] . '.json';
+            $command['help'] = (new OutputFormatter())->format($command['help']);
             $index[] = [
                 'command' => $command['name'],
                 'help' => $command['help'],
