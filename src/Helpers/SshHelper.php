@@ -28,10 +28,8 @@ class SshHelper implements LoggerAwareInterface
 
     /**
      * Execute the command in a remote environment.
-     *
-     * @param int|null $timeout
      */
-    public function executeCommand(string $sshUrl, array $commandArgs, bool $printOutput = true, int $timeout = null): Process
+    public function executeCommand(string $sshUrl, array $commandArgs, bool $printOutput = true, ?int $timeout = null): Process
     {
         $commandSummary = $this->getCommandSummary($commandArgs);
 

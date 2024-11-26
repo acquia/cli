@@ -176,7 +176,7 @@ abstract class PullCommandBase extends CommandBase
         $this->checklist->completePreviousItem();
     }
 
-    private function pullCodeFromCloud(EnvironmentResponse $chosenEnvironment, Closure $outputCallback = null): void
+    private function pullCodeFromCloud(EnvironmentResponse $chosenEnvironment, ?Closure $outputCallback = null): void
     {
         $isDirty = $this->isLocalGitRepoDirty();
         if ($isDirty) {
@@ -195,7 +195,7 @@ abstract class PullCommandBase extends CommandBase
     /**
      * Checks out the matching branch from a source environment.
      */
-    private function checkoutBranchFromEnv(EnvironmentResponse $environment, Closure $outputCallback = null): void
+    private function checkoutBranchFromEnv(EnvironmentResponse $environment, ?Closure $outputCallback = null): void
     {
         $this->localMachineHelper->checkRequiredBinariesExist(['git']);
         $this->localMachineHelper->execute([
@@ -211,7 +211,7 @@ abstract class PullCommandBase extends CommandBase
         string $databaseName,
         string $databasePassword,
         string $localFilepath,
-        Closure $outputCallback = null
+        ?Closure $outputCallback = null
     ): void {
         $this->dropDbTables($databaseHost, $databaseUser, $databaseName, $databasePassword, $outputCallback);
         $this->importDatabaseDump($localFilepath, $databaseHost, $databaseUser, $databaseName, $databasePassword, $outputCallback);
@@ -222,7 +222,7 @@ abstract class PullCommandBase extends CommandBase
         EnvironmentResponse $environment,
         DatabaseResponse $database,
         BackupResponse $backupResponse,
-        callable $outputCallback = null
+        ?callable $outputCallback = null
     ): string {
         if ($outputCallback) {
             $outputCallback('out', "Downloading backup $backupResponse->id");
@@ -357,7 +357,7 @@ abstract class PullCommandBase extends CommandBase
         }
     }
 
-    private function connectToLocalDatabase(string $dbHost, string $dbUser, string $dbName, string $dbPassword, callable $outputCallback = null): void
+    private function connectToLocalDatabase(string $dbHost, string $dbUser, string $dbName, string $dbPassword, ?callable $outputCallback = null): void
     {
         if ($outputCallback) {
             $outputCallback('out', "Connecting to database $dbName");
@@ -425,7 +425,7 @@ abstract class PullCommandBase extends CommandBase
         }
     }
 
-    private function importDatabaseDump(string $localDumpFilepath, string $dbHost, string $dbUser, string $dbName, string $dbPassword, Closure $outputCallback = null): void
+    private function importDatabaseDump(string $localDumpFilepath, string $dbHost, string $dbUser, string $dbName, string $dbPassword, ?Closure $outputCallback = null): void
     {
         if ($outputCallback) {
             $outputCallback('out', "Importing downloaded file to database $dbName");
@@ -601,7 +601,7 @@ abstract class PullCommandBase extends CommandBase
         }
     }
 
-    private function importRemoteDatabase(DatabaseResponse $database, string $localFilepath, Closure $outputCallback = null): void
+    private function importRemoteDatabase(DatabaseResponse $database, string $localFilepath, ?Closure $outputCallback = null): void
     {
         if ($database->flags->default) {
             // Easy case, import the default db into the default db.

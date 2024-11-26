@@ -524,10 +524,9 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
     }
 
     /**
-     * @param string|null $site
      * @return DatabaseResponse[]
      */
-    protected function determineCloudDatabases(Client $acquiaCloudClient, EnvironmentResponse $chosenEnvironment, string $site = null, bool $multipleDbs = false): array
+    protected function determineCloudDatabases(Client $acquiaCloudClient, EnvironmentResponse $chosenEnvironment, ?string $site = null, bool $multipleDbs = false): array
     {
         $databasesRequest = new Databases($acquiaCloudClient);
         $databases = $databasesRequest->getAll($chosenEnvironment->uuid);
@@ -1592,7 +1591,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
         }
     }
 
-    protected function getDrushDatabaseConnectionStatus(Closure $outputCallback = null): bool
+    protected function getDrushDatabaseConnectionStatus(?Closure $outputCallback = null): bool
     {
         if (isset($this->drushHasActiveDatabaseConnection)) {
             return $this->drushHasActiveDatabaseConnection;
@@ -1619,7 +1618,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
         return $this->drushHasActiveDatabaseConnection;
     }
 
-    protected function createMySqlDumpOnLocal(string $dbHost, string $dbUser, string $dbName, string $dbPassword, Closure $outputCallback = null): string
+    protected function createMySqlDumpOnLocal(string $dbHost, string $dbUser, string $dbName, string $dbPassword, ?Closure $outputCallback = null): string
     {
         $this->localMachineHelper->checkRequiredBinariesExist([
             'mysqldump',
@@ -1857,7 +1856,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
         }
     }
 
-    protected function waitForNotificationToComplete(Client $acquiaCloudClient, string $uuid, string $message, callable $success = null): bool
+    protected function waitForNotificationToComplete(Client $acquiaCloudClient, string $uuid, string $message, ?callable $success = null): bool
     {
         $notificationsResource = new Notifications($acquiaCloudClient);
         $notification = null;

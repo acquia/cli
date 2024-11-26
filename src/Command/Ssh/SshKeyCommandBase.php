@@ -330,8 +330,9 @@ EOT
 
     /**
      * @return array<mixed>
+     * @throws \Acquia\Cli\Exception\AcquiaCliException
      */
-    protected function determinePublicSshKey(string $filepath = null): array
+    protected function determinePublicSshKey(?string $filepath = null): array
     {
         if ($filepath) {
             $filepath = $this->localMachineHelper->getLocalFilepath($filepath);
