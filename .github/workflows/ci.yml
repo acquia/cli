@@ -23,15 +23,16 @@ jobs:
     strategy:
       matrix:
         os: ['ubuntu-22.04']
-        php: ['8.1', '8.2', '8.3']
+        php: ['8.1', '8.2', '8.3', '8.4']
         coverage: ['none']
         include:
           - os: 'ubuntu-22.04'
-            php: '8.2'
+            php: '8.4'
             coverage: 'pcov'
           # Only test pre-installed (i.e. fast) versions of PHP on Windows.
+          # https://github.com/shivammathur/setup-php?tab=readme-ov-file#github-hosted-runners
           - os: 'windows-2022'
-            php: '8.2'
+            php: '8.3'
             coverage: 'none'
     steps:
       - name: Prepare Git
