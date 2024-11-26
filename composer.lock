@@ -4,15 +4,21 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "6230aeebf1244454386cf8f977f9c65f",
+    "content-hash": "71b2dc1d9fc88eee892361edecfd0add",
     "packages": [
         {
             "name": "acquia/drupal-environment-detector",
-            "version": "dev-main",
+            "version": "1.7.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/acquia/drupal-environment-detector.git",
+                "reference": "4666ae67b422d209a8b11c9f886e3ef6d3f16778"
+            },
             "dist": {
-                "type": "path",
-                "url": "../drupal-environment-detector",
-                "reference": "a4c8ec18ebcfb4e0f2fabdade868367dfe695aec"
+                "type": "zip",
+                "url": "https://api.github.com/repos/acquia/drupal-environment-detector/zipball/4666ae67b422d209a8b11c9f886e3ef6d3f16778",
+                "reference": "4666ae67b422d209a8b11c9f886e3ef6d3f16778",
+                "shasum": ""
             },
             "conflict": {
                 "acquia/blt": ">=12.0.0 <13.5.2"
@@ -34,6 +40,7 @@
                     "Acquia\\DrupalEnvironmentDetector\\Tests\\": "tests/"
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "GPL-2.0-or-later"
             ],
@@ -45,9 +52,11 @@
                 }
             ],
             "description": "Provides common methods for detecting the current Acquia environment",
-            "transport-options": {
-                "relative": true
-            }
+            "support": {
+                "issues": "https://github.com/acquia/drupal-environment-detector/issues",
+                "source": "https://github.com/acquia/drupal-environment-detector/tree/1.7.0"
+            },
+            "time": "2024-11-26T19:16:45+00:00"
         },
         {
             "name": "brick/math",
@@ -639,16 +648,16 @@
         },
         {
             "name": "grasmash/expander",
-            "version": "3.0.0",
+            "version": "3.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/grasmash/expander.git",
-                "reference": "bb1c1a2430957945cf08c5a62f5d72a6aa6a2c82"
+                "reference": "eea11b9afb0c32483b18b9009f4ca07b770e39f4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/grasmash/expander/zipball/bb1c1a2430957945cf08c5a62f5d72a6aa6a2c82",
-                "reference": "bb1c1a2430957945cf08c5a62f5d72a6aa6a2c82",
+                "url": "https://api.github.com/repos/grasmash/expander/zipball/eea11b9afb0c32483b18b9009f4ca07b770e39f4",
+                "reference": "eea11b9afb0c32483b18b9009f4ca07b770e39f4",
                 "shasum": ""
             },
             "require": {
@@ -685,9 +694,9 @@
             "description": "Expands internal property references in PHP arrays file.",
             "support": {
                 "issues": "https://github.com/grasmash/expander/issues",
-                "source": "https://github.com/grasmash/expander/tree/3.0.0"
+                "source": "https://github.com/grasmash/expander/tree/3.0.1"
             },
-            "time": "2022-05-10T13:14:49+00:00"
+            "time": "2024-11-25T23:28:05+00:00"
         },
         {
             "name": "guzzlehttp/guzzle",
@@ -1479,16 +1488,16 @@
         },
         {
             "name": "league/oauth2-client",
-            "version": "2.7.0",
+            "version": "dev-patch-1",
             "source": {
                 "type": "git",
-                "url": "https://github.com/thephpleague/oauth2-client.git",
-                "reference": "160d6274b03562ebeb55ed18399281d8118b76c8"
+                "url": "https://github.com/ruudk/oauth2-client.git",
+                "reference": "b7cf4b4bf0511210bc0159e400631076facd63f2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/oauth2-client/zipball/160d6274b03562ebeb55ed18399281d8118b76c8",
-                "reference": "160d6274b03562ebeb55ed18399281d8118b76c8",
+                "url": "https://api.github.com/repos/ruudk/oauth2-client/zipball/b7cf4b4bf0511210bc0159e400631076facd63f2",
+                "reference": "b7cf4b4bf0511210bc0159e400631076facd63f2",
                 "shasum": ""
             },
             "require": {
@@ -1503,17 +1512,16 @@
                 "squizlabs/php_codesniffer": "^2.3 || ^3.0"
             },
             "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-2.x": "2.0.x-dev"
-                }
-            },
             "autoload": {
                 "psr-4": {
                     "League\\OAuth2\\Client\\": "src/"
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
+            "autoload-dev": {
+                "psr-4": {
+                    "League\\OAuth2\\Client\\Test\\": "test/src/"
+                }
+            },
             "license": [
                 "MIT"
             ],
@@ -1532,20 +1540,19 @@
             ],
             "description": "OAuth 2.0 Client Library",
             "keywords": [
-                "Authentication",
-                "SSO",
+                "authentication",
                 "authorization",
                 "identity",
                 "idp",
                 "oauth",
                 "oauth2",
-                "single sign on"
+                "single sign on",
+                "sso"
             ],
             "support": {
-                "issues": "https://github.com/thephpleague/oauth2-client/issues",
-                "source": "https://github.com/thephpleague/oauth2-client/tree/2.7.0"
+                "source": "https://github.com/ruudk/oauth2-client/tree/patch-1"
             },
-            "time": "2023-04-16T18:19:15+00:00"
+            "time": "2024-10-31T09:22:57+00:00"
         },
         {
             "name": "loophp/phposinfo",
@@ -6093,16 +6100,16 @@
         },
         {
             "name": "thecodingmachine/safe",
-            "version": "v2.5.0",
+            "version": "dev-php84/nullability",
             "source": {
                 "type": "git",
-                "url": "https://github.com/thecodingmachine/safe.git",
-                "reference": "3115ecd6b4391662b4931daac4eba6b07a2ac1f0"
+                "url": "https://github.com/Ayesh/safe.git",
+                "reference": "e75af75bd026b45b4a526499d324c5202224c570"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thecodingmachine/safe/zipball/3115ecd6b4391662b4931daac4eba6b07a2ac1f0",
-                "reference": "3115ecd6b4391662b4931daac4eba6b07a2ac1f0",
+                "url": "https://api.github.com/repos/Ayesh/safe/zipball/e75af75bd026b45b4a526499d324c5202224c570",
+                "reference": "e75af75bd026b45b4a526499d324c5202224c570",
                 "shasum": ""
             },
             "require": {
@@ -6121,6 +6128,13 @@
                 }
             },
             "autoload": {
+                "classmap": [
+                    "lib/DateTime.php",
+                    "lib/DateTimeImmutable.php",
+                    "lib/Exceptions/",
+                    "deprecated/Exceptions/",
+                    "generated/Exceptions/"
+                ],
                 "files": [
                     "deprecated/apc.php",
                     "deprecated/array.php",
@@ -6210,25 +6224,27 @@
                     "generated/yaz.php",
                     "generated/zip.php",
                     "generated/zlib.php"
-                ],
-                "classmap": [
-                    "lib/DateTime.php",
-                    "lib/DateTimeImmutable.php",
-                    "lib/Exceptions/",
-                    "deprecated/Exceptions/",
-                    "generated/Exceptions/"
                 ]
             },
-            "notification-url": "https://packagist.org/downloads/",
+            "scripts": {
+                "phpstan": [
+                    "phpstan analyse lib -c phpstan.neon --level=max --no-progress -vvv"
+                ],
+                "cs-fix": [
+                    "phpcbf"
+                ],
+                "cs-check": [
+                    "phpcs"
+                ]
+            },
             "license": [
                 "MIT"
             ],
             "description": "PHP core functions that throw exceptions instead of returning FALSE on error",
             "support": {
-                "issues": "https://github.com/thecodingmachine/safe/issues",
-                "source": "https://github.com/thecodingmachine/safe/tree/v2.5.0"
+                "source": "https://github.com/Ayesh/safe/tree/php84/nullability"
             },
-            "time": "2023-04-05T11:54:14+00:00"
+            "time": "2024-03-18T13:27:28+00:00"
         },
         {
             "name": "typhonius/acquia-logstream",
@@ -6288,11 +6304,17 @@
         },
         {
             "name": "typhonius/acquia-php-sdk-v2",
-            "version": "dev-master",
+            "version": "3.4.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/typhonius/acquia-php-sdk-v2.git",
+                "reference": "c3acefe27f4abd39111c43b96e9c35d672df6f4e"
+            },
             "dist": {
-                "type": "path",
-                "url": "../../typhonius/acquia-php-sdk-v2",
-                "reference": "50018d6c14a8d562698dbd4906cd159fa6bbe518"
+                "type": "zip",
+                "url": "https://api.github.com/repos/typhonius/acquia-php-sdk-v2/zipball/c3acefe27f4abd39111c43b96e9c35d672df6f4e",
+                "reference": "c3acefe27f4abd39111c43b96e9c35d672df6f4e",
+                "shasum": ""
             },
             "require": {
                 "guzzlehttp/guzzle": "^7.2",
@@ -6316,47 +6338,13 @@
             "type": "library",
             "autoload": {
                 "psr-4": {
+                    "AcquiaCloudApi\\Response\\": "src/Response",
                     "AcquiaCloudApi\\Connector\\": "src/Connector",
                     "AcquiaCloudApi\\Endpoints\\": "src/Endpoints",
-                    "AcquiaCloudApi\\Response\\": "src/Response",
                     "AcquiaCloudApi\\Exception\\": "src/Exception"
                 }
             },
-            "autoload-dev": {
-                "psr-4": {
-                    "AcquiaCloudApi\\Tests\\": "tests/",
-                    "League\\OAuth2\\Client\\Test\\": "vendor/league/oauth2-client/test/src/"
-                }
-            },
-            "scripts": {
-                "lint": [
-                    "phplint"
-                ],
-                "cs": [
-                    "phpcs"
-                ],
-                "cbf": [
-                    "phpcbf"
-                ],
-                "unit": [
-                    "php -dpcov.enabled=1 -dpcov.directory=. -dpcov.exclude='~vendor~' ./vendor/bin/phpunit --configuration=phpunit.xml --testdox"
-                ],
-                "stan": [
-                    "phpstan analyse"
-                ],
-                "test": [
-                    "@lint",
-                    "@unit",
-                    "@cs",
-                    "@stan"
-                ],
-                "release": [
-                    "release VERSION"
-                ],
-                "coveralls": [
-                    "php ./vendor/bin/php-coveralls -v"
-                ]
-            },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -6367,9 +6355,17 @@
                 }
             ],
             "description": "A PHP SDK for Acquia CloudAPI v2",
-            "transport-options": {
-                "relative": true
-            }
+            "support": {
+                "issues": "https://github.com/typhonius/acquia-php-sdk-v2/issues",
+                "source": "https://github.com/typhonius/acquia-php-sdk-v2/tree/3.4.1"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/typhonius",
+                    "type": "github"
+                }
+            ],
+            "time": "2024-11-25T23:17:17+00:00"
         },
         {
             "name": "vlucas/phpdotenv",
@@ -13209,15 +13205,22 @@
     ],
     "aliases": [
         {
-            "package": "typhonius/acquia-php-sdk-v2",
-            "version": "9999999-dev",
-            "alias": "3.4.0",
-            "alias_normalized": "3.4.0.0"
+            "package": "league/oauth2-client",
+            "version": "dev-patch-1",
+            "alias": "2.7.0",
+            "alias_normalized": "2.7.0.0"
+        },
+        {
+            "package": "thecodingmachine/safe",
+            "version": "dev-php84/nullability",
+            "alias": "2.5.0",
+            "alias_normalized": "2.5.0.0"
         }
     ],
     "minimum-stability": "dev",
     "stability-flags": {
-        "typhonius/acquia-php-sdk-v2": 20
+        "league/oauth2-client": 20,
+        "thecodingmachine/safe": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,
