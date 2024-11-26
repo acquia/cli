@@ -151,6 +151,7 @@ final class PushArtifactCommand extends CommandBase
 
     /**
      * @return string[]
+     * @throws \Acquia\Cli\Exception\AcquiaCliException
      */
     private function determineDestinationGitUrls(): array
     {
@@ -165,7 +166,11 @@ final class PushArtifactCommand extends CommandBase
         }
 
         $applicationUuid = $this->determineCloudApplication();
-        return [$this->getAnyVcsUrl($applicationUuid)];
+        if ($vcsUrl = $this->getAnyVcsUrl($applicationUuid)) {
+            return [$vcsUrl];
+        }
+
+        throw new AcquiaCliException('No environments found for this application');
     }
 
     /**
