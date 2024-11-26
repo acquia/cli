@@ -26,7 +26,7 @@ class IdeShareCommandTest extends CommandTestBase
     /**
      * This method is called before each test.
      */
-    public function setUp(OutputInterface $output = null): void
+    public function setUp(?OutputInterface $output = null): void
     {
         parent::setUp();
         $this->shareCode = 'a47ac10b-58cc-4372-a567-0e02b2c3d470';

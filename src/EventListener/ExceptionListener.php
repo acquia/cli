@@ -79,6 +79,9 @@ class ExceptionListener
                 case 'Database connection details missing':
                     $this->helpMessages[] = 'Check that you have the \'View database connection details\' permission';
                     break;
+                case 'No environments found for this application':
+                    $this->helpMessages[] = 'Check that the application has finished provisioning';
+                    break;
             }
         }
 

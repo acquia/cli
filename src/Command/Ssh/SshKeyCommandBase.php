@@ -199,9 +199,10 @@ EOT
             if (in_array($requiredPerm, $userPerms, true)) {
                 switch ($requiredPerm) {
                     case 'add ssh key to git':
-                        $fullUrl = $this->getAnyVcsUrl($cloudAppUuid);
-                        $urlParts = explode(':', $fullUrl);
-                        $mappings['git']['ssh_target'] = $urlParts[0];
+                        if ($fullUrl = $this->getAnyVcsUrl($cloudAppUuid)) {
+                            $urlParts = explode(':', $fullUrl);
+                            $mappings['git']['ssh_target'] = $urlParts[0];
+                        }
                         break;
                     case 'add ssh key to non-prod':
                         if ($nonProdEnv = $this->getAnyNonProdAhEnvironment($cloudAppUuid)) {
@@ -329,8 +330,9 @@ EOT
 
     /**
      * @return array<mixed>
+     * @throws \Acquia\Cli\Exception\AcquiaCliException
      */
-    protected function determinePublicSshKey(string $filepath = null): array
+    protected function determinePublicSshKey(?string $filepath = null): array
     {
         if ($filepath) {
             $filepath = $this->localMachineHelper->getLocalFilepath($filepath);

@@ -146,7 +146,7 @@ final class ArchiveExportCommand extends CommandBase
         $this->fs->rename($dumpTempFilepath, $dumpFilepath);
     }
 
-    private function compressArchiveDirectory(string $archiveDir, string|bool|array|null $destinationDir, Closure $outputCallback = null): string
+    private function compressArchiveDirectory(string $archiveDir, string|bool|array|null $destinationDir, ?Closure $outputCallback = null): string
     {
         $destinationFilename = basename($archiveDir) . '.tar.gz';
         $destinationFilepath = Path::join($destinationDir, $destinationFilename);

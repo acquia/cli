@@ -478,7 +478,7 @@ abstract class TestBase extends TestCase
      * @throws \JsonException
      * @throws \Exception
      */
-    protected function mockRequest(string $operationId, string|array|null $params = null, ?array $body = null, ?string $exampleResponse = null, Closure $tamper = null): object|array
+    protected function mockRequest(string $operationId, string|array|null $params = null, ?array $body = null, ?string $exampleResponse = null, ?Closure $tamper = null): object|array
     {
         if (is_string($params)) {
             $params = [$params];

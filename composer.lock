@@ -4,29 +4,28 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "8e18ad1d86e2cea43d906b0ab2b94fc1",
+    "content-hash": "67e29456aa1ad9493edd27e9fbcca50c",
     "packages": [
         {
             "name": "acquia/drupal-environment-detector",
-            "version": "1.6.0",
+            "version": "1.7.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/acquia/drupal-environment-detector.git",
-                "reference": "396cc5ed5d7f9d40a8afbdc1800a189c15924450"
+                "reference": "4666ae67b422d209a8b11c9f886e3ef6d3f16778"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/acquia/drupal-environment-detector/zipball/396cc5ed5d7f9d40a8afbdc1800a189c15924450",
-                "reference": "396cc5ed5d7f9d40a8afbdc1800a189c15924450",
+                "url": "https://api.github.com/repos/acquia/drupal-environment-detector/zipball/4666ae67b422d209a8b11c9f886e3ef6d3f16778",
+                "reference": "4666ae67b422d209a8b11c9f886e3ef6d3f16778",
                 "shasum": ""
             },
             "conflict": {
                 "acquia/blt": ">=12.0.0 <13.5.2"
             },
             "require-dev": {
-                "acquia/coding-standards": "^1.0.0",
-                "dealerdirect/phpcodesniffer-composer-installer": "^0.7.0",
-                "phpunit/phpunit": "^9.1"
+                "acquia/coding-standards": "^3.0.1",
+                "dealerdirect/phpcodesniffer-composer-installer": "^1.0.0"
             },
             "type": "library",
             "extra": {
@@ -55,9 +54,9 @@
             "description": "Provides common methods for detecting the current Acquia environment",
             "support": {
                 "issues": "https://github.com/acquia/drupal-environment-detector/issues",
-                "source": "https://github.com/acquia/drupal-environment-detector/tree/1.6.0"
+                "source": "https://github.com/acquia/drupal-environment-detector/tree/1.7.0"
             },
-            "time": "2023-02-28T18:45:28+00:00"
+            "time": "2024-11-26T19:16:45+00:00"
         },
         {
             "name": "brick/math",
@@ -649,16 +648,16 @@
         },
         {
             "name": "grasmash/expander",
-            "version": "3.0.0",
+            "version": "3.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/grasmash/expander.git",
-                "reference": "bb1c1a2430957945cf08c5a62f5d72a6aa6a2c82"
+                "reference": "eea11b9afb0c32483b18b9009f4ca07b770e39f4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/grasmash/expander/zipball/bb1c1a2430957945cf08c5a62f5d72a6aa6a2c82",
-                "reference": "bb1c1a2430957945cf08c5a62f5d72a6aa6a2c82",
+                "url": "https://api.github.com/repos/grasmash/expander/zipball/eea11b9afb0c32483b18b9009f4ca07b770e39f4",
+                "reference": "eea11b9afb0c32483b18b9009f4ca07b770e39f4",
                 "shasum": ""
             },
             "require": {
@@ -695,9 +694,9 @@
             "description": "Expands internal property references in PHP arrays file.",
             "support": {
                 "issues": "https://github.com/grasmash/expander/issues",
-                "source": "https://github.com/grasmash/expander/tree/3.0.0"
+                "source": "https://github.com/grasmash/expander/tree/3.0.1"
             },
-            "time": "2022-05-10T13:14:49+00:00"
+            "time": "2024-11-25T23:28:05+00:00"
         },
         {
             "name": "guzzlehttp/guzzle",
@@ -1084,23 +1083,23 @@
         },
         {
             "name": "kevinrob/guzzle-cache-middleware",
-            "version": "v5.1.0",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Kevinrob/guzzle-cache-middleware.git",
-                "reference": "6bd64dbbe5155107d84a0f67140a8822a709c6d0"
+                "reference": "61305ed694e763e887a04f61e71e2292bb4fbad1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Kevinrob/guzzle-cache-middleware/zipball/6bd64dbbe5155107d84a0f67140a8822a709c6d0",
-                "reference": "6bd64dbbe5155107d84a0f67140a8822a709c6d0",
+                "url": "https://api.github.com/repos/Kevinrob/guzzle-cache-middleware/zipball/61305ed694e763e887a04f61e71e2292bb4fbad1",
+                "reference": "61305ed694e763e887a04f61e71e2292bb4fbad1",
                 "shasum": ""
             },
             "require": {
-                "guzzlehttp/guzzle": "^6.0 || ^7.0",
-                "guzzlehttp/promises": "^1.4 || ^2.0",
-                "guzzlehttp/psr7": "^1.7.0 || ^2.0.0",
-                "php": ">=7.2.0"
+                "guzzlehttp/guzzle": "^7.9.2",
+                "guzzlehttp/promises": "^2.0.3",
+                "guzzlehttp/psr7": "^2.7.0",
+                "php": ">=8.1"
             },
             "require-dev": {
                 "cache/array-adapter": "^0.4 || ^0.5 || ^1.0",
@@ -1108,10 +1107,10 @@
                 "doctrine/cache": "^1.10",
                 "illuminate/cache": "^5.0",
                 "league/flysystem": "^2.5",
-                "phpunit/phpunit": "^8.5.15 || ^9.5",
+                "phpunit/phpunit": "^9.6.21",
                 "psr/cache": "^1.0",
                 "symfony/cache": "^4.4 || ^5.0",
-                "symfony/phpunit-bridge": "^4.4 || ^5.0"
+                "symfony/phpunit-bridge": "^7.1.4"
             },
             "suggest": {
                 "doctrine/cache": "This library has a lot of ready-to-use cache storage (to be used with Kevinrob\\GuzzleCache\\Storage\\DoctrineCacheStorage). Use only versions >=1.4.0 < 2.0.0",
@@ -1121,6 +1120,7 @@
                 "psr/cache": "To be used with Kevinrob\\GuzzleCache\\Storage\\Psr6CacheStorage",
                 "psr/simple-cache": "To be used with Kevinrob\\GuzzleCache\\Storage\\Psr16CacheStorage"
             },
+            "default-branch": true,
             "type": "library",
             "autoload": {
                 "psr-4": {
@@ -1163,9 +1163,9 @@
             ],
             "support": {
                 "issues": "https://github.com/Kevinrob/guzzle-cache-middleware/issues",
-                "source": "https://github.com/Kevinrob/guzzle-cache-middleware/tree/v5.1.0"
+                "source": "https://github.com/Kevinrob/guzzle-cache-middleware/tree/master"
             },
-            "time": "2023-11-09T06:53:45+00:00"
+            "time": "2024-10-17T09:11:54+00:00"
         },
         {
             "name": "laminas/laminas-servicemanager",
@@ -1489,16 +1489,16 @@
         },
         {
             "name": "league/oauth2-client",
-            "version": "2.7.0",
+            "version": "dev-patch-1",
             "source": {
                 "type": "git",
-                "url": "https://github.com/thephpleague/oauth2-client.git",
-                "reference": "160d6274b03562ebeb55ed18399281d8118b76c8"
+                "url": "https://github.com/ruudk/oauth2-client.git",
+                "reference": "b7cf4b4bf0511210bc0159e400631076facd63f2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/oauth2-client/zipball/160d6274b03562ebeb55ed18399281d8118b76c8",
-                "reference": "160d6274b03562ebeb55ed18399281d8118b76c8",
+                "url": "https://api.github.com/repos/ruudk/oauth2-client/zipball/b7cf4b4bf0511210bc0159e400631076facd63f2",
+                "reference": "b7cf4b4bf0511210bc0159e400631076facd63f2",
                 "shasum": ""
             },
             "require": {
@@ -1513,17 +1513,16 @@
                 "squizlabs/php_codesniffer": "^2.3 || ^3.0"
             },
             "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-2.x": "2.0.x-dev"
-                }
-            },
             "autoload": {
                 "psr-4": {
                     "League\\OAuth2\\Client\\": "src/"
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
+            "autoload-dev": {
+                "psr-4": {
+                    "League\\OAuth2\\Client\\Test\\": "test/src/"
+                }
+            },
             "license": [
                 "MIT"
             ],
@@ -1542,20 +1541,19 @@
             ],
             "description": "OAuth 2.0 Client Library",
             "keywords": [
-                "Authentication",
-                "SSO",
+                "authentication",
                 "authorization",
                 "identity",
                 "idp",
                 "oauth",
                 "oauth2",
-                "single sign on"
+                "single sign on",
+                "sso"
             ],
             "support": {
-                "issues": "https://github.com/thephpleague/oauth2-client/issues",
-                "source": "https://github.com/thephpleague/oauth2-client/tree/2.7.0"
+                "source": "https://github.com/ruudk/oauth2-client/tree/patch-1"
             },
-            "time": "2023-04-16T18:19:15+00:00"
+            "time": "2024-10-31T09:22:57+00:00"
         },
         {
             "name": "loophp/phposinfo",
@@ -1657,16 +1655,16 @@
         },
         {
             "name": "ltd-beget/dns-zone-configurator",
-            "version": "v1.3.0",
+            "version": "dev-php84",
             "source": {
                 "type": "git",
-                "url": "https://github.com/LTD-Beget/dns-zone-configurator.git",
-                "reference": "6fae81d140be8594b4752474d7ccf251bcd5e64f"
+                "url": "https://github.com/danepowell/dns-zone-configurator.git",
+                "reference": "4a52ba1ad16e3c11e26bc551811e93e1dc34ea30"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/LTD-Beget/dns-zone-configurator/zipball/6fae81d140be8594b4752474d7ccf251bcd5e64f",
-                "reference": "6fae81d140be8594b4752474d7ccf251bcd5e64f",
+                "url": "https://api.github.com/repos/danepowell/dns-zone-configurator/zipball/4a52ba1ad16e3c11e26bc551811e93e1dc34ea30",
+                "reference": "4a52ba1ad16e3c11e26bc551811e93e1dc34ea30",
                 "shasum": ""
             },
             "require": {
@@ -1685,7 +1683,11 @@
                     "LTDBeget\\dns": "src"
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
+            "autoload-dev": {
+                "psr-0": {
+                    "LTDBeget\\dev": "src"
+                }
+            },
             "license": [
                 "MIT"
             ],
@@ -1701,10 +1703,9 @@
                 "zone file"
             ],
             "support": {
-                "issues": "https://github.com/LTD-Beget/dns-zone-configurator/issues",
-                "source": "https://github.com/LTD-Beget/dns-zone-configurator/tree/v1.3.0"
+                "source": "https://github.com/danepowell/dns-zone-configurator/tree/php84"
             },
-            "time": "2023-05-15T15:34:16+00:00"
+            "time": "2024-11-26T20:14:48+00:00"
         },
         {
             "name": "ltd-beget/dns-zone-tokenizer",
@@ -1807,16 +1808,16 @@
         },
         {
             "name": "m4tthumphrey/php-gitlab-api",
-            "version": "11.14.0",
+            "version": "dev-fix/84",
             "source": {
                 "type": "git",
-                "url": "https://github.com/GitLabPHP/Client.git",
-                "reference": "6b805882e1478873cc89ee62d2decf74eee2d5f2"
+                "url": "https://github.com/danepowell/Client.git",
+                "reference": "69ec4e557a837281fca484899447f4b09e410f11"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/GitLabPHP/Client/zipball/6b805882e1478873cc89ee62d2decf74eee2d5f2",
-                "reference": "6b805882e1478873cc89ee62d2decf74eee2d5f2",
+                "url": "https://api.github.com/repos/danepowell/Client/zipball/69ec4e557a837281fca484899447f4b09e410f11",
+                "reference": "69ec4e557a837281fca484899447f4b09e410f11",
                 "shasum": ""
             },
             "require": {
@@ -1852,7 +1853,11 @@
                     "Gitlab\\": "src/"
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
+            "autoload-dev": {
+                "psr-4": {
+                    "Gitlab\\Tests\\": "tests/"
+                }
+            },
             "license": [
                 "MIT"
             ],
@@ -1884,16 +1889,15 @@
                 "gitlab"
             ],
             "support": {
-                "issues": "https://github.com/GitLabPHP/Client/issues",
-                "source": "https://github.com/GitLabPHP/Client/tree/11.14.0"
+                "source": "https://github.com/danepowell/Client/tree/fix/84"
             },
             "funding": [
                 {
-                    "url": "https://github.com/GrahamCampbell",
-                    "type": "github"
+                    "type": "github",
+                    "url": "https://github.com/GrahamCampbell"
                 }
             ],
-            "time": "2024-03-17T21:35:56+00:00"
+            "time": "2024-11-26T20:22:05+00:00"
         },
         {
             "name": "marc-mabe/php-enum",
@@ -3114,16 +3118,16 @@
         },
         {
             "name": "ratchet/pawl",
-            "version": "v0.4.1",
+            "version": "dev-patch-1",
             "source": {
                 "type": "git",
-                "url": "https://github.com/ratchetphp/Pawl.git",
-                "reference": "af70198bab77a582b31169d3cc3982bed25c161f"
+                "url": "https://github.com/valzargaming/Pawl.git",
+                "reference": "06faa033fd8f210f90b57a7dfc4e772ad4d411ba"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ratchetphp/Pawl/zipball/af70198bab77a582b31169d3cc3982bed25c161f",
-                "reference": "af70198bab77a582b31169d3cc3982bed25c161f",
+                "url": "https://api.github.com/repos/valzargaming/Pawl/zipball/06faa033fd8f210f90b57a7dfc4e772ad4d411ba",
+                "reference": "06faa033fd8f210f90b57a7dfc4e772ad4d411ba",
                 "shasum": ""
             },
             "require": {
@@ -3141,30 +3145,28 @@
             },
             "type": "library",
             "autoload": {
-                "files": [
-                    "src/functions_include.php"
-                ],
                 "psr-4": {
                     "Ratchet\\Client\\": "src"
-                }
+                },
+                "files": [
+                    "src/functions_include.php"
+                ]
             },
-            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
             "description": "Asynchronous WebSocket client",
             "keywords": [
                 "Ratchet",
+                "WebSocket",
                 "async",
                 "client",
-                "websocket",
                 "websocket client"
             ],
             "support": {
-                "issues": "https://github.com/ratchetphp/Pawl/issues",
-                "source": "https://github.com/ratchetphp/Pawl/tree/v0.4.1"
+                "source": "https://github.com/valzargaming/Pawl/tree/patch-1"
             },
-            "time": "2021-12-10T14:32:34+00:00"
+            "time": "2024-11-21T19:08:01+00:00"
         },
         {
             "name": "ratchet/rfc6455",
@@ -3673,6 +3675,72 @@
                 }
             ],
             "time": "2024-06-11T12:45:25+00:00"
+        },
+        {
+            "name": "sanmai/pipeline",
+            "version": "dev-main",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/sanmai/pipeline.git",
+                "reference": "ad7dbc3f773eeafb90d5459522fbd8f188532e25"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/sanmai/pipeline/zipball/ad7dbc3f773eeafb90d5459522fbd8f188532e25",
+                "reference": "ad7dbc3f773eeafb90d5459522fbd8f188532e25",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^7.4 || ^8.0"
+            },
+            "require-dev": {
+                "ergebnis/composer-normalize": "^2.8",
+                "friendsofphp/php-cs-fixer": "^3.17",
+                "infection/infection": ">=0.10.5",
+                "league/pipeline": "^0.3 || ^1.0",
+                "phan/phan": ">=1.1",
+                "php-coveralls/php-coveralls": "^2.4.1",
+                "phpstan/phpstan": ">=0.10",
+                "phpunit/phpunit": ">=9.4",
+                "vimeo/psalm": ">=2"
+            },
+            "default-branch": true,
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-main": "v6.x-dev"
+                }
+            },
+            "autoload": {
+                "files": [
+                    "src/functions.php"
+                ],
+                "psr-4": {
+                    "Pipeline\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "Apache-2.0"
+            ],
+            "authors": [
+                {
+                    "name": "Alexey Kopytko",
+                    "email": "alexey@kopytko.com"
+                }
+            ],
+            "description": "General-purpose collections pipeline",
+            "support": {
+                "issues": "https://github.com/sanmai/pipeline/issues",
+                "source": "https://github.com/sanmai/pipeline/tree/main"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/sanmai",
+                    "type": "github"
+                }
+            ],
+            "time": "2024-10-17T02:22:57+00:00"
         },
         {
             "name": "symfony/cache",
@@ -6103,16 +6171,16 @@
         },
         {
             "name": "thecodingmachine/safe",
-            "version": "v2.5.0",
+            "version": "dev-php84/nullability",
             "source": {
                 "type": "git",
-                "url": "https://github.com/thecodingmachine/safe.git",
-                "reference": "3115ecd6b4391662b4931daac4eba6b07a2ac1f0"
+                "url": "https://github.com/Ayesh/safe.git",
+                "reference": "e75af75bd026b45b4a526499d324c5202224c570"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thecodingmachine/safe/zipball/3115ecd6b4391662b4931daac4eba6b07a2ac1f0",
-                "reference": "3115ecd6b4391662b4931daac4eba6b07a2ac1f0",
+                "url": "https://api.github.com/repos/Ayesh/safe/zipball/e75af75bd026b45b4a526499d324c5202224c570",
+                "reference": "e75af75bd026b45b4a526499d324c5202224c570",
                 "shasum": ""
             },
             "require": {
@@ -6131,6 +6199,13 @@
                 }
             },
             "autoload": {
+                "classmap": [
+                    "lib/DateTime.php",
+                    "lib/DateTimeImmutable.php",
+                    "lib/Exceptions/",
+                    "deprecated/Exceptions/",
+                    "generated/Exceptions/"
+                ],
                 "files": [
                     "deprecated/apc.php",
                     "deprecated/array.php",
@@ -6220,25 +6295,27 @@
                     "generated/yaz.php",
                     "generated/zip.php",
                     "generated/zlib.php"
-                ],
-                "classmap": [
-                    "lib/DateTime.php",
-                    "lib/DateTimeImmutable.php",
-                    "lib/Exceptions/",
-                    "deprecated/Exceptions/",
-                    "generated/Exceptions/"
                 ]
             },
-            "notification-url": "https://packagist.org/downloads/",
+            "scripts": {
+                "phpstan": [
+                    "phpstan analyse lib -c phpstan.neon --level=max --no-progress -vvv"
+                ],
+                "cs-fix": [
+                    "phpcbf"
+                ],
+                "cs-check": [
+                    "phpcs"
+                ]
+            },
             "license": [
                 "MIT"
             ],
             "description": "PHP core functions that throw exceptions instead of returning FALSE on error",
             "support": {
-                "issues": "https://github.com/thecodingmachine/safe/issues",
-                "source": "https://github.com/thecodingmachine/safe/tree/v2.5.0"
+                "source": "https://github.com/Ayesh/safe/tree/php84/nullability"
             },
-            "time": "2023-04-05T11:54:14+00:00"
+            "time": "2024-03-18T13:27:28+00:00"
         },
         {
             "name": "typhonius/acquia-logstream",
@@ -6298,16 +6375,16 @@
         },
         {
             "name": "typhonius/acquia-php-sdk-v2",
-            "version": "3.4.0",
+            "version": "3.4.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/typhonius/acquia-php-sdk-v2.git",
-                "reference": "50018d6c14a8d562698dbd4906cd159fa6bbe518"
+                "reference": "52dd11bb04ed1bdcbb4c7b2316d1f3f7a999da6b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/typhonius/acquia-php-sdk-v2/zipball/50018d6c14a8d562698dbd4906cd159fa6bbe518",
-                "reference": "50018d6c14a8d562698dbd4906cd159fa6bbe518",
+                "url": "https://api.github.com/repos/typhonius/acquia-php-sdk-v2/zipball/52dd11bb04ed1bdcbb4c7b2316d1f3f7a999da6b",
+                "reference": "52dd11bb04ed1bdcbb4c7b2316d1f3f7a999da6b",
                 "shasum": ""
             },
             "require": {
@@ -6351,7 +6428,7 @@
             "description": "A PHP SDK for Acquia CloudAPI v2",
             "support": {
                 "issues": "https://github.com/typhonius/acquia-php-sdk-v2/issues",
-                "source": "https://github.com/typhonius/acquia-php-sdk-v2/tree/3.4.0"
+                "source": "https://github.com/typhonius/acquia-php-sdk-v2/tree/3.4.2"
             },
             "funding": [
                 {
@@ -6359,7 +6436,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2024-11-19T20:57:53+00:00"
+            "time": "2024-11-26T20:04:52+00:00"
         },
         {
             "name": "vlucas/phpdotenv",
@@ -7614,16 +7691,16 @@
         },
         {
             "name": "composer/class-map-generator",
-            "version": "1.4.0",
+            "version": "1.5.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/composer/class-map-generator.git",
-                "reference": "98bbf6780e56e0fd2404fe4b82eb665a0f93b783"
+                "reference": "4b0a223cf5be7c9ee7e0ef1bc7db42b4a97c9915"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/composer/class-map-generator/zipball/98bbf6780e56e0fd2404fe4b82eb665a0f93b783",
-                "reference": "98bbf6780e56e0fd2404fe4b82eb665a0f93b783",
+                "url": "https://api.github.com/repos/composer/class-map-generator/zipball/4b0a223cf5be7c9ee7e0ef1bc7db42b4a97c9915",
+                "reference": "4b0a223cf5be7c9ee7e0ef1bc7db42b4a97c9915",
                 "shasum": ""
             },
             "require": {
@@ -7632,10 +7709,10 @@
                 "symfony/finder": "^4.4 || ^5.3 || ^6 || ^7"
             },
             "require-dev": {
-                "phpstan/phpstan": "^1.6",
-                "phpstan/phpstan-deprecation-rules": "^1",
-                "phpstan/phpstan-phpunit": "^1",
-                "phpstan/phpstan-strict-rules": "^1.1",
+                "phpstan/phpstan": "^1.12 || ^2",
+                "phpstan/phpstan-deprecation-rules": "^1 || ^2",
+                "phpstan/phpstan-phpunit": "^1 || ^2",
+                "phpstan/phpstan-strict-rules": "^1.1 || ^2",
                 "phpunit/phpunit": "^8",
                 "symfony/filesystem": "^5.4 || ^6"
             },
@@ -7667,7 +7744,7 @@
             ],
             "support": {
                 "issues": "https://github.com/composer/class-map-generator/issues",
-                "source": "https://github.com/composer/class-map-generator/tree/1.4.0"
+                "source": "https://github.com/composer/class-map-generator/tree/1.5.0"
             },
             "funding": [
                 {
@@ -7683,7 +7760,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-10-03T18:14:00+00:00"
+            "time": "2024-11-25T16:11:06+00:00"
         },
         {
             "name": "composer/composer",
@@ -9868,16 +9945,16 @@
         },
         {
             "name": "overtrue/phplint",
-            "version": "9.4.2",
+            "version": "9.4.x-dev",
             "source": {
                 "type": "git",
-                "url": "https://github.com/overtrue/phplint.git",
-                "reference": "bb849f012fa44839f5ba4a079dda6d2ef29d6fce"
+                "url": "https://github.com/danepowell/phplint.git",
+                "reference": "ef023610ba6d53d4e855155fe2e977730645fc51"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/overtrue/phplint/zipball/bb849f012fa44839f5ba4a079dda6d2ef29d6fce",
-                "reference": "bb849f012fa44839f5ba4a079dda6d2ef29d6fce",
+                "url": "https://api.github.com/repos/danepowell/phplint/zipball/ef023610ba6d53d4e855155fe2e977730645fc51",
+                "reference": "ef023610ba6d53d4e855155fe2e977730645fc51",
                 "shasum": ""
             },
             "require": {
@@ -9927,7 +10004,58 @@
                     "Overtrue\\PHPLint\\": "src/"
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
+            "autoload-dev": {
+                "psr-4": {
+                    "Overtrue\\PHPLint\\Tests\\": "tests/"
+                }
+            },
+            "scripts": {
+                "bin": [
+                    "echo 'bin not installed'"
+                ],
+                "post-update-cmd": [
+                    "cghooks update",
+                    "@composer bin all update --ansi"
+                ],
+                "post-merge": [
+                    "composer install"
+                ],
+                "post-install-cmd": [
+                    "cghooks add --ignore-lock",
+                    "cghooks update",
+                    "@composer bin all install --ansi"
+                ],
+                "cghooks": [
+                    "vendor/bin/cghooks"
+                ],
+                "qa:check": [
+                    "vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.release.php --using-cache=no --verbose --ansi --diff --dry-run"
+                ],
+                "qa:fix": [
+                    "vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.release.php --using-cache=no --verbose --ansi"
+                ],
+                "style:check": [
+                    "vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.dist.php --using-cache=no --verbose --ansi --diff --dry-run"
+                ],
+                "style:fix": [
+                    "vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.dist.php --using-cache=no --verbose --ansi"
+                ],
+                "tests:unit": [
+                    "vendor/bin/phpunit --testsuite=cache,configuration,finder"
+                ],
+                "tests:e2e": [
+                    "vendor/bin/phpunit --testsuite=e2e"
+                ],
+                "tests:all": [
+                    "vendor/bin/phpunit"
+                ],
+                "lint:syntax": [
+                    "./bin/phplint --ansi"
+                ],
+                "code:check": [
+                    "vendor/bin/phpstan analyse --configuration phpstan.neon.dist"
+                ]
+            },
             "license": [
                 "MIT"
             ],
@@ -9950,16 +10078,15 @@
                 "syntax"
             ],
             "support": {
-                "issues": "https://github.com/overtrue/phplint/issues",
-                "source": "https://github.com/overtrue/phplint/tree/9.4.2"
+                "source": "https://github.com/danepowell/phplint/tree/9.4"
             },
             "funding": [
                 {
-                    "url": "https://github.com/overtrue",
-                    "type": "github"
+                    "type": "github",
+                    "url": "https://github.com/overtrue"
                 }
             ],
-            "time": "2024-10-11T07:44:07+00:00"
+            "time": "2024-11-26T19:50:06+00:00"
         },
         {
             "name": "phar-io/manifest",
@@ -10318,16 +10445,16 @@
         },
         {
             "name": "phpro/grumphp",
-            "version": "v2.9.0",
+            "version": "v2.x-dev",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpro/grumphp.git",
-                "reference": "14117189d0c1ce622eabec52b51edab56f1715fc"
+                "reference": "d84698882accd3fd0a807fb48a8838b0f53aa732"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpro/grumphp/zipball/14117189d0c1ce622eabec52b51edab56f1715fc",
-                "reference": "14117189d0c1ce622eabec52b51edab56f1715fc",
+                "url": "https://api.github.com/repos/phpro/grumphp/zipball/d84698882accd3fd0a807fb48a8838b0f53aa732",
+                "reference": "d84698882accd3fd0a807fb48a8838b0f53aa732",
                 "shasum": ""
             },
             "require": {
@@ -10401,6 +10528,7 @@
                 "vimeo/psalm": "Lets GrumPHP discover errors in your code without running it.",
                 "vincentlanglet/twig-cs-fixer": "Lets GrumPHP check and fix twig coding standard."
             },
+            "default-branch": true,
             "bin": [
                 "bin/grumphp"
             ],
@@ -10430,9 +10558,9 @@
             "description": "A composer plugin that enables source code quality checks.",
             "support": {
                 "issues": "https://github.com/phpro/grumphp/issues",
-                "source": "https://github.com/phpro/grumphp/tree/v2.9.0"
+                "source": "https://github.com/phpro/grumphp/tree/v2.x"
             },
-            "time": "2024-10-25T10:11:05+00:00"
+            "time": "2024-11-26T14:22:31+00:00"
         },
         {
             "name": "phpspec/prophecy",
@@ -11367,71 +11495,6 @@
                 }
             ],
             "time": "2023-10-24T00:25:28+00:00"
-        },
-        {
-            "name": "sanmai/pipeline",
-            "version": "v6.11",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/sanmai/pipeline.git",
-                "reference": "a5fa2a6c6ca93efa37e7c24aab72f47448a6b110"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/sanmai/pipeline/zipball/a5fa2a6c6ca93efa37e7c24aab72f47448a6b110",
-                "reference": "a5fa2a6c6ca93efa37e7c24aab72f47448a6b110",
-                "shasum": ""
-            },
-            "require": {
-                "php": "^7.4 || ^8.0"
-            },
-            "require-dev": {
-                "ergebnis/composer-normalize": "^2.8",
-                "friendsofphp/php-cs-fixer": "^3.17",
-                "infection/infection": ">=0.10.5",
-                "league/pipeline": "^0.3 || ^1.0",
-                "phan/phan": ">=1.1",
-                "php-coveralls/php-coveralls": "^2.4.1",
-                "phpstan/phpstan": ">=0.10",
-                "phpunit/phpunit": ">=9.4",
-                "vimeo/psalm": ">=2"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-main": "v6.x-dev"
-                }
-            },
-            "autoload": {
-                "files": [
-                    "src/functions.php"
-                ],
-                "psr-4": {
-                    "Pipeline\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "Apache-2.0"
-            ],
-            "authors": [
-                {
-                    "name": "Alexey Kopytko",
-                    "email": "alexey@kopytko.com"
-                }
-            ],
-            "description": "General-purpose collections pipeline",
-            "support": {
-                "issues": "https://github.com/sanmai/pipeline/issues",
-                "source": "https://github.com/sanmai/pipeline/tree/v6.11"
-            },
-            "funding": [
-                {
-                    "url": "https://github.com/sanmai",
-                    "type": "github"
-                }
-            ],
-            "time": "2024-06-15T03:11:19+00:00"
         },
         {
             "name": "sebastian/cli-parser",
@@ -13197,9 +13260,44 @@
             "time": "2022-06-03T18:03:27+00:00"
         }
     ],
-    "aliases": [],
+    "aliases": [
+        {
+            "package": "kevinrob/guzzle-cache-middleware",
+            "version": "9999999-dev",
+            "alias": "5.1.0",
+            "alias_normalized": "5.1.0.0"
+        },
+        {
+            "package": "league/oauth2-client",
+            "version": "dev-patch-1",
+            "alias": "2.7.0",
+            "alias_normalized": "2.7.0.0"
+        },
+        {
+            "package": "ratchet/pawl",
+            "version": "dev-patch-1",
+            "alias": "0.4.1",
+            "alias_normalized": "0.4.1.0"
+        },
+        {
+            "package": "thecodingmachine/safe",
+            "version": "dev-php84/nullability",
+            "alias": "2.5.0",
+            "alias_normalized": "2.5.0.0"
+        }
+    ],
     "minimum-stability": "dev",
-    "stability-flags": {},
+    "stability-flags": {
+        "kevinrob/guzzle-cache-middleware": 20,
+        "league/oauth2-client": 20,
+        "ltd-beget/dns-zone-configurator": 20,
+        "m4tthumphrey/php-gitlab-api": 20,
+        "overtrue/phplint": 20,
+        "phpro/grumphp": 20,
+        "ratchet/pawl": 20,
+        "sanmai/pipeline": 20,
+        "thecodingmachine/safe": 20
+    },
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {

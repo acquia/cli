@@ -18,7 +18,7 @@ class IdeDeleteCommandTest extends CommandTestBase
     /**
      * This method is called before each test.
      */
-    public function setUp(OutputInterface $output = null): void
+    public function setUp(?OutputInterface $output = null): void
     {
         parent::setUp();
         $this->getCommandTester();
