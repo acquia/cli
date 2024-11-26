@@ -1801,12 +1801,12 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
     /**
      * Get the first VCS URL for a given Cloud application.
      */
-    protected function getAnyVcsUrl(string $cloudAppUuid): string
+    protected function getAnyVcsUrl(string $cloudAppUuid): string|false
     {
         $environment = $this->getAnyAhEnvironment($cloudAppUuid, function (): bool {
             return true;
         });
-        return $environment->vcs->url;
+        return $environment ? $environment->vcs->url : false;
     }
 
     protected function validateApplicationUuid(string $applicationUuidArgument): mixed
