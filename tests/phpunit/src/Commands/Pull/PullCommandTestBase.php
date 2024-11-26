@@ -56,7 +56,7 @@ abstract class PullCommandTestBase extends CommandTestBase
 
     protected function mockExecuteDrushStatus(
         ObjectProphecy $localMachineHelper,
-        string $dir = null
+        ?string $dir = null
     ): void {
         $drushStatusProcess = $this->prophet->prophesize(Process::class);
         $drushStatusProcess->isSuccessful()->willReturn(true);
