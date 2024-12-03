@@ -15,9 +15,6 @@
             "type": "vcs", "url": "https://github.com/ruudk/oauth2-client"
         },
         {
-            "type": "vcs", "url": "https://github.com/Ayesh/safe"
-        },
-        {
             "type": "vcs", "url": "https://github.com/valzargaming/Pawl"
         },
         {
@@ -40,12 +37,11 @@
         "acquia/drupal-environment-detector": "^1.7.0",
         "bugsnag/bugsnag": "dev-php84",
         "composer/semver": "^3.3",
-        "consolidation/self-update": "^3",
+        "consolidation/self-update": "^3.0.1",
         "dflydev/dot-access-data": "^3",
         "grasmash/expander": "^3.0.1",
         "guzzlehttp/guzzle": "^7.4",
         "http-interop/http-factory-guzzle": "^1.0",
-        "kevinrob/guzzle-cache-middleware": "dev-master as 5.1.0",
         "laminas/laminas-validator": "^2.20.0",
         "league/csv": "^9.8",
         "league/oauth2-client": "dev-patch-1 as 2.7.0",
@@ -57,7 +53,6 @@
         "ramsey/uuid": "^4.1",
         "ratchet/pawl": "dev-patch-1 as 0.4.1",
         "react/event-loop": "^1.1",
-        "sanmai/pipeline": "dev-main",
         "symfony/cache": "^6.3",
         "symfony/config": "^6.3",
         "symfony/console": "^6.3",
@@ -72,7 +67,7 @@
         "symfony/process": "^6.3",
         "symfony/validator": "^6.3",
         "symfony/yaml": "^6.3",
-        "thecodingmachine/safe": "dev-php84/nullability as 2.5.0",
+        "thecodingmachine/safe": "dev-master as 2.5.0",
         "typhonius/acquia-logstream": "^0.0.14",
         "typhonius/acquia-php-sdk-v2": "^3.4.2",
         "vlucas/phpdotenv": "^5.5",
