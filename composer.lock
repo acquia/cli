@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "883aee27badeb84459e50c0815264613",
+    "content-hash": "05f5f5e4989d50d6c4bfe39f86a29da5",
     "packages": [
         {
             "name": "acquia/drupal-environment-detector",
@@ -1662,16 +1662,16 @@
         },
         {
             "name": "ltd-beget/dns-zone-configurator",
-            "version": "dev-php84",
+            "version": "v1.4.0",
             "source": {
                 "type": "git",
-                "url": "https://github.com/danepowell/dns-zone-configurator.git",
-                "reference": "4a52ba1ad16e3c11e26bc551811e93e1dc34ea30"
+                "url": "https://github.com/LTD-Beget/dns-zone-configurator.git",
+                "reference": "4e163fdead146e3de6ce7938b99d820395782cdc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/danepowell/dns-zone-configurator/zipball/4a52ba1ad16e3c11e26bc551811e93e1dc34ea30",
-                "reference": "4a52ba1ad16e3c11e26bc551811e93e1dc34ea30",
+                "url": "https://api.github.com/repos/LTD-Beget/dns-zone-configurator/zipball/4e163fdead146e3de6ce7938b99d820395782cdc",
+                "reference": "4e163fdead146e3de6ce7938b99d820395782cdc",
                 "shasum": ""
             },
             "require": {
@@ -1690,11 +1690,7 @@
                     "LTDBeget\\dns": "src"
                 }
             },
-            "autoload-dev": {
-                "psr-0": {
-                    "LTDBeget\\dev": "src"
-                }
-            },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -1710,27 +1706,28 @@
                 "zone file"
             ],
             "support": {
-                "source": "https://github.com/danepowell/dns-zone-configurator/tree/php84"
+                "issues": "https://github.com/LTD-Beget/dns-zone-configurator/issues",
+                "source": "https://github.com/LTD-Beget/dns-zone-configurator/tree/v1.4.0"
             },
-            "time": "2024-11-26T20:14:48+00:00"
+            "time": "2024-12-04T14:34:28+00:00"
         },
         {
             "name": "ltd-beget/dns-zone-tokenizer",
-            "version": "v0.0.10",
+            "version": "v0.0.11",
             "source": {
                 "type": "git",
                 "url": "https://github.com/LTD-Beget/dns-zone-tokenizer.git",
-                "reference": "54f067b6d2dea5c31ac0fb5ba61be6bbac9dc0ae"
+                "reference": "f57d614a7205a8d4ff0112a4c954a2425c218272"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/LTD-Beget/dns-zone-tokenizer/zipball/54f067b6d2dea5c31ac0fb5ba61be6bbac9dc0ae",
-                "reference": "54f067b6d2dea5c31ac0fb5ba61be6bbac9dc0ae",
+                "url": "https://api.github.com/repos/LTD-Beget/dns-zone-tokenizer/zipball/f57d614a7205a8d4ff0112a4c954a2425c218272",
+                "reference": "f57d614a7205a8d4ff0112a4c954a2425c218272",
                 "shasum": ""
             },
             "require": {
                 "ltd-beget/stringstream": "^1.0 || ^2.0",
-                "php": ">=7.0"
+                "php": ">=7.1"
             },
             "require-dev": {
                 "ext-json": "*",
@@ -1761,9 +1758,9 @@
             ],
             "support": {
                 "issues": "https://github.com/LTD-Beget/dns-zone-tokenizer/issues",
-                "source": "https://github.com/LTD-Beget/dns-zone-tokenizer/tree/v0.0.10"
+                "source": "https://github.com/LTD-Beget/dns-zone-tokenizer/tree/v0.0.11"
             },
-            "time": "2023-05-15T15:23:55+00:00"
+            "time": "2024-12-04T13:57:17+00:00"
         },
         {
             "name": "ltd-beget/stringstream",
@@ -6116,12 +6113,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/thecodingmachine/safe.git",
-                "reference": "86e9b367551840f91cc312c9e8fd55148bf752eb"
+                "reference": "a2a4072f2989dfd8118c8d19fe0bf9dcce868378"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thecodingmachine/safe/zipball/86e9b367551840f91cc312c9e8fd55148bf752eb",
-                "reference": "86e9b367551840f91cc312c9e8fd55148bf752eb",
+                "url": "https://api.github.com/repos/thecodingmachine/safe/zipball/a2a4072f2989dfd8118c8d19fe0bf9dcce868378",
+                "reference": "a2a4072f2989dfd8118c8d19fe0bf9dcce868378",
                 "shasum": ""
             },
             "require": {
@@ -6258,7 +6255,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2024-12-03T13:34:13+00:00"
+            "time": "2024-12-03T23:10:26+00:00"
         },
         {
             "name": "typhonius/acquia-logstream",
@@ -13293,7 +13290,6 @@
     "stability-flags": {
         "bugsnag/bugsnag": 20,
         "league/oauth2-client": 20,
-        "ltd-beget/dns-zone-configurator": 20,
         "m4tthumphrey/php-gitlab-api": 20,
         "overtrue/phplint": 20,
         "phpro/grumphp": 20,

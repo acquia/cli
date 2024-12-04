@@ -24,9 +24,6 @@
             "type": "vcs", "url": "https://github.com/danepowell/Client"
         },
         {
-            "type": "vcs", "url": "https://github.com/danepowell/dns-zone-configurator"
-        },
-        {
             "type": "vcs", "url": "https://github.com/danepowell/bugsnag-php"
         }
     ],
@@ -46,7 +43,7 @@
         "league/csv": "^9.8",
         "league/oauth2-client": "dev-patch-1 as 2.7.0",
         "loophp/phposinfo": "^1.7.2",
-        "ltd-beget/dns-zone-configurator": "dev-php84",
+        "ltd-beget/dns-zone-configurator": "^1.4.0",
         "m4tthumphrey/php-gitlab-api": "dev-fix/84",
         "php-http/cache-plugin": "^2.0",
         "psr/log": "^3",
