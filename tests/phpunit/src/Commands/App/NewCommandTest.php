@@ -139,6 +139,38 @@ class NewCommandTest extends CommandTestBase
         $this->assertStringContainsString('New Next.js project created in ' . $this->newProjectDir, $output);
     }
 
+    public function testProjectTemplateOption(): void
+    {
+        $this->newProjectDir = Path::makeAbsolute('drupal', $this->projectDir);
+
+        $process = $this->prophet->prophesize(Process::class);
+        $process->isSuccessful()->willReturn(true);
+        $process->getExitCode()->willReturn(0);
+
+        $localMachineHelper = $this->mockLocalMachineHelper();
+
+        $mockFileSystem = $this->mockGetFilesystem($localMachineHelper);
+        $localMachineHelper->checkRequiredBinariesExist(["composer"])
+            ->shouldBeCalled();
+        $this->mockExecuteComposerCreate($this->newProjectDir, $localMachineHelper, $process, 'acquia/drupal-recommended-project');
+        $localMachineHelper->checkRequiredBinariesExist(["git"])
+            ->shouldBeCalled();
+        $this->mockExecuteGitInit($localMachineHelper, $this->newProjectDir, $process);
+        $this->mockExecuteGitAdd($localMachineHelper, $this->newProjectDir, $process);
+        $this->mockExecuteGitCommit($localMachineHelper, $this->newProjectDir, $process);
+
+        $this->executeCommand([
+            '--template' => 'acquia_drupal_recommended',
+            'directory' => 'drupal',
+        ]);
+
+        $output = $this->getDisplay();
+        $this->assertStringContainsString('Acquia recommends most customers use acquia/drupal-recommended-project to setup a Drupal project', $output);
+        $this->assertStringContainsString('acquia/drupal-recommended-project', $output);
+        $this->assertTrue($mockFileSystem->isAbsolutePath($this->newProjectDir), 'Directory path is not absolute');
+        $this->assertStringContainsString('New 💧 Drupal project created in ' . $this->newProjectDir, $output);
+    }
+
     protected function mockExecuteComposerCreate(
         string $projectDir,
         ObjectProphecy $localMachineHelper,
