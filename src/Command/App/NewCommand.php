@@ -11,28 +11,42 @@ use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Path;
 
 #[AsCommand(name: 'app:new:local', description: 'Create a new Drupal or Next.js project', aliases: ['new'])]
 final class NewCommand extends CommandBase
 {
+    /**
+     * @var string[]
+     */
+    private static array $distros = [
+        'acquia_drupal_recommended' => 'acquia/drupal-recommended-project',
+        'acquia_next_acms' => 'acquia/next-acms',
+    ];
     protected function configure(): void
     {
         $this
-            ->addArgument('directory', InputArgument::OPTIONAL, 'The destination directory');
+            ->addArgument('directory', InputArgument::OPTIONAL, 'The destination directory')
+            ->addOption('template', 't', InputOption::VALUE_OPTIONAL, 'The project template', null, array_keys(self::$distros))
+            ->addUsage('-t acquia_drupal_recommended');
     }
 
+    /**
+     * @throws \Acquia\Cli\Exception\AcquiaCliException
+     */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->output->writeln('Acquia recommends most customers use <options=bold>acquia/drupal-recommended-project</> to setup a Drupal project, which includes useful utilities such as Acquia Connector.');
         $this->output->writeln('<options=bold>acquia/next-acms</> is a starter template for building a headless site powered by Acquia CMS and Next.js.');
-        $distros = [
-            'acquia_drupal_recommended' => 'acquia/drupal-recommended-project',
-            'acquia_next_acms' => 'acquia/next-acms',
-        ];
-        $project = $this->io->choice('Choose a starting project', array_values($distros), $distros['acquia_drupal_recommended']);
-        $project = array_search($project, $distros, true);
+
+        if ($input->hasOption('template') && $input->getOption('template')) {
+            $project = $input->getOption('template');
+        } else {
+            $project = $this->io->choice('Choose a starting project', array_values(self::$distros), self::$distros['acquia_drupal_recommended']);
+            $project = array_search($project, self::$distros, true);
+        }
 
         if ($input->hasArgument('directory') && $input->getArgument('directory')) {
             $dir = Path::canonicalize($input->getArgument('directory'));
@@ -46,13 +60,13 @@ final class NewCommand extends CommandBase
         $output->writeln('<info>Creating project. This may take a few minutes.</info>');
 
         if ($project === 'acquia_next_acms') {
-            $successMessage = "<info>New Next JS project created in $dir. 🎉</info>";
+            $successMessage = "<info>New Next.js project created in $dir. 🎉</info>";
             $this->localMachineHelper->checkRequiredBinariesExist(['node']);
             $this->createNextJsProject($dir);
         } else {
             $successMessage = "<info>New 💧 Drupal project created in $dir. 🎉</info>";
             $this->localMachineHelper->checkRequiredBinariesExist(['composer']);
-            $this->createDrupalProject($distros[$project], $dir);
+            $this->createDrupalProject(self::$distros[$project], $dir);
         }
 
         $this->initializeGitRepository($dir);
@@ -63,6 +77,9 @@ final class NewCommand extends CommandBase
         return Command::SUCCESS;
     }
 
+    /**
+     * @throws \Acquia\Cli\Exception\AcquiaCliException
+     */
     private function createNextJsProject(string $dir): void
     {
         $process = $this->localMachineHelper->execute([
@@ -77,6 +94,9 @@ final class NewCommand extends CommandBase
         }
     }
 
+    /**
+     * @throws \Acquia\Cli\Exception\AcquiaCliException
+     */
     private function createDrupalProject(string $project, string $dir): void
     {
         $process = $this->localMachineHelper->execute([
@@ -91,6 +111,9 @@ final class NewCommand extends CommandBase
         }
     }
 
+    /**
+     * @throws \Acquia\Cli\Exception\AcquiaCliException
+     */
     private function initializeGitRepository(string $dir): void
     {
         if (

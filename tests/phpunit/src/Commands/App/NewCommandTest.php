@@ -136,7 +136,7 @@ class NewCommandTest extends CommandTestBase
         $this->assertStringContainsString('Choose a starting project', $output);
         $this->assertStringContainsString($project, $output);
         $this->assertTrue($mockFileSystem->isAbsolutePath($this->newProjectDir), 'Directory path is not absolute');
-        $this->assertStringContainsString('New Next JS project created in ' . $this->newProjectDir, $output);
+        $this->assertStringContainsString('New Next.js project created in ' . $this->newProjectDir, $output);
     }
 
     protected function mockExecuteComposerCreate(
