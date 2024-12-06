@@ -141,7 +141,7 @@ class NewCommandTest extends CommandTestBase
 
     public function testProjectTemplateOption(): void
     {
-        $this->newProjectDir = Path::makeAbsolute('drupal', $this->projectDir);
+        $this->newProjectDir = Path::makeAbsolute('nextjs', $this->projectDir);
 
         $process = $this->prophet->prophesize(Process::class);
         $process->isSuccessful()->willReturn(true);
@@ -150,9 +150,10 @@ class NewCommandTest extends CommandTestBase
         $localMachineHelper = $this->mockLocalMachineHelper();
 
         $mockFileSystem = $this->mockGetFilesystem($localMachineHelper);
-        $localMachineHelper->checkRequiredBinariesExist(["composer"])
+
+        $localMachineHelper->checkRequiredBinariesExist(["node"])
             ->shouldBeCalled();
-        $this->mockExecuteComposerCreate($this->newProjectDir, $localMachineHelper, $process, 'acquia/drupal-recommended-project');
+        $this->mockExecuteNpxCreate($this->newProjectDir, $localMachineHelper, $process);
         $localMachineHelper->checkRequiredBinariesExist(["git"])
             ->shouldBeCalled();
         $this->mockExecuteGitInit($localMachineHelper, $this->newProjectDir, $process);
@@ -160,15 +161,15 @@ class NewCommandTest extends CommandTestBase
         $this->mockExecuteGitCommit($localMachineHelper, $this->newProjectDir, $process);
 
         $this->executeCommand([
-            '--template' => 'acquia_drupal_recommended',
-            'directory' => 'drupal',
+            '--template' => 'acquia_next_acms',
+            'directory' => 'nextjs',
         ]);
 
         $output = $this->getDisplay();
         $this->assertStringContainsString('Acquia recommends most customers use acquia/drupal-recommended-project to setup a Drupal project', $output);
-        $this->assertStringContainsString('acquia/drupal-recommended-project', $output);
+        $this->assertStringContainsString('acquia/next-acms', $output);
         $this->assertTrue($mockFileSystem->isAbsolutePath($this->newProjectDir), 'Directory path is not absolute');
-        $this->assertStringContainsString('New 💧 Drupal project created in ' . $this->newProjectDir, $output);
+        $this->assertStringContainsString('New Next.js project created in ' . $this->newProjectDir, $output);
     }
 
     protected function mockExecuteComposerCreate(
