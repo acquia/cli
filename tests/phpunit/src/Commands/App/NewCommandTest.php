@@ -136,7 +136,40 @@ class NewCommandTest extends CommandTestBase
         $this->assertStringContainsString('Choose a starting project', $output);
         $this->assertStringContainsString($project, $output);
         $this->assertTrue($mockFileSystem->isAbsolutePath($this->newProjectDir), 'Directory path is not absolute');
-        $this->assertStringContainsString('New Next JS project created in ' . $this->newProjectDir, $output);
+        $this->assertStringContainsString('New Next.js project created in ' . $this->newProjectDir, $output);
+    }
+
+    public function testProjectTemplateOption(): void
+    {
+        $this->newProjectDir = Path::makeAbsolute('nextjs', $this->projectDir);
+
+        $process = $this->prophet->prophesize(Process::class);
+        $process->isSuccessful()->willReturn(true);
+        $process->getExitCode()->willReturn(0);
+
+        $localMachineHelper = $this->mockLocalMachineHelper();
+
+        $mockFileSystem = $this->mockGetFilesystem($localMachineHelper);
+
+        $localMachineHelper->checkRequiredBinariesExist(["node"])
+            ->shouldBeCalled();
+        $this->mockExecuteNpxCreate($this->newProjectDir, $localMachineHelper, $process);
+        $localMachineHelper->checkRequiredBinariesExist(["git"])
+            ->shouldBeCalled();
+        $this->mockExecuteGitInit($localMachineHelper, $this->newProjectDir, $process);
+        $this->mockExecuteGitAdd($localMachineHelper, $this->newProjectDir, $process);
+        $this->mockExecuteGitCommit($localMachineHelper, $this->newProjectDir, $process);
+
+        $this->executeCommand([
+            '--template' => 'acquia_next_acms',
+            'directory' => 'nextjs',
+        ]);
+
+        $output = $this->getDisplay();
+        $this->assertStringContainsString('Acquia recommends most customers use acquia/drupal-recommended-project to setup a Drupal project', $output);
+        $this->assertStringContainsString('acquia/next-acms', $output);
+        $this->assertTrue($mockFileSystem->isAbsolutePath($this->newProjectDir), 'Directory path is not absolute');
+        $this->assertStringContainsString('New Next.js project created in ' . $this->newProjectDir, $output);
     }
 
     protected function mockExecuteComposerCreate(
