@@ -458,6 +458,10 @@ abstract class PullCommandBase extends CommandBase
             return $input->getArgument('site');
         }
 
+        if (!$this->input->isInteractive()) {
+            return 'default';
+        }
+
         $this->site = $this->promptChooseDrupalSite($environment);
 
         return $this->site;
