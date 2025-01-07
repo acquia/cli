@@ -1411,7 +1411,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
         if ($process->isSuccessful() && $sites) {
             if ($key = array_search('default', $sites, true)) {
                 unset($sites[$key]);
-                $sites = array_merge([0 => 'default'], $sites);
+                array_unshift($sites, 'default');
             }
             return $sites;
         }
