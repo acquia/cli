@@ -87,7 +87,7 @@ jobs:
           if [[ "$GITHUB_REF_TYPE" == 'tag' ]]; then
             echo "ACLI_VERSION=$GITHUB_REF_NAME" >> $GITHUB_OUTPUT
           else
-            echo "ACLI_VERSION=dev-$GITHUB_REF_NAME" >> $GITHUB_OUTPUT
+            echo "ACLI_VERSION=dev-$GITHUB_REF_NAME-$GITHUB_SHA" >> $GITHUB_OUTPUT
           fi
       - name: 'Create env file'
         run: |
