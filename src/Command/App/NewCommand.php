@@ -22,8 +22,8 @@ final class NewCommand extends CommandBase
      * @var string[]
      */
     private static array $distros = [
-        'acquia_drupal_recommended' => 'acquia/drupal-recommended-project',
         'acquia_drupal_cms' => 'acquia/drupal-cms-project',
+        'acquia_drupal_recommended' => 'acquia/drupal-recommended-project',
         'acquia_next_acms' => 'acquia/next-acms',
     ];
     protected function configure(): void
