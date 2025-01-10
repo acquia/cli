@@ -1409,6 +1409,10 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
         $process = $this->sshHelper->executeCommand($cloudEnvironment->sshUrl, $command, false);
         $sites = array_filter(explode("\n", trim($process->getOutput())));
         if ($process->isSuccessful() && $sites) {
+            if ($key = array_search('default', $sites, true)) {
+                unset($sites[$key]);
+                array_unshift($sites, 'default');
+            }
             return $sites;
         }
 

@@ -81,7 +81,7 @@ class PullFilesCommandTest extends PullCommandTestBase
         $this->mockGetFilesystem($localMachineHelper);
         $parts = explode('.', $selectedEnvironment->ssh_url);
         $sitegroup = reset($parts);
-        $this->mockExecuteRsync($localMachineHelper, $selectedEnvironment, '/mnt/files/' . $sitegroup . '.' . $selectedEnvironment->name . '/sites/bar/files/', $this->projectDir . '/docroot/sites/bar/files');
+        $this->mockExecuteRsync($localMachineHelper, $selectedEnvironment, '/mnt/files/' . $sitegroup . '.' . $selectedEnvironment->name . '/sites/default/files/', $this->projectDir . '/docroot/sites/default/files');
 
         $this->command->sshHelper = $sshHelper->reveal();
 

@@ -145,8 +145,8 @@ class PushFilesCommandTest extends CommandTestBase
             'rsync',
             '-avPhze',
             'ssh -o StrictHostKeyChecking=no',
-            $this->projectDir . '/docroot/sites/bar/files/',
-            $environment->ssh_url . ':/mnt/files/' . $sitegroup . '.' . $environment->name . '/sites/bar/files',
+            $this->projectDir . '/docroot/sites/default/files/',
+            $environment->ssh_url . ':/mnt/files/' . $sitegroup . '.' . $environment->name . '/sites/default/files',
         ];
         $localMachineHelper->execute($command, Argument::type('callable'), null, true)
             ->willReturn($process->reveal())
