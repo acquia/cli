@@ -39,6 +39,7 @@ final class AliasListCommand extends CommandBase
             'Application',
             'Environment Alias',
             'Environment UUID',
+            'SSH URL',
         ]);
 
         $siteId = $customerApplication->hosting->id;
@@ -51,6 +52,7 @@ final class AliasListCommand extends CommandBase
                 $customerApplication->name,
                 $alias,
                 $environment->uuid,
+                $environment->sshUrl,
             ]);
         }
 

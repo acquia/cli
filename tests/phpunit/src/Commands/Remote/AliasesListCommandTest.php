@@ -37,6 +37,8 @@ class AliasesListCommandTest extends CommandTestBase
         // Assert.
         $output = $this->getDisplay();
 
-        $this->assertStringContainsString('| Sample application 1 | devcloud2.dev     | 24-a47ac10b-58cc-4372-a567-0e02b2c3d470 |', $output);
+        $this->assertStringContainsString('| Application          | Environment Alias | Environment UUID                        | SSH URL', $output);
+
+        $this->assertStringContainsString('| Sample application 1 | devcloud2.dev     | 24-a47ac10b-58cc-4372-a567-0e02b2c3d470 | site.dev@sitedev.ssh.hosted.acquia-sites.com', $output);
     }
 }
