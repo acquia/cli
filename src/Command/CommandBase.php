@@ -1436,6 +1436,10 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
         foreach ($acsfSites['sites'] as $domain => $acsfSite) {
             $choices[] = "{$acsfSite['name']} ($domain)";
         }
+        if (!count($choices)) {
+            throw new AcquiaCliException("Could not get ACSF sites");
+        }
+
         $choice = $this->io->choice('Choose a site', $choices, $choices[0]);
         $key = array_search($choice, $choices, true);
         $sites = array_values($acsfSites['sites']);
