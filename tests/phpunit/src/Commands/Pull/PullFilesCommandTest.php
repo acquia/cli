@@ -100,7 +100,6 @@ class PullFilesCommandTest extends PullCommandTestBase
         $this->expectException(AcquiaCliException::class);
         $this->expectExceptionMessage('Could not get ACSF sites');
         $this->executeCommand([], $inputs);
-
     }
 
     public function testRefreshCloudFiles(): void

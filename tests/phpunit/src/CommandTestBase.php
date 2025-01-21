@@ -283,7 +283,7 @@ abstract class CommandTestBase extends TestBase
     /**
      * @return array<mixed>
      */
-    protected function mockGetAcsfSites(mixed $sshHelper, $existAcsfSites = true): array
+    protected function mockGetAcsfSites(mixed $sshHelper, bool $existAcsfSites = true): array
     {
         $acsfMultisiteFetchProcess = $this->mockProcess();
         $multisiteConfig = file_get_contents(Path::join($this->realFixtureDir, '/multisite-config.json'));
