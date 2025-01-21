@@ -69,6 +69,40 @@ class PullFilesCommandTest extends PullCommandTestBase
         $this->assertStringContainsString('[0] Dev, dev (vcs: master)', $output);
     }
 
+    public function testPullAcsfSitesException(): void
+    {
+        $applicationsResponse = $this->mockApplicationsRequest();
+        $this->mockApplicationRequest();
+        $environmentsResponse = $this->mockAcsfEnvironmentsRequest($applicationsResponse);
+        $selectedEnvironment = $environmentsResponse->_embedded->items[0];
+        $sshHelper = $this->mockSshHelper();
+        $this->mockGetAcsfSites($sshHelper, false);
+        $localMachineHelper = $this->mockLocalMachineHelper();
+        $this->mockGetFilesystem($localMachineHelper);
+        $this->mockExecuteRsync($localMachineHelper, $selectedEnvironment, '/mnt/files/profserv2.01dev/sites/g/files/jxr5000596dev/files/', $this->projectDir . '/docroot/sites/jxr5000596dev/files');
+
+        $this->command->sshHelper = $sshHelper->reveal();
+
+        $inputs = [
+            // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
+            'n',
+            // Select a Cloud Platform application:
+            0,
+            // Would you like to link the project at ... ?
+            'n',
+            // Choose an Acquia environment:
+            0,
+            // Choose site from which to copy files:
+            0,
+        ];
+
+
+        $this->expectException(AcquiaCliException::class);
+        $this->expectExceptionMessage('Could not get ACSF sites');
+        $this->executeCommand([], $inputs);
+
+    }
+
     public function testRefreshCloudFiles(): void
     {
         $applicationsResponse = $this->mockApplicationsRequest();
