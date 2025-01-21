@@ -286,23 +286,19 @@ abstract class CommandTestBase extends TestBase
     protected function mockGetAcsfSites(mixed $sshHelper, bool $existAcsfSites = true): array
     {
         $acsfMultisiteFetchProcess = $this->mockProcess();
-        $multisiteConfig = file_get_contents(Path::join($this->realFixtureDir, '/multisite-config.json'));
+        if ($existAcsfSites) {
+            $multisiteConfig = file_get_contents(Path::join($this->realFixtureDir, '/multisite-config.json'));
+        } else {
+            $multisiteConfig = "{}";
+        }
         $acsfMultisiteFetchProcess->getOutput()
             ->willReturn($multisiteConfig)
             ->shouldBeCalled();
-        if ($existAcsfSites) {
-            $sshHelper->executeCommand(
-                Argument::type('string'),
-                ['cat', '/var/www/site-php/profserv2.01dev/multisite-config.json'],
-                false
-            )->willReturn($acsfMultisiteFetchProcess->reveal())->shouldBeCalled();
-        } else {
-            $sshHelper->executeCommand(
-                Argument::type('string'),
-                ['cat', '/var/www/site-php/profserv2.01dev/multisite-config.json'],
-                false
-            )->willReturn('')->shouldBeCalled();
-        }
+        $sshHelper->executeCommand(
+            Argument::type('string'),
+            ['cat', '/var/www/site-php/profserv2.01dev/multisite-config.json'],
+            false
+        )->willReturn($acsfMultisiteFetchProcess->reveal())->shouldBeCalled();
 
         return json_decode($multisiteConfig, true);
     }
