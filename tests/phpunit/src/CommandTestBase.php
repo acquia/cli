@@ -289,7 +289,7 @@ abstract class CommandTestBase extends TestBase
         if ($existAcsfSites) {
             $multisiteConfig = file_get_contents(Path::join($this->realFixtureDir, '/multisite-config.json'));
         } else {
-            $multisiteConfig = "{}";
+            $multisiteConfig = file_get_contents(Path::join($this->realFixtureDir, '/no-multisite-config.json'));
         }
         $acsfMultisiteFetchProcess->getOutput()
             ->willReturn($multisiteConfig)
