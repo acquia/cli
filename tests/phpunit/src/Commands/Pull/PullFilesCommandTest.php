@@ -78,9 +78,7 @@ class PullFilesCommandTest extends PullCommandTestBase
         $sshHelper = $this->mockSshHelper();
         $this->mockGetAcsfSites($sshHelper, false);
         $localMachineHelper = $this->mockLocalMachineHelper();
-        $this->mockGetFilesystem($localMachineHelper);
         $this->mockExecuteRsync($localMachineHelper, $selectedEnvironment, '/mnt/files/profserv2.01dev/sites/g/files/jxr5000596dev/files/', $this->projectDir . '/docroot/sites/jxr5000596dev/files');
-
         $this->command->sshHelper = $sshHelper->reveal();
 
         $inputs = [
