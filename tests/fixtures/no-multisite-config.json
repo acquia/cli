@@ -1,1 +1,3 @@
-{}
+{"cloud":{"site":"profserv2","env":"01dev"},"memcache_inc":"profiles\/gardens\/modules\/acquia\/memcache\/memcache.inc",
+  "sites": {
+  }}

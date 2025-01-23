@@ -282,8 +282,9 @@ abstract class CommandTestBase extends TestBase
 
     /**
      * @return array<mixed>
+     * @throws \Acquia\Cli\Exception\AcquiaCliException
      */
-    protected function mockGetAcsfSites(mixed $sshHelper, bool $existAcsfSites = true): array
+    protected function mockGetAcsfSites(SshHelper|ObjectProphecy $sshHelper, bool $existAcsfSites = true): array
     {
         $acsfMultisiteFetchProcess = $this->mockProcess();
         if ($existAcsfSites) {
@@ -299,7 +300,6 @@ abstract class CommandTestBase extends TestBase
             ['cat', '/var/www/site-php/profserv2.01dev/multisite-config.json'],
             false
         )->willReturn($acsfMultisiteFetchProcess->reveal())->shouldBeCalled();
-
         return json_decode($multisiteConfig, true);
     }
 

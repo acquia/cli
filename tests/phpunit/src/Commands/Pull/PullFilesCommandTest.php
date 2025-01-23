@@ -32,7 +32,10 @@ class PullFilesCommandTest extends PullCommandTestBase
         );
     }
 
-    public function testRefreshAcsfFiles(): void
+    /**
+     * @throws \Exception
+     */
+    public function testPullFilesAcsf(): void
     {
         $applicationsResponse = $this->mockApplicationsRequest();
         $this->mockApplicationRequest();
@@ -69,12 +72,14 @@ class PullFilesCommandTest extends PullCommandTestBase
         $this->assertStringContainsString('[0] Dev, dev (vcs: master)', $output);
     }
 
-    public function testPullAcsfSitesException(): void
+    /**
+     * @throws \Exception
+     */
+    public function testPullFilesAcsfNoSites(): void
     {
         $applicationsResponse = $this->mockApplicationsRequest();
         $this->mockApplicationRequest();
-        $environmentsResponse = $this->mockAcsfEnvironmentsRequest($applicationsResponse);
-        $selectedEnvironment = $environmentsResponse->_embedded->items[0];
+        $this->mockAcsfEnvironmentsRequest($applicationsResponse);
         $sshHelper = $this->mockSshHelper();
         $this->mockGetAcsfSites($sshHelper, false);
         $this->command->sshHelper = $sshHelper->reveal();
@@ -94,10 +99,14 @@ class PullFilesCommandTest extends PullCommandTestBase
 
 
         $this->expectException(AcquiaCliException::class);
+        $this->expectExceptionMessage('No sites found in this environment');
         $this->executeCommand([], $inputs);
     }
 
-    public function testRefreshCloudFiles(): void
+    /**
+     * @throws \Exception
+     */
+    public function testPullFilesCloud(): void
     {
         $applicationsResponse = $this->mockApplicationsRequest();
         $this->mockApplicationRequest();
@@ -136,6 +145,9 @@ class PullFilesCommandTest extends PullCommandTestBase
         $this->assertStringContainsString('[0] Dev, dev (vcs: master)', $output);
     }
 
+    /**
+     * @throws \Exception
+     */
     public function testInvalidCwd(): void
     {
         IdeHelper::setCloudIdeEnvVars();
