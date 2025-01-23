@@ -39,7 +39,6 @@ final class AliasListCommand extends CommandBase
             'Application',
             'Environment Alias',
             'Environment UUID',
-            'SSH URL',
         ]);
 
         $siteId = $customerApplication->hosting->id;
@@ -52,11 +51,13 @@ final class AliasListCommand extends CommandBase
                 $customerApplication->name,
                 $alias,
                 $environment->uuid,
-                $environment->sshUrl,
             ]);
         }
 
         $table->render();
+
+        $output->writeln('');
+        $output->writeln('<info>To get more information about a specific environment, run <options=bold>acli api:environments:find <alias></></info>');
 
         return Command::SUCCESS;
     }
