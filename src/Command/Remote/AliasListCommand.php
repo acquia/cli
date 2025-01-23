@@ -26,6 +26,9 @@ final class AliasListCommand extends CommandBase
         $this->acceptApplicationUuid();
     }
 
+    /**
+     * @throws \Acquia\Cli\Exception\AcquiaCliException
+     */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $acquiaCloudClient = $this->cloudApiClientService->getClient();
@@ -35,29 +38,30 @@ final class AliasListCommand extends CommandBase
         $environmentsResource = new Environments($acquiaCloudClient);
 
         $table = new Table($this->output);
+        $table->setHeaderTitle('Environments for ' . $customerApplication->name);
         $table->setHeaders([
-            'Application',
-            'Environment Alias',
-            'Environment UUID',
+            'Alias',
+            'UUID',
+            'SSH URL',
         ]);
 
         $siteId = $customerApplication->hosting->id;
         $parts = explode(':', $siteId);
         $sitePrefix = $parts[1];
         $environments = $environmentsResource->getAll($customerApplication->uuid);
+        /** @var \AcquiaCloudApi\Response\EnvironmentResponse $environment */
         foreach ($environments as $environment) {
             $alias = $sitePrefix . '.' . $environment->name;
             $table->addRow([
-                $customerApplication->name,
                 $alias,
                 $environment->uuid,
+                $environment->sshUrl,
             ]);
         }
 
         $table->render();
 
-        $output->writeln('');
-        $output->writeln('<info>To get more information about a specific environment, run <options=bold>acli api:environments:find <alias></></info>');
+        $output->writeln('<info>Run <options=bold>acli api:environments:find <alias></> to get more information about a specific environment.</info>');
 
         return Command::SUCCESS;
     }

@@ -18,6 +18,9 @@ class AliasesListCommandTest extends CommandTestBase
         return $this->injectCommand(AliasListCommand::class);
     }
 
+    /**
+     * @throws \Exception
+     */
     public function testRemoteAliasesListCommand(): void
     {
         $applicationsResponse = $this->mockApplicationsRequest();
@@ -37,8 +40,8 @@ class AliasesListCommandTest extends CommandTestBase
         // Assert.
         $output = $this->getDisplay();
 
-        $this->assertStringContainsString('| Sample application 1 | devcloud2.dev     | 24-a47ac10b-58cc-4372-a567-0e02b2c3d470 |', $output);
-
-        $this->assertStringContainsString('To get more information about a specific environment, run acli api:environments:find <alias>', $output);
+        $this->assertStringContainsString('Environments for Sample application 1', $output);
+        $this->assertStringContainsString('| devcloud2.dev  | 24-a47ac10b-58cc-4372-a567-0e02b2c3d470 | site.dev@sitedev.ssh.hosted.acquia-sites.com', $output);
+        $this->assertStringContainsString('Run acli api:environments:find <alias> to get more information about a specific environment', $output);
     }
 }
