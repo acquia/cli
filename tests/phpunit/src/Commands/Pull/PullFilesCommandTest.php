@@ -32,7 +32,10 @@ class PullFilesCommandTest extends PullCommandTestBase
         );
     }
 
-    public function testRefreshAcsfFiles(): void
+    /**
+     * @throws \Exception
+     */
+    public function testPullFilesAcsf(): void
     {
         $applicationsResponse = $this->mockApplicationsRequest();
         $this->mockApplicationRequest();
@@ -69,7 +72,41 @@ class PullFilesCommandTest extends PullCommandTestBase
         $this->assertStringContainsString('[0] Dev, dev (vcs: master)', $output);
     }
 
-    public function testRefreshCloudFiles(): void
+    /**
+     * @throws \Exception
+     */
+    public function testPullFilesAcsfNoSites(): void
+    {
+        $applicationsResponse = $this->mockApplicationsRequest();
+        $this->mockApplicationRequest();
+        $this->mockAcsfEnvironmentsRequest($applicationsResponse);
+        $sshHelper = $this->mockSshHelper();
+        $this->mockGetAcsfSites($sshHelper, false);
+        $this->command->sshHelper = $sshHelper->reveal();
+
+        $inputs = [
+            // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
+            'n',
+            // Select a Cloud Platform application:
+            0,
+            // Would you like to link the project at ... ?
+            'n',
+            // Choose an Acquia environment:
+            0,
+            // Choose site from which to copy files:
+            0,
+        ];
+
+
+        $this->expectException(AcquiaCliException::class);
+        $this->expectExceptionMessage('No sites found in this environment');
+        $this->executeCommand([], $inputs);
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function testPullFilesCloud(): void
     {
         $applicationsResponse = $this->mockApplicationsRequest();
         $this->mockApplicationRequest();
@@ -108,6 +145,9 @@ class PullFilesCommandTest extends PullCommandTestBase
         $this->assertStringContainsString('[0] Dev, dev (vcs: master)', $output);
     }
 
+    /**
+     * @throws \Exception
+     */
     public function testInvalidCwd(): void
     {
         IdeHelper::setCloudIdeEnvVars();
