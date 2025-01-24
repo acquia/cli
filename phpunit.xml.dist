@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!-- phpunit.xml.dist -->
-<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.5/phpunit.xsd" failOnDeprecation="true" displayDetailsOnTestsThatTriggerDeprecations="true" failOnWarning="true" failOnRisky="true" cacheDirectory="var">
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.5/phpunit.xsd" failOnDeprecation="true" displayDetailsOnTestsThatTriggerDeprecations="true" displayDetailsOnTestsThatTriggerWarnings="true" failOnWarning="true" failOnRisky="true" cacheDirectory="var">
   <php>
     <env name="AMPLITUDE_KEY" value=""/>
     <env name="BUGSNAG_KEY" value=""/>

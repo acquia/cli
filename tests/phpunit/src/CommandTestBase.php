@@ -282,11 +282,16 @@ abstract class CommandTestBase extends TestBase
 
     /**
      * @return array<mixed>
+     * @throws \Acquia\Cli\Exception\AcquiaCliException
      */
-    protected function mockGetAcsfSites(mixed $sshHelper): array
+    protected function mockGetAcsfSites(SshHelper|ObjectProphecy $sshHelper, bool $existAcsfSites = true): array
     {
         $acsfMultisiteFetchProcess = $this->mockProcess();
-        $multisiteConfig = file_get_contents(Path::join($this->realFixtureDir, '/multisite-config.json'));
+        if ($existAcsfSites) {
+            $multisiteConfig = file_get_contents(Path::join($this->realFixtureDir, '/multisite-config.json'));
+        } else {
+            $multisiteConfig = file_get_contents(Path::join($this->realFixtureDir, '/no-multisite-config.json'));
+        }
         $acsfMultisiteFetchProcess->getOutput()
             ->willReturn($multisiteConfig)
             ->shouldBeCalled();
