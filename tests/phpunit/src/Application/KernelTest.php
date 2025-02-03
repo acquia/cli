@@ -72,9 +72,6 @@ EOD;
  codestudio
   codestudio:php-version   Change the PHP version in Code Studio
   codestudio:wizard        [cs:wizard] Create and/or configure a new Code Studio project for a given Cloud Platform application
- email
-  email:configure          [ec] Configure Platform email for one or more applications
-  email:info               Print information related to Platform Email set up in a subscription.
  env
   env:certificate-create   Install an SSL certificate.
   env:create               Create a new Continuous Delivery Environment (CDE)

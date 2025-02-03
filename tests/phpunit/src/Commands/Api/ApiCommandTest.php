@@ -11,7 +11,6 @@ use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Tests\CommandTestBase;
 use AcquiaCloudApi\Exception\ApiErrorException;
 use Symfony\Component\Console\Exception\MissingInputException;
-use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Yaml\Yaml;
 
@@ -450,7 +449,7 @@ EOD;
      */
     public static function providerTestApiCommandDefinitionParameters(): array
     {
-        $apiAccountsSshKeysListUsage = '--from="-7d" --to="-1d" --sort="field1,-field2" --limit="10" --offset="10"';
+        $apiAccountsSshKeysListUsage = '--from="2023-09-01T00:00:00.000Z" --to="2023-09-29T00:00:00.000Z" --sort="field1,-field2" --limit="10" --offset="10"';
         return [
             [
                 '0',
