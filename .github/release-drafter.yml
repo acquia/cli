@@ -29,3 +29,6 @@ template: |
 
   $CHANGES
 prerelease: true
+# Draft releases are being duplicated; not sure if this is by design.
+# https://github.com/release-drafter/release-drafter/issues/1425
+include-pre-releases: false
