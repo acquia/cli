@@ -324,6 +324,8 @@ class CodeStudioWizardCommandTest extends WizardTestBase
                     self::$secret,
                     // Select a project type Node_project.
                     '1',
+                    // Select NODE hosting type basic.
+                    '1',
                     // Select NODE version 20.
                     '1',
                     // Do you want to continue?
