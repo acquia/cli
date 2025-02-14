@@ -77,14 +77,16 @@ final class NewFromDrupal7Command extends CommandBase
 
     private function getLocation(string $location, bool $should_exist = true): string
     {
-        if (strpos($location, '://') === false) {
+        if (!str_contains($location, '://')) {
             $file_exists = file_exists($location);
             if ($file_exists && !$should_exist) {
                 throw new ValidatorException(sprintf('The %s directory already exists.', $location));
-            } elseif (!$file_exists && $should_exist) {
+            }
+
+            if (!$file_exists && $should_exist) {
                 throw new ValidatorException(sprintf('%s could not be located. Check that the path is correct and try again.', $location));
             }
-            if (strpos($location, '.') === 0 || !static::isAbsolutePath($location)) {
+            if (str_starts_with($location, '.') || !self::isAbsolutePath($location)) {
                 $absolute = getcwd() . '/' . $location;
                 $location = $should_exist ? realpath($absolute) : $absolute;
             }

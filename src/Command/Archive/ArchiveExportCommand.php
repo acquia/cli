@@ -120,11 +120,12 @@ final class ArchiveExportCommand extends CommandBase
         }
         $targetFinder = $this->localMachineHelper->getFinder();
         $targetFinder->files()->in($artifactDir)->ignoreDotFiles(false);
+        $this->localMachineHelper->getFilesystem()->remove($targetFinder);
         $this->localMachineHelper->getFilesystem()
             ->mirror($this->dir, $artifactDir, $originFinder, [
                 'delete' => true,
                 'override' => true,
-            ], $targetFinder);
+            ]);
     }
 
     private function exportDatabaseToArchiveDir(

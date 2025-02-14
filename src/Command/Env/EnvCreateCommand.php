@@ -83,6 +83,10 @@ final class EnvCreateCommand extends CommandBase
         $this->checklist->completePreviousItem();
     }
 
+    /**
+     * @throws \Acquia\Cli\Exception\AcquiaCliException
+     * @throws \AcquiaCloudApi\Exception\ApiErrorException
+     */
     private function getBranch(Client $acquiaCloudClient, ?string $cloudAppUuid, InputInterface $input): string
     {
         $branchesAndTags = $acquiaCloudClient->request('get', "/applications/$cloudAppUuid/code");

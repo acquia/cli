@@ -33,7 +33,7 @@ class NewFromDrupal7CommandTest extends CommandTestBase
      */
     public static function provideTestNewFromDrupal7Command(): array
     {
-        $repo_root = dirname(dirname(dirname(dirname(dirname(dirname(__FILE__))))));
+        $repo_root = dirname(__FILE__, 6);
         // Windows accepts paths with either slash (/) or backslash (\), but will
         // not accept a path which contains both a slash and a backslash. Since this
         // may run on any platform, sanitize everything to use slash which is
@@ -73,19 +73,19 @@ class NewFromDrupal7CommandTest extends CommandTestBase
      *     /path/to/this/project/tests/fixtures/drupal7/drush_to_extensions_test_file_format.sh
      *     > extensions.json
      * @endcode
-     * @param string $extensions_file
+     * @param string $extensions_json
      *   An extensions file. See above.
      * @param string $recommendations_json
      *   A recommendations file. The file should have the same format as a file
      *   that would be provided to the --recommendations CLI option.
-     * @param string $expected_output_file
+     * @param string $expected_json
      *   The expected output.
      * @dataProvider provideTestNewFromDrupal7Command
      */
     public function testNewFromDrupal7Command(string $extensions_json, string $recommendations_json, string $expected_json): void
     {
         foreach (func_get_args() as $file) {
-            $this->assertTrue(file_exists($file), sprintf("The %s test file is missing.", basename($file)));
+            $this->assertFileExists($file, sprintf("The %s test file is missing.", basename($file)));
         }
 
         $race_condition_proof_tmpdir = sys_get_temp_dir() . '/' . getmypid();
@@ -101,7 +101,7 @@ class NewFromDrupal7CommandTest extends CommandTestBase
 
         $localMachineHelper = $this->mockLocalMachineHelper();
 
-        $mockFileSystem = $this->mockGetFilesystem($localMachineHelper);
+        $this->mockGetFilesystem($localMachineHelper);
         $localMachineHelper->checkRequiredBinariesExist(["composer"])
             ->shouldBeCalled();
         $this->mockExecuteComposerCreate($race_condition_proof_tmpdir, $localMachineHelper, $process);

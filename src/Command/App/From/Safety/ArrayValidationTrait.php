@@ -56,7 +56,7 @@ trait ArrayValidationTrait
      */
     protected static function listOf(callable $item_validator): Closure
     {
-        return static::arrayOf('is_int', $item_validator);
+        return self::arrayOf('is_int', $item_validator);
     }
 
     /**
@@ -70,7 +70,7 @@ trait ArrayValidationTrait
      */
     protected static function dictionaryOf(callable $entry_validator): Closure
     {
-        return static::arrayOf('is_string', $entry_validator);
+        return self::arrayOf('is_string', $entry_validator);
     }
 
     /**
