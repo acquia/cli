@@ -76,7 +76,7 @@
         "jangregor/phpstan-prophecy": "^1.0",
         "mikey179/vfsstream": "^1.6",
         "overtrue/phplint": "9.4.x-dev",
-        "phpro/grumphp": "2.x-dev",
+        "phpro/grumphp": "^2.9.0",
         "phpspec/prophecy": "^1.17",
         "phpspec/prophecy-phpunit": "^2.0",
         "phpstan/extension-installer": "^1.1",
