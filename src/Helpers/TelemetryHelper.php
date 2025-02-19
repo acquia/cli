@@ -91,7 +91,7 @@ class TelemetryHelper
             return;
         }
         $amplitude = Amplitude::getInstance();
-        $amplitude->setOptOut($this->telemetryEnabled());
+        $amplitude->setOptOut(!$this->telemetryEnabled());
 
         if (!$this->telemetryEnabled()) {
             return;
