@@ -16,9 +16,6 @@
         },
         {
             "type": "vcs", "url": "https://github.com/danepowell/phplint"
-        },
-        {
-            "type": "vcs", "url": "https://github.com/danepowell/Client"
         }
     ],
     "minimum-stability": "dev",
@@ -37,7 +34,7 @@
         "league/csv": "^9.8",
         "loophp/phposinfo": "^1.7.2",
         "ltd-beget/dns-zone-configurator": "^1.4.0",
-        "m4tthumphrey/php-gitlab-api": "dev-fix/84",
+        "m4tthumphrey/php-gitlab-api": "^12",
         "php-http/cache-plugin": "^2.0",
         "psr/log": "^3",
         "ramsey/uuid": "^4.1",
