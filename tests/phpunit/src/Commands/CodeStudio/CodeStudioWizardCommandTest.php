@@ -231,6 +231,26 @@ class CodeStudioWizardCommandTest extends WizardTestBase
                 [],
                 // Inputs.
                 [
+                    // Select a project type Node_project.
+                    '1',
+                    // Select NODE version 22.
+                    '2',
+                    // Do you want to continue?
+                    'y',
+                    // Would you like to perform a one time push of code from Acquia Cloud to Code Studio now? (yes/no) [yes]:
+                    'y',
+                ],
+                // Args.
+                [
+                    '--key' => self::$key,
+                    '--secret' => self::$secret,
+                ],
+            ],
+            [
+                // No projects.
+                [],
+                // Inputs.
+                [
                     0,
                     0,
                     'y',
