@@ -65,6 +65,7 @@ final class CodeStudioWizardCommand extends WizardCommandBase
                 $nodeVersions = [
                     'NODE_version_18' => "18",
                     'NODE_version_20' => "20",
+                    'NODE_version_22' => "22",
                 ];
                 $project = $this->io->choice('Select a NODE version', array_values($nodeVersions), "20");
                 $project = array_search($project, $nodeVersions, true);
