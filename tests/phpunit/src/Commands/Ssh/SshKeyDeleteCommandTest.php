@@ -18,6 +18,9 @@ class SshKeyDeleteCommandTest extends CommandTestBase
         return $this->injectCommand(SshKeyDeleteCommand::class);
     }
 
+    /**
+     * @throws \Exception
+     */
     public function testDelete(): void
     {
         $sshKeyListResponse = $this->mockListSshKeysRequest();
@@ -35,5 +38,15 @@ class SshKeyDeleteCommandTest extends CommandTestBase
         $output = $this->getDisplay();
         $this->assertStringContainsString('Choose an SSH key to delete from the Cloud Platform', $output);
         $this->assertStringContainsString($sshKeyListResponse[self::$INPUT_DEFAULT_CHOICE]->label, $output);
+
+        // Delete key when uuid and label are provided.
+        $this->executeCommand([
+            '--cloud-key-uuid' => $sshKeyListResponse[self::$INPUT_DEFAULT_CHOICE]->uuid,
+            '--label' => $sshKeyListResponse[self::$INPUT_DEFAULT_CHOICE]->label,
+        ]);
+
+        // Assert.
+        $output = $this->getDisplay();
+        $this->assertStringContainsString('Successfully deleted SSH key', $output);
     }
 }

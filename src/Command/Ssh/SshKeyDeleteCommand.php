@@ -20,11 +20,17 @@ final class SshKeyDeleteCommand extends SshKeyCommandBase
     protected function configure(): void
     {
         $this
-            ->addOption('cloud-key-uuid', 'uuid', InputOption::VALUE_REQUIRED);
+            ->addOption('cloud-key-uuid', 'uuid', InputOption::VALUE_REQUIRED)
+            ->addOption('label', null, InputOption::VALUE_REQUIRED, 'The SSH key label in the Cloud Platform');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        return $this->deleteSshKeyFromCloud($output);
+        $options = $input->getOption('cloud-key-uuid') ? [
+            'label' => $input->getOption('label') ?: $this->determineSshKeyLabel(),
+            'uuid' => $input->getOption('cloud-key-uuid'),
+        ] : [];
+
+        return $this->deleteSshKeyFromCloud($output, $options);
     }
 }
