@@ -12,16 +12,10 @@
     ],
     "repositories": [
         {
-            "type": "vcs", "url": "https://github.com/ruudk/oauth2-client"
-        },
-        {
             "type": "vcs", "url": "https://github.com/valzargaming/Pawl"
         },
         {
             "type": "vcs", "url": "https://github.com/danepowell/phplint"
-        },
-        {
-            "type": "vcs", "url": "https://github.com/danepowell/Client"
         }
     ],
     "minimum-stability": "dev",
@@ -38,10 +32,9 @@
         "http-interop/http-factory-guzzle": "^1.0",
         "laminas/laminas-validator": "^2.20.0",
         "league/csv": "^9.8",
-        "league/oauth2-client": "dev-patch-1 as 2.7.0",
         "loophp/phposinfo": "^1.7.2",
         "ltd-beget/dns-zone-configurator": "^1.4.0",
-        "m4tthumphrey/php-gitlab-api": "dev-fix/84",
+        "m4tthumphrey/php-gitlab-api": "^12",
         "php-http/cache-plugin": "^2.0",
         "psr/log": "^3",
         "ramsey/uuid": "^4.1",
@@ -61,7 +54,7 @@
         "symfony/process": "^6.3",
         "symfony/validator": "^6.3",
         "symfony/yaml": "^6.3",
-        "thecodingmachine/safe": "dev-master as 2.5.0",
+        "thecodingmachine/safe": "3.0.2 as 2.5.0",
         "typhonius/acquia-logstream": "^0.0.14",
         "typhonius/acquia-php-sdk-v2": "^3.4.2",
         "vlucas/phpdotenv": "^5.5",
@@ -76,7 +69,7 @@
         "jangregor/phpstan-prophecy": "^1.0",
         "mikey179/vfsstream": "^1.6",
         "overtrue/phplint": "9.4.x-dev",
-        "phpro/grumphp": "2.x-dev",
+        "phpro/grumphp": "^2.9.0",
         "phpspec/prophecy": "^1.17",
         "phpspec/prophecy-phpunit": "^2.0",
         "phpstan/extension-installer": "^1.1",

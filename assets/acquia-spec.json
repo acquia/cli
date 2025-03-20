@@ -505,12 +505,12 @@
       "From": {
         "name": "from",
         "in": "query",
-        "description": "Specifies relative or absolute time period to retrieve results from. (Default value -7d)",
+        "description": "Specifies absolute time period to retrieve results from. Requires ISO 8601 format.\n\nSome examples:\n* `2023-09-01`\n* `2023-09-01T00%3A00%3A00.000Z` (`2023-09-01T00:00:00.000Z`)\n",
         "required": false,
         "schema": {
           "type": "string"
         },
-        "example": "-7d"
+        "example": "2023-09-01T00:00:00.000Z"
       },
       "FromNoDefault": {
         "name": "from",
@@ -535,12 +535,12 @@
       "To": {
         "name": "to",
         "in": "query",
-        "description": "Optionally specifies relative or absolute time period to retrieve results until.",
+        "description": "Optionally specifies absolute time period to retrieve results until. Requires ISO 8601 format.\n\nSome examples:\n* `2023-09-29`\n* `2023-09-29T00%3A00%3A00.000Z` (`2023-09-29T00:00:00.000Z`)\n",
         "required": false,
         "schema": {
           "type": "string"
         },
-        "example": "-1d"
+        "example": "2023-09-29T00:00:00.000Z"
       },
       "ToNoDefault": {
         "name": "to",
@@ -2350,9 +2350,6 @@
                     },
                     {
                       "$ref": "#/components/schemas/EntitlementDefaultNewRelic"
-                    },
-                    {
-                      "$ref": "#/components/schemas/EntitlementMigrate"
                     }
                   ]
                 }
@@ -2528,46 +2525,6 @@
                 "description": "Determines if the entitlement is a trial."
               }
             }
-          }
-        }
-      },
-      "EntitlementMigrate": {
-        "type": "object",
-        "description": "Acquia Migrate Accelerator entitlement.",
-        "deprecated": true,
-        "required": [
-          "name",
-          "offering_ids",
-          "expires_at",
-          "flags",
-          "properties"
-        ],
-        "properties": {
-          "name": {
-            "type": "string",
-            "description": "The name of the entitlement."
-          },
-          "offering_ids": {
-            "type": "array",
-            "description": "The offering IDs associated with the entitlement."
-          },
-          "expires_at": {
-            "type": "string",
-            "description": "The furthest expiration date."
-          },
-          "flags": {
-            "type": "object",
-            "description": "The flags associated with the entitlement.",
-            "properties": {
-              "trial": {
-                "type": "boolean",
-                "description": "Determines if the entitlement is a trial."
-              }
-            }
-          },
-          "properties": {
-            "type": "object",
-            "description": "Entitlement data."
           }
         }
       },
@@ -3295,7 +3252,15 @@
             "description": "The ID of the cron job."
           },
           "server": {
-            "$ref": "#/components/schemas/ServerStub"
+            "oneOf": [
+              {
+                "type": "array",
+                "items": {}
+              },
+              {
+                "$ref": "#/components/schemas/ServerStub"
+              }
+            ]
           },
           "command": {
             "type": "string",
@@ -4029,6 +3994,22 @@
             "maximum": 32,
             "nullable": true
           },
+          "client_max_body_size": {
+            "type": "integer",
+            "description": "Sets the maximum size of the client request body.",
+            "default": 256,
+            "minimum": 0,
+            "maximum": 1024,
+            "nullable": true
+          },
+          "upload_max_filesize": {
+            "type": "integer",
+            "description": "Sets the maximum size of an uploaded file.",
+            "default": 256,
+            "minimum": 0,
+            "maximum": 1024,
+            "nullable": true
+          },
           "max_execution_time": {
             "type": "integer",
             "description": "Limits PHP request time in seconds.",
@@ -4099,10 +4080,6 @@
             "type": "boolean",
             "description": "Determines if the environment has live development enabled."
           },
-          "migration": {
-            "type": "boolean",
-            "description": "Determines if the environment is a Migrate Environment."
-          },
           "multicert": {
             "type": "boolean",
             "description": "Determines if the environment has multicert enabled."
@@ -4171,9 +4148,11 @@
                       "enum": [
                         "apcu",
                         "interned_strings_buffer",
+                        "client_max_body_size",
                         "max_execution_time",
                         "max_input_vars",
                         "max_post_size",
+                        "upload_max_filesize",
                         "memory_limit",
                         "memcached_limit",
                         "opcache",
@@ -8343,19 +8322,29 @@
       "TokenCreation": {
         "type": "object",
         "required": [
-          "api_key",
-          "api_secret",
+          "client_id",
+          "client_secret",
           "_links"
         ],
         "description": "Details about a created user access token.",
         "properties": {
           "api_key": {
+            "deprecated": true,
             "type": "string",
             "description": "The API key."
           },
           "api_secret": {
+            "deprecated": true,
             "type": "string",
             "description": "The API key secret."
+          },
+          "client_id": {
+            "type": "string",
+            "description": "The API client id."
+          },
+          "client_secret": {
+            "type": "string",
+            "description": "The API client secret."
           },
           "_links": {
             "$ref": "#/components/schemas/Links"
@@ -8395,7 +8384,6 @@
       "User": {
         "type": "object",
         "required": [
-          "id",
           "uuid",
           "name",
           "first_name",
@@ -8410,14 +8398,13 @@
           "country",
           "timezone",
           "picture_url",
-          "features",
           "flags",
-          "metadata",
           "_links"
         ],
         "description": "The response for a user object.",
         "properties": {
           "id": {
+            "deprecated": true,
             "type": "integer",
             "description": "The internal database ID (uid) of the user."
           },
@@ -8792,6 +8779,7 @@
             "description": "The user's picture url."
           },
           "features": {
+            "deprecated": true,
             "type": "array",
             "description": "The various feature flags for the user.",
             "items": {
@@ -8811,6 +8799,7 @@
             "$ref": "#/components/schemas/UserFlags"
           },
           "metadata": {
+            "deprecated": true,
             "type": "object",
             "description": "Metadata related to the user.",
             "properties": {
@@ -11516,6 +11505,8 @@
                 "example": {
                   "api_key": "137bd484-dcc8-4950-a784-1f01de7f6378",
                   "api_secret": "4DmbUmGiUkafdjcZk2yV6u17jPmmunwt8/47mKdAQIc=",
+                  "client_id": "137bd484-dcc8-4950-a784-1f01de7f6378",
+                  "client_secret": "4DmbUmGiUkafdjcZk2yV6u17jPmmunwt8/47mKdAQIc=",
                   "_links": {
                     "self": {
                       "href": "https://cloud.acquia.com/api/account/tokens"
@@ -18748,7 +18739,6 @@
                           "email": false,
                           "hsd": false,
                           "livedev": false,
-                          "migration": false,
                           "multicert": false,
                           "multi_region": false,
                           "production": false,
@@ -18765,9 +18755,11 @@
                             "opcache": 96,
                             "apcu": 32,
                             "interned_strings_buffer": 16,
+                            "client_max_body_size": 128,
                             "max_execution_time": 300,
                             "max_post_size": 256,
                             "max_input_vars": 1000,
+                            "upload_max_filesize": 256,
                             "memcached_limit": 64
                           }
                         },
@@ -18820,7 +18812,6 @@
                           "email": false,
                           "hsd": false,
                           "livedev": false,
-                          "migration": false,
                           "multicert": false,
                           "multi_region": false,
                           "production": true,
@@ -18872,7 +18863,6 @@
                           "email": false,
                           "hsd": false,
                           "livedev": false,
-                          "migration": false,
                           "multicert": false,
                           "multi_region": false,
                           "production": false,
@@ -19132,12 +19122,6 @@
                       "message": "You do not have permission to add an environment."
                     }
                   },
-                  "Application does not support CD environments": {
-                    "value": {
-                      "error": "forbidden",
-                      "message": "CD environments are not available for this application."
-                    }
-                  },
                   "Application is not hosted by Acquia": {
                     "value": {
                       "error": "forbidden",
@@ -19293,7 +19277,6 @@
                     "email": false,
                     "hsd": false,
                     "livedev": false,
-                    "migration": false,
                     "multicert": false,
                     "multi_region": false,
                     "production": false,
@@ -19310,9 +19293,11 @@
                       "opcache": 96,
                       "apcu": 64,
                       "interned_strings_buffer": 16,
+                      "client_max_body_size": 128,
                       "max_execution_time": 300,
                       "max_post_size": 256,
                       "max_input_vars": 1000,
+                      "upload_max_filesize": 128,
                       "memcached_limit": 64
                     }
                   },
@@ -19431,9 +19416,11 @@
                 "max_execution_time": 10,
                 "memory_limit": 192,
                 "apcu": 32,
+                "client_max_body_size": 192,
                 "max_input_vars": 1000,
                 "max_post_size": 256,
                 "memcached_limit": 128,
+                "upload_max_filesize": 192,
                 "operating_system": "focal"
               }
             },
@@ -19536,6 +19523,12 @@
                     "value": {
                       "error": "not_found",
                       "message": "The application you are trying to access does not exist, or you do not have permission to access it."
+                    }
+                  },
+                  "Not available for static applications": {
+                    "value": {
+                      "error": "not_available",
+                      "message": "Environment configuration cannot be modified for static applications."
                     }
                   }
                 }
@@ -19724,6 +19717,13 @@
                         "step": 1
                       },
                       {
+                        "name": "client_max_body_size",
+                        "minimum": 0,
+                        "maximum": 1024,
+                        "default": 256,
+                        "step": 1
+                      },
+                      {
                         "name": "max_execution_time",
                         "minimum": 1,
                         "maximum": 300,
@@ -19740,6 +19740,13 @@
                       {
                         "name": "max_post_size",
                         "minimum": 64,
+                        "maximum": 1024,
+                        "default": 256,
+                        "step": 1
+                      },
+                      {
+                        "name": "upload_max_filesize",
+                        "minimum": 0,
                         "maximum": 1024,
                         "default": 256,
                         "step": 1
@@ -20071,521 +20078,6 @@
                     "value": {
                       "error": "not_found",
                       "message": "The environment you are trying to access does not exist, or you do not have permission to access it."
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/environments/{environmentId}/actions/migrate": {
-      "post": {
-        "tags": [
-          "Environments",
-          "Migrate Accelerator"
-        ],
-        "summary": "Create a Migrate Environment using the provided environment as its source.",
-        "deprecated": true,
-        "description": "Create a Migrate Environment using the provided environment as its source.",
-        "operationId": "postMigrateEnvironment",
-        "x-cli-name": "environments:migrate",
-        "security": [
-          {
-            "OAuth2": []
-          }
-        ],
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/EnvironmentId"
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/hal+json": {
-              "schema": {
-                "type": "object",
-                "required": [
-                  "label"
-                ],
-                "properties": {
-                  "label": {
-                    "type": "string",
-                    "description": "The Migrate Environment label."
-                  },
-                  "config": {
-                    "type": "boolean",
-                    "description": "Indicates whether or not to copy configurations."
-                  }
-                }
-              },
-              "example": {
-                "label": "Migrate Environment",
-                "config": true
-              }
-            },
-            "application/x-www-form-urlencoded": {
-              "schema": {
-                "type": "object",
-                "required": [
-                  "label"
-                ],
-                "properties": {
-                  "label": {
-                    "type": "string",
-                    "description": "The Migrate Environment label."
-                  },
-                  "config": {
-                    "type": "boolean",
-                    "description": "Indicates whether or not to copy configurations."
-                  }
-                }
-              },
-              "example": {
-                "label": "Migrate Environment",
-                "config": true
-              }
-            }
-          }
-        },
-        "responses": {
-          "202": {
-            "description": "Accepted",
-            "content": {
-              "application/hal+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/MessageWithLinks"
-                },
-                "examples": {
-                  "Creating Migrate Environment": {
-                    "value": {
-                      "message": "The Migrate Environment is being created.",
-                      "_links": {
-                        "self": {
-                          "href": "https://cloud.acquia.com/api/environments/123-fa83c358-42bb-44d3-8e22-d046168af6d9/actions/migrate"
-                        },
-                        "parent": {
-                          "href": "https://cloud.acquia.com/api/environments/123-fa83c358-42bb-44d3-8e22-d046168af6d9"
-                        },
-                        "notification": {
-                          "href": "https://cloud.acquia.com/api/notifications/d4315515-9c1a-4153-9e88-0b681d5c76b2"
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
-            "content": {
-              "application/hal+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ValidationError"
-                },
-                "examples": {
-                  "Missing parameter": {
-                    "value": {
-                      "error": "validation_failed",
-                      "message": {
-                        "name": "Missing required parameter(s): example_param"
-                      }
-                    }
-                  },
-                  "Not available": {
-                    "value": {
-                      "error": "validation_failed",
-                      "message": {
-                        "general": "Acquia Migrate Accelerator is not available for this subscription."
-                      }
-                    }
-                  },
-                  "Unavailable": {
-                    "value": {
-                      "error": "validation_failed",
-                      "message": {
-                        "general": "This application cannot be migrated at this time. Please try again later or contact support."
-                      }
-                    }
-                  },
-                  "Another migrate environment exists": {
-                    "value": {
-                      "error": "validation_failed",
-                      "message": {
-                        "general": "The application can only have one Migrate Environment."
-                      }
-                    }
-                  },
-                  "Environment cannot be migrated": {
-                    "value": {
-                      "error": "validation_failed",
-                      "message": {
-                        "general": "Source environment cannot be used for the Migrate Environment."
-                      }
-                    }
-                  },
-                  "Label already used": {
-                    "value": {
-                      "error": "validation_failed",
-                      "message": {
-                        "label": "Another environment within this application already has this label."
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/hal+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                },
-                "examples": {
-                  "Insufficient permissions": {
-                    "value": {
-                      "error": "forbidden",
-                      "message": "You do not have sufficient permission to manage the Migrate Environment on this application."
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not Found",
-            "content": {
-              "application/hal+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                },
-                "examples": {
-                  "Not found": {
-                    "value": {
-                      "error": "not_found",
-                      "message": "The Migrate Environment you are trying to access does not exist, or you do not have permission to access it."
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/environments/{environmentId}/actions/promote": {
-      "post": {
-        "tags": [
-          "Environments",
-          "Migrate Accelerator"
-        ],
-        "summary": "Promote a Migrate Environment.",
-        "deprecated": true,
-        "description": "Promote a Migrate Environment.",
-        "operationId": "postPromoteEnvironment",
-        "x-cli-name": "environments:promote",
-        "security": [
-          {
-            "OAuth2": []
-          }
-        ],
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/EnvironmentId"
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/hal+json": {
-              "schema": {
-                "type": "object",
-                "required": [
-                  "target"
-                ],
-                "properties": {
-                  "target": {
-                    "type": "string",
-                    "description": "The UUID of the environment to promote to."
-                  }
-                }
-              },
-              "example": {
-                "target": "6a534a67-2d89-406d-95c8-efb515342983"
-              }
-            },
-            "application/x-www-form-urlencoded": {
-              "schema": {
-                "type": "object",
-                "required": [
-                  "target"
-                ],
-                "properties": {
-                  "target": {
-                    "type": "string",
-                    "description": "The UUID of the environment to promote to."
-                  }
-                }
-              },
-              "example": {
-                "target": "6a534a67-2d89-406d-95c8-efb515342983"
-              }
-            }
-          }
-        },
-        "responses": {
-          "202": {
-            "description": "Accepted",
-            "content": {
-              "application/hal+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/MessageWithLinks"
-                },
-                "examples": {
-                  "Promoting Migrate Environment": {
-                    "value": {
-                      "message": "The Migrate Environment is being promoted.",
-                      "_links": {
-                        "self": {
-                          "href": "https://cloud.acquia.com/api/environments/123-fa83c358-42bb-44d3-8e22-d046168af6d9/actions/promote"
-                        },
-                        "parent": {
-                          "href": "https://cloud.acquia.com/api/environments/123-fa83c358-42bb-44d3-8e22-d046168af6d9"
-                        },
-                        "notification": {
-                          "href": "https://cloud.acquia.com/api/notifications/d4315515-9c1a-4153-9e88-0b681d5c76b2"
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
-            "content": {
-              "application/hal+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ValidationError"
-                },
-                "examples": {
-                  "Missing parameter": {
-                    "value": {
-                      "error": "validation_failed",
-                      "message": {
-                        "name": "Missing required parameter(s): example_param"
-                      }
-                    }
-                  },
-                  "Not available": {
-                    "value": {
-                      "error": "validation_failed",
-                      "message": {
-                        "general": "Acquia Migrate Accelerator is not available for this subscription."
-                      }
-                    }
-                  },
-                  "Unavailable": {
-                    "value": {
-                      "error": "validation_failed",
-                      "message": {
-                        "general": "This application cannot be migrated at this time. Please try again later or contact support."
-                      }
-                    }
-                  },
-                  "Not a Migrate Environment": {
-                    "value": {
-                      "error": "validation_failed",
-                      "message": {
-                        "general": "The environment is not a Migrate Environment."
-                      }
-                    }
-                  },
-                  "Invalid target environment": {
-                    "value": {
-                      "error": "validation_failed",
-                      "message": {
-                        "label": "The environment is not a valid target for promotion."
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/hal+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                },
-                "examples": {
-                  "Cannot manage Migrate Environment": {
-                    "value": {
-                      "error": "forbidden",
-                      "message": "You do not have sufficient permission to manage migrate on this application."
-                    }
-                  },
-                  "Insufficient permissions": {
-                    "value": {
-                      "error": "forbidden",
-                      "message": "You do not have sufficient permission to promote to the target environment."
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not Found",
-            "content": {
-              "application/hal+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                },
-                "examples": {
-                  "Application not found": {
-                    "value": {
-                      "error": "not_found",
-                      "message": "The application you are trying to access does not exist, or you do not have permission to access it."
-                    }
-                  },
-                  "Migrate Environment not found": {
-                    "value": {
-                      "error": "not_found",
-                      "message": "The Migrate Environment you are trying to access does not exist, or you do not have permission to access it."
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/environments/{environmentId}/actions/refresh": {
-      "post": {
-        "tags": [
-          "Environments",
-          "Migrate Accelerator"
-        ],
-        "summary": "Refreshes a Migrate Environment.",
-        "deprecated": true,
-        "description": "Refreshes a Migrate Environment.",
-        "operationId": "postRefreshEnvironment",
-        "x-cli-name": "environments:refresh",
-        "security": [
-          {
-            "OAuth2": []
-          }
-        ],
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/EnvironmentId"
-          }
-        ],
-        "responses": {
-          "202": {
-            "description": "Accepted",
-            "content": {
-              "application/hal+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/MessageWithLinks"
-                },
-                "examples": {
-                  "Refreshing Migrate Environment": {
-                    "value": {
-                      "message": "The Migrate Environment is being refreshed.",
-                      "_links": {
-                        "self": {
-                          "href": "https://cloud.acquia.com/api/environments/123-fa83c358-42bb-44d3-8e22-d046168af6d9/actions/refresh"
-                        },
-                        "parent": {
-                          "href": "https://cloud.acquia.com/api/environments/123-fa83c358-42bb-44d3-8e22-d046168af6d9"
-                        },
-                        "notification": {
-                          "href": "https://cloud.acquia.com/api/notifications/d4315515-9c1a-4153-9e88-0b681d5c76b2"
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
-            "content": {
-              "application/hal+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ValidationError"
-                },
-                "examples": {
-                  "Not available": {
-                    "value": {
-                      "error": "validation_failed",
-                      "message": {
-                        "general": "Acquia Migrate Accelerator is not available for this subscription."
-                      }
-                    }
-                  },
-                  "Unavailable": {
-                    "value": {
-                      "error": "validation_failed",
-                      "message": {
-                        "general": "This application cannot be used at this time. Please try again later or contact support."
-                      }
-                    }
-                  },
-                  "Not a Migrate Environment": {
-                    "value": {
-                      "error": "validation_failed",
-                      "message": {
-                        "general": "The environment is not a Migrate Environment."
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/hal+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                },
-                "examples": {
-                  "Insufficient permissions": {
-                    "value": {
-                      "error": "forbidden",
-                      "message": "You do not have sufficient permission to refresh the Migrate Environment."
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not Found",
-            "content": {
-              "application/hal+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                },
-                "examples": {
-                  "Not found": {
-                    "value": {
-                      "error": "not_found",
-                      "message": "The Migrate Environment you are trying to access does not exist, or you do not have permission to access it."
                     }
                   }
                 }
@@ -21861,12 +21353,6 @@
                       "error": "conflict",
                       "message": "Code cannot be deployed from an environment to itself."
                     }
-                  },
-                  "Not allowed on a Migrate environment": {
-                    "value": {
-                      "error": "conflict",
-                      "message": "Code deploy is not allowed on the Migrate Environment."
-                    }
                   }
                 }
               }
@@ -21966,6 +21452,14 @@
                         "branch": "The branch or tag \"my-feature-branch\" does not exist within this environment."
                       }
                     }
+                  },
+                  "Invalid branch name": {
+                    "value": {
+                      "error": "validation_failed",
+                      "message": {
+                        "branch": "The branch name contains invalid characters."
+                      }
+                    }
                   }
                 }
               }
@@ -22025,14 +21519,6 @@
               "application/hal+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
-                },
-                "examples": {
-                  "Not allowed on a Migrate environment": {
-                    "value": {
-                      "error": "conflict",
-                      "message": "Code switch is not allowed on the Migrate Environment."
-                    }
-                  }
                 }
               }
             }
@@ -22200,12 +21686,6 @@
                     "value": {
                       "error": "conflict",
                       "message": "Sites cannot be imported on this environment."
-                    }
-                  },
-                  "Not allowed on a Migrate environment": {
-                    "value": {
-                      "error": "conflict",
-                      "message": "Site import is not allowed on the Migrate Environment."
                     }
                   }
                 }
@@ -23408,12 +22888,6 @@
                     "value": {
                       "error": "conflict",
                       "message": "A database cannot be copied to an environment that is currently in production mode."
-                    }
-                  },
-                  "Not allowed on a Migrate environment": {
-                    "value": {
-                      "error": "conflict",
-                      "message": "Database copying is not allowed on the Migrate Environment."
                     }
                   }
                 }
@@ -25597,228 +25071,6 @@
         }
       }
     },
-    "/environments/{environmentId}/email/actions/disable": {
-      "post": {
-        "tags": [
-          "Environments"
-        ],
-        "summary": "Disables email for an environment.",
-        "description": "Disables email for an environment.",
-        "deprecated": true,
-        "operationId": "postEnvironmentEmailDisable",
-        "x-cli-name": "environments:email-disable",
-        "security": [
-          {
-            "OAuth2": []
-          }
-        ],
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/EnvironmentId"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/hal+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/MessageWithLinks"
-                },
-                "example": {
-                  "message": "Platform Email is being disabled",
-                  "_links": {
-                    "self": {
-                      "href": "https://cloud.acquia.com/api/environments/123-a027502b-ad6c-a48e-a7e8-aa0def7d25e1/email/actions/disable"
-                    },
-                    "parent": {
-                      "href": "https://cloud.acquia.com/api/environments/123-a027502b-ad6c-a48e-a7e8-aa0def7d25e1/email/actions"
-                    },
-                    "notification": {
-                      "href": "https://cloud.acquia.com/api/notifications/123e4567-e89b-12d3-a456-426614174000"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/hal+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                },
-                "examples": {
-                  "No permission": {
-                    "value": {
-                      "error": "forbidden",
-                      "message": "You do not have permission to disable email for this environment."
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not Found",
-            "content": {
-              "application/hal+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                },
-                "examples": {
-                  "Environment mismatch": {
-                    "value": {
-                      "error": "not_found",
-                      "message": "The environment you are trying to access does not exist, or you do not have access to it."
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "Conflict",
-            "content": {
-              "application/hal+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                },
-                "examples": {
-                  "No entitlement": {
-                    "value": {
-                      "error": "conflict",
-                      "message": "Platform Email is not available for this subscription."
-                    }
-                  },
-                  "Not a legacy entitlement": {
-                    "value": {
-                      "error": "invalid_operation",
-                      "message": "Platform Email cannot be disabled for this subscription."
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/environments/{environmentId}/email/actions/enable": {
-      "post": {
-        "tags": [
-          "Environments"
-        ],
-        "summary": "Enables email for an environment.",
-        "description": "Enables email for an environment.",
-        "deprecated": true,
-        "operationId": "postEnvironmentEmailEnable",
-        "x-cli-name": "environments:email-enable",
-        "security": [
-          {
-            "OAuth2": []
-          }
-        ],
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/EnvironmentId"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/hal+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/MessageWithLinks"
-                },
-                "example": {
-                  "message": "Platform Email is being enabled",
-                  "_links": {
-                    "self": {
-                      "href": "https://cloud.acquia.com/api/environments/123-a027502b-ad6c-a48e-a7e8-aa0def7d25e1/email/actions/enable"
-                    },
-                    "parent": {
-                      "href": "https://cloud.acquia.com/api/environments/123-a027502b-ad6c-a48e-a7e8-aa0def7d25e1/actions/email"
-                    },
-                    "notification": {
-                      "href": "https://cloud.acquia.com/api/notifications/123e4567-e89b-12d3-a456-426614174000"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/hal+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                },
-                "examples": {
-                  "No permission": {
-                    "value": {
-                      "error": "forbidden",
-                      "message": "You do not have permission to enable email for this environment."
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not Found",
-            "content": {
-              "application/hal+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                },
-                "examples": {
-                  "Environment not found": {
-                    "value": {
-                      "error": "not_found",
-                      "message": "The environment you are trying to access does not exist, or you do not have access to it."
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "Conflict",
-            "content": {
-              "application/hal+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                },
-                "examples": {
-                  "No Entitlement": {
-                    "value": {
-                      "error": "conflict",
-                      "message": "Platform Email is not available for this subscription."
-                    }
-                  },
-                  "Already enabled": {
-                    "value": {
-                      "error": "conflict",
-                      "message": "Platform Email is already enabled on this environment."
-                    }
-                  },
-                  "No Associated domains": {
-                    "value": {
-                      "error": "conflict",
-                      "message": "There are no associated domains for this environment's application."
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/environments/{environmentId}/files": {
       "post": {
         "tags": [
@@ -25994,12 +25246,6 @@
                     "value": {
                       "error": "conflict",
                       "message": "Files cannot be copied to an environment that is currently in production mode."
-                    }
-                  },
-                  "Not allowed on a Migrate environment": {
-                    "value": {
-                      "error": "conflict",
-                      "message": "File copying is not allowed on the Migrate Environment."
                     }
                   }
                 }
@@ -32562,7 +31808,7 @@
         "summary": "Returns certificate signing requests.",
         "description": "Returns the certificate signing requests for this environment.",
         "operationId": "getCertificateSigningRequests",
-        "x-cli-name": "environments:csr-find",
+        "x-cli-name": "environments:csr-list",
         "parameters": [
           {
             "$ref": "#/components/parameters/EnvironmentId"
@@ -33277,6 +32523,12 @@
                       "error": "not_available",
                       "message": "Environment variables are not available for Acquia Cloud Site Factory applications."
                     }
+                  },
+                  "Not available for static applications": {
+                    "value": {
+                      "error": "not_available",
+                      "message": "Environment variables are not available for static applications."
+                    }
                   }
                 }
               }
@@ -33457,6 +32709,12 @@
                     "value": {
                       "error": "not_available",
                       "message": "Environment variables are not available for Acquia Cloud Site Factory applications."
+                    }
+                  },
+                  "Not available for static applications": {
+                    "value": {
+                      "error": "not_available",
+                      "message": "Environment variables are not available for static applications."
                     }
                   }
                 }
@@ -42713,17 +41971,6 @@
                           "visits": 10000000,
                           "views": 500000000
                         }
-                      },
-                      {
-                        "name": "migrate-accelerator",
-                        "offering_ids": [
-                          "b2a188df-00b7-47bf-a664-66835cde53b0"
-                        ],
-                        "expires_at": "2023-05-16T11:15:05.000Z",
-                        "flags": {
-                          "trial": true
-                        },
-                        "properties": []
                       }
                     ]
                   },

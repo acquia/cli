@@ -145,7 +145,7 @@ class CodeStudioPipelinesMigrateCommandTest extends CommandTestBase
         ];
         $projects->variables(self::$gitLabProjectId)
             ->willReturn($gitlabCicdVariables);
-        $projects->update(self::$gitLabProjectId, Argument::type('array'));
+        $projects->update(self::$gitLabProjectId, Argument::type('array'))->willReturn(true);
         $gitlabClient->projects()->willReturn($projects);
         $localMachineHelper->getFilesystem()
             ->willReturn(new Filesystem())

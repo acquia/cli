@@ -56,6 +56,7 @@ final class CodeStudioWizardCommand extends WizardCommandBase
                     'PHP_version_8.1' => "8.1",
                     'PHP_version_8.2' => "8.2",
                     'PHP_version_8.3' => "8.3",
+                    'PHP_version_8.4' => "8.4",
                 ];
                 $project = $this->io->choice('Select a PHP version', array_values($phpVersions), "8.3");
                 $project = array_search($project, $phpVersions, true);
@@ -71,6 +72,7 @@ final class CodeStudioWizardCommand extends WizardCommandBase
                 $nodeVersions = [
                     'NODE_version_18' => "18",
                     'NODE_version_20' => "20",
+                    'NODE_version_22' => "22",
                 ];
                 $project = $this->io->choice('Select a NODE version', array_values($nodeVersions), "20");
                 $project = array_search($project, $nodeVersions, true);

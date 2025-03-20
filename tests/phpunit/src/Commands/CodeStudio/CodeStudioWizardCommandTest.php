@@ -151,6 +151,46 @@ class CodeStudioWizardCommandTest extends WizardTestBase
                 [],
                 // Inputs.
                 [
+                    // Select a project type Drupal_project.
+                    '0',
+                    // Select PHP version 8.3.
+                    '2',
+                    // Do you want to continue?
+                    'y',
+                    // Would you like to perform a one time push of code from Acquia Cloud to Code Studio now? (yes/no) [yes]:
+                    'y',
+                ],
+                // Args.
+                [
+                    '--key' => self::$key,
+                    '--secret' => self::$secret,
+                ],
+            ],
+            [
+                // No projects.
+                [],
+                // Inputs.
+                [
+                    // Select a project type Drupal_project.
+                    '0',
+                    // Select PHP version 8.4.
+                    '3',
+                    // Do you want to continue?
+                    'y',
+                    // Would you like to perform a one time push of code from Acquia Cloud to Code Studio now? (yes/no) [yes]:
+                    'y',
+                ],
+                // Args.
+                [
+                    '--key' => self::$key,
+                    '--secret' => self::$secret,
+                ],
+            ],
+            [
+                // No projects.
+                [],
+                // Inputs.
+                [
                     // Select a project type Node_project.
                     '1',
                     // Select NODE hosting type advanced.
@@ -223,6 +263,26 @@ class CodeStudioWizardCommandTest extends WizardTestBase
                     '1',
                     // Select NODE version 20.
                     '1',
+                    // Do you want to continue?
+                    'y',
+                    // Would you like to perform a one time push of code from Acquia Cloud to Code Studio now? (yes/no) [yes]:
+                    'y',
+                ],
+                // Args.
+                [
+                    '--key' => self::$key,
+                    '--secret' => self::$secret,
+                ],
+            ],
+            [
+                // No projects.
+                [],
+                // Inputs.
+                [
+                    // Select a project type Node_project.
+                    '1',
+                    // Select NODE version 22.
+                    '2',
                     // Do you want to continue?
                     'y',
                     // Would you like to perform a one time push of code from Acquia Cloud to Code Studio now? (yes/no) [yes]:
@@ -372,11 +432,13 @@ class CodeStudioWizardCommandTest extends WizardTestBase
             'topics' => 'Acquia Cloud Application',
         ];
         $projects->update(self::$gitLabProjectId, $parameters)
+            ->willReturn(true)
             ->shouldBeCalled();
         $projects->uploadAvatar(
             33,
             Argument::type('string'),
-        )->shouldBeCalled();
+        )->willReturn(true)
+            ->shouldBeCalled();
         $this->mockGitLabVariables(self::$gitLabProjectId, $projects);
 
         if (($inputs[0] === '1' || (array_key_exists(2, $inputs) && $inputs[2] === '1'))) {
@@ -384,6 +446,7 @@ class CodeStudioWizardCommandTest extends WizardTestBase
                 'ci_config_path' => 'gitlab-ci/Auto-DevOps.acquia.gitlab-ci.yml@acquia/node-template',
             ];
             $projects->update(self::$gitLabProjectId, $parameters)
+                ->willReturn(true)
                 ->shouldBeCalled();
         } else {
             $schedules = $this->prophet->prophesize(Schedules::class);
@@ -400,11 +463,11 @@ class CodeStudioWizardCommandTest extends WizardTestBase
             $schedules->addVariable(self::$gitLabProjectId, $pipeline['id'], [
                 'key' => 'ACQUIA_JOBS_DEPRECATED_UPDATE',
                 'value' => 'true',
-            ])->shouldBeCalled();
+            ])->willReturn(true)->shouldBeCalled();
             $schedules->addVariable(self::$gitLabProjectId, $pipeline['id'], [
                 'key' => 'ACQUIA_JOBS_COMPOSER_UPDATE',
                 'value' => 'true',
-            ])->shouldBeCalled();
+            ])->willReturn(true)->shouldBeCalled();
             $gitlabClient->schedules()->willReturn($schedules->reveal());
         }
 
@@ -498,6 +561,7 @@ class CodeStudioWizardCommandTest extends WizardTestBase
             ->willReturn($tokens)
             ->shouldBeCalled();
         $projects->deleteProjectAccessToken(self::$gitLabProjectId, $this->gitLabTokenId)
+            ->willReturn(true)
             ->shouldBeCalled();
         $token = $tokens[0];
         $token['token'] = 'token';
@@ -609,13 +673,14 @@ class CodeStudioWizardCommandTest extends WizardTestBase
             $projects->addVariable($gitlabProjectId, Argument::type('string'), Argument::type('string'), Argument::type('bool'), null, [
                 'masked' => $variable['masked'],
                 'variable_type' => $variable['variable_type'],
-            ])->shouldBeCalled();
+            ])->willReturn(true)->shouldBeCalled();
         }
         foreach ($variables as $variable) {
             $projects->updateVariable(self::$gitLabProjectId, $variable['key'], $variable['value'], false, null, [
                 'masked' => true,
                 'variable_type' => 'env_var',
-            ])->shouldBeCalled();
+            ])->willReturn(true)
+                ->shouldBeCalled();
         }
     }
 }

@@ -104,6 +104,7 @@ class CodeStudioPhpVersionCommandTest extends CommandTestBase
         $projects->variables(self::$gitLabProjectId)
             ->willReturn($this->getMockGitLabVariables());
         $projects->addVariable(self::$gitLabProjectId, Argument::type('string'), Argument::type('string'))
+            ->willReturn(true)
             ->willThrow(RuntimeException::class);
 
         $gitlabClient->projects()->willReturn($projects);
@@ -137,7 +138,7 @@ class CodeStudioPhpVersionCommandTest extends CommandTestBase
 
         $projects->variables(self::$gitLabProjectId)
             ->willReturn($this->getMockGitLabVariables());
-        $projects->addVariable(self::$gitLabProjectId, Argument::type('string'), Argument::type('string'));
+        $projects->addVariable(self::$gitLabProjectId, Argument::type('string'), Argument::type('string'))->willReturn(true);
 
         $gitlabClient->projects()->willReturn($projects);
 
@@ -221,7 +222,7 @@ class CodeStudioPhpVersionCommandTest extends CommandTestBase
             'variable_type' => 'env_var',
         ];
         $projects->variables(self::$gitLabProjectId)->willReturn($variables);
-        $projects->updateVariable(self::$gitLabProjectId, Argument::type('string'), Argument::type('string'));
+        $projects->updateVariable(self::$gitLabProjectId, Argument::type('string'), Argument::type('string'))->willReturn(true);
 
         $gitlabClient->projects()->willReturn($projects);
 
