@@ -281,6 +281,8 @@ class CodeStudioWizardCommandTest extends WizardTestBase
                 [
                     // Select a project type Node_project.
                     '1',
+                    // Select NODE hosting type basic.
+                    '1',
                     // Select NODE version 22.
                     '2',
                     // Do you want to continue?
