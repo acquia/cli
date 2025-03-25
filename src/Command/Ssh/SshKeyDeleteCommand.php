@@ -25,6 +25,6 @@ final class SshKeyDeleteCommand extends SshKeyCommandBase
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        return $this->deleteSshKeyFromCloud($output);
+        return $this->deleteSshKeyFromCloud($output, $input->getOption('cloud-key-uuid'));
     }
 }

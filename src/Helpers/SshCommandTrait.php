@@ -15,11 +15,11 @@ trait SshCommandTrait
     private function deleteSshKeyFromCloud(mixed $output, mixed $cloudKey = null): int
     {
         $acquiaCloudClient = $this->cloudApiClientService->getClient();
-        if (!$cloudKey) {
-            $cloudKey = $this->determineCloudKey($acquiaCloudClient);
-        }
-
         $sshKeys = new SshKeys($acquiaCloudClient);
+
+        // If the user has provided a key, use it fetch key object. Otherwise, prompt to choose one.
+        $cloudKey = !empty($cloudKey) && is_string($cloudKey) ? $sshKeys->get($cloudKey) : $this->determineCloudKey($acquiaCloudClient);
+
         $sshKeys->delete($cloudKey->uuid);
         $output->writeln("<info>Successfully deleted SSH key <options=bold>$cloudKey->label</> from the Cloud Platform.</info>");
         $localKeys = $this->findLocalSshKeys();
