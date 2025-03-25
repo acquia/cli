@@ -12,9 +12,6 @@
     ],
     "repositories": [
         {
-            "type": "vcs", "url": "https://github.com/valzargaming/Pawl"
-        },
-        {
             "type": "vcs", "url": "https://github.com/danepowell/phplint"
         }
     ],
@@ -38,7 +35,6 @@
         "php-http/cache-plugin": "^2.0",
         "psr/log": "^3",
         "ramsey/uuid": "^4.1",
-        "ratchet/pawl": "dev-patch-1 as 0.4.1",
         "react/event-loop": "^1.1",
         "symfony/cache": "^6.3",
         "symfony/config": "^6.3",
@@ -55,7 +51,7 @@
         "symfony/validator": "^6.3",
         "symfony/yaml": "^6.3",
         "thecodingmachine/safe": "3.0.2 as 2.5.0",
-        "typhonius/acquia-logstream": "^0.0.14",
+        "typhonius/acquia-logstream": "^0.0.15",
         "typhonius/acquia-php-sdk-v2": "^3.4.2",
         "vlucas/phpdotenv": "^5.5",
         "zumba/amplitude-php": "^1.0.4"
