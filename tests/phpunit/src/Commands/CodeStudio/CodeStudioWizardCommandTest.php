@@ -195,51 +195,7 @@ class CodeStudioWizardCommandTest extends WizardTestBase
                     '1',
                     // Select NODE hosting type advanced.
                     '0',
-                    // Select NODE version 18.
-                    '0',
-                    // Do you want to continue?
-                    'y',
-                    // Would you like to perform a one time push of code from Acquia Cloud to Code Studio now? (yes/no) [yes]:
-                    'y',
-                ],
-                // Args.
-                [
-                    '--key' => self::$key,
-                    '--secret' => self::$secret,
-                ],
-            ],
-            [
-                // No projects.
-                [],
-                // Inputs.
-                [
-                    // Select a project type Node_project.
-                    '1',
-                    // Select NODE hosting type advanced.
-                    '0',
                     // Select NODE version 20.
-                    '1',
-                    // Do you want to continue?
-                    'y',
-                    // Would you like to perform a one time push of code from Acquia Cloud to Code Studio now? (yes/no) [yes]:
-                    'y',
-                ],
-                // Args.
-                [
-                    '--key' => self::$key,
-                    '--secret' => self::$secret,
-                ],
-            ],
-            [
-                // No projects.
-                [],
-                // Inputs.
-                [
-                    // Select a project type Node_project.
-                    '1',
-                    // Select NODE hosting type basic.
-                    '1',
-                    // Select NODE version 18.
                     '0',
                     // Do you want to continue?
                     'y',
@@ -262,7 +218,7 @@ class CodeStudioWizardCommandTest extends WizardTestBase
                     // Select NODE hosting type basic.
                     '1',
                     // Select NODE version 20.
-                    '1',
+                    '0',
                     // Do you want to continue?
                     'y',
                     // Would you like to perform a one time push of code from Acquia Cloud to Code Studio now? (yes/no) [yes]:
@@ -284,7 +240,7 @@ class CodeStudioWizardCommandTest extends WizardTestBase
                     // Select NODE hosting type basic.
                     '1',
                     // Select NODE version 22.
-                    '2',
+                    '1',
                     // Do you want to continue?
                     'y',
                     // Would you like to perform a one time push of code from Acquia Cloud to Code Studio now? (yes/no) [yes]:
@@ -344,27 +300,6 @@ class CodeStudioWizardCommandTest extends WizardTestBase
                     self::$key,
                     // Enter Cloud secret,.
                     self::$secret,
-                    // Select a project type Node_project.
-                    '1',
-                    // Select NODE hosting type basic.
-                    '1',
-                    // Select NODE version 18.
-                    '0',
-                    // Do you want to continue?
-                    'y',
-                ],
-                // Args.
-                [],
-            ],
-            [
-                // No projects.
-                [],
-                // Inputs.
-                [
-                    // Enter Cloud Key.
-                    self::$key,
-                    // Enter Cloud secret,.
-                    self::$secret,
                     // Select a project type Drupal_project.
                     '0',
                     // Select PHP version 8.2.
@@ -389,7 +324,7 @@ class CodeStudioWizardCommandTest extends WizardTestBase
                     // Select NODE hosting type basic.
                     '1',
                     // Select NODE version 20.
-                    '1',
+                    '0',
                     // Do you want to continue?
                     'y',
                 ],

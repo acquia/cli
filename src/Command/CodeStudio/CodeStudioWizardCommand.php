@@ -70,7 +70,6 @@ final class CodeStudioWizardCommand extends WizardCommandBase
                 $project = $this->io->choice('Select a NODE hosting type', array_values($nodeHostingTypes), "Basic Frontend Hosting");
                 $nodeHostingType = array_search($project, $nodeHostingTypes, true);
                 $nodeVersions = [
-                    'NODE_version_18' => "18",
                     'NODE_version_20' => "20",
                     'NODE_version_22' => "22",
                 ];
