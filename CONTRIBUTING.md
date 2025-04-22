@@ -1,24 +1,5 @@
 # Contributing
 
-## Submitting pull requests
-
-Pull requests must also adhere to the following guidelines:
-
-- Pull requests must be atomic and targeted at a single issue rather than broad scope.
-- Pull requests must contain clear testing steps and justification, and all other information required by the pull request template.
-- Pull requests must pass automated tests before they will be reviewed. Acquia recommends running the tests locally before submitting.
-- Pull requests must meet Drupal coding standards and best practices as defined by the project maintainers.
-
-### Automatic dev builds
-
-Every commit on the Acquia CLI repository, including for pull requests, automatically builds and uploads acli.phar as a build artifact to assist with reviews. To download acli.phar for any commit:
-
-1. For pull requests, GitHub Actions will comment on the PR with a link to the dev build.
-2. For any other commit, wait for the CI workflow to complete.
-3. On the workflow summary page, in the "Artifacts" section, click on `acli.phar`.
-4. Unzip the downloaded file.
-5. Make the file executable: `chmod +x acli.phar`
-
 ## Building and testing
 
 No special tools or dependencies are necessary to develop or contrib to Acquia CLI. Simply clone the Git repo and install Composer dependencies:
@@ -50,6 +31,25 @@ Every class / command has a corresponding test file. The first test case in each
 PHPUnit data providers may be used to fuzz input for a test case as long as the output remains the same. However, if the output of a command varies non-trivially based on input, it should probably be broken into different test cases rather than using a data provider.
 
 Test cases are declarative specifications. They should not implement or utilize any logic, especially not as provided by the covered source code itself.
+
+## Submitting pull requests
+
+Pull requests must also adhere to the following guidelines:
+
+- Pull requests must be atomic and targeted at a single issue rather than broad scope.
+- Pull requests must contain clear testing steps and justification, and all other information required by the pull request template.
+- Pull requests must pass automated tests before they will be reviewed. Acquia recommends running the tests locally before submitting.
+- Pull requests must meet Drupal coding standards and best practices as defined by the project maintainers.
+
+### Automatic dev builds
+
+Every commit on the Acquia CLI repository, including for pull requests, automatically builds and uploads acli.phar as a build artifact to assist with reviews. To download acli.phar for any commit:
+
+1. For pull requests, GitHub Actions will comment on the PR with a link to the dev build.
+2. For any other commit, wait for the CI workflow to complete.
+3. On the workflow summary page, in the "Artifacts" section, click on `acli.phar`.
+4. Unzip the downloaded file.
+5. Make the file executable: `chmod +x acli.phar`
 
 ## Updating Cloud Platform API spec
 
