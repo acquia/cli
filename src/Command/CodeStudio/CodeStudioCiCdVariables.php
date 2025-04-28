@@ -76,7 +76,7 @@ class CodeStudioCiCdVariables
     /**
      * @return array<mixed>
      */
-    public static function getDefaultsForPhp(?string $cloudApplicationUuid = null, ?string $cloudKey = null, ?string $cloudSecret = null, ?string $projectAccessTokenName = null, ?string $projectAccessToken = null, ?string $phpVersion = null): array
+    public static function getDefaultsForPhp(?string $cloudApplicationUuid = null, ?string $cloudKey = null, ?string $cloudSecret = null, ?string $projectAccessTokenName = null, ?string $projectAccessToken = null, ?string $mysqlVersion = null, ?string $phpVersion = null): array
     {
         return [
             [
@@ -112,6 +112,13 @@ class CodeStudioCiCdVariables
                 'masked' => true,
                 'protected' => false,
                 'value' => $projectAccessToken,
+                'variable_type' => 'env_var',
+            ],
+            [
+                'key' => 'MYSQL_VERSION',
+                'masked' => false,
+                'protected' => false,
+                'value' => $mysqlVersion,
                 'variable_type' => 'env_var',
             ],
             [
