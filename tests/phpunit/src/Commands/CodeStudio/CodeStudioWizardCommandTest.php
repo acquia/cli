@@ -109,15 +109,19 @@ class CodeStudioWizardCommandTest extends WizardTestBase
                 [],
                 // Inputs.
                 [
+                    // Select a project type [Drupal_project]:
                     0,
+                    // Select a MySQL version [5.7]:
                     0,
+                    // Select a PHP version [8.3]:
                     0,
+                    // Would you like to link the Cloud application Sample application 1 to this repository? (yes/no) [yes]:
                     0,
-                    // Do you want to continue?
-                    'y',
-                    // Select application from Cloud.
+                    // Would you like to create a new Code Studio project? If you select "no" you may choose from a full list of existing projects. (yes/no) [yes]:
                     0,
-                    // Would you like to perform a one time push of code from Acquia Cloud to Code Studio now? (yes/no) [yes]:
+                    // Choose a Code Studio project to configure for the Sample application.
+                    0,
+                    // Do you want to continue? (yes/no) [yes]:
                     'y',
                 ],
                 // Args.
