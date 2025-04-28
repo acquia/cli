@@ -131,6 +131,10 @@ class CodeStudioWizardCommandTest extends WizardTestBase
                 [],
                 // Inputs.
                 [
+                    // Enter Cloud Key.
+                    self::$key,
+                    // Enter Cloud secret,.
+                    self::$secret,
                     // Select a project type Drupal_project.
                     '0',
                     // Select MySQL version 8.0.
@@ -143,10 +147,7 @@ class CodeStudioWizardCommandTest extends WizardTestBase
                     'y',
                 ],
                 // Args.
-                [
-                    '--key' => self::$key,
-                    '--secret' => self::$secret,
-                ],
+                [],
             ],
             [
                 // No projects.
