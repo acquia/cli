@@ -57,7 +57,7 @@ final class CodeStudioWizardCommand extends WizardCommandBase
                     'MYSQL_version_5.7' => "5.7",
                     'MYSQL_version_8.0' => "8.0",
                 ];
-                $project = $this->io->choice('Select a MySQL version', array_values($mysqlVersions), "5.7");
+                $project = $this->io->choice('Select a MySQL version', array_values($mysqlVersions), "8.0");
                 $project = array_search($project, $mysqlVersions, true);
                 $mysqlVersion = $mysqlVersions[$project];
                 $phpVersions = [
