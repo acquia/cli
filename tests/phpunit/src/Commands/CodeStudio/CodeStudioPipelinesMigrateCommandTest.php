@@ -136,6 +136,13 @@ class CodeStudioPipelinesMigrateCommandTest extends CommandTestBase
                 'variable_type' => 'env_var',
             ],
             [
+                'key' => 'MYSQL_VERSION',
+                'masked' => false,
+                'protected' => false,
+                'value' => null,
+                'variable_type' => 'env_var',
+            ],
+            [
                 'key' => 'PHP_VERSION',
                 'masked' => false,
                 'protected' => false,

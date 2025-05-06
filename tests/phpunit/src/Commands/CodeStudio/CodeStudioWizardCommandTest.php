@@ -67,6 +67,7 @@ class CodeStudioWizardCommandTest extends WizardTestBase
                 [
                     0,
                     0,
+                    0,
                     // Do you want to continue?
                     'y',
                     // Would you like to perform a one time push of code from Acquia Cloud to Code Studio now? (yes/no) [yes]:
@@ -88,6 +89,7 @@ class CodeStudioWizardCommandTest extends WizardTestBase
                 [
                     0,
                     0,
+                    0,
                     'n',
                     // Found multiple projects that could match the Sample application 1 application. Choose which one to configure.
                     '0',
@@ -107,17 +109,19 @@ class CodeStudioWizardCommandTest extends WizardTestBase
                 [],
                 // Inputs.
                 [
+                    // Select a project type [Drupal_project]:
                     0,
+                    // Select a MySQL version [5.7]:
                     0,
-                    // 'Would you like to create a new Code Studio project?
-                    'y',
-                    // Select a project type Drupal_project.
-                    '0',
-                    // Select PHP version 8.1.
-                    '0',
-                    // Do you want to continue?
-                    'y',
-                    // Would you like to perform a one time push of code from Acquia Cloud to Code Studio now? (yes/no) [yes]:
+                    // Select a PHP version [8.3]:
+                    0,
+                    // Would you like to link the Cloud application Sample application 1 to this repository? (yes/no) [yes]:
+                    0,
+                    // Would you like to create a new Code Studio project? If you select "no" you may choose from a full list of existing projects. (yes/no) [yes]:
+                    0,
+                    // Choose a Code Studio project to configure for the Sample application.
+                    0,
+                    // Do you want to continue? (yes/no) [yes]:
                     'y',
                 ],
                 // Args.
@@ -131,8 +135,14 @@ class CodeStudioWizardCommandTest extends WizardTestBase
                 [],
                 // Inputs.
                 [
+                    // Enter Cloud Key.
+                    self::$key,
+                    // Enter Cloud secret,.
+                    self::$secret,
                     // Select a project type Drupal_project.
                     '0',
+                    // Select MySQL version 8.0.
+                    '1',
                     // Select PHP version 8.2.
                     '1',
                     // Do you want to continue?
@@ -141,10 +151,7 @@ class CodeStudioWizardCommandTest extends WizardTestBase
                     'y',
                 ],
                 // Args.
-                [
-                    '--key' => self::$key,
-                    '--secret' => self::$secret,
-                ],
+                [],
             ],
             [
                 // No projects.
@@ -152,6 +159,8 @@ class CodeStudioWizardCommandTest extends WizardTestBase
                 // Inputs.
                 [
                     // Select a project type Drupal_project.
+                    '0',
+                    // Select MySQL version 5.7.
                     '0',
                     // Select PHP version 8.3.
                     '2',
@@ -173,6 +182,8 @@ class CodeStudioWizardCommandTest extends WizardTestBase
                 [
                     // Select a project type Drupal_project.
                     '0',
+                    // Select MySQL version 8.0.
+                    '1',
                     // Select PHP version 8.4.
                     '3',
                     // Do you want to continue?
@@ -259,6 +270,7 @@ class CodeStudioWizardCommandTest extends WizardTestBase
                 [
                     0,
                     0,
+                    0,
                     'y',
                     'y',
                     // Choose project.
@@ -283,6 +295,8 @@ class CodeStudioWizardCommandTest extends WizardTestBase
                     self::$secret,
                     // Select a project type Drupal_project.
                     '0',
+                    // Select MySQL version 5.7.
+                    '0',
                     // Select PHP version 8.1.
                     '0',
                     // Do you want to continue?
@@ -302,6 +316,8 @@ class CodeStudioWizardCommandTest extends WizardTestBase
                     self::$secret,
                     // Select a project type Drupal_project.
                     '0',
+                    // Select MySQL version 8.0.
+                    '1',
                     // Select PHP version 8.2.
                     '1',
                     // Do you want to continue?
