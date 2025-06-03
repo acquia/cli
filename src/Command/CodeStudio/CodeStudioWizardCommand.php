@@ -44,6 +44,7 @@ final class CodeStudioWizardCommand extends WizardCommandBase
         // But, we specifically need an API Token key-pair of Code Studio.
         // So we reauthenticate to be sure we're using the provided credentials.
         $this->reAuthenticate($cloudKey, $cloudSecret, $this->cloudCredentials->getBaseUri(), $this->cloudCredentials->getAccountsUri());
+        $mysqlVersion = null;
         $phpVersion = null;
         $nodeVersion = null;
         $nodeHostingType = null;
@@ -52,6 +53,13 @@ final class CodeStudioWizardCommand extends WizardCommandBase
 
         switch ($projectSelected) {
             case "Drupal_project":
+                $mysqlVersions = [
+                    'MYSQL_version_5.7' => "5.7",
+                    'MYSQL_version_8.0' => "8.0",
+                ];
+                $project = $this->io->choice('Select a MySQL version', array_values($mysqlVersions), "8.0");
+                $project = array_search($project, $mysqlVersions, true);
+                $mysqlVersion = $mysqlVersions[$project];
                 $phpVersions = [
                     'PHP_version_8.1' => "8.1",
                     'PHP_version_8.2' => "8.2",
@@ -127,7 +135,7 @@ final class CodeStudioWizardCommand extends WizardCommandBase
         $this->updateGitLabProject($project);
         switch ($projectSelected) {
             case "Drupal_project":
-                $this->setGitLabCiCdVariablesForPhpProject($project, $appUuid, $cloudKey, $cloudSecret, $projectAccessTokenName, $projectAccessToken, $phpVersion);
+                $this->setGitLabCiCdVariablesForPhpProject($project, $appUuid, $cloudKey, $cloudSecret, $projectAccessTokenName, $projectAccessToken, $mysqlVersion, $phpVersion);
                 $this->createScheduledPipeline($project);
                 break;
             case "Node_project":
@@ -218,10 +226,10 @@ final class CodeStudioWizardCommand extends WizardCommandBase
         return $projectAccessToken['token'];
     }
 
-    private function setGitLabCiCdVariablesForPhpProject(array $project, string $cloudApplicationUuid, string $cloudKey, string $cloudSecret, string $projectAccessTokenName, string $projectAccessToken, string $phpVersion): void
+    private function setGitLabCiCdVariablesForPhpProject(array $project, string $cloudApplicationUuid, string $cloudKey, string $cloudSecret, string $projectAccessTokenName, string $projectAccessToken, string $mysqlVersion, string $phpVersion): void
     {
         $this->io->writeln("Setting GitLab CI/CD variables for {$project['path_with_namespace']}..");
-        $gitlabCicdVariables = CodeStudioCiCdVariables::getDefaultsForPhp($cloudApplicationUuid, $cloudKey, $cloudSecret, $projectAccessTokenName, $projectAccessToken, $phpVersion);
+        $gitlabCicdVariables = CodeStudioCiCdVariables::getDefaultsForPhp($cloudApplicationUuid, $cloudKey, $cloudSecret, $projectAccessTokenName, $projectAccessToken, $mysqlVersion, $phpVersion);
         $gitlabCicdExistingVariables = $this->gitLabClient->projects()
             ->variables($project['id']);
         $gitlabCicdExistingVariablesKeyed = [];
