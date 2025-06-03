@@ -22,51 +22,6 @@
   ],
   "components": {
     "parameters": {
-      "CodebaseId": {
-        "name": "codebaseId",
-        "in": "path",
-        "description": "",
-        "required": true,
-        "deprecated": false,
-        "allowEmptyValue": false,
-        "schema": {
-          "type": "string"
-        },
-        "style": "simple",
-        "explode": false,
-        "allowReserved": false
-      },
-      "CodebaseOffSet": {
-        "name": "offset",
-        "in": "query",
-        "description": "The collection page number",
-        "required": false,
-        "deprecated": false,
-        "allowEmptyValue": true,
-        "schema": {
-          "type": "integer",
-          "default": 1
-        },
-        "style": "form",
-        "explode": false,
-        "allowReserved": false
-      },
-      "CodebaseLimit": {
-          "name": "limit",
-          "in": "query",
-          "description": "The number of items per page",
-          "required": false,
-          "deprecated": false,
-          "allowEmptyValue": true,
-          "schema": {
-            "type": "integer",
-            "default": 25,
-            "minimum": 0
-          },
-          "style": "form",
-          "explode": false,
-          "allowReserved": false
-      },
       "ApmType": {
         "name": "apmType",
         "in": "path",
