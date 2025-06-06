@@ -9803,6 +9803,2926 @@
         }
       }
     },
+    "/codebases/{codebaseId}/bulk-code-switch": {
+      "get": {
+        "operationId": "api_codebases_codebaseIdbulk-code-switch_get_collection",
+        "tags": [
+          "Codebases"
+        ],
+        "responses": {
+          "200": {
+            "description": "Retrieves a list of bulk code switches details performed on a codebase.",
+            "content": {
+              "application/hal+json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "count": {
+                      "type": "integer",
+                      "example": 1
+                    },
+                    "total": {
+                      "type": "integer",
+                      "example": 1
+                    },
+                    "pagination": {
+                      "type": "object",
+                      "properties": {
+                        "total": {
+                          "type": "integer",
+                          "example": 1
+                        },
+                        "limit": {
+                          "type": "integer",
+                          "example": 25
+                        },
+                        "offset": {
+                          "type": "integer",
+                          "example": 0
+                        }
+                      }
+                    },
+                    "_embedded": {
+                      "type": "object",
+                      "properties": {
+                        "items": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "_links": {
+                                "type": "object",
+                                "properties": {
+                                  "parent": {
+                                    "type": "object",
+                                    "properties": {
+                                      "href": {
+                                        "type": "string",
+                                        "format": "uri",
+                                        "example": "https://cloud.acquia.com/api/codebases/0975a7a1-746f-4096-9c22-383f001797b5"
+                                      }
+                                    }
+                                  },
+                                  "self": {
+                                    "type": "object",
+                                    "properties": {
+                                      "href": {
+                                        "type": "string",
+                                        "format": "uri",
+                                        "example": "https://cloud.acquia.com/api/codebases/0975a7a1-746f-4096-9c22-383f001797b5/bulk-code-switch/1e6d0ff7-aec7-4ba8-8f67-d0bcdc945705"
+                                      }
+                                    }
+                                  }
+                                }
+                              },
+                              "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "example": "1e6d0ff7-aec7-4ba8-8f67-d0bcdc945705"
+                              },
+                              "codebase_id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "example": "0975a7a1-746f-4096-9c22-383f001797b5"
+                              },
+                              "reference": {
+                                "type": "string",
+                                "example": "v.1.1.1"
+                              },
+                              "created_at": {
+                                "type": "string",
+                                "format": "date-time",
+                                "example": "2024-12-20T06:39:57.000Z"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "_links": {
+                      "type": "object",
+                      "properties": {
+                        "parent": {
+                          "type": "object",
+                          "properties": {
+                            "href": {
+                              "type": "string",
+                              "format": "uri",
+                              "example": "https://cloud.acquia.com/api/codebases/0975a7a1-746f-4096-9c22-383f001797b5"
+                            }
+                          }
+                        },
+                        "self": {
+                          "type": "object",
+                          "properties": {
+                            "href": {
+                              "type": "string",
+                              "format": "uri",
+                              "example": "https://cloud.acquia.com/api/codebases/0975a7a1-746f-4096-9c22-383f001797b5/bulk-code-switch?limit=25&offset=0"
+                            }
+                          }
+                        },
+                        "limit": {
+                          "type": "object",
+                          "properties": {
+                            "href": {
+                              "type": "string",
+                              "format": "uri-template",
+                              "example": "https://cloud.acquia.com/api/codebases/0975a7a1-746f-4096-9c22-383f001797b5/bulk-code-switch?offset=0{&limit}"
+                            },
+                            "templated": {
+                              "type": "boolean",
+                              "example": true
+                            }
+                          }
+                        },
+                        "offset": {
+                          "type": "object",
+                          "properties": {
+                            "href": {
+                              "type": "string",
+                              "format": "uri-template",
+                              "example": "https://cloud.acquia.com/api/codebases/0975a7a1-746f-4096-9c22-383f001797b5/bulk-code-switch?limit=25{&offset}"
+                            },
+                            "templated": {
+                              "type": "boolean",
+                              "example": true
+                            }
+                          }
+                        },
+                        "filter": {
+                          "type": "object",
+                          "properties": {
+                            "href": {
+                              "type": "string",
+                              "format": "uri-template",
+                              "example": "https://cloud.acquia.com/api/codebases/0975a7a1-746f-4096-9c22-383f001797b5/bulk-code-switch?limit=25&offset=0{&filter}"
+                            },
+                            "templated": {
+                              "type": "boolean",
+                              "example": true
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access Denied",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "forbidden"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Access Denied."
+                    },
+                    "code": {
+                      "type": "integer",
+                      "example": 403
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Codebase not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "not_found"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "The codebase you are trying to access does not exist, or you do not have permission to access it."
+                    },
+                    "code": {
+                      "type": "integer",
+                      "example": 404
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Retrieves a list of bulk code switches details performed on a codebase.",
+        "description": "Retrieves a list of bulk code switches details performed on a codebase.",
+        "x-cli-name": "codebases:bulk-code-switch:list",
+        "parameters": [
+          {
+            "name": "codebaseId",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "deprecated": false,
+            "allowEmptyValue": false,
+            "schema": {
+              "type": "string"
+            },
+            "style": "simple",
+            "explode": false,
+            "allowReserved": false
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "The collection page number",
+            "required": false,
+            "deprecated": false,
+            "allowEmptyValue": true,
+            "schema": {
+              "type": "integer",
+              "default": 1
+            },
+            "style": "form",
+            "explode": false,
+            "allowReserved": false
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "The number of items per page",
+            "required": false,
+            "deprecated": false,
+            "allowEmptyValue": true,
+            "schema": {
+              "type": "integer",
+              "default": 25,
+              "minimum": 0
+            },
+            "style": "form",
+            "explode": false,
+            "allowReserved": false
+          }
+        ],
+        "deprecated": false,
+        "security": [
+          {
+            "Codebase_Service_JWT": []
+          }
+        ]
+      },
+      "post": {
+        "operationId": "create_bulk_code_switch_resource",
+        "tags": [
+          "Codebases"
+        ],
+        "responses": {
+          "202": {
+            "description": "Created a new Bulk Code Switch on a codebase.",
+            "content": {
+              "application/hal+json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "_links": {
+                      "type": "object",
+                      "properties": {
+                        "get": {
+                          "type": "object",
+                          "properties": {
+                            "href": {
+                              "type": "string",
+                              "format": "uri",
+                              "example": "https://cloud.acquia.com/api/codebases/0975a7a1-746f-4096-9c22-383f001797b5/bulk-code-switch/867c8d79-9751-4169-8799-18c8d211aec4"
+                            }
+                          }
+                        },
+                        "self": {
+                          "type": "object",
+                          "properties": {
+                            "href": {
+                              "type": "string",
+                              "format": "uri",
+                              "example": "https://cloud.acquia.com/api/codebases/0975a7a1-746f-4096-9c22-383f001797b5/bulk-code-switch"
+                            }
+                          }
+                        },
+                        "status": {
+                          "type": "object",
+                          "properties": {
+                            "href": {
+                              "type": "string",
+                              "format": "uri",
+                              "example": "https://cloud.acquia.com/api/codebases/0975a7a1-746f-4096-9c22-383f001797b5/bulk-code-switch/867c8d79-9751-4169-8799-18c8d211aec4/status"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Bulk code switch started."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Codebase not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "validation_failed"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Provide at least one valid target for bulk code switch."
+                    },
+                    "code": {
+                      "type": "integer",
+                      "example": 400
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access Denied",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "forbidden"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Access Denied."
+                    },
+                    "code": {
+                      "type": "integer",
+                      "example": 403
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Codebase not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "not_found"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "The codebase you are trying to access does not exist, or you do not have permission to access it."
+                    },
+                    "code": {
+                      "type": "integer",
+                      "example": 404
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Starts a new Bulk Code Switch for a codebase.",
+        "description": "Starts a new Bulk Code Switch for a codebase.",
+        "x-cli-name": "codebases:bulk-code-switch:start",
+        "parameters": [
+          {
+            "name": "codebaseId",
+            "in": "path",
+            "description": "The codebase entity's unique identifier.",
+            "required": true,
+            "deprecated": false,
+            "allowEmptyValue": false,
+            "schema": {
+              "type": "string"
+            },
+            "style": "simple",
+            "explode": false,
+            "allowReserved": false
+          }
+        ],
+        "requestBody": {
+          "description": "The new BulkCodeSwitch resource",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "reference": {
+                    "type": "string",
+                    "example": "test-branch-ref",
+                    "description": "The reference to switch to, such as a branch name or tag."
+                  },
+                  "targets": {
+                    "type": "array",
+                    "description": "The list of environments to switch the codebase to.",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "environment_id": {
+                          "type": "string",
+                          "format": "string",
+                          "example": "2345-a0c9dff7-56b6-4c0d-bad0-0e6593f66cd4"
+                        },
+                        "cloud_actions": {
+                          "type": "array",
+                          "description": "Optional cloud actions to perform on the environment after the code switch.",
+                          "items": {
+                            "type": "string",
+                            "example": "some-cloud-action"
+                          }
+                        }
+                      },
+                      "required": [
+                        "environment_id"
+                      ]
+                    },
+                    "minItems": 1
+                  },
+                  "cloud_actions": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "example": "some-cloud-action"
+                    }
+                  }
+                },
+                "required": [
+                  "reference",
+                  "targets"
+                ]
+              }
+            }
+          },
+          "required": false
+        },
+        "deprecated": false,
+        "security": [
+          {
+            "Codebase_Service_JWT": []
+          }
+        ]
+      }
+    },
+    "/codebases/{codebaseId}/bulk-code-switch/{bulkCodeSwitchId}": {
+      "get": {
+        "operationId": "get_bulk_code_switch_resource",
+        "tags": [
+          "Codebases"
+        ],
+        "responses": {
+          "200": {
+            "description": "Bulk code switch details",
+            "content": {
+              "application/hal+json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "_links": {
+                      "type": "object",
+                      "properties": {
+                        "status": {
+                          "type": "object",
+                          "properties": {
+                            "href": {
+                              "type": "string",
+                              "format": "uri",
+                              "example": "https://cloud.acquia.com/api/codebases/0975a7a1-746f-4096-9c22-383f001797b5/bulk-code-switch/1e6d0ff7-aec7-4ba8-8f67-d0bcdc945705/status"
+                            }
+                          }
+                        },
+                        "self": {
+                          "type": "object",
+                          "properties": {
+                            "href": {
+                              "type": "string",
+                              "format": "uri",
+                              "example": "https://cloud.acquia.com/api/codebases/0975a7a1-746f-4096-9c22-383f001797b5/bulk-code-switch/1e6d0ff7-aec7-4ba8-8f67-d0bcdc945705"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "id": {
+                      "type": "string",
+                      "format": "uuid",
+                      "example": "1e6d0ff7-aec7-4ba8-8f67-d0bcdc945705"
+                    },
+                    "codebase_id": {
+                      "type": "string",
+                      "format": "uuid",
+                      "example": "0975a7a1-746f-4096-9c22-383f001797b5"
+                    },
+                    "reference": {
+                      "type": "string",
+                      "example": "v.1.1.1"
+                    },
+                    "created_at": {
+                      "type": "string",
+                      "format": "date-time",
+                      "example": "2024-12-20T06:39:57.000Z"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access Denied",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "forbidden"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Access Denied."
+                    },
+                    "code": {
+                      "type": "integer",
+                      "example": 403
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Bulk Code Switch resource not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "not_found"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "The Bulk Code Switch details you are trying to access does not exist, or you do not have permission to access it."
+                    },
+                    "code": {
+                      "type": "integer",
+                      "example": 404
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Retrieves bulk code switch details by id.",
+        "description": "Retrieves bulk code switch details by id.",
+        "x-cli-name": "codebases:bulk-code-switch:get",
+        "parameters": [
+          {
+            "name": "codebaseId",
+            "in": "path",
+            "description": "The codebase entity's unique identifier.",
+            "required": true,
+            "deprecated": false,
+            "allowEmptyValue": false,
+            "schema": {
+              "type": "string"
+            },
+            "style": "simple",
+            "explode": false,
+            "allowReserved": false
+          },
+          {
+            "name": "bulkCodeSwitchId",
+            "in": "path",
+            "description": "The entity's universally unique identifier.",
+            "required": true,
+            "deprecated": false,
+            "allowEmptyValue": false,
+            "schema": {
+              "type": "string"
+            },
+            "style": "simple",
+            "explode": false,
+            "allowReserved": false
+          }
+        ],
+        "deprecated": false,
+        "security": [
+          {
+            "Codebase_Service_JWT": []
+          }
+        ]
+      }
+    },
+    "/applications/{applicationId}/codebase": {
+      "get": {
+        "operationId": "api_applications_applicationIdcodebase_get",
+        "tags": [
+          "Codebases"
+        ],
+        "responses": {
+          "200": {
+            "description": "Codebase details",
+            "content": {
+              "application/hal+json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "_links": {
+                      "type": "object",
+                      "properties": {
+                        "applications": {
+                          "type": "object",
+                          "properties": {
+                            "href": {
+                              "type": "string",
+                              "format": "uri",
+                              "example": "https://cloud.acquia.com/api/codebases/11111111-041c-44c7-a486-7972ed2cafc8/applications"
+                            }
+                          }
+                        },
+                        "self": {
+                          "type": "object",
+                          "properties": {
+                            "href": {
+                              "type": "string",
+                              "format": "uri",
+                              "example": "https://cloud.acquia.com/api/codebases/11111111-041c-44c7-a486-7972ed2cafc8"
+                            }
+                          }
+                        },
+                        "subscription": {
+                          "type": "object",
+                          "properties": {
+                            "href": {
+                              "type": "string",
+                              "format": "uri",
+                              "example": "https://cloud.acquia.com/api/subscriptions/f47ac10b-58cc-4372-a567-0e02b2c3d479"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "_embedded": {
+                      "type": "object",
+                      "properties": {
+                        "subscription": {
+                          "type": "object",
+                          "properties": {
+                            "_links": {
+                              "type": "object",
+                              "properties": {
+                                "self": {
+                                  "type": "object",
+                                  "properties": {
+                                    "href": {
+                                      "type": "string",
+                                      "format": "uri",
+                                      "example": "https://cloud.acquia.com/api/subscriptions/f47ac10b-58cc-4372-a567-0e02b2c3d479"
+                                    }
+                                  }
+                                }
+                              }
+                            },
+                            "id": {
+                              "type": "string",
+                              "format": "uuid",
+                              "example": "f47ac10b-58cc-4372-a567-0e02b2c3d479"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "id": {
+                      "type": "string",
+                      "format": "uuid",
+                      "example": "11111111-041c-44c7-a486-7972ed2cafc8"
+                    },
+                    "label": {
+                      "type": "string",
+                      "example": "Test codebase with attached applications"
+                    },
+                    "region": {
+                      "type": "string",
+                      "example": "us-east-1"
+                    },
+                    "vcs_url": {
+                      "type": "string",
+                      "format": "uri",
+                      "example": "ssh://us-east-1.dev.vcs.acquia.io/11111111-041c-44c7-a486-7972ed2cafc8"
+                    },
+                    "repository_id": {
+                      "type": "string",
+                      "format": "uuid",
+                      "example": "f03e15f9-0d97-498d-ba7d-99bd87b1417f"
+                    },
+                    "created_at": {
+                      "type": "string",
+                      "format": "date-time",
+                      "example": "2024-12-11T04:25:47.000Z"
+                    },
+                    "updated_at": {
+                      "type": "string",
+                      "format": "date-time",
+                      "example": "2024-12-11T04:25:47.000Z"
+                    },
+                    "description": {
+                      "type": "string",
+                      "example": ""
+                    },
+                    "flags": {
+                      "type": "object",
+                      "properties": {
+                        "active": {
+                          "type": "boolean",
+                          "example": true
+                        }
+                      }
+                    },
+                    "hash": {
+                      "type": "string",
+                      "example": "pte116m"
+                    },
+                    "applications_total": {
+                      "type": "integer",
+                      "example": 2
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access Denied",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "forbidden"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Access Denied."
+                    },
+                    "code": {
+                      "type": "integer",
+                      "example": 403
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Codebase not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "not_found"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "The codebase you are trying to access does not exist, or you do not have permission to access it."
+                    },
+                    "code": {
+                      "type": "integer",
+                      "example": 404
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Retrieves a codebase details linked to the specified application.",
+        "description": "Retrieves a codebase details linked to the specified application.",
+        "x-cli-name": "codebases:get-by-application",
+        "parameters": [
+          {
+            "name": "applicationId",
+            "in": "path",
+            "description": "The entity's universally unique identifier.",
+            "required": true,
+            "deprecated": false,
+            "allowEmptyValue": false,
+            "schema": {
+              "type": "string"
+            },
+            "style": "simple",
+            "explode": false,
+            "allowReserved": false
+          }
+        ],
+        "deprecated": false,
+        "security": [
+          {
+            "Codebase_Service_JWT": []
+          }
+        ]
+      }
+    },
+    "/codebases": {
+      "get": {
+        "operationId": "api_codebases_get_collection",
+        "tags": [
+          "Codebases"
+        ],
+        "responses": {
+          "200": {
+            "description": "List of codebases.",
+            "content": {
+              "application/hal+json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "count": {
+                      "type": "integer",
+                      "example": 1
+                    },
+                    "total": {
+                      "type": "integer",
+                      "example": 1
+                    },
+                    "pagination": {
+                      "type": "object",
+                      "properties": {
+                        "total": {
+                          "type": "integer",
+                          "example": 1
+                        },
+                        "limit": {
+                          "type": "integer",
+                          "example": 25
+                        },
+                        "offset": {
+                          "type": "integer",
+                          "example": 0
+                        }
+                      }
+                    },
+                    "_embedded": {
+                      "type": "object",
+                      "properties": {
+                        "items": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "_links": {
+                                "type": "object",
+                                "properties": {
+                                  "applications": {
+                                    "type": "object",
+                                    "properties": {
+                                      "href": {
+                                        "type": "string",
+                                        "format": "uri",
+                                        "example": "https://cloud.acquia.com/api/codebases/0975a7a1-746f-4096-9c22-383f001797b5/applications"
+                                      }
+                                    }
+                                  },
+                                  "self": {
+                                    "type": "object",
+                                    "properties": {
+                                      "href": {
+                                        "type": "string",
+                                        "format": "uri",
+                                        "example": "https://cloud.acquia.com/api/codebases"
+                                      }
+                                    }
+                                  },
+                                  "subscription": {
+                                    "type": "object",
+                                    "properties": {
+                                      "href": {
+                                        "type": "string",
+                                        "format": "uri",
+                                        "example": "https://cloud.acquia.com/api/subscriptions/f47ac10b-58cc-4372-a567-0e02b2c3d479"
+                                      }
+                                    }
+                                  }
+                                }
+                              },
+                              "_embedded": {
+                                "type": "object",
+                                "properties": {
+                                  "subscription": {
+                                    "type": "object",
+                                    "properties": {
+                                      "_links": {
+                                        "type": "object",
+                                        "properties": {
+                                          "self": {
+                                            "type": "object",
+                                            "properties": {
+                                              "href": {
+                                                "type": "string",
+                                                "format": "uri",
+                                                "example": "https://cloud.acquia.com/api/subscriptions/f47ac10b-58cc-4372-a567-0e02b2c3d479"
+                                              }
+                                            }
+                                          }
+                                        }
+                                      },
+                                      "id": {
+                                        "type": "string",
+                                        "format": "uuid",
+                                        "example": "f47ac10b-58cc-4372-a567-0e02b2c3d479"
+                                      }
+                                    }
+                                  }
+                                }
+                              },
+                              "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "example": "0975a7a1-746f-4096-9c22-383f001797b5"
+                              },
+                              "label": {
+                                "type": "string",
+                                "example": "test"
+                              },
+                              "region": {
+                                "type": "string",
+                                "example": "us-east-1"
+                              },
+                              "vcs_url": {
+                                "type": "string",
+                                "format": "uri",
+                                "example": "ssh://us-east-1.dev.vcs.acquia.io/0975a7a1-746f-4096-9c22-383f001797b5"
+                              },
+                              "repository_id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "example": "a5ef0a9d-44ce-4f06-8d4f-15f24f941a74"
+                              },
+                              "created_at": {
+                                "type": "string",
+                                "format": "date-time",
+                                "example": "2024-12-20T06:39:50.000Z"
+                              },
+                              "updated_at": {
+                                "type": "string",
+                                "format": "date-time",
+                                "example": "2024-12-20T06:39:50.000Z"
+                              },
+                              "description": {
+                                "type": "string",
+                                "example": ""
+                              },
+                              "flags": {
+                                "type": "object",
+                                "properties": {
+                                  "active": {
+                                    "type": "boolean",
+                                    "example": true
+                                  }
+                                }
+                              },
+                              "hash": {
+                                "type": "string",
+                                "example": "ryh4smn"
+                              },
+                              "applications_total": {
+                                "type": "integer",
+                                "example": 0
+                              }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "_links": {
+                      "type": "object",
+                      "properties": {
+                        "self": {
+                          "type": "object",
+                          "properties": {
+                            "href": {
+                              "type": "string",
+                              "format": "uri",
+                              "example": "https://cloud.acquia.com/api/codebases"
+                            }
+                          }
+                        },
+                        "limit": {
+                          "type": "object",
+                          "properties": {
+                            "href": {
+                              "type": "string",
+                              "format": "uri-template",
+                              "example": "https://cloud.acquia.com/api/codebases{?limit}"
+                            },
+                            "templated": {
+                              "type": "boolean",
+                              "example": true
+                            }
+                          }
+                        },
+                        "offset": {
+                          "type": "object",
+                          "properties": {
+                            "href": {
+                              "type": "string",
+                              "format": "uri-template",
+                              "example": "https://cloud.acquia.com/api/codebases{?offset}"
+                            },
+                            "templated": {
+                              "type": "boolean",
+                              "example": true
+                            }
+                          }
+                        },
+                        "filter": {
+                          "type": "object",
+                          "properties": {
+                            "href": {
+                              "type": "string",
+                              "format": "uri-template",
+                              "example": "https://cloud.acquia.com/api/codebases{?filter}"
+                            },
+                            "templated": {
+                              "type": "boolean",
+                              "example": true
+                            }
+                          }
+                        },
+                        "sort": {
+                          "type": "object",
+                          "properties": {
+                            "href": {
+                              "type": "string",
+                              "format": "uri-template",
+                              "example": "https://cloud.acquia.com/api/codebases{?sort}"
+                            },
+                            "templated": {
+                              "type": "boolean",
+                              "example": true
+                            }
+                          }
+                        },
+                        "next": {
+                          "type": "object",
+                          "properties": {
+                            "href": {
+                              "type": "string",
+                              "format": "uri",
+                              "example": "https://cloud.acquia.com/api/codebases?offset=25"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access Denied",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "forbidden"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Access Denied."
+                    },
+                    "code": {
+                      "type": "integer",
+                      "example": 403
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Codebase not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "not_found"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "The codebase you are trying to access does not exist, or you do not have permission to access it."
+                    },
+                    "code": {
+                      "type": "integer",
+                      "example": 404
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Retrieves a list of codebases accessible by the user.",
+        "description": "Retrieves a list of codebases accessible by the user.",
+        "x-cli-name": "codebases:get-all",
+        "parameters": [],
+        "deprecated": false,
+        "security": [
+          {
+            "Codebase_Service_JWT": []
+          }
+        ]
+      }
+    },
+    "/codebases/{codebaseId}": {
+      "get": {
+        "operationId": "get_codebase_by_id",
+        "tags": [
+          "Codebases"
+        ],
+        "responses": {
+          "200": {
+            "description": "Codebase details",
+            "content": {
+              "application/hal+json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "_links": {
+                      "type": "object",
+                      "properties": {
+                        "applications": {
+                          "type": "object",
+                          "properties": {
+                            "href": {
+                              "type": "string",
+                              "format": "uri",
+                              "example": "https://cloud.acquia.com/api/codebases/11111111-041c-44c7-a486-7972ed2cafc8/applications"
+                            }
+                          }
+                        },
+                        "self": {
+                          "type": "object",
+                          "properties": {
+                            "href": {
+                              "type": "string",
+                              "format": "uri",
+                              "example": "https://cloud.acquia.com/api/codebases/11111111-041c-44c7-a486-7972ed2cafc8"
+                            }
+                          }
+                        },
+                        "subscription": {
+                          "type": "object",
+                          "properties": {
+                            "href": {
+                              "type": "string",
+                              "format": "uri",
+                              "example": "https://cloud.acquia.com/api/subscriptions/f47ac10b-58cc-4372-a567-0e02b2c3d479"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "_embedded": {
+                      "type": "object",
+                      "properties": {
+                        "subscription": {
+                          "type": "object",
+                          "properties": {
+                            "_links": {
+                              "type": "object",
+                              "properties": {
+                                "self": {
+                                  "type": "object",
+                                  "properties": {
+                                    "href": {
+                                      "type": "string",
+                                      "format": "uri",
+                                      "example": "https://cloud.acquia.com/api/subscriptions/f47ac10b-58cc-4372-a567-0e02b2c3d479"
+                                    }
+                                  }
+                                }
+                              }
+                            },
+                            "id": {
+                              "type": "string",
+                              "format": "uuid",
+                              "example": "f47ac10b-58cc-4372-a567-0e02b2c3d479"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "id": {
+                      "type": "string",
+                      "format": "uuid",
+                      "example": "11111111-041c-44c7-a486-7972ed2cafc8"
+                    },
+                    "label": {
+                      "type": "string",
+                      "example": "Test codebase with attached applications"
+                    },
+                    "region": {
+                      "type": "string",
+                      "example": "us-east-1"
+                    },
+                    "vcs_url": {
+                      "type": "string",
+                      "format": "uri",
+                      "example": "ssh://us-east-1.dev.vcs.acquia.io/11111111-041c-44c7-a486-7972ed2cafc8"
+                    },
+                    "repository_id": {
+                      "type": "string",
+                      "format": "uuid",
+                      "example": "f03e15f9-0d97-498d-ba7d-99bd87b1417f"
+                    },
+                    "created_at": {
+                      "type": "string",
+                      "format": "date-time",
+                      "example": "2024-12-11T04:25:47.000Z"
+                    },
+                    "updated_at": {
+                      "type": "string",
+                      "format": "date-time",
+                      "example": "2024-12-11T04:25:47.000Z"
+                    },
+                    "description": {
+                      "type": "string",
+                      "example": ""
+                    },
+                    "flags": {
+                      "type": "object",
+                      "properties": {
+                        "active": {
+                          "type": "boolean",
+                          "example": true
+                        }
+                      }
+                    },
+                    "hash": {
+                      "type": "string",
+                      "example": "pte116m"
+                    },
+                    "applications_total": {
+                      "type": "integer",
+                      "example": 2
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access Denied",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "forbidden"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Access Denied."
+                    },
+                    "code": {
+                      "type": "integer",
+                      "example": 403
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Codebase not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "not_found"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "The codebase you are trying to access does not exist, or you do not have permission to access it."
+                    },
+                    "code": {
+                      "type": "integer",
+                      "example": 404
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Retrieves a codebase details by its ID.",
+        "description": "Return details about a specific codebase.",
+        "x-cli-name": "codebases:get",
+        "parameters": [
+          {
+            "name": "codebaseId",
+            "in": "path",
+            "description": "The codebase entity's unique identifier.",
+            "required": true,
+            "deprecated": false,
+            "allowEmptyValue": false,
+            "schema": {
+              "type": "string"
+            },
+            "style": "simple",
+            "explode": false,
+            "allowReserved": false
+          }
+        ],
+        "deprecated": false,
+        "security": [
+          {
+            "Codebase_Service_JWT": []
+          }
+        ]
+      },
+      "put": {
+        "operationId": "api_codebases_codebaseId_put",
+        "tags": [
+          "Codebases"
+        ],
+        "responses": {
+          "202": {
+            "description": "Update a codebase details by its ID.",
+            "content": {
+              "application/hal+json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Codebase update started."
+                    },
+                    "_links": {
+                      "type": "object",
+                      "properties": {
+                        "self": {
+                          "type": "object",
+                          "properties": {
+                            "href": {
+                              "type": "string",
+                              "format": "uri",
+                              "example": "https://cloud.acquia.com/api/codebases/a0c9dff7-56b6-4c0d-bad0-0e6593f66cd3"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation Error in request body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "validation_failed"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid request body."
+                    },
+                    "code": {
+                      "type": "integer",
+                      "example": 400
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access Denied",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "forbidden"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Access Denied."
+                    },
+                    "code": {
+                      "type": "integer",
+                      "example": 403
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Codebase not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "not_found"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "The codebase you are trying to access does not exist, or you do not have permission to access it."
+                    },
+                    "code": {
+                      "type": "integer",
+                      "example": 404
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Update a codebase details by its ID.",
+        "description": "Update a codebase details by its ID.",
+        "x-cli-name": "codebases:update",
+        "parameters": [
+          {
+            "name": "codebaseId",
+            "in": "path",
+            "description": "The codebase entity's unique identifier.",
+            "required": true,
+            "deprecated": false,
+            "allowEmptyValue": false,
+            "schema": {
+              "type": "string"
+            },
+            "style": "simple",
+            "explode": false,
+            "allowReserved": false
+          }
+        ],
+        "requestBody": {
+          "description": "The updated Codebase resource",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "label": {
+                    "type": "string",
+                    "example": "test-codebase",
+                    "description": "The label of the codebase. This is a human-readable name for the codebase."
+                  },
+                  "description": {
+                    "type": "string",
+                    "example": "codebase-description",
+                    "description": "A description of the codebase. This is a human-readable description of the codebase."
+                  }
+                },
+                "minProperties": 1
+              }
+            }
+          },
+          "required": false
+        },
+        "deprecated": false,
+        "security": [
+          {
+            "Codebase_Service_JWT": []
+          }
+        ]
+      },
+      "delete": {
+        "operationId": "api_codebases_codebaseId_delete",
+        "tags": [
+          "Codebases"
+        ],
+        "responses": {
+          "202": {
+            "description": "Deletes a codebase.",
+            "content": {
+              "application/hal+json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Codebase deletion started."
+                    },
+                    "_links": {
+                      "type": "object",
+                      "properties": {
+                        "self": {
+                          "type": "object",
+                          "properties": {
+                            "href": {
+                              "type": "string",
+                              "format": "uri",
+                              "example": "https://cloud.acquia.com/api/codebases/a0c9dff7-56b6-4c0d-bad0-0e6593f66cd3"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access Denied",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "forbidden"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Access Denied."
+                    },
+                    "code": {
+                      "type": "integer",
+                      "example": 403
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Codebase not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "not_found"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "The codebase you are trying to access does not exist, or you do not have permission to access it."
+                    },
+                    "code": {
+                      "type": "integer",
+                      "example": 404
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Delete a codebase by its ID.",
+        "description": "Delete a codebase by its ID.",
+        "x-cli-name": "codebases:delete",
+        "parameters": [
+          {
+            "name": "codebaseId",
+            "in": "path",
+            "description": "The codebase entity's unique identifier.",
+            "required": true,
+            "deprecated": false,
+            "allowEmptyValue": false,
+            "schema": {
+              "type": "string"
+            },
+            "style": "simple",
+            "explode": false,
+            "allowReserved": false
+          }
+        ],
+        "deprecated": false,
+        "security": [
+          {
+            "Codebase_Service_JWT": []
+          }
+        ]
+      }
+    },
+    "/subscriptions/{subscriptionId}/codebases": {
+      "get": {
+        "operationId": "subscription_codebases",
+        "tags": [
+          "Codebases"
+        ],
+        "responses": {
+          "200": {
+            "description": "List of codebases.",
+            "content": {
+              "application/hal+json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "count": {
+                      "type": "integer",
+                      "example": 1
+                    },
+                    "total": {
+                      "type": "integer",
+                      "example": 1
+                    },
+                    "pagination": {
+                      "type": "object",
+                      "properties": {
+                        "total": {
+                          "type": "integer",
+                          "example": 1
+                        },
+                        "limit": {
+                          "type": "integer",
+                          "example": 25
+                        },
+                        "offset": {
+                          "type": "integer",
+                          "example": 0
+                        }
+                      }
+                    },
+                    "_embedded": {
+                      "type": "object",
+                      "properties": {
+                        "items": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "_links": {
+                                "type": "object",
+                                "properties": {
+                                  "applications": {
+                                    "type": "object",
+                                    "properties": {
+                                      "href": {
+                                        "type": "string",
+                                        "format": "uri",
+                                        "example": "https://cloud.acquia.com/api/codebases/0975a7a1-746f-4096-9c22-383f001797b5/applications"
+                                      }
+                                    }
+                                  },
+                                  "self": {
+                                    "type": "object",
+                                    "properties": {
+                                      "href": {
+                                        "type": "string",
+                                        "format": "uri",
+                                        "example": "https://cloud.acquia.com/api/codebases"
+                                      }
+                                    }
+                                  },
+                                  "subscription": {
+                                    "type": "object",
+                                    "properties": {
+                                      "href": {
+                                        "type": "string",
+                                        "format": "uri",
+                                        "example": "https://cloud.acquia.com/api/subscriptions/f47ac10b-58cc-4372-a567-0e02b2c3d479"
+                                      }
+                                    }
+                                  }
+                                }
+                              },
+                              "_embedded": {
+                                "type": "object",
+                                "properties": {
+                                  "subscription": {
+                                    "type": "object",
+                                    "properties": {
+                                      "_links": {
+                                        "type": "object",
+                                        "properties": {
+                                          "self": {
+                                            "type": "object",
+                                            "properties": {
+                                              "href": {
+                                                "type": "string",
+                                                "format": "uri",
+                                                "example": "https://cloud.acquia.com/api/subscriptions/f47ac10b-58cc-4372-a567-0e02b2c3d479"
+                                              }
+                                            }
+                                          }
+                                        }
+                                      },
+                                      "id": {
+                                        "type": "string",
+                                        "format": "uuid",
+                                        "example": "f47ac10b-58cc-4372-a567-0e02b2c3d479"
+                                      }
+                                    }
+                                  }
+                                }
+                              },
+                              "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "example": "0975a7a1-746f-4096-9c22-383f001797b5"
+                              },
+                              "label": {
+                                "type": "string",
+                                "example": "test"
+                              },
+                              "region": {
+                                "type": "string",
+                                "example": "us-east-1"
+                              },
+                              "vcs_url": {
+                                "type": "string",
+                                "format": "uri",
+                                "example": "ssh://us-east-1.dev.vcs.acquia.io/0975a7a1-746f-4096-9c22-383f001797b5"
+                              },
+                              "repository_id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "example": "a5ef0a9d-44ce-4f06-8d4f-15f24f941a74"
+                              },
+                              "created_at": {
+                                "type": "string",
+                                "format": "date-time",
+                                "example": "2024-12-20T06:39:50.000Z"
+                              },
+                              "updated_at": {
+                                "type": "string",
+                                "format": "date-time",
+                                "example": "2024-12-20T06:39:50.000Z"
+                              },
+                              "description": {
+                                "type": "string",
+                                "example": ""
+                              },
+                              "flags": {
+                                "type": "object",
+                                "properties": {
+                                  "active": {
+                                    "type": "boolean",
+                                    "example": true
+                                  }
+                                }
+                              },
+                              "hash": {
+                                "type": "string",
+                                "example": "ryh4smn"
+                              },
+                              "applications_total": {
+                                "type": "integer",
+                                "example": 0
+                              }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "_links": {
+                      "type": "object",
+                      "properties": {
+                        "self": {
+                          "type": "object",
+                          "properties": {
+                            "href": {
+                              "type": "string",
+                              "format": "uri",
+                              "example": "https://cloud.acquia.com/api/codebases"
+                            }
+                          }
+                        },
+                        "limit": {
+                          "type": "object",
+                          "properties": {
+                            "href": {
+                              "type": "string",
+                              "format": "uri-template",
+                              "example": "https://cloud.acquia.com/api/codebases{?limit}"
+                            },
+                            "templated": {
+                              "type": "boolean",
+                              "example": true
+                            }
+                          }
+                        },
+                        "offset": {
+                          "type": "object",
+                          "properties": {
+                            "href": {
+                              "type": "string",
+                              "format": "uri-template",
+                              "example": "https://cloud.acquia.com/api/codebases{?offset}"
+                            },
+                            "templated": {
+                              "type": "boolean",
+                              "example": true
+                            }
+                          }
+                        },
+                        "filter": {
+                          "type": "object",
+                          "properties": {
+                            "href": {
+                              "type": "string",
+                              "format": "uri-template",
+                              "example": "https://cloud.acquia.com/api/codebases{?filter}"
+                            },
+                            "templated": {
+                              "type": "boolean",
+                              "example": true
+                            }
+                          }
+                        },
+                        "sort": {
+                          "type": "object",
+                          "properties": {
+                            "href": {
+                              "type": "string",
+                              "format": "uri-template",
+                              "example": "https://cloud.acquia.com/api/codebases{?sort}"
+                            },
+                            "templated": {
+                              "type": "boolean",
+                              "example": true
+                            }
+                          }
+                        },
+                        "next": {
+                          "type": "object",
+                          "properties": {
+                            "href": {
+                              "type": "string",
+                              "format": "uri",
+                              "example": "https://cloud.acquia.com/api/codebases?offset=25"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access Denied",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "forbidden"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Access Denied."
+                    },
+                    "code": {
+                      "type": "integer",
+                      "example": 403
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Codebase not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "not_found"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "The codebase you are trying to access does not exist, or you do not have permission to access it."
+                    },
+                    "code": {
+                      "type": "integer",
+                      "example": 404
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Retrieves a list of codebases by subscription ID.",
+        "description": "Retrieves a list of codebases by subscription ID.",
+        "x-cli-name": "codebases:get-by-subscription",
+        "parameters": [
+          {
+            "name": "subscriptionId",
+            "in": "path",
+            "description": "The entity's universally unique identifier.",
+            "required": true,
+            "deprecated": false,
+            "allowEmptyValue": false,
+            "schema": {
+              "type": "string"
+            },
+            "style": "simple",
+            "explode": false,
+            "allowReserved": false
+          }
+        ],
+        "deprecated": false,
+        "security": [
+          {
+            "Codebase_Service_JWT": []
+          }
+        ]
+      },
+      "post": {
+        "operationId": "api_subscriptions_subscriptionIdcodebases_post",
+        "tags": [
+          "Codebases"
+        ],
+        "responses": {
+          "201": {
+            "description": "Create a new codebase for a subscription.",
+            "content": {
+              "application/hal+json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "_links": {
+                      "type": "object",
+                      "properties": {
+                        "parent": {
+                          "type": "object",
+                          "properties": {
+                            "href": {
+                              "type": "string",
+                              "format": "uri",
+                              "example": "https://cloud.acquia.com/api/subscriptions/123/codebases"
+                            }
+                          }
+                        },
+                        "self": {
+                          "type": "object",
+                          "properties": {
+                            "href": {
+                              "type": "string",
+                              "format": "uri",
+                              "example": "https://cloud.acquia.com/api/codebases/a0c9dff7-56b6-4c0d-bad0-0e6593f66cd3"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Codebase with label:test-codebase creation started."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Incomplete or incorrect request body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "validation_failed"
+                    },
+                    "message": {
+                      "type": "object",
+                      "properties": {
+                        "label": {
+                          "type": "string",
+                          "example": "This value should not be null."
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access Denied",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "forbidden"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Access Denied."
+                    },
+                    "code": {
+                      "type": "integer",
+                      "example": 403
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Subscription not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "not_found"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Subscription with id:invalid-sub-9999 could not be found."
+                    },
+                    "code": {
+                      "type": "integer",
+                      "example": 404
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Create a new codebase for a subscription.",
+        "description": "Create a new codebase for a subscription.",
+        "x-cli-name": "codebases:create",
+        "parameters": [
+          {
+            "name": "subscriptionId",
+            "in": "path",
+            "description": "The entity's unique identifier",
+            "required": true,
+            "deprecated": false,
+            "allowEmptyValue": false,
+            "schema": {
+              "type": "string"
+            },
+            "style": "simple",
+            "explode": false,
+            "allowReserved": false
+          }
+        ],
+        "requestBody": {
+          "description": "The new Codebase resource",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "codebase_id": {
+                    "type": "string",
+                    "format": "uuid",
+                    "example": "a0c9dff7-56b6-4c0d-bad0-0e6593f66cd4",
+                    "description": "The unique identifier for the codebase. This is automatically generated and should not be provided in the request."
+                  },
+                  "label": {
+                    "type": "string",
+                    "example": "test-codebase",
+                    "description": "The label of the codebase. This is a human-readable name for the codebase."
+                  },
+                  "region": {
+                    "type": "string",
+                    "example": "us-east-1",
+                    "description": "The region where the codebase will be created. This must be one of the supported regions for the subscription."
+                  }
+                },
+                "required": [
+                  "codebase_id",
+                  "label",
+                  "region"
+                ]
+              }
+            }
+          },
+          "required": false
+        },
+        "deprecated": false,
+        "security": [
+          {
+            "Codebase_Service_JWT": []
+          }
+        ]
+      },
+      "options": {
+        "operationId": "api_subscriptions_subscriptionIdcodebases_options",
+        "tags": [
+          "Codebases"
+        ],
+        "responses": {
+          "200": {
+            "description": "Gets supported regions for a new codebase.",
+            "content": {
+              "application/hal+json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "_links": {
+                      "type": "object",
+                      "properties": {
+                        "parent": {
+                          "type": "object",
+                          "properties": {
+                            "href": {
+                              "type": "string",
+                              "format": "uri",
+                              "example": "https://cloud.acquia.com/api/subscriptions/123"
+                            }
+                          }
+                        },
+                        "self": {
+                          "type": "object",
+                          "properties": {
+                            "href": {
+                              "type": "string",
+                              "format": "uri",
+                              "example": "https://cloud.acquia.com/api/subscriptions/123/codebases"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "regions": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "enum": [
+                          "us-east-1",
+                          "eu-west-1",
+                          "us-west-2"
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access Denied",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "forbidden"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Access Denied."
+                    },
+                    "code": {
+                      "type": "integer",
+                      "example": 403
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Codebase not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "not_found"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "The codebase you are trying to access does not exist, or you do not have permission to access it."
+                    },
+                    "code": {
+                      "type": "integer",
+                      "example": 404
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Gets supported regions for a new codebase.",
+        "description": "Gets supported regions for a new codebase.",
+        "x-cli-name": "codebases:get-regions",
+        "parameters": [
+          {
+            "name": "subscriptionId",
+            "in": "path",
+            "description": "The entity's universally unique identifier.",
+            "required": true,
+            "deprecated": false,
+            "allowEmptyValue": false,
+            "schema": {
+              "type": "string"
+            },
+            "style": "simple",
+            "explode": false,
+            "allowReserved": false
+          }
+        ],
+        "deprecated": false,
+        "security": [
+          {
+            "Codebase_Service_JWT": []
+          }
+        ]
+      }
+    },
+    "/codebases/{codebaseId}/applications": {
+      "get": {
+        "operationId": "codebase_applications",
+        "tags": [
+          "Codebases"
+        ],
+        "responses": {
+          "200": {
+            "description": "Retrieves a list of applications by codebase ID.",
+            "content": {
+              "application/hal+json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "count": {
+                      "type": "integer",
+                      "example": 1
+                    },
+                    "total": {
+                      "type": "integer",
+                      "example": 1
+                    },
+                    "pagination": {
+                      "type": "object",
+                      "properties": {
+                        "total": {
+                          "type": "integer",
+                          "example": 1
+                        },
+                        "limit": {
+                          "type": "integer",
+                          "example": 25
+                        },
+                        "offset": {
+                          "type": "integer",
+                          "example": 0
+                        }
+                      }
+                    },
+                    "_embedded": {
+                      "type": "object",
+                      "properties": {
+                        "items": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "_links": {
+                                "type": "object",
+                                "properties": {
+                                  "self": {
+                                    "type": "object",
+                                    "properties": {
+                                      "href": {
+                                        "type": "string",
+                                        "format": "uri",
+                                        "example": "https://cloud.acquia.com/api/applications/App1"
+                                      }
+                                    }
+                                  }
+                                }
+                              },
+                              "id": {
+                                "type": "string",
+                                "example": "App1"
+                              },
+                              "machine_name": {
+                                "type": "string",
+                                "example": "APP_NAME"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "_links": {
+                      "type": "object",
+                      "properties": {
+                        "parent": {
+                          "type": "object",
+                          "properties": {
+                            "href": {
+                              "type": "string",
+                              "format": "uri",
+                              "example": "https://cloud.acquia.com/api/codebases/11111111-9cda-4ca3-af13-7a1c2fc66778"
+                            }
+                          }
+                        },
+                        "self": {
+                          "type": "object",
+                          "properties": {
+                            "href": {
+                              "type": "string",
+                              "format": "uri",
+                              "example": "https://cloud.acquia.com/api/codebases/11111111-9cda-4ca3-af13-7a1c2fc66778/applications"
+                            }
+                          }
+                        },
+                        "limit": {
+                          "type": "object",
+                          "properties": {
+                            "href": {
+                              "type": "string",
+                              "format": "uri-template",
+                              "example": "https://cloud.acquia.com/api/codebases/11111111-9cda-4ca3-af13-7a1c2fc66778/applications{?limit}"
+                            },
+                            "templated": {
+                              "type": "boolean",
+                              "example": true
+                            }
+                          }
+                        },
+                        "offset": {
+                          "type": "object",
+                          "properties": {
+                            "href": {
+                              "type": "string",
+                              "format": "uri-template",
+                              "example": "https://cloud.acquia.com/api/codebases/11111111-9cda-4ca3-af13-7a1c2fc66778/applications{?offset}"
+                            },
+                            "templated": {
+                              "type": "boolean",
+                              "example": true
+                            }
+                          }
+                        },
+                        "filter": {
+                          "type": "object",
+                          "properties": {
+                            "href": {
+                              "type": "string",
+                              "format": "uri-template",
+                              "example": "https://cloud.acquia.com/api/codebases/11111111-9cda-4ca3-af13-7a1c2fc66778/applications{?filter}"
+                            },
+                            "templated": {
+                              "type": "boolean",
+                              "example": true
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access Denied",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "forbidden"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Access Denied."
+                    },
+                    "code": {
+                      "type": "integer",
+                      "example": 403
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Codebase not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "not_found"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "The codebase you are trying to access does not exist, or you do not have permission to access it."
+                    },
+                    "code": {
+                      "type": "integer",
+                      "example": 404
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Retrieves a list of applications by codebase ID.",
+        "description": "Retrieves the collection of application resources from codebase ID. If the user has admin-level access, no filter is applied. Otherwise, the resources are filtered based on the requesting user's permissions.",
+        "x-cli-name": "codebases:applications:list",
+        "parameters": [
+          {
+            "name": "codebaseId",
+            "in": "path",
+            "description": "The codebase entity's unique identifier.",
+            "required": true,
+            "deprecated": false,
+            "allowEmptyValue": false,
+            "schema": {
+              "type": "string"
+            },
+            "style": "simple",
+            "explode": false,
+            "allowReserved": false
+          }
+        ],
+        "deprecated": false,
+        "security": [
+          {
+            "Codebase_Service_JWT": []
+          }
+        ]
+      }
+    },
+    "/codebases/{codebaseId}/references": {
+      "get": {
+        "operationId": "get_references_by_codebase",
+        "tags": [
+          "Codebases"
+        ],
+        "responses": {
+          "200": {
+            "description": "Retrieves a list of git references by codebase.",
+            "content": {
+              "application/hal+json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "count": {
+                      "type": "integer",
+                      "example": 1
+                    },
+                    "total": {
+                      "type": "integer",
+                      "example": 1
+                    },
+                    "pagination": {
+                      "type": "object",
+                      "properties": {
+                        "total": {
+                          "type": "integer",
+                          "example": 1
+                        },
+                        "limit": {
+                          "type": "integer",
+                          "example": 25
+                        },
+                        "offset": {
+                          "type": "integer",
+                          "example": 0
+                        }
+                      }
+                    },
+                    "_embedded": {
+                      "type": "object",
+                      "properties": {
+                        "items": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "_links": {
+                                "type": "object",
+                                "properties": {
+                                  "parent": {
+                                    "type": "object",
+                                    "properties": {
+                                      "href": {
+                                        "type": "string",
+                                        "format": "uri",
+                                        "example": "https://cloud.acquia.com/api/codebases/47de85b1-14bb-4074-8c1d-f0a2d63db687"
+                                      }
+                                    }
+                                  },
+                                  "self": {
+                                    "type": "object",
+                                    "properties": {
+                                      "href": {
+                                        "type": "string",
+                                        "format": "uri",
+                                        "example": "https://cloud.acquia.com/api/codebases/47de85b1-14bb-4074-8c1d-f0a2d63db687/references"
+                                      }
+                                    }
+                                  }
+                                }
+                              },
+                              "id": {
+                                "type": "string",
+                                "example": "1234567"
+                              },
+                              "name": {
+                                "type": "string",
+                                "example": "main"
+                              },
+                              "type": {
+                                "type": "string",
+                                "example": "BRANCH"
+                              },
+                              "codebase_id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "example": "47de85b1-14bb-4074-8c1d-f0a2d63db687"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "_links": {
+                      "type": "object",
+                      "properties": {
+                        "self": {
+                          "type": "object",
+                          "properties": {
+                            "href": {
+                              "type": "string",
+                              "format": "uri",
+                              "example": "https://cloud.acquia.com/api/codebases/47de85b1-14bb-4074-8c1d-f0a2d63db687/references"
+                            }
+                          }
+                        },
+                        "limit": {
+                          "type": "object",
+                          "properties": {
+                            "href": {
+                              "type": "string",
+                              "format": "uri-template",
+                              "example": "https://cloud.acquia.com/api/codebases/47de85b1-14bb-4074-8c1d-f0a2d63db687/references{?limit}"
+                            },
+                            "templated": {
+                              "type": "boolean",
+                              "example": true
+                            }
+                          }
+                        },
+                        "offset": {
+                          "type": "object",
+                          "properties": {
+                            "href": {
+                              "type": "string",
+                              "format": "uri-template",
+                              "example": "https://cloud.acquia.com/api/codebases/47de85b1-14bb-4074-8c1d-f0a2d63db687/references{?offset}"
+                            },
+                            "templated": {
+                              "type": "boolean",
+                              "example": true
+                            }
+                          }
+                        },
+                        "filter": {
+                          "type": "object",
+                          "properties": {
+                            "href": {
+                              "type": "string",
+                              "format": "uri-template",
+                              "example": "https://cloud.acquia.com/api/codebases/47de85b1-14bb-4074-8c1d-f0a2d63db687/references{?filter}"
+                            },
+                            "templated": {
+                              "type": "boolean",
+                              "example": true
+                            }
+                          }
+                        },
+                        "sort": {
+                          "type": "object",
+                          "properties": {
+                            "href": {
+                              "type": "string",
+                              "format": "uri-template",
+                              "example": "https://cloud.acquia.com/api/codebases/47de85b1-14bb-4074-8c1d-f0a2d63db687/references{?sort}"
+                            },
+                            "templated": {
+                              "type": "boolean",
+                              "example": true
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access Denied",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "forbidden"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Access Denied."
+                    },
+                    "code": {
+                      "type": "integer",
+                      "example": 403
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Codebase not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "not_found"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "The codebase you are trying to access does not exist, or you do not have permission to access it."
+                    },
+                    "code": {
+                      "type": "integer",
+                      "example": 404
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Retrieves a list of git references by codebase.",
+        "description": "Retrieves a list of git references by codebase.",
+        "x-cli-name": "codebases:references:list",
+        "parameters": [
+          {
+            "name": "codebaseId",
+            "in": "path",
+            "description": "The codebase entity's unique identifier.",
+            "required": true,
+            "deprecated": false,
+            "allowEmptyValue": false,
+            "schema": {
+              "type": "string"
+            },
+            "style": "simple",
+            "explode": false,
+            "allowReserved": false
+          }
+        ],
+        "deprecated": false,
+        "security": [
+          {
+            "Codebase_Service_JWT": []
+          }
+        ]
+      }
+    },
+    "/codebases/{codebaseId}/references/{referenceName}": {
+      "get": {
+        "operationId": "get_single_reference",
+        "tags": [
+          "Codebases"
+        ],
+        "responses": {
+          "200": {
+            "description": "Retrieves a single git reference data for the given codebase.",
+            "content": {
+              "application/hal+json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "_links": {
+                      "type": "object",
+                      "properties": {
+                        "parent": {
+                          "type": "object",
+                          "properties": {
+                            "href": {
+                              "type": "string",
+                              "format": "uri",
+                              "example": "https://cloud.acquia.com/api/codebases/47de85b1-14bb-4074-8c1d-f0a2d63db687"
+                            }
+                          }
+                        },
+                        "self": {
+                          "type": "object",
+                          "properties": {
+                            "href": {
+                              "type": "string",
+                              "format": "uri",
+                              "example": "https://cloud.acquia.com/api/codebases/47de85b1-14bb-4074-8c1d-f0a2d63db687/references/main"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "id": {
+                      "type": "string",
+                      "example": "RefId99"
+                    },
+                    "name": {
+                      "type": "string",
+                      "example": "main"
+                    },
+                    "type": {
+                      "type": "string",
+                      "example": "BRANCH"
+                    },
+                    "codebase_id": {
+                      "type": "string",
+                      "format": "uuid",
+                      "example": "47de85b1-14bb-4074-8c1d-f0a2d63db687"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access Denied",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "forbidden"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Access Denied."
+                    },
+                    "code": {
+                      "type": "integer",
+                      "example": 403
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Codebase not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "not_found"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "The codebase you are trying to access does not exist, or you do not have permission to access it."
+                    },
+                    "code": {
+                      "type": "integer",
+                      "example": 404
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Retrieves a single git reference data for the given codebase.",
+        "description": "Retrieves a single git reference data for the given codebase.",
+        "x-cli-name": "codebases:references:get",
+        "parameters": [
+          {
+            "name": "codebaseId",
+            "in": "path",
+            "description": "The codebase entity's unique identifier.",
+            "required": true,
+            "deprecated": false,
+            "allowEmptyValue": false,
+            "schema": {
+              "type": "string"
+            },
+            "style": "simple",
+            "explode": false,
+            "allowReserved": false
+          },
+          {
+            "name": "referenceName",
+            "in": "path",
+            "description": "The reference name.",
+            "required": true,
+            "deprecated": false,
+            "allowEmptyValue": false,
+            "schema": {
+              "type": "string"
+            },
+            "style": "simple",
+            "explode": false,
+            "allowReserved": false
+          }
+        ],
+        "deprecated": false,
+        "security": [
+          {
+            "Codebase_Service_JWT": []
+          }
+        ]
+      }
+    },
     "/account/applications/{applicationUuid}/actions/unstar": {
       "post": {
         "tags": [
