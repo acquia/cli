@@ -76,16 +76,29 @@ class CodeStudioCiCdVariables
     /**
      * @return array<mixed>
      */
-    public static function getDefaultsForPhp(?string $cloudApplicationUuid = null, ?string $cloudKey = null, ?string $cloudSecret = null, ?string $projectAccessTokenName = null, ?string $projectAccessToken = null, ?string $mysqlVersion = null, ?string $phpVersion = null): array
+    public static function getDefaultsForPhp(?string $entityType = null, ?string $cloudUuid = null, ?string $cloudKey = null, ?string $cloudSecret = null, ?string $projectAccessTokenName = null, ?string $projectAccessToken = null, ?string $mysqlVersion = null, ?string $phpVersion = null): array
     {
-        return [
-            [
+        $vars = [];
+
+        if ($entityType === 'Codebase') {
+            $vars[] = [
+                'key' => 'ACQUIA_CODEBASE_UUID',
+                'masked' => true,
+                'protected' => false,
+                'value' => $cloudUuid,
+                'variable_type' => 'env_var',
+            ];
+        } else {
+            $vars[] = [
                 'key' => 'ACQUIA_APPLICATION_UUID',
                 'masked' => true,
                 'protected' => false,
-                'value' => $cloudApplicationUuid,
+                'value' => $cloudUuid,
                 'variable_type' => 'env_var',
-            ],
+            ];
+        }
+
+        $vars = array_merge($vars, [
             [
                 'key' => 'ACQUIA_CLOUD_API_TOKEN_KEY',
                 'masked' => true,
@@ -128,6 +141,8 @@ class CodeStudioCiCdVariables
                 'value' => $phpVersion,
                 'variable_type' => 'env_var',
             ],
-        ];
+        ]);
+
+        return $vars;
     }
 }

@@ -6,6 +6,7 @@ namespace Acquia\Cli\Command\CodeStudio;
 
 use Acquia\Cli\Exception\AcquiaCliException;
 use AcquiaCloudApi\Response\ApplicationResponse;
+use AcquiaCloudApi\Response\CodebaseResponse;
 use Gitlab\Client;
 use Gitlab\Exception\RuntimeException;
 use Gitlab\Exception\ValidationFailedException;
@@ -163,18 +164,33 @@ trait CodeStudioCommandTrait
     }
 
     /**
-     * @return array<mixed>
+     * Determines the GitLab project for either ApplicationResponse or CodebaseResponse.
+     *
+     * @param ApplicationResponse|CodebaseResponse $cloudEntity The Cloud Platform application or codebase.
+     * @return array<mixed> The GitLab project.
      */
-    private function determineGitLabProject(ApplicationResponse $cloudApplication): array
+    private function determineGitLabProject(?string $entityType, object $cloudEntity): array
     {
         // Use command option.
         if ($this->input->getOption('gitlab-project-id')) {
             $id = $this->input->getOption('gitlab-project-id');
             return $this->gitLabClient->projects()->show($id);
         }
+
+        $entityName = null;
+        $entityUuid = null;
+
+        if ($entityType == 'Codebase') {
+            $entityName = $cloudEntity->label;
+            $entityUuid = $cloudEntity->id;
+        } else {
+            $entityName = $cloudEntity->name;
+            $entityUuid = $cloudEntity->uuid;
+        }
+
         // Search for existing project that matches expected description pattern.
         $projects = $this->gitLabClient->projects()
-            ->all(['search' => $cloudApplication->uuid]);
+            ->all(['search' => $entityUuid]);
         if ($projects) {
             if (count($projects) == 1) {
                 return reset($projects);
@@ -184,32 +200,35 @@ trait CodeStudioCommandTrait
                 $projects,
                 'id',
                 'path_with_namespace',
-                "Found multiple projects that could match the $cloudApplication->name application. Choose which one to configure."
+                "Found multiple projects that could match the $entityName. Choose which one to configure."
             );
         }
         // Prompt to create project.
         $this->io->writeln([
             "",
-            "Could not find any existing Code Studio project for Acquia Cloud Platform application <comment>$cloudApplication->name</comment>.",
-            "Searched for UUID <comment>$cloudApplication->uuid</comment> in project descriptions.",
+            "Could not find any existing Code Studio project for Acquia Cloud Platform entity <comment>$entityName</comment>.",
+            "Searched for UUID <comment>$entityUuid</comment> in project descriptions.",
         ]);
         $createProject = $this->io->confirm('Would you like to create a new Code Studio project? If you select "no" you may choose from a full list of existing projects.');
         if ($createProject) {
-            return $this->createGitLabProject($cloudApplication);
+            return $this->createGitLabProject($entityType, $cloudEntity);
         }
         // Prompt to choose from full list, regardless of description.
         return $this->promptChooseFromObjectsOrArrays(
             $this->gitLabClient->projects()->all(),
             'id',
             'path_with_namespace',
-            "Choose a Code Studio project to configure for the $cloudApplication->name application"
+            "Choose a Code Studio project to configure for the $entityName"
         );
     }
 
     /**
-     * @return array<mixed>
+     * Creates a new GitLab project for either ApplicationResponse or CodebaseResponse.
+     *
+     * @param ApplicationResponse|CodebaseResponse $cloudEntity The Cloud Platform application or codebase.
+     * @return array<mixed> The created GitLab project.
      */
-    private function createGitLabProject(ApplicationResponse $cloudApplication): array
+    private function createGitLabProject(string $entityType, object $cloudEntity): array
     {
         $userGroups = $this->gitLabClient->groups()->all([
             'all_available' => true,
@@ -224,7 +243,13 @@ trait CodeStudioCommandTrait
         }
 
         $slugger = new AsciiSlugger();
-        $projectName = (string) $slugger->slug($cloudApplication->name);
+        $entityName = null;
+        if ($entityType == 'Codebase') {
+            $entityName = $cloudEntity->label;
+        } else {
+            $entityName = $cloudEntity->name;
+        }
+        $projectName = (string) $slugger->slug($entityName);
         $project = $this->gitLabClient->projects()
             ->create($projectName, $parameters);
         try {
@@ -238,9 +263,9 @@ trait CodeStudioCommandTrait
         return $project;
     }
 
-    private function setGitLabProjectDescription(mixed $cloudApplicationUuid): void
+    private function setGitLabProjectDescription(string $entityType, mixed $cloudUuid): void
     {
-        $this->gitLabProjectDescription = "Source repository for Acquia Cloud Platform application <comment>$cloudApplicationUuid</comment>";
+        $this->gitLabProjectDescription = "Source repository for Acquia Cloud Platform $entityType <comment>$cloudUuid</comment>";
     }
 
     /**

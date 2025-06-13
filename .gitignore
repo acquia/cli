@@ -22,3 +22,4 @@ gardener
 
 // Artifacts from mutation testing
 *.cache
+.vscode
