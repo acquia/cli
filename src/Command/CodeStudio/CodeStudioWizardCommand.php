@@ -161,6 +161,20 @@ final class CodeStudioWizardCommand extends WizardCommandBase
 
             case 'Codebase':
                 $cloudUuid = $this->determineCloudCodebase();
+
+                $this->validateRequiredCloudPermissions(
+                    $acquiaCloudClient,
+                    $cloudUuid,
+                    $account,
+                    [
+                        // Add SSH key to git repository.
+                        "add ssh key to git",
+                        // Add SSH key to non-production environments.
+                        "add ssh key to non-prod",
+                        // Manage environment variables on a non-production environment.
+                        "administer environment variables on non-prod",
+                    ]
+                );
                 $this->setGitLabProjectDescription($entityType, $cloudUuid);
 
                 $cloudEntity = $this->getCloudCodebase($cloudUuid);
