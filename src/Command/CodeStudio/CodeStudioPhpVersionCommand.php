@@ -37,7 +37,7 @@ final class CodeStudioPhpVersionCommand extends CommandBase
 
         // Get the GitLab project details attached with the given Cloud application.
         $cloudApplication = $this->getCloudApplication($acquiaCloudAppId);
-        $project = $this->determineGitLabProject($cloudApplication);
+        $project = $this->determineGitLabProject('Application', $cloudApplication);
 
         // If CI/CD is not enabled for the project in Code Studio.
         if (empty($project['jobs_enabled'])) {
