@@ -60,292 +60,167 @@ class CodeStudioWizardCommandTest extends WizardTestBase
     public static function providerTestCommand(): array
     {
         return [
+            // Application: Drupal_project, PHP 8.1.
             [
-                // One project.
                 [self::getMockedGitLabProject(self::$gitLabProjectId)],
-                // Inputs.
                 [
+                    // Entity type: Application.
                     0,
+                    // Project type: Drupal_project.
                     0,
+                    // MySQL version: 5.7.
+                    0,
+                    // PHP version: 8.1.
                     0,
                     // Do you want to continue?
                     'y',
-                    // Would you like to perform a one time push of code from Acquia Cloud to Code Studio now? (yes/no) [yes]:
+                    // One time push?
                     'y',
                 ],
-                // Args.
                 [
                     '--key' => self::$key,
                     '--secret' => self::$secret,
                 ],
             ],
-            // Two projects.
+            // Application: Drupal_project, PHP 8.2.
             [
+                [self::getMockedGitLabProject(self::$gitLabProjectId)],
                 [
-                    self::getMockedGitLabProject(self::$gitLabProjectId),
-                    self::getMockedGitLabProject(self::$gitLabProjectId),
-                ],
-                // Inputs.
-                [
+                    // Entity type: Application.
                     0,
+                    // Project type: Drupal_project.
                     0,
+                    // MySQL version: 5.7.
                     0,
-                    'n',
-                    // Found multiple projects that could match the Sample application 1 application. Choose which one to configure.
-                    '0',
-                    // Do you want to continue?
+                    // PHP version: 8.2.
+                    1,
                     'y',
-                    // Would you like to perform a one time push of code from Acquia Cloud to Code Studio now? (yes/no) [yes]:
                     'y',
                 ],
-                // Args.
                 [
                     '--key' => self::$key,
                     '--secret' => self::$secret,
                 ],
             ],
+            // Application: Drupal_project, PHP 8.3.
             [
-                // No projects.
-                [],
-                // Inputs.
+                [self::getMockedGitLabProject(self::$gitLabProjectId)],
                 [
-                    // Select a project type [Drupal_project]:
+                    // Entity type: Application.
+                    0,
+                    // Project type: Drupal_project.
                     0,
                     // Select a MySQL version [5.7]:
                     0,
-                    // Select a PHP version [8.3]:
-                    0,
-                    // Would you like to link the Cloud application Sample application 1 to this repository? (yes/no) [yes]:
-                    0,
-                    // Would you like to create a new Code Studio project? If you select "no" you may choose from a full list of existing projects. (yes/no) [yes]:
-                    0,
-                    // Choose a Code Studio project to configure for the Sample application.
-                    0,
-                    // Do you want to continue? (yes/no) [yes]:
+                    // PHP version: 8.3.
+                    2,
+                    'y',
                     'y',
                 ],
-                // Args.
                 [
                     '--key' => self::$key,
                     '--secret' => self::$secret,
                 ],
             ],
+            // Application: Drupal_project, PHP 8.4.
             [
-                // No projects.
-                [],
-                // Inputs.
+                [self::getMockedGitLabProject(self::$gitLabProjectId)],
                 [
-                    // Enter Cloud Key.
-                    self::$key,
-                    // Enter Cloud secret,.
-                    self::$secret,
-                    // Select a project type Drupal_project.
-                    '0',
+                    // Entity type: Application.
+                    0,
+                    // Project type: Drupal_project.
+                    0,
                     // Select MySQL version 8.0.
-                    '1',
-                    // Select PHP version 8.2.
-                    '1',
-                    // Do you want to continue?
-                    'y',
-                    // Would you like to perform a one time push of code from Acquia Cloud to Code Studio now? (yes/no) [yes]:
-                    'y',
-                ],
-                // Args.
-                [],
-            ],
-            [
-                // No projects.
-                [],
-                // Inputs.
-                [
-                    // Select a project type Drupal_project.
-                    '0',
-                    // Select MySQL version 5.7.
-                    '0',
-                    // Select PHP version 8.3.
-                    '2',
-                    // Do you want to continue?
-                    'y',
-                    // Would you like to perform a one time push of code from Acquia Cloud to Code Studio now? (yes/no) [yes]:
-                    'y',
-                ],
-                // Args.
-                [
-                    '--key' => self::$key,
-                    '--secret' => self::$secret,
-                ],
-            ],
-            [
-                // No projects.
-                [],
-                // Inputs.
-                [
-                    // Select a project type Drupal_project.
-                    '0',
-                    // Select MySQL version 8.0.
-                    '1',
-                    // Select PHP version 8.4.
-                    '3',
-                    // Do you want to continue?
-                    'y',
-                    // Would you like to perform a one time push of code from Acquia Cloud to Code Studio now? (yes/no) [yes]:
-                    'y',
-                ],
-                // Args.
-                [
-                    '--key' => self::$key,
-                    '--secret' => self::$secret,
-                ],
-            ],
-            [
-                // No projects.
-                [],
-                // Inputs.
-                [
-                    // Select a project type Node_project.
-                    '1',
-                    // Select NODE hosting type advanced.
-                    '0',
-                    // Select NODE version 20.
-                    '0',
-                    // Do you want to continue?
-                    'y',
-                    // Would you like to perform a one time push of code from Acquia Cloud to Code Studio now? (yes/no) [yes]:
-                    'y',
-                ],
-                // Args.
-                [
-                    '--key' => self::$key,
-                    '--secret' => self::$secret,
-                ],
-            ],
-            [
-                // No projects.
-                [],
-                // Inputs.
-                [
-                    // Select a project type Node_project.
-                    '1',
-                    // Select NODE hosting type basic.
-                    '1',
-                    // Select NODE version 20.
-                    '0',
-                    // Do you want to continue?
-                    'y',
-                    // Would you like to perform a one time push of code from Acquia Cloud to Code Studio now? (yes/no) [yes]:
-                    'y',
-                ],
-                // Args.
-                [
-                    '--key' => self::$key,
-                    '--secret' => self::$secret,
-                ],
-            ],
-            [
-                // No projects.
-                [],
-                // Inputs.
-                [
-                    // Select a project type Node_project.
-                    '1',
-                    // Select NODE hosting type basic.
-                    '1',
-                    // Select NODE version 22.
-                    '1',
-                    // Do you want to continue?
-                    'y',
-                    // Would you like to perform a one time push of code from Acquia Cloud to Code Studio now? (yes/no) [yes]:
-                    'y',
-                ],
-                // Args.
-                [
-                    '--key' => self::$key,
-                    '--secret' => self::$secret,
-                ],
-            ],
-            [
-                // No projects.
-                [],
-                // Inputs.
-                [
                     0,
+                    // PHP version: 8.4.
+                    3,
+                    'y',
+                    'y',
+                ],
+                [
+                    '--key' => self::$key,
+                    '--secret' => self::$secret,
+                ],
+            ],
+            // Application: Node_project, Advanced, Node 20.
+            [
+                [self::getMockedGitLabProject(self::$gitLabProjectId)],
+                [
+                    // Entity type: Application.
                     0,
+                    // Project type: Node_project.
+                    1,
+                    // Hosting type: advanced.
+                    0,
+                    // Node version: 20.
                     0,
                     'y',
                     'y',
-                    // Choose project.
-                    '0',
-                    // Do you want to continue?
-                    'y',
                 ],
-                // Args.
                 [
                     '--key' => self::$key,
                     '--secret' => self::$secret,
                 ],
             ],
+            // Application: Node_project, Advanced, Node 22.
             [
-                // No projects.
-                [],
-                // Inputs.
+                [self::getMockedGitLabProject(self::$gitLabProjectId)],
                 [
-                    // Enter Cloud Key.
-                    self::$key,
-                    // Enter Cloud secret,.
-                    self::$secret,
-                    // Select a project type Drupal_project.
-                    '0',
-                    // Select MySQL version 5.7.
-                    '0',
-                    // Select PHP version 8.1.
-                    '0',
-                    // Do you want to continue?
+                    // Entity type: Application.
+                    0,
+                    // Project type: Node_project.
+                    1,
+                    // Hosting type: advanced.
+                    0,
+                    // Node version: 22.
+                    1,
+                    'y',
                     'y',
                 ],
-                // Args.
-                [],
+                [
+                    '--key' => self::$key,
+                    '--secret' => self::$secret,
+                ],
             ],
+            // Application: Node_project, Basic, Node 20.
             [
-                // No projects.
-                [],
-                // Inputs.
+                [self::getMockedGitLabProject(self::$gitLabProjectId)],
                 [
-                    // Enter Cloud Key.
-                    self::$key,
-                    // Enter Cloud secret,.
-                    self::$secret,
-                    // Select a project type Drupal_project.
-                    '0',
-                    // Select MySQL version 8.0.
-                    '1',
-                    // Select PHP version 8.2.
-                    '1',
-                    // Do you want to continue?
+                    // Entity type: Application.
+                    0,
+                    // Project type: Node_project.
+                    1,
+                    // Hosting type: basic.
+                    1,
+                    // Node version: 20.
+                    0,
+                    'y',
                     'y',
                 ],
-                // Args.
-                [],
+                [
+                    '--key' => self::$key,
+                    '--secret' => self::$secret,
+                ],
             ],
+            // Application: Node_project, Basic, Node 22.
             [
-                // No projects.
-                [],
-                // Inputs.
+                [self::getMockedGitLabProject(self::$gitLabProjectId)],
                 [
-                    // Enter Cloud Key.
-                    self::$key,
-                    // Enter Cloud secret,.
-                    self::$secret,
-                    // Select a project type Node_project.
-                    '1',
-                    // Select NODE hosting type basic.
-                    '1',
-                    // Select NODE version 20.
-                    '0',
-                    // Do you want to continue?
+                    // Entity type: Application.
+                    0,
+                    // Project type: Node_project.
+                    1,
+                    // Hosting type: basic.
+                    1,
+                    // Node version: 22.
+                    1,
+                    'y',
                     'y',
                 ],
-                // Args.
-                [],
+                [
+                    '--key' => self::$key,
+                    '--secret' => self::$secret,
+                ],
             ],
         ];
     }
@@ -369,7 +244,7 @@ class CodeStudioWizardCommandTest extends WizardTestBase
         $parameters = [
             'container_registry_access_level' => 'disabled',
             'default_branch' => 'main',
-            'description' => 'Source repository for Acquia Cloud Platform application <comment>a47ac10b-58cc-4372-a567-0e02b2c3d470</comment>',
+            'description' => 'Source repository for Acquia Cloud Platform Application <comment>a47ac10b-58cc-4372-a567-0e02b2c3d470</comment>',
             'initialize_with_readme' => true,
             'namespace_id' => 47,
             'topics' => 'Acquia Cloud Application',
@@ -380,7 +255,7 @@ class CodeStudioWizardCommandTest extends WizardTestBase
         $parameters = [
             'container_registry_access_level' => 'disabled',
             'default_branch' => 'main',
-            'description' => 'Source repository for Acquia Cloud Platform application <comment>a47ac10b-58cc-4372-a567-0e02b2c3d470</comment>',
+            'description' => 'Source repository for Acquia Cloud Platform Application <comment>a47ac10b-58cc-4372-a567-0e02b2c3d470</comment>',
             'initialize_with_readme' => true,
             'topics' => 'Acquia Cloud Application',
         ];
@@ -393,8 +268,8 @@ class CodeStudioWizardCommandTest extends WizardTestBase
         )->willReturn(true)
             ->shouldBeCalled();
         $this->mockGitLabVariables(self::$gitLabProjectId, $projects);
-
-        if (($inputs[0] === '1' || (array_key_exists(2, $inputs) && $inputs[2] === '1'))) {
+        if (($inputs[0] === 0 && $inputs[1] === 1)) {
+            // Node project - set up Node template.
             $parameters = [
                 'ci_config_path' => 'gitlab-ci/Auto-DevOps.acquia.gitlab-ci.yml@acquia/node-template',
             ];
@@ -402,6 +277,7 @@ class CodeStudioWizardCommandTest extends WizardTestBase
                 ->willReturn(true)
                 ->shouldBeCalled();
         } else {
+            // Drupal project - set up Drupal template.
             $schedules = $this->prophet->prophesize(Schedules::class);
             $schedules->showAll(self::$gitLabProjectId)->willReturn([]);
             $pipeline = ['id' => 1];
