@@ -44,12 +44,6 @@ final class CodeStudioPipelinesMigrateCommand extends CommandBase
         $this->reAuthenticate($cloudKey, $cloudSecret, $this->cloudCredentials->getBaseUri(), $this->cloudCredentials->getAccountsUri());
         $cloudApplicationUuid = $this->determineCloudApplication();
 
-        // Get Cloud account.
-        $acquiaCloudClient = $this->cloudApiClientService->getClient();
-        $accountAdapter = new Account($acquiaCloudClient);
-        $account = $accountAdapter->get();
-        $this->setGitLabProjectDescription('Application', $cloudApplicationUuid);
-
         // Get Cloud application.
         $cloudApplication = $this->getCloudApplication($cloudApplicationUuid);
         $project = $this->determineGitLabProject('Application', $cloudApplication);
