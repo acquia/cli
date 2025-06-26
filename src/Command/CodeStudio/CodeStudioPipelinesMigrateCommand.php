@@ -46,7 +46,7 @@ final class CodeStudioPipelinesMigrateCommand extends CommandBase
 
         // Get Cloud application.
         $cloudApplication = $this->getCloudApplication($cloudApplicationUuid);
-        $project = $this->determineGitLabProject('Application', $cloudApplication);
+        $project = $this->determineGitLabProject(EntityType::Application, $cloudApplication);
 
         // Migrate acquia-pipeline file.
         $this->checkGitLabCiCdVariables($project);

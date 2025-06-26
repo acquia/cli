@@ -169,7 +169,7 @@ trait CodeStudioCommandTrait
      * @param ApplicationResponse|CodebaseResponse $cloudEntity The Cloud Platform application or codebase.
      * @return array<mixed> The GitLab project.
      */
-    private function determineGitLabProject(?string $entityType, object $cloudEntity): array
+    private function determineGitLabProject(EntityType $entityType, object $cloudEntity): array
     {
         // Use command option.
         if ($this->input->getOption('gitlab-project-id')) {
@@ -180,7 +180,7 @@ trait CodeStudioCommandTrait
         $entityName = null;
         $entityUuid = null;
 
-        if ($entityType == 'Codebase') {
+        if ($entityType == EntityType::Codebase) {
             $entityName = $cloudEntity->label;
             $entityUuid = $cloudEntity->id;
         } else {
@@ -206,7 +206,7 @@ trait CodeStudioCommandTrait
         // Prompt to create project.
         $this->io->writeln([
             "",
-            "Could not find any existing Code Studio project for Acquia Cloud Platform $entityType <comment>$entityName</comment>.",
+            "Could not find any existing Code Studio project for Acquia Cloud Platform $entityType->value <comment>$entityName</comment>.",
             "Searched for UUID <comment>$entityUuid</comment> in project descriptions.",
         ]);
         $createProject = $this->io->confirm('Would you like to create a new Code Studio project? If you select "no" you may choose from a full list of existing projects.');
@@ -228,7 +228,7 @@ trait CodeStudioCommandTrait
      * @param ApplicationResponse|CodebaseResponse $cloudEntity The Cloud Platform application or codebase.
      * @return array<mixed> The created GitLab project.
      */
-    private function createGitLabProject(string $entityType, object $cloudEntity): array
+    private function createGitLabProject(EntityType $entityType, object $cloudEntity): array
     {
         $userGroups = $this->gitLabClient->groups()->all([
             'all_available' => true,
@@ -244,7 +244,7 @@ trait CodeStudioCommandTrait
 
         $slugger = new AsciiSlugger();
         $entityName = null;
-        if ($entityType == 'Codebase') {
+        if ($entityType == EntityType::Codebase) {
             $entityName = $cloudEntity->label;
         } else {
             $entityName = $cloudEntity->name;
@@ -263,9 +263,9 @@ trait CodeStudioCommandTrait
         return $project;
     }
 
-    private function setGitLabProjectDescription(string $entityType, mixed $cloudUuid): void
+    private function setGitLabProjectDescription(EntityType $entityType, mixed $cloudUuid): void
     {
-        $this->gitLabProjectDescription = "Source repository for Acquia Cloud Platform $entityType <comment>$cloudUuid</comment>";
+        $this->gitLabProjectDescription = "Source repository for Acquia Cloud Platform $entityType->value <comment>$cloudUuid</comment>";
     }
 
     /**

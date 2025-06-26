@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Acquia\Cli\Command\CodeStudio;
 
+use Acquia\Cli\Command\CodeStudio\EntityType;
 use Acquia\Cli\Command\WizardCommandBase;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Output\Checklist;
@@ -58,7 +59,7 @@ final class CodeStudioWizardCommand extends WizardCommandBase
         $nodeHostingType = null;
         $project = null;
 
-        if ($entityType === 'Application') {
+        if ($entityType === EntityType::Application) {
             $projectSelected = $this->promptForProjectType();
             if ($projectSelected === "Drupal_project") {
                 $mysqlVersion = $this->promptForMysqlVersions();
@@ -68,6 +69,7 @@ final class CodeStudioWizardCommand extends WizardCommandBase
                 $nodeVersion = $this->promptForNodeVersions();
             }
         } else {
+            $this->io->writeln("Selected Drupal project by default for Codebases");
             $projectSelected = "Drupal_project";
             $mysqlVersion = $this->promptForMysqlVersions();
             $phpVersion = $this->promptForPhpVersions();
@@ -79,18 +81,20 @@ final class CodeStudioWizardCommand extends WizardCommandBase
         [$acquiaCloudClient, $account] = $this->getCloudAccount();
 
         switch ($entityType) {
-            case 'Application':
+            case EntityType::Application:
                 [$cloudUuid, $entityName, $project] = $this->handleApplicationEntity($acquiaCloudClient, $account, $entityType);
                 break;
-            case 'Codebase':
+            case EntityType::Codebase:
                 [$cloudUuid, $entityName, $project] = $this->handleCodebaseEntity($entityType);
                 break;
+            default:
+                throw new AcquiaCliException("Invalid entity type selected: $entityType->value");
         }
 
         $this->io->writeln([
             "",
             "This command will configure the Code Studio project <comment>{$project['path_with_namespace']}</comment> for automatic deployment to the",
-            "Acquia Cloud Platform $entityType <comment>$entityName</comment> (<comment>$cloudUuid</comment>)",
+            "Acquia Cloud Platform $entityType->value <comment>$entityName</comment> (<comment>$cloudUuid</comment>)",
             "using credentials (API Token and SSH Key) belonging to <comment>$account->mail</comment>.",
             "",
             "If the <comment>$account->mail</comment> Cloud account is deleted in the future, this Code Studio project will need to be re-configured.",
@@ -116,6 +120,8 @@ final class CodeStudioWizardCommand extends WizardCommandBase
                 $client->projects()->update($project['id'], $parameters);
                 $this->setGitLabCiCdVariablesForNodeProject($project, $cloudUuid, $cloudKey, $cloudSecret, $projectAccessTokenName, $projectAccessToken, $nodeVersion, $nodeHostingType);
                 break;
+            default:
+                throw new AcquiaCliException("Invalid project type selected: $projectSelected");
         }
 
         $this->io->success([
@@ -195,7 +201,7 @@ final class CodeStudioWizardCommand extends WizardCommandBase
         return $projectAccessToken['token'];
     }
 
-    private function setGitLabCiCdVariablesForPhpProject(array $project, string $entityType, string $cloudUuid, string $cloudKey, string $cloudSecret, string $projectAccessTokenName, string $projectAccessToken, string $mysqlVersion, string $phpVersion): void
+    private function setGitLabCiCdVariablesForPhpProject(array $project, EntityType $entityType, string $cloudUuid, string $cloudKey, string $cloudSecret, string $projectAccessTokenName, string $projectAccessToken, string $mysqlVersion, string $phpVersion): void
     {
         $this->io->writeln("Setting GitLab CI/CD variables for {$project['path_with_namespace']}..");
         $gitlabCicdVariables = CodeStudioCiCdVariables::getDefaultsForPhp($entityType, $cloudUuid, $cloudKey, $cloudSecret, $projectAccessTokenName, $projectAccessToken, $mysqlVersion, $phpVersion);
@@ -362,13 +368,12 @@ final class CodeStudioWizardCommand extends WizardCommandBase
     /**
      * Prompt for entity type (Application or Codebase).
      */
-    private function promptForEntityType(): string
+    private function promptForEntityType(): EntityType
     {
-        $entityTypes = [
-            'Application',
-            'Codebase',
-        ];
-        return $this->io->choice('Select the type of project you want to create', $entityTypes, 'Application');
+        $entityTypes = EntityType::cases();
+        $entityTypeChoices = array_map(fn(EntityType $type) => $type->value, $entityTypes);
+        $selectedChoice = $this->io->choice('Select the type of project you want to create', $entityTypeChoices, EntityType::Application->value);
+        return EntityType::from($selectedChoice);
     }
 
     /**
@@ -395,9 +400,7 @@ final class CodeStudioWizardCommand extends WizardCommandBase
         ];
         $phpChoice = $this->io->choice('Select a PHP version', array_values($phpVersions), "8.3");
         $phpKey = array_search($phpChoice, $phpVersions, true);
-        $phpVersion = $phpVersions[$phpKey];
-
-        return $phpVersion;
+        return $phpVersions[$phpKey];
     }
 
     /**
@@ -413,9 +416,7 @@ final class CodeStudioWizardCommand extends WizardCommandBase
         ];
         $mysqlChoice = $this->io->choice('Select a MySQL version', array_values($mysqlVersions), "8.0");
         $mysqlKey = array_search($mysqlChoice, $mysqlVersions, true);
-        $mysqlVersion = $mysqlVersions[$mysqlKey];
-
-        return $mysqlVersion;
+        return $mysqlVersions[$mysqlKey];
     }
 
     /**
@@ -430,9 +431,7 @@ final class CodeStudioWizardCommand extends WizardCommandBase
             'basic' => "Basic Frontend Hosting",
         ];
         $hostingChoice = $this->io->choice('Select a NODE hosting type', array_values($nodeHostingTypes), "Basic Frontend Hosting");
-        $nodeHostingType = array_search($hostingChoice, $nodeHostingTypes, true);
-
-        return $nodeHostingType;
+        return array_search($hostingChoice, $nodeHostingTypes, true);
     }
 
     /**
@@ -448,9 +447,7 @@ final class CodeStudioWizardCommand extends WizardCommandBase
         ];
         $nodeChoice = $this->io->choice('Select a NODE version', array_values($nodeVersions), "20");
         $nodeKey = array_search($nodeChoice, $nodeVersions, true);
-        $nodeVersion = $nodeVersions[$nodeKey];
-
-        return $nodeVersion;
+        return $nodeVersions[$nodeKey];
     }
 
     /**
@@ -470,7 +467,7 @@ final class CodeStudioWizardCommand extends WizardCommandBase
      *
      * @return array{0: string, 1: string, 3: array<mixed>}
      */
-    private function handleApplicationEntity(Client $acquiaCloudClient, AccountResponse $account, string $entityType): array
+    private function handleApplicationEntity(Client $acquiaCloudClient, AccountResponse $account, EntityType $entityType): array
     {
         $cloudUuid = $this->determineCloudApplication();
         $this->validateRequiredCloudPermissions(
@@ -498,7 +495,7 @@ final class CodeStudioWizardCommand extends WizardCommandBase
      *
      * @return array{0: string, 1: string, 2: array<mixed>}
      */
-    private function handleCodebaseEntity(string $entityType): array
+    private function handleCodebaseEntity(EntityType $entityType): array
     {
         $cloudUuid = $this->determineCloudCodebase();
         $this->setGitLabProjectDescription($entityType, $cloudUuid);

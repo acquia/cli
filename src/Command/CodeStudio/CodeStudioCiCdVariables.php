@@ -12,7 +12,7 @@ class CodeStudioCiCdVariables
     public static function getList(): array
     {
         // Getlist is being utilised in pipeline-migrate command. By default command is supporting drupal project but going forward need to support both drupal and nodejs project.
-        return array_column(self::getDefaultsForPhp(), 'key');
+        return array_column(self::getDefaultsForPhp(EntityType::Application), 'key');
     }
 
     /**
@@ -76,11 +76,11 @@ class CodeStudioCiCdVariables
     /**
      * @return array<mixed>
      */
-    public static function getDefaultsForPhp(?string $entityType = null, ?string $cloudUuid = null, ?string $cloudKey = null, ?string $cloudSecret = null, ?string $projectAccessTokenName = null, ?string $projectAccessToken = null, ?string $mysqlVersion = null, ?string $phpVersion = null): array
+    public static function getDefaultsForPhp(EntityType $entityType, ?string $cloudUuid = null, ?string $cloudKey = null, ?string $cloudSecret = null, ?string $projectAccessTokenName = null, ?string $projectAccessToken = null, ?string $mysqlVersion = null, ?string $phpVersion = null): array
     {
         $vars = [];
 
-        if ($entityType === 'Codebase') {
+        if ($entityType === EntityType::Codebase) {
             $vars[] = [
                 'key' => 'ACQUIA_CODEBASE_UUID',
                 'masked' => true,
