@@ -14,7 +14,7 @@ class CodeStudioCiCdVariablesTest extends TestBase
         $codeStudioCiCdVariablesObj = new CodeStudioCiCdVariables();
         $variables = $codeStudioCiCdVariablesObj->getDefaultsForNode();
         $this->testBooleanValues($variables);
-        $variables = $codeStudioCiCdVariablesObj->getDefaultsForPhp();
+        $variables = $codeStudioCiCdVariablesObj->getDefaultsForPhp(\Acquia\Cli\Command\CodeStudio\EntityType::Application);
         $this->testBooleanValues($variables);
     }
 

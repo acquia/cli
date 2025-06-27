@@ -12,7 +12,7 @@ class CodeStudioCiCdVariables
     public static function getList(): array
     {
         // Getlist is being utilised in pipeline-migrate command. By default command is supporting drupal project but going forward need to support both drupal and nodejs project.
-        return array_column(self::getDefaultsForPhp(), 'key');
+        return array_column(self::getDefaultsForPhp(EntityType::Application), 'key');
     }
 
     /**
@@ -76,16 +76,29 @@ class CodeStudioCiCdVariables
     /**
      * @return array<mixed>
      */
-    public static function getDefaultsForPhp(?string $cloudApplicationUuid = null, ?string $cloudKey = null, ?string $cloudSecret = null, ?string $projectAccessTokenName = null, ?string $projectAccessToken = null, ?string $mysqlVersion = null, ?string $phpVersion = null): array
+    public static function getDefaultsForPhp(EntityType $entityType, ?string $cloudUuid = null, ?string $cloudKey = null, ?string $cloudSecret = null, ?string $projectAccessTokenName = null, ?string $projectAccessToken = null, ?string $mysqlVersion = null, ?string $phpVersion = null): array
     {
-        return [
-            [
+        $vars = [];
+
+        if ($entityType === EntityType::Codebase) {
+            $vars[] = [
+                'key' => 'ACQUIA_CODEBASE_UUID',
+                'masked' => true,
+                'protected' => false,
+                'value' => $cloudUuid,
+                'variable_type' => 'env_var',
+            ];
+        } else {
+            $vars[] = [
                 'key' => 'ACQUIA_APPLICATION_UUID',
                 'masked' => true,
                 'protected' => false,
-                'value' => $cloudApplicationUuid,
+                'value' => $cloudUuid,
                 'variable_type' => 'env_var',
-            ],
+            ];
+        }
+
+        $vars = array_merge($vars, [
             [
                 'key' => 'ACQUIA_CLOUD_API_TOKEN_KEY',
                 'masked' => true,
@@ -128,6 +141,8 @@ class CodeStudioCiCdVariables
                 'value' => $phpVersion,
                 'variable_type' => 'env_var',
             ],
-        ];
+        ]);
+
+        return $vars;
     }
 }

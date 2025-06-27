@@ -8,7 +8,6 @@ use Acquia\Cli\Command\CodeStudio\CodeStudioPipelinesMigrateCommand;
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Tests\Commands\Ide\IdeRequiredTestTrait;
 use Acquia\Cli\Tests\CommandTestBase;
-use Acquia\Cli\Tests\TestBase;
 use Gitlab\Client;
 use Prophecy\Argument;
 use Symfony\Component\Filesystem\Filesystem;
