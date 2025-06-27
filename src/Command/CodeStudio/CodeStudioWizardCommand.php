@@ -80,15 +80,10 @@ final class CodeStudioWizardCommand extends WizardCommandBase
 
         [$acquiaCloudClient, $account] = $this->getCloudAccount();
 
-        switch ($entityType) {
-            case EntityType::Application:
-                [$cloudUuid, $entityName, $project] = $this->handleApplicationEntity($acquiaCloudClient, $account, $entityType);
-                break;
-            case EntityType::Codebase:
-                [$cloudUuid, $entityName, $project] = $this->handleCodebaseEntity($entityType);
-                break;
-            default:
-                throw new AcquiaCliException("Invalid entity type selected: $entityType->value");
+        if ($entityType == EntityType::Codebase) {
+            [$cloudUuid, $entityName, $project] = $this->handleCodebaseEntity($entityType);
+        } else {
+            [$cloudUuid, $entityName, $project] = $this->handleApplicationEntity($acquiaCloudClient, $account, $entityType);
         }
 
         $this->io->writeln([
@@ -119,8 +114,6 @@ final class CodeStudioWizardCommand extends WizardCommandBase
                 $client->projects()->update($project['id'], $parameters);
                 $this->setGitLabCiCdVariablesForNodeProject($project, $cloudUuid, $cloudKey, $cloudSecret, $projectAccessTokenName, $projectAccessToken, $nodeVersion, $nodeHostingType);
                 break;
-            default:
-                throw new AcquiaCliException("Invalid project type selected: $projectSelected");
         }
 
         $this->io->success([
