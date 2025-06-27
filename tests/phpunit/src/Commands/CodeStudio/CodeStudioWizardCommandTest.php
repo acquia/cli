@@ -317,7 +317,7 @@ class CodeStudioWizardCommandTest extends WizardTestBase
         return [
             // Codebase: Drupal_project, PHP 8.1.
             [
-                [self::getMockedGitLabProject(self::$gitLabProjectId)],
+                [],
                 [
                     // Entity type: Codebase.
                     1,
@@ -328,27 +328,10 @@ class CodeStudioWizardCommandTest extends WizardTestBase
                     0,
                     // Select project.
                     0,
-                    // Do you want to continue?
+                    // Create a new GitLab project.
                     'y',
-                    // One time push?
-                    'y',
-                ],
-                [
-                    self::ARG_KEY => self::$key,
-                    self::ARG_SECRET => self::$secret,
-                ],
-                [
-                    // Entity type: Codebase.
-                    1,
-                    // Project type: Drupal_project [Auto selected].
-                    // MySQL version: 5.7.
+                    // Choose group for the new project: awesome-demo.
                     0,
-                    // PHP version: 8.1.
-                    0,
-                    // Codebase selection: first codebase (test).
-                    0,
-                    // Do you want to continue?
-                    'y',
                     // One time push?
                     'y',
                 ],
@@ -381,7 +364,7 @@ class CodeStudioWizardCommandTest extends WizardTestBase
         $parameters = [
             'container_registry_access_level' => 'disabled',
             'default_branch' => 'main',
-            'description' => 'Source repository for Acquia Cloud Platform Application <comment>a47ac10b-58cc-4372-a567-0e02b2c3d470</comment>',
+            'description' => 'Source repository for Acquia Cloud Platform Codebase <comment>a47ac10b-58cc-4372-a567-0e02b2c3d470</comment>',
             'initialize_with_readme' => true,
             'namespace_id' => 47,
             'topics' => 'Acquia Cloud Application',
@@ -453,7 +436,7 @@ class CodeStudioWizardCommandTest extends WizardTestBase
         $this->executeCommand($args, $inputs);
         $output = $this->getDisplay();
         $this->mockRequest('getAccount');
-        $output_strings = $this->getCommandOutput(self::getMockedGitLabProject(self::$gitLabProjectId), $inputs, EntityType::Codebase, 'Sample-application-1', 'a47ac10b-58cc-4372-a567-0e02b2c3d470');
+        $output_strings = $this->getCommandOutput(self::getMockedGitLabProject(self::$gitLabProjectId), $inputs, EntityType::Codebase, 'Sample application 1', 'a47ac10b-58cc-4372-a567-0e02b2c3d470');
         foreach ($output_strings as $output_string) {
             self::assertStringContainsString($output_string, $output);
         }
@@ -712,7 +695,7 @@ class CodeStudioWizardCommandTest extends WizardTestBase
                 ],
                 'hash' => 'ryh4smn',
                 'id' => 'a47ac10b-58cc-4372-a567-0e02b2c3d470',
-                'label' => 'Sample-application-1',
+                'label' => 'Sample application 1',
                 'region' => 'us-east-1',
                 'repository_id' => 'a5ef0a9d-44ce-4f06-8d4f-15f24f941a74',
                 'updated_at' => '2024-12-20T06:39:50.000Z',
