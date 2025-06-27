@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Acquia\Cli\Tests\Commands\CodeStudio;
 
 use Acquia\Cli\Command\CodeStudio\CodeStudioWizardCommand;
+use Acquia\Cli\Command\CodeStudio\EntityType;
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Tests\Commands\Ide\IdeRequiredTestTrait;
@@ -339,7 +340,6 @@ class CodeStudioWizardCommandTest extends WizardTestBase
             ->shouldBeCalled();
         $this->mockRequest('getAccount');
 
-        // Setup codebase mocking - this is the key difference from application tests.
         $this->mockCodebaseRequest();
 
         $gitlabClient = $this->prophet->prophesize(Client::class);
@@ -423,7 +423,8 @@ class CodeStudioWizardCommandTest extends WizardTestBase
         // Execute the command.
         $this->executeCommand($args, $inputs);
         $output = $this->getDisplay();
-        $output_strings = $this->getOutputStrings();
+        $this->mockRequest('getAccount');
+        $output_strings = $this->getCommandOutput(self::getMockedGitLabProject(self::$gitLabProjectId), EntityType::Codebase);
         foreach ($output_strings as $output_string) {
             self::assertStringContainsString($output_string, $output);
         }
@@ -724,5 +725,48 @@ class CodeStudioWizardCommandTest extends WizardTestBase
             ->shouldBeCalled();
 
         return $codebaseResponse;
+    }
+    /**
+     * Returns the output strings expected from the command execution.
+     *
+     * @return array<string>
+     */
+    private function getCommandOutput(array|string $project, EntityType $entityType, string $entityName = 'Sample-application-1', string $cloudUuid = 'a47ac10b-58cc-4372-a567-0e02b2c3d470'): array
+    {
+        return [
+            "Selected Drupal project by default for Codebases",
+            "This command will configure the Code Studio project {$project['path_with_namespace']} for automatic deployment to the",
+            "Acquia Cloud Platform $entityType->value $entityName ($cloudUuid)",
+            "using credentials (API Token and SSH Key) belonging to jane.doe@example.com.",
+            "If the jane.doe@example.com Cloud account is deleted in the future, this Code Studio project will need to be re-configured.",
+            "Setting GitLab CI/CD variables for",
+            "Successfully configured the Code Studio project!",
+            // "This project will now use Acquia's Drupal optimized AutoDevOps to build, test, and deploy your code automatically to Acquia Cloud Platform via CI/CD pipelines.",
+            "You can visit it here:",
+            $project['web_url'],
+            "Next, you should use git to push code to your Code Studio project. E.g.,",
+            "  git remote add codestudio {$project['http_url_to_repo']}",
+            "  git push codestudio",
+        ];
+    }
+
+    public function testGetRequiredCloudPermissionsReturnsExpectedPermissions(): void
+    {
+        $reflection = new \ReflectionClass($this->command);
+        $method = $reflection->getMethod('getRequiredCloudPermissions');
+        $method->setAccessible(true);
+
+        $expected = [
+            'deploy to non-prod',
+            'add ssh key to git',
+            'add ssh key to non-prod',
+            'add an environment',
+            'delete an environment',
+            'administer environment variables on non-prod',
+        ];
+
+        $result = $method->invoke($this->command);
+
+        $this->assertEquals($expected, $result);
     }
 }

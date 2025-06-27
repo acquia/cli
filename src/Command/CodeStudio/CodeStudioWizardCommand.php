@@ -92,8 +92,7 @@ final class CodeStudioWizardCommand extends WizardCommandBase
         }
 
         $this->io->writeln([
-            "",
-            "This command will configure the Code Studio project <comment>{$project['path_with_namespace']}</comment> for automatic deployment to the",
+            "\nThis command will configure the Code Studio project <comment>{$project['path_with_namespace']}</comment> for automatic deployment to the",
             "Acquia Cloud Platform $entityType->value <comment>$entityName</comment> (<comment>$cloudUuid</comment>)",
             "using credentials (API Token and SSH Key) belonging to <comment>$account->mail</comment>.",
             "",
@@ -474,14 +473,7 @@ final class CodeStudioWizardCommand extends WizardCommandBase
             $acquiaCloudClient,
             $cloudUuid,
             $account,
-            [
-                "deploy to non-prod",
-                "add ssh key to git",
-                "add ssh key to non-prod",
-                "add an environment",
-                "delete an environment",
-                "administer environment variables on non-prod",
-            ]
+            self::getRequiredCloudPermissions()
         );
         $this->setGitLabProjectDescription($entityType, $cloudUuid);
         $cloudEntity = $this->getCloudApplication($cloudUuid);
@@ -503,5 +495,22 @@ final class CodeStudioWizardCommand extends WizardCommandBase
         $entityName = $cloudEntity->label;
         $project = $this->determineGitLabProject($entityType, $cloudEntity);
         return [$cloudUuid, $entityName, $project];
+    }
+
+    /**
+     * Get the required permissions for the Cloud Platform.
+     *
+     * @return array<string>
+     */
+    private function getRequiredCloudPermissions(): array
+    {
+        return [
+            'deploy to non-prod',
+            'add ssh key to git',
+            'add ssh key to non-prod',
+            'add an environment',
+            'delete an environment',
+            'administer environment variables on non-prod',
+        ];
     }
 }
