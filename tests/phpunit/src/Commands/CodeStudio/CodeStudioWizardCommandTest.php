@@ -60,7 +60,7 @@ class CodeStudioWizardCommandTest extends WizardTestBase
         return [
             // Application: Drupal_project, PHP 8.1.
             [
-                [self::getMockedGitLabProject(self::$gitLabProjectId)],
+                [self::getMockedGitLabProject(self::$gitLabProjectId), self::getMockedGitLabProject(self::$gitLabProjectId)],
                 [
                     // Entity type: Application.
                     0,
@@ -72,6 +72,8 @@ class CodeStudioWizardCommandTest extends WizardTestBase
                     0,
                     // Do you want to continue?
                     'y',
+                    // Select from multiple GitLab projects.
+                    0,
                     // One time push?
                     'y',
                 ],
@@ -82,7 +84,7 @@ class CodeStudioWizardCommandTest extends WizardTestBase
             ],
             // Application: Drupal_project, PHP 8.2.
             [
-                [self::getMockedGitLabProject(self::$gitLabProjectId)],
+                [],
                 [
                     // Entity type: Application.
                     0,
@@ -94,6 +96,10 @@ class CodeStudioWizardCommandTest extends WizardTestBase
                     1,
                     // Do you want to continue?
                     'y',
+                    // Create a new GitLab project.
+                    'y',
+                    // Choose group for the new project: awesome-demo.
+                    0,
                     // One time push?
                     'y',
                 ],
@@ -104,7 +110,7 @@ class CodeStudioWizardCommandTest extends WizardTestBase
             ],
             // Application: Drupal_project, PHP 8.3.
             [
-                [self::getMockedGitLabProject(self::$gitLabProjectId)],
+                [],
                 [
                     // Entity type: Application.
                     0,
@@ -116,6 +122,10 @@ class CodeStudioWizardCommandTest extends WizardTestBase
                     2,
                     // Do you want to continue?
                     'y',
+                    // Create a new GitLab project.
+                    'n',
+                    // Choose a project to configure.
+                    0,
                     // One time push?
                     'y',
                 ],
@@ -289,7 +299,7 @@ class CodeStudioWizardCommandTest extends WizardTestBase
         // Set properties and execute.
         $this->executeCommand($args, $inputs);
         $output = $this->getDisplay();
-        $output_strings = $this->getOutputStrings();
+        $output_strings = $this->getCommandOutput(self::getMockedGitLabProject(self::$gitLabProjectId), $inputs, EntityType::Application, 'Sample application 1', 'a47ac10b-58cc-4372-a567-0e02b2c3d470');
         foreach ($output_strings as $output_string) {
             self::assertStringContainsString($output_string, $output);
         }
@@ -308,6 +318,25 @@ class CodeStudioWizardCommandTest extends WizardTestBase
             // Codebase: Drupal_project, PHP 8.1.
             [
                 [self::getMockedGitLabProject(self::$gitLabProjectId)],
+                [
+                    // Entity type: Codebase.
+                    1,
+                    // Project type: Drupal_project [Auto selected].
+                    // MySQL version: 5.7.
+                    0,
+                    // PHP version: 8.1.
+                    0,
+                    // Select project.
+                    0,
+                    // Do you want to continue?
+                    'y',
+                    // One time push?
+                    'y',
+                ],
+                [
+                    self::ARG_KEY => self::$key,
+                    self::ARG_SECRET => self::$secret,
+                ],
                 [
                     // Entity type: Codebase.
                     1,
@@ -424,7 +453,7 @@ class CodeStudioWizardCommandTest extends WizardTestBase
         $this->executeCommand($args, $inputs);
         $output = $this->getDisplay();
         $this->mockRequest('getAccount');
-        $output_strings = $this->getCommandOutput(self::getMockedGitLabProject(self::$gitLabProjectId), EntityType::Codebase);
+        $output_strings = $this->getCommandOutput(self::getMockedGitLabProject(self::$gitLabProjectId), $inputs, EntityType::Codebase, 'Sample-application-1', 'a47ac10b-58cc-4372-a567-0e02b2c3d470');
         foreach ($output_strings as $output_string) {
             self::assertStringContainsString($output_string, $output);
         }
@@ -731,10 +760,9 @@ class CodeStudioWizardCommandTest extends WizardTestBase
      *
      * @return array<string>
      */
-    private function getCommandOutput(array|string $project, EntityType $entityType, string $entityName = 'Sample-application-1', string $cloudUuid = 'a47ac10b-58cc-4372-a567-0e02b2c3d470'): array
+    private function getCommandOutput(array|string $project, array $inputs, EntityType $entityType, string $entityName, string $cloudUuid): array
     {
-        return [
-            "Selected Drupal project by default for Codebases",
+        $arr = [
             "This command will configure the Code Studio project {$project['path_with_namespace']} for automatic deployment to the",
             "Acquia Cloud Platform $entityType->value $entityName ($cloudUuid)",
             "using credentials (API Token and SSH Key) belonging to jane.doe@example.com.",
@@ -748,6 +776,22 @@ class CodeStudioWizardCommandTest extends WizardTestBase
             "  git remote add codestudio {$project['http_url_to_repo']}",
             "  git push codestudio",
         ];
+
+        if ($entityType === EntityType::Codebase) {
+            $arr = array_merge($arr, [
+                "Selected Drupal project by default for Codebases",
+            ]);
+        }
+
+        if (count($inputs) == 8 && $inputs[5] === 'y') {
+            $arr = array_merge($arr, [
+                "Could not find any existing Code Studio project for Acquia Cloud Platform $entityType->value $entityName.",
+                "Searched for UUID $cloudUuid in project descriptions.",
+                "Created {$project['path_with_namespace']} project in Code Studio.",
+            ]);
+        }
+
+        return $arr;
     }
 
     public function testGetRequiredCloudPermissionsReturnsExpectedPermissions(): void

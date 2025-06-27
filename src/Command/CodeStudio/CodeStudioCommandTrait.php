@@ -205,8 +205,7 @@ trait CodeStudioCommandTrait
         }
         // Prompt to create project.
         $this->io->writeln([
-            "",
-            "Could not find any existing Code Studio project for Acquia Cloud Platform $entityType->value <comment>$entityName</comment>.",
+            "\nCould not find any existing Code Studio project for Acquia Cloud Platform $entityType->value <comment>$entityName</comment>.",
             "Searched for UUID <comment>$entityUuid</comment> in project descriptions.",
         ]);
         $createProject = $this->io->confirm('Would you like to create a new Code Studio project? If you select "no" you may choose from a full list of existing projects.');
