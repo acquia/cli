@@ -927,4 +927,52 @@ class CodeStudioWizardCommandTest extends WizardTestBase
         // Call the method - it should throw an exception when doDetermineCloudCodebase returns null.
         $method->invoke($this->command);
     }
+
+    /**
+     * Test determineGitLabProject with gitlab-project-id option.
+     */
+    public function testDetermineGitLabProjectWithProjectIdOption(): void
+    {
+        $projectId = 123;
+        $expectedProject = [
+            'http_url_to_repo' => 'https://code.cloudservices.acquia.io/test-group/test-project.git',
+            'id' => $projectId,
+            'name' => 'Test Project',
+            'path_with_namespace' => 'test-group/test-project',
+            'web_url' => 'https://code.cloudservices.acquia.io/test-group/test-project',
+        ];
+
+        // Mock the input to return the project ID.
+        $inputMock = $this->prophet->prophesize(\Symfony\Component\Console\Input\InputInterface::class);
+        $inputMock->getOption('gitlab-project-id')->willReturn($projectId);
+
+        // Set the mocked input on the command.
+        $reflection = new \ReflectionClass($this->command);
+        $inputProperty = $reflection->getProperty('input');
+        $inputProperty->setAccessible(true);
+        $inputProperty->setValue($this->command, $inputMock->reveal());
+
+        // Mock GitLab client and projects API.
+        $gitlabClient = $this->prophet->prophesize(Client::class);
+        $projectsApi = $this->prophet->prophesize(\Gitlab\Api\Projects::class);
+        $projectsApi->show($projectId)->willReturn($expectedProject);
+        $gitlabClient->projects()->willReturn($projectsApi->reveal());
+
+        $this->command->setGitLabClient($gitlabClient->reveal());
+
+        // Create a mock cloud entity.
+        $cloudEntity = (object) [
+            'id' => 'test-uuid',
+            'label' => 'Test Application',
+            'name' => 'Test Application',
+        ];
+
+        // Test the method.
+        $method = $reflection->getMethod('determineGitLabProject');
+        $method->setAccessible(true);
+
+        $result = $method->invoke($this->command, EntityType::Application, $cloudEntity);
+
+        $this->assertEquals($expectedProject, $result);
+    }
 }
