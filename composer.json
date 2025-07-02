@@ -52,7 +52,7 @@
         "symfony/yaml": "^6.3",
         "thecodingmachine/safe": "3.0.2 as 2.5.0",
         "typhonius/acquia-logstream": "^0.0.15",
-        "typhonius/acquia-php-sdk-v2": "3.5.0",
+        "typhonius/acquia-php-sdk-v2": "^3.5.0",
         "vlucas/phpdotenv": "^5.5",
         "zumba/amplitude-php": "^1.0.4"
     },

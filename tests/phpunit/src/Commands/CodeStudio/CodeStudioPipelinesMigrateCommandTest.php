@@ -8,6 +8,9 @@ use Acquia\Cli\Command\CodeStudio\CodeStudioPipelinesMigrateCommand;
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Tests\Commands\Ide\IdeRequiredTestTrait;
 use Acquia\Cli\Tests\CommandTestBase;
+use Gitlab\Api\Groups;
+use Gitlab\Api\ProjectNamespaces;
+use Gitlab\Api\Projects;
 use Gitlab\Client;
 use Prophecy\Argument;
 use Symfony\Component\Filesystem\Filesystem;
@@ -60,9 +63,27 @@ class CodeStudioPipelinesMigrateCommandTest extends CommandTestBase
                 [self::getMockedGitLabProject(self::$gitLabProjectId)],
                 // Inputs.
                 [
-                    // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
-                    'n',
                     // @todo
+                    '0',
+                    // Do you want to continue?
+                    'y',
+                ],
+                // Args.
+                [
+                    '--key' => self::$key,
+                    '--secret' => self::$secret,
+                ],
+            ],
+            [
+                // No existing projects found - test project creation path.
+                [],
+                // Inputs.
+                [
+                    // Choose application.
+                    '0',
+                    // Would you like to create a new Code Studio project?
+                    'y',
+                    // Choose which group this new project should belong to:
                     '0',
                     // Do you want to continue?
                     'y',
@@ -97,7 +118,7 @@ class CodeStudioPipelinesMigrateCommandTest extends CommandTestBase
         $this->mockGitLabUsersMe($gitlabClient);
         $this->mockRequest('getAccount');
         $this->mockGitLabPermissionsRequest($this::$applicationUuid);
-        $projects = $this->mockGetGitLabProjects($this::$applicationUuid, self::$gitLabProjectId, $mockedGitlabProjects);
+
         $gitlabCicdVariables = [
             [
                 'key' => 'ACQUIA_APPLICATION_UUID',
@@ -149,9 +170,52 @@ class CodeStudioPipelinesMigrateCommandTest extends CommandTestBase
                 'variable_type' => 'env_var',
             ],
         ];
-        $projects->variables(self::$gitLabProjectId)
-            ->willReturn($gitlabCicdVariables);
-        $projects->update(self::$gitLabProjectId, Argument::type('array'))->willReturn(true);
+
+        // Handle project creation test case.
+        if (empty($mockedGitlabProjects)) {
+            // Mock empty search results to trigger project creation path.
+            $projects = $this->prophet->prophesize(Projects::class);
+            $projects->all(['search' => $this::$applicationUuid])
+                ->willReturn([]);
+
+            // Mock groups for project creation (return both group and namespace)
+            $groups = $this->prophet->prophesize(Groups::class);
+            $groups->all(['all_available' => true, 'min_access_level' => 40])
+                ->willReturn([
+                    ['id' => 1, 'path' => 'test-group'],
+                    // Namespace as a group.
+                    ['id' => 2, 'path' => 'matthew.grasmick'],
+                ]);
+            $gitlabClient->groups()->willReturn($groups->reveal());
+
+            // Mock namespaces for project creation.
+            $namespaces = $this->prophet->prophesize(ProjectNamespaces::class);
+            $namespaces->show('matthew.grasmick')
+                ->willReturn(['id' => 2, 'path' => 'matthew.grasmick']);
+            $gitlabClient->namespaces()->willReturn($namespaces->reveal());
+
+            // Mock project creation with verification that description is set.
+            $projects->create(Argument::type('string'), Argument::that(function ($params) {
+                // Verify that description contains the application UUID.
+                $this->assertArrayHasKey('description', $params);
+                $this->assertStringContainsString($this::$applicationUuid, $params['description']);
+                return true;
+            }))->willReturn(self::getMockedGitLabProject(self::$gitLabProjectId));
+
+            // Mock avatar upload (can fail)
+            $projects->uploadAvatar(self::$gitLabProjectId, Argument::type('string'))
+                ->willThrow(new \Gitlab\Exception\ValidationFailedException('Failed to upload avatar'));
+
+            // Mock variables for CI/CD check.
+            $projects->variables(self::$gitLabProjectId)
+                ->willReturn($gitlabCicdVariables);
+            $projects->update(self::$gitLabProjectId, Argument::any())->willReturn(true);
+        } else {
+            $projects = $this->mockGetGitLabProjects($this::$applicationUuid, self::$gitLabProjectId, $mockedGitlabProjects);
+            $projects->variables(self::$gitLabProjectId)
+                ->willReturn($gitlabCicdVariables);
+            $projects->update(self::$gitLabProjectId, Argument::any())->willReturn(true);
+        }
         $gitlabClient->projects()->willReturn($projects);
         $localMachineHelper->getFilesystem()
             ->willReturn(new Filesystem())
