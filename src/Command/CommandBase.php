@@ -1147,7 +1147,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
             return $environmentResponse;
         } catch (Exception $e) {
             throw new AcquiaCliException(
-                "No codebases match the uuid '{$codebaseUuid}'",
+                "No codebases match the UUID '{$codebaseUuid}'",
                 ['codebaseUuid' => $codebaseUuid]
             );
         }
