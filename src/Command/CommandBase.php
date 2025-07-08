@@ -634,7 +634,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
         if ($input->getArgument('environmentId')) {
             $environmentId = $input->getArgument('environmentId');
             $chosenEnvironment = $this->getCloudEnvironment($environmentId);
-        } elseif ($input->getOption('codebase-uuid')) {
+        } elseif ($this->getDefinition()->hasOption('codebase-uuid') && $input->getOption('codebase-uuid')) {
             $codebaseUuid = $input->getOption('codebase-uuid');
             $chosenEnvironment = $this->getCloudEnvironmentByCodebase($codebaseUuid);
         } else {
@@ -1147,7 +1147,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
             return $environmentResponse;
         } catch (Exception $e) {
             throw new AcquiaCliException(
-                "No codebases match the UUID '{$codebaseUuid}'",
+                "No codebases match the uuid '{$codebaseUuid}'",
                 ['codebaseUuid' => $codebaseUuid]
             );
         }
