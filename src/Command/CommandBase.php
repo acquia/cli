@@ -680,44 +680,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
     }
 
     /**
-     * Get the environment associated with a codebase UUID.
-     *
-     * @throws \Acquia\Cli\Exception\AcquiaCliException
-     */
-    protected function getCloudEnvironmentByCodebase(string $codebaseUuid): EnvironmentResponse
-    {
-        $acquiaCloudClient = $this->cloudApiClientService->getClient();
-        $codebasesResource = new Codebases($acquiaCloudClient);
-        $codebase = $codebasesResource->get($codebaseUuid);
-        // Prepare environment response from codebase.
-        $environment = new stdClass();
-        $environment->id = $codebase->id;
-        $environment->name = $codebase->label;
-        $environment->label = $codebase->label;
-        $environment->application = new stdClass();
-        $environment->domains = [];
-        $environment->active_domain = "";
-        $environment->default_domain = "";
-        $environment->ips = [];
-        $environment->balancer = "";
-        $environment->platform = "";
-        $environment->status = "";
-        $environment->type = "";
-        $environment->flags = new stdClass();
-        $environment->_links = $codebase->links;
-        $environment->region = $codebase->region;
-        $environment->configuration =  new stdClass();
-        $environment->artifact  =  new stdClass();
-        $environment->image_url = "";
-        $environment->vcs = new stdClass();
-        $environment->vcs->path = $codebase->vcs_url;
-        $environment->vcs->url = $codebase->vcs_url;
-        $environmentResponse = new EnvironmentResponse($environment);
-        $environmentResponse->uuid = $codebase->id;
-        return $environmentResponse;
-    }
-
-    /**
      * @throws \Acquia\Cli\Exception\AcquiaCliException
      */
     protected function isLocalGitRepoDirty(): bool
@@ -1140,6 +1102,57 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
 
         return $environmentResource->get($environmentId);
     }
+
+
+    /**
+     * Get the environment associated with a codebase UUID.
+     *
+     * @throws \Acquia\Cli\Exception\AcquiaCliException
+     */
+    protected function getCloudEnvironmentByCodebase(string $codebaseUuid): EnvironmentResponse
+    {
+        $acquiaCloudClient = $this->cloudApiClientService->getClient();
+        $codebasesResource = new Codebases($acquiaCloudClient);
+
+        try {
+            $codebase = $codebasesResource->get($codebaseUuid);
+
+            // Prepare environment response from codebase.
+            $environment = new stdClass();
+            $environment->id = $codebase->id;
+            $environment->name = $codebase->label;
+            $environment->label = $codebase->label;
+            $environment->application = new stdClass();
+            $environment->domains = [];
+            $environment->active_domain = '';
+            $environment->default_domain = '';
+            $environment->ips = [];
+            $environment->balancer = '';
+            $environment->platform = '';
+            $environment->status = '';
+            $environment->type = '';
+            $environment->flags = new stdClass();
+            $environment->_links = $codebase->links ?? new stdClass();
+            $environment->region = $codebase->region ?? '';
+            $environment->configuration = new stdClass();
+            $environment->artifact = new stdClass();
+            $environment->image_url = '';
+            $environment->vcs = new stdClass();
+            $environment->vcs->path = $codebase->vcs_url ?? '';
+            $environment->vcs->url = $codebase->vcs_url ?? '';
+
+            $environmentResponse = new EnvironmentResponse($environment);
+            $environmentResponse->uuid = $codebase->id;
+
+            return $environmentResponse;
+        } catch (Exception $e) {
+            throw new AcquiaCliException(
+                "No codebases match the uuid '{$codebaseUuid}'",
+                ['codebaseUuid' => $codebaseUuid]
+            );
+        }
+    }
+
 
     public static function validateEnvironmentAlias(string $alias): string
     {
