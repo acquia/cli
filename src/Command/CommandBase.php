@@ -26,6 +26,7 @@ use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Connector\Connector;
 use AcquiaCloudApi\Endpoints\Account;
 use AcquiaCloudApi\Endpoints\Applications;
+use AcquiaCloudApi\Endpoints\Codebases;
 use AcquiaCloudApi\Endpoints\Databases;
 use AcquiaCloudApi\Endpoints\Environments;
 use AcquiaCloudApi\Endpoints\Notifications;
@@ -33,6 +34,7 @@ use AcquiaCloudApi\Endpoints\Organizations;
 use AcquiaCloudApi\Endpoints\Subscriptions;
 use AcquiaCloudApi\Response\AccountResponse;
 use AcquiaCloudApi\Response\ApplicationResponse;
+use AcquiaCloudApi\Response\CodebaseResponse;
 use AcquiaCloudApi\Response\DatabaseResponse;
 use AcquiaCloudApi\Response\DatabasesResponse;
 use AcquiaCloudApi\Response\EnvironmentResponse;
@@ -72,6 +74,7 @@ use Symfony\Component\Validator\Constraints\Url;
 use Symfony\Component\Validator\Exception\ValidatorException;
 use Symfony\Component\Validator\Validation;
 use Symfony\Component\Yaml\Yaml;
+use Twig\Environment;
 use Zumba\Amplitude\Amplitude;
 
 abstract class CommandBase extends Command implements LoggerAwareInterface
@@ -222,7 +225,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
         $this->formatter = $this->getHelper('formatter');
 
         $this->output->writeln('Acquia CLI version: ' . $this->getApplication()
-                ->getVersion(), OutputInterface::VERBOSITY_DEBUG);
+            ->getVersion(), OutputInterface::VERBOSITY_DEBUG);
         if (getenv('ACLI_NO_TELEMETRY') !== 'true') {
             $this->checkAndPromptTelemetryPreference();
             $this->telemetryHelper->initialize();
@@ -632,6 +635,9 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
         if ($input->getArgument('environmentId')) {
             $environmentId = $input->getArgument('environmentId');
             $chosenEnvironment = $this->getCloudEnvironment($environmentId);
+        } elseif ($input->getOption('codebase-uuid')) {
+            $codebaseUuid = $input->getOption('codebase-uuid');
+            $chosenEnvironment = $this->getCloudEnvironmentByCodebase($codebaseUuid);
         } else {
             $cloudApplicationUuid = $this->determineCloudApplication();
             $cloudApplication = $this->getCloudApplication($cloudApplicationUuid);
@@ -675,14 +681,52 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
     }
 
     /**
+     * Get the environment associated with a codebase UUID.
+     *
+     * @throws \Acquia\Cli\Exception\AcquiaCliException
+     */
+    protected function getCloudEnvironmentByCodebase(string $codebaseUuid): EnvironmentResponse
+    {
+        $acquiaCloudClient = $this->cloudApiClientService->getClient();
+        $codebasesResource = new Codebases($acquiaCloudClient);
+        $codebase = $codebasesResource->get($codebaseUuid);
+        // Prepare environment response from codebase.
+        $environment = new stdClass();
+        $environment->id = $codebase->id;
+        $environment->name = $codebase->label;
+        $environment->label = $codebase->label;
+        $environment->application = new stdClass();
+        $environment->domains = [];
+        $environment->active_domain = "";
+        $environment->default_domain = "";
+        $environment->ips = [];
+        $environment->balancer = "";
+        $environment->platform = "";
+        $environment->status = "";
+        $environment->type = "";
+        $environment->flags = new stdClass();
+        $environment->_links = $codebase->links;
+        $environment->region = $codebase->region;
+        $environment->configuration =  new stdClass();
+        $environment->artifact  =  new stdClass();
+        $environment->image_url = "";
+        $environment->vcs = new stdClass();
+        $environment->vcs->path = $codebase->vcs_url;
+        $environment->vcs->url = $codebase->vcs_url;
+        $environmentResponse = new EnvironmentResponse($environment);
+        $environmentResponse->uuid = $codebase->id;
+        return $environmentResponse;
+    }
+
+    /**
      * @throws \Acquia\Cli\Exception\AcquiaCliException
      */
     protected function isLocalGitRepoDirty(): bool
     {
         $this->localMachineHelper->checkRequiredBinariesExist(['git']);
         $process = $this->localMachineHelper->executeFromCmd(
-        // Problem with this is that it stages changes for the user. They may
-        // not want that.
+            // Problem with this is that it stages changes for the user. They may
+            // not want that.
             'git add . && git diff-index --cached --quiet HEAD',
             null,
             $this->dir,
@@ -1287,8 +1331,8 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
     {
         if (
             $input->hasArgument('applicationUuid') && !$input->getArgument('applicationUuid') && $this->getDefinition()
-                ->getArgument('applicationUuid')
-                ->isRequired()
+            ->getArgument('applicationUuid')
+            ->isRequired()
         ) {
             $output->writeln('Inferring Cloud Application UUID for this command since none was provided...', OutputInterface::VERBOSITY_VERBOSE);
             if ($applicationUuid = $this->determineCloudApplication()) {
