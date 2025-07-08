@@ -22,7 +22,8 @@ final class PullCodeCommand extends PullCommandBase
     {
         $this
             ->acceptEnvironmentId()
-            ->addOption('dir', null, InputArgument::OPTIONAL, 'The directory containing the Drupal project to be refreshed')
+            ->addOption('dir', null, InputOption::VALUE_OPTIONAL, 'The directory containing the Drupal project to be refreshed')
+            ->addOption('codebase-uuid', null, InputOption::VALUE_OPTIONAL, 'The UUID of the codebase to be pulled')
             ->addOption(
                 'no-scripts',
                 null,
