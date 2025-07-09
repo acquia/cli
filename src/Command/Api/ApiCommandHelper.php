@@ -129,10 +129,12 @@ class ApiCommandHelper
             $propKey = self::renameParameter($propKey);
 
             if ($isRequired) {
-                if (!array_key_exists('description', $paramDefinition)) {
-                    $description = $paramDefinition["additionalProperties"]["description"];
-                } else {
+                if (array_key_exists('description', $paramDefinition)) {
                     $description = $paramDefinition['description'];
+                } elseif (array_key_exists('additionalProperties', $paramDefinition) && array_key_exists('description', $paramDefinition['additionalProperties'])) {
+                    $description = $paramDefinition['additionalProperties']['description'];
+                } else {
+                    $description = "Description unavailable";
                 }
                 $inputDefinition[] = new InputArgument(
                     $propKey,
@@ -249,14 +251,28 @@ class ApiCommandHelper
         return [$inputDefinition, $usage];
     }
 
+    /**
+     * Parameter definitions can be found multiple places:
+     * - In the global parameter definitions referenced as $paramKey
+     * - In the global parameter definitions as a "double" reference
+     * - In the local parameter definition for this endpoint
+     */
     private function getParameterDefinitionFromSpec(string $paramKey, array $acquiaCloudSpec, mixed $schema): mixed
     {
-        $uppercaseKey = ucfirst($paramKey);
         if (
             array_key_exists('parameters', $acquiaCloudSpec['components'])
-            && array_key_exists($uppercaseKey, $acquiaCloudSpec['components']['parameters'])
+            && array_key_exists($paramKey, $acquiaCloudSpec['components']['parameters'])
         ) {
-            return $acquiaCloudSpec['components']['parameters'][$uppercaseKey];
+            return $acquiaCloudSpec['components']['parameters'][$paramKey];
+        }
+        if (
+            array_key_exists('parameters', $acquiaCloudSpec['components'])
+        ) {
+            foreach ($acquiaCloudSpec['components']['parameters'] as $parameter) {
+                if (array_key_exists('name', $parameter) && $parameter['name'] === $paramKey) {
+                    return $parameter;
+                }
+            }
         }
         foreach ($schema['parameters'] as $parameter) {
             if ($parameter['name'] === $paramKey) {
