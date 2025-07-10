@@ -6,6 +6,8 @@ namespace Acquia\Cli\Tests;
 
 use Acquia\Cli\Application;
 use Acquia\Cli\CloudApi\ClientService;
+use Acquia\Cli\Command\Api\ApiCommandFactory;
+use Acquia\Cli\Command\Api\ApiCommandHelper;
 use Acquia\Cli\DataStore\CloudDataStore;
 use Acquia\Cli\Kernel;
 use Symfony\Component\Console\Input\ArrayInput;
@@ -41,6 +43,9 @@ class ApplicationTestBase extends TestBase
         $output = $this->kernel->getContainer()->get(OutputInterface::class);
         /** @var Application $application */
         $application = $this->kernel->getContainer()->get(Application::class);
+        $container = $this->kernel->getContainer();
+        $helper = $container->get(ApiCommandHelper::class);
+        $application->addCommands($helper->getApiCommands(__DIR__ . '/../assets/acquia-spec.json', 'api', $container->get(ApiCommandFactory::class)));
         $application->setAutoExit(false);
         $application->run($input, $output);
         return $output->fetch();

@@ -55,4 +55,15 @@ class HelpApplicationTest extends ApplicationTestBase
   app:log:tail prod:myapp.dev
   app:log:tail 12345-abcd1234-1111-2222-3333-0e02b2c3d470', $buffer);
     }
+
+    // Ensure parameter descriptions defined via additionalProperties are available.
+    public function testApiHelp(): void
+    {
+        $this->setInput([
+            'command' => 'help',
+            'command_name' => 'api:environments:cloud-actions-update',
+        ]);
+        $buffer = $this->runApp();
+        $this->assertStringContainsString('Whether this Cloud Action is enabled', $buffer);
+    }
 }
