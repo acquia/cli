@@ -47,24 +47,7 @@ Available commands:
  acsf
   acsf:list                [acsf] List all Acquia Cloud Site Factory commands
  api
-  api:accounts             List all API commands for the accounts resource
-  api:agreements           List all API commands for the agreements resource
-  api:applications         List all API commands for the applications resource
-  api:codebases            List all API commands for the codebases resource
-  api:colors               List all API commands for the colors resource
-  api:distributions        List all API commands for the distributions resource
-  api:environments         List all API commands for the environments resource
-  api:ide                  List all API commands for the ide resource
-  api:identity-providers   List all API commands for the identity-providers resource
-  api:invites              List all API commands for the invites resource
   api:list                 [api] List all API commands
-  api:messages             List all API commands for the messages resource
-  api:notifications        List all API commands for the notifications resource
-  api:options              List all API commands for the options resource
-  api:organizations        List all API commands for the organizations resource
-  api:permissions          List all API commands for the permissions resource
-  api:subscriptions        List all API commands for the subscriptions resource
-  api:tps                  List all API commands for the tps resource
  app
   app:link                 [link] Associate your project with a Cloud Platform application
   app:log:tail             [tail|log:tail] Tail the logs from your environments
