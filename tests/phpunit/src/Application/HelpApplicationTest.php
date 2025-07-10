@@ -68,6 +68,6 @@ class HelpApplicationTest extends ApplicationTestBase
             'command_name' => 'api:environments:cloud-actions-update',
         ]);
         $buffer = $this->runApp();
-        $this->assertStringContainsString('Whether this Cloud Action is enabled', $buffer);
+        $this->assertStringContainsString('Whether this Cloud Action is enabled.', $buffer);
     }
 }
