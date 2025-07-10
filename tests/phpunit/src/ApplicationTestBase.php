@@ -45,7 +45,7 @@ class ApplicationTestBase extends TestBase
         $application = $this->kernel->getContainer()->get(Application::class);
         $container = $this->kernel->getContainer();
         $helper = $container->get(ApiCommandHelper::class);
-        $application->addCommands($helper->getApiCommands(__DIR__ . '/../assets/acquia-spec.json', 'api', $container->get(ApiCommandFactory::class)));
+        $application->addCommands($helper->getApiCommands(__DIR__ . '/../../../assets/acquia-spec.json', 'api', $container->get(ApiCommandFactory::class)));
         $application->setAutoExit(false);
         $application->run($input, $output);
         return $output->fetch();
