@@ -56,7 +56,11 @@ class HelpApplicationTest extends ApplicationTestBase
   app:log:tail 12345-abcd1234-1111-2222-3333-0e02b2c3d470', $buffer);
     }
 
-    // Ensure parameter descriptions defined via additionalProperties are available.
+    /**
+     * Ensure parameter descriptions defined via additionalProperties are available.
+     *
+     * @group serial
+     */
     public function testApiHelp(): void
     {
         $this->setInput([
