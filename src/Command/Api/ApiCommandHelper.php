@@ -134,7 +134,7 @@ class ApiCommandHelper
                 } elseif (array_key_exists('additionalProperties', $paramDefinition) && array_key_exists('description', $paramDefinition['additionalProperties'])) {
                     $description = $paramDefinition['additionalProperties']['description'];
                 } else {
-                    $description = "Description unavailable";
+                    $description = "No description provided for this parameter";
                 }
                 $inputDefinition[] = new InputArgument(
                     $propKey,
