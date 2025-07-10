@@ -16,7 +16,6 @@ drupal
 /phpunit.xml
 ###< phpunit/phpunit ###
 
-cx-api-spec
 gardener
 .env
 

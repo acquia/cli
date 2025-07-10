@@ -252,19 +252,24 @@ class ApiCommandHelper
     }
 
     /**
-     * Parameter definitions can be found multiple places:
-     * - In the global parameter definitions referenced as $paramKey
-     * - In the global parameter definitions as a "double" reference
-     * - In the local parameter definition for this endpoint
+     * Find the parameter definition in the spec or schema.
      */
-    private function getParameterDefinitionFromSpec(string $paramKey, array $acquiaCloudSpec, mixed $schema): mixed
+    private function getParameterDefinitionFromSpec(string $paramKey, array $acquiaCloudSpec, array $schema): mixed
     {
+        // Ideally the parameter definition is identifiable by key in the component spec.
         if (
             array_key_exists('parameters', $acquiaCloudSpec['components'])
             && array_key_exists($paramKey, $acquiaCloudSpec['components']['parameters'])
         ) {
             return $acquiaCloudSpec['components']['parameters'][$paramKey];
         }
+        // Sometimes the definition is provided as a singleton in the endpoint spec.
+        foreach ($schema['parameters'] as $parameter) {
+            if (array_key_exists('name', $parameter) && $parameter['name'] === $paramKey) {
+                return $parameter;
+            }
+        }
+        // If all else fails, search the entire component spec for a matching definition.
         if (
             array_key_exists('parameters', $acquiaCloudSpec['components'])
         ) {
@@ -272,11 +277,6 @@ class ApiCommandHelper
                 if (array_key_exists('name', $parameter) && $parameter['name'] === $paramKey) {
                     return $parameter;
                 }
-            }
-        }
-        foreach ($schema['parameters'] as $parameter) {
-            if ($parameter['name'] === $paramKey) {
-                return $parameter;
             }
         }
         return null;
