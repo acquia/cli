@@ -57,7 +57,7 @@
         "zumba/amplitude-php": "^1.0.4"
     },
     "require-dev": {
-        "acquia/coding-standards": "^3.0.1",
+        "acquia/coding-standards": "^3.0.2",
         "brianium/paratest": "^7",
         "dealerdirect/phpcodesniffer-composer-installer": "^1.0.0",
         "dominikb/composer-license-checker": "^2.4",

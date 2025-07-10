@@ -6,7 +6,6 @@ namespace Acquia\Cli\Command\Pull;
 
 use Acquia\Cli\Attribute\RequireAuth;
 use Acquia\Cli\Attribute\RequireLocalDb;
-use Acquia\Cli\Attribute\RequireRemoteDb;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
