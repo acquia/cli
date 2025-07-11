@@ -37,6 +37,7 @@ final class CodeStudioWizardCommand extends WizardCommandBase
             ->addOption('gitlab-project-id', null, InputOption::VALUE_REQUIRED, 'The project ID (an integer) of the GitLab project to configure.')
             ->addOption('gitlab-host-name', null, InputOption::VALUE_REQUIRED, 'The GitLab hostname.');
         $this->acceptApplicationUuid();
+        $this->acceptCodebaseId();
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -50,14 +51,18 @@ final class CodeStudioWizardCommand extends WizardCommandBase
         // But, we specifically need an API Token key-pair of Code Studio.
         // So we reauthenticate to be sure we're using the provided credentials.
         $this->reAuthenticate($cloudKey, $cloudSecret, $this->cloudCredentials->getBaseUri(), $this->cloudCredentials->getAccountsUri());
-        // Refactored: Prompt for entity type.
-        $entityType = $this->promptForEntityType();
+        $entityType = EntityType::Application;
         $projectSelected = null;
         $mysqlVersion = null;
         $phpVersion = null;
         $nodeVersion = null;
         $nodeHostingType = null;
         $project = null;
+
+        $customerCodebases = $this->getCloudCodebases();
+        if ($customerCodebases->count() > 0) {
+            $entityType = $this->promptForEntityType();
+        }
 
         if ($entityType === EntityType::Application) {
             $projectSelected = $this->promptForProjectType();
@@ -298,63 +303,6 @@ final class CodeStudioWizardCommand extends WizardCommandBase
                 $this->io->warning("Failed to upload project avatar");
             }
         }
-    }
-
-    private function getCloudCodebase(string $codebaseUuid): CodebaseResponse
-    {
-        $codebasesResource = new Codebases($this->cloudApiClientService->getClient());
-        return $codebasesResource->get($codebaseUuid);
-    }
-
-    private function determineCloudCodebase(): ?string
-    {
-        $codebaseUuid = $this->doDetermineCloudCodebase();
-        if (!isset($codebaseUuid)) {
-            throw new AcquiaCliException("Could not determine Cloud Codebase");
-        }
-
-        return $codebaseUuid;
-    }
-
-    /**
-     * @throws \Acquia\Cli\Exception\AcquiaCliException
-     */
-    private function doDetermineCloudCodebase(): ?string
-    {
-        $acquiaCloudClient = $this->cloudApiClientService->getClient();
-
-        if ($this->input->isInteractive()) {
-            /** @var CodebaseResponse $codebase */
-            $codebase = $this->promptChooseCodebase($acquiaCloudClient);
-            if ($codebase) {
-                return $codebase->id;
-            }
-        }
-
-        return null;
-    }
-
-    /**
-     * Prompts the user to choose from a list of available Cloud Platform
-     * codebases.
-     *
-     * @throws \Acquia\Cli\Exception\AcquiaCliException
-     */
-    private function promptChooseCodebase(
-        Client $acquiaCloudClient
-    ): object|array|null {
-        $codebasesResource = new Codebases($acquiaCloudClient);
-        $customerCodebases = $codebasesResource->getAll();
-
-        if (!$customerCodebases->count()) {
-            throw new AcquiaCliException("You have no Cloud codebases.");
-        }
-        return $this->promptChooseFromObjectsOrArrays(
-            $customerCodebases,
-            'id',
-            'label',
-            'Select a Cloud Platform codebase:'
-        );
     }
 
     /**

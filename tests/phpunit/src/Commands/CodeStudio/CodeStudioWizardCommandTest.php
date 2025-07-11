@@ -62,8 +62,6 @@ class CodeStudioWizardCommandTest extends WizardTestBase
             [
                 [self::getMockedGitLabProject(self::$gitLabProjectId), self::getMockedGitLabProject(self::$gitLabProjectId)],
                 [
-                    // Entity type: Application.
-                    0,
                     // Project type: Drupal_project.
                     0,
                     // MySQL version: 5.7.
@@ -86,8 +84,6 @@ class CodeStudioWizardCommandTest extends WizardTestBase
             [
                 [],
                 [
-                    // Entity type: Application.
-                    0,
                     // Project type: Drupal_project.
                     0,
                     // MySQL version: 5.7.
@@ -112,8 +108,6 @@ class CodeStudioWizardCommandTest extends WizardTestBase
             [
                 [],
                 [
-                    // Entity type: Application.
-                    0,
                     // Project type: Drupal_project.
                     0,
                     // MySQL version: 8.0.
@@ -138,8 +132,6 @@ class CodeStudioWizardCommandTest extends WizardTestBase
             [
                 [self::getMockedGitLabProject(self::$gitLabProjectId)],
                 [
-                    // Entity type: Application.
-                    0,
                     // Project type: Drupal_project.
                     0,
                     // MySQL version: 8.0.
@@ -160,8 +152,6 @@ class CodeStudioWizardCommandTest extends WizardTestBase
             [
                 [self::getMockedGitLabProject(self::$gitLabProjectId)],
                 [
-                    // Entity type: Application.
-                    0,
                     // Project type: Node_project.
                     1,
                     // Hosting type: Basic.
@@ -182,8 +172,6 @@ class CodeStudioWizardCommandTest extends WizardTestBase
             [
                 [self::getMockedGitLabProject(self::$gitLabProjectId)],
                 [
-                    // Entity type: Application.
-                    0,
                     // Project type: Node_project.
                     1,
                     // Hosting type: Advanced.
@@ -213,6 +201,10 @@ class CodeStudioWizardCommandTest extends WizardTestBase
         $this->mockRequest('getAccount');
         $this->mockApplicationRequest();
         $this->mockGitLabPermissionsRequest($this::$applicationUuid);
+
+        $this->clientProphecy->request('get', '/codebases')
+            ->willReturn([])
+            ->shouldBeCalled();
 
         $gitlabClient = $this->prophet->prophesize(Client::class);
         $this->mockGitLabUsersMe($gitlabClient);
@@ -247,7 +239,7 @@ class CodeStudioWizardCommandTest extends WizardTestBase
         )->willReturn(true)
             ->shouldBeCalled();
         $this->mockGitLabVariables(self::$gitLabProjectId, $projects);
-        if ($inputs[0] === 0 && $inputs[1] === 1) {
+        if ($inputs[0] === 1) {
             // Node project - set up Node template.
             $parameters = [
                 'ci_config_path' => 'gitlab-ci/Auto-DevOps.acquia.gitlab-ci.yml@acquia/node-template',
@@ -798,181 +790,105 @@ class CodeStudioWizardCommandTest extends WizardTestBase
     }
 
     /**
-     * Test determineCloudCodebase with no interactive input return null.
+     * Test that the acceptCodebaseId method is called during configuration.
      */
-    public function testDetermineCloudCodebaseReturnNullWithNoInteractiveInput(): void
+    public function testAcceptCodebaseIdIsCalledDuringConfiguration(): void
     {
-        // Mock the input interface to return false for isInteractive()
-        $inputMock = $this->prophet->prophesize(\Symfony\Component\Console\Input\InputInterface::class);
-        $inputMock->isInteractive()->willReturn(false);
+        $command = $this->createCommand();
 
-        // Set the mocked input on the command.
-        $reflection = new \ReflectionClass($this->command);
-        $inputProperty = $reflection->getProperty('input');
-        $inputProperty->setAccessible(true);
-        $inputProperty->setValue($this->command, $inputMock->reveal());
+        // Verify that the codebaseId argument is available after configuration.
+        $definition = $command->getDefinition();
+        $this->assertTrue($definition->hasArgument('codebaseId'));
 
-        // Test the doDetermineCloudCodebase method since determineCloudCodebase will throw an exception.
-        $method = $reflection->getMethod('doDetermineCloudCodebase');
-        $method->setAccessible(true);
-
-        // Call the method - it should return null when not interactive.
-        $result = $method->invoke($this->command);
-
-        // Assert that the result is null.
-        $this->assertNull($result);
+        $argument = $definition->getArgument('codebaseId');
+        $this->assertSame('codebaseId', $argument->getName());
+        $this->assertSame('The Cloud Platform codebase ID', $argument->getDescription());
     }
 
     /**
-     * Test promptChooseCodebase with no codebases throws exception.
+     * Test that protected methods remain protected for inheritance.
      */
-    public function testPromptChooseCodebaseThrowsExceptionForNoCodebases(): void
+    public function testProtectedMethodsAreAccessibleFromSubclass(): void
     {
-        // Mock empty codebases response as an empty array (no codebases available)
+        // Use reflection to verify protected methods are accessible.
+        $reflection = new \ReflectionClass($this->command);
+
+        // Test doDetermineCloudCodebase is protected.
+        $method = $reflection->getMethod('doDetermineCloudCodebase');
+        $this->assertTrue($method->isProtected(), 'doDetermineCloudCodebase should be protected');
+
+        // Test promptChooseCodebase is protected.
+        $method = $reflection->getMethod('promptChooseCodebase');
+        $this->assertTrue($method->isProtected(), 'promptChooseCodebase should be protected');
+    }
+
+    /**
+     * Test that displays proper messages when no existing projects are found.
+     */
+    public function testNoExistingProjectsFoundScenario(): void
+    {
+        $this->clientServiceProphecy->setConnector(Argument::type(Connector::class))
+            ->shouldBeCalled();
+        $this->mockRequest('getAccount');
+        $this->mockApplicationRequest();
+        $this->mockGitLabPermissionsRequest($this::$applicationUuid);
+
         $this->clientProphecy->request('get', '/codebases')
             ->willReturn([])
             ->shouldBeCalled();
 
-        // Use the already set up client prophecy.
-        $client = $this->clientProphecy->reveal();
-
-        $reflection = new \ReflectionClass($this->command);
-        $method = $reflection->getMethod('promptChooseCodebase');
-        $method->setAccessible(true);
-
-        $this->expectException(AcquiaCliException::class);
-        $this->expectExceptionMessage('You have no Cloud codebases.');
-
-        $method->invoke($this->command, $client);
-    }
-
-    /**
-     * Test getCloudCodebase method.
-     */
-    public function testGetCloudCodebase(): void
-    {
-        $codebaseUuid = 'test-codebase-uuid';
-        $expectedCodebase = (object) [
-            'applications_total' => 0,
-            'created_at' => '2024-12-20T06:39:50.000Z',
-            'description' => '',
-            'flags' => (object) [
-                'active' => 1,
-            ],
-            'hash' => 'ryh4smn',
-            'id' => $codebaseUuid,
-            'label' => 'Test Codebase',
-            'region' => 'us-east-1',
-            'repository_id' => 'a5ef0a9d-44ce-4f06-8d4f-15f24f941a74',
-            'updated_at' => '2024-12-20T06:39:50.000Z',
-            'vcs_url' => 'ssh://us-east-1.dev.vcs.acquia.io/test-codebase-uuid',
-            '_embedded' => (object) [
-                'subscription' => (object) [
-                    'id' => 'f47ac10b-58cc-4372-a567-0e02b2c3d479',
-                    '_links' => (object) [
-                        'self' => (object) [
-                            'href' => 'https://cloud.acquia.com/api/subscriptions/f47ac10b-58cc-4372-a567-0e02b2c3d479',
-                        ],
-                    ],
-                ],
-            ],
-            '_links' => (object) [
-                'applications' => (object) [
-                    'href' => 'https://cloud.acquia.com/api/codebases/' . $codebaseUuid . '/applications',
-                ],
-                'self' => (object) [
-                    'href' => 'https://cloud.acquia.com/api/codebases',
-                ],
-                'subscription' => (object) [
-                    'href' => 'https://cloud.acquia.com/api/subscriptions/f47ac10b-58cc-4372-a567-0e02b2c3d479',
-                ],
-            ],
-        ];
-
-        $this->clientProphecy->request('get', '/codebases/' . $codebaseUuid)
-            ->willReturn($expectedCodebase)
-            ->shouldBeCalled();
-
-        $reflection = new \ReflectionClass($this->command);
-        $method = $reflection->getMethod('getCloudCodebase');
-        $method->setAccessible(true);
-
-        $result = $method->invoke($this->command, $codebaseUuid);
-        $this->assertEquals($expectedCodebase->id, $result->id);
-        $this->assertEquals($expectedCodebase->label, $result->label);
-    }
-
-    /**
-     * Test determineCloudCodebase throws exception when doDetermineCloudCodebase returns null.
-     */
-    public function testDetermineCloudCodebaseThrowsExceptionWhenNoCodebaseFound(): void
-    {
-        // Mock the input interface to return false for isInteractive()
-        $inputMock = $this->prophet->prophesize(\Symfony\Component\Console\Input\InputInterface::class);
-        $inputMock->isInteractive()->willReturn(false);
-
-        // Set the mocked input on the command.
-        $reflection = new \ReflectionClass($this->command);
-        $inputProperty = $reflection->getProperty('input');
-        $inputProperty->setAccessible(true);
-        $inputProperty->setValue($this->command, $inputMock->reveal());
-
-        // Test the determineCloudCodebase method which should throw an exception.
-        $method = $reflection->getMethod('determineCloudCodebase');
-        $method->setAccessible(true);
-
-        $this->expectException(AcquiaCliException::class);
-        $this->expectExceptionMessage('Could not determine Cloud Codebase');
-
-        // Call the method - it should throw an exception when doDetermineCloudCodebase returns null.
-        $method->invoke($this->command);
-    }
-
-    /**
-     * Test determineGitLabProject with gitlab-project-id option.
-     */
-    public function testDetermineGitLabProjectWithProjectIdOption(): void
-    {
-        $projectId = 123;
-        $expectedProject = [
-            'http_url_to_repo' => 'https://code.cloudservices.acquia.io/test-group/test-project.git',
-            'id' => $projectId,
-            'name' => 'Test Project',
-            'path_with_namespace' => 'test-group/test-project',
-            'web_url' => 'https://code.cloudservices.acquia.io/test-group/test-project',
-        ];
-
-        // Mock the input to return the project ID.
-        $inputMock = $this->prophet->prophesize(\Symfony\Component\Console\Input\InputInterface::class);
-        $inputMock->getOption('gitlab-project-id')->willReturn($projectId);
-
-        // Set the mocked input on the command.
-        $reflection = new \ReflectionClass($this->command);
-        $inputProperty = $reflection->getProperty('input');
-        $inputProperty->setAccessible(true);
-        $inputProperty->setValue($this->command, $inputMock->reveal());
-
-        // Mock GitLab client and projects API.
         $gitlabClient = $this->prophet->prophesize(Client::class);
-        $projectsApi = $this->prophet->prophesize(\Gitlab\Api\Projects::class);
-        $projectsApi->show($projectId)->willReturn($expectedProject);
-        $gitlabClient->projects()->willReturn($projectsApi->reveal());
+        $this->mockGitLabUsersMe($gitlabClient);
+        $this->mockGitLabGroups($gitlabClient);
+        $this->mockGitLabNamespaces($gitlabClient);
+
+        // Mock NO existing projects found (empty array)
+        $projects = $this->prophet->prophesize(\Gitlab\Api\Projects::class);
+        $projects->all(['search' => $this::$applicationUuid])->willReturn([]);
+        $projects->all()->willReturn([
+            self::getMockedGitLabProject(self::$gitLabProjectId),
+        ]);
+        $gitlabClient->projects()->willReturn($projects->reveal());
 
         $this->command->setGitLabClient($gitlabClient->reveal());
 
-        // Create a mock cloud entity.
-        $cloudEntity = (object) [
-            'id' => 'test-uuid',
-            'label' => 'Test Application',
-            'name' => 'Test Application',
+        $localMachineHelper = $this->mockLocalMachineHelper();
+        $localMachineHelper->checkRequiredBinariesExist(['git']);
+        $this->mockExecuteGlabExists($localMachineHelper);
+        $this->mockGetCurrentBranchName($localMachineHelper);
+        $this->mockGitlabGetHost($localMachineHelper, $this->gitLabHost);
+        $this->mockGitlabGetToken($localMachineHelper, $this->gitLabToken, $this->gitLabHost);
+
+        // Execute the command with user choosing NOT to create a project.
+        $inputs = [
+            // Project type: Drupal_project.
+            0,
+            // MySQL version: 8.0.
+            1,
+            // PHP version: 8.1.
+            0,
+            // Do you want to continue?
+            'y',
+            // Create a new GitLab project? NO.
+            'n',
+            // Choose a project to configure.
+            0,
+            // One time push?
+            'n',
         ];
 
-        // Test the method.
-        $method = $reflection->getMethod('determineGitLabProject');
-        $method->setAccessible(true);
+        $this->executeCommand([
+            self::ARG_KEY => self::$key,
+            self::ARG_SECRET => self::$secret,
+        ], $inputs);
 
-        $result = $method->invoke($this->command, EntityType::Application, $cloudEntity);
+        $output = $this->getDisplay();
 
-        $this->assertEquals($expectedProject, $result);
+        // Verify that both messages are displayed.
+        $this->assertStringContainsString('Could not find any existing Code Studio project for Acquia Cloud Platform Application', $output);
+        $this->assertStringContainsString('Searched for UUID', $output);
+        $this->assertStringContainsString('a47ac10b-58cc-4372-a567-0e02b2c3d470', $output);
+        $this->assertStringContainsString('Would you like to create a new Code Studio project?', $output);
+        $this->assertStringContainsString('Choose a Code Studio project to configure', $output);
     }
 }
