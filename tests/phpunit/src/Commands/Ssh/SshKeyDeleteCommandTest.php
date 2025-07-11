@@ -10,7 +10,6 @@ use Acquia\Cli\Tests\CommandTestBase;
 use AcquiaCloudApi\Endpoints\SshKeys;
 use AcquiaCloudApi\Response\OperationResponse;
 use AcquiaCloudApi\Response\SshKeyResponse;
-use PHPUnit\Framework\MockObject\Exception;
 
 /**
  * @property SshKeyDeleteCommand $command

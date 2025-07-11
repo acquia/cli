@@ -10,7 +10,6 @@ use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use Symfony\Component\Console\Event\ConsoleErrorEvent;
 use Symfony\Component\Console\Exception\CommandNotFoundException;
 use Symfony\Component\Console\Exception\RuntimeException;
-use TypeError;
 
 /**
  * Make exceptions warm and cuddly.

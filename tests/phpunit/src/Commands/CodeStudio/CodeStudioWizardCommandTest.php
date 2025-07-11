@@ -9,7 +9,6 @@ use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Tests\Commands\Ide\IdeRequiredTestTrait;
 use Acquia\Cli\Tests\Commands\WizardTestBase;
-use Acquia\Cli\Tests\TestBase;
 use AcquiaCloudApi\Connector\Connector;
 use DateTime;
 use Gitlab\Api\Groups;

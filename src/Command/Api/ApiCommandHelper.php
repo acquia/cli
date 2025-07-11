@@ -129,10 +129,12 @@ class ApiCommandHelper
             $propKey = self::renameParameter($propKey);
 
             if ($isRequired) {
-                if (!array_key_exists('description', $paramDefinition)) {
-                    $description = $paramDefinition["additionalProperties"]["description"];
-                } else {
+                if (array_key_exists('description', $paramDefinition)) {
                     $description = $paramDefinition['description'];
+                } elseif (array_key_exists('additionalProperties', $paramDefinition) && array_key_exists('description', $paramDefinition['additionalProperties'])) {
+                    $description = $paramDefinition['additionalProperties']['description'];
+                } else {
+                    $description = "No description provided for this parameter";
                 }
                 $inputDefinition[] = new InputArgument(
                     $propKey,
@@ -249,18 +251,39 @@ class ApiCommandHelper
         return [$inputDefinition, $usage];
     }
 
-    private function getParameterDefinitionFromSpec(string $paramKey, array $acquiaCloudSpec, mixed $schema): mixed
+    /**
+     * Find the parameter definition in the spec or schema.
+     *
+     * This isn't trivial because parameters can be defined either in the "component" spec
+     * (for use across multiple endpoints) or in the spec for a specific endpoint (for use
+     * only in that endpoint).
+     *
+     * Furthermore, the $paramKey we store doesn't always neatly map to keys in the spec,
+     * requiring a more exhaustive search for matching definitions.
+     */
+    private function getParameterDefinitionFromSpec(string $paramKey, array $acquiaCloudSpec, array $schema): mixed
     {
-        $uppercaseKey = ucfirst($paramKey);
+        // Ideally the parameter definition is identifiable by key in the component spec.
         if (
             array_key_exists('parameters', $acquiaCloudSpec['components'])
-            && array_key_exists($uppercaseKey, $acquiaCloudSpec['components']['parameters'])
+            && array_key_exists($paramKey, $acquiaCloudSpec['components']['parameters'])
         ) {
-            return $acquiaCloudSpec['components']['parameters'][$uppercaseKey];
+            return $acquiaCloudSpec['components']['parameters'][$paramKey];
         }
+        // Sometimes the definition is provided as a singleton in the endpoint spec.
         foreach ($schema['parameters'] as $parameter) {
-            if ($parameter['name'] === $paramKey) {
+            if (array_key_exists('name', $parameter) && $parameter['name'] === $paramKey) {
                 return $parameter;
+            }
+        }
+        // If all else fails, search the entire component spec for a matching definition.
+        if (
+            array_key_exists('parameters', $acquiaCloudSpec['components'])
+        ) {
+            foreach ($acquiaCloudSpec['components']['parameters'] as $parameter) {
+                if (array_key_exists('name', $parameter) && $parameter['name'] === $paramKey) {
+                    return $parameter;
+                }
             }
         }
         return null;
