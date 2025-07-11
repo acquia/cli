@@ -253,6 +253,13 @@ class ApiCommandHelper
 
     /**
      * Find the parameter definition in the spec or schema.
+     *
+     * This isn't trivial because parameters can be defined either in the "component" spec
+     * (for use across multiple endpoints) or in the spec for a specific endpoint (for use
+     * only in that endpoint).
+     *
+     * Furthermore, the $paramKey we store doesn't always neatly map to keys in the spec,
+     * requiring a more exhaustive search for matching definitions.
      */
     private function getParameterDefinitionFromSpec(string $paramKey, array $acquiaCloudSpec, array $schema): mixed
     {
