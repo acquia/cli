@@ -346,6 +346,16 @@
         },
         "example": "da1c0a8e-ff69-45db-88fc-acd6d2affbb7"
       },
+      "CodebaseId": {
+        "name": "codebaseId",
+        "in": "path",
+        "description": "The entity's universally unique identifier.",
+        "required": true,
+        "schema": {
+          "type": "string"
+        },
+        "example": "da1c0a8e-ff69-45db-88fc-acd6d2affbb7"
+      },
       "IdentityProviderUuid": {
         "name": "identityProviderUuid",
         "in": "path",
@@ -42365,6 +42375,1342 @@
         }
       }
     },
+     "/codebases/{codebaseId}/sites": {
+            "get": {
+                "operationId": "api_codebases_codebaseIdsites_get_collection",
+                "tags": [
+                    "Sites"
+                ],
+                "x-cli-name": "codebases:sites",
+                "responses": {
+                    "200": {
+                        "description": "A list of sites associated with a codebase.",
+                        "content": {
+                            "application/hal+json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "count": {
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "total": {
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "pagination": {
+                                            "type": "object",
+                                            "properties": {
+                                                "total": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "limit": {
+                                                    "type": "integer",
+                                                    "example": 25
+                                                },
+                                                "offset": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                }
+                                            }
+                                        },
+                                        "_embedded": {
+                                            "type": "object",
+                                            "properties": {
+                                                "items": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "_links": {
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "self": {
+                                                                        "type": "object",
+                                                                        "properties": {
+                                                                            "href": {
+                                                                                "type": "string",
+                                                                                "example": "https://cloud.acquia.com/api/codebases/1234-5678/sites"
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                }
+                                                            },
+                                                            "id": {
+                                                                "type": "string",
+                                                                "example": "8979a8ac-80dc-4df8-b2f0-6be36554a370"
+                                                            },
+                                                            "name": {
+                                                                "type": "string",
+                                                                "example": "site2"
+                                                            },
+                                                            "label": {
+                                                                "type": "string",
+                                                                "example": "My Site 2"
+                                                            },
+                                                            "description": {
+                                                                "type": "string",
+                                                                "example": "My Site 2 description"
+                                                            },
+                                                            "codebase_id": {
+                                                                "type": "string",
+                                                                "example": "1234-5678"
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "_links": {
+                                            "type": "object",
+                                            "properties": {
+                                                "self": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "href": {
+                                                            "type": "string",
+                                                            "example": "https://cloud.acquia.com/api/codebases/1234-5678/sites?limit=25&offset=1"
+                                                        }
+                                                    }
+                                                },
+                                                "limit": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "href": {
+                                                            "type": "string",
+                                                            "example": "https://cloud.acquia.com/api/codebases/1234-5678/sites?offset=1{&limit}",
+                                                            "templated": true
+                                                        }
+                                                    }
+                                                },
+                                                "offset": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "href": {
+                                                            "type": "string",
+                                                            "example": "https://cloud.acquia.com/api/codebases/1234-5678/sites?limit=25{&offset}",
+                                                            "templated": true
+                                                        }
+                                                    }
+                                                },
+                                                "filter": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "href": {
+                                                            "type": "string",
+                                                            "example": "https://cloud.acquia.com/api/codebases/1234-5678/sites?limit=25&offset=1{&filter}",
+                                                            "templated": true
+                                                        }
+                                                    }
+                                                },
+                                                "sort": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "href": {
+                                                            "type": "string",
+                                                            "example": "https://cloud.acquia.com/api/codebases/1234-5678/sites?limit=25&offset=1{&sort}",
+                                                            "templated": true
+                                                        }
+                                                    }
+                                                },
+                                                "prev": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "href": {
+                                                            "type": "string",
+                                                            "example": "https://cloud.acquia.com/api/codebases/1234-5678/sites?limit=25&offset=1"
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Codebase sites not found.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "not_found"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The codebase you are trying to access does not exist, or you do not have permission to access it."
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    }
+                },
+                "summary": "Retrieves a list of sites associated with a codebase.",
+                "description": "Retrieves a list of site associated with a codebase.",
+                "parameters": [
+                   {
+                       "$ref": "#/components/parameters/CodebaseId"
+                   },
+                   {
+                       "$ref": "#/components/parameters/Offset"
+                   },
+                   {
+                       "$ref": "#/components/parameters/Limit"
+                   }
+                ],
+                "deprecated": false
+            }
+        },
+        "/environments/{environmentId}/sites": {
+            "get": {
+                "operationId": "api_environments_environmentIdsites_get_collection",
+                "tags": [
+                    "Sites"
+                ],
+                "x-cli-name": "environments:sites",
+                "responses": {
+                    "200": {
+                        "description": "A list of sites associated with an environment.",
+                        "content": {
+                            "application/hal+json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "count": {
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "total": {
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "pagination": {
+                                            "type": "object",
+                                            "properties": {
+                                                "total": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "limit": {
+                                                    "type": "integer",
+                                                    "example": 25
+                                                },
+                                                "offset": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                }
+                                            }
+                                        },
+                                        "_embedded": {
+                                            "type": "object",
+                                            "properties": {
+                                                "items": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "_links": {
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "self": {
+                                                                        "type": "object",
+                                                                        "properties": {
+                                                                            "href": {
+                                                                                "type": "string",
+                                                                                "example": "https://cloud.acquia.com/api/environments/24-a47ac10b-58cc-4372-a567-0e02b2c3d470/sites"
+                                                                            }
+                                                                        }
+                                                                    },
+                                                                    "site_instance": {
+                                                                        "type": "object",
+                                                                        "properties": {
+                                                                            "href": {
+                                                                                "type": "string",
+                                                                                "example": "https://cloud.acquia.com/api/site-instances/0ebce493-9d09-479d-a9a8-138a206fa687.24-a47ac10b-58cc-4372-a567-0e02b2c3d470"
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                }
+                                                            },
+                                                            "id": {
+                                                                "type": "string",
+                                                                "example": "0ebce493-9d09-479d-a9a8-138a206fa687"
+                                                            },
+                                                            "name": {
+                                                                "type": "string",
+                                                                "example": "site1"
+                                                            },
+                                                            "label": {
+                                                                "type": "string",
+                                                                "example": "My Site 1"
+                                                            },
+                                                            "description": {
+                                                                "type": "string",
+                                                                "example": "My Site 1 description"
+                                                            },
+                                                            "codebase_id": {
+                                                                "type": "string",
+                                                                "example": "8765-4321"
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "_links": {
+                                            "type": "object",
+                                            "properties": {
+                                                "self": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "href": {
+                                                            "type": "string",
+                                                            "example": "https://cloud.acquia.com/api/environments/24-a47ac10b-58cc-4372-a567-0e02b2c3d470/sites?limit=25&offset=1"
+                                                        }
+                                                    }
+                                                },
+                                                "limit": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "href": {
+                                                            "type": "string",
+                                                            "example": "https://cloud.acquia.com/api/environments/24-a47ac10b-58cc-4372-a567-0e02b2c3d470/sites?offset=1{&limit}",
+                                                            "templated": true
+                                                        }
+                                                    }
+                                                },
+                                                "offset": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "href": {
+                                                            "type": "string",
+                                                            "example": "https://cloud.acquia.com/api/environments/24-a47ac10b-58cc-4372-a567-0e02b2c3d470/sites?limit=25{&offset}",
+                                                            "templated": true
+                                                        }
+                                                    }
+                                                },
+                                                "filter": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "href": {
+                                                            "type": "string",
+                                                            "example": "https://cloud.acquia.com/api/environments/24-a47ac10b-58cc-4372-a567-0e02b2c3d470/sites?limit=25&offset=1{&filter}",
+                                                            "templated": true
+                                                        }
+                                                    }
+                                                },
+                                                "sort": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "href": {
+                                                            "type": "string",
+                                                            "example": "https://cloud.acquia.com/api/environments/24-a47ac10b-58cc-4372-a567-0e02b2c3d470/sites?limit=25&offset=1{&sort}",
+                                                            "templated": true
+                                                        }
+                                                    }
+                                                },
+                                                "prev": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "href": {
+                                                            "type": "string",
+                                                            "example": "https://cloud.acquia.com/api/environments/24-a47ac10b-58cc-4372-a567-0e02b2c3d470/sites?limit=25&offset=1"
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Environment sites not found.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "not_found"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The environment you are trying to access does not exist, or you do not have permission to access it."
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    }
+                },
+                "summary": "Retrieves a list of sites associated with an environment.",
+                "description": "Retrieves a list of site associated with an environment.",
+                "parameters": [
+                   {
+                       "$ref": "#/components/parameters/EnvironmentId"
+                   },
+                   {
+                       "$ref": "#/components/parameters/Offset"
+                   },
+                   {
+                       "$ref": "#/components/parameters/Limit"
+                   }
+                ],
+                "deprecated": false
+            }
+        },
+        "/organizations/{OrganizationUuid}/sites": {
+            "get": {
+                "operationId": "api_organizations_organizationIdsites_get_collection",
+                "tags": [
+                    "Sites"
+                ],
+                "x-cli-name": "organizations:sites",
+                "responses": {
+                    "200": {
+                        "description": "A list of sites associated with an organization.",
+                        "content": {
+                            "application/hal+json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "count": {
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "total": {
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "pagination": {
+                                            "type": "object",
+                                            "properties": {
+                                                "total": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "limit": {
+                                                    "type": "integer",
+                                                    "example": 25
+                                                },
+                                                "offset": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                }
+                                            }
+                                        },
+                                        "_embedded": {
+                                            "type": "object",
+                                            "properties": {
+                                                "items": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "_links": {
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "self": {
+                                                                        "type": "object",
+                                                                        "properties": {
+                                                                            "href": {
+                                                                                "type": "string",
+                                                                                "example": "https://cloud.acquia.com/api/organizations/1234/sites"
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                }
+                                                            },
+                                                            "id": {
+                                                                "type": "string",
+                                                                "example": "8979a8ac-80dc-4df8-b2f0-6be36554a370"
+                                                            },
+                                                            "name": {
+                                                                "type": "string",
+                                                                "example": "site2"
+                                                            },
+                                                            "label": {
+                                                                "type": "string",
+                                                                "example": "My Site 2"
+                                                            },
+                                                            "description": {
+                                                                "type": "string",
+                                                                "example": "My Site 2 description"
+                                                            },
+                                                            "codebase_id": {
+                                                                "type": "string",
+                                                                "example": "1234-5678"
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "_links": {
+                                            "type": "object",
+                                            "properties": {
+                                                "self": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "href": {
+                                                            "type": "string",
+                                                            "example": "https://cloud.acquia.com/api/organizations/1234/sites?limit=25&offset=1"
+                                                        }
+                                                    }
+                                                },
+                                                "limit": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "href": {
+                                                            "type": "string",
+                                                            "example": "https://cloud.acquia.com/api/organizations/1234/sites?offset=1{&limit}",
+                                                            "templated": true
+                                                        }
+                                                    }
+                                                },
+                                                "offset": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "href": {
+                                                            "type": "string",
+                                                            "example": "https://cloud.acquia.com/api/organizations/1234/sites?limit=25{&offset}",
+                                                            "templated": true
+                                                        }
+                                                    }
+                                                },
+                                                "filter": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "href": {
+                                                            "type": "string",
+                                                            "example": "https://cloud.acquia.com/api/organizations/1234/sites?limit=25&offset=1{&filter}",
+                                                            "templated": true
+                                                        }
+                                                    }
+                                                },
+                                                "sort": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "href": {
+                                                            "type": "string",
+                                                            "example": "https://cloud.acquia.com/api/organizations/1234/sites?limit=25&offset=1{&sort}",
+                                                            "templated": true
+                                                        }
+                                                    }
+                                                },
+                                                "prev": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "href": {
+                                                            "type": "string",
+                                                            "example": "https://cloud.acquia.com/api/organizations/1234/sites?limit=25&offset=1"
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Organization sites not found.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "not_found"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The organisation you are trying to access does not exist, or you do not have permission to access it."
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "summary": "Retrieves a list of sites associated with an organization.",
+                "description": "Retrieves a list of sites associated with an organization.",
+                "parameters": [
+                   {
+                       "$ref": "#/components/parameters/OrganizationUuid"
+                   },
+                   {
+                       "$ref": "#/components/parameters/Offset"
+                   },
+                   {
+                       "$ref": "#/components/parameters/Limit"
+                   }
+                ],
+                "deprecated": false
+            }
+        },
+        "/sites": {
+            "get": {
+                "operationId": "get_sites",
+                "tags": [
+                    "Sites"
+                ],
+                "x-cli-name": "sites:list",
+                "responses": {
+                    "200": {
+                        "description": "A list of sites accessible by the user.",
+                        "content": {
+                            "application/hal+json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "count": {
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "total": {
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "pagination": {
+                                            "type": "object",
+                                            "properties": {
+                                                "total": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "limit": {
+                                                    "type": "integer",
+                                                    "example": 25
+                                                },
+                                                "offset": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                }
+                                            }
+                                        },
+                                        "_embedded": {
+                                            "type": "object",
+                                            "properties": {
+                                                "items": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "_links": {
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "self": {
+                                                                        "type": "object",
+                                                                        "properties": {
+                                                                            "href": {
+                                                                                "type": "string",
+                                                                                "example": "https://cloud.acquia.com/api/sites"
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                }
+                                                            },
+                                                            "id": {
+                                                                "type": "string",
+                                                                "example": "0ebce493-9d09-479d-a9a8-138a206fa687"
+                                                            },
+                                                            "name": {
+                                                                "type": "string",
+                                                                "example": "site1"
+                                                            },
+                                                            "label": {
+                                                                "type": "string",
+                                                                "example": "My Site 1"
+                                                            },
+                                                            "description": {
+                                                                "type": "string",
+                                                                "example": "My Site 1 description"
+                                                            },
+                                                            "codebase_id": {
+                                                                "type": "string",
+                                                                "example": "8765-4321"
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "_links": {
+                                            "type": "object",
+                                            "properties": {
+                                                "self": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "href": {
+                                                            "type": "string",
+                                                            "example": "https://cloud.acquia.com/api/sites?limit=25&offset=1"
+                                                        }
+                                                    }
+                                                },
+                                                "limit": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "href": {
+                                                            "type": "string",
+                                                            "example": "https://cloud.acquia.com/api/sites?offset=1{&limit}",
+                                                            "templated": true
+                                                        }
+                                                    }
+                                                },
+                                                "offset": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "href": {
+                                                            "type": "string",
+                                                            "example": "https://cloud.acquia.com/api/sites?limit=25{&offset}",
+                                                            "templated": true
+                                                        }
+                                                    }
+                                                },
+                                                "filter": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "href": {
+                                                            "type": "string",
+                                                            "example": "https://cloud.acquia.com/api/sites?limit=25&offset=1{&filter}",
+                                                            "templated": true
+                                                        }
+                                                    }
+                                                },
+                                                "sort": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "href": {
+                                                            "type": "string",
+                                                            "example": "https://cloud.acquia.com/api/sites?limit=25&offset=1{&sort}",
+                                                            "templated": true
+                                                        }
+                                                    }
+                                                },
+                                                "prev": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "href": {
+                                                            "type": "string",
+                                                            "example": "https://cloud.acquia.com/api/sites?limit=25&offset=1"
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Sites not found.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "not_found"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The sites you are trying to access does not exist, or you do not have permission to access it.."
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    }
+                },
+                "summary": "Retrieves a list of sites accessible by the user.",
+                "description": "Retrieves a list of sites accessible by the user.",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/Limit"
+                    },
+                    {
+                        "$ref": "#/components/parameters/Offset"
+                    }
+                ],
+                "deprecated": false
+            },
+            "post": {
+                "operationId": "api_sites_post",
+                "tags": [
+                    "Sites"
+                ],
+                "x-cli-name": "sites:create",
+                "responses": {
+                    "201": {
+                        "description": "Site created successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Site with label:My Site 1 creation started."
+                                        },
+                                        "_links": {
+                                            "type": "object",
+                                            "properties": {
+                                                "self": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "href": {
+                                                            "type": "string",
+                                                            "example": "https://cloud.acquia.com/api/sites/0ebce493-9d09-479d-a9a8-138a206fa687"
+                                                        }
+                                                    }
+                                                },
+                                                "parent": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "href": {
+                                                            "type": "string",
+                                                            "example": "https://cloud.acquia.com/api/sites"
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Site not found.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "not_found"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The site you are trying to access does not exist, or you do not have permission to access it."
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input"
+                    },
+                    "422": {
+                        "description": "Unprocessable entity"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    }
+                },
+                "summary": "Creates a site for a codebase.",
+                "description": "Creates a site for a codebase.",
+                "parameters": [],
+                "requestBody": {
+                    "description": "The new Site resource",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "site_id": {
+                                        "type": "string",
+                                        "example": "0ebce493-9d09-479d-a9a8-138a206fa687"
+                                    },
+                                    "name": {
+                                        "type": "string",
+                                        "example": "site1"
+                                    },
+                                    "label": {
+                                        "type": "string",
+                                        "example": "My Site 1"
+                                    },
+                                    "codebase_id": {
+                                        "type": "string",
+                                        "example": "0ebce493-9d09-479d-a9a8-138a206fa999"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "required": false
+                },
+                "deprecated": false
+            }
+        },
+        "/sites/{siteId}": {
+            "get": {
+                "operationId": "get_site_by_id",
+                "tags": [
+                    "Sites"
+                ],
+                "x-cli-name": "sites:find",
+                "responses": {
+                    "200": {
+                        "description": "Details about a particular site.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "_links": {
+                                            "type": "object",
+                                            "properties": {
+                                                "self": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "href": {
+                                                            "type": "string",
+                                                            "example": "https://cloud.acquia.com/api/sites/0ebce493-9d09-479d-a9a8-138a206fa687"
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "id": {
+                                            "type": "string",
+                                            "example": "0ebce493-9d09-479d-a9a8-138a206fa687"
+                                        },
+                                        "name": {
+                                            "type": "string",
+                                            "example": "site1"
+                                        },
+                                        "label": {
+                                            "type": "string",
+                                            "example": "My Site 1"
+                                        },
+                                        "description": {
+                                            "type": "string",
+                                            "example": "My Site 1 description"
+                                        },
+                                        "codebase_id": {
+                                            "type": "string",
+                                            "example": "8765-4321"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Site not found.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "not_found"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The site you are trying to access does not exist, or you do not have permission to access it."
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    }
+                },
+                "summary": "Retrieves a site details by its ID.",
+                "description": "Retrieves a site details by its ID.",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/SiteId"
+                    }
+                ],
+                "deprecated": false
+            },
+            "put": {
+                "operationId": "api_sites_siteId_put",
+                "tags": [
+                    "Sites"
+                ],
+                "x-cli-name": "sites:update",
+                "responses": {
+                    "200": {
+                        "description": "Site updated successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Site update started."
+                                        },
+                                        "_links": {
+                                            "type": "object",
+                                            "properties": {
+                                                "self": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "href": {
+                                                            "type": "string",
+                                                            "example": "https://cloud.acquia.com/api/sites/0ebce493-9d09-479d-a9a8-138a206fa687"
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Site not found.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "not_found"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The site you are trying to access does not exist, or you do not have permission to access it."
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input"
+                    },
+                    "422": {
+                        "description": "Unprocessable entity"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    }
+                },
+                "summary": "Update a site details by its id.",
+                "description": "Update a site details by its id.",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/SiteId"
+                    }
+                ],
+                "requestBody": {
+                    "description": "The updated Site resource",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "label": {
+                                        "type": "string",
+                                        "example": "My Site 1"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "required": false
+                },
+                "deprecated": false
+            },
+            "delete": {
+                "operationId": "api_sites_siteId_delete",
+                "tags": [
+                    "Sites"
+                ],
+                "x-cli-name": "sites:delete",
+                "responses": {
+                    "200": {
+                        "description": "Site delete started.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Site delete started."
+                                        },
+                                        "_links": {
+                                            "type": "object",
+                                            "properties": {
+                                                "self": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "href": {
+                                                            "type": "string",
+                                                            "example": "https://cloud.acquia.com/api/sites/0ebce493-9d09-479d-a9a8-138a206fa687"
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Site not found.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "not_found"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The site you are trying to access does not exist, or you do not have permission to access it."
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    }
+                },
+                "summary": "Deletes a site by its ID.",
+                "description": "Deletes a site by its ID.",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/SiteId"
+                    }
+                ],
+                "deprecated": false
+            }
+        },
+        "/teams/{teamId}/sites": {
+            "get": {
+                "operationId": "api_teams_teamIdsites_get_collection",
+                "tags": [
+                    "Sites"
+                ],
+                "x-cli-name": "teams:sites",
+                "responses": {
+                    "200": {
+                        "description": "A list of sites associated with a team.",
+                        "content": {
+                            "application/hal+json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "count": {
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "total": {
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "pagination": {
+                                            "type": "object",
+                                            "properties": {
+                                                "total": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "limit": {
+                                                    "type": "integer",
+                                                    "example": 25
+                                                },
+                                                "offset": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                }
+                                            }
+                                        },
+                                        "_embedded": {
+                                            "type": "object",
+                                            "properties": {
+                                                "items": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "_links": {
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "self": {
+                                                                        "type": "object",
+                                                                        "properties": {
+                                                                            "href": {
+                                                                                "type": "string",
+                                                                                "example": "https://cloud.acquia.com/api/teams/1234/sites"
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                }
+                                                            },
+                                                            "id": {
+                                                                "type": "string",
+                                                                "example": "8979a8ac-80dc-4df8-b2f0-6be36554a370"
+                                                            },
+                                                            "name": {
+                                                                "type": "string",
+                                                                "example": "site2"
+                                                            },
+                                                            "label": {
+                                                                "type": "string",
+                                                                "example": "My Site 2"
+                                                            },
+                                                            "description": {
+                                                                "type": "string",
+                                                                "example": "My Site 2 description"
+                                                            },
+                                                            "codebase_id": {
+                                                                "type": "string",
+                                                                "example": "1234-5678"
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "_links": {
+                                            "type": "object",
+                                            "properties": {
+                                                "self": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "href": {
+                                                            "type": "string",
+                                                            "example": "https://cloud.acquia.com/api/teams/1234/sites?limit=25&offset=1"
+                                                        }
+                                                    }
+                                                },
+                                                "limit": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "href": {
+                                                            "type": "string",
+                                                            "example": "https://cloud.acquia.com/api/teams/1234/sites?offset=1{&limit}",
+                                                            "templated": true
+                                                        }
+                                                    }
+                                                },
+                                                "offset": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "href": {
+                                                            "type": "string",
+                                                            "example": "https://cloud.acquia.com/api/teams/1234/sites?limit=25{&offset}",
+                                                            "templated": true
+                                                        }
+                                                    }
+                                                },
+                                                "filter": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "href": {
+                                                            "type": "string",
+                                                            "example": "https://cloud.acquia.com/api/teams/1234/sites?limit=25&offset=1{&filter}",
+                                                            "templated": true
+                                                        }
+                                                    }
+                                                },
+                                                "sort": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "href": {
+                                                            "type": "string",
+                                                            "example": "https://cloud.acquia.com/api/teams/1234/sites?limit=25&offset=1{&sort}",
+                                                            "templated": true
+                                                        }
+                                                    }
+                                                },
+                                                "prev": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "href": {
+                                                            "type": "string",
+                                                            "example": "https://cloud.acquia.com/api/teams/1234/sites?limit=25&offset=1"
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Team sites not found.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "not_found"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The team you are trying to access does not exist, or you do not have permission to access it."
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "summary": "Retrieves a list of sites associated with a team.",
+                "description": "Retrieves a list of site associated with a team.",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/TeamUuid"
+                    },
+                    {
+                        "$ref": "#/components/parameters/Limit"
+                    },
+                    {
+                        "$ref": "#/components/parameters/Offset"
+                    }
+                ],
+                "deprecated": false
+            }
+        },
     "/subscriptions": {
       "get": {
         "tags": [
