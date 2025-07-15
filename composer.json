@@ -57,7 +57,7 @@
         "zumba/amplitude-php": "^1.0.4"
     },
     "require-dev": {
-        "acquia/coding-standards": "^3.0.1",
+        "acquia/coding-standards": "^3.0.2",
         "brianium/paratest": "^7",
         "dealerdirect/phpcodesniffer-composer-installer": "^1.0.0",
         "dominikb/composer-license-checker": "^2.4",
@@ -114,11 +114,10 @@
     "prefer-stable": true,
     "scripts": {
         "update-cloud-api-spec": [
-            "rm -rf cx-api-spec",
-            "git clone git@github.com:acquia/cx-api-spec.git",
-            "[ -s \"$NVM_DIR/nvm.sh\" ] && . \"$NVM_DIR/nvm.sh\" && cd cx-api-spec && nvm install && nvm use && npm install && make install && make spec",
-            "cp cx-api-spec/dist/spec/acquia-spec.yaml assets/",
-            "rm -rf cx-api-spec"
+            "[ -d var/cx-api-spec/.git ] && (cd var/cx-api-spec && git pull) || git clone git@github.com:acquia/cx-api-spec.git var/cx-api-spec",
+            "cd var/cx-api-spec && npm install && make install && make spec",
+            "cp var/cx-api-spec/dist/spec/acquia-spec.json assets/",
+            "git -C var/cx-api-spec rev-parse HEAD > assets/acquia-spec.version"
         ],
         "update-acsf-api-spec": [
             "rm -rf gardener",

@@ -680,4 +680,25 @@ EOD;
             ],
         );
     }
+
+    /**
+     * Descriptions of API parameters can be defined in an additionalProperties
+     * key. Ideally we'd test for this by checking help output, but that can
+     * only be done as an application test, which isn't great for performance
+     * and doesn't kill associated mutants.
+     */
+    public function testDescriptionInAdditionalProperties(): void
+    {
+        $this->command = $this->getApiCommandByName('api:environments:cloud-actions-update');
+        try {
+            $this->executeCommand(
+                [
+                    'environmentId' => '24-a47ac10b-58cc-4372-a567-0e02b2c3d470',
+                ]
+            );
+        } catch (MissingInputException) {
+            $output = $this->getDisplay();
+            $this->assertStringContainsString('Whether this Cloud Action is enabled.', $output);
+        }
+    }
 }
