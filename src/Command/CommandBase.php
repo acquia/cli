@@ -26,6 +26,7 @@ use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Connector\Connector;
 use AcquiaCloudApi\Endpoints\Account;
 use AcquiaCloudApi\Endpoints\Applications;
+use AcquiaCloudApi\Endpoints\Codebases;
 use AcquiaCloudApi\Endpoints\Databases;
 use AcquiaCloudApi\Endpoints\Environments;
 use AcquiaCloudApi\Endpoints\Notifications;
@@ -33,6 +34,8 @@ use AcquiaCloudApi\Endpoints\Organizations;
 use AcquiaCloudApi\Endpoints\Subscriptions;
 use AcquiaCloudApi\Response\AccountResponse;
 use AcquiaCloudApi\Response\ApplicationResponse;
+use AcquiaCloudApi\Response\CodebaseResponse;
+use AcquiaCloudApi\Response\CodebasesResponse;
 use AcquiaCloudApi\Response\DatabaseResponse;
 use AcquiaCloudApi\Response\DatabasesResponse;
 use AcquiaCloudApi\Response\EnvironmentResponse;
@@ -303,6 +306,17 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
             ->addUsage('[<applicationAlias>]')
             ->addUsage('myapp')
             ->addUsage('prod:myapp')
+            ->addUsage('abcd1234-1111-2222-3333-0e02b2c3d470');
+
+        return $this;
+    }
+
+    /**
+     * Add argument and usage examples for codebaseId.
+     */
+    protected function acceptCodebaseId(): static
+    {
+        $this->addArgument('codebaseId', InputArgument::OPTIONAL, 'The Cloud Platform codebase ID')
             ->addUsage('abcd1234-1111-2222-3333-0e02b2c3d470');
 
         return $this;
@@ -984,6 +998,62 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
         return null;
     }
 
+     /**
+     * Determine the Cloud codebase.
+     *
+     * @throws \Acquia\Cli\Exception\AcquiaCliException
+     */
+    protected function determineCloudCodebase(): ?string
+    {
+        $codebaseUuid = $this->doDetermineCloudCodebase();
+        if (!isset($codebaseUuid)) {
+            throw new AcquiaCliException("Could not determine Cloud Codebase");
+        }
+
+        return $codebaseUuid;
+    }
+
+    /**
+     * @throws \Acquia\Cli\Exception\AcquiaCliException
+     */
+    protected function doDetermineCloudCodebase(): ?string
+    {
+        if ($this->input->hasArgument('codebaseId') && $this->input->getArgument('codebaseId')) {
+            $cloudCodebaseId = $this->input->getArgument('codebaseId');
+            return self::validateUuid($cloudCodebaseId);
+        }
+
+        if ($this->input->isInteractive()) {
+            /** @var CodebaseResponse $codebase */
+            $codebase = $this->promptChooseCodebase();
+            if ($codebase) {
+                return $codebase->id;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Prompts the user to choose from a list of available Cloud Platform
+     * codebases.
+     *
+     * @throws \Acquia\Cli\Exception\AcquiaCliException
+     */
+    protected function promptChooseCodebase(): object|array|null
+    {
+        $customerCodebases = $this->getCloudCodebases();
+        if (!$customerCodebases->count()) {
+            throw new AcquiaCliException("You have no Cloud codebases.");
+        }
+        return $this->promptChooseFromObjectsOrArrays(
+            $customerCodebases,
+            'id',
+            'label',
+            'Select a Cloud Platform codebase:'
+        );
+    }
+
     protected function getCloudApplicationUuidFromBltYaml(): ?string
     {
         $bltYamlFilePath = Path::join($this->projectDir, 'blt', 'blt.yml');
@@ -1089,6 +1159,18 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
     {
         $applicationsResource = new Applications($this->cloudApiClientService->getClient());
         return $applicationsResource->get($applicationUuid);
+    }
+
+    protected function getCloudCodebase(string $codebaseUuid): CodebaseResponse
+    {
+        $codebasesResource = new Codebases($this->cloudApiClientService->getClient());
+        return $codebasesResource->get($codebaseUuid);
+    }
+
+    protected function getCloudCodebases(): CodebasesResponse
+    {
+        $codebasesResource = new Codebases($this->cloudApiClientService->getClient());
+        return $codebasesResource->getAll();
     }
 
     protected function getCloudEnvironment(string $environmentId): EnvironmentResponse

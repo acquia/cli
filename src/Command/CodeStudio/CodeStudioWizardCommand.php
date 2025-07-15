@@ -6,7 +6,9 @@ namespace Acquia\Cli\Command\CodeStudio;
 
 use Acquia\Cli\Command\WizardCommandBase;
 use Acquia\Cli\Output\Checklist;
+use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Endpoints\Account;
+use AcquiaCloudApi\Response\AccountResponse;
 use DateTime;
 use Gitlab\Exception\ValidationFailedException;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -31,6 +33,7 @@ final class CodeStudioWizardCommand extends WizardCommandBase
             ->addOption('gitlab-project-id', null, InputOption::VALUE_REQUIRED, 'The project ID (an integer) of the GitLab project to configure.')
             ->addOption('gitlab-host-name', null, InputOption::VALUE_REQUIRED, 'The GitLab hostname.');
         $this->acceptApplicationUuid();
+        $this->acceptCodebaseId();
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -44,83 +47,49 @@ final class CodeStudioWizardCommand extends WizardCommandBase
         // But, we specifically need an API Token key-pair of Code Studio.
         // So we reauthenticate to be sure we're using the provided credentials.
         $this->reAuthenticate($cloudKey, $cloudSecret, $this->cloudCredentials->getBaseUri(), $this->cloudCredentials->getAccountsUri());
+        $entityType = EntityType::Application;
+        $projectSelected = null;
         $mysqlVersion = null;
         $phpVersion = null;
         $nodeVersion = null;
         $nodeHostingType = null;
-        $projectType = $this->getListOfProjectType();
-        $projectSelected = $this->io->choice('Select a project type', $projectType, "Drupal_project");
+        $project = null;
 
-        switch ($projectSelected) {
-            case "Drupal_project":
-                $mysqlVersions = [
-                    'MYSQL_version_5.7' => "5.7",
-                    'MYSQL_version_8.0' => "8.0",
-                ];
-                $project = $this->io->choice('Select a MySQL version', array_values($mysqlVersions), "8.0");
-                $project = array_search($project, $mysqlVersions, true);
-                $mysqlVersion = $mysqlVersions[$project];
-                $phpVersions = [
-                    'PHP_version_8.1' => "8.1",
-                    'PHP_version_8.2' => "8.2",
-                    'PHP_version_8.3' => "8.3",
-                    'PHP_version_8.4' => "8.4",
-                ];
-                $project = $this->io->choice('Select a PHP version', array_values($phpVersions), "8.3");
-                $project = array_search($project, $phpVersions, true);
-                $phpVersion = $phpVersions[$project];
-                break;
-            case "Node_project":
-                $nodeHostingTypes = [
-                    'advanced' => "Advanced Frontend Hosting",
-                    'basic' => "Basic Frontend Hosting",
-                ];
-                $project = $this->io->choice('Select a NODE hosting type', array_values($nodeHostingTypes), "Basic Frontend Hosting");
-                $nodeHostingType = array_search($project, $nodeHostingTypes, true);
-                $nodeVersions = [
-                    'NODE_version_20' => "20",
-                    'NODE_version_22' => "22",
-                ];
-                $project = $this->io->choice('Select a NODE version', array_values($nodeVersions), "20");
-                $project = array_search($project, $nodeVersions, true);
-                $nodeVersion = $nodeVersions[$project];
-                break;
+        $customerCodebases = $this->getCloudCodebases();
+        if ($customerCodebases->count() > 0) {
+            $entityType = $this->promptForEntityType();
         }
 
-        $appUuid = $this->determineCloudApplication();
+        if ($entityType === EntityType::Application) {
+            $projectSelected = $this->promptForProjectType();
+            if ($projectSelected === "Drupal_project") {
+                $mysqlVersion = $this->promptForMysqlVersions();
+                $phpVersion = $this->promptForPhpVersions();
+            } else {
+                $nodeHostingType = $this->promptForNodeHostingType();
+                $nodeVersion = $this->promptForNodeVersions();
+            }
+        } else {
+            $this->io->writeln("Selected Drupal project by default for Codebases");
+            $projectSelected = "Drupal_project";
+            $mysqlVersion = $this->promptForMysqlVersions();
+            $phpVersion = $this->promptForPhpVersions();
+        }
 
-        // Get Cloud account.
-        $acquiaCloudClient = $this->cloudApiClientService->getClient();
-        $accountAdapter = new Account($acquiaCloudClient);
-        $account = $accountAdapter->get();
-        $this->validateRequiredCloudPermissions(
-            $acquiaCloudClient,
-            $appUuid,
-            $account,
-            [
-                "deploy to non-prod",
-                // Add SSH key to git repository.
-                "add ssh key to git",
-                // Add SSH key to non-production environments.
-                "add ssh key to non-prod",
-                // Add a CD environment.
-                "add an environment",
-                // Delete a CD environment.
-                "delete an environment",
-                // Manage environment variables on a non-production environment.
-                "administer environment variables on non-prod",
-            ]
-        );
-        $this->setGitLabProjectDescription($appUuid);
+        $cloudUuid = null;
+        $entityName = null;
 
-        // Get Cloud application.
-        $cloudApplication = $this->getCloudApplication($appUuid);
-        $project = $this->determineGitLabProject($cloudApplication);
+        [$acquiaCloudClient, $account] = $this->getCloudAccount();
+
+        if ($entityType == EntityType::Codebase) {
+            [$cloudUuid, $entityName, $project] = $this->handleCodebaseEntity($entityType);
+        } else {
+            [$cloudUuid, $entityName, $project] = $this->handleApplicationEntity($acquiaCloudClient, $account, $entityType);
+        }
 
         $this->io->writeln([
-            "",
-            "This command will configure the Code Studio project <comment>{$project['path_with_namespace']}</comment> for automatic deployment to the",
-            "Acquia Cloud Platform application <comment>$cloudApplication->name</comment> (<comment>$appUuid</comment>)",
+            "\nThis command will configure the Code Studio project <comment>{$project['path_with_namespace']}</comment> for automatic deployment to the",
+            "Acquia Cloud Platform $entityType->value <comment>$entityName</comment> (<comment>$cloudUuid</comment>)",
             "using credentials (API Token and SSH Key) belonging to <comment>$account->mail</comment>.",
             "",
             "If the <comment>$account->mail</comment> Cloud account is deleted in the future, this Code Studio project will need to be re-configured.",
@@ -135,7 +104,7 @@ final class CodeStudioWizardCommand extends WizardCommandBase
         $this->updateGitLabProject($project);
         switch ($projectSelected) {
             case "Drupal_project":
-                $this->setGitLabCiCdVariablesForPhpProject($project, $appUuid, $cloudKey, $cloudSecret, $projectAccessTokenName, $projectAccessToken, $mysqlVersion, $phpVersion);
+                $this->setGitLabCiCdVariablesForPhpProject($project, $entityType, $cloudUuid, $cloudKey, $cloudSecret, $projectAccessTokenName, $projectAccessToken, $mysqlVersion, $phpVersion);
                 $this->createScheduledPipeline($project);
                 break;
             case "Node_project":
@@ -144,7 +113,7 @@ final class CodeStudioWizardCommand extends WizardCommandBase
                 ];
                 $client = $this->getGitLabClient();
                 $client->projects()->update($project['id'], $parameters);
-                $this->setGitLabCiCdVariablesForNodeProject($project, $appUuid, $cloudKey, $cloudSecret, $projectAccessTokenName, $projectAccessToken, $nodeVersion, $nodeHostingType);
+                $this->setGitLabCiCdVariablesForNodeProject($project, $cloudUuid, $cloudKey, $cloudSecret, $projectAccessTokenName, $projectAccessToken, $nodeVersion, $nodeHostingType);
                 break;
         }
 
@@ -194,15 +163,14 @@ final class CodeStudioWizardCommand extends WizardCommandBase
     }
 
     /**
-     * @return array<mixed>|null ?
+     * @return array<string>
      */
-    private function getListOfProjectType(): ?array
+    private function getListOfProjectType(): array
     {
-        $array = [
+        return [
             'Drupal_project',
             'Node_project',
         ];
-        return $array;
     }
 
     private function createProjectAccessToken(array $project, string $projectAccessTokenName): string
@@ -226,10 +194,10 @@ final class CodeStudioWizardCommand extends WizardCommandBase
         return $projectAccessToken['token'];
     }
 
-    private function setGitLabCiCdVariablesForPhpProject(array $project, string $cloudApplicationUuid, string $cloudKey, string $cloudSecret, string $projectAccessTokenName, string $projectAccessToken, string $mysqlVersion, string $phpVersion): void
+    private function setGitLabCiCdVariablesForPhpProject(array $project, EntityType $entityType, string $cloudUuid, string $cloudKey, string $cloudSecret, string $projectAccessTokenName, string $projectAccessToken, string $mysqlVersion, string $phpVersion): void
     {
         $this->io->writeln("Setting GitLab CI/CD variables for {$project['path_with_namespace']}..");
-        $gitlabCicdVariables = CodeStudioCiCdVariables::getDefaultsForPhp($cloudApplicationUuid, $cloudKey, $cloudSecret, $projectAccessTokenName, $projectAccessToken, $mysqlVersion, $phpVersion);
+        $gitlabCicdVariables = CodeStudioCiCdVariables::getDefaultsForPhp($entityType, $cloudUuid, $cloudKey, $cloudSecret, $projectAccessTokenName, $projectAccessToken, $mysqlVersion, $phpVersion);
         $gitlabCicdExistingVariables = $this->gitLabClient->projects()
             ->variables($project['id']);
         $gitlabCicdExistingVariablesKeyed = [];
@@ -331,5 +299,155 @@ final class CodeStudioWizardCommand extends WizardCommandBase
                 $this->io->warning("Failed to upload project avatar");
             }
         }
+    }
+
+    /**
+     * Prompt for entity type (Application or Codebase).
+     */
+    private function promptForEntityType(): EntityType
+    {
+        $entityTypes = EntityType::cases();
+        $entityTypeChoices = array_map(fn(EntityType $type) => $type->value, $entityTypes);
+        $selectedChoice = $this->io->choice('Select the type of project you want to create', $entityTypeChoices, EntityType::Application->value);
+        return EntityType::from($selectedChoice);
+    }
+
+    /**
+     * Prompt for project type (Drupal or Node).
+     */
+    private function promptForProjectType(): string
+    {
+        $projectType = $this->getListOfProjectType();
+        return $this->io->choice('Select a project type', $projectType, "Drupal_project");
+    }
+
+    /**
+     * Prompt for PHP versions.
+     *
+     * @return string $phpVersion
+     */
+    private function promptForPhpVersions(): string
+    {
+        $phpVersions = [
+            'PHP_version_8.1' => "8.1",
+            'PHP_version_8.2' => "8.2",
+            'PHP_version_8.3' => "8.3",
+            'PHP_version_8.4' => "8.4",
+        ];
+        $phpChoice = $this->io->choice('Select a PHP version', array_values($phpVersions), "8.3");
+        $phpKey = array_search($phpChoice, $phpVersions, true);
+        return $phpVersions[$phpKey];
+    }
+
+    /**
+     * Prompt for MySQL versions.
+     *
+     * @return string $mysqlVersion
+     */
+    private function promptForMysqlVersions(): string
+    {
+        $mysqlVersions = [
+            'MYSQL_version_5.7' => "5.7",
+            'MYSQL_version_8.0' => "8.0",
+        ];
+        $mysqlChoice = $this->io->choice('Select a MySQL version', array_values($mysqlVersions), "8.0");
+        $mysqlKey = array_search($mysqlChoice, $mysqlVersions, true);
+        return $mysqlVersions[$mysqlKey];
+    }
+
+    /**
+     * Prompt for Node hosting type.
+     *
+     * @return string $nodeHostingType
+     */
+    private function promptForNodeHostingType(): string
+    {
+        $nodeHostingTypes = [
+            'advanced' => "Advanced Frontend Hosting",
+            'basic' => "Basic Frontend Hosting",
+        ];
+        $hostingChoice = $this->io->choice('Select a NODE hosting type', array_values($nodeHostingTypes), "Basic Frontend Hosting");
+        return array_search($hostingChoice, $nodeHostingTypes, true);
+    }
+
+    /**
+     * Prompt for Node versions.
+     *
+     * @return string $nodeVersion
+     */
+    private function promptForNodeVersions(): string
+    {
+        $nodeVersions = [
+            'NODE_version_20' => "20",
+            'NODE_version_22' => "22",
+        ];
+        $nodeChoice = $this->io->choice('Select a NODE version', array_values($nodeVersions), "20");
+        $nodeKey = array_search($nodeChoice, $nodeVersions, true);
+        return $nodeVersions[$nodeKey];
+    }
+
+    /**
+     * Get Cloud account and client.
+     *
+     * @return array{0: \AcquiaCloudApi\Connector\Client, 1: object}
+     */
+    private function getCloudAccount(): array
+    {
+        $acquiaCloudClient = $this->cloudApiClientService->getClient();
+        $accountAdapter = new Account($acquiaCloudClient);
+        return [$acquiaCloudClient, $accountAdapter->get()];
+    }
+
+    /**
+     * Handle Application entity logic.
+     *
+     * @return array{0: string, 1: string, 3: array<mixed>}
+     */
+    private function handleApplicationEntity(Client $acquiaCloudClient, AccountResponse $account, EntityType $entityType): array
+    {
+        $cloudUuid = $this->determineCloudApplication();
+        $this->validateRequiredCloudPermissions(
+            $acquiaCloudClient,
+            $cloudUuid,
+            $account,
+            self::getRequiredCloudPermissions()
+        );
+        $this->setGitLabProjectDescription($entityType, $cloudUuid);
+        $cloudEntity = $this->getCloudApplication($cloudUuid);
+        $entityName = $cloudEntity->name;
+        $project = $this->determineGitLabProject($entityType, $cloudEntity);
+        return [$cloudUuid, $entityName, $project];
+    }
+
+    /**
+     * Handle Codebase entity logic.
+     *
+     * @return array{0: string, 1: string, 2: array<mixed>}
+     */
+    private function handleCodebaseEntity(EntityType $entityType): array
+    {
+        $cloudUuid = $this->determineCloudCodebase();
+        $this->setGitLabProjectDescription($entityType, $cloudUuid);
+        $cloudEntity = $this->getCloudCodebase($cloudUuid);
+        $entityName = $cloudEntity->label;
+        $project = $this->determineGitLabProject($entityType, $cloudEntity);
+        return [$cloudUuid, $entityName, $project];
+    }
+
+    /**
+     * Get the required permissions for the Cloud Platform.
+     *
+     * @return array<string>
+     */
+    private function getRequiredCloudPermissions(): array
+    {
+        return [
+            'deploy to non-prod',
+            'add ssh key to git',
+            'add ssh key to non-prod',
+            'add an environment',
+            'delete an environment',
+            'administer environment variables on non-prod',
+        ];
     }
 }

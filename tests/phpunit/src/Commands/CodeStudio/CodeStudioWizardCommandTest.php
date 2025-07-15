@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Acquia\Cli\Tests\Commands\CodeStudio;
 
 use Acquia\Cli\Command\CodeStudio\CodeStudioWizardCommand;
+use Acquia\Cli\Command\CodeStudio\EntityType;
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Tests\Commands\Ide\IdeRequiredTestTrait;
@@ -17,7 +18,6 @@ use Gitlab\Api\Schedules;
 use Gitlab\Client;
 use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
-use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * @property \Acquia\Cli\Command\CodeStudio\CodeStudioWizardCommand $command
@@ -27,18 +27,17 @@ class CodeStudioWizardCommandTest extends WizardTestBase
 {
     use IdeRequiredTestTrait;
 
+    private const ARG_KEY = '--key';
+    private const ARG_SECRET = '--secret';
+
     private string $gitLabHost = 'gitlabhost';
-
     private string $gitLabToken = 'gitlabtoken';
-
     private static int $gitLabProjectId = 33;
-
     private int $gitLabTokenId = 118;
 
     public function setUp(): void
     {
         parent::setUp();
-        $this->mockApplicationRequest();
         self::setEnvVars(['GITLAB_HOST' => 'code.cloudservices.acquia.io']);
     }
 
@@ -59,292 +58,135 @@ class CodeStudioWizardCommandTest extends WizardTestBase
     public static function providerTestCommand(): array
     {
         return [
+            // Application: Drupal_project, PHP 8.1.
             [
-                // One project.
-                [self::getMockedGitLabProject(self::$gitLabProjectId)],
-                // Inputs.
+                [self::getMockedGitLabProject(self::$gitLabProjectId), self::getMockedGitLabProject(self::$gitLabProjectId)],
                 [
+                    // Project type: Drupal_project.
                     0,
+                    // MySQL version: 5.7.
                     0,
+                    // PHP version: 8.1.
                     0,
                     // Do you want to continue?
                     'y',
-                    // Would you like to perform a one time push of code from Acquia Cloud to Code Studio now? (yes/no) [yes]:
+                    // Select from multiple GitLab projects.
+                    0,
+                    // One time push?
                     'y',
                 ],
-                // Args.
                 [
-                    '--key' => self::$key,
-                    '--secret' => self::$secret,
+                    self::ARG_KEY => self::$key,
+                    self::ARG_SECRET => self::$secret,
                 ],
             ],
-            // Two projects.
+            // Application: Drupal_project, PHP 8.2.
             [
+                [],
                 [
-                    self::getMockedGitLabProject(self::$gitLabProjectId),
-                    self::getMockedGitLabProject(self::$gitLabProjectId),
+                    // Project type: Drupal_project.
+                    0,
+                    // MySQL version: 5.7.
+                    0,
+                    // PHP version: 8.2.
+                    1,
+                    // Do you want to continue?
+                    'y',
+                    // Create a new GitLab project.
+                    'y',
+                    // Choose group for the new project: awesome-demo.
+                    0,
+                    // One time push?
+                    'y',
                 ],
-                // Inputs.
                 [
+                    self::ARG_KEY => self::$key,
+                    self::ARG_SECRET => self::$secret,
+                ],
+            ],
+            // Application: Drupal_project, PHP 8.3.
+            [
+                [],
+                [
+                    // Project type: Drupal_project.
                     0,
-                    0,
-                    0,
+                    // MySQL version: 8.0.
+                    1,
+                    // PHP version: 8.3.
+                    2,
+                    // Do you want to continue?
+                    'y',
+                    // Create a new GitLab project.
                     'n',
-                    // Found multiple projects that could match the Sample application 1 application. Choose which one to configure.
-                    '0',
-                    // Do you want to continue?
-                    'y',
-                    // Would you like to perform a one time push of code from Acquia Cloud to Code Studio now? (yes/no) [yes]:
-                    'y',
-                ],
-                // Args.
-                [
-                    '--key' => self::$key,
-                    '--secret' => self::$secret,
-                ],
-            ],
-            [
-                // No projects.
-                [],
-                // Inputs.
-                [
-                    // Select a project type [Drupal_project]:
+                    // Choose a project to configure.
                     0,
-                    // Select a MySQL version [5.7]:
+                    // One time push?
+                    'y',
+                ],
+                [
+                    self::ARG_KEY => self::$key,
+                    self::ARG_SECRET => self::$secret,
+                ],
+            ],
+            // Application: Drupal_project, PHP 8.4.
+            [
+                [self::getMockedGitLabProject(self::$gitLabProjectId)],
+                [
+                    // Project type: Drupal_project.
                     0,
-                    // Select a PHP version [8.3]:
+                    // MySQL version: 8.0.
+                    1,
+                    // PHP version: 8.4.
+                    3,
+                    // Do you want to continue?
+                    'y',
+                    // One time push?
+                    'y',
+                ],
+                [
+                    self::ARG_KEY => self::$key,
+                    self::ARG_SECRET => self::$secret,
+                ],
+            ],
+            // Application: Node_project, Basic, Node 20.
+            [
+                [self::getMockedGitLabProject(self::$gitLabProjectId)],
+                [
+                    // Project type: Node_project.
+                    1,
+                    // Hosting type: Basic.
                     0,
-                    // Would you like to link the Cloud application Sample application 1 to this repository? (yes/no) [yes]:
+                    // Node version: 20.
                     0,
-                    // Would you like to create a new Code Studio project? If you select "no" you may choose from a full list of existing projects. (yes/no) [yes]:
-                    0,
-                    // Choose a Code Studio project to configure for the Sample application.
-                    0,
-                    // Do you want to continue? (yes/no) [yes]:
-                    'y',
-                ],
-                // Args.
-                [
-                    '--key' => self::$key,
-                    '--secret' => self::$secret,
-                ],
-            ],
-            [
-                // No projects.
-                [],
-                // Inputs.
-                [
-                    // Enter Cloud Key.
-                    self::$key,
-                    // Enter Cloud secret,.
-                    self::$secret,
-                    // Select a project type Drupal_project.
-                    '0',
-                    // Select MySQL version 8.0.
-                    '1',
-                    // Select PHP version 8.2.
-                    '1',
                     // Do you want to continue?
                     'y',
-                    // Would you like to perform a one time push of code from Acquia Cloud to Code Studio now? (yes/no) [yes]:
+                    // One time push?
                     'y',
                 ],
-                // Args.
-                [],
-            ],
-            [
-                // No projects.
-                [],
-                // Inputs.
                 [
-                    // Select a project type Drupal_project.
-                    '0',
-                    // Select MySQL version 5.7.
-                    '0',
-                    // Select PHP version 8.3.
-                    '2',
-                    // Do you want to continue?
-                    'y',
-                    // Would you like to perform a one time push of code from Acquia Cloud to Code Studio now? (yes/no) [yes]:
-                    'y',
-                ],
-                // Args.
-                [
-                    '--key' => self::$key,
-                    '--secret' => self::$secret,
+                    self::ARG_KEY => self::$key,
+                    self::ARG_SECRET => self::$secret,
                 ],
             ],
+            // Application: Node_project, Advanced, Node 22.
             [
-                // No projects.
-                [],
-                // Inputs.
+                [self::getMockedGitLabProject(self::$gitLabProjectId)],
                 [
-                    // Select a project type Drupal_project.
-                    '0',
-                    // Select MySQL version 8.0.
-                    '1',
-                    // Select PHP version 8.4.
-                    '3',
+                    // Project type: Node_project.
+                    1,
+                    // Hosting type: Advanced.
+                    1,
+                    // Node version: 22.
+                    1,
                     // Do you want to continue?
                     'y',
-                    // Would you like to perform a one time push of code from Acquia Cloud to Code Studio now? (yes/no) [yes]:
+                    // One time push?
                     'y',
                 ],
-                // Args.
                 [
-                    '--key' => self::$key,
-                    '--secret' => self::$secret,
+                    self::ARG_KEY => self::$key,
+                    self::ARG_SECRET => self::$secret,
                 ],
-            ],
-            [
-                // No projects.
-                [],
-                // Inputs.
-                [
-                    // Select a project type Node_project.
-                    '1',
-                    // Select NODE hosting type advanced.
-                    '0',
-                    // Select NODE version 20.
-                    '0',
-                    // Do you want to continue?
-                    'y',
-                    // Would you like to perform a one time push of code from Acquia Cloud to Code Studio now? (yes/no) [yes]:
-                    'y',
-                ],
-                // Args.
-                [
-                    '--key' => self::$key,
-                    '--secret' => self::$secret,
-                ],
-            ],
-            [
-                // No projects.
-                [],
-                // Inputs.
-                [
-                    // Select a project type Node_project.
-                    '1',
-                    // Select NODE hosting type basic.
-                    '1',
-                    // Select NODE version 20.
-                    '0',
-                    // Do you want to continue?
-                    'y',
-                    // Would you like to perform a one time push of code from Acquia Cloud to Code Studio now? (yes/no) [yes]:
-                    'y',
-                ],
-                // Args.
-                [
-                    '--key' => self::$key,
-                    '--secret' => self::$secret,
-                ],
-            ],
-            [
-                // No projects.
-                [],
-                // Inputs.
-                [
-                    // Select a project type Node_project.
-                    '1',
-                    // Select NODE hosting type basic.
-                    '1',
-                    // Select NODE version 22.
-                    '1',
-                    // Do you want to continue?
-                    'y',
-                    // Would you like to perform a one time push of code from Acquia Cloud to Code Studio now? (yes/no) [yes]:
-                    'y',
-                ],
-                // Args.
-                [
-                    '--key' => self::$key,
-                    '--secret' => self::$secret,
-                ],
-            ],
-            [
-                // No projects.
-                [],
-                // Inputs.
-                [
-                    0,
-                    0,
-                    0,
-                    'y',
-                    'y',
-                    // Choose project.
-                    '0',
-                    // Do you want to continue?
-                    'y',
-                ],
-                // Args.
-                [
-                    '--key' => self::$key,
-                    '--secret' => self::$secret,
-                ],
-            ],
-            [
-                // No projects.
-                [],
-                // Inputs.
-                [
-                    // Enter Cloud Key.
-                    self::$key,
-                    // Enter Cloud secret,.
-                    self::$secret,
-                    // Select a project type Drupal_project.
-                    '0',
-                    // Select MySQL version 5.7.
-                    '0',
-                    // Select PHP version 8.1.
-                    '0',
-                    // Do you want to continue?
-                    'y',
-                ],
-                // Args.
-                [],
-            ],
-            [
-                // No projects.
-                [],
-                // Inputs.
-                [
-                    // Enter Cloud Key.
-                    self::$key,
-                    // Enter Cloud secret,.
-                    self::$secret,
-                    // Select a project type Drupal_project.
-                    '0',
-                    // Select MySQL version 8.0.
-                    '1',
-                    // Select PHP version 8.2.
-                    '1',
-                    // Do you want to continue?
-                    'y',
-                ],
-                // Args.
-                [],
-            ],
-            [
-                // No projects.
-                [],
-                // Inputs.
-                [
-                    // Enter Cloud Key.
-                    self::$key,
-                    // Enter Cloud secret,.
-                    self::$secret,
-                    // Select a project type Node_project.
-                    '1',
-                    // Select NODE hosting type basic.
-                    '1',
-                    // Select NODE version 20.
-                    '0',
-                    // Do you want to continue?
-                    'y',
-                ],
-                // Args.
-                [],
             ],
         ];
     }
@@ -357,7 +199,12 @@ class CodeStudioWizardCommandTest extends WizardTestBase
         $this->clientServiceProphecy->setConnector(Argument::type(Connector::class))
             ->shouldBeCalled();
         $this->mockRequest('getAccount');
+        $this->mockApplicationRequest();
         $this->mockGitLabPermissionsRequest($this::$applicationUuid);
+
+        $this->clientProphecy->request('get', '/codebases')
+            ->willReturn([])
+            ->shouldBeCalled();
 
         $gitlabClient = $this->prophet->prophesize(Client::class);
         $this->mockGitLabUsersMe($gitlabClient);
@@ -368,7 +215,7 @@ class CodeStudioWizardCommandTest extends WizardTestBase
         $parameters = [
             'container_registry_access_level' => 'disabled',
             'default_branch' => 'main',
-            'description' => 'Source repository for Acquia Cloud Platform application <comment>a47ac10b-58cc-4372-a567-0e02b2c3d470</comment>',
+            'description' => 'Source repository for Acquia Cloud Platform Application <comment>a47ac10b-58cc-4372-a567-0e02b2c3d470</comment>',
             'initialize_with_readme' => true,
             'namespace_id' => 47,
             'topics' => 'Acquia Cloud Application',
@@ -379,7 +226,7 @@ class CodeStudioWizardCommandTest extends WizardTestBase
         $parameters = [
             'container_registry_access_level' => 'disabled',
             'default_branch' => 'main',
-            'description' => 'Source repository for Acquia Cloud Platform application <comment>a47ac10b-58cc-4372-a567-0e02b2c3d470</comment>',
+            'description' => 'Source repository for Acquia Cloud Platform Application <comment>a47ac10b-58cc-4372-a567-0e02b2c3d470</comment>',
             'initialize_with_readme' => true,
             'topics' => 'Acquia Cloud Application',
         ];
@@ -392,8 +239,8 @@ class CodeStudioWizardCommandTest extends WizardTestBase
         )->willReturn(true)
             ->shouldBeCalled();
         $this->mockGitLabVariables(self::$gitLabProjectId, $projects);
-
-        if (($inputs[0] === '1' || (array_key_exists(2, $inputs) && $inputs[2] === '1'))) {
+        if ($inputs[0] === 1) {
+            // Node project - set up Node template.
             $parameters = [
                 'ci_config_path' => 'gitlab-ci/Auto-DevOps.acquia.gitlab-ci.yml@acquia/node-template',
             ];
@@ -401,6 +248,7 @@ class CodeStudioWizardCommandTest extends WizardTestBase
                 ->willReturn(true)
                 ->shouldBeCalled();
         } else {
+            // Drupal project - set up Drupal template.
             $schedules = $this->prophet->prophesize(Schedules::class);
             $schedules->showAll(self::$gitLabProjectId)->willReturn([]);
             $pipeline = ['id' => 1];
@@ -440,12 +288,10 @@ class CodeStudioWizardCommandTest extends WizardTestBase
         $this->mockGitlabGetHost($localMachineHelper, $this->gitLabHost);
         $this->mockGitlabGetToken($localMachineHelper, $this->gitLabToken, $this->gitLabHost);
 
-        /** @var Filesystem|ObjectProphecy $fileSystem */
-        $fileSystem = $this->prophet->prophesize(Filesystem::class);
         // Set properties and execute.
         $this->executeCommand($args, $inputs);
         $output = $this->getDisplay();
-        $output_strings = $this->getOutputStrings();
+        $output_strings = $this->getCommandOutput(self::getMockedGitLabProject(self::$gitLabProjectId), $inputs, EntityType::Application, 'Sample application 1', 'a47ac10b-58cc-4372-a567-0e02b2c3d470');
         foreach ($output_strings as $output_string) {
             self::assertStringContainsString($output_string, $output);
         }
@@ -453,6 +299,146 @@ class CodeStudioWizardCommandTest extends WizardTestBase
 
         // Assertions.
         $this->assertEquals(0, $this->getStatusCode());
+    }
+
+    /**
+     * @return array<mixed>
+     */
+    public static function providerTestCommandCodebase(): array
+    {
+        return [
+            // Codebase: Drupal_project, PHP 8.1.
+            [
+                [],
+                [
+                    // Entity type: Codebase.
+                    1,
+                    // Project type: Drupal_project [Auto selected].
+                    // MySQL version: 5.7.
+                    0,
+                    // PHP version: 8.1.
+                    0,
+                    // Select project.
+                    0,
+                    // Create a new GitLab project.
+                    'y',
+                    // Choose group for the new project: awesome-demo.
+                    0,
+                    // One time push?
+                    'y',
+                ],
+                [
+                    self::ARG_KEY => self::$key,
+                    self::ARG_SECRET => self::$secret,
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider providerTestCommandCodebase
+     */
+    public function testCommandCodebase(array $mockedGitlabProjects, array $inputs, array $args): void
+    {
+        $this->clientServiceProphecy->setConnector(Argument::type(Connector::class))
+            ->shouldBeCalled();
+        $this->mockRequest('getAccount');
+
+        $this->mockCodebaseRequest();
+
+        $gitlabClient = $this->prophet->prophesize(Client::class);
+        $this->mockGitLabUsersMe($gitlabClient);
+        $this->mockGitLabGroups($gitlabClient);
+        $this->mockGitLabNamespaces($gitlabClient);
+
+        $projects = $this->mockGetGitLabProjects($this::$applicationUuid, self::$gitLabProjectId, $mockedGitlabProjects);
+
+        $parameters = [
+            'container_registry_access_level' => 'disabled',
+            'default_branch' => 'main',
+            'description' => 'Source repository for Acquia Cloud Platform Codebase <comment>a47ac10b-58cc-4372-a567-0e02b2c3d470</comment>',
+            'initialize_with_readme' => true,
+            'namespace_id' => 47,
+            'topics' => 'Acquia Cloud Application',
+        ];
+
+        $projects->create('Sample-application-1', $parameters)
+            ->willReturn(self::getMockedGitLabProject(self::$gitLabProjectId));
+
+        $this->mockGitLabProjectsTokens($projects);
+
+        $parameters = [
+            'container_registry_access_level' => 'disabled',
+            'default_branch' => 'main',
+            'description' => 'Source repository for Acquia Cloud Platform Codebase <comment>a47ac10b-58cc-4372-a567-0e02b2c3d470</comment>',
+            'initialize_with_readme' => true,
+            'topics' => 'Acquia Cloud Application',
+        ];
+        $projects->update(self::$gitLabProjectId, $parameters)
+            ->willReturn(true)
+            ->shouldBeCalled();
+
+        $projects->uploadAvatar(
+            33,
+            Argument::type('string'),
+        )->willReturn(true)
+            ->shouldBeCalled();
+        $this->mockGitLabVariablesCodebase(self::$gitLabProjectId, $projects);
+
+        // Codebase scenario uses Drupal template (like application Drupal projects)
+        $schedules = $this->prophet->prophesize(Schedules::class);
+        $schedules->showAll(self::$gitLabProjectId)->willReturn([]);
+        $pipeline = ['id' => 1];
+        $parameters = [
+            // Every Thursday at midnight.
+            'cron' => '0 0 * * 4',
+            'description' => 'Code Studio Automatic Updates',
+            'ref' => 'master',
+        ];
+        $schedules->create(self::$gitLabProjectId, $parameters)
+            ->willReturn($pipeline);
+        $schedules->addVariable(self::$gitLabProjectId, $pipeline['id'], [
+            'key' => 'ACQUIA_JOBS_DEPRECATED_UPDATE',
+            'value' => 'true',
+        ])->willReturn(true)->shouldBeCalled();
+        $schedules->addVariable(self::$gitLabProjectId, $pipeline['id'], [
+            'key' => 'ACQUIA_JOBS_COMPOSER_UPDATE',
+            'value' => 'true',
+        ])->willReturn(true)->shouldBeCalled();
+        $gitlabClient->schedules()->willReturn($schedules->reveal());
+
+        $gitlabClient->projects()->willReturn($projects);
+
+        $this->command->setGitLabClient($gitlabClient->reveal());
+
+        $localMachineHelper = $this->mockLocalMachineHelper();
+        $localMachineHelper->checkRequiredBinariesExist(['git']);
+        $this->mockExecuteGlabExists($localMachineHelper);
+        $process = $this->mockProcess();
+        $localMachineHelper->execute(Argument::containing('remote'), Argument::type('callable'), '/home/ide/project', false)
+            ->willReturn($process->reveal());
+        $localMachineHelper->execute(Argument::containing('push'), Argument::type('callable'), '/home/ide/project', false)
+            ->willReturn($process->reveal());
+
+        $this->mockGetCurrentBranchName($localMachineHelper);
+        $this->mockGitlabGetHost($localMachineHelper, $this->gitLabHost);
+        $this->mockGitlabGetToken($localMachineHelper, $this->gitLabToken, $this->gitLabHost);
+
+        // Execute the command.
+        $this->executeCommand($args, $inputs);
+        $output = $this->getDisplay();
+        $this->mockRequest('getAccount');
+        $output_strings = $this->getCommandOutput(self::getMockedGitLabProject(self::$gitLabProjectId), $inputs, EntityType::Codebase, 'Sample application 1', 'a47ac10b-58cc-4372-a567-0e02b2c3d470');
+        foreach ($output_strings as $output_string) {
+            self::assertStringContainsString($output_string, $output);
+        }
+        self::assertStringNotContainsString('[ERROR]', $output);
+
+        // Verify successful execution.
+        $this->assertEquals(0, $this->getStatusCode());
+
+        // Additional assertions specific to codebase scenario.
+        self::assertStringContainsString('Codebase', $output);
     }
 
     /**
@@ -468,8 +454,8 @@ class CodeStudioWizardCommandTest extends WizardTestBase
         $this->expectException(AcquiaCliException::class);
         $this->expectExceptionMessage('Unable to authenticate with Code Studio');
         $this->executeCommand([
-            '--key' => self::$key,
-            '--secret' => self::$secret,
+            self::ARG_KEY => self::$key,
+            self::ARG_SECRET => self::$secret,
         ]);
     }
 
@@ -486,8 +472,8 @@ class CodeStudioWizardCommandTest extends WizardTestBase
         $this->expectException(AcquiaCliException::class);
         $this->expectExceptionMessage('Could not determine GitLab token');
         $this->executeCommand([
-            '--key' => self::$key,
-            '--secret' => self::$secret,
+            self::ARG_KEY => self::$key,
+            self::ARG_SECRET => self::$secret,
         ]);
     }
 
@@ -634,5 +620,275 @@ class CodeStudioWizardCommandTest extends WizardTestBase
             ])->willReturn(true)
                 ->shouldBeCalled();
         }
+    }
+
+    protected function mockGitLabVariablesCodebase(int $gitlabProjectId, ObjectProphecy $projects): void
+    {
+        $variables = $this->getMockGitLabVariablesCodebase();
+        $projects->variables($gitlabProjectId)->willReturn($variables);
+        foreach ($variables as $variable) {
+            $projects->addVariable($gitlabProjectId, Argument::type('string'), Argument::type('string'), Argument::type('bool'), null, [
+                'masked' => $variable['masked'],
+                'variable_type' => $variable['variable_type'],
+            ])->willReturn(true)->shouldBeCalled();
+        }
+        foreach ($variables as $variable) {
+            $projects->updateVariable(self::$gitLabProjectId, $variable['key'], $variable['value'], false, null, [
+                'masked' => true,
+                'variable_type' => 'env_var',
+            ])->willReturn(true)
+                ->shouldBeCalled();
+        }
+    }
+
+    /**
+     * Returns mock GitLab variables specifically for codebase scenarios.
+     *
+     * @return array<mixed>
+     */
+    protected function getMockGitLabVariablesCodebase(): array
+    {
+        return [
+            0 => [
+                'environment_scope' => '*',
+                'key' => 'ACQUIA_CODEBASE_UUID',
+                'masked' => true,
+                'protected' => false,
+                'value' => 'a47ac10b-58cc-4372-a567-0e02b2c3d470',
+                'variable_type' => 'env_var',
+            ],
+            1 => [
+                'environment_scope' => '*',
+                'key' => 'ACQUIA_CLOUD_API_TOKEN_KEY',
+                'masked' => true,
+                'protected' => false,
+                'value' => '17feaf34-5d04-402b-9a67-15d5161d24e1',
+                'variable_type' => 'env_var',
+            ],
+            2 => [
+                'key' => 'ACQUIA_CLOUD_API_TOKEN_SECRET',
+                'masked' => false,
+                'protected' => false,
+                'value' => 'X1u\/PIQXtYaoeui.4RJSJpGZjwmWYmfl5AUQkAebYE=',
+                'variable_type' => 'env_var',
+            ],
+        ];
+    }
+
+    protected function mockCodebaseRequest(): object
+    {
+        $codebasesArray = [
+            (object) [
+                'applications_total' => 0,
+                'created_at' => '2024-12-20T06:39:50.000Z',
+                'description' => '',
+                'flags' => (object) [
+                    'active' => 1,
+                ],
+                'hash' => 'ryh4smn',
+                'id' => 'a47ac10b-58cc-4372-a567-0e02b2c3d470',
+                'label' => 'Sample application 1',
+                'region' => 'us-east-1',
+                'repository_id' => 'a5ef0a9d-44ce-4f06-8d4f-15f24f941a74',
+                'updated_at' => '2024-12-20T06:39:50.000Z',
+                'vcs_url' => 'ssh://us-east-1.dev.vcs.acquia.io/a47ac10b-58cc-4372-a567-0e02b2c3d470',
+                '_embedded' => (object) [
+                    'subscription' => (object) [
+                        'id' => 'f47ac10b-58cc-4372-a567-0e02b2c3d479',
+                        '_links' => (object) [
+                            'self' => (object) [
+                                'href' => 'https://cloud.acquia.com/api/subscriptions/f47ac10b-58cc-4372-a567-0e02b2c3d479',
+                            ],
+                        ],
+                    ],
+                ],
+                '_links' => (object) [
+                    'applications' => (object) [
+                        'href' => 'https://cloud.acquia.com/api/codebases/a47ac10b-58cc-4372-a567-0e02b2c3d470/applications',
+                    ],
+                    'self' => (object) [
+                        'href' => 'https://cloud.acquia.com/api/codebases',
+                    ],
+                    'subscription' => (object) [
+                        'href' => 'https://cloud.acquia.com/api/subscriptions/f47ac10b-58cc-4372-a567-0e02b2c3d479',
+                    ],
+                ],
+            ],
+        ];
+
+        $this->clientProphecy->request('get', '/codebases')
+            ->willReturn($codebasesArray)
+            ->shouldBeCalled();
+
+        $codebaseResponse = $codebasesArray[0];
+        $this->clientProphecy->request(
+            'get',
+            '/codebases/' . $codebaseResponse->id
+        )
+            ->willReturn($codebaseResponse)
+            ->shouldBeCalled();
+
+        return $codebaseResponse;
+    }
+    /**
+     * Returns the output strings expected from the command execution.
+     *
+     * @return array<string>
+     */
+    private function getCommandOutput(array|string $project, array $inputs, EntityType $entityType, string $entityName, string $cloudUuid): array
+    {
+        $arr = [
+            "This command will configure the Code Studio project {$project['path_with_namespace']} for automatic deployment to the",
+            "Acquia Cloud Platform $entityType->value $entityName ($cloudUuid)",
+            "using credentials (API Token and SSH Key) belonging to jane.doe@example.com.",
+            "If the jane.doe@example.com Cloud account is deleted in the future, this Code Studio project will need to be re-configured.",
+            "Setting GitLab CI/CD variables for",
+            "Successfully configured the Code Studio project!",
+            // "This project will now use Acquia's Drupal optimized AutoDevOps to build, test, and deploy your code automatically to Acquia Cloud Platform via CI/CD pipelines.",
+            "You can visit it here:",
+            $project['web_url'],
+            "Next, you should use git to push code to your Code Studio project. E.g.,",
+            "  git remote add codestudio {$project['http_url_to_repo']}",
+            "  git push codestudio",
+        ];
+
+        if ($entityType === EntityType::Codebase) {
+            $arr = array_merge($arr, [
+                "Selected Drupal project by default for Codebases",
+            ]);
+        }
+
+        if (count($inputs) == 8 && $inputs[5] === 'y') {
+            $arr = array_merge($arr, [
+                "Could not find any existing Code Studio project for Acquia Cloud Platform $entityType->value $entityName.",
+                "Searched for UUID $cloudUuid in project descriptions.",
+                "Created {$project['path_with_namespace']} project in Code Studio.",
+            ]);
+        }
+
+        return $arr;
+    }
+
+    public function testGetRequiredCloudPermissionsReturnsExpectedPermissions(): void
+    {
+        $reflection = new \ReflectionClass($this->command);
+        $method = $reflection->getMethod('getRequiredCloudPermissions');
+        $method->setAccessible(true);
+
+        $expected = [
+            'deploy to non-prod',
+            'add ssh key to git',
+            'add ssh key to non-prod',
+            'add an environment',
+            'delete an environment',
+            'administer environment variables on non-prod',
+        ];
+
+        $result = $method->invoke($this->command);
+
+        $this->assertEquals($expected, $result);
+    }
+
+    /**
+     * Test that the acceptCodebaseId method is called during configuration.
+     */
+    public function testAcceptCodebaseIdIsCalledDuringConfiguration(): void
+    {
+        $command = $this->createCommand();
+
+        // Verify that the codebaseId argument is available after configuration.
+        $definition = $command->getDefinition();
+        $this->assertTrue($definition->hasArgument('codebaseId'));
+
+        $argument = $definition->getArgument('codebaseId');
+        $this->assertSame('codebaseId', $argument->getName());
+        $this->assertSame('The Cloud Platform codebase ID', $argument->getDescription());
+    }
+
+    /**
+     * Test that protected methods remain protected for inheritance.
+     */
+    public function testProtectedMethodsAreAccessibleFromSubclass(): void
+    {
+        // Use reflection to verify protected methods are accessible.
+        $reflection = new \ReflectionClass($this->command);
+
+        // Test doDetermineCloudCodebase is protected.
+        $method = $reflection->getMethod('doDetermineCloudCodebase');
+        $this->assertTrue($method->isProtected(), 'doDetermineCloudCodebase should be protected');
+
+        // Test promptChooseCodebase is protected.
+        $method = $reflection->getMethod('promptChooseCodebase');
+        $this->assertTrue($method->isProtected(), 'promptChooseCodebase should be protected');
+    }
+
+    /**
+     * Test that displays proper messages when no existing projects are found.
+     */
+    public function testNoExistingProjectsFoundScenario(): void
+    {
+        $this->clientServiceProphecy->setConnector(Argument::type(Connector::class))
+            ->shouldBeCalled();
+        $this->mockRequest('getAccount');
+        $this->mockApplicationRequest();
+        $this->mockGitLabPermissionsRequest($this::$applicationUuid);
+
+        $this->clientProphecy->request('get', '/codebases')
+            ->willReturn([])
+            ->shouldBeCalled();
+
+        $gitlabClient = $this->prophet->prophesize(Client::class);
+        $this->mockGitLabUsersMe($gitlabClient);
+        $this->mockGitLabGroups($gitlabClient);
+        $this->mockGitLabNamespaces($gitlabClient);
+
+        // Mock NO existing projects found (empty array)
+        $projects = $this->prophet->prophesize(\Gitlab\Api\Projects::class);
+        $projects->all(['search' => $this::$applicationUuid])->willReturn([]);
+        $projects->all()->willReturn([
+            self::getMockedGitLabProject(self::$gitLabProjectId),
+        ]);
+        $gitlabClient->projects()->willReturn($projects->reveal());
+
+        $this->command->setGitLabClient($gitlabClient->reveal());
+
+        $localMachineHelper = $this->mockLocalMachineHelper();
+        $localMachineHelper->checkRequiredBinariesExist(['git']);
+        $this->mockExecuteGlabExists($localMachineHelper);
+        $this->mockGetCurrentBranchName($localMachineHelper);
+        $this->mockGitlabGetHost($localMachineHelper, $this->gitLabHost);
+        $this->mockGitlabGetToken($localMachineHelper, $this->gitLabToken, $this->gitLabHost);
+
+        // Execute the command with user choosing NOT to create a project.
+        $inputs = [
+            // Project type: Drupal_project.
+            0,
+            // MySQL version: 8.0.
+            1,
+            // PHP version: 8.1.
+            0,
+            // Do you want to continue?
+            'y',
+            // Create a new GitLab project? NO.
+            'n',
+            // Choose a project to configure.
+            0,
+            // One time push?
+            'n',
+        ];
+
+        $this->executeCommand([
+            self::ARG_KEY => self::$key,
+            self::ARG_SECRET => self::$secret,
+        ], $inputs);
+
+        $output = $this->getDisplay();
+
+        // Verify that both messages are displayed.
+        $this->assertStringContainsString('Could not find any existing Code Studio project for Acquia Cloud Platform Application', $output);
+        $this->assertStringContainsString('Searched for UUID', $output);
+        $this->assertStringContainsString('a47ac10b-58cc-4372-a567-0e02b2c3d470', $output);
+        $this->assertStringContainsString('Would you like to create a new Code Studio project?', $output);
+        $this->assertStringContainsString('Choose a Code Studio project to configure', $output);
     }
 }
