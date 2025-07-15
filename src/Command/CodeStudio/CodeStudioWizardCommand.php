@@ -4,15 +4,11 @@ declare(strict_types=1);
 
 namespace Acquia\Cli\Command\CodeStudio;
 
-use Acquia\Cli\Command\CodeStudio\EntityType;
 use Acquia\Cli\Command\WizardCommandBase;
-use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Output\Checklist;
 use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Endpoints\Account;
-use AcquiaCloudApi\Endpoints\Codebases;
 use AcquiaCloudApi\Response\AccountResponse;
-use AcquiaCloudApi\Response\CodebaseResponse;
 use DateTime;
 use Gitlab\Exception\ValidationFailedException;
 use Symfony\Component\Console\Attribute\AsCommand;
