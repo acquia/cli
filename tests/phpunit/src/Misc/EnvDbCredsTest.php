@@ -7,7 +7,6 @@ namespace Acquia\Cli\Tests\Misc;
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Command\Self\ClearCacheCommand;
 use Acquia\Cli\Tests\CommandTestBase;
-use Acquia\Cli\Tests\TestBase;
 
 class EnvDbCredsTest extends CommandTestBase
 {

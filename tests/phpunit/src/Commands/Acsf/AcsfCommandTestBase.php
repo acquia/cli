@@ -7,8 +7,6 @@ namespace Acquia\Cli\Tests\Commands\Acsf;
 use Acquia\Cli\Command\Api\ApiCommandHelper;
 use Acquia\Cli\Helpers\DataStoreContract;
 use Acquia\Cli\Tests\CommandTestBase;
-use Symfony\Component\Cache\Adapter\FilesystemAdapter;
-use Symfony\Component\Cache\Adapter\PhpArrayAdapter;
 
 /**
  * @property \Acquia\Cli\Command\Api\ApiBaseCommand $command

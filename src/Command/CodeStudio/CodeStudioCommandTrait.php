@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace Acquia\Cli\Command\CodeStudio;
 
 use Acquia\Cli\Exception\AcquiaCliException;
-use AcquiaCloudApi\Response\ApplicationResponse;
-use AcquiaCloudApi\Response\CodebaseResponse;
 use Gitlab\Client;
 use Gitlab\Exception\RuntimeException;
 use Gitlab\Exception\ValidationFailedException;
