@@ -28,6 +28,11 @@ use Symfony\Component\Validator\Validation;
 #[AsCommand(name: 'api:base', hidden: true)]
 class ApiBaseCommand extends CommandBase
 {
+    /**
+     * Pattern to detect comma-separated JSON objects.
+     */
+    private const COMMA_SEPARATED_JSON_OBJECTS_PATTERN = '},{';
+
     protected string $method;
 
     /**
@@ -514,7 +519,7 @@ class ApiBaseCommand extends CommandBase
         }
 
         // Check if it's comma-separated JSON objects.
-        if (str_contains($trimmed, '},{')) {
+        if (str_contains($trimmed, self::COMMA_SEPARATED_JSON_OBJECTS_PATTERN)) {
             $items = [];
             $parts = explode(',', $trimmed);
             $currentObject = '';
