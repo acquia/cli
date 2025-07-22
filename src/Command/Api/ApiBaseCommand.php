@@ -476,8 +476,8 @@ class ApiBaseCommand extends CommandBase
             return true;
         }
 
-        // Check if it's comma-separated JSON objects (contains '},').
-        if (str_contains($trimmed, '},{')) {
+        // Check if it's comma-separated JSON objects (contains the pattern).
+        if (str_contains($trimmed, self::COMMA_SEPARATED_JSON_OBJECTS_PATTERN)) {
             return true;
         }
 
