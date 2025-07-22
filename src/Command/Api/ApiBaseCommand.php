@@ -220,7 +220,7 @@ class ApiBaseCommand extends CommandBase
         if (isset($oneOf)) {
             $types = [];
             foreach ($oneOf as $type) {
-                if ($type['type'] === 'array' && str_contains($value, ',')) {
+                if ($type['type'] === 'array' && $this->shouldTreatAsArray($value)) {
                     return $this->castParamToArray($type, $value);
                 }
                 $types[] = $type['type'];
@@ -249,9 +249,9 @@ class ApiBaseCommand extends CommandBase
         return match ($type) {
             'integer' => (int) $value,
             'boolean' => $this->castBool($value),
-            'array' => is_string($value) ? explode(',', $value) : (array) $value,
+            'array' => $this->parseArrayValue($value),
             'string' => (string) $value,
-            'object' => json_decode($value, false, 512, JSON_THROW_ON_ERROR),
+            'object' => is_string($value) ? json_decode($value, false, 512, JSON_THROW_ON_ERROR) : $value,
         };
     }
 
@@ -443,7 +443,7 @@ class ApiBaseCommand extends CommandBase
     {
         if (array_key_exists('items', $paramSpec) && array_key_exists('type', $paramSpec['items'])) {
             if (!is_array($originalValue)) {
-                $originalValue = $this->doCastParamType('array', $originalValue);
+                $originalValue = $this->parseArrayValue($originalValue);
             }
             $itemType = $paramSpec['items']['type'];
             $array = [];
@@ -452,6 +452,97 @@ class ApiBaseCommand extends CommandBase
             }
             return $array;
         }
-        return $this->doCastParamType('array', $originalValue);
+        return $this->parseArrayValue($originalValue);
+    }
+
+    /**
+     * Determines if a string value should be treated as an array.
+     * This checks if it's a JSON array or if it contains commas but is not a JSON object/array.
+     */
+    private function shouldTreatAsArray(mixed $value): bool
+    {
+        if (!is_string($value)) {
+            return is_array($value);
+        }
+
+        // First check if it's valid JSON.
+        $trimmed = trim($value);
+        if ($trimmed === '') {
+            return false;
+        }
+
+        // If it starts with [ or {, treat it as JSON.
+        if ($trimmed[0] === '[' || $trimmed[0] === '{') {
+            return true;
+        }
+
+        // Check if it's comma-separated JSON objects (contains '},').
+        if (str_contains($trimmed, '},{')) {
+            return true;
+        }
+
+        // Otherwise, check if it contains commas (traditional comma-separated values).
+        return str_contains($value, ',');
+    }
+
+    /**
+     * Parses a string or array value into an array.
+     * Handles JSON arrays, comma-separated values, or existing arrays.
+     *
+     * @return array<mixed>
+     */
+    private function parseArrayValue(array|string $value): array
+    {
+        if (is_array($value)) {
+            return $value;
+        }
+
+        $trimmed = trim($value);
+
+        // Try to parse as JSON first.
+        if ($trimmed !== '' && ($trimmed[0] === '[' || $trimmed[0] === '{')) {
+            try {
+                $decoded = json_decode($trimmed, true, 512, JSON_THROW_ON_ERROR);
+                if (is_array($decoded)) {
+                    return $decoded;
+                }
+            } catch (\JsonException $e) {
+                // Fall back to comma-separated parsing.
+            }
+        }
+
+        // Check if it's comma-separated JSON objects.
+        if (str_contains($trimmed, '},{')) {
+            $items = [];
+            $parts = explode(',', $trimmed);
+            $currentObject = '';
+            $braceCount = 0;
+
+            foreach ($parts as $part) {
+                $currentObject .= ($currentObject === '' ? '' : ',') . $part;
+                $braceCount += substr_count($part, '{') - substr_count($part, '}');
+
+                if ($braceCount === 0 && $currentObject !== '') {
+                    try {
+                        $decoded = json_decode($currentObject, true, 512, JSON_THROW_ON_ERROR);
+                        if (is_array($decoded)) {
+                            $items[] = $decoded;
+                        } else {
+                            $items[] = $currentObject;
+                        }
+                    } catch (\JsonException $e) {
+                        $items[] = $currentObject;
+                    }
+                    $currentObject = '';
+                }
+            }
+
+            if (!empty($items)) {
+                return $items;
+            }
+        }
+
+        // Fall back to comma-separated values.
+        return explode(',', $value);
     }
 }
