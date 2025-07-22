@@ -512,9 +512,8 @@ class ApiBaseCommand extends CommandBase
                     return $decoded;
                 }
             } catch (\JsonException $e) {
-                // Log the exception for debugging purposes.
-                error_log('JSON decoding failed in parseArrayValue: ' . $e->getMessage());
                 // Fall back to comma-separated parsing.
+                // Note: JSON parsing failures are expected for comma-separated JSON objects.
             }
         }
 
@@ -538,7 +537,7 @@ class ApiBaseCommand extends CommandBase
                             $items[] = $currentObject;
                         }
                     } catch (\JsonException $e) {
-                        error_log('JSON decoding failed for object: ' . $currentObject . ' Error: ' . $e->getMessage());
+                        // If JSON decoding fails, treat as a string value.
                         $items[] = $currentObject;
                     }
                     $currentObject = '';
