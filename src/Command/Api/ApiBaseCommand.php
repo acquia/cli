@@ -531,6 +531,7 @@ class ApiBaseCommand extends CommandBase
                             $items[] = $currentObject;
                         }
                     } catch (\JsonException $e) {
+                        error_log('JSON decoding failed for object: ' . $currentObject . ' Error: ' . $e->getMessage());
                         $items[] = $currentObject;
                     }
                     $currentObject = '';
