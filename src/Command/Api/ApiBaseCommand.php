@@ -507,6 +507,8 @@ class ApiBaseCommand extends CommandBase
                     return $decoded;
                 }
             } catch (\JsonException $e) {
+                // Log the exception for debugging purposes.
+                error_log('JSON decoding failed in parseArrayValue: ' . $e->getMessage());
                 // Fall back to comma-separated parsing.
             }
         }
