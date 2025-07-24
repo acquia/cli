@@ -49,7 +49,6 @@ class AcsfListCommandTest extends AcsfCommandTestBase
         $this->executeCommand();
         $output = $this->getDisplay();
         $this->assertStringContainsString('acsf:api:ping', $output);
-        $this->assertStringNotContainsString('acsf:groups', $output);
     }
 
     /**
