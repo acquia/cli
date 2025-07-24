@@ -46,15 +46,17 @@ class PullCodeCommandTest extends PullCommandTestBase
         $this->acliRepoRoot = '';
         $this->command = $this->createCommand();
         // Client responses.
-        $environment = $this->mockGetEnvironment();
+        // $environment = $this->mockGetEnvironment();
+        $siteInstance = $this->mockGetSiteInstance();
+        dd($siteInstance);
         $localMachineHelper = $this->mockReadIdePhpVersion();
         $process = $this->mockProcess();
         $dir = Path::join($this->vfsRoot->url(), 'empty-dir');
         mkdir($dir);
         $localMachineHelper->checkRequiredBinariesExist(["git"])
             ->shouldBeCalled();
-        $this->mockExecuteGitClone($localMachineHelper, $environment, $process, $dir);
-        $this->mockExecuteGitCheckout($localMachineHelper, $environment->vcs->path, $dir, $process);
+        $this->mockExecuteGitClone($localMachineHelper, $siteInstance, $process, $dir);
+        $this->mockExecuteGitCheckout($localMachineHelper, $siteInstance->environment->codebase->vcs_url, $dir, $process);
         $localMachineHelper->getFinder()->willReturn(new Finder());
 
         $inputs = [

@@ -9,8 +9,8 @@ use Acquia\Cli\Attribute\RequireLocalDb;
 use Acquia\Cli\Attribute\RequireRemoteDb;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Output\Checklist;
-use AcquiaCloudApi\Response\DatabaseResponse;
-use AcquiaCloudApi\Response\EnvironmentResponse;
+use AcquiaCloudApi\Response\SiteInstanceDatabaseResponse;
+use AcquiaCloudApi\Response\SiteInstanceResponse;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -34,15 +34,13 @@ final class PushDatabaseCommand extends PushCommandBase
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $destinationEnvironment = $this->determineEnvironment($input, $output);
+        $siteInstance = $this->determineSiteInstance($input, $output);
         $acquiaCloudClient = $this->cloudApiClientService->getClient();
-        $databases = $this->determineCloudDatabases($acquiaCloudClient, $destinationEnvironment, $input->getArgument('site'));
-        // We only support pushing a single database.
-        $database = $databases[0];
-        if ($database->user_name === null) {
+        $database = $this->determineCloudDatabases($acquiaCloudClient, $siteInstance, $input->getArgument('site'));
+        if ($database->databaseUser === null) {
             throw new AcquiaCliException('Database connection details missing');
         }
-        $answer = $this->io->confirm("Overwrite the <bg=cyan;options=bold>$database->name</> database on <bg=cyan;options=bold>$destinationEnvironment->name</> with a copy of the database from the current machine?");
+        $answer = $this->io->confirm("Overwrite the <bg=cyan;options=bold>$database->databaseName</> database on <bg=cyan;options=bold>" . $siteInstance->environment->name . "</> with a copy of the database from the current machine?");
         if (!$answer) {
             return Command::SUCCESS;
         }
@@ -55,22 +53,22 @@ final class PushDatabaseCommand extends PushCommandBase
         $this->checklist->completePreviousItem();
 
         $this->checklist->addItem('Uploading database dump to remote machine');
-        $remoteDumpFilepath = $this->uploadDatabaseDump($destinationEnvironment, $localDumpFilepath, $outputCallback);
+        $remoteDumpFilepath = $this->uploadDatabaseDump($siteInstance, $localDumpFilepath, $outputCallback);
         $this->checklist->completePreviousItem();
 
         $this->checklist->addItem('Importing database dump into MySQL on remote machine');
-        $this->importDatabaseDumpOnRemote($destinationEnvironment, $remoteDumpFilepath, $database);
+        $this->importDatabaseDumpOnRemote($siteInstance, $remoteDumpFilepath, $database);
         $this->checklist->completePreviousItem();
 
         return Command::SUCCESS;
     }
 
     private function uploadDatabaseDump(
-        EnvironmentResponse $environment,
+        SiteInstanceResponse $siteInstance,
         string $localFilepath,
         callable $outputCallback
     ): string {
-        $envAlias = self::getEnvironmentAlias($environment);
+        $envAlias = self::getEnvironmentAlias($siteInstance);
         $remoteFilepath = "/mnt/tmp/$envAlias/" . basename($localFilepath);
         $this->logger->debug("Uploading database dump to $remoteFilepath on remote machine");
         $this->localMachineHelper->checkRequiredBinariesExist(['rsync']);
@@ -79,7 +77,7 @@ final class PushDatabaseCommand extends PushCommandBase
             '-tDvPhe',
             'ssh -o StrictHostKeyChecking=no',
             $localFilepath,
-            $environment->sshUrl . ':' . $remoteFilepath,
+            $siteInstance->environment->codebase->vcs_url . ':' . $remoteFilepath,
         ];
         $process = $this->localMachineHelper->execute($command, $outputCallback, null, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
         if (!$process->isSuccessful()) {
@@ -92,19 +90,18 @@ final class PushDatabaseCommand extends PushCommandBase
         return $remoteFilepath;
     }
 
-    private function importDatabaseDumpOnRemote(EnvironmentResponse $environment, string $remoteDumpFilepath, DatabaseResponse $database): void
+    private function importDatabaseDumpOnRemote(SiteInstanceResponse $siteInstance, string $remoteDumpFilepath, SiteInstanceDatabaseResponse $database): void
     {
         $this->logger->debug("Importing $remoteDumpFilepath to MySQL on remote machine");
-        $command = "pv $remoteDumpFilepath --bytes --rate | gunzip | MYSQL_PWD=$database->password mysql --host={$this->getHostFromDatabaseResponse($environment, $database)} --user=$database->user_name {$this->getNameFromDatabaseResponse($database)}";
-        $process = $this->sshHelper->executeCommand($environment->sshUrl, [$command], ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
+        $command = "pv $remoteDumpFilepath --bytes --rate | gunzip | MYSQL_PWD=$database->databasePassword mysql --host={$this->getHostFromDatabaseResponse($siteInstance,$database)} --user=$database->databaseUser {$this->getNameFromDatabaseResponse($database)}";
+        $process = $this->sshHelper->executeCommand($siteInstance->environment->codebase->vcs_url, [$command], ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL), null);
         if (!$process->isSuccessful()) {
             throw new AcquiaCliException('Unable to import database on remote machine. {message}', ['message' => $process->getErrorOutput()]);
         }
     }
 
-    private function getNameFromDatabaseResponse(DatabaseResponse $database): string
+    private function getNameFromDatabaseResponse(SiteInstanceDatabaseResponse $database): string
     {
-        $dbUrlParts = explode('/', $database->url);
-        return end($dbUrlParts);
+        return $database->databaseName;
     }
 }

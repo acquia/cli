@@ -96,7 +96,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase
         $sshHelper->executeCommand(Argument::type('string'), [
             'ls',
             '/mnt/files/site.prod/sites',
-        ], false)
+        ], false, null)
             ->willReturn($process->reveal())->shouldBeCalled();
         $this->mockGetBackup($environment);
         $this->mockExecuteMySqlListTables($localMachineHelper, 'drupal');

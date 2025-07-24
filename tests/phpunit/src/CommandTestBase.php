@@ -232,6 +232,70 @@ abstract class CommandTestBase extends TestBase
         return $environments[self::$INPUT_DEFAULT_CHOICE];
     }
 
+
+    /**
+     * Mock a SiteInstanceResponse with proper structure for testing.
+     *
+     * This method creates a proper SiteInstanceResponse object with required properties
+     * that match what the determineSiteInstance method expects.
+     *
+     * @return object SiteInstanceResponse
+     */
+    public function mockGetSiteInstanceMockData(): object
+    {
+        // Create site data directly instead of using API calls.
+        $siteUuid = 'a47ac10b-58cc-4372-a567-0e02b2c3d470';
+        $envUuid = 'r47ac10b-58cc-4372-a567-0e02b2c3d470';
+
+        // Create a site object with required properties.
+        $site = new \stdClass();
+        $site->uuid = $siteUuid;
+        // Important! SiteResponse requires 'id'.
+        $site->id = $siteUuid;
+        $site->name = 'Example Site';
+        // Required by SiteResponse.
+        $site->label = 'Example Site';
+        // Required by SiteResponse.
+        $site->description = 'Example Site Description';
+        // Required by SiteResponse.
+        $site->_links = new \stdClass();
+
+        // Create an environment object with required properties.
+        $environment = new \stdClass();
+        $environment->uuid = $envUuid;
+        // Important! EnvironmentResponse requires 'id'.
+        $environment->id = $envUuid;
+        $environment->name = 'dev';
+        $environment->label = 'Dev';
+        // Required by EnvironmentResponse.
+        $environment->_links = new \stdClass();
+
+        // Create a site instance.
+        $siteInstance = new \stdClass();
+        $siteInstance->id = $siteUuid . '.' . $envUuid;
+        $siteInstance->site = $site;
+        $siteInstance->environment = $environment;
+
+        return $siteInstance;
+    }
+    public function mockGetSiteInstance(): mixed
+    {
+        $sites = $this->mockRequest('get_sites');
+        dd($sites);
+        $site = $sites[self::$INPUT_DEFAULT_CHOICE];
+        $environments = $this->mockRequest('environments_by_site', $site->id);
+        $environment = $environments[self::$INPUT_DEFAULT_CHOICE];
+        $environments = $this->mockRequest('environments_by_site', $site->id);
+        $codebase = $this->mockRequest('get_codebase_by_id', $environment->codebase_uuid);
+        $environment->codebase = $codebase;
+        $siteInstance = $this->mockRequest('site_instance', $site->id, $environment->id);
+        $siteInstance->site = $site;
+        $siteInstance->environment = $environment;
+
+        return $siteInstance;
+    }
+
+
     protected function mockLocalMachineHelper(): LocalMachineHelper|ObjectProphecy
     {
         $localMachineHelper = $this->prophet->prophesize(LocalMachineHelper::class);
@@ -297,7 +361,8 @@ abstract class CommandTestBase extends TestBase
         $sshHelper->executeCommand(
             Argument::type('string'),
             ['cat', '/var/www/site-php/profserv2.01dev/multisite-config.json'],
-            false
+            false,
+            null
         )->willReturn($acsfMultisiteFetchProcess->reveal())->shouldBeCalled();
         return json_decode($multisiteConfig, true);
     }
@@ -313,7 +378,8 @@ abstract class CommandTestBase extends TestBase
         $sshHelper->executeCommand(
             Argument::type('string'),
             ['ls', "/mnt/files/$sitegroup.$environment->name/sites"],
-            false
+            false,
+            null
         )->willReturn($cloudMultisiteFetchProcess->reveal())->shouldBeCalled();
     }
 
@@ -467,16 +533,16 @@ abstract class CommandTestBase extends TestBase
         $sshHelper = $this->mockSshHelper();
         // Mock Git.
         $urlParts = explode(':', $environmentsResponse[0]->vcs->url);
-        $sshHelper->executeCommand($urlParts[0], ['ls'], false)
+        $sshHelper->executeCommand($urlParts[0], ['ls'], false, null)
             ->willReturn($gitProcess->reveal())
             ->shouldBeCalled();
         if ($ssh) {
             // Mock non-prod.
-            $sshHelper->executeCommand($environmentsResponse[0]->ssh_url, ['ls'], false)
+            $sshHelper->executeCommand($environmentsResponse[0]->ssh_url, ['ls'], false, null)
                 ->willReturn($process->reveal())
                 ->shouldBeCalled();
             // Mock prod.
-            $sshHelper->executeCommand($environmentsResponse[1]->ssh_url, ['ls'], false)
+            $sshHelper->executeCommand($environmentsResponse[1]->ssh_url, ['ls'], false, null)
                 ->willReturn($process->reveal())
                 ->shouldBeCalled();
         }
@@ -489,7 +555,7 @@ abstract class CommandTestBase extends TestBase
         $process->isSuccessful()->willReturn(true);
         $process->getExitCode()->willReturn(128);
         $sshHelper = $this->mockSshHelper();
-        $sshHelper->executeCommand($environmentResponse->vcs->url, ['ls'], false)
+        $sshHelper->executeCommand($environmentResponse->vcs->url, ['ls'], false, null)
             ->willReturn($process->reveal())
             ->shouldBeCalled();
         return $sshHelper;

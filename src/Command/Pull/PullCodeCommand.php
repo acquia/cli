@@ -8,7 +8,6 @@ use Acquia\Cli\Attribute\RequireAuth;
 use Acquia\Cli\Attribute\RequireLocalDb;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -21,8 +20,8 @@ final class PullCodeCommand extends PullCommandBase
     protected function configure(): void
     {
         $this
-            ->acceptEnvironmentId()
-            ->addOption('dir', null, InputArgument::OPTIONAL, 'The directory containing the Drupal project to be refreshed')
+            ->acceptSiteInstanceId()
+            ->addOption('dir', null, InputOption::VALUE_OPTIONAL, 'The directory containing the Drupal project to be refreshed')
             ->addOption(
                 'no-scripts',
                 null,
@@ -35,10 +34,10 @@ final class PullCodeCommand extends PullCommandBase
     {
         $this->setDirAndRequireProjectCwd($input);
         $clone = $this->determineCloneProject($output);
-        $sourceEnvironment = $this->determineEnvironment($input, $output, true);
-        $this->pullCode($input, $output, $clone, $sourceEnvironment);
-        $this->checkEnvironmentPhpVersions($sourceEnvironment);
-        $this->matchIdePhpVersion($output, $sourceEnvironment);
+        $siteInstance = $this->determineSiteInstance($input, $output, true);
+        $this->pullCode($input, $output, $clone, $siteInstance);
+        $this->checkEnvironmentPhpVersions($siteInstance);
+        $this->matchIdePhpVersion($output, $siteInstance);
         if (!$input->getOption('no-scripts')) {
             $outputCallback = $this->getOutputCallback($output, $this->checklist);
             $this->runComposerScripts($outputCallback, $this->checklist);

@@ -494,7 +494,6 @@ abstract class TestBase extends TestCase
             throw new RuntimeException('Invalid number of parameters');
         }
         $response = self::getMockResponseFromSpec($path, $method, $code);
-
         // This is a set of example responses.
         if (isset($exampleResponse) && property_exists($response, $exampleResponse)) {
             $response = $response->$exampleResponse->value;

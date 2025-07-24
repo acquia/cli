@@ -347,7 +347,7 @@ abstract class PullCommandTestBase extends CommandTestBase
         $sshHelper->executeCommand(Argument::type('string'), [
             'ls',
             '/mnt/files/site.dev/sites',
-        ], false)
+        ], false, null)
             ->willReturn($process->reveal())->shouldBeCalled();
     }
 

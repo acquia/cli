@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "886c385f74fb24fafb7d7b204156540d",
+    "content-hash": "78365a913177bbde7d9d250732f8edf9",
     "packages": [
         {
             "name": "acquia/drupal-environment-detector",
@@ -6220,16 +6220,16 @@
         },
         {
             "name": "typhonius/acquia-php-sdk-v2",
-            "version": "3.6.1",
+            "version": "dev-CLI-1540",
             "source": {
                 "type": "git",
-                "url": "https://github.com/typhonius/acquia-php-sdk-v2.git",
-                "reference": "62dee2c7c100bbc58160630f129011256a80df47"
+                "url": "https://github.com/jigar-shah-acquia/acquia-php-sdk-v2.git",
+                "reference": "212ed27c068c4124a33bc9fa26450b441a0da02b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/typhonius/acquia-php-sdk-v2/zipball/62dee2c7c100bbc58160630f129011256a80df47",
-                "reference": "62dee2c7c100bbc58160630f129011256a80df47",
+                "url": "https://api.github.com/repos/jigar-shah-acquia/acquia-php-sdk-v2/zipball/212ed27c068c4124a33bc9fa26450b441a0da02b",
+                "reference": "212ed27c068c4124a33bc9fa26450b441a0da02b",
                 "shasum": ""
             },
             "require": {
@@ -6252,13 +6252,47 @@
             "type": "library",
             "autoload": {
                 "psr-4": {
-                    "AcquiaCloudApi\\Response\\": "src/Response",
                     "AcquiaCloudApi\\Connector\\": "src/Connector",
                     "AcquiaCloudApi\\Endpoints\\": "src/Endpoints",
+                    "AcquiaCloudApi\\Response\\": "src/Response",
                     "AcquiaCloudApi\\Exception\\": "src/Exception"
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
+            "autoload-dev": {
+                "psr-4": {
+                    "AcquiaCloudApi\\Tests\\": "tests/",
+                    "League\\OAuth2\\Client\\Test\\": "vendor/league/oauth2-client/test/src/"
+                }
+            },
+            "scripts": {
+                "lint": [
+                    "phplint"
+                ],
+                "cs": [
+                    "phpcs"
+                ],
+                "cbf": [
+                    "phpcbf"
+                ],
+                "unit": [
+                    "php -dpcov.enabled=1 -dpcov.directory=. -dpcov.exclude='~vendor~' ./vendor/bin/phpunit --configuration=phpunit.xml --testdox"
+                ],
+                "stan": [
+                    "phpstan analyse"
+                ],
+                "test": [
+                    "@lint",
+                    "@unit",
+                    "@cs",
+                    "@stan"
+                ],
+                "release": [
+                    "release VERSION"
+                ],
+                "coveralls": [
+                    "php ./vendor/bin/php-coveralls -v"
+                ]
+            },
             "license": [
                 "MIT"
             ],
@@ -6270,16 +6304,15 @@
             ],
             "description": "A PHP SDK for Acquia CloudAPI v2",
             "support": {
-                "issues": "https://github.com/typhonius/acquia-php-sdk-v2/issues",
-                "source": "https://github.com/typhonius/acquia-php-sdk-v2/tree/3.6.1"
+                "source": "https://github.com/jigar-shah-acquia/acquia-php-sdk-v2/tree/CLI-1540"
             },
             "funding": [
                 {
-                    "url": "https://github.com/typhonius",
-                    "type": "github"
+                    "type": "github",
+                    "url": "https://github.com/typhonius"
                 }
             ],
-            "time": "2025-07-18T19:46:20+00:00"
+            "time": "2025-07-23T13:34:22+00:00"
         },
         {
             "name": "vlucas/phpdotenv",
@@ -13346,11 +13379,18 @@
             "version": "3.0.2.0",
             "alias": "2.5.0",
             "alias_normalized": "2.5.0.0"
+        },
+        {
+            "package": "typhonius/acquia-php-sdk-v2",
+            "version": "dev-CLI-1540",
+            "alias": "3.6.1",
+            "alias_normalized": "3.6.1.0"
         }
     ],
     "minimum-stability": "dev",
     "stability-flags": {
-        "overtrue/phplint": 20
+        "overtrue/phplint": 20,
+        "typhonius/acquia-php-sdk-v2": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,
