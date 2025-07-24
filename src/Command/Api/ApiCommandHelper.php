@@ -364,19 +364,13 @@ class ApiCommandHelper
                     continue;
                 }
 
-                // Skip deprecated endpoints.
-                // @infection-ignore-all
-                if (array_key_exists('deprecated', $schema) && $schema['deprecated']) {
-                    continue;
-                }
-
                 $commandName = $commandPrefix . ':' . $schema['x-cli-name'];
                 $command = $commandFactory->createCommand();
                 $command->setName($commandName);
                 $command->setDescription($schema['summary']);
                 $command->setMethod($method);
                 $command->setResponses($schema['responses']);
-                $command->setHidden(false);
+                $command->setHidden(array_key_exists('deprecated', $schema) && $schema['deprecated']);
                 if (array_key_exists('servers', $acquiaCloudSpec)) {
                     $command->setServers($acquiaCloudSpec['servers']);
                 }
