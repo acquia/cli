@@ -28,11 +28,6 @@ use Symfony\Component\Validator\Validation;
 #[AsCommand(name: 'api:base', hidden: true)]
 class ApiBaseCommand extends CommandBase
 {
-    /**
-     * Pattern to detect comma-separated JSON objects.
-     */
-    private const COMMA_SEPARATED_JSON_OBJECTS_PATTERN = '},{';
-
     protected string $method;
 
     /**
@@ -225,7 +220,7 @@ class ApiBaseCommand extends CommandBase
         if (isset($oneOf)) {
             $types = [];
             foreach ($oneOf as $type) {
-                if ($type['type'] === 'array' && $this->shouldTreatAsArray($value)) {
+                if ($type['type'] === 'array' && str_contains($value, ',')) {
                     return $this->castParamToArray($type, $value);
                 }
                 $types[] = $type['type'];
@@ -258,6 +253,32 @@ class ApiBaseCommand extends CommandBase
             'string' => (string) $value,
             'object' => is_string($value) ? json_decode($value, false, 512, JSON_THROW_ON_ERROR) : $value,
         };
+    }
+
+    /**
+     * Parse a value into an array, handling JSON arrays and comma-separated values.
+     *
+     * @return array<mixed>
+     */
+    private function parseArrayValue(mixed $value): array
+    {
+        if (!is_string($value)) {
+            return (array) $value;
+        }
+
+        $trimmed = trim($value);
+        if ($trimmed !== '' && ($trimmed[0] === '[' || $trimmed[0] === '{')) {
+            try {
+                $decoded = json_decode($trimmed, true, 512, JSON_THROW_ON_ERROR);
+                if (is_array($decoded)) {
+                    return $decoded;
+                }
+            } catch (\JsonException) {
+                // Fall back to comma-separated parsing.
+            }
+        }
+
+        return explode(',', $value);
     }
 
     public function castBool(mixed $val): bool
@@ -448,7 +469,7 @@ class ApiBaseCommand extends CommandBase
     {
         if (array_key_exists('items', $paramSpec) && array_key_exists('type', $paramSpec['items'])) {
             if (!is_array($originalValue)) {
-                $originalValue = $this->parseArrayValue($originalValue);
+                $originalValue = $this->doCastParamType('array', $originalValue);
             }
             $itemType = $paramSpec['items']['type'];
             $array = [];
@@ -457,99 +478,6 @@ class ApiBaseCommand extends CommandBase
             }
             return $array;
         }
-        return $this->parseArrayValue($originalValue);
-    }
-
-    /**
-     * Determines if a string value should be treated as an array.
-     * This checks if it's a JSON array or if it contains commas but is not a JSON object/array.
-     */
-    private function shouldTreatAsArray(mixed $value): bool
-    {
-        if (!is_string($value)) {
-            return is_array($value);
-        }
-
-        // First check if it's valid JSON.
-        $trimmed = trim($value);
-        if ($trimmed === '') {
-            return false;
-        }
-
-        // If it starts with [ or {, treat it as JSON.
-        if ($trimmed[0] === '[' || $trimmed[0] === '{') {
-            return true;
-        }
-
-        // Check if it's comma-separated JSON objects (contains the pattern).
-        if (str_contains($trimmed, self::COMMA_SEPARATED_JSON_OBJECTS_PATTERN)) {
-            return true;
-        }
-
-        // Otherwise, check if it contains commas (traditional comma-separated values).
-        return str_contains($value, ',');
-    }
-
-    /**
-     * Parses a string or array value into an array.
-     * Handles JSON arrays, comma-separated values, or existing arrays.
-     *
-     * @return array<mixed>
-     */
-    private function parseArrayValue(array|string $value): array
-    {
-        if (is_array($value)) {
-            return $value;
-        }
-
-        $trimmed = trim($value);
-
-        // Try to parse as JSON first.
-        if ($trimmed !== '' && ($trimmed[0] === '[' || $trimmed[0] === '{')) {
-            try {
-                $decoded = json_decode($trimmed, true, 512, JSON_THROW_ON_ERROR);
-                if (is_array($decoded)) {
-                    return $decoded;
-                }
-            } catch (\JsonException $e) {
-                // Fall back to comma-separated parsing.
-                // Note: JSON parsing failures are expected for comma-separated JSON objects.
-            }
-        }
-
-        // Check if it's comma-separated JSON objects.
-        if (str_contains($trimmed, self::COMMA_SEPARATED_JSON_OBJECTS_PATTERN)) {
-            $items = [];
-            $parts = explode(',', $trimmed);
-            $currentObject = '';
-            $braceCount = 0;
-
-            foreach ($parts as $part) {
-                $currentObject .= ($currentObject === '' ? '' : ',') . $part;
-                $braceCount += substr_count($part, '{') - substr_count($part, '}');
-
-                if ($braceCount === 0 && $currentObject !== '') {
-                    try {
-                        $decoded = json_decode($currentObject, true, 512, JSON_THROW_ON_ERROR);
-                        if (is_array($decoded)) {
-                            $items[] = $decoded;
-                        } else {
-                            $items[] = $currentObject;
-                        }
-                    } catch (\JsonException $e) {
-                        // If JSON decoding fails, treat as a string value.
-                        $items[] = $currentObject;
-                    }
-                    $currentObject = '';
-                }
-            }
-
-            if (!empty($items)) {
-                return $items;
-            }
-        }
-
-        // Fall back to comma-separated values.
-        return explode(',', $value);
+        return $this->doCastParamType('array', $originalValue);
     }
 }
