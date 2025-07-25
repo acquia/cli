@@ -633,6 +633,28 @@ abstract class TestBase extends TestCase
         );
     }
 
+    protected function mockSiteInstanceRequest(): mixed
+    {
+        $sites = $this->mockRequest('get_sites');
+        $site = $sites[0];
+        $environments = $this->mockRequest('environments_by_site', $site->id);
+        $environment = $environments[0];
+        $codebase = $this->mockRequest('get_codebase_by_id', $environment->_embedded->codebase->id);
+        $environment->codebase = (object)$codebase;
+        $siteInstance = $this->mockRequest('site_instance', [$site->id, $environment->id]);
+        $siteInstance->site = $site;
+        $siteInstance->environment = $environment;
+        return $siteInstance;
+    }
+    protected function getMockSiteInstanceResponse(string $method = 'get', string $httpCode = '200'): object
+    {
+        return self::getMockResponseFromSpec(
+            '/site-instances/{siteId}.{environmentId}',
+            $method,
+            $httpCode
+        );
+    }
+
     protected static function getMockEnvironmentsResponse(): object
     {
         return self::getMockResponseFromSpec(

@@ -19,9 +19,7 @@ class PushFilesCommandTest extends CommandTestBase
 
     public function testPushFilesAcsf(): void
     {
-        $applicationsResponse = $this->mockApplicationsRequest();
-        $this->mockApplicationRequest();
-        $this->mockAcsfEnvironmentsRequest($applicationsResponse);
+        $siteInstanceResponse = $this->mockSiteInstanceRequest();
         $sshHelper = $this->mockSshHelper();
         $multisiteConfig = $this->mockGetAcsfSites($sshHelper);
         $localMachineHelper = $this->mockLocalMachineHelper();
@@ -45,7 +43,7 @@ class PushFilesCommandTest extends CommandTestBase
             'y',
         ];
 
-        $this->executeCommand([], $inputs);
+        $this->executeCommand(['siteInstanceId' => $siteInstanceResponse->site_id . "." . $siteInstanceResponse->environment_id], $inputs);
 
         $output = $this->getDisplay();
 
@@ -57,15 +55,12 @@ class PushFilesCommandTest extends CommandTestBase
 
     public function testPushFilesCloud(): void
     {
-        $applicationsResponse = $this->mockApplicationsRequest();
-        $this->mockApplicationRequest();
-        $environmentsResponse = $this->mockEnvironmentsRequest($applicationsResponse);
-        $selectedEnvironment = $environmentsResponse->_embedded->items[0];
+        $siteInstanceResponse = $this->mockSiteInstanceRequest();
         $sshHelper = $this->mockSshHelper();
-        $this->mockGetCloudSites($sshHelper, $selectedEnvironment);
+        $this->mockGetCloudSites($sshHelper, $siteInstanceResponse);
         $localMachineHelper = $this->mockLocalMachineHelper();
         $process = $this->mockProcess();
-        $this->mockExecuteCloudRsync($localMachineHelper, $process, $selectedEnvironment);
+        $this->mockExecuteCloudRsync($localMachineHelper, $process, $siteInstanceResponse);
 
         $this->command->sshHelper = $sshHelper->reveal();
 
@@ -84,7 +79,7 @@ class PushFilesCommandTest extends CommandTestBase
             'y',
         ];
 
-        $this->executeCommand([], $inputs);
+        $this->executeCommand(['siteInstanceId' => $siteInstanceResponse->site_id . "." . $siteInstanceResponse->environment_id], $inputs);
 
         $output = $this->getDisplay();
 
@@ -96,12 +91,10 @@ class PushFilesCommandTest extends CommandTestBase
 
     public function testPushFilesNoOverwrite(): void
     {
-        $applicationsResponse = $this->mockApplicationsRequest();
-        $this->mockApplicationRequest();
-        $environmentsResponse = $this->mockEnvironmentsRequest($applicationsResponse);
-        $selectedEnvironment = $environmentsResponse->_embedded->items[0];
+
+        $siteInstanceResponse = $this->mockSiteInstanceRequest();
         $sshHelper = $this->mockSshHelper();
-        $this->mockGetCloudSites($sshHelper, $selectedEnvironment);
+        $this->mockGetCloudSites($sshHelper, $siteInstanceResponse);
         $localMachineHelper = $this->mockLocalMachineHelper();
 
         $this->command->sshHelper = $sshHelper->reveal();
@@ -121,7 +114,7 @@ class PushFilesCommandTest extends CommandTestBase
             'n',
         ];
 
-        $this->executeCommand([], $inputs);
+        $this->executeCommand(['siteInstanceId' => $siteInstanceResponse->site_id . "." . $siteInstanceResponse->environment_id], $inputs);
 
         $output = $this->getDisplay();
 
@@ -135,18 +128,17 @@ class PushFilesCommandTest extends CommandTestBase
     protected function mockExecuteCloudRsync(
         ObjectProphecy $localMachineHelper,
         ObjectProphecy $process,
-        mixed $environment
+        mixed $siteInstance
     ): void {
         $localMachineHelper->checkRequiredBinariesExist(['rsync'])
             ->shouldBeCalled();
-        $parts = explode('.', $environment->ssh_url);
-        $sitegroup = reset($parts);
+        $sitegroup = $siteInstance->site_id;
         $command = [
             'rsync',
             '-avPhze',
             'ssh -o StrictHostKeyChecking=no',
             $this->projectDir . '/docroot/sites/default/files/',
-            $environment->ssh_url . ':/mnt/files/' . $sitegroup . '.' . $environment->name . '/sites/default/files',
+            $siteInstance->environment->codebase->vcs_url . ':/mnt/files/' . $sitegroup . '.' . $siteInstance->environment->name . '/sites/default/files',
         ];
         $localMachineHelper->execute($command, Argument::type('callable'), null, true)
             ->willReturn($process->reveal())

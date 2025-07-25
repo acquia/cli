@@ -213,7 +213,7 @@ abstract class PullCommandTestBase extends CommandTestBase
 
     protected function mockExecuteRsync(
         LocalMachineHelper|ObjectProphecy $localMachineHelper,
-        mixed $environment,
+        mixed $siteInstance,
         string $sourceDir,
         string $destinationDir
     ): void {
@@ -224,7 +224,7 @@ abstract class PullCommandTestBase extends CommandTestBase
             'rsync',
             '-avPhze',
             'ssh -o StrictHostKeyChecking=no',
-            $environment->ssh_url . ':' . $sourceDir,
+            $siteInstance->environment->codebase->vcs_url . ':' . $sourceDir,
             $destinationDir,
         ];
         $localMachineHelper->execute($command, Argument::type('callable'), null, true)
@@ -351,22 +351,22 @@ abstract class PullCommandTestBase extends CommandTestBase
             ->willReturn($process->reveal())->shouldBeCalled();
     }
 
-    public function mockGetBackup(mixed $environment): void
+    public function mockGetBackup(mixed $siteInstance): void
     {
-        $databases = $this->mockRequest('getEnvironmentsDatabases', $environment->id);
+        $database = $this->mockRequest('site_instance_database', [$siteInstance->site_id, $siteInstance->environment_id]);
         $tamper = static function ($backups): void {
-            $backups[0]->completedAt = $backups[0]->completed_at;
+            $backups[0]->completedAt = $backups[0]->created_at;
         };
         $backups = new BackupsResponse(
-            $this->mockRequest('getEnvironmentsDatabaseBackups', [
-                $environment->id,
-                'my_db',
+            $this->mockRequest('get_database_backups', [
+                $siteInstance->site_id,
+                $siteInstance->environment_id,
             ], null, null, $tamper)
         );
-        $this->mockDownloadBackup($databases[0], $environment, $backups[0]);
+        $this->mockDownloadBackup($database, $siteInstance, $backups[0]);
     }
 
-    protected function mockDownloadBackup(object $database, object $environment, object $backup, int $curlCode = 0): object
+    protected function mockDownloadBackup(object $database, object $siteInstance, object $backup, int $curlCode = 0): object
     {
         if ($curlCode) {
             $this->prophet->prophesize(StreamInterface::class);
@@ -374,7 +374,8 @@ abstract class PullCommandTestBase extends CommandTestBase
             $requestException = $this->prophet->prophesize(RequestException::class);
             $requestException->getHandlerContext()
                 ->willReturn(['errno' => $curlCode]);
-            $this->clientProphecy->stream('get', "/environments/$environment->id/databases/$database->name/backups/1/actions/download", [])
+
+            $this->clientProphecy->stream('get', "/environments/$siteInstance->environment_id/databases/$database->databaseName/backups/1/actions/download", [])
                 ->willThrow($requestException->reveal())
                 ->shouldBeCalled();
             $response = $this->prophet->prophesize(ResponseInterface::class);
@@ -382,19 +383,19 @@ abstract class PullCommandTestBase extends CommandTestBase
                 ->willReturn($response->reveal())
                 ->shouldBeCalled();
             $domainsResponse = self::getMockResponseFromSpec('/environments/{environmentId}/domains', 'get', 200);
-            $this->clientProphecy->request('get', "/environments/$environment->id/domains")
+            $this->clientProphecy->request('get', "/environments/$siteInstance->environment_id/domains")
                 ->willReturn($domainsResponse->_embedded->items);
             $this->command->setBackupDownloadUrl(new Uri('https://www.example.com/download-backup'));
         } else {
-            $this->mockDownloadBackupResponse($environment, $database->name, 1);
+            $this->mockDownloadBackupResponse($siteInstance, $database->database_name, 1);
         }
         if ($database->flags->default) {
-            $dbMachineName = $database->name . $environment->name;
+            $dbMachineName = $database->name . $siteInstance->environment->name;
         } else {
             $dbMachineName = 'db' . $database->id;
         }
         $filename = implode('-', [
-            $environment->name,
+            $siteInstance->environment->name,
             $database->name,
             $dbMachineName,
             $backup->completedAt,

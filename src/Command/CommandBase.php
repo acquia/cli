@@ -667,10 +667,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
      */
     protected function determineSiteInstance(InputInterface $input, OutputInterface $output, bool $required = false): ?SiteInstanceResponse
     {
-        // In test environments, handle mocked responses.
-        if ($this->isTestEnvironment()) {
-            return $this->getMockedSiteInstance($required);
-        }
 
         // SiteInstanceId is siteId.environmentId now get.
         $siteInstanceId = $input->hasArgument('siteInstanceId') ? $input->getArgument('siteInstanceId') : null;
@@ -1245,102 +1241,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
         $siteResource = new Sites($this->cloudApiClientService->getClient());
 
         return $siteResource->get($siteId);
-    }
-
-    /**
-     * Check if we're running in a test environment.
-     */
-    protected function isTestEnvironment(): bool
-    {
-        global $argv;
-        return defined('PHPUNIT_COMPOSER_INSTALL') ||
-            getenv('PHPUNIT_RUNNING') ||
-            (PHP_SAPI === 'cli' && strpos(($argv[0] ?? ''), 'phpunit') !== false);
-    }
-
-    /**
-     * Gets a mocked site instance for test environments.
-     */
-    protected function getMockedSiteInstance(bool $required = false): ?SiteInstanceResponse
-    {
-        if (!$required) {
-            return null;
-        }
-
-        // Create simple mocks that have the minimum properties needed.
-        $siteInstance = new \stdClass();
-        $siteInstance->id = 'mock-site-id.mock-env-id';
-        $siteInstance->site_id = 'mock-site-id';
-        $siteInstance->environment_id = 'mock-env-id';
-        $siteInstance->status = 'active';
-        $siteInstance->platform = 'cloud-classic';
-        $siteInstance->name = 'dev';
-        $siteInstance->status = 'normal';
-        $siteInstance->health_status = new \stdClass();
-        $siteInstance->domains = ['mocksite.dev.acquia-sites.com'];
-        $siteInstance->_links = new \stdClass();
-
-        $site = new \stdClass();
-        // Important! SiteResponse requires 'id'.
-        $site->id = 'mock-site-id';
-        $site->uuid = 'mock-site-id';
-        $site->name = 'Mock Site';
-        // Required by SiteResponse.
-        $site->label = 'Mock Site Label';
-        $site->description = 'Mock Site Description';
-        // Required by SiteResponse.
-        $site->_links = new \stdClass();
-
-        // Create a mock for CodebaseEnvironmentResponse.
-        $environment = new \stdClass();
-        // Important! CodebaseEnvironmentResponse requires 'id'.
-        $environment->id = 'mock-env-id';
-        $environment->uuid = 'mock-env-id';
-        $environment->name = 'dev';
-        $environment->ssh_url = 'mock-site.dev@ssh.mock.acquia-sites.com';
-        $environment->domains = ['mocksite.dev.acquia-sites.com'];
-        $environment->label = 'Dev';
-        $environment->description = 'Mock Environment Description';
-        $environment->status = 'normal';
-        $environment->reference = 'master';
-        $environment->code_switch_status = 'IDLE';
-        $environment->flags = new \stdClass();
-        $environment->properties = new \stdClass();
-        $environment->codebase_uuid = 'mock-codebase-uuid';
-        // Required by CodebaseEnvironmentResponse.
-        $environment->_links = new \stdClass();
-
-        // Create a codebase.
-        $codebase = new \stdClass();
-        // Important! CodebaseResponse requires 'id'.
-        $codebase->id = 'mock-codebase-uuid';
-        $codebase->uuid = 'mock-codebase-uuid';
-        $codebase->name = 'Mock Codebase';
-        $codebase->label = 'Mock Codebase Label';
-        $codebase->region = 'us-east-1';
-        $codebase->hosting_stage = 'prod';
-        $codebase->vcs_url = 'mock-site.dev@ssh.mock.acquia-sites.com:mock-site.dev.git';
-        $codebase->vcs_type = 'git';
-        $codebase->repository_id = 'mock-repo-id';
-        $codebase->created_at = '2023-01-01T00:00:00Z';
-        $codebase->updated_at = '2023-01-01T00:00:00Z';
-        $codebase->description = 'Mock codebase description';
-        $codebase->flags = new \stdClass();
-        $codebase->hash = 'abcdef1234567890';
-        $codebase->applications_total = 1;
-        $codebase->_links = new \stdClass();
-
-        // Wrap in response objects.
-        $siteResponse = new SiteResponse($site);
-        $envResponse = new CodebaseEnvironmentResponse($environment);
-        $siteInstanceResponse = new SiteInstanceResponse($siteInstance);
-        $codebaseResponse = new CodebaseResponse($codebase);
-
-        $siteInstanceResponse->site = $siteResponse;
-        $envResponse->codebase = $codebaseResponse;
-        $siteInstanceResponse->environment = $envResponse;
-
-        return $siteInstanceResponse;
     }
 
     /**

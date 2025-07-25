@@ -38,7 +38,7 @@ class PullCommandTest extends PullCommandTestBase
     public function testPull(): void
     {
         // Pull code.
-        $environment = $this->mockGetEnvironment();
+        $siteInstance = $this->mockGetSiteInstance();
         $this->createMockGitConfigFile();
         $localMachineHelper = $this->mockLocalMachineHelper();
         $localMachineHelper->checkRequiredBinariesExist(["git"])
@@ -46,21 +46,20 @@ class PullCommandTest extends PullCommandTestBase
         $finder = $this->mockFinder();
         $localMachineHelper->getFinder()->willReturn($finder->reveal());
         $process = $this->mockProcess();
-        $this->mockExecuteGitFetchAndCheckout($localMachineHelper, $process, $this->projectDir, $environment->vcs->path);
+        $this->mockExecuteGitFetchAndCheckout($localMachineHelper, $process, $this->projectDir, $siteInstance->environment->codebase->vcs_url);
         $this->mockExecuteGitStatus(false, $localMachineHelper, $this->projectDir);
 
         // Pull files.
         $sshHelper = $this->mockSshHelper();
-        $this->mockGetCloudSites($sshHelper, $environment);
+        $this->mockGetCloudSites($sshHelper, $siteInstance);
         $this->mockGetFilesystem($localMachineHelper);
-        $parts = explode('.', $environment->ssh_url);
-        $sitegroup = reset($parts);
-        $this->mockExecuteRsync($localMachineHelper, $environment, '/mnt/files/' . $sitegroup . '.' . $environment->name . '/sites/default/files/', $this->projectDir . '/docroot/sites/default/files');
+        $sitegroup = $siteInstance->site_id;
+        $this->mockExecuteRsync($localMachineHelper, $siteInstance, '/mnt/files/' . $sitegroup . '.' . $siteInstance->environment_id . '/sites/default/files/', $this->projectDir . '/docroot/sites/default/files');
         $this->command->sshHelper = $sshHelper->reveal();
 
         // Pull database.
         $this->mockExecuteMySqlConnect($localMachineHelper, true);
-        $this->mockGetBackup($environment);
+        $this->mockGetBackup($siteInstance);
         $this->mockExecuteMySqlListTables($localMachineHelper, 'drupal');
         $process = $this->mockProcess();
         $localMachineHelper

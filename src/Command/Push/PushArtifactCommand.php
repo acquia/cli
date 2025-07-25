@@ -512,12 +512,12 @@ final class PushArtifactCommand extends CommandBase
             return $this->destinationGitRef;
         }
 
-        $environment = $this->determineEnvironment($this->input, $this->output);
-        if (str_starts_with($environment->vcs->path, 'tags')) {
-            throw new AcquiaCliException("You cannot push to an environment that has a git tag deployed to it. Environment $environment->name has {$environment->vcs->path} deployed. Select a different environment.");
+        $siteInstance = $this->determineSiteInstance($this->input, $this->output);
+        if (str_starts_with($siteInstance->environment->codebase->vcs_url, 'tags')) {
+            throw new AcquiaCliException("You cannot push to an environment that has a git tag deployed to it. Environment " . $siteInstance->environment->name . " has {$siteInstance->environment->codebase->vcs_url} deployed. Select a different environment.");
         }
 
-        $this->destinationGitRef = $environment->vcs->path;
+        $this->destinationGitRef = $siteInstance->environment->codebase->vcs_url;
 
         return $this->destinationGitRef;
     }

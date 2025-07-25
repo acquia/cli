@@ -54,17 +54,9 @@ class PushDatabaseCommandTest extends CommandTestBase
      */
     public function testPushDatabase(int $verbosity, bool $printOutput, bool $pv): void
     {
-        $applications = $this->mockRequest('getApplications');
-        $application = $this->mockRequest('getApplicationByUuid', $applications[self::$INPUT_DEFAULT_CHOICE]->uuid);
-        $tamper = function ($responses): void {
-            foreach ($responses as $response) {
-                $response->ssh_url = 'profserv2.01dev@profserv201dev.ssh.enterprise-g1.acquia-sites.com';
-                $response->domains = ["profserv201dev.enterprise-g1.acquia-sites.com"];
-            }
-        };
-        $environments = $this->mockRequest('getApplicationEnvironments', $application->uuid, null, null, $tamper);
+        $siteInstance = $this->mockGetSiteInstance();
         $this->createMockGitConfigFile();
-        $this->mockAcsfDatabasesResponse($environments[self::$INPUT_DEFAULT_CHOICE]);
+        $this->mockAcsfDatabasesResponse($siteInstance);
         $process = $this->mockProcess();
 
         $localMachineHelper = $this->mockLocalMachineHelper();
@@ -95,7 +87,7 @@ class PushDatabaseCommandTest extends CommandTestBase
             'y',
         ];
 
-        $this->executeCommand([], $inputs, $verbosity);
+        $this->executeCommand(['siteInstanceId' => $siteInstance->site_id . "." . $siteInstance->environment_id], $inputs, $verbosity);
 
         $output = $this->getDisplay();
 
@@ -122,15 +114,15 @@ class PushDatabaseCommandTest extends CommandTestBase
      */
     public function testPushDatabaseWithMissingPermission(): void
     {
-        $environment = $this->mockGetEnvironment();
+        $siteInstance = $this->mockGetSiteInstance();
         $tamper = static function ($databases): void {
-            $databases[0]->user_name = null;
+            $databases->database_user = null;
         };
-        $this->mockRequest('getEnvironmentsDatabases', $environment->id, null, null, $tamper);
+        $this->mockRequest('site_instance_database', [$siteInstance->site_id, $siteInstance->environment_id], null, null, $tamper);
 
         $this->expectException(AcquiaCliException::class);
         $this->expectExceptionMessage('Database connection details missing');
-        $this->executeCommand([], self::inputChooseEnvironment());
+        $this->executeCommand(['siteInstanceId' => $siteInstance->site_id . "." . $siteInstance->environment_id], self::inputChooseEnvironment());
     }
 
     protected function mockUploadDatabaseDump(

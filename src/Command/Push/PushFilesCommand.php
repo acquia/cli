@@ -26,11 +26,11 @@ final class PushFilesCommand extends PushCommandBase
     {
         $this->setDirAndRequireProjectCwd($input);
         $siteInstance = $this->determineSiteInstance($input, $output);
-        $chosenSite = $siteInstance->site;
+        $chosenSite = $siteInstance->site_id;
         if (!$chosenSite) {
             $chosenSite = $this->promptChooseDrupalSite($siteInstance);
         }
-        $answer = $this->io->confirm("Overwrite the public files directory on <bg=cyan;options=bold>$siteInstance->environment->name</> with a copy of the files from the current machine?");
+        $answer = $this->io->confirm("Overwrite the public files directory on <bg=cyan;options=bold>" . $siteInstance->environment->name . "</> with a copy of the files from the current machine?");
         if (!$answer) {
             return Command::SUCCESS;
         }

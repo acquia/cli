@@ -25,8 +25,7 @@ final class PushDatabaseCommand extends PushCommandBase
     protected function configure(): void
     {
         $this
-            ->acceptEnvironmentId()
-            ->acceptSite();
+            ->acceptSiteInstanceId();
     }
 
     /**

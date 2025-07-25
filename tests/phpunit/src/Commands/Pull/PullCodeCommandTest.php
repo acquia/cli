@@ -46,15 +46,12 @@ class PullCodeCommandTest extends PullCommandTestBase
         $this->acliRepoRoot = '';
         $this->command = $this->createCommand();
         // Client responses.
-        // $environment = $this->mockGetEnvironment();
         $siteInstance = $this->mockGetSiteInstance();
-        dd($siteInstance);
         $localMachineHelper = $this->mockReadIdePhpVersion();
         $process = $this->mockProcess();
         $dir = Path::join($this->vfsRoot->url(), 'empty-dir');
         mkdir($dir);
-        $localMachineHelper->checkRequiredBinariesExist(["git"])
-            ->shouldBeCalled();
+        $localMachineHelper->checkRequiredBinariesExist(["git"])->shouldBeCalled();
         $this->mockExecuteGitClone($localMachineHelper, $siteInstance, $process, $dir);
         $this->mockExecuteGitCheckout($localMachineHelper, $siteInstance->environment->codebase->vcs_url, $dir, $process);
         $localMachineHelper->getFinder()->willReturn(new Finder());
@@ -72,12 +69,13 @@ class PullCodeCommandTest extends PullCommandTestBase
         $this->executeCommand([
             '--dir' => $dir,
             '--no-scripts' => true,
+            'siteInstanceId' => $siteInstance->site_id . "." . $siteInstance->environment_id,
         ], $inputs);
     }
 
     public function testPullCode(): void
     {
-        $environment = $this->mockGetEnvironment();
+        $siteInstance = $this->mockGetSiteInstance();
         $this->createMockGitConfigFile();
 
         $localMachineHelper = $this->mockReadIdePhpVersion();
@@ -87,11 +85,12 @@ class PullCodeCommandTest extends PullCommandTestBase
         $localMachineHelper->getFinder()->willReturn($finder->reveal());
 
         $process = $this->mockProcess();
-        $this->mockExecuteGitFetchAndCheckout($localMachineHelper, $process, $this->projectDir, $environment->vcs->path);
+        $this->mockExecuteGitFetchAndCheckout($localMachineHelper, $process, $this->projectDir, $siteInstance->environment->codebase->vcs_url);
         $this->mockExecuteGitStatus(false, $localMachineHelper, $this->projectDir);
 
         $this->executeCommand([
             '--no-scripts' => true,
+            'siteInstanceId' => $siteInstance->site_id . '.' . $siteInstance->environment_id,
         ], self::inputChooseEnvironment());
 
         $output = $this->getDisplay();
@@ -105,7 +104,7 @@ class PullCodeCommandTest extends PullCommandTestBase
     public function testWithScripts(): void
     {
         touch(Path::join($this->projectDir, 'composer.json'));
-        $environment = $this->mockGetEnvironment();
+        $siteInstance = $this->mockGetSiteInstance();
         $this->createMockGitConfigFile();
 
         $localMachineHelper = $this->mockReadIdePhpVersion();
@@ -115,7 +114,7 @@ class PullCodeCommandTest extends PullCommandTestBase
         $localMachineHelper->getFinder()->willReturn($finder->reveal());
 
         $process = $this->mockProcess();
-        $this->mockExecuteGitFetchAndCheckout($localMachineHelper, $process, $this->projectDir, $environment->vcs->path);
+        $this->mockExecuteGitFetchAndCheckout($localMachineHelper, $process, $this->projectDir, $siteInstance->environment->codebase->vcs_url);
         $this->mockExecuteGitStatus(false, $localMachineHelper, $this->projectDir);
         $process = $this->mockProcess();
         $this->mockExecuteComposerExists($localMachineHelper);
@@ -124,7 +123,7 @@ class PullCodeCommandTest extends PullCommandTestBase
         $this->mockExecuteDrushStatus($localMachineHelper, $this->projectDir);
         $this->mockExecuteDrushCacheRebuild($localMachineHelper, $process);
 
-        $this->executeCommand([], self::inputChooseEnvironment());
+        $this->executeCommand(['siteInstanceId' => $siteInstance->site_id . "." . $siteInstance->environment_id], self::inputChooseEnvironment());
 
         $output = $this->getDisplay();
 
@@ -136,7 +135,7 @@ class PullCodeCommandTest extends PullCommandTestBase
 
     public function testNoComposerJson(): void
     {
-        $environment = $this->mockGetEnvironment();
+        $siteInstance = $this->mockGetSiteInstance();
         $this->createMockGitConfigFile();
 
         $localMachineHelper = $this->mockReadIdePhpVersion();
@@ -146,14 +145,14 @@ class PullCodeCommandTest extends PullCommandTestBase
         $localMachineHelper->getFinder()->willReturn($finder->reveal());
 
         $process = $this->mockProcess();
-        $this->mockExecuteGitFetchAndCheckout($localMachineHelper, $process, $this->projectDir, $environment->vcs->path);
+        $this->mockExecuteGitFetchAndCheckout($localMachineHelper, $process, $this->projectDir, $siteInstance->environment->codebase->vcs_url);
         $this->mockExecuteGitStatus(false, $localMachineHelper, $this->projectDir);
         $process = $this->mockProcess();
         $this->mockExecuteDrushExists($localMachineHelper);
         $this->mockExecuteDrushStatus($localMachineHelper, $this->projectDir);
         $this->mockExecuteDrushCacheRebuild($localMachineHelper, $process);
 
-        $this->executeCommand([], self::inputChooseEnvironment());
+        $this->executeCommand(['siteInstanceId' => $siteInstance->site_id . "." . $siteInstance->environment_id], self::inputChooseEnvironment());
 
         $output = $this->getDisplay();
         $this->assertStringContainsString('composer.json file not found. Skipping composer install.', $output);
@@ -162,9 +161,7 @@ class PullCodeCommandTest extends PullCommandTestBase
     public function testNoComposer(): void
     {
         touch(Path::join($this->projectDir, 'composer.json'));
-        $applications = $this->mockRequest('getApplications');
-        $this->mockRequest('getApplicationByUuid', $applications[self::$INPUT_DEFAULT_CHOICE]->uuid);
-        $environments = $this->mockRequest('getApplicationEnvironments', $applications[self::$INPUT_DEFAULT_CHOICE]->uuid);
+        $siteInstance = $this->mockGetSiteInstance();
         $this->createMockGitConfigFile();
 
         $localMachineHelper = $this->mockReadIdePhpVersion();
@@ -174,7 +171,7 @@ class PullCodeCommandTest extends PullCommandTestBase
         $localMachineHelper->getFinder()->willReturn($finder->reveal());
 
         $process = $this->mockProcess();
-        $this->mockExecuteGitFetchAndCheckout($localMachineHelper, $process, $this->projectDir, $environments[self::$INPUT_DEFAULT_CHOICE]->vcs->path);
+        $this->mockExecuteGitFetchAndCheckout($localMachineHelper, $process, $this->projectDir, $siteInstance->environment->codebase->vcs_url);
         $this->mockExecuteGitStatus(false, $localMachineHelper, $this->projectDir);
         $process = $this->mockProcess();
         $localMachineHelper
@@ -185,7 +182,7 @@ class PullCodeCommandTest extends PullCommandTestBase
         $this->mockExecuteDrushStatus($localMachineHelper, $this->projectDir);
         $this->mockExecuteDrushCacheRebuild($localMachineHelper, $process);
 
-        $this->executeCommand([], self::inputChooseEnvironment());
+        $this->executeCommand(['siteInstanceId' => $siteInstance->site_id . '.' . $siteInstance->environment_id], self::inputChooseEnvironment());
 
         $output = $this->getDisplay();
 
@@ -196,9 +193,7 @@ class PullCodeCommandTest extends PullCommandTestBase
     {
         touch(Path::join($this->projectDir, 'composer.json'));
         touch(Path::join($this->projectDir, 'vendor'));
-        $applications = $this->mockRequest('getApplications');
-        $this->mockRequest('getApplicationByUuid', $applications[self::$INPUT_DEFAULT_CHOICE]->uuid);
-        $environments = $this->mockRequest('getApplicationEnvironments', $applications[self::$INPUT_DEFAULT_CHOICE]->uuid);
+        $siteInstance = $this->mockGetSiteInstance();
         $this->createMockGitConfigFile();
 
         $localMachineHelper = $this->mockReadIdePhpVersion();
@@ -208,7 +203,7 @@ class PullCodeCommandTest extends PullCommandTestBase
         $localMachineHelper->getFinder()->willReturn($finder->reveal());
 
         $process = $this->mockProcess();
-        $this->mockExecuteGitFetchAndCheckout($localMachineHelper, $process, $this->projectDir, $environments[self::$INPUT_DEFAULT_CHOICE]->vcs->path);
+        $this->mockExecuteGitFetchAndCheckout($localMachineHelper, $process, $this->projectDir, $siteInstance->environment->codebase->vcs_url);
         $this->mockExecuteGitStatus(false, $localMachineHelper, $this->projectDir);
         $process = $this->mockProcess();
         $this->mockExecuteComposerExists($localMachineHelper);
@@ -216,7 +211,7 @@ class PullCodeCommandTest extends PullCommandTestBase
         $this->mockExecuteDrushStatus($localMachineHelper, $this->projectDir);
         $this->mockExecuteDrushCacheRebuild($localMachineHelper, $process);
 
-        $this->executeCommand([], self::inputChooseEnvironment());
+        $this->executeCommand(['siteInstanceId' => $siteInstance->site_id . '.' . $siteInstance->environment_id], self::inputChooseEnvironment());
 
         $output = $this->getDisplay();
 
@@ -258,9 +253,9 @@ class PullCodeCommandTest extends PullCommandTestBase
         $this->mockExecuteGitFetchAndCheckout($localMachineHelper, $process, $dir, 'master');
         $this->mockExecuteGitStatus(false, $localMachineHelper, $dir);
 
-        $environmentResponse = $this->getMockEnvironmentResponse();
-        $environmentResponse->configuration->php->version = '7.1';
-        $environmentResponse->sshUrl = $environmentResponse->ssh_url;
+        $siteInstanceResponse = $this->getMockSiteInstanceResponse();
+        $siteInstanceResponse->environment->configuration->php->version = '7.1';
+        $environmentResponse = $siteInstanceResponse->environment;
         $this->clientProphecy->request(
             'get',
             "/environments/" . $environmentResponse->id
@@ -292,14 +287,14 @@ class PullCodeCommandTest extends PullCommandTestBase
 
     protected function mockExecuteGitClone(
         ObjectProphecy $localMachineHelper,
-        object $environmentsResponse,
+        object $siteInstanceResponse,
         ObjectProphecy $process,
         mixed $dir
     ): void {
         $command = [
             'git',
             'clone',
-            $environmentsResponse->vcs->url,
+            $siteInstanceResponse->environment->codebase->vcs_url,
             $dir,
         ];
         $localMachineHelper->execute($command, Argument::type('callable'), null, true, null, ['GIT_SSH_COMMAND' => 'ssh -o StrictHostKeyChecking=no'])
