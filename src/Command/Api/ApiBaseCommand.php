@@ -249,10 +249,36 @@ class ApiBaseCommand extends CommandBase
         return match ($type) {
             'integer' => (int) $value,
             'boolean' => $this->castBool($value),
-            'array' => is_string($value) ? explode(',', $value) : (array) $value,
+            'array' => $this->parseArrayValue($value),
             'string' => (string) $value,
-            'object' => json_decode($value, false, 512, JSON_THROW_ON_ERROR),
+            'object' => is_string($value) ? json_decode($value, false, 512, JSON_THROW_ON_ERROR) : $value,
         };
+    }
+
+    /**
+     * Parse a value into an array, handling JSON arrays and comma-separated values.
+     *
+     * @return array<mixed>
+     */
+    private function parseArrayValue(mixed $value): array
+    {
+        if (!is_string($value)) {
+            return (array) $value;
+        }
+
+        $trimmed = trim($value);
+        if ($trimmed !== '' && ($trimmed[0] === '[' || $trimmed[0] === '{')) {
+            try {
+                $decoded = json_decode($trimmed, true, 512, JSON_THROW_ON_ERROR);
+                if (is_array($decoded)) {
+                    return $decoded;
+                }
+            } catch (\JsonException) {
+                // Fall back to comma-separated parsing.
+            }
+        }
+
+        return explode(',', $value);
     }
 
     public function castBool(mixed $val): bool
