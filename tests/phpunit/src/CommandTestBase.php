@@ -87,7 +87,6 @@ abstract class CommandTestBase extends TestBase
         $tester->setInputs($inputs);
         $commandName = $this->command->getName();
         $args = array_merge(['command' => $commandName], $args);
-
         if (getenv('ACLI_PRINT_COMMAND_OUTPUT')) {
             $this->consoleOutput->writeln('');
             $this->consoleOutput->writeln('Executing <comment>' . $this->command->getName() . '</comment> in ' . $cwd);
@@ -231,6 +230,20 @@ abstract class CommandTestBase extends TestBase
         $environments = $this->mockRequest('getApplicationEnvironments', $application->uuid);
         return $environments[self::$INPUT_DEFAULT_CHOICE];
     }
+    public function mockGetSiteInstance(): mixed
+    {
+        $sites = $this->mockRequest('get_sites');
+        $site = $sites[self::$INPUT_DEFAULT_CHOICE];
+        $environments = $this->mockRequest('environments_by_site', $site->id);
+        $environment = $environments[self::$INPUT_DEFAULT_CHOICE];
+        $codebase = $this->mockRequest('get_codebase_by_id', $environment->_embedded->codebase->id);
+        $environment->codebase = (object)$codebase;
+        $siteInstance = $this->mockRequest('site_instance', [$site->id, $environment->id]);
+        $siteInstance->site = $site;
+        $siteInstance->environment = $environment;
+        return $siteInstance;
+    }
+
 
     protected function mockLocalMachineHelper(): LocalMachineHelper|ObjectProphecy
     {
@@ -259,6 +272,18 @@ abstract class CommandTestBase extends TestBase
             ->willReturn($environmentResponse)
             ->shouldBeCalled();
         return $environmentResponse;
+    }
+
+    protected function mockGetSiteInstances(): object
+    {
+        $siteInstanceResponse = $this->getMockSiteInstanceResponse();
+        $this->clientProphecy->request(
+            'get',
+            "/site-instances/" . $siteInstanceResponse->site_id . "." . $siteInstanceResponse->environment_id
+        )
+            ->willReturn($siteInstanceResponse)
+            ->shouldBeCalled();
+        return $siteInstanceResponse;
     }
 
     public function mockAcsfEnvironmentsRequest(
@@ -297,23 +322,24 @@ abstract class CommandTestBase extends TestBase
         $sshHelper->executeCommand(
             Argument::type('string'),
             ['cat', '/var/www/site-php/profserv2.01dev/multisite-config.json'],
-            false
+            false,
+            null
         )->willReturn($acsfMultisiteFetchProcess->reveal())->shouldBeCalled();
         return json_decode($multisiteConfig, true);
     }
 
-    protected function mockGetCloudSites(mixed $sshHelper, mixed $environment): void
+    protected function mockGetCloudSites(mixed $sshHelper, mixed $siteInstance): void
     {
         $cloudMultisiteFetchProcess = $this->mockProcess();
         $cloudMultisiteFetchProcess->getOutput()
             ->willReturn("\nbar\ndefault\nfoo\n")
             ->shouldBeCalled();
-        $parts = explode('.', $environment->ssh_url);
-        $sitegroup = reset($parts);
+        $sitegroup = $siteInstance->site_id;
         $sshHelper->executeCommand(
             Argument::type('string'),
-            ['ls', "/mnt/files/$sitegroup.$environment->name/sites"],
-            false
+            ['ls', "/mnt/files/$sitegroup." . $siteInstance->environment->name . "/sites"],
+            false,
+            null
         )->willReturn($cloudMultisiteFetchProcess->reveal())->shouldBeCalled();
     }
 
@@ -334,7 +360,7 @@ abstract class CommandTestBase extends TestBase
      * @return \AcquiaCloudApi\Response\DatabaseResponse[]
      */
     protected function mockAcsfDatabasesResponse(
-        object $environmentsResponse
+        object $siteInstanceResponse
     ): array {
         $databasesResponseJson = json_decode(file_get_contents(Path::join($this->realFixtureDir, '/acsf_db_response.json')), false, 512, JSON_THROW_ON_ERROR);
         $databasesResponse = array_map(
@@ -345,7 +371,7 @@ abstract class CommandTestBase extends TestBase
         );
         $this->clientProphecy->request(
             'get',
-            "/environments/$environmentsResponse->id/databases"
+            "/site-instances/" . $siteInstanceResponse->site_id . "." . $siteInstanceResponse->environment_id . "/databases"
         )
             ->willReturn($databasesResponse)
             ->shouldBeCalled();
@@ -354,14 +380,14 @@ abstract class CommandTestBase extends TestBase
     }
 
     protected function mockDatabaseBackupsResponse(
-        object $environmentsResponse,
+        object $siteInstanceResponse,
         string $dbName,
         int $backupId,
         bool $existingBackups = true
     ): object {
         $databaseBackupsResponse = self::getMockResponseFromSpec('/environments/{environmentId}/databases/{databaseName}/backups', 'get', 200);
         foreach ($databaseBackupsResponse->_embedded->items as $backup) {
-            $backup->_links->download->href = "/environments/$environmentsResponse->id/databases/$dbName/backups/$backupId/actions/download";
+            $backup->_links->download->href = "/environments/" . $siteInstanceResponse->environment->id . "/databases/$dbName/backups/$backupId/actions/download";
             $backup->database->name = $dbName;
             // Acquia PHP SDK mutates the property name. Gross workaround, is there a better way?
             $backup->completedAt = $backup->completed_at;
@@ -370,14 +396,14 @@ abstract class CommandTestBase extends TestBase
         if ($existingBackups) {
             $this->clientProphecy->request(
                 'get',
-                "/environments/$environmentsResponse->id/databases/$dbName/backups"
+                "/environments/" . $siteInstanceResponse->environment->id . "/databases/$dbName/backups"
             )
                 ->willReturn($databaseBackupsResponse->_embedded->items)
                 ->shouldBeCalled();
         } else {
             $this->clientProphecy->request(
                 'get',
-                "/environments/$environmentsResponse->id/databases/$dbName/backups"
+                "/environments/" . $siteInstanceResponse->environment->id . "/databases/$dbName/backups"
             )
                 ->willReturn([], $databaseBackupsResponse->_embedded->items)
                 ->shouldBeCalled();
@@ -387,22 +413,22 @@ abstract class CommandTestBase extends TestBase
     }
 
     protected function mockDownloadBackupResponse(
-        mixed $environmentsResponse,
+        mixed $siteInstanceResponse,
         mixed $dbName,
         mixed $backupId
     ): void {
         $stream = $this->prophet->prophesize(StreamInterface::class);
-        $this->clientProphecy->stream('get', "/environments/$environmentsResponse->id/databases/$dbName/backups/$backupId/actions/download", [])
+        $this->clientProphecy->stream('get', "/site-instances/" . $siteInstanceResponse->site_id . "." . $siteInstanceResponse->environment_id . "/databases/$dbName/backups/$backupId/actions/download", [])
             ->willReturn($stream->reveal())
             ->shouldBeCalled();
     }
 
     protected function mockDatabaseBackupCreateResponse(
-        mixed $environmentsResponse,
+        mixed $siteInstanceResponse,
         mixed $dbName
     ): mixed {
         $backupCreateResponse = self::getMockResponseFromSpec('/environments/{environmentId}/databases/{databaseName}/backups', 'post', 202)->{'Creating backup'}->value;
-        $this->clientProphecy->request('post', "/environments/$environmentsResponse->id/databases/$dbName/backups")
+        $this->clientProphecy->request('post', "/environments/" . $siteInstanceResponse->environment->id . "/databases/$dbName/backups")
             ->willReturn($backupCreateResponse)
             ->shouldBeCalled();
 
@@ -467,16 +493,16 @@ abstract class CommandTestBase extends TestBase
         $sshHelper = $this->mockSshHelper();
         // Mock Git.
         $urlParts = explode(':', $environmentsResponse[0]->vcs->url);
-        $sshHelper->executeCommand($urlParts[0], ['ls'], false)
+        $sshHelper->executeCommand($urlParts[0], ['ls'], false, null)
             ->willReturn($gitProcess->reveal())
             ->shouldBeCalled();
         if ($ssh) {
             // Mock non-prod.
-            $sshHelper->executeCommand($environmentsResponse[0]->ssh_url, ['ls'], false)
+            $sshHelper->executeCommand($environmentsResponse[0]->ssh_url, ['ls'], false, null)
                 ->willReturn($process->reveal())
                 ->shouldBeCalled();
             // Mock prod.
-            $sshHelper->executeCommand($environmentsResponse[1]->ssh_url, ['ls'], false)
+            $sshHelper->executeCommand($environmentsResponse[1]->ssh_url, ['ls'], false, null)
                 ->willReturn($process->reveal())
                 ->shouldBeCalled();
         }
@@ -489,7 +515,7 @@ abstract class CommandTestBase extends TestBase
         $process->isSuccessful()->willReturn(true);
         $process->getExitCode()->willReturn(128);
         $sshHelper = $this->mockSshHelper();
-        $sshHelper->executeCommand($environmentResponse->vcs->url, ['ls'], false)
+        $sshHelper->executeCommand($environmentResponse->vcs->url, ['ls'], false, null)
             ->willReturn($process->reveal())
             ->shouldBeCalled();
         return $sshHelper;

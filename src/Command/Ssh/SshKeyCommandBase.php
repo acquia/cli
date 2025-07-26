@@ -94,7 +94,9 @@ abstract class SshKeyCommandBase extends CommandBase
         // @see https://www.linux.com/topic/networking/manage-ssh-key-file-passphrase/
         $tempFilepath = $this->localMachineHelper->getFilesystem()
             ->tempnam(sys_get_temp_dir(), 'acli');
-        $this->localMachineHelper->writeFile($tempFilepath, <<<'EOT'
+        $this->localMachineHelper->writeFile(
+            $tempFilepath,
+            <<<'EOT'
 #!/usr/bin/env bash
 echo $SSH_PASS
 EOT
@@ -140,7 +142,7 @@ EOT
         $callback = function () use ($output, &$mappings, &$timers, $startTime): void {
             foreach ($mappings as $envName => $config) {
                 try {
-                    $process = $this->sshHelper->executeCommand($config['ssh_target'], ['ls'], false);
+                    $process = $this->sshHelper->executeCommand($config['ssh_target'], ['ls'], false, null);
                     if (($process->getExitCode() === 128 && $envName === 'git') || $process->isSuccessful()) {
                         // SSH key is available on this host, but may be pending on others.
                         $config['spinner']->finish();
@@ -343,7 +345,7 @@ EOT
         if ($filepath) {
             if (
                 !$this->localMachineHelper->getFilesystem()
-                ->exists($filepath)
+                    ->exists($filepath)
             ) {
                 throw new AcquiaCliException('The filepath {filepath} is not valid', ['filepath' => $filepath]);
             }

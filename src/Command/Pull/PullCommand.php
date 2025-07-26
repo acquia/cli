@@ -24,8 +24,7 @@ final class PullCommand extends PullCommandBase
     protected function configure(): void
     {
         $this
-            ->acceptEnvironmentId()
-            ->acceptSite()
+            ->acceptSiteInstanceId()
             ->addOption('dir', null, InputArgument::OPTIONAL, 'The directory containing the Drupal project to be refreshed')
             ->addOption('no-code', null, InputOption::VALUE_NONE, 'Do not refresh code from remote repository')
             ->addOption('no-files', null, InputOption::VALUE_NONE, 'Do not refresh files')
@@ -42,18 +41,18 @@ final class PullCommand extends PullCommandBase
     {
         $this->setDirAndRequireProjectCwd($input);
         $clone = $this->determineCloneProject($output);
-        $sourceEnvironment = $this->determineEnvironment($input, $output, true);
+        $siteInstance = $this->determineSiteInstance($input, $output, true);
 
         if (!$input->getOption('no-code')) {
-            $this->pullCode($input, $output, $clone, $sourceEnvironment);
+            $this->pullCode($input, $output, $clone, $siteInstance);
         }
 
         if (!$input->getOption('no-files')) {
-            $this->pullFiles($input, $output, $sourceEnvironment);
+            $this->pullFiles($input, $output, $siteInstance);
         }
 
         if (!$input->getOption('no-databases')) {
-            $this->pullDatabase($input, $output, $sourceEnvironment);
+            $this->pullDatabase($input, $output, $siteInstance);
         }
 
         if (!$input->getOption('no-scripts')) {

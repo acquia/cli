@@ -494,7 +494,6 @@ abstract class TestBase extends TestCase
             throw new RuntimeException('Invalid number of parameters');
         }
         $response = self::getMockResponseFromSpec($path, $method, $code);
-
         // This is a set of example responses.
         if (isset($exampleResponse) && property_exists($response, $exampleResponse)) {
             $response = $response->$exampleResponse->value;
@@ -629,6 +628,28 @@ abstract class TestBase extends TestCase
     {
         return self::getMockResponseFromSpec(
             '/environments/{environmentId}',
+            $method,
+            $httpCode
+        );
+    }
+
+    protected function mockSiteInstanceRequest(): mixed
+    {
+        $sites = $this->mockRequest('get_sites');
+        $site = $sites[0];
+        $environments = $this->mockRequest('environments_by_site', $site->id);
+        $environment = $environments[0];
+        $codebase = $this->mockRequest('get_codebase_by_id', $environment->_embedded->codebase->id);
+        $environment->codebase = (object)$codebase;
+        $siteInstance = $this->mockRequest('site_instance', [$site->id, $environment->id]);
+        $siteInstance->site = $site;
+        $siteInstance->environment = $environment;
+        return $siteInstance;
+    }
+    protected function getMockSiteInstanceResponse(string $method = 'get', string $httpCode = '200'): object
+    {
+        return self::getMockResponseFromSpec(
+            '/site-instances/{siteId}.{environmentId}',
             $method,
             $httpCode
         );
