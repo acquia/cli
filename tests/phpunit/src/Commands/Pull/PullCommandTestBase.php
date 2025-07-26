@@ -375,7 +375,7 @@ abstract class PullCommandTestBase extends CommandTestBase
             $requestException->getHandlerContext()
                 ->willReturn(['errno' => $curlCode]);
 
-            $this->clientProphecy->stream('get', "/environments/$siteInstance->environment_id/databases/$database->databaseName/backups/1/actions/download", [])
+            $this->clientProphecy->stream('get', "/site-instances/$siteInstance->site_id.$siteInstance->environment_id/databases/$database->name/backups/1/actions/download", [])
                 ->willThrow($requestException->reveal())
                 ->shouldBeCalled();
             $response = $this->prophet->prophesize(ResponseInterface::class);
@@ -387,7 +387,7 @@ abstract class PullCommandTestBase extends CommandTestBase
                 ->willReturn($domainsResponse->_embedded->items);
             $this->command->setBackupDownloadUrl(new Uri('https://www.example.com/download-backup'));
         } else {
-            $this->mockDownloadBackupResponse($siteInstance, $database->database_name, 1);
+            $this->mockDownloadBackupResponse($siteInstance, $database->name, 1);
         }
         if ($database->flags->default) {
             $dbMachineName = $database->name . $siteInstance->environment->name;

@@ -129,7 +129,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase
 
     public function testPullDatabasesLocalConnectionFailure(): void
     {
-        $this->mockGetEnvironment();
+        $siteInstance = $this->mockGetSiteInstance();
         $localMachineHelper = $this->mockLocalMachineHelper();
         $this->mockExecuteMySqlConnect($localMachineHelper, false);
 
@@ -137,6 +137,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase
         $this->expectExceptionMessage('Unable to connect');
         $this->executeCommand([
             '--no-scripts' => true,
+            'siteInstanceId' => $siteInstance->site_id . "." . $siteInstance->environment_id,
         ], self::inputChooseEnvironment());
     }
 
@@ -211,12 +212,13 @@ class PullDatabaseCommandTest extends PullCommandTestBase
     {
         $this->setupPullDatabase(true, true, true, true, false, 0, true, false);
         $inputs = self::inputChooseEnvironment();
-
+        $siteInstance = $this->mockGetSiteInstance();
         $this->expectException(AcquiaCliException::class);
         $this->expectExceptionMessage('Cloud API failed to create a backup');
         $this->executeCommand([
             '--no-scripts' => true,
             '--on-demand' => true,
+            'siteInstanceId' => $siteInstance->site_id . "." . $siteInstance->environment_id,
         ], $inputs);
     }
 

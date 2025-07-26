@@ -57,12 +57,11 @@ final class PullDatabaseCommand extends PullCommandBase
         $noScripts = $input->hasOption('no-scripts') && $input->getOption('no-scripts');
         $onDemand = $input->hasOption('on-demand') && $input->getOption('on-demand');
         $noImport = $input->hasOption('no-import') && $input->getOption('no-import');
-        $multipleDbs = $input->hasOption('multiple-dbs') && $input->getOption('multiple-dbs');
         // $noImport implies $noScripts.
         $noScripts = $noImport || $noScripts;
         $this->setDirAndRequireProjectCwd($input);
         $siteInstance = $this->determineSiteInstance($input, $output, true);
-        $this->pullDatabase($input, $output, $siteInstance, $onDemand, $noImport, $multipleDbs);
+        $this->pullDatabase($input, $output, $siteInstance, $onDemand, $noImport);
         if (!$noScripts) {
             $this->runDrushCacheClear($this->getOutputCallback($output, $this->checklist), $this->checklist);
             $this->runDrushSqlSanitize($this->getOutputCallback($output, $this->checklist), $this->checklist);

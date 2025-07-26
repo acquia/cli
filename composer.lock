@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "886c385f74fb24fafb7d7b204156540d",
+    "content-hash": "dc30c4427ee2f9847bc618292b414f94",
     "packages": [
         {
             "name": "acquia/drupal-environment-detector",
@@ -6220,16 +6220,16 @@
         },
         {
             "name": "typhonius/acquia-php-sdk-v2",
-            "version": "3.6.1",
+            "version": "3.7.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/typhonius/acquia-php-sdk-v2.git",
-                "reference": "62dee2c7c100bbc58160630f129011256a80df47"
+                "reference": "4b8e5ca211d0fca16e379f2b955dbfd51d883504"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/typhonius/acquia-php-sdk-v2/zipball/62dee2c7c100bbc58160630f129011256a80df47",
-                "reference": "62dee2c7c100bbc58160630f129011256a80df47",
+                "url": "https://api.github.com/repos/typhonius/acquia-php-sdk-v2/zipball/4b8e5ca211d0fca16e379f2b955dbfd51d883504",
+                "reference": "4b8e5ca211d0fca16e379f2b955dbfd51d883504",
                 "shasum": ""
             },
             "require": {
@@ -6271,7 +6271,7 @@
             "description": "A PHP SDK for Acquia CloudAPI v2",
             "support": {
                 "issues": "https://github.com/typhonius/acquia-php-sdk-v2/issues",
-                "source": "https://github.com/typhonius/acquia-php-sdk-v2/tree/3.6.1"
+                "source": "https://github.com/typhonius/acquia-php-sdk-v2/tree/3.7.0"
             },
             "funding": [
                 {
@@ -6279,7 +6279,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2025-07-18T19:46:20+00:00"
+            "time": "2025-07-25T16:13:26+00:00"
         },
         {
             "name": "vlucas/phpdotenv",

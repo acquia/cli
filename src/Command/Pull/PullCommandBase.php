@@ -132,7 +132,7 @@ abstract class PullCommandBase extends CommandBase
      * @param bool $noImport Skip import.
      * @throws \Acquia\Cli\Exception\AcquiaCliException
      */
-    protected function pullDatabase(InputInterface $input, OutputInterface $output, SiteInstanceResponse $siteInstance, bool $onDemand = false, bool $noImport = false, bool $multipleDbs = false): void
+    protected function pullDatabase(InputInterface $input, OutputInterface $output, SiteInstanceResponse $siteInstance, bool $onDemand = false, bool $noImport = false): void
     {
         if (!$noImport) {
             // Verify database connection.
@@ -140,7 +140,7 @@ abstract class PullCommandBase extends CommandBase
         }
         $acquiaCloudClient = $this->cloudApiClientService->getClient();
         $site = $this->determineSite($siteInstance, $input);
-        $databases = $this->determineCloudDatabases($acquiaCloudClient, $siteInstance, $site, $multipleDbs);
+        $databases = $this->determineCloudDatabases($acquiaCloudClient, $siteInstance);
 
         foreach ($databases as $database) {
             if ($onDemand) {

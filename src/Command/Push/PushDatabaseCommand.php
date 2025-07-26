@@ -35,7 +35,7 @@ final class PushDatabaseCommand extends PushCommandBase
     {
         $siteInstance = $this->determineSiteInstance($input, $output);
         $acquiaCloudClient = $this->cloudApiClientService->getClient();
-        $database = $this->determineCloudDatabases($acquiaCloudClient, $siteInstance, $input->getArgument('site'));
+        $database = $this->determineCloudDatabases($acquiaCloudClient, $siteInstance);
         if ($database->databaseUser === null) {
             throw new AcquiaCliException('Database connection details missing');
         }

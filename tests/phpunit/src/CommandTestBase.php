@@ -418,7 +418,7 @@ abstract class CommandTestBase extends TestBase
         mixed $backupId
     ): void {
         $stream = $this->prophet->prophesize(StreamInterface::class);
-        $this->clientProphecy->stream('get', "/environments/" . $siteInstanceResponse->environment->id . "/databases/$dbName/backups/$backupId/actions/download", [])
+        $this->clientProphecy->stream('get', "/site-instances/" . $siteInstanceResponse->site_id . "." . $siteInstanceResponse->environment_id . "/databases/$dbName/backups/$backupId/actions/download", [])
             ->willReturn($stream->reveal())
             ->shouldBeCalled();
     }

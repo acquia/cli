@@ -569,7 +569,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
     /**
      * @return \AcquiaCloudApi\Response\DatabaseResponse[]|SiteInstanceDatabaseResponse
      */
-    protected function determineCloudDatabases(Client $acquiaCloudClient, SiteInstanceResponse $siteInstance, ?string $site = null, ?bool $multipleDbs = false): SiteInstanceDatabaseResponse
+    protected function determineCloudDatabases(Client $acquiaCloudClient, SiteInstanceResponse $siteInstance): SiteInstanceDatabaseResponse
     {
         $databasesRequest = new SiteInstances($acquiaCloudClient);
         $database = $databasesRequest->getDatabase($siteInstance->site_id, $siteInstance->environment_id);
