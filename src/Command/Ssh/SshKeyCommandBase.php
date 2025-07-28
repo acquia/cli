@@ -142,7 +142,7 @@ EOT
         $callback = function () use ($output, &$mappings, &$timers, $startTime): void {
             foreach ($mappings as $envName => $config) {
                 try {
-                    $process = $this->sshHelper->executeCommand($config['ssh_target'], ['ls'], false, null);
+                    $process = $this->sshHelper->executeCommand($config['ssh_target'], ['ls'], false);
                     if (($process->getExitCode() === 128 && $envName === 'git') || $process->isSuccessful()) {
                         // SSH key is available on this host, but may be pending on others.
                         $config['spinner']->finish();

@@ -20,6 +20,8 @@ final class PullCodeCommand extends PullCommandBase
     protected function configure(): void
     {
         $this
+            ->acceptEnvironmentId()
+            ->acceptCodebaseId()
             ->acceptSiteInstanceId()
             ->addOption('dir', null, InputOption::VALUE_OPTIONAL, 'The directory containing the Drupal project to be refreshed')
             ->addOption(
@@ -34,10 +36,11 @@ final class PullCodeCommand extends PullCommandBase
     {
         $this->setDirAndRequireProjectCwd($input);
         $clone = $this->determineCloneProject($output);
+        $sourceEnvironment = $this->determineEnvironment($input, $output, true);
         $siteInstance = $this->determineSiteInstance($input, $output, true);
-        $this->pullCode($input, $output, $clone, $siteInstance);
-        $this->checkEnvironmentPhpVersions($siteInstance);
-        $this->matchIdePhpVersion($output, $siteInstance);
+        $this->pullCode($input, $output, $clone, $sourceEnvironment);
+        $this->checkEnvironmentPhpVersions($sourceEnvironment);
+        $this->matchIdePhpVersion($output, $sourceEnvironment);
         if (!$input->getOption('no-scripts')) {
             $outputCallback = $this->getOutputCallback($output, $this->checklist);
             $this->runComposerScripts($outputCallback, $this->checklist);

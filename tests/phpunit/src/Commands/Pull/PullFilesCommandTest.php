@@ -37,13 +37,15 @@ class PullFilesCommandTest extends PullCommandTestBase
      */
     public function testPullFilesAcsf(): void
     {
-
-        $siteInstanceResponse = $this->mockGetSiteInstance();
+        $applicationsResponse = $this->mockApplicationsRequest();
+        $this->mockApplicationRequest();
+        $environmentsResponse = $this->mockAcsfEnvironmentsRequest($applicationsResponse);
+        $selectedEnvironment = $environmentsResponse->_embedded->items[0];
         $sshHelper = $this->mockSshHelper();
         $this->mockGetAcsfSites($sshHelper);
         $localMachineHelper = $this->mockLocalMachineHelper();
         $this->mockGetFilesystem($localMachineHelper);
-        $this->mockExecuteRsync($localMachineHelper, $siteInstanceResponse, '/mnt/files/profserv2.01dev/sites/g/files/jxr5000596dev/files/', $this->projectDir . '/docroot/sites/jxr5000596dev/files');
+        $this->mockExecuteRsync($localMachineHelper, $selectedEnvironment, '/mnt/files/profserv2.01dev/sites/g/files/jxr5000596dev/files/', $this->projectDir . '/docroot/sites/jxr5000596dev/files');
 
         $this->command->sshHelper = $sshHelper->reveal();
 
@@ -60,7 +62,7 @@ class PullFilesCommandTest extends PullCommandTestBase
             0,
         ];
 
-        $this->executeCommand(['siteInstanceId' => $siteInstanceResponse->site_id . '.' . $siteInstanceResponse->environment_id], $inputs);
+        $this->executeCommand([], $inputs);
 
         $output = $this->getDisplay();
 
@@ -75,8 +77,9 @@ class PullFilesCommandTest extends PullCommandTestBase
      */
     public function testPullFilesAcsfNoSites(): void
     {
-        $siteInstance = $this->mockSiteInstanceRequest();
-
+        $applicationsResponse = $this->mockApplicationsRequest();
+        $this->mockApplicationRequest();
+        $this->mockAcsfEnvironmentsRequest($applicationsResponse);
         $sshHelper = $this->mockSshHelper();
         $this->mockGetAcsfSites($sshHelper, false);
         $this->command->sshHelper = $sshHelper->reveal();
@@ -97,7 +100,7 @@ class PullFilesCommandTest extends PullCommandTestBase
 
         $this->expectException(AcquiaCliException::class);
         $this->expectExceptionMessage('No sites found in this environment');
-        $this->executeCommand(['siteInstanceId' => $siteInstance->site_id . '.' . $siteInstance->environment_id], $inputs);
+        $this->executeCommand([], $inputs);
     }
 
     /**
@@ -105,14 +108,17 @@ class PullFilesCommandTest extends PullCommandTestBase
      */
     public function testPullFilesCloud(): void
     {
-        $siteInstance = $this->mockSiteInstanceRequest();
-
+        $applicationsResponse = $this->mockApplicationsRequest();
+        $this->mockApplicationRequest();
+        $environmentsResponse = $this->mockEnvironmentsRequest($applicationsResponse);
+        $selectedEnvironment = $environmentsResponse->_embedded->items[0];
         $sshHelper = $this->mockSshHelper();
-        $this->mockGetCloudSites($sshHelper, $siteInstance);
+        $this->mockGetCloudSites($sshHelper, $selectedEnvironment);
         $localMachineHelper = $this->mockLocalMachineHelper();
         $this->mockGetFilesystem($localMachineHelper);
-        $sitegroup = $siteInstance->site_id;
-        $this->mockExecuteRsync($localMachineHelper, $siteInstance, '/mnt/files/' . $sitegroup . '.' . $siteInstance->environment->name . '/sites/default/files/', $this->projectDir . '/docroot/sites/default/files');
+        $parts = explode('.', $selectedEnvironment->ssh_url);
+        $sitegroup = reset($parts);
+        $this->mockExecuteRsync($localMachineHelper, $selectedEnvironment, '/mnt/files/' . $sitegroup . '.' . $selectedEnvironment->name . '/sites/default/files/', $this->projectDir . '/docroot/sites/default/files');
 
         $this->command->sshHelper = $sshHelper->reveal();
 
@@ -129,7 +135,7 @@ class PullFilesCommandTest extends PullCommandTestBase
             0,
         ];
 
-        $this->executeCommand(['siteInstanceId' => $siteInstance->site_id . '.' . $siteInstance->environment_id], $inputs);
+        $this->executeCommand([], $inputs);
 
         $output = $this->getDisplay();
 

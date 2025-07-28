@@ -27,24 +27,22 @@ use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Connector\Connector;
 use AcquiaCloudApi\Endpoints\Account;
 use AcquiaCloudApi\Endpoints\Applications;
-use AcquiaCloudApi\Endpoints\CodebaseEnvironments;
 use AcquiaCloudApi\Endpoints\Codebases;
+use AcquiaCloudApi\Endpoints\Databases;
 use AcquiaCloudApi\Endpoints\Environments;
 use AcquiaCloudApi\Endpoints\Notifications;
 use AcquiaCloudApi\Endpoints\Organizations;
 use AcquiaCloudApi\Endpoints\SiteInstances;
-use AcquiaCloudApi\Endpoints\Sites;
 use AcquiaCloudApi\Endpoints\Subscriptions;
 use AcquiaCloudApi\Response\AccountResponse;
 use AcquiaCloudApi\Response\ApplicationResponse;
-use AcquiaCloudApi\Response\CodebaseEnvironmentResponse;
 use AcquiaCloudApi\Response\CodebaseResponse;
 use AcquiaCloudApi\Response\CodebasesResponse;
+use AcquiaCloudApi\Response\DatabaseResponse;
 use AcquiaCloudApi\Response\DatabasesResponse;
 use AcquiaCloudApi\Response\EnvironmentResponse;
 use AcquiaCloudApi\Response\EnvironmentsResponse;
 use AcquiaCloudApi\Response\NotificationResponse;
-use AcquiaCloudApi\Response\SiteInstanceDatabaseResponse;
 use AcquiaCloudApi\Response\SiteInstanceResponse;
 use AcquiaCloudApi\Response\SiteResponse;
 use AcquiaCloudApi\Response\SubscriptionResponse;
@@ -231,7 +229,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
         $this->formatter = $this->getHelper('formatter');
 
         $this->output->writeln('Acquia CLI version: ' . $this->getApplication()
-            ->getVersion(), OutputInterface::VERBOSITY_DEBUG);
+                ->getVersion(), OutputInterface::VERBOSITY_DEBUG);
         if (getenv('ACLI_NO_TELEMETRY') !== 'true') {
             $this->checkAndPromptTelemetryPreference();
             $this->telemetryHelper->initialize();
@@ -517,13 +515,13 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
         return null;
     }
 
-    protected function getHostFromDatabaseResponse(mixed $environment, SiteInstanceDatabaseResponse $database): string
+    protected function getHostFromDatabaseResponse(mixed $environment, DatabaseResponse $database): string
     {
         if ($this->isAcsfEnv($environment)) {
-            return $database->databaseHost . '.enterprise-g1.hosting.acquia.com';
+            return $database->db_host . '.enterprise-g1.hosting.acquia.com';
         }
 
-        return $database->databaseHost;
+        return $database->db_host;
     }
 
     /**
@@ -551,15 +549,14 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
         }
     }
 
-    protected function getCloudFilesDir(SiteInstanceResponse $siteInstance): string
+    protected function getCloudFilesDir(EnvironmentResponse $chosenEnvironment, string $site): string
     {
-        $sitegroup = self::getSitegroup($siteInstance);
-        $site = $siteInstance->site_id;
-        $envAlias = self::getEnvironmentAliasV3($siteInstance);
-        if ($this->isAcsfEnv($siteInstance)) {
+        $sitegroup = self::getSitegroup($chosenEnvironment);
+        $envAlias = self::getEnvironmentAlias($chosenEnvironment);
+        if ($this->isAcsfEnv($chosenEnvironment)) {
             return "/mnt/files/$envAlias/sites/g/files/$site/files";
         }
-        return $this->getCloudSitesPath($siteInstance->environment, $sitegroup) . "/$site/files";
+        return $this->getCloudSitesPath($chosenEnvironment, $sitegroup) . "/$site/files";
     }
 
     protected function getLocalFilesDir(string $site): string
@@ -568,53 +565,39 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
     }
 
     /**
-     * @return \AcquiaCloudApi\Response\DatabaseResponse[]|SiteInstanceDatabaseResponse
+     * @return DatabaseResponse[]
      */
-    protected function determineCloudDatabases(Client $acquiaCloudClient, SiteInstanceResponse $siteInstance): SiteInstanceDatabaseResponse
+    protected function determineCloudDatabases(Client $acquiaCloudClient, EnvironmentResponse $chosenEnvironment, ?string $site = null, bool $multipleDbs = false): array
     {
-        if ($this->isTestingEnvironment()) {
-            $database = $this->mockDatabase();
-        } else {
-            $databasesRequest = new SiteInstances($acquiaCloudClient);
-            $database = $databasesRequest->getDatabase($siteInstance->site_id, $siteInstance->environment_id);
+        $databasesRequest = new Databases($acquiaCloudClient);
+        $databases = $databasesRequest->getAll($chosenEnvironment->uuid);
+
+        if (count($databases) === 1) {
+            $this->logger->debug('Only a single database detected on Cloud');
+            return [$databases[0]];
         }
-        return $database;
+        $this->logger->debug('Multiple databases detected on Cloud');
+        if ($site && !$multipleDbs) {
+            if ($site === 'default') {
+                $this->logger->debug('Site is set to default. Assuming default database');
+                $site = self::getSitegroup($chosenEnvironment);
+            }
+            $databaseNames = array_column((array) $databases, 'name');
+            $databaseKey = array_search($site, $databaseNames, true);
+            if ($databaseKey !== false) {
+                return [$databases[$databaseKey]];
+            }
+        }
+        return $this->promptChooseDatabases($chosenEnvironment, $databases, $multipleDbs);
     }
 
-    protected function mockDatabase(): SiteInstanceDatabaseResponse
-    {
-        $method = 'get';
-        $httpCode = 200;
-        $testBase = new ApplicationTestBase("testCloneRepo");
-        $database = $testBase->getMockResponseFromSpec(
-            '/site-instances/{siteId}.{environmentId}/database',
-            $method,
-            $httpCode
-        );
-        return new SiteInstanceDatabaseResponse($database);
-    }
-    /**
-     * @return array<string, mixed>[]
-     */
-    protected function mockDatabaseBackup(): array
-    {
-        $method = 'get';
-        $httpCode = 200;
-        $testBase = new ApplicationTestBase("testCloneRepo");
-        $backup = $testBase->getMockResponseFromSpec(
-            '/site-instances/{siteId}.{environmentId}/database/backups',
-            $method,
-            $httpCode
-        );
-        return $backup->_embedded->items ?? [];
-    }
     /**
      * @return array<mixed>
      * @throws \Acquia\Cli\Exception\AcquiaCliException
      * @throws \JsonException
      */
     private function promptChooseDatabases(
-        SiteInstanceResponse $siteInstance,
+        EnvironmentResponse $cloudEnvironment,
         DatabasesResponse $environmentDatabases,
         bool $multipleDbs
     ): array {
@@ -623,8 +606,8 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
             $choices['all'] = 'All';
         }
         $defaultDatabaseIndex = 0;
-        if ($this->isAcsfEnv($siteInstance)) {
-            $acsfSites = $this->getAcsfSites($siteInstance);
+        if ($this->isAcsfEnv($cloudEnvironment)) {
+            $acsfSites = $this->getAcsfSites($cloudEnvironment);
         }
         foreach ($environmentDatabases as $index => $database) {
             $suffix = '';
@@ -675,7 +658,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
      */
     protected function determineEnvironment(InputInterface $input, OutputInterface $output, bool $allowProduction = false, bool $allowNode = false): array|string|EnvironmentResponse
     {
-        if ($input->hasArgument('environmentId') && $input->getArgument('environmentId')) {
+        if ($input->getArgument('environmentId')) {
             $environmentId = $input->getArgument('environmentId');
             $chosenEnvironment = $this->getCloudEnvironment($environmentId);
         } else {
@@ -689,6 +672,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
 
         return $chosenEnvironment;
     }
+
 
     /**
      * Determine the site instance for the given environment.
@@ -737,7 +721,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
         }
         return $siteInstance;
     }
-    // TODO: Obviously combine this with promptChooseEnvironment.
+    // Todo: obviously combine this with promptChooseEnvironment.
 
     /**
      * @throws \Acquia\Cli\Exception\AcquiaCliException
@@ -774,8 +758,8 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
     {
         $this->localMachineHelper->checkRequiredBinariesExist(['git']);
         $process = $this->localMachineHelper->executeFromCmd(
-            // Problem with this is that it stages changes for the user. They may
-            // not want that.
+        // Problem with this is that it stages changes for the user. They may
+        // not want that.
             'git add . && git diff-index --cached --quiet HEAD',
             null,
             $this->dir,
@@ -831,7 +815,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
             if (
                 array_key_exists('url', $section) &&
                 str_contains($sectionName, 'remote ') &&
-                (str_contains($section['url'], 'acquia.com') || str_contains($section['url'], 'acquia-sites.com'))
+                (strpos($section['url'], 'acquia.com') || strpos($section['url'], 'acquia-sites.com'))
             ) {
                 $localVcsRemotes[] = $section['url'];
             }
@@ -1077,7 +1061,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
         return null;
     }
 
-    /**
+     /**
      * Determine the Cloud codebase.
      *
      * @throws \Acquia\Cli\Exception\AcquiaCliException
@@ -1553,8 +1537,8 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
     {
         if (
             $input->hasArgument('applicationUuid') && !$input->getArgument('applicationUuid') && $this->getDefinition()
-            ->getArgument('applicationUuid')
-            ->isRequired()
+                ->getArgument('applicationUuid')
+                ->isRequired()
         ) {
             $output->writeln('Inferring Cloud Application UUID for this command since none was provided...', OutputInterface::VERBOSITY_VERBOSE);
             if ($applicationUuid = $this->determineCloudApplication()) {
@@ -1697,9 +1681,9 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
         }
     }
 
-    public static function getSitegroup(SiteInstanceResponse $siteInstance): string
+    public static function getSitegroup(EnvironmentResponse $environment): string
     {
-        $sshUrlParts = explode('.', $siteInstance->environment->codebase->vcs_url);
+        $sshUrlParts = explode('.', $environment->sshUrl);
         return reset($sshUrlParts);
     }
 
@@ -1709,18 +1693,12 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
         return reset($sshUrlParts);
     }
 
-    public static function getEnvironmentAliasV3(SiteInstanceResponse $siteInstance): string
+    protected function isAcsfEnv(mixed $cloudEnvironment): bool
     {
-        $sshUrlParts = explode('@', $siteInstance->environment->codebase->vcs_url);
-        return reset($sshUrlParts);
-    }
-
-    protected function isAcsfEnv(mixed $siteInstance): bool
-    {
-        if (str_contains($siteInstance->environment->codebase->vcs_url, 'enterprise-g1')) {
+        if (str_contains($cloudEnvironment->sshUrl, 'enterprise-g1')) {
             return true;
         }
-        foreach ($siteInstance->domains as $domain) {
+        foreach ($cloudEnvironment->domains as $domain) {
             if (str_contains($domain, 'acsitefactory')) {
                 return true;
             }
@@ -1733,11 +1711,11 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
      * @return array<mixed>
      * @throws \Acquia\Cli\Exception\AcquiaCliException|\JsonException
      */
-    private function getAcsfSites(SiteInstanceResponse $siteInstance): array
+    private function getAcsfSites(EnvironmentResponse $cloudEnvironment): array
     {
-        $envAlias = self::getEnvironmentAliasV3($siteInstance);
+        $envAlias = self::getEnvironmentAlias($cloudEnvironment);
         $command = ['cat', "/var/www/site-php/$envAlias/multisite-config.json"];
-        $process = $this->sshHelper->executeCommand($siteInstance->environment->codebase->vcs_url, $command, false, null);
+        $process = $this->sshHelper->executeCommand($cloudEnvironment->sshUrl, $command, false);
         if ($process->isSuccessful()) {
             return json_decode($process->getOutput(), true, 512, JSON_THROW_ON_ERROR);
         }
@@ -1748,14 +1726,14 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
      * @return array<mixed>
      * @throws \Acquia\Cli\Exception\AcquiaCliException
      */
-    private function getCloudSites(SiteInstanceResponse $siteInstance): array
+    private function getCloudSites(EnvironmentResponse $cloudEnvironment): array
     {
-        $sitegroup = self::getSitegroup($siteInstance);
+        $sitegroup = self::getSitegroup($cloudEnvironment);
         $command = [
             'ls',
-            $this->getCloudSitesPath($siteInstance->environment, $sitegroup),
+            $this->getCloudSitesPath($cloudEnvironment, $sitegroup),
         ];
-        $process = $this->sshHelper->executeCommand($siteInstance->environment->codebase->vcs_url, $command, false, null);
+        $process = $this->sshHelper->executeCommand($cloudEnvironment->sshUrl, $command, false);
         $sites = array_filter(explode("\n", trim($process->getOutput())));
         if ($sites && $process->isSuccessful()) {
             if ($key = array_search('default', $sites, true)) {
@@ -1765,12 +1743,12 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
             return $sites;
         }
 
-        throw new AcquiaCliException("Could not get Cloud sites for " . $siteInstance->environment->name);
+        throw new AcquiaCliException("Could not get Cloud sites for " . $cloudEnvironment->name);
     }
 
     protected function getCloudSitesPath(mixed $cloudEnvironment, mixed $sitegroup): string
     {
-        if ($cloudEnvironment->properties['platform'] ?? "" === 'cloud-next') {
+        if ($cloudEnvironment->platform === 'cloud-next') {
             $path = "/home/clouduser/$cloudEnvironment->name/sites";
         } else {
             $path = "/mnt/files/$sitegroup.$cloudEnvironment->name/sites";
@@ -1782,10 +1760,10 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
      * @throws \Acquia\Cli\Exception\AcquiaCliException
      * @throws \JsonException
      */
-    private function promptChooseAcsfSite(SiteInstanceResponse $siteInstance): mixed
+    private function promptChooseAcsfSite(EnvironmentResponse $cloudEnvironment): mixed
     {
         $choices = [];
-        $acsfSites = $this->getAcsfSites($siteInstance);
+        $acsfSites = $this->getAcsfSites($cloudEnvironment);
         foreach ($acsfSites['sites'] as $domain => $acsfSite) {
             $choices[] = "{$acsfSite['name']} ($domain)";
         }
@@ -1803,9 +1781,9 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
     /**
      * @throws \Acquia\Cli\Exception\AcquiaCliException
      */
-    protected function promptChooseCloudSite(SiteInstanceResponse $siteInstance): mixed
+    protected function promptChooseCloudSite(EnvironmentResponse $cloudEnvironment): mixed
     {
-        $sites = $this->getCloudSites($siteInstance);
+        $sites = $this->getCloudSites($cloudEnvironment);
         if (count($sites) === 1) {
             $site = reset($sites);
             $this->logger->debug("Only a single Cloud site was detected. Assuming site is $site");
@@ -2261,13 +2239,11 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
         };
         if ($success === null) {
             $success = function () use (&$notification): void {
-                if ($notification !== null) {
-                    $this->writeCompletedMessage($notification);
-                }
+                $this->writeCompletedMessage($notification);
             };
         }
         LoopHelper::getLoopy($this->output, $this->io, $message, $checkNotificationStatus, $success);
-        return $notification !== null && $notification->status === 'completed';
+        return $notification->status === 'completed';
     }
 
     /**
@@ -2367,12 +2343,12 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
      * @throws \Acquia\Cli\Exception\AcquiaCliException
      * @throws \JsonException
      */
-    protected function promptChooseDrupalSite(SiteInstanceResponse $siteInstance): string
+    protected function promptChooseDrupalSite(EnvironmentResponse $environment): string
     {
-        if ($this->isAcsfEnv($siteInstance)) {
-            return $this->promptChooseAcsfSite($siteInstance);
+        if ($this->isAcsfEnv($environment)) {
+            return $this->promptChooseAcsfSite($environment);
         }
 
-        return $this->promptChooseCloudSite($siteInstance);
+        return $this->promptChooseCloudSite($environment);
     }
 }

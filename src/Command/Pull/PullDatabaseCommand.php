@@ -21,7 +21,10 @@ final class PullDatabaseCommand extends PullCommandBase
     {
         $this
             ->setHelp('This uses the latest available database backup, which may be up to 24 hours old. If no backup exists, one will be created.')
+            ->acceptEnvironmentId()
+            ->acceptSite()
             ->acceptSiteInstanceId()
+            ->acceptCodebaseId()
             ->addOption(
                 'no-scripts',
                 null,
@@ -56,11 +59,13 @@ final class PullDatabaseCommand extends PullCommandBase
         $noScripts = $input->hasOption('no-scripts') && $input->getOption('no-scripts');
         $onDemand = $input->hasOption('on-demand') && $input->getOption('on-demand');
         $noImport = $input->hasOption('no-import') && $input->getOption('no-import');
+        $multipleDbs = $input->hasOption('multiple-dbs') && $input->getOption('multiple-dbs');
         // $noImport implies $noScripts.
         $noScripts = $noImport || $noScripts;
         $this->setDirAndRequireProjectCwd($input);
+        $sourceEnvironment = $this->determineEnvironment($input, $output, true);
         $siteInstance = $this->determineSiteInstance($input, $output, true);
-        $this->pullDatabase($input, $output, $siteInstance, $onDemand, $noImport);
+        $this->pullDatabase($input, $output, $sourceEnvironment, $onDemand, $noImport, $multipleDbs);
         if (!$noScripts) {
             $this->runDrushCacheClear($this->getOutputCallback($output, $this->checklist), $this->checklist);
             $this->runDrushSqlSanitize($this->getOutputCallback($output, $this->checklist), $this->checklist);

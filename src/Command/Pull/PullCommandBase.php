@@ -17,10 +17,11 @@ use Acquia\Cli\Helpers\TelemetryHelper;
 use Acquia\Cli\Output\Checklist;
 use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
 use AcquiaCloudApi\Connector\Client;
-use AcquiaCloudApi\Endpoints\SiteInstances;
-use AcquiaCloudApi\Response\BackupsResponse;
-use AcquiaCloudApi\Response\SiteInstanceDatabaseResponse;
-use AcquiaCloudApi\Response\SiteInstanceResponse;
+use AcquiaCloudApi\Endpoints\DatabaseBackups;
+use AcquiaCloudApi\Endpoints\Domains;
+use AcquiaCloudApi\Response\BackupResponse;
+use AcquiaCloudApi\Response\DatabaseResponse;
+use AcquiaCloudApi\Response\EnvironmentResponse;
 use Closure;
 use Exception;
 use GuzzleHttp\Exception\RequestException;
@@ -90,15 +91,21 @@ abstract class PullCommandBase extends CommandBase
         return $tables;
     }
 
-    public static function getBackupPath(SiteInstanceResponse $siteInstance, SiteInstanceDatabaseResponse $database, object $backupResponse): string
+    public static function getBackupPath(object $environment, DatabaseResponse $database, object $backupResponse): string
     {
         // Databases have a machine name not exposed via the API; we can only
         // approximately reconstruct it and match the filename you'd get downloading
         // a backup from Cloud UI.
+        if ($database->flags->default) {
+            $dbMachineName = $database->name . $environment->name;
+        } else {
+            $dbMachineName = 'db' . $database->id;
+        }
         $filename = implode('-', [
-            $siteInstance->environment->name ?? "",
-            $database->databaseName,
-            $backupResponse->completedAt ?? ($backupResponse->createdAt ?? date('Y-m-d')),
+            $environment->name,
+            $database->name,
+            $dbMachineName,
+            $backupResponse->completedAt,
         ]) . '.sql.gz';
         return Path::join(sys_get_temp_dir(), $filename);
     }
@@ -109,14 +116,14 @@ abstract class PullCommandBase extends CommandBase
         $this->checklist = new Checklist($output);
     }
 
-    protected function pullCode(InputInterface $input, OutputInterface $output, bool $clone, SiteInstanceResponse $sourceSiteInstance): void
+    protected function pullCode(InputInterface $input, OutputInterface $output, bool $clone, EnvironmentResponse $sourceEnvironment): void
     {
         if ($clone) {
             $this->checklist->addItem('Cloning git repository from the Cloud Platform');
-            $this->cloneFromCloud($sourceSiteInstance, $this->getOutputCallback($output, $this->checklist));
+            $this->cloneFromCloud($sourceEnvironment, $this->getOutputCallback($output, $this->checklist));
         } else {
             $this->checklist->addItem('Pulling code from the Cloud Platform');
-            $this->pullCodeFromCloud($sourceSiteInstance, $this->getOutputCallback($output, $this->checklist));
+            $this->pullCodeFromCloud($sourceEnvironment, $this->getOutputCallback($output, $this->checklist));
         }
         $this->checklist->completePreviousItem();
     }
@@ -126,52 +133,50 @@ abstract class PullCommandBase extends CommandBase
      * @param bool $noImport Skip import.
      * @throws \Acquia\Cli\Exception\AcquiaCliException
      */
-    protected function pullDatabase(InputInterface $input, OutputInterface $output, SiteInstanceResponse $siteInstance, bool $onDemand = false, bool $noImport = false): void
+    protected function pullDatabase(InputInterface $input, OutputInterface $output, EnvironmentResponse $sourceEnvironment, bool $onDemand = false, bool $noImport = false, bool $multipleDbs = false): void
     {
         if (!$noImport) {
             // Verify database connection.
             $this->connectToLocalDatabase($this->getLocalDbHost(), $this->getLocalDbUser(), $this->getLocalDbName(), $this->getLocalDbPassword(), $this->getOutputCallback($output, $this->checklist));
         }
         $acquiaCloudClient = $this->cloudApiClientService->getClient();
-        // $site = $this->determineSite($siteInstance, $input);
-        $database = $this->determineCloudDatabases($acquiaCloudClient, $siteInstance);
+        $site = $this->determineSite($sourceEnvironment, $input);
+        $databases = $this->determineCloudDatabases($acquiaCloudClient, $sourceEnvironment, $site, $multipleDbs);
 
-        if ($onDemand) {
-            $this->checklist->addItem("Creating an on-demand database(s) backup on Cloud Platform");
-            $this->createBackup($siteInstance, $acquiaCloudClient);
+        foreach ($databases as $database) {
+            if ($onDemand) {
+                $this->checklist->addItem("Creating an on-demand database(s) backup on Cloud Platform");
+                $this->createBackup($sourceEnvironment, $database, $acquiaCloudClient);
+                $this->checklist->completePreviousItem();
+            }
+            $backupResponse = $this->getDatabaseBackup($acquiaCloudClient, $sourceEnvironment, $database);
+            if (!$onDemand) {
+                $this->printDatabaseBackupInfo($backupResponse, $sourceEnvironment);
+            }
+
+            $this->checklist->addItem("Downloading $database->name database copy from the Cloud Platform");
+            $localFilepath = $this->downloadDatabaseBackup($sourceEnvironment, $database, $backupResponse, $this->getOutputCallback($output, $this->checklist));
             $this->checklist->completePreviousItem();
-        }
-        if ($this->isTestingEnvironment()) {
-            $backupResponse = $this->mockDatabaseBackup();
-        } else {
-            $backupResponse = $this->getDatabaseBackup($acquiaCloudClient, $siteInstance);
-        }
-        if (!$onDemand) {
-            $this->printDatabaseBackupInfo($backupResponse[0], $siteInstance);
-        }
 
-        $this->checklist->addItem("Downloading $database->databaseName database copy from the Cloud Platform");
-        $localFilepath = $this->downloadDatabaseBackup($siteInstance, $database, $backupResponse[0], $this->getOutputCallback($output, $this->checklist));
-        $this->checklist->completePreviousItem();
-
-        if ($noImport) {
-            $this->io->success("$database->databaseName database backup downloaded to $localFilepath");
-        } else {
-            $this->checklist->addItem("Importing $database->databaseName database download");
-            $this->importRemoteDatabase($database, $localFilepath, $this->getOutputCallback($output, $this->checklist));
-            $this->checklist->completePreviousItem();
+            if ($noImport) {
+                $this->io->success("$database->name database backup downloaded to $localFilepath");
+            } else {
+                $this->checklist->addItem("Importing $database->name database download");
+                $this->importRemoteDatabase($database, $localFilepath, $this->getOutputCallback($output, $this->checklist));
+                $this->checklist->completePreviousItem();
+            }
         }
     }
 
-    protected function pullFiles(InputInterface $input, OutputInterface $output, SiteInstanceResponse $siteInstance): void
+    protected function pullFiles(InputInterface $input, OutputInterface $output, EnvironmentResponse $sourceEnvironment): void
     {
         $this->checklist->addItem('Copying Drupal\'s public files from the Cloud Platform');
-        $site = $this->determineSite($siteInstance, $input);
-        $this->rsyncFilesFromCloud($siteInstance, $this->getOutputCallback($output, $this->checklist));
+        $site = $this->determineSite($sourceEnvironment, $input);
+        $this->rsyncFilesFromCloud($sourceEnvironment, $this->getOutputCallback($output, $this->checklist), $site);
         $this->checklist->completePreviousItem();
     }
 
-    private function pullCodeFromCloud(SiteInstanceResponse $chosenSiteInstance, ?Closure $outputCallback = null): void
+    private function pullCodeFromCloud(EnvironmentResponse $chosenEnvironment, ?Closure $outputCallback = null): void
     {
         $isDirty = $this->isLocalGitRepoDirty();
         if ($isDirty) {
@@ -184,19 +189,19 @@ abstract class PullCommandBase extends CommandBase
             'fetch',
             '--all',
         ], $outputCallback, $this->dir, false);
-        $this->checkoutBranchFromEnv($chosenSiteInstance, $outputCallback);
+        $this->checkoutBranchFromEnv($chosenEnvironment, $outputCallback);
     }
 
     /**
      * Checks out the matching branch from a source environment.
      */
-    private function checkoutBranchFromEnv(SiteInstanceResponse $siteInstance, ?Closure $outputCallback = null): void
+    private function checkoutBranchFromEnv(EnvironmentResponse $environment, ?Closure $outputCallback = null): void
     {
         $this->localMachineHelper->checkRequiredBinariesExist(['git']);
         $this->localMachineHelper->execute([
             'git',
             'checkout',
-            $siteInstance?->environment?->codebase?->vcs_url ?? "",
+            $environment->vcs->path,
         ], $outputCallback, $this->dir, false);
     }
 
@@ -214,15 +219,15 @@ abstract class PullCommandBase extends CommandBase
     }
 
     private function downloadDatabaseBackup(
-        SiteInstanceResponse $siteInstance,
-        SiteInstanceDatabaseResponse $database,
-        object $backupResponse,
+        EnvironmentResponse $environment,
+        DatabaseResponse $database,
+        BackupResponse $backupResponse,
         ?callable $outputCallback = null
     ): string {
         if ($outputCallback) {
             $outputCallback('out', "Downloading backup $backupResponse->id");
         }
-        $localFilepath = self::getBackupPath($siteInstance, $database, $backupResponse);
+        $localFilepath = self::getBackupPath($environment, $database, $backupResponse);
         if ($this->output instanceof ConsoleOutput) {
             $output = $this->output->section();
         } else {
@@ -249,13 +254,11 @@ abstract class PullCommandBase extends CommandBase
         });
 
         try {
-            if (!$this->isTestingEnvironment()) {
-                $acquiaCloudClient->stream(
-                    "get",
-                    "/site-instances/" . $siteInstance->site_id . "." . $siteInstance->environment_id . "/databases/$database->databaseName/backups/$backupResponse->id/actions/download",
-                    $acquiaCloudClient->getOptions()
-                );
-            }
+            $acquiaCloudClient->stream(
+                "get",
+                "/environments/$environment->uuid/databases/$database->name/backups/$backupResponse->id/actions/download",
+                $acquiaCloudClient->getOptions()
+            );
             return $localFilepath;
         } catch (RequestException $exception) {
             // Deal with broken SSL certificates.
@@ -268,8 +271,8 @@ abstract class PullCommandBase extends CommandBase
             ) {
                 $outputCallback('out', '<comment>The certificate for ' . $url->getHost() . ' is invalid.</comment>');
                 assert($url !== null);
-                $domainsResource = new SiteInstances($this->cloudApiClientService->getClient());
-                $domains = $domainsResource->getDomains($siteInstance->site_id, $siteInstance->environment_id);
+                $domainsResource = new Domains($this->cloudApiClientService->getClient());
+                $domains = $domainsResource->getAll($environment->uuid);
                 foreach ($domains as $domain) {
                     if ($domain->hostname === $url->getHost()) {
                         continue;
@@ -325,10 +328,10 @@ abstract class PullCommandBase extends CommandBase
     /**
      * Create an on-demand backup and wait for it to become available.
      */
-    private function createBackup(SiteInstanceResponse $siteInstance, Client $acquiaCloudClient): void
+    private function createBackup(EnvironmentResponse $environment, DatabaseResponse $database, Client $acquiaCloudClient): void
     {
-        $backups = new SiteInstances($acquiaCloudClient);
-        $response = $backups->createDatabaseBackup($siteInstance->site_id, $siteInstance->environment_id);
+        $backups = new DatabaseBackups($acquiaCloudClient);
+        $response = $backups->create($environment->uuid, $database->name);
         $urlParts = explode('/', $response->links->notification->href);
         $notificationUuid = end($urlParts);
         $this->waitForBackup($notificationUuid, $acquiaCloudClient);
@@ -438,15 +441,14 @@ abstract class PullCommandBase extends CommandBase
             $this->io->warning('Install `pv` to see progress bar');
             $command = "gunzip -c $localDumpFilepath | MYSQL_PWD=$dbPassword mysql --host=$dbHost --user=$dbUser $dbName";
         }
-        if (!$this->isTestingEnvironment()) {
-            $process = $this->localMachineHelper->executeFromCmd($command, $outputCallback, null, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
-            if (!$process->isSuccessful()) {
-                throw new AcquiaCliException('Unable to import local database. {message}', ['message' => $process->getErrorOutput()]);
-            }
+
+        $process = $this->localMachineHelper->executeFromCmd($command, $outputCallback, null, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
+        if (!$process->isSuccessful()) {
+            throw new AcquiaCliException('Unable to import local database. {message}', ['message' => $process->getErrorOutput()]);
         }
     }
 
-    private function determineSite(string|SiteInstanceResponse|array $siteInstance, InputInterface $input): string
+    private function determineSite(string|EnvironmentResponse|array $environment, InputInterface $input): string
     {
         if (isset($this->site)) {
             return $this->site;
@@ -456,15 +458,14 @@ abstract class PullCommandBase extends CommandBase
             return $input->getArgument('site');
         }
 
-        $this->site = $this->promptChooseDrupalSite($siteInstance);
+        $this->site = $this->promptChooseDrupalSite($environment);
 
         return $this->site;
     }
 
-    private function rsyncFilesFromCloud(SiteInstanceResponse $siteInstance, Closure $outputCallback): void
+    private function rsyncFilesFromCloud(EnvironmentResponse $chosenEnvironment, Closure $outputCallback, string $site): void
     {
-        $sourceDir = $siteInstance->environment->codebase->vcs_url . ':' . $this->getCloudFilesDir($siteInstance);
-        $site = $siteInstance->site_id;
+        $sourceDir = $chosenEnvironment->sshUrl . ':' . $this->getCloudFilesDir($chosenEnvironment, $site);
         $destinationDir = $this->getLocalFilesDir($site);
         $this->localMachineHelper->getFilesystem()->mkdir($destinationDir);
 
@@ -504,45 +505,45 @@ abstract class PullCommandBase extends CommandBase
         throw new AcquiaCliException('Execute this command from within a Drupal project directory or an empty directory');
     }
 
-    private function cloneFromCloud(SiteInstanceResponse $chosenSiteInstance, Closure $outputCallback): void
+    private function cloneFromCloud(EnvironmentResponse $chosenEnvironment, Closure $outputCallback): void
     {
         $this->localMachineHelper->checkRequiredBinariesExist(['git']);
         $command = [
             'git',
             'clone',
-            $chosenSiteInstance->environment->codebase->vcs_url,
+            $chosenEnvironment->vcs->url,
             $this->dir,
         ];
         $process = $this->localMachineHelper->execute($command, $outputCallback, null, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL), null, ['GIT_SSH_COMMAND' => 'ssh -o StrictHostKeyChecking=no']);
-        $this->checkoutBranchFromEnv($chosenSiteInstance, $outputCallback);
+        $this->checkoutBranchFromEnv($chosenEnvironment, $outputCallback);
         if (!$process->isSuccessful()) {
             throw new AcquiaCliException('Failed to clone repository from the Cloud Platform: {message}', ['message' => $process->getErrorOutput()]);
         }
         $this->projectDir = $this->dir;
     }
 
-    protected function checkEnvironmentPhpVersions(SiteInstanceResponse $siteInstance): void
+    protected function checkEnvironmentPhpVersions(EnvironmentResponse $environment): void
     {
         $version = $this->getIdePhpVersion();
         if (empty($version)) {
             $this->io->warning("Could not determine current PHP version. Set it by running acli ide:php-version.");
-        } elseif (!$this->environmentPhpVersionMatches($siteInstance)) {
-            $this->io->warning("You are using PHP version $version but the upstream environment $siteInstance->environment->label is using PHP version {$siteInstance->environment->properties['version']}");
+        } elseif (!$this->environmentPhpVersionMatches($environment)) {
+            $this->io->warning("You are using PHP version $version but the upstream environment $environment->label is using PHP version {$environment->configuration->php->version}");
         }
     }
 
     protected function matchIdePhpVersion(
         OutputInterface $output,
-        SiteInstanceResponse $siteInstance
+        EnvironmentResponse $chosenEnvironment
     ): void {
-        if (AcquiaDrupalEnvironmentDetector::isAhIdeEnv() && !$this->environmentPhpVersionMatches($siteInstance)) {
-            $answer = $this->io->confirm("Would you like to change the PHP version on this IDE to match the PHP version on the <bg=cyan;options=bold>$siteInstance->environment->label ({$siteInstance->environment->properties['version']})</> environment?", false);
+        if (AcquiaDrupalEnvironmentDetector::isAhIdeEnv() && !$this->environmentPhpVersionMatches($chosenEnvironment)) {
+            $answer = $this->io->confirm("Would you like to change the PHP version on this IDE to match the PHP version on the <bg=cyan;options=bold>$chosenEnvironment->label ({$chosenEnvironment->configuration->php->version})</> environment?", false);
             if ($answer) {
                 $command = $this->getApplication()->find('ide:php-version');
                 $command->run(
                     new ArrayInput([
                         'command' => 'ide:php-version',
-                        'version' => $siteInstance->environment->properties['version'],
+                        'version' => $chosenEnvironment->configuration->php->version,
                     ]),
                     $output
                 );
@@ -550,39 +551,44 @@ abstract class PullCommandBase extends CommandBase
         }
     }
 
-    private function environmentPhpVersionMatches(SiteInstanceResponse $siteInstance): bool
+    private function environmentPhpVersionMatches(EnvironmentResponse $environment): bool
     {
         $currentPhpVersion = $this->getIdePhpVersion();
-        return $siteInstance->environment->properties['version'] ?? "" === $currentPhpVersion;
+        return $environment->configuration->php->version === $currentPhpVersion;
     }
 
     private function getDatabaseBackup(
         Client $acquiaCloudClient,
-        string|SiteInstanceResponse|array $siteInstance
-    ): BackupsResponse {
-        $databaseBackups = new SiteInstances($acquiaCloudClient);
-        $backupsResponse = $databaseBackups->getDatabaseBackups($siteInstance->site_id, $siteInstance->environment_id);
+        string|EnvironmentResponse|array $environment,
+        DatabaseResponse $database
+    ): BackupResponse {
+        $databaseBackups = new DatabaseBackups($acquiaCloudClient);
+        $backupsResponse = $databaseBackups->getAll($environment->uuid, $database->name);
         if (!count($backupsResponse)) {
             $this->io->warning('No existing backups found, creating an on-demand backup now. This will take some time depending on the size of the database.');
-            $this->createBackup($siteInstance, $acquiaCloudClient);
-            $backupsResponse = $databaseBackups->getDatabaseBackups($siteInstance->site_id, $siteInstance->environment_id);
+            $this->createBackup($environment, $database, $acquiaCloudClient);
+            $backupsResponse = $databaseBackups->getAll(
+                $environment->uuid,
+                $database->name
+            );
         }
-        $this->logger->debug('Using database backup (id #' . $backupsResponse[0]->id . ') generated at ' . $backupsResponse[0]->completedAt);
+        $backupResponse = $backupsResponse[0];
+        $this->logger->debug('Using database backup (id #' . $backupResponse->id . ') generated at ' . $backupResponse->completedAt);
 
-        return $backupsResponse;
+        return $backupResponse;
     }
 
     /**
      * Print information to the console about the selected database backup.
      */
     private function printDatabaseBackupInfo(
-        object $backupResponse,
-        SiteInstanceResponse $siteInstance
+        BackupResponse $backupResponse,
+        EnvironmentResponse $sourceEnvironment
     ): void {
-        $interval = time() - strtotime($backupResponse->completedAt ?? ($backupResponse->createdAt ?? date('Y-m-d')));
+        $interval = time() - strtotime($backupResponse->completedAt);
         $hoursInterval = floor($interval / 60 / 60);
-        $dateFormatted = date("D M j G:i:s T Y", strtotime($backupResponse->completedAt ?? ($backupResponse->createdAt ?? date('Y-m-d'))));
-        $webLink = "https://cloud.acquia.com/a/environments/" . $siteInstance->environment_id . "/databases";
+        $dateFormatted = date("D M j G:i:s T Y", strtotime($backupResponse->completedAt));
+        $webLink = "https://cloud.acquia.com/a/environments/$sourceEnvironment->uuid/databases";
         $messages = [
             "Using a database backup that is $hoursInterval hours old. Backup #$backupResponse->id was created at $dateFormatted.",
             "You can view your backups here: $webLink",
@@ -595,23 +601,23 @@ abstract class PullCommandBase extends CommandBase
         }
     }
 
-    private function importRemoteDatabase(SiteInstanceDatabaseResponse $database, string $localFilepath, ?Closure $outputCallback = null): void
+    private function importRemoteDatabase(DatabaseResponse $database, string $localFilepath, ?Closure $outputCallback = null): void
     {
-        if ($database->databaseName) {
+        if ($database->flags->default) {
             // Easy case, import the default db into the default db.
             $this->doImportRemoteDatabase($this->getLocalDbHost(), $this->getLocalDbUser(), $this->getLocalDbName(), $this->getLocalDbPassword(), $localFilepath, $outputCallback);
         } elseif (AcquiaDrupalEnvironmentDetector::isAhIdeEnv() && !getenv('IDE_ENABLE_MULTISITE')) {
             // Import non-default db into default db. Needed on legacy IDE without multiple dbs.
             // @todo remove this case once all IDEs support multiple dbs.
-            $this->io->note("Cloud IDE only supports importing into the default Drupal database. Acquia CLI will import the NON-DEFAULT database $database->databaseName into the DEFAULT database {$this->getLocalDbName()}");
+            $this->io->note("Cloud IDE only supports importing into the default Drupal database. Acquia CLI will import the NON-DEFAULT database $database->name into the DEFAULT database {$this->getLocalDbName()}");
             $this->doImportRemoteDatabase($this->getLocalDbHost(), $this->getLocalDbUser(), $this->getLocalDbName(), $this->getLocalDbPassword(), $localFilepath, $outputCallback);
         } else {
             // Import non-default db into non-default db.
-            $this->io->note("Acquia CLI assumes that the local name for the $database->databaseName database is also $database->databaseName");
+            $this->io->note("Acquia CLI assumes that the local name for the $database->name database is also $database->name");
             if (AcquiaDrupalEnvironmentDetector::isLandoEnv() || AcquiaDrupalEnvironmentDetector::isAhIdeEnv()) {
-                $this->doImportRemoteDatabase($this->getLocalDbHost(), 'root', $database->databaseName, '', $localFilepath, $outputCallback);
+                $this->doImportRemoteDatabase($this->getLocalDbHost(), 'root', $database->name, '', $localFilepath, $outputCallback);
             } else {
-                $this->doImportRemoteDatabase($this->getLocalDbHost(), $this->getLocalDbUser(), $database->databaseName, $this->getLocalDbPassword(), $localFilepath, $outputCallback);
+                $this->doImportRemoteDatabase($this->getLocalDbHost(), $this->getLocalDbUser(), $database->name, $this->getLocalDbPassword(), $localFilepath, $outputCallback);
             }
         }
     }

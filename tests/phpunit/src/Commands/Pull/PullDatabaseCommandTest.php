@@ -52,11 +52,10 @@ class PullDatabaseCommandTest extends PullCommandTestBase
     {
         $localMachineHelper = $this->mockLocalMachineHelper();
         $this->mockExecuteMySqlConnect($localMachineHelper, true);
-        $siteInstance = $this->mockGetSiteInstance();
-
+        $environment = $this->mockGetEnvironment();
         $sshHelper = $this->mockSshHelper();
         $this->mockListSites($sshHelper);
-        $this->mockGetBackup($siteInstance);
+        $this->mockGetBackup($environment);
         $this->mockExecuteMySqlListTables($localMachineHelper, 'drupal');
         $fs = $this->prophet->prophesize(Filesystem::class);
         $this->mockExecuteMySqlDropDb($localMachineHelper, true, $fs);
@@ -87,16 +86,19 @@ class PullDatabaseCommandTest extends PullCommandTestBase
     {
         $localMachineHelper = $this->mockLocalMachineHelper();
         $this->mockExecuteMySqlConnect($localMachineHelper, true);
-        $siteInstance = $this->mockGetSiteInstance();
+        $applications = $this->mockRequest('getApplications');
+        $application = $this->mockRequest('getApplicationByUuid', $applications[self::$INPUT_DEFAULT_CHOICE]->uuid);
+        $environments = $this->mockRequest('getApplicationEnvironments', $application->uuid);
+        $environment = $environments[1];
         $sshHelper = $this->mockSshHelper();
         $process = $this->mockProcess();
         $process->getOutput()->willReturn('default')->shouldBeCalled();
         $sshHelper->executeCommand(Argument::type('string'), [
             'ls',
             '/mnt/files/site.prod/sites',
-        ], false, null)
+        ], false)
             ->willReturn($process->reveal())->shouldBeCalled();
-        $this->mockGetBackup($siteInstance);
+        $this->mockGetBackup($environment);
         $this->mockExecuteMySqlListTables($localMachineHelper, 'drupal');
         $fs = $this->prophet->prophesize(Filesystem::class);
         $this->mockExecuteMySqlDropDb($localMachineHelper, true, $fs);
@@ -129,7 +131,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase
 
     public function testPullDatabasesLocalConnectionFailure(): void
     {
-        $siteInstance = $this->mockGetSiteInstance();
+        $this->mockGetEnvironment();
         $localMachineHelper = $this->mockLocalMachineHelper();
         $this->mockExecuteMySqlConnect($localMachineHelper, false);
 
@@ -137,7 +139,6 @@ class PullDatabaseCommandTest extends PullCommandTestBase
         $this->expectExceptionMessage('Unable to connect');
         $this->executeCommand([
             '--no-scripts' => true,
-            'siteInstanceId' => $siteInstance->site_id . "." . $siteInstance->environment_id,
         ], self::inputChooseEnvironment());
     }
 
@@ -145,10 +146,10 @@ class PullDatabaseCommandTest extends PullCommandTestBase
     {
         $localMachineHelper = $this->mockLocalMachineHelper();
         $this->mockExecuteMySqlConnect($localMachineHelper, true);
-        $siteInstance = $this->mockGetSiteInstance();
+        $environment = $this->mockGetEnvironment();
         $sshHelper = $this->mockSshHelper();
         $this->mockListSites($sshHelper);
-        $this->mockGetBackup($siteInstance);
+        $this->mockGetBackup($environment);
         $this->mockExecuteMySqlListTables($localMachineHelper, 'drupal');
         $fs = $this->prophet->prophesize(Filesystem::class);
         $localMachineHelper->getFilesystem()->willReturn($fs)->shouldBeCalled();
@@ -168,7 +169,6 @@ class PullDatabaseCommandTest extends PullCommandTestBase
     public function testPullMultipleDatabases(): void
     {
         $this->setupPullDatabase(true, true, false, true, true);
-        $siteInstance = $this->mockGetSiteInstance();
         $inputs = [
             // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
             'n',
@@ -186,19 +186,17 @@ class PullDatabaseCommandTest extends PullCommandTestBase
         $this->executeCommand([
             '--multiple-dbs' => true,
             '--no-scripts' => true,
-            'siteInstanceId' => $siteInstance->site_id . "." . $siteInstance->environment_id,
-        ], []);
+        ], $inputs);
     }
 
     public function testPullDatabasesOnDemand(): void
     {
         $this->setupPullDatabase(true, true, true);
         $inputs = self::inputChooseEnvironment();
-        $siteInstance = $this->mockGetSiteInstance();
+
         $this->executeCommand([
             '--no-scripts' => true,
             '--on-demand' => true,
-            'siteInstanceId' => $siteInstance->site_id . "." . $siteInstance->environment_id,
         ], $inputs);
 
         $output = $this->getDisplay();
@@ -215,13 +213,12 @@ class PullDatabaseCommandTest extends PullCommandTestBase
     {
         $this->setupPullDatabase(true, true, true, true, false, 0, true, false);
         $inputs = self::inputChooseEnvironment();
-        $siteInstance = $this->mockGetSiteInstance();
+
         $this->expectException(AcquiaCliException::class);
         $this->expectExceptionMessage('Cloud API failed to create a backup');
         $this->executeCommand([
             '--no-scripts' => true,
             '--on-demand' => true,
-            'siteInstanceId' => $siteInstance->site_id . "." . $siteInstance->environment_id,
         ], $inputs);
     }
 
@@ -229,10 +226,9 @@ class PullDatabaseCommandTest extends PullCommandTestBase
     {
         $this->setupPullDatabase(true, true, true, true, false, 0, false);
         $inputs = self::inputChooseEnvironment();
-        $siteInstance = $this->mockGetSiteInstance();
+
         $this->executeCommand([
             '--no-scripts' => true,
-            'siteInstanceId' => $siteInstance->site_id . "." . $siteInstance->environment_id,
         ], $inputs);
 
         $output = $this->getDisplay();
@@ -250,11 +246,10 @@ class PullDatabaseCommandTest extends PullCommandTestBase
     {
         $this->setupPullDatabase(true, true, false, false);
         $inputs = self::inputChooseEnvironment();
-        $siteInstance = $this->mockGetSiteInstance();
+
         $this->executeCommand([
             '--no-scripts' => true,
             'site' => 'jxr5000596dev',
-            'siteInstanceId' => $siteInstance->site_id . "." . $siteInstance->environment_id,
         ], $inputs);
 
         $output = $this->getDisplay();
@@ -270,10 +265,10 @@ class PullDatabaseCommandTest extends PullCommandTestBase
     {
         $localMachineHelper = $this->mockLocalMachineHelper();
         $this->mockExecuteMySqlConnect($localMachineHelper, true);
-        $siteInstance = $this->mockGetSiteInstance();
+        $environment = $this->mockGetEnvironment();
         $sshHelper = $this->mockSshHelper();
         $this->mockListSites($sshHelper);
-        $this->mockGetBackup($siteInstance);
+        $this->mockGetBackup($environment);
         $this->mockExecuteMySqlListTables($localMachineHelper, 'drupal');
         $fs = $this->prophet->prophesize(Filesystem::class);
         $localMachineHelper->getFilesystem()->willReturn($fs)->shouldBeCalled();
@@ -290,10 +285,10 @@ class PullDatabaseCommandTest extends PullCommandTestBase
     {
         $localMachineHelper = $this->mockLocalMachineHelper();
         $this->mockExecuteMySqlConnect($localMachineHelper, true);
-        $siteInstance = $this->mockGetSiteInstance();
+        $environment = $this->mockGetEnvironment();
         $sshHelper = $this->mockSshHelper();
         $this->mockListSites($sshHelper);
-        $this->mockGetBackup($siteInstance);
+        $this->mockGetBackup($environment);
         $this->mockExecuteMySqlListTables($localMachineHelper, 'drupal');
         $fs = $this->prophet->prophesize(Filesystem::class);
         $localMachineHelper->getFilesystem()->willReturn($fs)->shouldBeCalled();
@@ -313,9 +308,9 @@ class PullDatabaseCommandTest extends PullCommandTestBase
     public function testPullDatabaseWithInvalidSslCertificate(int $errorCode): void
     {
         $this->setupPullDatabase(true, false, false, true, false, $errorCode);
-        // $inputs = self::inputChooseEnvironment();
-        $siteInstance = $this->mockGetSiteInstance();
-        $this->executeCommand(['--no-scripts' => true, 'siteInstanceId' => $siteInstance->site_id . "." . $siteInstance->environment_id], []);
+        $inputs = self::inputChooseEnvironment();
+
+        $this->executeCommand(['--no-scripts' => true], $inputs);
         $output = $this->getDisplay();
         $this->assertStringContainsString('The certificate for www.example.com is invalid.', $output);
         $this->assertStringContainsString('Trying alternative host other.example.com', $output);
@@ -323,12 +318,21 @@ class PullDatabaseCommandTest extends PullCommandTestBase
 
     protected function setupPullDatabase(bool $mysqlConnectSuccessful, bool $mockIdeFs = false, bool $onDemand = false, bool $mockGetAcsfSites = true, bool $multiDb = false, int $curlCode = 0, bool $existingBackups = true, bool $onDemandSuccess = true): void
     {
-        $siteInstance = $this->mockGetSiteInstance();
-
+        $applicationsResponse = $this->mockApplicationsRequest();
+        $this->mockApplicationRequest();
+        $environmentsResponse = $this->mockAcsfEnvironmentsRequest($applicationsResponse);
+        $selectedEnvironment = $environmentsResponse->_embedded->items[0];
         $this->createMockGitConfigFile();
 
-        $databaseResponse = $this->mockAcsfDatabasesResponse($siteInstance);
+        $databasesResponse = $this->mockAcsfDatabasesResponse($selectedEnvironment);
+        $databaseResponse = $databasesResponse[array_search('jxr5000596dev', array_column($databasesResponse, 'name'), true)];
         $selectedDatabase = $databaseResponse;
+
+        if ($multiDb) {
+            $databaseResponse2 = $databasesResponse[array_search('profserv2', array_column($databasesResponse, 'name'), true)];
+            $databaseBackupsResponse2 = $this->mockDatabaseBackupsResponse($selectedEnvironment, $databaseResponse2->name, 1, $existingBackups);
+            $this->mockDownloadBackup($databaseResponse2, $selectedEnvironment, $databaseBackupsResponse2->_embedded->items[0], $curlCode);
+        }
 
         $sshHelper = $this->mockSshHelper();
         if ($mockGetAcsfSites) {
@@ -336,7 +340,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase
         }
 
         if ($onDemand) {
-            $backupResponse = $this->mockDatabaseBackupCreateResponse($siteInstance, $selectedDatabase->database_name);
+            $backupResponse = $this->mockDatabaseBackupCreateResponse($selectedEnvironment, $selectedDatabase->name);
             // Cloud API does not provide the notification UUID as part of the backup response, so we must hardcode it.
             $this->mockNotificationResponseFromObject($backupResponse, $onDemandSuccess);
         }
@@ -348,8 +352,8 @@ class PullDatabaseCommandTest extends PullCommandTestBase
             return;
         }
 
-        $databaseBackupsResponse = $this->mockDatabaseBackupsResponse($siteInstance, $databaseResponse->database_name, 1, $existingBackups);
-        $this->mockDownloadBackup($databaseResponse, $siteInstance, $databaseBackupsResponse->_embedded->items[0], $curlCode);
+        $databaseBackupsResponse = $this->mockDatabaseBackupsResponse($selectedEnvironment, $databaseResponse->name, 1, $existingBackups);
+        $this->mockDownloadBackup($databaseResponse, $selectedEnvironment, $databaseBackupsResponse->_embedded->items[0], $curlCode);
 
         $fs = $this->prophet->prophesize(Filesystem::class);
         // Set up file system.
@@ -396,19 +400,19 @@ class PullDatabaseCommandTest extends PullCommandTestBase
 
     public function testPullNode(): void
     {
-        $siteInstance = $this->mockGetSiteInstance();
-
+        $applications = $this->mockRequest('getApplications');
+        $application = $this->mockRequest('getApplicationByUuid', $applications[self::$INPUT_DEFAULT_CHOICE]->uuid);
         $tamper = function ($responses): void {
             foreach ($responses as $response) {
                 $response->type = 'node';
             }
         };
+        $this->mockRequest('getApplicationEnvironments', $application->uuid, null, null, $tamper);
 
         $this->expectException(AcquiaCliException::class);
         $this->expectExceptionMessage('No compatible environments found');
         $this->executeCommand([
             '--no-scripts' => true,
-            'siteInstanceId' => $siteInstance->site_id . '.' . $siteInstance->environment_id,
         ], [
             // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
             'n',

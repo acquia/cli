@@ -20,7 +20,10 @@ final class PullScriptsCommand extends CommandBase
     protected function configure(): void
     {
         $this
+            ->acceptEnvironmentId()
+            ->acceptSite()
             ->acceptSiteInstanceId()
+            ->acceptCodebaseId()
             ->addOption('dir', null, InputArgument::OPTIONAL, 'The directory containing the Drupal project to be refreshed');
     }
 

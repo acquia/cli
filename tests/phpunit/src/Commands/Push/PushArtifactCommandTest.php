@@ -56,10 +56,11 @@ EOF;
      */
     public function testPushArtifact(int $verbosity, bool $printOutput): void
     {
-        $siteInstance = $this->mockSiteInstanceRequest();
-
+        $applications = $this->mockRequest('getApplications');
+        $this->mockRequest('getApplicationByUuid', $applications[0]->uuid);
+        $environments = $this->mockRequest('getApplicationEnvironments', $applications[0]->uuid);
         $localMachineHelper = $this->mockLocalMachineHelper();
-        $this->setUpPushArtifact($localMachineHelper, $siteInstance->environment->codebase->vcs_url, [$siteInstance->environment->codebase->vcs_url], 'master:master', true, true, true, $printOutput);
+        $this->setUpPushArtifact($localMachineHelper, $environments[0]->vcs->path, [$environments[0]->vcs->url], 'master:master', true, true, true, $printOutput);
         $inputs = [
             // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
             'n',
@@ -70,7 +71,7 @@ EOF;
             // Choose an Acquia environment:
             0,
         ];
-        $this->executeCommand(['siteInstanceId' => $siteInstance->site_id . "." . $siteInstance->environment_id], $inputs, $verbosity);
+        $this->executeCommand([], $inputs, $verbosity);
 
         $output = $this->getDisplay();
 
@@ -100,10 +101,12 @@ EOF;
 
     public function testPushTagArtifact(): void
     {
-        $siteInstance = $this->mockGetSiteInstance();
+        $applications = $this->mockRequest('getApplications');
+        $this->mockRequest('getApplicationByUuid', $applications[0]->uuid);
+        $environments = $this->mockRequest('getApplicationEnvironments', $applications[0]->uuid);
         $localMachineHelper = $this->mockLocalMachineHelper();
         $gitTag = '1.2.0-build';
-        $this->setUpPushArtifact($localMachineHelper, '1.2.0', [$siteInstance->environment->codebase->vcs_url], $gitTag);
+        $this->setUpPushArtifact($localMachineHelper, '1.2.0', [$environments[0]->vcs->url], $gitTag);
         $artifactDir = Path::join(sys_get_temp_dir(), 'acli-push-artifact');
         $this->mockGitTag($localMachineHelper, $gitTag, $artifactDir);
         $inputs = [
@@ -117,13 +120,12 @@ EOF;
         $this->executeCommand([
             '--destination-git-tag' => $gitTag,
             '--source-git-tag' => '1.2.0',
-            'siteInstanceId' => $siteInstance->site_id . "." . $siteInstance->environment_id,
         ], $inputs);
 
         $output = $this->getDisplay();
 
-        // $this->assertStringContainsString('Select a Cloud Platform application:', $output);
-        // $this->assertStringContainsString('[0] Sample application 1', $output);
+        $this->assertStringContainsString('Select a Cloud Platform application:', $output);
+        $this->assertStringContainsString('[0] Sample application 1', $output);
         $this->assertStringContainsString('Pushing changes to Acquia Git (site@svn-3.hosted.acquia-sites.com:site.git)', $output);
         $this->assertStringContainsString('Commit changes and push the 1.2.0-build tag', $output);
     }
@@ -170,10 +172,11 @@ EOF;
 
     public function testPushArtifactNoPush(): void
     {
-        $siteInstance = $this->mockGetSiteInstance();
-
+        $applications = $this->mockRequest('getApplications');
+        $this->mockRequest('getApplicationByUuid', $applications[0]->uuid);
+        $environments = $this->mockRequest('getApplicationEnvironments', $applications[0]->uuid);
         $localMachineHelper = $this->mockLocalMachineHelper();
-        $this->setUpPushArtifact($localMachineHelper, $siteInstance->environment->codebase->vcs_url, [$siteInstance->environment->codebase->vcs_url], 'master:master', true, true, false);
+        $this->setUpPushArtifact($localMachineHelper, $environments[0]->vcs->path, [$environments[0]->vcs->url], 'master:master', true, true, false);
         $inputs = [
             // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
             'n',
@@ -184,7 +187,7 @@ EOF;
             // Choose an Acquia environment:
             0,
         ];
-        $this->executeCommand(['siteInstanceId' => $siteInstance->site_id . "." . $siteInstance->environment_id, '--no-push' => true], $inputs);
+        $this->executeCommand(['--no-push' => true], $inputs);
 
         $output = $this->getDisplay();
 
@@ -195,10 +198,11 @@ EOF;
 
     public function testPushArtifactNoCommit(): void
     {
-        $siteInstance = $this->mockGetSiteInstance();
-
+        $applications = $this->mockRequest('getApplications');
+        $this->mockRequest('getApplicationByUuid', $applications[0]->uuid);
+        $environments = $this->mockRequest('getApplicationEnvironments', $applications[0]->uuid);
         $localMachineHelper = $this->mockLocalMachineHelper();
-        $this->setUpPushArtifact($localMachineHelper, $siteInstance->environment->codebase->vcs_url, [$siteInstance->environment->codebase->vcs_url], 'master:master', true, false, false);
+        $this->setUpPushArtifact($localMachineHelper, $environments[0]->vcs->path, [$environments[0]->vcs->url], 'master:master', true, false, false);
         $inputs = [
             // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
             'n',
@@ -209,7 +213,7 @@ EOF;
             // Choose an Acquia environment:
             0,
         ];
-        $this->executeCommand(['--no-commit' => true, 'siteInstanceId' => $siteInstance->site_id . "." . $siteInstance->environment_id], $inputs);
+        $this->executeCommand(['--no-commit' => true], $inputs);
 
         $output = $this->getDisplay();
 

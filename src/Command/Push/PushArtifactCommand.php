@@ -54,7 +54,9 @@ final class PushArtifactCommand extends CommandBase
             ->addOption('destination-git-branch', 'b', InputOption::VALUE_REQUIRED, 'The destination branch to push the artifact to')
             ->addOption('destination-git-tag', 't', InputOption::VALUE_REQUIRED, 'The destination tag to push the artifact to. Using this option requires also using the --destination-git-branch option')
             ->addOption('source-git-tag', 's', InputOption::VALUE_REQUIRED, 'Deprecated: Use destination-git-branch instead')
+            ->acceptEnvironmentId()
             ->acceptSiteInstanceId()
+            ->acceptCodebaseId()
             ->setHelp('This command builds a sanitized deploy artifact by running <options=bold>composer install</>, removing sensitive files, and committing vendor directories.' . PHP_EOL . PHP_EOL
                 . 'Vendor directories and scaffold files are committed to the build artifact even if they are ignored in the source repository.' . PHP_EOL . PHP_EOL
                 . 'To run additional build or sanitization steps (e.g. <options=bold>npm install</>), add a <options=bold>post-install-cmd</> script to your <options=bold>composer.json</> file: https://getcomposer.org/doc/articles/scripts.md#command-events' . PHP_EOL . PHP_EOL
@@ -165,8 +167,9 @@ final class PushArtifactCommand extends CommandBase
             return $this->datastoreAcli->get('push.artifact.destination_git_urls');
         }
 
+        $applicationUuid = $this->determineCloudApplication();
         $siteInstance = $this->determineSiteInstance($this->input, $this->output);
-        if ($vcsUrl = $siteInstance?->environment?->codebase?->vcs_url) {
+        if ($vcsUrl = $this->getAnyVcsUrl($applicationUuid)) {
             return [$vcsUrl];
         }
 
@@ -512,12 +515,13 @@ final class PushArtifactCommand extends CommandBase
             return $this->destinationGitRef;
         }
 
+        $environment = $this->determineEnvironment($this->input, $this->output);
         $siteInstance = $this->determineSiteInstance($this->input, $this->output);
-        if (str_starts_with($siteInstance->environment->codebase->vcs_url, 'tags')) {
-            throw new AcquiaCliException("You cannot push to an environment that has a git tag deployed to it. Environment " . $siteInstance->environment->name . " has {$siteInstance->environment->codebase->vcs_url} deployed. Select a different environment.");
+        if (str_starts_with($environment->vcs->path, 'tags')) {
+            throw new AcquiaCliException("You cannot push to an environment that has a git tag deployed to it. Environment $environment->name has {$environment->vcs->path} deployed. Select a different environment.");
         }
 
-        $this->destinationGitRef = $siteInstance->environment->codebase->vcs_url;
+        $this->destinationGitRef = $environment->vcs->path;
 
         return $this->destinationGitRef;
     }
