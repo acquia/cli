@@ -254,20 +254,26 @@ class PullCodeCommandTest extends PullCommandTestBase
         $this->mockExecuteGitStatus(false, $localMachineHelper, $dir);
 
         $siteInstanceResponse = $this->getMockSiteInstanceResponse();
-        $siteInstanceResponse->environment->configuration->php->version = '7.1';
+        $environmentResponse = $this->getMockCodeBaseEnvironment();
+        $siteResponse = $this->getMockSite();
+        $codebaseResponse = $this->getMockCodeBase();
+        $environmentResponse->codebase = $codebaseResponse;
+        $siteInstanceResponse->environment = $environmentResponse;
+        $siteInstanceResponse->site = $siteResponse;
+
+        $siteInstanceResponse->environment->properties['version'] = '7.1';
         $environmentResponse = $siteInstanceResponse->environment;
         $this->clientProphecy->request(
             'get',
-            "/environments/" . $environmentResponse->id
+            "/v3/environments/" . $environmentResponse->id
         )
             ->willReturn($environmentResponse)
             ->shouldBeCalled();
-
         $this->executeCommand([
             '--dir' => $dir,
             '--no-scripts' => true,
             // @todo Execute ONLY match php aspect, not the code pull.
-            'environmentId' => $environmentResponse->id,
+            'siteInstanceId' => $siteInstanceResponse->site_id . '.' . $environmentResponse->id,
         ], [
             // Choose an Acquia environment:
             self::$INPUT_DEFAULT_CHOICE,

@@ -74,30 +74,28 @@ class PushDatabaseCommandTest extends CommandTestBase
 
         $inputs = [
             // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
-            'n',
+            // 'n',
             // Select a Cloud Platform application:
-            0,
+            // 0,
             // Would you like to link the project at ... ?
-            'n',
+            // 'n',
             // Choose a Cloud Platform environment.
-            0,
+            // 0,
             // Choose a database.
-            0,
+            // 0,
             // Overwrite the profserv2 database on dev with a copy of the database from the current machine?
             'y',
         ];
-
         $this->executeCommand(['siteInstanceId' => $siteInstance->site_id . "." . $siteInstance->environment_id], $inputs, $verbosity);
 
         $output = $this->getDisplay();
-
-        $this->assertStringContainsString('Select a Cloud Platform application:', $output);
-        $this->assertStringContainsString('[0] Sample application 1', $output);
-        $this->assertStringContainsString('Choose a Cloud Platform environment', $output);
-        $this->assertStringContainsString('[0] Dev, dev (vcs: master)', $output);
-        $this->assertStringContainsString('Choose a database', $output);
-        $this->assertStringContainsString('jxr5000596dev (oracletest1.dev-profserv2.acsitefactory.com)', $output);
-        $this->assertStringContainsString('profserv2 (default)', $output);
+        // $this->assertStringContainsString('Select a Cloud Platform application:', $output);
+        // $this->assertStringContainsString('[0] Sample application 1', $output);
+        // $this->assertStringContainsString('Choose a Cloud Platform environment', $output);
+        // $this->assertStringContainsString('[0] Dev, dev (vcs: master)', $output);
+        // $this->assertStringContainsString('Choose a database', $output);
+        // $this->assertStringContainsString('jxr5000596dev (oracletest1.dev-profserv2.acsitefactory.com)', $output);
+        // $this->assertStringContainsString('profserv2 (default)', $output);
         $this->assertStringContainsString('Overwrite the jxr136 database on dev with a copy of the database from the current machine?', $output);
     }
 
@@ -115,14 +113,14 @@ class PushDatabaseCommandTest extends CommandTestBase
     public function testPushDatabaseWithMissingPermission(): void
     {
         $siteInstance = $this->mockGetSiteInstance();
-        $tamper = static function ($databases): void {
-            $databases->database_user = null;
+        $tamper = static function ($database): void {
+            $database->database_user = null;
         };
         $this->mockRequest('site_instance_database', [$siteInstance->site_id, $siteInstance->environment_id], null, null, $tamper);
 
         $this->expectException(AcquiaCliException::class);
         $this->expectExceptionMessage('Database connection details missing');
-        $this->executeCommand(['siteInstanceId' => $siteInstance->site_id . "." . $siteInstance->environment_id], self::inputChooseEnvironment());
+        $this->executeCommand(['siteInstanceId' => $siteInstance->site_id . "." . $siteInstance->environment_id], []);
     }
 
     protected function mockUploadDatabaseDump(

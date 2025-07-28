@@ -11,7 +11,6 @@ use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\CommandFactoryInterface;
 use Acquia\Cli\Helpers\LocalMachineHelper;
 use Acquia\Cli\Helpers\SshHelper;
-use AcquiaCloudApi\Response\DatabaseResponse;
 use Exception;
 use Gitlab\Api\Projects;
 use Gitlab\Api\Users;
@@ -356,27 +355,22 @@ abstract class CommandTestBase extends TestBase
         return $process;
     }
 
-    /**
-     * @return \AcquiaCloudApi\Response\DatabaseResponse[]
-     */
     protected function mockAcsfDatabasesResponse(
         object $siteInstanceResponse
-    ): array {
-        $databasesResponseJson = json_decode(file_get_contents(Path::join($this->realFixtureDir, '/acsf_db_response.json')), false, 512, JSON_THROW_ON_ERROR);
-        $databasesResponse = array_map(
-            static function (mixed $databaseResponse) {
-                return new DatabaseResponse($databaseResponse);
-            },
-            $databasesResponseJson
-        );
+    ): object {
+        $databaseResponse = json_decode(file_get_contents(Path::join($this->realFixtureDir, '/acsf_db_response_v3.json')), false, 512, JSON_THROW_ON_ERROR);
         $this->clientProphecy->request(
             'get',
-            "/site-instances/" . $siteInstanceResponse->site_id . "." . $siteInstanceResponse->environment_id . "/databases"
+            "/site-instances/" . $siteInstanceResponse->site_id . "." . $siteInstanceResponse->environment_id . "/database"
         )
-            ->willReturn($databasesResponse)
+            ->willReturn($databaseResponse)
             ->shouldBeCalled();
 
-        return $databasesResponse;
+        // Debug the response structure.
+        $this->assertIsObject($databaseResponse);
+        $this->assertObjectHasProperty('database_name', $databaseResponse);
+
+        return $databaseResponse;
     }
 
     protected function mockDatabaseBackupsResponse(

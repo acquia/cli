@@ -168,6 +168,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase
     public function testPullMultipleDatabases(): void
     {
         $this->setupPullDatabase(true, true, false, true, true);
+        $siteInstance = $this->mockGetSiteInstance();
         $inputs = [
             // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
             'n',
@@ -185,17 +186,19 @@ class PullDatabaseCommandTest extends PullCommandTestBase
         $this->executeCommand([
             '--multiple-dbs' => true,
             '--no-scripts' => true,
-        ], $inputs);
+            'siteInstanceId' => $siteInstance->site_id . "." . $siteInstance->environment_id,
+        ], []);
     }
 
     public function testPullDatabasesOnDemand(): void
     {
         $this->setupPullDatabase(true, true, true);
         $inputs = self::inputChooseEnvironment();
-
+        $siteInstance = $this->mockGetSiteInstance();
         $this->executeCommand([
             '--no-scripts' => true,
             '--on-demand' => true,
+            'siteInstanceId' => $siteInstance->site_id . "." . $siteInstance->environment_id,
         ], $inputs);
 
         $output = $this->getDisplay();
@@ -226,9 +229,10 @@ class PullDatabaseCommandTest extends PullCommandTestBase
     {
         $this->setupPullDatabase(true, true, true, true, false, 0, false);
         $inputs = self::inputChooseEnvironment();
-
+        $siteInstance = $this->mockGetSiteInstance();
         $this->executeCommand([
             '--no-scripts' => true,
+            'siteInstanceId' => $siteInstance->site_id . "." . $siteInstance->environment_id,
         ], $inputs);
 
         $output = $this->getDisplay();
@@ -246,10 +250,11 @@ class PullDatabaseCommandTest extends PullCommandTestBase
     {
         $this->setupPullDatabase(true, true, false, false);
         $inputs = self::inputChooseEnvironment();
-
+        $siteInstance = $this->mockGetSiteInstance();
         $this->executeCommand([
             '--no-scripts' => true,
             'site' => 'jxr5000596dev',
+            'siteInstanceId' => $siteInstance->site_id . "." . $siteInstance->environment_id,
         ], $inputs);
 
         $output = $this->getDisplay();
@@ -308,9 +313,9 @@ class PullDatabaseCommandTest extends PullCommandTestBase
     public function testPullDatabaseWithInvalidSslCertificate(int $errorCode): void
     {
         $this->setupPullDatabase(true, false, false, true, false, $errorCode);
-        $inputs = self::inputChooseEnvironment();
-
-        $this->executeCommand(['--no-scripts' => true], $inputs);
+        // $inputs = self::inputChooseEnvironment();
+        $siteInstance = $this->mockGetSiteInstance();
+        $this->executeCommand(['--no-scripts' => true, 'siteInstanceId' => $siteInstance->site_id . "." . $siteInstance->environment_id], []);
         $output = $this->getDisplay();
         $this->assertStringContainsString('The certificate for www.example.com is invalid.', $output);
         $this->assertStringContainsString('Trying alternative host other.example.com', $output);
@@ -322,15 +327,8 @@ class PullDatabaseCommandTest extends PullCommandTestBase
 
         $this->createMockGitConfigFile();
 
-        $databasesResponse = $this->mockAcsfDatabasesResponse($siteInstance);
-        $databaseResponse = $databasesResponse[array_search('jxr5000596dev', array_column($databasesResponse, 'name'), true)];
+        $databaseResponse = $this->mockAcsfDatabasesResponse($siteInstance);
         $selectedDatabase = $databaseResponse;
-
-        if ($multiDb) {
-            $databaseResponse2 = $databasesResponse[array_search('profserv2', array_column($databasesResponse, 'name'), true)];
-            $databaseBackupsResponse2 = $this->mockDatabaseBackupsResponse($siteInstance, $databaseResponse2->name, 1, $existingBackups);
-            $this->mockDownloadBackup($databaseResponse2, $siteInstance, $databaseBackupsResponse2->_embedded->items[0], $curlCode);
-        }
 
         $sshHelper = $this->mockSshHelper();
         if ($mockGetAcsfSites) {
@@ -338,7 +336,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase
         }
 
         if ($onDemand) {
-            $backupResponse = $this->mockDatabaseBackupCreateResponse($siteInstance, $selectedDatabase->name);
+            $backupResponse = $this->mockDatabaseBackupCreateResponse($siteInstance, $selectedDatabase->database_name);
             // Cloud API does not provide the notification UUID as part of the backup response, so we must hardcode it.
             $this->mockNotificationResponseFromObject($backupResponse, $onDemandSuccess);
         }
@@ -350,7 +348,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase
             return;
         }
 
-        $databaseBackupsResponse = $this->mockDatabaseBackupsResponse($siteInstance, $databaseResponse->name, 1, $existingBackups);
+        $databaseBackupsResponse = $this->mockDatabaseBackupsResponse($siteInstance, $databaseResponse->database_name, 1, $existingBackups);
         $this->mockDownloadBackup($databaseResponse, $siteInstance, $databaseBackupsResponse->_embedded->items[0], $curlCode);
 
         $fs = $this->prophet->prophesize(Filesystem::class);

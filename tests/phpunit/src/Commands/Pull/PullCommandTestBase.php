@@ -8,7 +8,6 @@ use Acquia\Cli\Helpers\LocalMachineHelper;
 use Acquia\Cli\Helpers\SshHelper;
 use Acquia\Cli\Tests\Commands\Ide\IdeRequiredTestTrait;
 use Acquia\Cli\Tests\CommandTestBase;
-use AcquiaCloudApi\Response\BackupsResponse;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Psr7\Uri;
@@ -354,16 +353,11 @@ abstract class PullCommandTestBase extends CommandTestBase
     public function mockGetBackup(mixed $siteInstance): void
     {
         $database = $this->mockRequest('site_instance_database', [$siteInstance->site_id, $siteInstance->environment_id]);
-        $tamper = static function ($backups): void {
-            $backups[0]->completedAt = $backups[0]->created_at;
-        };
-        $backups = new BackupsResponse(
-            $this->mockRequest('get_database_backups', [
-                $siteInstance->site_id,
-                $siteInstance->environment_id,
-            ], null, null, $tamper)
-        );
-        $this->mockDownloadBackup($database, $siteInstance, $backups[0]);
+        $backup = $this->mockRequest('get_database_backups', [
+            $siteInstance->site_id,
+            $siteInstance->environment_id,
+        ], null, null);
+        $this->mockDownloadBackup($database, $siteInstance, (object) $backup[0] ?? (object) $backup);
     }
 
     protected function mockDownloadBackup(object $database, object $siteInstance, object $backup, int $curlCode = 0): object
@@ -375,7 +369,7 @@ abstract class PullCommandTestBase extends CommandTestBase
             $requestException->getHandlerContext()
                 ->willReturn(['errno' => $curlCode]);
 
-            $this->clientProphecy->stream('get', "/site-instances/$siteInstance->site_id.$siteInstance->environment_id/databases/$database->name/backups/1/actions/download", [])
+            $this->clientProphecy->stream('get', "/site-instances/$siteInstance->site_id.$siteInstance->environment_id/databases/$database->database_name/backups/1/actions/download", [])
                 ->willThrow($requestException->reveal())
                 ->shouldBeCalled();
             $response = $this->prophet->prophesize(ResponseInterface::class);
@@ -387,18 +381,12 @@ abstract class PullCommandTestBase extends CommandTestBase
                 ->willReturn($domainsResponse->_embedded->items);
             $this->command->setBackupDownloadUrl(new Uri('https://www.example.com/download-backup'));
         } else {
-            $this->mockDownloadBackupResponse($siteInstance, $database->name, 1);
-        }
-        if ($database->flags->default) {
-            $dbMachineName = $database->name . $siteInstance->environment->name;
-        } else {
-            $dbMachineName = 'db' . $database->id;
+            $this->mockDownloadBackupResponse($siteInstance, $database->database_name, 1);
         }
         $filename = implode('-', [
             $siteInstance->environment->name,
-            $database->name,
-            $dbMachineName,
-            $backup->completedAt,
+            $database->database_name ?? '',
+            $backup->created_at ?? '',
         ]) . '.sql.gz';
         $localFilepath = Path::join(sys_get_temp_dir(), $filename);
         $this->clientProphecy->addOption('sink', $localFilepath)
@@ -412,7 +400,6 @@ abstract class PullCommandTestBase extends CommandTestBase
         $this->clientProphecy->addOption('on_stats', Argument::type('Closure'))
             ->shouldBeCalled();
         $this->clientProphecy->getOptions()->willReturn([]);
-
         return $database;
     }
 }

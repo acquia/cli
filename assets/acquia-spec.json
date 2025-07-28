@@ -39927,6 +39927,8 @@
                   },
                   "database_host": "localhost",
                   "database_name": "example",
+                  "database_user": "example",
+                  "database_port": 3306,
                   "database_role": "example",
                   "database_password": "example@123"
                 }
@@ -40454,9 +40456,9 @@
                       {
                         "id": "e0c9dff7-56b6-4c0d-bad0-0e6593f66cd3",
                         "database_id": "b0c9dff7-56b6-4c0d-bad0-0e6593f66cd3",
-                        "created_at": "<unknown>",
+                        "created_at": "2025-04-01T13:01:06.603Z",
                         "_links": [
-                          "<unknown>"
+                          "www.example.com"
                         ]
                       }
                     ]
@@ -43621,7 +43623,9 @@
                   "label": "Environment_3e8ecbec-ea7c-4260-8414-ef2938c859bc",
                   "description": "Description of 3e8ecbec-ea7c-4260-8414-ef2938c859bc",
                   "status": "normal",
-                  "flags": {},
+                  "flags": {
+                    "production": false
+                  },
                   "properties": {},
                   "reference": "tag/v3.1",
                   "_embedded": {
@@ -47745,7 +47749,7 @@
       "Acquia_Cloud_API_Documentation_resolution": {
         "name": "resolution",
         "in": "query",
-        "description": "Specifies the data granularity of the request. Available resolutions: minute, hour, day, week or month.\n\nLimits:\n- 3 hour limit for \u201cminute\u201d resolution\n- 1 week limit for \u201chour\u201d resolution\n- 6 month limit for \u201cday\u201d resolution\n- 1 year limit for \"week\" resolution\n- 3 year limit for \u201cmonth\u201d resolution\n",
+        "description": "Specifies the data granularity of the request. Available resolutions: minute, hour, day, week or month.\n\nLimits:\n- 3 hour limit for “minute” resolution\n- 1 week limit for “hour” resolution\n- 6 month limit for “day” resolution\n- 1 year limit for \"week\" resolution\n- 3 year limit for “month” resolution\n",
         "required": false,
         "schema": {
           "type": "string",

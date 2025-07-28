@@ -122,8 +122,8 @@ EOF;
 
         $output = $this->getDisplay();
 
-        $this->assertStringContainsString('Select a Cloud Platform application:', $output);
-        $this->assertStringContainsString('[0] Sample application 1', $output);
+        // $this->assertStringContainsString('Select a Cloud Platform application:', $output);
+        // $this->assertStringContainsString('[0] Sample application 1', $output);
         $this->assertStringContainsString('Pushing changes to Acquia Git (site@svn-3.hosted.acquia-sites.com:site.git)', $output);
         $this->assertStringContainsString('Commit changes and push the 1.2.0-build tag', $output);
     }
@@ -184,7 +184,7 @@ EOF;
             // Choose an Acquia environment:
             0,
         ];
-        $this->executeCommand(['--no-push' => true], $inputs);
+        $this->executeCommand(['siteInstanceId' => $siteInstance->site_id . "." . $siteInstance->environment_id, '--no-push' => true], $inputs);
 
         $output = $this->getDisplay();
 

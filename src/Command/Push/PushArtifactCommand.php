@@ -165,8 +165,8 @@ final class PushArtifactCommand extends CommandBase
             return $this->datastoreAcli->get('push.artifact.destination_git_urls');
         }
 
-        $applicationUuid = $this->determineCloudApplication();
-        if ($vcsUrl = $this->getAnyVcsUrl($applicationUuid)) {
+        $siteInstance = $this->determineSiteInstance($this->input, $this->output);
+        if ($vcsUrl = $siteInstance?->environment?->codebase?->vcs_url) {
             return [$vcsUrl];
         }
 

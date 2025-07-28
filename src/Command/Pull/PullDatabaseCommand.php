@@ -22,7 +22,6 @@ final class PullDatabaseCommand extends PullCommandBase
         $this
             ->setHelp('This uses the latest available database backup, which may be up to 24 hours old. If no backup exists, one will be created.')
             ->acceptSiteInstanceId()
-            ->acceptSite()
             ->addOption(
                 'no-scripts',
                 null,

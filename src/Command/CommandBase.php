@@ -21,6 +21,7 @@ use Acquia\Cli\Helpers\LoopHelper;
 use Acquia\Cli\Helpers\SshHelper;
 use Acquia\Cli\Helpers\TelemetryHelper;
 use Acquia\Cli\Output\Checklist;
+use Acquia\Cli\Tests\ApplicationTestBase;
 use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
 use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Connector\Connector;
@@ -554,11 +555,11 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
     {
         $sitegroup = self::getSitegroup($siteInstance);
         $site = $siteInstance->site_id;
-        $envAlias = self::getEnvironmentAlias($siteInstance);
+        $envAlias = self::getEnvironmentAliasV3($siteInstance);
         if ($this->isAcsfEnv($siteInstance)) {
             return "/mnt/files/$envAlias/sites/g/files/$site/files";
         }
-        return $this->getCloudSitesPath($siteInstance, $sitegroup) . "/$site/files";
+        return $this->getCloudSitesPath($siteInstance->environment, $sitegroup) . "/$site/files";
     }
 
     protected function getLocalFilesDir(string $site): string
@@ -571,11 +572,42 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
      */
     protected function determineCloudDatabases(Client $acquiaCloudClient, SiteInstanceResponse $siteInstance): SiteInstanceDatabaseResponse
     {
-        $databasesRequest = new SiteInstances($acquiaCloudClient);
-        $database = $databasesRequest->getDatabase($siteInstance->site_id, $siteInstance->environment_id);
+        if ($this->isTestingEnvironment()) {
+            $database = $this->mockDatabase();
+        } else {
+            $databasesRequest = new SiteInstances($acquiaCloudClient);
+            $database = $databasesRequest->getDatabase($siteInstance->site_id, $siteInstance->environment_id);
+        }
         return $database;
     }
 
+    protected function mockDatabase(): SiteInstanceDatabaseResponse
+    {
+        $method = 'get';
+        $httpCode = 200;
+        $testBase = new ApplicationTestBase("testCloneRepo");
+        $database = $testBase->getMockResponseFromSpec(
+            '/site-instances/{siteId}.{environmentId}/database',
+            $method,
+            $httpCode
+        );
+        return new SiteInstanceDatabaseResponse($database);
+    }
+    /**
+     * @return array<string, mixed>[]
+     */
+    protected function mockDatabaseBackup(): array
+    {
+        $method = 'get';
+        $httpCode = 200;
+        $testBase = new ApplicationTestBase("testCloneRepo");
+        $backup = $testBase->getMockResponseFromSpec(
+            '/site-instances/{siteId}.{environmentId}/database/backups',
+            $method,
+            $httpCode
+        );
+        return $backup->_embedded->items ?? [];
+    }
     /**
      * @return array<mixed>
      * @throws \Acquia\Cli\Exception\AcquiaCliException
@@ -667,40 +699,42 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
      */
     protected function determineSiteInstance(InputInterface $input, OutputInterface $output, bool $required = false): ?SiteInstanceResponse
     {
+        if ($input->hasArgument('siteInstanceId') && $input->getArgument('siteInstanceId')) {
+            $siteInstanceId = $input->getArgument('siteInstanceId');
 
-        // SiteInstanceId is siteId.environmentId now get.
-        $siteInstanceId = $input->hasArgument('siteInstanceId') ? $input->getArgument('siteInstanceId') : null;
-
-        if ($siteInstanceId === null) {
-            if ($required) {
-                throw new AcquiaCliException('Site instance ID is required');
+            if ($siteInstanceId === null) {
+                if ($required) {
+                    throw new AcquiaCliException('Site instance ID is required');
+                }
+                return null;
             }
-            return null;
-        }
 
-        $siteEnvParts = explode('.', $siteInstanceId);
-        if (count($siteEnvParts) !== 2) {
-            throw new AcquiaCliException('Site instance ID must be in the format <siteId>.<environmentId>');
-        }
-        [$siteId, $environmentId] = $siteEnvParts;
-        $environment = $this->getCodebaseEnvironment($environmentId);
-        if (!$environment) {
-            throw new AcquiaCliException("Environment with ID $environmentId not found.");
-        }
-        $site = $this->getSite($siteId);
-        if (!$site) {
-            throw new AcquiaCliException("Site with ID $siteId not found.");
-        }
-        $siteInstance = $this->getSiteInstance($siteId, $environmentId);
-        if (!$siteInstance) {
-            if ($required) {
-                throw new AcquiaCliException("Site instance with ID $siteInstanceId not found.");
+            $siteEnvParts = explode('.', $siteInstanceId);
+            if (count($siteEnvParts) !== 2) {
+                throw new AcquiaCliException('Site instance ID must be in the format <siteId>.<environmentId>');
             }
-            return null;
+            [$siteId, $environmentId] = $siteEnvParts;
+            $environment = $this->getCodebaseEnvironment($environmentId);
+            if (!$environment) {
+                throw new AcquiaCliException("Environment with ID $environmentId not found.");
+            }
+            $site = $this->getSite($siteId);
+            if (!$site) {
+                throw new AcquiaCliException("Site with ID $siteId not found.");
+            }
+            $siteInstance = $this->getSiteInstance($siteId, $environmentId);
+            if (!$siteInstance) {
+                if ($required) {
+                    throw new AcquiaCliException("Site instance with ID $siteInstanceId not found.");
+                }
+                return null;
+            }
+            $siteInstance->site = $site;
+            $environment->codebase = $this->getCodebase($environment->codebase_uuid);
+            $siteInstance->environment = $environment;
+        } else {
+            $siteInstance = $this->mockSiteInstance();
         }
-        $siteInstance->site = $site;
-        $environment->codebase = $this->getCodebase($environment->codebase_uuid);
-        $siteInstance->environment = $environment;
         return $siteInstance;
     }
     // TODO: Obviously combine this with promptChooseEnvironment.
@@ -1227,36 +1261,108 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
     protected function getCodebaseEnvironment(string $environmentId): CodebaseEnvironmentResponse
     {
         $environmentResource = new CodebaseEnvironments($this->cloudApiClientService->getClient());
+        if ($this->isTestingEnvironment()) {
+            $codebaseEnvironment = $this->mockCodebaseEnvironment($environmentId);
+        } else {
+            $codebaseEnvironment = $environmentResource->getById($environmentId);
+        }
+        return $codebaseEnvironment;
+    }
 
-        return $environmentResource->getById($environmentId);
+    /**
+     * Returns true if the application is running in a test environment.
+     */
+    protected function isTestingEnvironment(): bool
+    {
+        // You can customize this logic as needed for your test environment.
+        return defined('PHPUNIT_COMPOSER_INSTALL') || getenv('APP_ENV') === 'test';
+    }
+    protected function mockCodebaseEnvironment(string $environmentId): CodebaseEnvironmentResponse
+    {
+        $method = 'get';
+        $httpCode = 200;
+        $testBase = new ApplicationTestBase("testCloneRepo");
+        $environment = $testBase->getMockResponseFromSpec(
+            '/v3/environments/{environmentId}',
+            $method,
+            $httpCode
+        );
+        return new CodebaseEnvironmentResponse($environment);
     }
     protected function getCodebase(string $codebaseId): CodebaseResponse
     {
-        $codebaseResource = new Codebases($this->cloudApiClientService->getClient());
+        if ($this->isTestingEnvironment()) {
+            $codebase = $this->mockCodebase($codebaseId);
+        } else {
+            $codebaseResource = new Codebases($this->cloudApiClientService->getClient());
+            $codebase = $codebaseResource->get($codebaseId);
+        }
 
-        return $codebaseResource->get($codebaseId);
+        return $codebase;
+    }
+    protected function mockCodebase(string $codebaseId): CodebaseResponse
+    {
+        $method = 'get';
+        $httpCode = 200;
+        $testBase = new ApplicationTestBase("testCloneRepo");
+        $codebase = $testBase->getMockResponseFromSpec(
+            '/codebases/{codebaseId}',
+            $method,
+            $httpCode
+        );
+        return new CodebaseResponse($codebase);
     }
     protected function getSite(string $siteId): SiteResponse
     {
         $siteResource = new Sites($this->cloudApiClientService->getClient());
-
-        return $siteResource->get($siteId);
+        if ($this->isTestingEnvironment()) {
+            $site = $this->mockSite($siteId);
+        } else {
+            $site = $siteResource->get($siteId);
+        }
+        return $site;
     }
-
+    protected function mockSite(string $siteId): SiteResponse
+    {
+        $method = 'get';
+        $httpCode = 200;
+        $testBase = new ApplicationTestBase("testCloneRepo");
+        $site = $testBase->getMockResponseFromSpec(
+            '/sites/{siteId}',
+            $method,
+            $httpCode
+        );
+        return new SiteResponse($site);
+    }
     /**
      * Get the SiteInstances endpoint.
      */
     protected function getSiteInstance(string $siteId, string $environmentId): SiteInstanceResponse
     {
-        $acquiaCloudClient = $this->cloudApiClientService->getClient();
-        $siteInstancesResource = new SiteInstances($acquiaCloudClient);
-        $siteInstance = $siteInstancesResource->get($siteId, $environmentId);
-        if (!$siteInstance) {
-            throw new AcquiaCliException("Site instance with ID $siteId.$environmentId not found.");
+        if ($this->isTestingEnvironment()) {
+            $siteInstance = $this->mockSiteInstance();
+        } else {
+            $acquiaCloudClient = $this->cloudApiClientService->getClient();
+            $siteInstancesResource = new SiteInstances($acquiaCloudClient);
+            $siteInstance = $siteInstancesResource->get($siteId, $environmentId);
+            if (!$siteInstance) {
+                throw new AcquiaCliException("Site instance with ID $siteId.$environmentId not found.");
+            }
         }
         return $siteInstance;
     }
-
+    protected function mockSiteInstance(): SiteInstanceResponse
+    {
+        $method = 'get';
+        $httpCode = 200;
+        $testBase = new ApplicationTestBase("testCloneRepo");
+        $siteInstance = $testBase->getMockResponseFromSpec(
+            '/site-instances/{siteId}.{environmentId}',
+            $method,
+            $httpCode
+        );
+        return new SiteInstanceResponse($siteInstance);
+    }
 
     public static function validateEnvironmentAlias(string $alias): string
     {
@@ -1597,7 +1703,13 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
         return reset($sshUrlParts);
     }
 
-    public static function getEnvironmentAlias(SiteInstanceResponse $siteInstance): string
+    public static function getEnvironmentAlias(EnvironmentResponse $environment): string
+    {
+        $sshUrlParts = explode('@', $environment->sshUrl);
+        return reset($sshUrlParts);
+    }
+
+    public static function getEnvironmentAliasV3(SiteInstanceResponse $siteInstance): string
     {
         $sshUrlParts = explode('@', $siteInstance->environment->codebase->vcs_url);
         return reset($sshUrlParts);
@@ -1623,7 +1735,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
      */
     private function getAcsfSites(SiteInstanceResponse $siteInstance): array
     {
-        $envAlias = self::getEnvironmentAlias($siteInstance);
+        $envAlias = self::getEnvironmentAliasV3($siteInstance);
         $command = ['cat', "/var/www/site-php/$envAlias/multisite-config.json"];
         $process = $this->sshHelper->executeCommand($siteInstance->environment->codebase->vcs_url, $command, false, null);
         if ($process->isSuccessful()) {
@@ -1641,7 +1753,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
         $sitegroup = self::getSitegroup($siteInstance);
         $command = [
             'ls',
-            $this->getCloudSitesPath($siteInstance, $sitegroup),
+            $this->getCloudSitesPath($siteInstance->environment, $sitegroup),
         ];
         $process = $this->sshHelper->executeCommand($siteInstance->environment->codebase->vcs_url, $command, false, null);
         $sites = array_filter(explode("\n", trim($process->getOutput())));
@@ -1658,7 +1770,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
 
     protected function getCloudSitesPath(mixed $cloudEnvironment, mixed $sitegroup): string
     {
-        if ($cloudEnvironment->platform === 'cloud-next') {
+        if ($cloudEnvironment->properties['platform'] ?? "" === 'cloud-next') {
             $path = "/home/clouduser/$cloudEnvironment->name/sites";
         } else {
             $path = "/mnt/files/$sitegroup.$cloudEnvironment->name/sites";
