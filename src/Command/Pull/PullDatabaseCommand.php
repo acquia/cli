@@ -6,6 +6,7 @@ namespace Acquia\Cli\Command\Pull;
 
 use Acquia\Cli\Attribute\RequireAuth;
 use Acquia\Cli\Attribute\RequireLocalDb;
+use Acquia\Cli\Transformer\EnvironmentTransformer;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -24,7 +25,7 @@ final class PullDatabaseCommand extends PullCommandBase
             ->acceptEnvironmentId()
             ->acceptSite()
             ->acceptSiteInstanceId()
-            ->acceptCodebaseId()
+            ->acceptCodebaseUuid()
             ->addOption(
                 'no-scripts',
                 null,
@@ -63,8 +64,22 @@ final class PullDatabaseCommand extends PullCommandBase
         // $noImport implies $noScripts.
         $noScripts = $noImport || $noScripts;
         $this->setDirAndRequireProjectCwd($input);
-        $sourceEnvironment = $this->determineEnvironment($input, $output, true);
-        $siteInstance = $this->determineSiteInstance($input, $output, true);
+
+        if ($input->hasOption('siteInstanceId') && $input->getOption('siteInstanceId')) {
+            $siteInstance = $this->determineSiteInstance($input, $output, true);
+            if ($siteInstance && $siteInstance->environment && $siteInstance->environment->codebase_uuid) {
+                $sourceEnvironment = EnvironmentTransformer::transform($siteInstance->environment);
+                $sourceEnvironment->vcs->url = $siteInstance->environment->codebase->vcs_url ?? $sourceEnvironment->vcs->url;
+            } else {
+                $sourceEnvironment = $this->determineEnvironment($input, $output, true);
+            }
+        } elseif ($input->hasOption('codebaseUuid') && $input->getOption('codebaseUuid')) {
+            $codebase = $this->getCodebase($input->getOption('codebaseUuid'));
+            $sourceEnvironment = $this->determineEnvironment($input, $output, true);
+            $sourceEnvironment->vcs->url = $codebase->vcs_url ?? $sourceEnvironment->vcs->url;
+        } else {
+            $sourceEnvironment = $this->determineEnvironment($input, $output, true);
+        }
         $this->pullDatabase($input, $output, $sourceEnvironment, $onDemand, $noImport, $multipleDbs);
         if (!$noScripts) {
             $this->runDrushCacheClear($this->getOutputCallback($output, $this->checklist), $this->checklist);

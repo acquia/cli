@@ -7,6 +7,7 @@ namespace Acquia\Cli\Command\Push;
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Output\Checklist;
+use Acquia\Cli\Transformer\EnvironmentTransformer;
 use Closure;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -56,7 +57,7 @@ final class PushArtifactCommand extends CommandBase
             ->addOption('source-git-tag', 's', InputOption::VALUE_REQUIRED, 'Deprecated: Use destination-git-branch instead')
             ->acceptEnvironmentId()
             ->acceptSiteInstanceId()
-            ->acceptCodebaseId()
+            ->acceptCodebaseUuid()
             ->setHelp('This command builds a sanitized deploy artifact by running <options=bold>composer install</>, removing sensitive files, and committing vendor directories.' . PHP_EOL . PHP_EOL
                 . 'Vendor directories and scaffold files are committed to the build artifact even if they are ignored in the source repository.' . PHP_EOL . PHP_EOL
                 . 'To run additional build or sanitization steps (e.g. <options=bold>npm install</>), add a <options=bold>post-install-cmd</> script to your <options=bold>composer.json</> file: https://getcomposer.org/doc/articles/scripts.md#command-events' . PHP_EOL . PHP_EOL
@@ -515,8 +516,21 @@ final class PushArtifactCommand extends CommandBase
             return $this->destinationGitRef;
         }
 
-        $environment = $this->determineEnvironment($this->input, $this->output);
-        $siteInstance = $this->determineSiteInstance($this->input, $this->output);
+        if ($this->input->hasOption('siteInstanceId') && $this->input->getOption('siteInstanceId')) {
+            $siteInstance = $this->determineSiteInstance($this->input, $this->output);
+            if ($siteInstance && $siteInstance->environment && $siteInstance->environment->codebase_uuid) {
+                $environment = EnvironmentTransformer::transform($siteInstance->environment);
+                $environment->vcs->url = $siteInstance->environment->codebase->vcs_url ?? $environment->vcs->url;
+            } else {
+                $environment = $this->determineEnvironment($this->input, $this->output);
+            }
+        } elseif ($this->input->hasOption('codebaseUuid') && $this->input->getOption('codebaseUuid')) {
+            $codebase = $this->getCodebase($this->input->getOption('codebaseUuid'));
+            $environment = $this->determineEnvironment($this->input, $this->output);
+            $environment->vcs->url = $codebase->vcs_url ?? $environment->vcs->url;
+        } else {
+            $environment = $this->determineEnvironment($this->input, $this->output);
+        }
         if (str_starts_with($environment->vcs->path, 'tags')) {
             throw new AcquiaCliException("You cannot push to an environment that has a git tag deployed to it. Environment $environment->name has {$environment->vcs->path} deployed. Select a different environment.");
         }

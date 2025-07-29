@@ -6,6 +6,7 @@ namespace Acquia\Cli\Command\Pull;
 
 use Acquia\Cli\Attribute\RequireAuth;
 use Acquia\Cli\Attribute\RequireLocalDb;
+use Acquia\Cli\Transformer\EnvironmentTransformer;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -27,7 +28,7 @@ final class PullCommand extends PullCommandBase
             ->acceptEnvironmentId()
             ->acceptSite()
             ->acceptSiteInstanceId()
-            ->acceptCodebaseId()
+            ->acceptCodebaseUuid()
             ->addOption('dir', null, InputArgument::OPTIONAL, 'The directory containing the Drupal project to be refreshed')
             ->addOption('no-code', null, InputOption::VALUE_NONE, 'Do not refresh code from remote repository')
             ->addOption('no-files', null, InputOption::VALUE_NONE, 'Do not refresh files')
@@ -44,8 +45,21 @@ final class PullCommand extends PullCommandBase
     {
         $this->setDirAndRequireProjectCwd($input);
         $clone = $this->determineCloneProject($output);
-        $sourceEnvironment = $this->determineEnvironment($input, $output, true);
-        $siteInstance = $this->determineSiteInstance($input, $output, true);
+        if ($input->hasOption('siteInstanceId') && $input->getOption('siteInstanceId')) {
+            $siteInstance = $this->determineSiteInstance($input, $output, true);
+            if ($siteInstance && $siteInstance->environment && $siteInstance->environment->codebase_uuid) {
+                $sourceEnvironment = EnvironmentTransformer::transform($siteInstance->environment);
+                $sourceEnvironment->vcs->url = $siteInstance->environment->codebase->vcs_url ?? $sourceEnvironment->vcs->url;
+            } else {
+                $sourceEnvironment = $this->determineEnvironment($input, $output, true);
+            }
+        } elseif ($input->hasOption('codebaseUuid') && $input->getOption('codebaseUuid')) {
+            $codebase = $this->getCodebase($input->getOption('codebaseUuid'));
+            $sourceEnvironment = $this->determineEnvironment($input, $output, true);
+            $sourceEnvironment->vcs->url = $codebase->vcs_url ?? $sourceEnvironment->vcs->url;
+        } else {
+            $sourceEnvironment = $this->determineEnvironment($input, $output, true);
+        }
 
         if (!$input->getOption('no-code')) {
             $this->pullCode($input, $output, $clone, $sourceEnvironment);

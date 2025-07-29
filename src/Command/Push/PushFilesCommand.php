@@ -6,6 +6,7 @@ namespace Acquia\Cli\Command\Push;
 
 use Acquia\Cli\Attribute\RequireAuth;
 use Acquia\Cli\Output\Checklist;
+use Acquia\Cli\Transformer\EnvironmentTransformer;
 use AcquiaCloudApi\Response\EnvironmentResponse;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -20,13 +21,30 @@ final class PushFilesCommand extends PushCommandBase
     {
         $this
             ->acceptEnvironmentId()
-            ->acceptSite();
+            ->acceptSite()
+            ->acceptCodebaseUuid()
+            ->acceptSiteInstanceId();
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->setDirAndRequireProjectCwd($input);
-        $destinationEnvironment = $this->determineEnvironment($input, $output);
+
+        if ($input->hasOption('siteInstanceId') && $input->getOption('siteInstanceId')) {
+            $siteInstance = $this->determineSiteInstance($input, $output);
+            if ($siteInstance && $siteInstance->environment && $siteInstance->environment->codebase_uuid) {
+                $destinationEnvironment = EnvironmentTransformer::transform($siteInstance->environment);
+                $destinationEnvironment->vcs->url = $siteInstance->environment->codebase->vcs_url ?? $destinationEnvironment->vcs->url;
+            } else {
+                $destinationEnvironment = $this->determineEnvironment($input, $output);
+            }
+        } elseif ($input->hasOption('codebaseUuid') && $input->getOption('codebaseUuid')) {
+            $codebase = $this->getCodebase($input->getOption('codebaseUuid'));
+            $destinationEnvironment = $this->determineEnvironment($input, $output);
+            $destinationEnvironment->vcs->url = $codebase->vcs_url ?? $destinationEnvironment->vcs->url;
+        } else {
+            $destinationEnvironment = $this->determineEnvironment($input, $output);
+        }
         $chosenSite = $input->getArgument('site');
         if (!$chosenSite) {
             $chosenSite = $this->promptChooseDrupalSite($destinationEnvironment);

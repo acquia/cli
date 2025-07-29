@@ -9,6 +9,7 @@ use Acquia\Cli\Attribute\RequireLocalDb;
 use Acquia\Cli\Attribute\RequireRemoteDb;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Output\Checklist;
+use Acquia\Cli\Transformer\EnvironmentTransformer;
 use AcquiaCloudApi\Response\DatabaseResponse;
 use AcquiaCloudApi\Response\EnvironmentResponse;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -28,7 +29,7 @@ final class PushDatabaseCommand extends PushCommandBase
             ->acceptEnvironmentId()
             ->acceptSite()
             ->acceptSiteInstanceId()
-            ->acceptCodebaseId();
+            ->acceptCodebaseUuid();
     }
 
     /**
@@ -36,8 +37,22 @@ final class PushDatabaseCommand extends PushCommandBase
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $destinationEnvironment = $this->determineEnvironment($input, $output);
-        $siteInstance = $this->determineSiteInstance($input, $output);
+
+        if ($input->hasOption('siteInstanceId') && $input->getOption('siteInstanceId')) {
+            $siteInstance = $this->determineSiteInstance($input, $output);
+            if ($siteInstance && $siteInstance->environment && $siteInstance->environment->codebase_uuid) {
+                $destinationEnvironment = EnvironmentTransformer::transform($siteInstance->environment);
+                $destinationEnvironment->vcs->url = $siteInstance->environment->codebase->vcs_url ?? $destinationEnvironment->vcs->url;
+            } else {
+                $destinationEnvironment = $this->determineEnvironment($input, $output);
+            }
+        } elseif ($input->hasOption('codebaseUuid') && $input->getOption('codebaseUuid')) {
+            $codebase = $this->getCodebase($input->getOption('codebaseUuid'));
+            $destinationEnvironment = $this->determineEnvironment($input, $output);
+            $destinationEnvironment->vcs->url = $codebase->vcs_url ?? $destinationEnvironment->vcs->url;
+        } else {
+            $destinationEnvironment = $this->determineEnvironment($input, $output);
+        }
 
         $acquiaCloudClient = $this->cloudApiClientService->getClient();
         $databases = $this->determineCloudDatabases($acquiaCloudClient, $destinationEnvironment, $input->getArgument('site'));

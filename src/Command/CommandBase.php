@@ -68,6 +68,7 @@ use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
@@ -328,6 +329,16 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
 
         return $this;
     }
+    /**
+     * Add argument and usage examples for codebaseId.
+     */
+    protected function acceptCodebaseUuid(): static
+    {
+        $this->addOption('codebaseUuid', null, InputOption::VALUE_OPTIONAL, 'The Cloud Platform codebase UUID')
+            ->addUsage('abcd1234-1111-2222-3333-0e02b2c3d470');
+
+        return $this;
+    }
 
     /**
      * Add argument and usage examples for environmentId.
@@ -348,7 +359,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
      */
     protected function acceptSiteInstanceId(): static
     {
-        $this->addArgument('siteInstanceId', InputArgument::OPTIONAL, 'The Site Instance ID')
+        $this->addOption('siteInstanceId', null, InputOption::VALUE_OPTIONAL, 'The Site Instance ID')
             ->addUsage('3e8ecbec-ea7c-4260-8414-ef2938c859bc');
 
         return $this;
@@ -686,8 +697,8 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
      */
     protected function determineSiteInstance(InputInterface $input, OutputInterface $output, bool $required = false): ?SiteInstanceResponse
     {
-        if ($input->hasArgument('siteInstanceId') && $input->getArgument('siteInstanceId')) {
-            $siteInstanceId = $input->getArgument('siteInstanceId');
+        if ($input->hasOption('siteInstanceId') && $input->getOption('siteInstanceId')) {
+            $siteInstanceId = $input->getOption('siteInstanceId');
 
             if ($siteInstanceId === null) {
                 if ($required) {

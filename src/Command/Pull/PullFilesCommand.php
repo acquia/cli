@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Acquia\Cli\Command\Pull;
 
 use Acquia\Cli\Attribute\RequireAuth;
+use Acquia\Cli\Transformer\EnvironmentTransformer;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -20,14 +21,28 @@ final class PullFilesCommand extends PullCommandBase
             ->acceptEnvironmentId()
             ->acceptSite()
             ->acceptSiteInstanceId()
-            ->acceptCodebaseId();
+            ->acceptCodebaseUuid();
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->setDirAndRequireProjectCwd($input);
-        $sourceEnvironment = $this->determineEnvironment($input, $output, true);
-        $siteInstance = $this->determineSiteInstance($input, $output, true);
+
+        if ($input->hasOption('siteInstanceId') && $input->getOption('siteInstanceId')) {
+            $siteInstance = $this->determineSiteInstance($input, $output, true);
+            if ($siteInstance && $siteInstance->environment && $siteInstance->environment->codebase_uuid) {
+                $sourceEnvironment = EnvironmentTransformer::transform($siteInstance->environment);
+                $sourceEnvironment->vcs->url = $siteInstance->environment->codebase->vcs_url ?? $sourceEnvironment->vcs->url;
+            } else {
+                $sourceEnvironment = $this->determineEnvironment($input, $output, true);
+            }
+        } elseif ($input->hasOption('codebaseUuid') && $input->getOption('codebaseUuid')) {
+            $codebase = $this->getCodebase($input->getOption('codebaseUuid'));
+            $sourceEnvironment = $this->determineEnvironment($input, $output, true);
+            $sourceEnvironment->vcs->url = $codebase->vcs_url ?? $sourceEnvironment->vcs->url;
+        } else {
+            $sourceEnvironment = $this->determineEnvironment($input, $output, true);
+        }
         $this->pullFiles($input, $output, $sourceEnvironment);
 
         return Command::SUCCESS;

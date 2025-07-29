@@ -94,9 +94,7 @@ abstract class SshKeyCommandBase extends CommandBase
         // @see https://www.linux.com/topic/networking/manage-ssh-key-file-passphrase/
         $tempFilepath = $this->localMachineHelper->getFilesystem()
             ->tempnam(sys_get_temp_dir(), 'acli');
-        $this->localMachineHelper->writeFile(
-            $tempFilepath,
-            <<<'EOT'
+        $this->localMachineHelper->writeFile($tempFilepath, <<<'EOT'
 #!/usr/bin/env bash
 echo $SSH_PASS
 EOT
@@ -345,7 +343,7 @@ EOT
         if ($filepath) {
             if (
                 !$this->localMachineHelper->getFilesystem()
-                    ->exists($filepath)
+                ->exists($filepath)
             ) {
                 throw new AcquiaCliException('The filepath {filepath} is not valid', ['filepath' => $filepath]);
             }
