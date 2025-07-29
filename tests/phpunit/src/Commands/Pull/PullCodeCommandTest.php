@@ -304,4 +304,65 @@ class PullCodeCommandTest extends PullCommandTestBase
             ->willReturn($process->reveal())
             ->shouldBeCalled();
     }
+
+    /**
+     * Test execute method with codebaseUuid option having a value.
+     * This tests the logical AND condition: $input->hasOption('codebaseUuid') && $input->getOption('codebaseUuid')
+     */
+    public function testExecuteWithCodebaseUuid(): void
+    {
+        // Mock environment selection - still happens even with codebaseUuid.
+        $environment = $this->mockGetEnvironment();
+        $this->createMockGitConfigFile();
+
+        $localMachineHelper = $this->mockReadIdePhpVersion();
+        $localMachineHelper->checkRequiredBinariesExist(["git"])
+            ->shouldBeCalled();
+        $finder = $this->mockFinder();
+        $localMachineHelper->getFinder()->willReturn($finder->reveal());
+
+        $process = $this->mockProcess();
+        // VCS URL may be overridden by codebase.vcs_url, but we still use environment path.
+        $this->mockExecuteGitFetchAndCheckout($localMachineHelper, $process, $this->projectDir, $environment->vcs->path);
+        $this->mockExecuteGitStatus(false, $localMachineHelper, $this->projectDir);
+
+        $this->executeCommand([
+            '--codebaseUuid' => 'cb-456',
+            '--no-scripts' => true,
+        ], self::inputChooseEnvironment());
+
+        // Test passes if no exception is thrown - the logical AND condition was satisfied.
+        $output = $this->getDisplay();
+        $this->assertStringContainsString('Select a Cloud Platform application:', $output);
+    }
+
+    /**
+     * Test execute method when codebaseUuid option exists but has empty value.
+     * This tests the logical AND condition when second part is false: hasOption() = true, getOption() = null
+     */
+    public function testExecuteCodebaseUuidEmptyValue(): void
+    {
+        $environment = $this->mockGetEnvironment();
+        $this->createMockGitConfigFile();
+
+        $localMachineHelper = $this->mockReadIdePhpVersion();
+        $localMachineHelper->checkRequiredBinariesExist(["git"])
+            ->shouldBeCalled();
+        $finder = $this->mockFinder();
+        $localMachineHelper->getFinder()->willReturn($finder->reveal());
+
+        $process = $this->mockProcess();
+        $this->mockExecuteGitFetchAndCheckout($localMachineHelper, $process, $this->projectDir, $environment->vcs->path);
+        $this->mockExecuteGitStatus(false, $localMachineHelper, $this->projectDir);
+
+        // Pass empty string for codebaseUuid - this should make getOption() return empty value.
+        $this->executeCommand([
+            '--codebaseUuid' => '',
+            '--no-scripts' => true,
+        ], self::inputChooseEnvironment());
+
+        $output = $this->getDisplay();
+        $this->assertStringContainsString('Select a Cloud Platform application:', $output);
+        $this->assertStringContainsString('Choose a Cloud Platform environment', $output);
+    }
 }

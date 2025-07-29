@@ -711,12 +711,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
             throw new AcquiaCliException("Site with ID $siteId not found.");
         }
         $siteInstance = $this->getSiteInstance($siteId, $environmentId);
-        if (!$siteInstance) {
-            if ($required) {
-                throw new AcquiaCliException("Site instance with ID $siteInstanceId not found.");
-            }
-            return null;
-        }
         $siteInstance->site = $site;
         $environment->codebase = $this->getCodebase($environment->codebase_uuid);
         $siteInstance->environment = $environment;
