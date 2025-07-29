@@ -695,44 +695,31 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
      * Until the SiteInstances endpoint is available in the SDK, this method
      * combines environment and site determination.
      */
-    protected function determineSiteInstance(InputInterface $input, OutputInterface $output, bool $required = false): ?SiteInstanceResponse
+    protected function determineSiteInstance(string $siteInstanceId): ?SiteInstanceResponse
     {
-        if ($input->hasOption('siteInstanceId') && $input->getOption('siteInstanceId')) {
-            $siteInstanceId = $input->getOption('siteInstanceId');
-
-            if ($siteInstanceId === null) {
-                if ($required) {
-                    throw new AcquiaCliException('Site instance ID is required');
-                }
-                return null;
-            }
-
-            $siteEnvParts = explode('.', $siteInstanceId);
-            if (count($siteEnvParts) !== 2) {
-                throw new AcquiaCliException('Site instance ID must be in the format <siteId>.<environmentId>');
-            }
-            [$siteId, $environmentId] = $siteEnvParts;
-            $environment = $this->getCodebaseEnvironment($environmentId);
-            if (!$environment) {
-                throw new AcquiaCliException("Environment with ID $environmentId not found.");
-            }
-            $site = $this->getSite($siteId);
-            if (!$site) {
-                throw new AcquiaCliException("Site with ID $siteId not found.");
-            }
-            $siteInstance = $this->getSiteInstance($siteId, $environmentId);
-            if (!$siteInstance) {
-                if ($required) {
-                    throw new AcquiaCliException("Site instance with ID $siteInstanceId not found.");
-                }
-                return null;
-            }
-            $siteInstance->site = $site;
-            $environment->codebase = $this->getCodebase($environment->codebase_uuid);
-            $siteInstance->environment = $environment;
-        } else {
-            $siteInstance = $this->mockSiteInstance();
+        $siteEnvParts = explode('.', $siteInstanceId);
+        if (count($siteEnvParts) !== 2) {
+            throw new AcquiaCliException('Site instance ID must be in the format <siteId>.<environmentId>');
         }
+        [$siteId, $environmentId] = $siteEnvParts;
+        $environment = $this->getCodebaseEnvironment($environmentId);
+        if (!$environment) {
+            throw new AcquiaCliException("Environment with ID $environmentId not found.");
+        }
+        $site = $this->getSite($siteId);
+        if (!$site) {
+            throw new AcquiaCliException("Site with ID $siteId not found.");
+        }
+        $siteInstance = $this->getSiteInstance($siteId, $environmentId);
+        if (!$siteInstance) {
+            if ($required) {
+                throw new AcquiaCliException("Site instance with ID $siteInstanceId not found.");
+            }
+            return null;
+        }
+        $siteInstance->site = $site;
+        $environment->codebase = $this->getCodebase($environment->codebase_uuid);
+        $siteInstance->environment = $environment;
         return $siteInstance;
     }
     // Todo: obviously combine this with promptChooseEnvironment.

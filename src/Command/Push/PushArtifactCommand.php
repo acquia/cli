@@ -169,9 +169,19 @@ final class PushArtifactCommand extends CommandBase
         }
 
         $applicationUuid = $this->determineCloudApplication();
-        $siteInstance = $this->determineSiteInstance($this->input, $this->output);
+
         if ($vcsUrl = $this->getAnyVcsUrl($applicationUuid)) {
             return [$vcsUrl];
+        } elseif ($this->input->hasOption('siteInstanceId') && $this->input->getOption('siteInstanceId')) {
+            $siteInstance = $this->determineSiteInstance($this->input->getOption('siteInstanceId'));
+            $sourceEnvironment = EnvironmentTransformer::transform($siteInstance->environment);
+            $sourceEnvironment->vcs->url = $siteInstance->environment->codebase->vcs_url ?? $sourceEnvironment->vcs->url;
+            return [$sourceEnvironment->vcs->url];
+        } elseif ($this->input->hasOption('codebaseUuid') && $this->input->getOption('codebaseUuid')) {
+            $codebase = $this->getCodebase($this->input->getOption('codebaseUuid'));
+            $sourceEnvironment = $this->determineEnvironment($this->input, $this->output, true);
+            $sourceEnvironment->vcs->url = $codebase->vcs_url ?? $sourceEnvironment->vcs->url;
+            return [$sourceEnvironment->vcs->url];
         }
 
         throw new AcquiaCliException('No environments found for this application');
@@ -517,7 +527,7 @@ final class PushArtifactCommand extends CommandBase
         }
 
         if ($this->input->hasOption('siteInstanceId') && $this->input->getOption('siteInstanceId')) {
-            $siteInstance = $this->determineSiteInstance($this->input, $this->output);
+            $siteInstance = $this->determineSiteInstance($this->input->getOption('siteInstanceId'));
             if ($siteInstance && $siteInstance->environment && $siteInstance->environment->codebase_uuid) {
                 $environment = EnvironmentTransformer::transform($siteInstance->environment);
                 $environment->vcs->url = $siteInstance->environment->codebase->vcs_url ?? $environment->vcs->url;

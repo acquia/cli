@@ -38,7 +38,7 @@ final class PullCodeCommand extends PullCommandBase
         $this->setDirAndRequireProjectCwd($input);
         $clone = $this->determineCloneProject($output);
         if ($input->hasOption('siteInstanceId') && $input->getOption('siteInstanceId')) {
-            $siteInstance = $this->determineSiteInstance($input, $output, true);
+            $siteInstance = $this->determineSiteInstance($input->getOption('siteInstanceId'));
             if ($siteInstance && $siteInstance->environment && $siteInstance->environment->codebase_uuid) {
                 $sourceEnvironment = EnvironmentTransformer::transform($siteInstance->environment);
                 $sourceEnvironment->vcs->url = $siteInstance->environment->codebase->vcs_url ?? $sourceEnvironment->vcs->url;

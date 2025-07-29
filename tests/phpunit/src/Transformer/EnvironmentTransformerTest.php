@@ -150,6 +150,7 @@ class EnvironmentTransformerTest extends TestCase
     {
         // Test converting ssh_url to sshUrl.
         $mockEnvironment1 = (object) [
+            'id' => 'env1',
             'name' => 'test1',
             'ssh_url' => 'user@server1.example.com',
         ];
@@ -159,14 +160,185 @@ class EnvironmentTransformerTest extends TestCase
 
         // Test converting sshUrl to ssh_url.
         $mockEnvironment2 = (object) [
+            'id' => 'env2',
             'name' => 'test2',
             'sshUrl' => 'user@server2.example.com',
         ];
 
         $result2 = EnvironmentTransformer::transform($mockEnvironment2);
         $this->assertEquals('user@server2.example.com', $result2->sshUrl);
+
+        // Test when both ssh_url and sshUrl exist - ssh_url should be copied to sshUrl.
+        $mockEnvironment3 = (object) [
+            'id' => 'env3',
+            'name' => 'test3',
+            'ssh_url' => 'user@server3.example.com',
+        ];
+
+        $result3 = EnvironmentTransformer::transform($mockEnvironment3);
+        $this->assertEquals('user@server3.example.com', $result3->sshUrl);
+
+        // Test when neither ssh_url nor sshUrl exist.
+        $mockEnvironment4 = (object) [
+            'id' => 'env4',
+            'name' => 'test4',
+        ];
+
+        $result4 = EnvironmentTransformer::transform($mockEnvironment4);
+        // Check that sshUrl property is not initialized (should throw an error if accessed)
+        $reflection = new \ReflectionClass($result4);
+        $property = $reflection->getProperty('sshUrl');
+        $this->assertFalse($property->isInitialized($result4));
     }
 
+    /**
+     * Test links property handling between links and _links.
+     */
+    public function testLinksHandling(): void
+    {
+        // Test when links exists but _links doesn't.
+        $mockEnvironment1 = (object) [
+            'id' => 'env1',
+            'links' => (object) ['self' => '/api/environments/123'],
+            'name' => 'test1',
+        ];
+
+        $result1 = EnvironmentTransformer::transform($mockEnvironment1);
+        $this->assertEquals((object) ['self' => '/api/environments/123'], $result1->links);
+
+        // Test when both links and _links exist - should not overwrite _links.
+        $mockEnvironment2 = (object) [
+            'id' => 'env2',
+            'links' => (object) ['self' => '/api/environments/123'],
+            'name' => 'test2',
+            '_links' => (object) ['existing' => '/api/existing'],
+        ];
+
+        $result2 = EnvironmentTransformer::transform($mockEnvironment2);
+        $this->assertEquals((object) ['existing' => '/api/existing'], $result2->links);
+
+        // Test when neither links nor _links exist.
+        $mockEnvironment3 = (object) [
+            'id' => 'env3',
+            'name' => 'test3',
+        ];
+
+        $result3 = EnvironmentTransformer::transform($mockEnvironment3);
+        $this->assertInstanceOf(\stdClass::class, $result3->links);
+    }
+
+    /**
+     * Test id/uuid property handling.
+     */
+    public function testIdUuidHandling(): void
+    {
+        // Test when uuid exists but id doesn't.
+        $mockEnvironment1 = (object) [
+            'name' => 'test1',
+            'uuid' => 'uuid-123',
+        ];
+
+        $result1 = EnvironmentTransformer::transform($mockEnvironment1);
+        $this->assertEquals('uuid-123', $result1->uuid);
+
+        // Test when both uuid and id exist - should use uuid for id.
+        $mockEnvironment2 = (object) [
+            'id' => 'id-789',
+            'name' => 'test2',
+            'uuid' => 'uuid-456',
+        ];
+
+        $result2 = EnvironmentTransformer::transform($mockEnvironment2);
+        $this->assertEquals('uuid-456', $result2->uuid);
+
+        // Test when neither uuid nor id exist.
+        $mockEnvironment3 = (object) [
+            'name' => 'test3',
+        ];
+
+        $result3 = EnvironmentTransformer::transform($mockEnvironment3);
+        $this->assertEquals('', $result3->uuid);
+    }
+
+    /**
+     * Test flags property handling with various combinations.
+     */
+    public function testFlagsHandling(): void
+    {
+        // Test when flags doesn't exist.
+        $mockEnvironment1 = (object) [
+            'id' => 'env1',
+            'name' => 'test1',
+        ];
+
+        $result1 = EnvironmentTransformer::transform($mockEnvironment1);
+        $this->assertFalse($result1->flags->production);
+        $this->assertFalse($result1->flags->cde);
+
+        // Test when flags exists but production doesn't.
+        $mockEnvironment2 = (object) [
+            'flags' => (object) ['cde' => true],
+            'id' => 'env2',
+            'name' => 'test2',
+        ];
+
+        $result2 = EnvironmentTransformer::transform($mockEnvironment2);
+        $this->assertFalse($result2->flags->production);
+        $this->assertTrue($result2->flags->cde);
+
+        // Test when flags exists with production already set.
+        $mockEnvironment3 = (object) [
+            'flags' => (object) ['production' => true, 'cde' => false],
+            'id' => 'env3',
+            'name' => 'test3',
+        ];
+
+        $result3 = EnvironmentTransformer::transform($mockEnvironment3);
+        $this->assertTrue($result3->flags->production);
+        $this->assertFalse($result3->flags->cde);
+    }
+
+    /**
+     * Test application property handling with various combinations.
+     */
+    public function testApplicationHandling(): void
+    {
+        // Test when codebase_uuid exists.
+        $mockEnvironment1 = (object) [
+            'codebase_uuid' => 'cb-123',
+            'id' => 'env1',
+            'label' => 'Test Environment 1',
+            'name' => 'test1',
+        ];
+
+        $result1 = EnvironmentTransformer::transform($mockEnvironment1);
+        $this->assertEquals('cb-123', $result1->application->uuid);
+        $this->assertEquals('Test Environment 1', $result1->application->name);
+
+        // Test when codebase_uuid doesn't exist.
+        $mockEnvironment2 = (object) [
+            'id' => 'env2',
+            'label' => 'Test Environment 2',
+            'name' => 'test2',
+        ];
+
+        $result2 = EnvironmentTransformer::transform($mockEnvironment2);
+        $this->assertEquals('', $result2->application->uuid);
+        $this->assertEquals('', $result2->application->name);
+
+        // Test when application already exists.
+        $mockEnvironment3 = (object) [
+            'application' => (object) ['uuid' => 'existing-uuid', 'name' => 'Existing App'],
+            'codebase_uuid' => 'cb-456',
+            'id' => 'env3',
+            'label' => 'Test Environment 3',
+            'name' => 'test3',
+        ];
+
+        $result3 = EnvironmentTransformer::transform($mockEnvironment3);
+        $this->assertEquals('existing-uuid', $result3->application->uuid);
+        $this->assertEquals('Existing App', $result3->application->name);
+    }
     /**
      * Test v3 to v2 transformation specific features.
      */

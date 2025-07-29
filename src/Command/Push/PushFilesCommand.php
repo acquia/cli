@@ -31,7 +31,7 @@ final class PushFilesCommand extends PushCommandBase
         $this->setDirAndRequireProjectCwd($input);
 
         if ($input->hasOption('siteInstanceId') && $input->getOption('siteInstanceId')) {
-            $siteInstance = $this->determineSiteInstance($input, $output);
+            $siteInstance = $this->determineSiteInstance($input->getOption('siteInstanceId'));
             if ($siteInstance && $siteInstance->environment && $siteInstance->environment->codebase_uuid) {
                 $destinationEnvironment = EnvironmentTransformer::transform($siteInstance->environment);
                 $destinationEnvironment->vcs->url = $siteInstance->environment->codebase->vcs_url ?? $destinationEnvironment->vcs->url;

@@ -386,4 +386,90 @@ class CommandBaseTest extends CommandTestBase
         }
         $this->assertTrue($usageFound, 'Usage should contain the expected UUID example. Found usages: ' . implode(', ', $usages));
     }
+
+    /**
+     * Test acceptCodebaseUuid method adds the correct option and usage.
+     */
+    public function testAcceptCodebaseUuid(): void
+    {
+        // Get a fresh command instance.
+        $command = $this->createCommand();
+
+        // Use reflection to call the protected method.
+        $reflection = new \ReflectionClass($command);
+        $method = $reflection->getMethod('acceptCodebaseUuid');
+        $method->setAccessible(true);
+
+        // Call acceptCodebaseUuid method.
+        $result = $method->invoke($command);
+
+        // Verify it returns the command instance for method chaining.
+        $this->assertSame($command, $result);
+
+        // Verify the argument was added with correct configuration.
+        $definition = $command->getDefinition();
+        $this->assertTrue($definition->hasOption('codebaseUuid'));
+
+        $option = $definition->getOption('codebaseUuid');
+        $this->assertSame('codebaseUuid', $option->getName());
+        $this->assertSame('The Cloud Platform codebase UUID', $option->getDescription());
+        $this->assertFalse($option->isValueRequired(), 'codebaseUuid option should be optional');
+
+        // Verify the usage example was added.
+        $usages = $command->getUsages();
+        $this->assertGreaterThan(0, count($usages), 'Command should have usage examples');
+
+        // Check that the usage contains the expected UUID format.
+        $usageFound = false;
+        foreach ($usages as $usage) {
+            if (strpos($usage, 'abcd1234-1111-2222-3333-0e02b2c3d470') !== false) {
+                $usageFound = true;
+                break;
+            }
+        }
+        $this->assertTrue($usageFound, 'Usage should contain the expected UUID example. Found usages: ' . implode(', ', $usages));
+    }
+
+    /**
+     * Test siteInstanceId method adds the correct option and usage.
+     */
+    public function testAcceptSiteInstanceId(): void
+    {
+        // Get a fresh command instance.
+        $command = $this->createCommand();
+
+        // Use reflection to call the protected method.
+        $reflection = new \ReflectionClass($command);
+        $method = $reflection->getMethod('acceptSiteInstanceId');
+        $method->setAccessible(true);
+
+        // Call acceptSiteInstanceId method.
+        $result = $method->invoke($command);
+
+        // Verify it returns the command instance for method chaining.
+        $this->assertSame($command, $result);
+
+        // Verify the option was added with correct configuration.
+        $definition = $command->getDefinition();
+        $this->assertTrue($definition->hasOption('siteInstanceId'));
+
+        $option = $definition->getOption('siteInstanceId');
+        $this->assertSame('siteInstanceId', $option->getName());
+        $this->assertSame('The Site Instance ID', $option->getDescription());
+        $this->assertFalse($option->isValueRequired(), 'siteInstanceId option should be optional');
+
+        // Verify the usage example was added.
+        $usages = $command->getUsages();
+        $this->assertGreaterThan(0, count($usages), 'Command should have usage examples');
+
+        // Check that the usage contains the expected UUID format.
+        $usageFound = false;
+        foreach ($usages as $usage) {
+            if (strpos($usage, 'abcd1234-1111-2222-3333-0e02b2c3d470') !== false) {
+                $usageFound = true;
+                break;
+            }
+        }
+        $this->assertTrue($usageFound, 'Usage should contain the expected UUID example. Found usages: ' . implode(', ', $usages));
+    }
 }
