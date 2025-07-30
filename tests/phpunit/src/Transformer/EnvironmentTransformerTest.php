@@ -142,53 +142,17 @@ class EnvironmentTransformerTest extends TestCase
         $this->assertInstanceOf(\stdClass::class, $result->vcs);
         $this->assertInstanceOf(\stdClass::class, $result->flags);
     }
-
-    /**
-     * Test SSH URL handling between ssh_url and sshUrl properties.
-     */
-    public function testSshUrlHandling(): void
+    public function testNameFallbacksToLabelWhenNameMissing(): void
     {
-        // Test converting ssh_url to sshUrl.
-        $mockEnvironment1 = (object) [
-            'id' => 'env1',
-            'name' => 'test1',
-            'ssh_url' => 'user@server1.example.com',
+        $mockEnvironment = (object) [
+            'label' => 'Label Only Env',
+        // No 'name'.
         ];
 
-        $result1 = EnvironmentTransformer::transform($mockEnvironment1);
-        $this->assertEquals('user@server1.example.com', $result1->sshUrl);
+        $result = EnvironmentTransformer::transform($mockEnvironment);
 
-        // Test converting sshUrl to ssh_url.
-        $mockEnvironment2 = (object) [
-            'id' => 'env2',
-            'name' => 'test2',
-            'sshUrl' => 'user@server2.example.com',
-        ];
-
-        $result2 = EnvironmentTransformer::transform($mockEnvironment2);
-        $this->assertEquals('user@server2.example.com', $result2->sshUrl);
-
-        // Test when both ssh_url and sshUrl exist - ssh_url should be copied to sshUrl.
-        $mockEnvironment3 = (object) [
-            'id' => 'env3',
-            'name' => 'test3',
-            'ssh_url' => 'user@server3.example.com',
-        ];
-
-        $result3 = EnvironmentTransformer::transform($mockEnvironment3);
-        $this->assertEquals('user@server3.example.com', $result3->sshUrl);
-
-        // Test when neither ssh_url nor sshUrl exist.
-        $mockEnvironment4 = (object) [
-            'id' => 'env4',
-            'name' => 'test4',
-        ];
-
-        $result4 = EnvironmentTransformer::transform($mockEnvironment4);
-        // Check that sshUrl property is not initialized (should throw an error if accessed)
-        $reflection = new \ReflectionClass($result4);
-        $property = $reflection->getProperty('sshUrl');
-        $this->assertFalse($property->isInitialized($result4));
+        // ✅ This will fail on the mutant
+        $this->assertEquals('Label Only Env', $result->name);
     }
 
     /**
@@ -390,5 +354,17 @@ class EnvironmentTransformerTest extends TestCase
         $this->assertEquals('', $result->balancer);
         $this->assertIsArray($result->domains);
         $this->assertEmpty($result->domains);
+    }
+    public function testVcsUrlIsPreservedWhenPresent(): void
+    {
+        $mockEnvironment = (object) [
+            'codebase' => (object) [
+                'vcs_url' => 'https://git.example.com/repo.git',
+            ],
+            'reference' => 'main',
+        ];
+
+        $result = EnvironmentTransformer::transform($mockEnvironment);
+        $this->assertEquals('https://git.example.com/repo.git', $result->vcs->url);
     }
 }

@@ -151,7 +151,7 @@ class EnvironmentTransformer
                 'branch' => $branch,
                 'path' => $branch,
                 // VCS URL is not available from v3 CodebaseEnvironmentResponse.
-                'url' => '',
+                'url' => $environmentData->codebase->vcs_url ?? '',
             ];
         }
 
@@ -179,13 +179,6 @@ class EnvironmentTransformer
 
         if (!isset($environmentData->artifact)) {
             $environmentData->artifact = null;
-        }
-
-        // Handle SSH URL property mapping (v3 vs v2 might use different property names)
-        if (!isset($environmentData->ssh_url) && isset($environmentData->sshUrl)) {
-            $environmentData->ssh_url = $environmentData->sshUrl;
-        } elseif (isset($environmentData->ssh_url) && !isset($environmentData->sshUrl)) {
-            $environmentData->sshUrl = $environmentData->ssh_url;
         }
     }
 }

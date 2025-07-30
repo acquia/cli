@@ -30,21 +30,18 @@ final class PushFilesCommand extends PushCommandBase
     {
         $this->setDirAndRequireProjectCwd($input);
 
-        if ($input->hasOption('siteInstanceId') && $input->getOption('siteInstanceId')) {
-            $siteInstance = $this->determineSiteInstance($input->getOption('siteInstanceId'));
-            if ($siteInstance && $siteInstance->environment && $siteInstance->environment->codebase_uuid) {
-                $destinationEnvironment = EnvironmentTransformer::transform($siteInstance->environment);
-                $destinationEnvironment->vcs->url = $siteInstance->environment->codebase->vcs_url ?? $destinationEnvironment->vcs->url;
-            } else {
-                $destinationEnvironment = $this->determineEnvironment($input, $output);
-            }
-        } elseif ($input->hasOption('codebaseUuid') && $input->getOption('codebaseUuid')) {
-            $codebase = $this->getCodebase($input->getOption('codebaseUuid'));
-            $destinationEnvironment = $this->determineEnvironment($input, $output);
-            $destinationEnvironment->vcs->url = $codebase->vcs_url ?? $destinationEnvironment->vcs->url;
-        } else {
-            $destinationEnvironment = $this->determineEnvironment($input, $output);
+        $destinationEnvironment = $this->determineEnvironment($input, $output);
+        $siteInstance = $this->determineSiteInstance($input);
+        if ($siteInstance && $siteInstance->environment && $siteInstance->environment->codebase_uuid) {
+            $destinationEnvironment = EnvironmentTransformer::transform($siteInstance->environment);
+            $destinationEnvironment->vcs->url = $siteInstance->environment->codebase->vcs_url ?? $destinationEnvironment->vcs->url;
+            $chosenSite = $siteInstance->environment->site->name ?? $input->getArgument('site');
         }
+        $codebase = $this->determineCodebase($input);
+        if ($codebase && $codebase->vcs_url) {
+            $destinationEnvironment->vcs->url = $codebase->vcs_url ?? $destinationEnvironment->vcs->url;
+        }
+
         $chosenSite = $input->getArgument('site');
         if (!$chosenSite) {
             $chosenSite = $this->promptChooseDrupalSite($destinationEnvironment);

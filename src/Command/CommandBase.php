@@ -695,28 +695,43 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
      * Until the SiteInstances endpoint is available in the SDK, this method
      * combines environment and site determination.
      */
-    protected function determineSiteInstance(string $siteInstanceId): ?SiteInstanceResponse
+    protected function determineSiteInstance(InputInterface $input): ?SiteInstanceResponse
     {
-        $siteEnvParts = explode('.', $siteInstanceId);
-        if (count($siteEnvParts) !== 2) {
-            throw new AcquiaCliException('Site instance ID must be in the format <siteId>.<environmentId>');
+        $siteInstanceId = $input->getOption('siteInstanceId');
+        if ($siteInstanceId) {
+            $siteEnvParts = explode('.', $siteInstanceId);
+            if (count($siteEnvParts) !== 2) {
+                throw new AcquiaCliException('Site instance ID must be in the format <siteId>.<environmentId>');
+            }
+            [$siteId, $environmentId] = $siteEnvParts;
+            $environment = $this->getCodebaseEnvironment($environmentId);
+            if (!$environment) {
+                throw new AcquiaCliException("Environment with ID $environmentId not found.");
+            }
+            $site = $this->getSite($siteId);
+            if (!$site) {
+                throw new AcquiaCliException("Site with ID $siteId not found.");
+            }
+            $siteInstance = $this->getSiteInstance($siteId, $environmentId);
+            $siteInstance->site = $site;
+            $environment->codebase = $this->getCodebase($environment->codebase_uuid);
+            $siteInstance->environment = $environment;
+            return $siteInstance;
         }
-        [$siteId, $environmentId] = $siteEnvParts;
-        $environment = $this->getCodebaseEnvironment($environmentId);
-        if (!$environment) {
-            throw new AcquiaCliException("Environment with ID $environmentId not found.");
-        }
-        $site = $this->getSite($siteId);
-        if (!$site) {
-            throw new AcquiaCliException("Site with ID $siteId not found.");
-        }
-        $siteInstance = $this->getSiteInstance($siteId, $environmentId);
-        $siteInstance->site = $site;
-        $environment->codebase = $this->getCodebase($environment->codebase_uuid);
-        $siteInstance->environment = $environment;
-        return $siteInstance;
+        return null;
     }
-    // Todo: obviously combine this with promptChooseEnvironment.
+    protected function determineCodebase(InputInterface $input): ?CodebaseResponse
+    {
+        $codebaseUuid = $input->getOption('codebaseUuid');
+        if ($codebaseUuid) {
+            $codebase = $this->getCodebase($codebaseUuid);
+            if (!$codebase != null) {
+                throw new AcquiaCliException("Codebase with ID $codebaseUuid not found.");
+            }
+            return $codebase;
+        }
+        return null;
+    }
 
     /**
      * @throws \Acquia\Cli\Exception\AcquiaCliException
@@ -1084,7 +1099,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
         if ($this->input->isInteractive()) {
             /** @var CodebaseResponse $codebase */
             $codebase = $this->promptChooseCodebase();
-            if ($codebase) {
+            if ($codebase != null) {
                 return $codebase->id;
             }
         }
@@ -1147,7 +1162,28 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
 
         return true;
     }
+    /**
+     * Determine and return the codebase and environment if codebaseUuid option is present.
+     *
+     * @return array{codebase: CodebaseResponse|null, environment: EnvironmentResponse|null}
+     * @throws \Acquia\Cli\Exception\AcquiaCliException
+     */
+    protected function resolveCodebaseAndEnvironment(InputInterface $input, OutputInterface $output): array
+    {
+        $codebase = null;
+        $environment = null;
 
+        if ($input->hasOption('codebaseUuid') && $input->getOption('codebaseUuid')) {
+            $codebaseUuid = $input->getOption('codebaseUuid');
+            $codebase = $this->getCodebase($codebaseUuid);
+            $environment = $this->determineEnvironment($input, $output);
+        }
+
+        return [
+            'codebase' => $codebase,
+            'environment' => $environment,
+        ];
+    }
     protected function getCloudUuidFromDatastore(): ?string
     {
         return $this->datastoreAcli->get('cloud_app_uuid');

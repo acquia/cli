@@ -170,18 +170,17 @@ final class PushArtifactCommand extends CommandBase
 
         $applicationUuid = $this->determineCloudApplication();
 
-        if ($vcsUrl = $this->getAnyVcsUrl($applicationUuid)) {
+        $siteInstance = $this->determineSiteInstance($this->input);
+        if ($siteInstance && $siteInstance->environment && $siteInstance->environment->codebase_uuid) {
+            $vcsUrl = $siteInstance->environment->codebase->vcs_url ?? $this->getAnyVcsUrl($applicationUuid);
             return [$vcsUrl];
-        } elseif ($this->input->hasOption('siteInstanceId') && $this->input->getOption('siteInstanceId')) {
-            $siteInstance = $this->determineSiteInstance($this->input->getOption('siteInstanceId'));
-            $sourceEnvironment = EnvironmentTransformer::transform($siteInstance->environment);
-            $sourceEnvironment->vcs->url = $siteInstance->environment->codebase->vcs_url ?? $sourceEnvironment->vcs->url;
-            return [$sourceEnvironment->vcs->url];
-        } elseif ($this->input->hasOption('codebaseUuid') && $this->input->getOption('codebaseUuid')) {
-            $codebase = $this->getCodebase($this->input->getOption('codebaseUuid'));
-            $sourceEnvironment = $this->determineEnvironment($this->input, $this->output, true);
-            $sourceEnvironment->vcs->url = $codebase->vcs_url ?? $sourceEnvironment->vcs->url;
-            return [$sourceEnvironment->vcs->url];
+        }
+        $codebase = $this->determineCodebase($this->input);
+        if ($codebase && $codebase->vcs_url) {
+            $vcsUrl = $codebase->vcs_url ?? $this->getAnyVcsUrl($applicationUuid);
+            return [$vcsUrl];
+        } elseif ($vcsUrl = $this->getAnyVcsUrl($applicationUuid)) {
+            return [$vcsUrl];
         }
 
         throw new AcquiaCliException('No environments found for this application');
@@ -526,20 +525,15 @@ final class PushArtifactCommand extends CommandBase
             return $this->destinationGitRef;
         }
 
-        if ($this->input->hasOption('siteInstanceId') && $this->input->getOption('siteInstanceId')) {
-            $siteInstance = $this->determineSiteInstance($this->input->getOption('siteInstanceId'));
-            if ($siteInstance && $siteInstance->environment && $siteInstance->environment->codebase_uuid) {
-                $environment = EnvironmentTransformer::transform($siteInstance->environment);
-                $environment->vcs->url = $siteInstance->environment->codebase->vcs_url ?? $environment->vcs->url;
-            } else {
-                $environment = $this->determineEnvironment($this->input, $this->output);
-            }
-        } elseif ($this->input->hasOption('codebaseUuid') && $this->input->getOption('codebaseUuid')) {
-            $codebase = $this->getCodebase($this->input->getOption('codebaseUuid'));
-            $environment = $this->determineEnvironment($this->input, $this->output);
+        $environment = $this->determineEnvironment($this->input, $this->output);
+        $siteInstance = $this->determineSiteInstance($this->input);
+        $codebase = $this->determineCodebase($this->input);
+        if ($siteInstance && $siteInstance->environment && $siteInstance->environment->codebase_uuid) {
+            $environment = EnvironmentTransformer::transform($siteInstance->environment);
+            $environment->vcs->url = $siteInstance->environment->codebase->vcs_url ?? $environment->vcs->url;
+        } elseif ($codebase && $codebase->vcs_url) {
             $environment->vcs->url = $codebase->vcs_url ?? $environment->vcs->url;
-        } else {
-            $environment = $this->determineEnvironment($this->input, $this->output);
+            $environment->vcs->path = 'master';
         }
         if (str_starts_with($environment->vcs->path, 'tags')) {
             throw new AcquiaCliException("You cannot push to an environment that has a git tag deployed to it. Environment $environment->name has {$environment->vcs->path} deployed. Select a different environment.");

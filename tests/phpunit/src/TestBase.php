@@ -654,6 +654,14 @@ abstract class TestBase extends TestCase
             $httpCode
         );
     }
+    protected function getMockCodebaseResponse(string $method = 'get', string $httpCode = '200'): object
+    {
+        return self::getMockResponseFromSpec(
+            '/codebases/{codebaseId}',
+            $method,
+            $httpCode
+        );
+    }
     protected function getMockCodeBaseEnvironment(string $method = 'get', string $httpCode = '200'): object
     {
         return self::getMockResponseFromSpec(

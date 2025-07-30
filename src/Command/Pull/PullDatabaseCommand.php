@@ -65,20 +65,15 @@ final class PullDatabaseCommand extends PullCommandBase
         $noScripts = $noImport || $noScripts;
         $this->setDirAndRequireProjectCwd($input);
 
-        if ($input->hasOption('siteInstanceId') && $input->getOption('siteInstanceId')) {
-            $siteInstance = $this->determineSiteInstance($input->getOption('siteInstanceId'));
-            if ($siteInstance && $siteInstance->environment && $siteInstance->environment->codebase_uuid) {
-                $sourceEnvironment = EnvironmentTransformer::transform($siteInstance->environment);
-                $sourceEnvironment->vcs->url = $siteInstance->environment->codebase->vcs_url ?? $sourceEnvironment->vcs->url;
-            } else {
-                $sourceEnvironment = $this->determineEnvironment($input, $output, true);
-            }
-        } elseif ($input->hasOption('codebaseUuid') && $input->getOption('codebaseUuid')) {
-            $codebase = $this->getCodebase($input->getOption('codebaseUuid'));
-            $sourceEnvironment = $this->determineEnvironment($input, $output, true);
+        $sourceEnvironment = $this->determineEnvironment($input, $output, true);
+        $siteInstance = $this->determineSiteInstance($input);
+        if ($siteInstance && $siteInstance->environment && $siteInstance->environment->codebase_uuid) {
+            $sourceEnvironment = EnvironmentTransformer::transform($siteInstance->environment);
+            $sourceEnvironment->vcs->url = $siteInstance->environment->codebase->vcs_url ?? $sourceEnvironment->vcs->url;
+        }
+        $codebase = $this->determineCodebase($input);
+        if ($codebase && $codebase->vcs_url) {
             $sourceEnvironment->vcs->url = $codebase->vcs_url ?? $sourceEnvironment->vcs->url;
-        } else {
-            $sourceEnvironment = $this->determineEnvironment($input, $output, true);
         }
         $this->pullDatabase($input, $output, $sourceEnvironment, $onDemand, $noImport, $multipleDbs);
         if (!$noScripts) {
