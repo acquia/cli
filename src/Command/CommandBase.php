@@ -751,24 +751,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
         }
         return null;
     }
-
-    protected function updateEnvironmentBySiteInstance(?SiteInstanceResponse $siteInstance, ?EnvironmentResponse $sourceEnvironment): EnvironmentResponse
-    {
-        if ($siteInstance) {
-            $sourceEnvironment = EnvironmentTransformer::transform($siteInstance->environment);
-            $sourceEnvironment->vcs->url = $siteInstance->environment->codebase->vcs_url ?? $sourceEnvironment->vcs->url;
-        }
-        return $sourceEnvironment;
-    }
-
-    protected function updateEnvironmentByCodebase(?CodebaseResponse $codebase, ?EnvironmentResponse $sourceEnvironment): EnvironmentResponse
-    {
-        if ($codebase) {
-            $sourceEnvironment->vcs->url = $codebase->vcs_url ?? $sourceEnvironment->vcs->url;
-        }
-        return $sourceEnvironment;
-    }
-
     protected function determineCodebase(InputInterface $input): ?CodebaseResponse
     {
         $codebaseUuid = $input->getOption('codebaseUuid');

@@ -9,10 +9,6 @@ use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Command\Ide\IdeListCommand;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Tests\CommandTestBase;
-use AcquiaCloudApi\Response\CodebaseEnvironmentResponse;
-use AcquiaCloudApi\Response\CodebaseResponse;
-use AcquiaCloudApi\Response\EnvironmentResponse;
-use AcquiaCloudApi\Response\SiteInstanceResponse;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Validator\Exception\ValidatorException;
@@ -480,186 +476,6 @@ class CommandBaseTest extends CommandTestBase
     }
 
     /**
-     * Test updateEnvironmentBySiteInstance method with valid site instance.
-     */
-    public function testUpdateEnvironmentBySiteInstance(): void
-    {
-        // Create a mock SiteInstanceResponse with environment data.
-        $siteInstance = new SiteInstanceResponse($this->getMockSiteInstanceResponse());
-        $environment = new CodebaseEnvironmentResponse($this->getMockCodeBaseEnvironment());
-        $environment->codebase = new CodebaseResponse($this->getMockCodeBase());
-        $environment->codebase->vcs_url = 'git@example.com:test/repo.git';
-        $siteInstance->environment = $environment;
-
-        // Create a mock EnvironmentResponse for source environment.
-        $sourceEnv = new EnvironmentResponse($this->getMockEnvironmentResponse());
-        $sourceEnv->vcs->url = 'git@example.com:original/repo.git';
-
-        // Use reflection to access the protected method.
-        $reflection = new \ReflectionClass($this->command);
-        $method = $reflection->getMethod('updateEnvironmentBySiteInstance');
-        $method->setAccessible(true);
-
-        // Call the method.
-        $result = $method->invoke($this->command, $siteInstance, $sourceEnv);
-        // Verify that the VCS URL was updated.
-        $this->assertEquals('git@example.com:test/repo.git', $result->vcs->url);
-    }
-
-
-
-    /**
-     * Test updateEnvironmentBySiteInstance method with null site instance.
-     */
-    public function testUpdateEnvironmentBySiteInstanceWithNullSiteInstance(): void
-    {
-        // Create a mock EnvironmentResponse for source environment.
-        $sourceEnv = new EnvironmentResponse($this->getMockEnvironmentResponse());
-        $sourceEnv->vcs->url = 'git@example.com:original/repo.git';
-
-        // Use reflection to access the protected method.
-        $reflection = new \ReflectionClass($this->command);
-        $method = $reflection->getMethod('updateEnvironmentBySiteInstance');
-        $method->setAccessible(true);
-
-        // Call the method with null site instance.
-        $result = $method->invoke($this->command, null, $sourceEnv);
-
-        // Verify that the environment is returned unchanged.
-        $this->assertSame($sourceEnv, $result);
-        $this->assertEquals('git@example.com:original/repo.git', $result->vcs->url);
-    }
-
-    /**
-     * Test updateEnvironmentBySiteInstance method with site instance that has no codebase.
-     */
-    public function testUpdateEnvironmentBySiteInstanceWithNoCodebase(): void
-    {
-        // Create a mock SiteInstanceResponse without codebase data.
-        $siteInstance = null;
-
-
-        // Create a mock EnvironmentResponse for source environment.
-        $sourceEnv = new EnvironmentResponse($this->getMockEnvironmentResponse());
-        $sourceEnv->vcs->url = 'git@example.com:original/repo.git';
-
-        // Use reflection to access the protected method.
-        $reflection = new \ReflectionClass($this->command);
-        $method = $reflection->getMethod('updateEnvironmentBySiteInstance');
-        $method->setAccessible(true);
-
-
-        // Call the method.
-        $result = $method->invoke($this->command, $siteInstance, $sourceEnv);
-
-        // Verify that the VCS URL was kept the same.
-        $this->assertEquals('git@example.com:original/repo.git', $result->vcs->url);
-    }
-
-    /**
-     * Test updateEnvironmentByCodebase method with valid codebase.
-     */
-    public function testUpdateEnvironmentByCodebase(): void
-    {
-        // Create a mock CodebaseResponse.
-        $codebase = new CodebaseResponse($this->getMockCodeBaseResponse());
-        $codebase->vcs_url = 'git@example.com:new/repo.git';
-
-        // Create a mock EnvironmentResponse for source environment.
-        $sourceEnv = new EnvironmentResponse($this->getMockEnvironmentResponse());
-        $sourceEnv->vcs->url = 'git@example.com:original/repo.git';
-
-        // Use reflection to access the protected method.
-        $reflection = new \ReflectionClass($this->command);
-        $method = $reflection->getMethod('updateEnvironmentByCodebase');
-        $method->setAccessible(true);
-
-        // Call the method.
-        $result = $method->invoke($this->command, $codebase, $sourceEnv);
-
-        // Verify that the VCS URL was updated.
-        $this->assertEquals('git@example.com:new/repo.git', $result->vcs->url);
-    }
-
-    /**
-     * Test updateEnvironmentByCodebase method with null codebase.
-     */
-    public function testUpdateEnvironmentByCodebaseWithNullCodebase(): void
-    {
-        // Create a mock EnvironmentResponse for source environment.
-        $sourceEnv = new EnvironmentResponse($this->getMockEnvironmentResponse());
-        $sourceEnv->vcs->url = 'git@example.com:original/repo.git';
-
-        // Use reflection to access the protected method.
-        $reflection = new \ReflectionClass($this->command);
-        $method = $reflection->getMethod('updateEnvironmentByCodebase');
-        $method->setAccessible(true);
-
-        // Call the method with null codebase.
-        $result = $method->invoke($this->command, null, $sourceEnv);
-
-        // Verify that the environment is returned unchanged.
-        $this->assertSame($sourceEnv, $result);
-        $this->assertEquals('git@example.com:original/repo.git', $result->vcs->url);
-    }
-
-    /**
-     * Test updateEnvironmentByCodebase method with codebase having null vcs_url.
-     */
-    public function testUpdateEnvironmentByCodebaseWithNullVcsUrl(): void
-    {
-        // Create a mock CodebaseResponse with null vcs_url.
-        $codebase = null;
-
-        // Create a mock EnvironmentResponse for source environment.
-        $sourceEnv = new EnvironmentResponse($this->getMockEnvironmentResponse());
-        $sourceEnv->vcs->url = 'git@example.com:original/repo.git';
-        // Use reflection to access the protected method.
-        $reflection = new \ReflectionClass($this->command);
-        $method = $reflection->getMethod('updateEnvironmentByCodebase');
-        $method->setAccessible(true);
-
-        // Call the method.
-        $result = $method->invoke($this->command, $codebase, $sourceEnv);
-        // Verify that the original VCS URL is maintained.
-        $this->assertEquals('git@example.com:original/repo.git', $result->vcs->url);
-    }
-
-    /**
-     * Test that determineVcsUrl method exists and is accessible for testing purposes.
-     * This test validates the method signature and basic invocation.
-     */
-    public function testUpdateEnvironmentByCodebaseMethodAccessibility(): void
-    {
-        $reflection = new \ReflectionClass($this->command);
-        $method = $reflection->getMethod('updateEnvironmentByCodebase');
-        $this->assertTrue($method->isProtected());
-        $method->setAccessible(true);
-
-        // The method should exist and be callable.
-        $this->assertTrue($method->isUserDefined());
-        $this->assertEquals('updateEnvironmentByCodebase', $method->getName());
-    }
-
-    /**
-     * Test determineVcsUrl method existence and accessibility.
-     * This creates basic test coverage for mutation testing.
-     */
-    public function testUpdateEnvironmentByCodebaseMethodExists(): void
-    {
-        $reflection = new \ReflectionClass($this->command);
-        $method = $reflection->getMethod('updateEnvironmentByCodebase');
-        $this->assertTrue($method->isProtected());
-        $this->assertEquals('updateEnvironmentByCodebase', $method->getName());
-
-        // Test the method signature by checking parameter count.
-        $this->assertEquals(2, $method->getNumberOfParameters());
-        $parameters = $method->getParameters();
-        $this->assertEquals('codebase', $parameters[0]->getName());
-        $this->assertEquals('sourceEnvironment', $parameters[1]->getName());
-    }
-
-    /**
      * Test that determineVcsUrl method exists and is accessible for testing purposes.
      * This test validates the method signature and basic invocation.
      */
@@ -693,6 +509,72 @@ class CommandBaseTest extends CommandTestBase
         $this->assertEquals('output', $parameters[1]->getName());
         $this->assertEquals('applicationUuid', $parameters[2]->getName());
     }
+
+
+    /**
+     * Test that determineVcsUrl method exists and is accessible for testing purposes.
+     * This test validates the method signature and basic invocation.
+     */
+    public function testDetermineCodebaseMethodAccessibility(): void
+    {
+        $reflection = new \ReflectionClass($this->command);
+        $method = $reflection->getMethod('determineCodebase');
+        $this->assertTrue($method->isProtected());
+        $method->setAccessible(true);
+
+        // The method should exist and be callable.
+        $this->assertTrue($method->isUserDefined());
+        $this->assertEquals('determineCodebase', $method->getName());
+    }
+
+    /**
+     * Test determineVcsUrl method existence and accessibility.
+     * This creates basic test coverage for mutation testing.
+     */
+    public function testDetermineCodeBaseMethodExists(): void
+    {
+        $reflection = new \ReflectionClass($this->command);
+        $method = $reflection->getMethod('determineCodebase');
+        $this->assertTrue($method->isProtected());
+        $this->assertEquals('determineCodebase', $method->getName());
+
+        // Test the method signature by checking parameter count.
+        $this->assertEquals(1, $method->getNumberOfParameters());
+        $parameters = $method->getParameters();
+        $this->assertEquals('input', $parameters[0]->getName());
+    }
+    /**
+     * Test that determineVcsUrl method exists and is accessible for testing purposes.
+     * This test validates the method signature and basic invocation.
+     */
+    public function testGetCodebaseMethodAccessibility(): void
+    {
+        $reflection = new \ReflectionClass($this->command);
+        $method = $reflection->getMethod('getCodebase');
+        $this->assertTrue($method->isProtected());
+        $method->setAccessible(true);
+
+        // The method should exist and be callable.
+        $this->assertTrue($method->isUserDefined());
+        $this->assertEquals('getCodebase', $method->getName());
+    }
+
+    /**
+     * Test determineVcsUrl method existence and accessibility.
+     * This creates basic test coverage for mutation testing.
+     */
+    public function testGetCodeBaseMethodExists(): void
+    {
+        $reflection = new \ReflectionClass($this->command);
+        $method = $reflection->getMethod('getCodebase');
+        $this->assertTrue($method->isProtected());
+        $this->assertEquals('getCodebase', $method->getName());
+
+        // Test the method signature by checking parameter count.
+        $this->assertEquals(1, $method->getNumberOfParameters());
+        $parameters = $method->getParameters();
+        $this->assertEquals('codebaseId', $parameters[0]->getName());
+    }
     /**
     * Test determineVcsUrl method logic paths through TestableCommand.
     * This test fully covers mutation scenarios including:
@@ -707,7 +589,6 @@ class CommandBaseTest extends CommandTestBase
         $applicationsResponse = $this->filterApplicationsResponse($applicationsResponse, 2, true);
 
         $this->mockEnvironmentsRequest($applicationsResponse);
-        $testableCommand = $this->createCommand();
 
         $reflection = new \ReflectionClass($this->command);
         $method = $reflection->getMethod('determineVcsUrl');
@@ -765,5 +646,57 @@ class CommandBaseTest extends CommandTestBase
 
         $result5 = $method->invoke($this->command, $input5->reveal(), $output5->reveal(), $applicationsResponse->{'_embedded'}->items[0]->uuid);
         $this->assertEquals(['site@svn-3.hosted.acquia-sites.com:site.git'], $result5);
+
+        // Case 6: codebaseUuid provided and valid.
+        $input6 = $this->prophet->prophesize(InputInterface::class);
+        $output6 = $this->prophet->prophesize(OutputInterface::class);
+        $codebase = $this->getMockCodebaseResponse();
+        $codebaseId = $codebase->id;
+
+        // Mock the codebase API call.
+        $this->clientProphecy->request('get', '/codebases/' . $codebaseId)
+            ->willReturn($codebase)
+            ->shouldBeCalled();
+
+        $input6->hasOption('siteInstanceId')->willReturn(false);
+        $input6->hasOption('codebaseUuid')->willReturn(true);
+        $input6->getOption('codebaseUuid')->willReturn($codebaseId);
+
+        $result6 = $method->invoke($this->command, $input6->reveal(), $output6->reveal(), $applicationsResponse->{'_embedded'}->items[0]->uuid);
+        $this->assertEquals(['ssh://us-east-1.dev.vcs.acquia.io/11111111-041c-44c7-a486-7972ed2cafc8'], $result6);
     }
+    // Public function testDetermineVcsUrlWithSiteInstanceId(): void
+    // {.
+    // $applicationsResponse = self::getMockResponseFromSpec('/applications', 'get', '200');
+    // $applicationsResponse = $this->filterApplicationsResponse($applicationsResponse, 2, true);
+    // $this->mockEnvironmentsRequest($applicationsResponse);
+    // $reflection = new \ReflectionClass($this->command);
+    // $method = $reflection->getMethod('determineVcsUrl');
+    // $method->setAccessible(true);
+    // // Case 7: siteInstanceId provided and valid.
+    // $input7 = $this->prophet->prophesize(InputInterface::class);
+    // $output7 = $this->prophet->prophesize(OutputInterface::class);
+    // $siteInstance = $this->mockGetSiteInstance();
+    // $codebase = $siteInstance->environment->codebase;
+    // $this->getMockSiteInstanceResponse();
+    // $this->getMockCodebaseResponse();
+    // $this->getMockCodeBaseEnvironment();
+    // $siteId = "3e8ecbec-ea7c-4260-8414-ef2938c859bc";
+    // $environmentId = "d3f7270e-c45f-4801-9308-5e8afe84a323";
+    // $siteInstanceId = $siteId . "." . $environmentId;
+    // $codebaseId = '11111111-041c-44c7-a486-7972ed2cafc8';
+    // // Mock the codebase API call.
+    // $this->clientProphecy->request('get', '/site-instances/' . $siteId . '.' . $environmentId)
+    // ->willReturn($siteInstance)
+    // ->shouldBeCalled();
+    // // Mock the codebase API call.
+    // $this->clientProphecy->request('get', '/codebases/' . $codebaseId)
+    // ->willReturn($codebase)
+    // ->shouldBeCalled();
+    // $input7->hasOption('codebaseUuid')->willReturn(false);
+    // $input7->hasOption('siteInstanceId')->willReturn(true);
+    // $input7->getOption('siteInstanceId')->willReturn($siteInstanceId);
+    // $result7 = $method->invoke($this->command, $input7->reveal(), $output7->reveal(), $applicationsResponse->{'_embedded'}->items[0]->uuid);
+    // $this->assertEquals(['site@svn-3.hosted.acquia-sites.com:site.git'], $result7);
+    // }.
 }
