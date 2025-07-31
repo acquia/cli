@@ -6,7 +6,6 @@ namespace Acquia\Cli\Command\Push;
 
 use Acquia\Cli\Attribute\RequireAuth;
 use Acquia\Cli\Output\Checklist;
-use Acquia\Cli\Transformer\EnvironmentTransformer;
 use AcquiaCloudApi\Response\EnvironmentResponse;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -31,17 +30,6 @@ final class PushFilesCommand extends PushCommandBase
         $this->setDirAndRequireProjectCwd($input);
 
         $destinationEnvironment = $this->determineEnvironment($input, $output);
-        $siteInstance = $this->determineSiteInstance($input);
-        if ($siteInstance && $siteInstance->environment && $siteInstance->environment->codebase_uuid) {
-            $destinationEnvironment = EnvironmentTransformer::transform($siteInstance->environment);
-            $destinationEnvironment->vcs->url = $siteInstance->environment->codebase->vcs_url ?? $destinationEnvironment->vcs->url;
-            $chosenSite = $siteInstance->environment->site->name ?? $input->getArgument('site');
-        }
-        $codebase = $this->determineCodebase($input);
-        if ($codebase && $codebase->vcs_url) {
-            $destinationEnvironment->vcs->url = $codebase->vcs_url ?? $destinationEnvironment->vcs->url;
-        }
-
         $chosenSite = $input->getArgument('site');
         if (!$chosenSite) {
             $chosenSite = $this->promptChooseDrupalSite($destinationEnvironment);

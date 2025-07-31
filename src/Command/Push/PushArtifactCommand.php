@@ -7,7 +7,6 @@ namespace Acquia\Cli\Command\Push;
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Output\Checklist;
-use Acquia\Cli\Transformer\EnvironmentTransformer;
 use Closure;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -170,18 +169,7 @@ final class PushArtifactCommand extends CommandBase
 
         $applicationUuid = $this->determineCloudApplication();
 
-        $siteInstance = $this->determineSiteInstance($this->input);
-        if ($siteInstance && $siteInstance->environment && $siteInstance->environment->codebase_uuid) {
-            $vcsUrl = $siteInstance->environment->codebase->vcs_url ?? $this->getAnyVcsUrl($applicationUuid);
-            return [$vcsUrl];
-        }
-        $codebase = $this->determineCodebase($this->input);
-        if ($codebase && $codebase->vcs_url) {
-            $vcsUrl = $codebase->vcs_url ?? $this->getAnyVcsUrl($applicationUuid);
-            return [$vcsUrl];
-        } elseif ($vcsUrl = $this->getAnyVcsUrl($applicationUuid)) {
-            return [$vcsUrl];
-        }
+        return $this->determineVcsUrl($this->input, $this->output, $applicationUuid);
 
         throw new AcquiaCliException('No environments found for this application');
     }
@@ -526,15 +514,6 @@ final class PushArtifactCommand extends CommandBase
         }
 
         $environment = $this->determineEnvironment($this->input, $this->output);
-        $siteInstance = $this->determineSiteInstance($this->input);
-        $codebase = $this->determineCodebase($this->input);
-        if ($siteInstance && $siteInstance->environment && $siteInstance->environment->codebase_uuid) {
-            $environment = EnvironmentTransformer::transform($siteInstance->environment);
-            $environment->vcs->url = $siteInstance->environment->codebase->vcs_url ?? $environment->vcs->url;
-        } elseif ($codebase && $codebase->vcs_url) {
-            $environment->vcs->url = $codebase->vcs_url ?? $environment->vcs->url;
-            $environment->vcs->path = 'master';
-        }
         if (str_starts_with($environment->vcs->path, 'tags')) {
             throw new AcquiaCliException("You cannot push to an environment that has a git tag deployed to it. Environment $environment->name has {$environment->vcs->path} deployed. Select a different environment.");
         }

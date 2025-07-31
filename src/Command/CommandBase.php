@@ -22,6 +22,7 @@ use Acquia\Cli\Helpers\SshHelper;
 use Acquia\Cli\Helpers\TelemetryHelper;
 use Acquia\Cli\Output\Checklist;
 use Acquia\Cli\Tests\ApplicationTestBase;
+use Acquia\Cli\Transformer\EnvironmentTransformer;
 use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
 use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Connector\Connector;
@@ -672,7 +673,37 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
      */
     protected function determineEnvironment(InputInterface $input, OutputInterface $output, bool $allowProduction = false, bool $allowNode = false): array|string|EnvironmentResponse
     {
-        if ($input->getArgument('environmentId')) {
+        if ($input->hasOption('siteInstanceId') && $input->getOption('siteInstanceId')) {
+            $siteInstanceId = $input->getOption('siteInstanceId');
+            $siteEnvParts = explode('.', $siteInstanceId);
+            if (count($siteEnvParts) !== 2) {
+                throw new AcquiaCliException('Site instance ID must be in the format <siteId>.<environmentId>');
+            }
+            [$siteId, $environmentId] = $siteEnvParts;
+            $chosenEnvironment = $this->getCodebaseEnvironment($environmentId);
+            if (!$chosenEnvironment) {
+                throw new AcquiaCliException("Environment with ID $environmentId not found.");
+            }
+            $site = $this->getSite($siteId);
+            if (!$site) {
+                throw new AcquiaCliException("Site with ID $siteId not found.");
+            }
+            $siteInstance = $this->getSiteInstance($siteId, $environmentId);
+            $siteInstance->site = $site;
+            $chosenEnvironment->codebase = $this->getCodebase($chosenEnvironment->codebase_uuid);
+            $siteInstance->environment = $chosenEnvironment;
+            $chosenEnvironment = EnvironmentTransformer::transform($siteInstance->environment);
+            $chosenEnvironment->vcs->url = $siteInstance->environment->codebase->vcs_url ?? '';
+        } elseif ($input->hasOption('codebaseUuid') && $input->getOption('codebaseUuid')) {
+            $codebaseUuid = $input->getOption('codebaseUuid');
+            $codebase = $this->getCodebase($codebaseUuid);
+            if (!$codebase) {
+                throw new AcquiaCliException("Codebase with ID $codebaseUuid not found.");
+            }
+            $environmentId = $input->getArgument('environmentId');
+            $chosenEnvironment = $this->getCloudEnvironment($environmentId);
+            $chosenEnvironment->vcs->url = $codebase->vcs_url ?? $chosenEnvironment->vcs->url;
+        } elseif ($input->getArgument('environmentId')) {
             $environmentId = $input->getArgument('environmentId');
             $chosenEnvironment = $this->getCloudEnvironment($environmentId);
         } else {
@@ -720,6 +751,24 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
         }
         return null;
     }
+
+    protected function updateEnvironmentBySiteInstance(?SiteInstanceResponse $siteInstance, ?EnvironmentResponse $sourceEnvironment): EnvironmentResponse
+    {
+        if ($siteInstance) {
+            $sourceEnvironment = EnvironmentTransformer::transform($siteInstance->environment);
+            $sourceEnvironment->vcs->url = $siteInstance->environment->codebase->vcs_url ?? $sourceEnvironment->vcs->url;
+        }
+        return $sourceEnvironment;
+    }
+
+    protected function updateEnvironmentByCodebase(?CodebaseResponse $codebase, ?EnvironmentResponse $sourceEnvironment): EnvironmentResponse
+    {
+        if ($codebase) {
+            $sourceEnvironment->vcs->url = $codebase->vcs_url ?? $sourceEnvironment->vcs->url;
+        }
+        return $sourceEnvironment;
+    }
+
     protected function determineCodebase(InputInterface $input): ?CodebaseResponse
     {
         $codebaseUuid = $input->getOption('codebaseUuid');
@@ -1306,26 +1355,10 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
     }
     protected function getCodebase(string $codebaseId): CodebaseResponse
     {
-        if ($this->isTestingEnvironment()) {
-            $codebase = $this->mockCodebase($codebaseId);
-        } else {
-            $codebaseResource = new Codebases($this->cloudApiClientService->getClient());
-            $codebase = $codebaseResource->get($codebaseId);
-        }
+        $codebaseResource = new Codebases($this->cloudApiClientService->getClient());
+        $codebase = $codebaseResource->get($codebaseId);
 
         return $codebase;
-    }
-    protected function mockCodebase(string $codebaseId): CodebaseResponse
-    {
-        $method = 'get';
-        $httpCode = 200;
-        $testBase = new ApplicationTestBase("testCloneRepo");
-        $codebase = $testBase->getMockResponseFromSpec(
-            '/codebases/{codebaseId}',
-            $method,
-            $httpCode
-        );
-        return new CodebaseResponse($codebase);
     }
     protected function getSite(string $siteId): SiteResponse
     {
@@ -2193,7 +2226,22 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
             return $environment->flags->production && $environment->type === 'drupal';
         });
     }
-
+    protected function determineVcsUrl(InputInterface $input, OutputInterface $output, string $applicationUuid): array|false
+    {
+        if ($input->hasOption('siteInstanceId') && $input->getOption('siteInstanceId')) {
+            $siteInstance = $this->determineSiteInstance($input);
+            $vcsUrl = $siteInstance->environment->codebase->vcs_url ?? $this->getAnyVcsUrl($applicationUuid);
+            return [$vcsUrl];
+        } elseif ($input->hasOption('codebaseUuid') && $input->getOption('codebaseUuid')) {
+            $codebase = $this->determineCodebase($input);
+            $vcsUrl = $codebase->vcs_url ?? $this->getAnyVcsUrl($applicationUuid);
+            return [$vcsUrl];
+        } elseif ($vcsUrl = $this->getAnyVcsUrl($applicationUuid)) {
+            return [$vcsUrl];
+        }
+        $output->writeln('No VCS URL found for this application. Please provide one with the --vcs-url option.');
+        return false;
+    }
     /**
      * Get the first VCS URL for a given Cloud application.
      */

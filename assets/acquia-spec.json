@@ -43348,7 +43348,18 @@
                   "description": "Description of 3e8ecbec-ea7c-4260-8414-ef2938c859bc",
                   "status": "normal",
                   "flags": {},
-                  "properties": {},
+                  "properties": {
+                        "version": "8.3",
+                        "max_execution_time": 10,
+                        "memory_limit": 192,
+                        "apcu": 32,
+                        "client_max_body_size": 192,
+                        "max_input_vars": 1000,
+                        "max_post_size": 256,
+                        "memcached_limit": 128,
+                        "upload_max_filesize": 192,
+                        "operating_system": "focal"
+                      },
                   "reference": "tag/v3.1",
                   "_embedded": {
                     "codebase": {

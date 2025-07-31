@@ -6,179 +6,64 @@ namespace Acquia\Cli\Transformer;
 
 use AcquiaCloudApi\Response\EnvironmentResponse;
 
-/**
- * Transformer for converting site instance environments to environment response objects.
- *
- * This transformer converts various environment object types (like CodebaseEnvironmentResponse
- * from v3 API) to the standard EnvironmentResponse format expected by the codebase.
- */
 class EnvironmentTransformer
 {
     /**
-     * Transform any environment-like object to EnvironmentResponse.
-     *
-     * This transformer converts various environment object types (like CodebaseEnvironmentResponse)
-     * to the standard EnvironmentResponse format expected by the codebase.
-     *
-     * Based on acquia-spec.json schemas:
-     * - Standard Environment (v2 API): Has full application context, domains, balancer, etc.
-     * - V3 Environment (Codebase Environment): Has codebase reference, simplified structure
-     *
-     * @param mixed $environment
-     *   The environment object to transform.
-     * @return \AcquiaCloudApi\Response\EnvironmentResponse
-     *   The transformed environment response object.
+     * Transform a CodebaseEnvironmentResponse object to an EnvironmentResponse object.
      */
-    public static function transform(mixed $environment): EnvironmentResponse
+    public static function transform(mixed $codebaseEnv): EnvironmentResponse
     {
-        // If already an EnvironmentResponse, return as-is.
-        if ($environment instanceof EnvironmentResponse) {
-            return $environment;
+        $env = new \stdClass();
+
+        // Core fields.
+        $env->id = $codebaseEnv->id;
+        $env->uuid = $codebaseEnv->id;
+        $env->name = $codebaseEnv->name;
+        $env->label = $codebaseEnv->label;
+        $env->status = $codebaseEnv->status;
+
+        // Domains, network, etc.
+        $env->active_domain = $codebaseEnv->properties['active_domain'] ?? '';
+        $env->default_domain = $codebaseEnv->properties['default_domain'] ?? '';
+        $env->image_url = $codebaseEnv->properties['image_url'] ?? null;
+        $env->ssh_url = $codebaseEnv->properties['ssh_url'] ?? null;
+        $env->ips = $codebaseEnv->properties['ips'] ?? [];
+        $env->domains = $codebaseEnv->properties['domains'] ?? [];
+        $env->region = $codebaseEnv->properties['region'] ?? null;
+        $env->platform = $codebaseEnv->properties['platform'] ?? '';
+        $env->balancer = $codebaseEnv->properties['balancer'] ?? '';
+        $env->artifact = (object)($codebaseEnv->properties['artifact'] ?? null);
+        $env->gardener = (object)($codebaseEnv->properties['gardener'] ?? null);
+
+        // Application context (not present in CodebaseEnvironment, set to empty object)
+        $env->application = (object) [];
+
+        // VCS logic.
+        $branch = $codebaseEnv->reference ?? 'master';
+        $vcsUrl = '';
+        if (
+            isset($codebaseEnv->codebase) &&
+            is_object($codebaseEnv->codebase) &&
+            property_exists($codebaseEnv->codebase, 'vcs_url')
+        ) {
+            $vcsUrl = $codebaseEnv->codebase->vcs_url;
         }
+        $env->vcs = (object) [
+            'branch' => $branch,
+            'path' => $branch,
+            'url' => $vcsUrl,
+        ];
 
-        // Convert the object to stdClass for EnvironmentResponse constructor.
-        $environmentData = (object) [];
+        // Optional config.
+        $env->configuration = (object) ($codebaseEnv->properties['configuration'] ?? null);
 
-        // Copy over all properties that exist in the source environment.
-        foreach (get_object_vars($environment) as $property => $value) {
-            $environmentData->$property = $value;
-        }
+        // Cast for mutation safety.
+        $env->flags = (object) ($codebaseEnv->flags ?? []);
+        $env->_links = (object) ($codebaseEnv->links ?? []);
 
-        // Handle CodebaseEnvironmentResponse (v3) specific property mappings.
-        if (isset($environmentData->links) && !isset($environmentData->_links)) {
-            $environmentData->_links = $environmentData->links;
-        }
+        $env->type = $codebaseEnv->properties['type'] ?? '';
 
-        // Map essential properties from CodebaseEnvironmentResponse to EnvironmentResponse expected format
-        // EnvironmentResponse constructor sets uuid = id, so we need to ensure id contains the correct UUID.
-        if (!isset($environmentData->id) && isset($environmentData->uuid)) {
-            $environmentData->id = $environmentData->uuid;
-        } elseif (isset($environmentData->uuid) && isset($environmentData->id)) {
-            // If both exist, prefer uuid and override id with uuid value
-            // since EnvironmentResponse constructor will set uuid = id.
-            $environmentData->id = $environmentData->uuid;
-        }
-
-        // Transform v3 environment properties to v2 environment format.
-        static::transformV3ToV2Properties($environmentData);
-
-        return new EnvironmentResponse($environmentData);
-    }
-
-    /**
-     * Transform v3 environment properties to match v2 environment schema.
-     *
-     * Based on acquia-spec.json:
-     * - v3: Has 'id', 'name', 'label', 'description', 'status', 'flags', 'reference' (branch)
-     * - v2: Expects 'id', 'label', 'name', 'application', 'domains', 'active_domain', etc.
-     */
-    private static function transformV3ToV2Properties(object $environmentData): void
-    {
-        // If neither id nor uuid exists, try to provide a sensible default.
-        if (!isset($environmentData->id)) {
-            $environmentData->id = '';
-        }
-
-        if (!isset($environmentData->label)) {
-            $environmentData->label = $environmentData->name ?? 'Unknown Environment';
-        }
-
-        if (!isset($environmentData->name)) {
-            $environmentData->name = $environmentData->label ?? 'unknown';
-        }
-
-        // Transform codebase reference to application format (v3 -> v2)
-        if (!isset($environmentData->application)) {
-            if (isset($environmentData->codebase_uuid)) {
-                // CodebaseEnvironmentResponse doesn't preserve full codebase data,
-                // so we use the environment label as a fallback for application name.
-                $applicationName = $environmentData->label ?? 'Unknown Application';
-
-                $environmentData->application = (object) [
-                    'name' => $applicationName,
-                    'uuid' => $environmentData->codebase_uuid,
-                ];
-            } else {
-                $environmentData->application = (object) ['uuid' => '', 'name' => ''];
-            }
-        }
-
-        // Set required v2 properties with sensible defaults.
-        if (!isset($environmentData->domains)) {
-            $environmentData->domains = [];
-        }
-
-        if (!isset($environmentData->active_domain)) {
-            $environmentData->active_domain = '';
-        }
-
-        if (!isset($environmentData->default_domain)) {
-            $environmentData->default_domain = '';
-        }
-
-        if (!isset($environmentData->image_url)) {
-            $environmentData->image_url = null;
-        }
-
-        if (!isset($environmentData->ips)) {
-            $environmentData->ips = [];
-        }
-
-        if (!isset($environmentData->region)) {
-            $environmentData->region = null;
-        }
-
-        if (!isset($environmentData->balancer)) {
-            $environmentData->balancer = '';
-        }
-
-        if (!isset($environmentData->status)) {
-            $environmentData->status = 'active';
-        }
-
-        if (!isset($environmentData->type)) {
-            $environmentData->type = 'drupal';
-        }
-
-        if (!isset($environmentData->platform)) {
-            $environmentData->platform = 'cloud';
-        }
-
-        // Transform v3 'reference' (branch) to v2 'vcs' object.
-        if (!isset($environmentData->vcs)) {
-            $branch = $environmentData->reference ?? 'master';
-            $environmentData->vcs = (object) [
-                'branch' => $branch,
-                'path' => $branch,
-                // VCS URL is not available from v3 CodebaseEnvironmentResponse.
-                'url' => $environmentData->codebase->vcs_url ?? '',
-            ];
-        }
-
-        // Ensure flags exist with defaults.
-        if (!isset($environmentData->flags)) {
-            $environmentData->flags = (object) [];
-        }
-
-        $flags = $environmentData->flags;
-        if (!isset($flags->production)) {
-            $flags->production = false;
-        }
-        if (!isset($flags->cde)) {
-            $flags->cde = false;
-        }
-        $environmentData->flags = $flags;
-
-        if (!isset($environmentData->configuration)) {
-            $environmentData->configuration = null;
-        }
-
-        if (!isset($environmentData->_links)) {
-            $environmentData->_links = (object) [];
-        }
-
-        if (!isset($environmentData->artifact)) {
-            $environmentData->artifact = null;
-        }
+        // Now instantiate EnvironmentResponse.
+        return new EnvironmentResponse($env);
     }
 }
