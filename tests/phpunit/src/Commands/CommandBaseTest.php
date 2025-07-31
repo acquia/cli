@@ -457,7 +457,7 @@ class CommandBaseTest extends CommandTestBase
 
         $option = $definition->getOption('siteInstanceId');
         $this->assertSame('siteInstanceId', $option->getName());
-        $this->assertSame('The Site Instance ID', $option->getDescription());
+        $this->assertSame('The Site Instance ID (SITEID.EnvironmentID)', $option->getDescription());
         $this->assertFalse($option->isValueRequired(), 'siteInstanceId option should be optional');
 
         // Verify the usage example was added.

@@ -360,8 +360,8 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
      */
     protected function acceptSiteInstanceId(): static
     {
-        $this->addOption('siteInstanceId', null, InputOption::VALUE_OPTIONAL, 'The Site Instance ID')
-            ->addUsage('3e8ecbec-ea7c-4260-8414-ef2938c859bc');
+        $this->addOption('siteInstanceId', null, InputOption::VALUE_OPTIONAL, 'The Site Instance ID (SITEID.EnvironmentID)')
+            ->addUsage('3e8ecbec-ea7c-4260-8414-ef2938c859bc.abcd1234-1111-2222-3333-0e02b2c3d470');
 
         return $this;
     }
@@ -700,8 +700,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
             if (!$codebase) {
                 throw new AcquiaCliException("Codebase with ID $codebaseUuid not found.");
             }
-            $environmentId = $input->getArgument('environmentId');
-            $chosenEnvironment = $this->getCloudEnvironment($environmentId);
+            $chosenEnvironment = EnvironmentTransformer::transformFromCodeBase($codebase);
             $chosenEnvironment->vcs->url = $codebase->vcs_url ?? $chosenEnvironment->vcs->url;
         } elseif ($input->getArgument('environmentId')) {
             $environmentId = $input->getArgument('environmentId');
