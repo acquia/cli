@@ -854,7 +854,7 @@ class CommandBaseTest extends CommandTestBase
         ];
 
         // Mock all the API calls that will be made.
-        $this->clientProphecy->request('get', '/site-instances/' . $siteId . '.' . $environmentId)
+        $this->clientProphecy->request('get', '/api/site-instances/' . $siteId . '.' . $environmentId)
             ->willReturn($siteInstance)
             ->shouldBeCalled();
 

@@ -1325,7 +1325,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
         $httpCode = 200;
         $testBase = new ApplicationTestBase("testCloneRepo");
         $environment = $testBase->getMockResponseFromSpec(
-            '/v3/environments/{environmentId}',
+            '/api/environments/{environmentId}',
             $method,
             $httpCode
         );

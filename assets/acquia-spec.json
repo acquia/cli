@@ -42603,7 +42603,9 @@
                   "site-id": "3e8ecbec-ea7c-4260-8414-ef2938c859bc",
                   "environment-id": "3e8ecbec-ea7c-4260-8414-ef2938c859bc",
                   "hostname": "www.example.com",
-                  "flags": {},
+                  "flags": {
+                    "production": false
+                  },
                   "ip_addresses": [
                     "string"
                   ],
@@ -43015,8 +43017,21 @@
                         "label": "Environment 1111-1111-1111",
                         "description": "Description of1111-1111-1111",
                         "status": "normal",
-                        "flags": {},
-                        "properties": {},
+                        "flags": {
+                          "production": false
+                        },
+                        "properties": {
+                          "version": "8.3",
+                          "max_execution_time": 10,
+                          "memory_limit": 192,
+                          "apcu": 32,
+                          "client_max_body_size": 192,
+                          "max_input_vars": 1000,
+                          "max_post_size": 256,
+                          "memcached_limit": 128,
+                          "upload_max_filesize": 192,
+                          "operating_system": "focal"
+                        },
                         "reference": "tag/v3.1",
                         "_embedded": {
                           "codebase": {
@@ -43347,19 +43362,21 @@
                   "label": "Environment_3e8ecbec-ea7c-4260-8414-ef2938c859bc",
                   "description": "Description of 3e8ecbec-ea7c-4260-8414-ef2938c859bc",
                   "status": "normal",
-                  "flags": {},
+                  "flags": {
+                    "production": false
+                  },
                   "properties": {
-                        "version": "8.3",
-                        "max_execution_time": 10,
-                        "memory_limit": 192,
-                        "apcu": 32,
-                        "client_max_body_size": 192,
-                        "max_input_vars": 1000,
-                        "max_post_size": 256,
-                        "memcached_limit": 128,
-                        "upload_max_filesize": 192,
-                        "operating_system": "focal"
-                      },
+                    "version": "8.3",
+                    "max_execution_time": 10,
+                    "memory_limit": 192,
+                    "apcu": 32,
+                    "client_max_body_size": 192,
+                    "max_input_vars": 1000,
+                    "max_post_size": 256,
+                    "memcached_limit": 128,
+                    "upload_max_filesize": 192,
+                    "operating_system": "focal"
+                  },
                   "reference": "tag/v3.1",
                   "_embedded": {
                     "codebase": {
@@ -44623,8 +44640,21 @@
                         "label": "Environment 1111-1111-1111",
                         "description": "Description of 1111-1111-1111",
                         "status": "normal",
-                        "flags": {},
-                        "properties": {},
+                        "flags": {
+                          "production": false
+                        },
+                        "properties": {
+                          "version": "8.3",
+                          "max_execution_time": 10,
+                          "memory_limit": 192,
+                          "apcu": 32,
+                          "client_max_body_size": 192,
+                          "max_input_vars": 1000,
+                          "max_post_size": 256,
+                          "memcached_limit": 128,
+                          "upload_max_filesize": 192,
+                          "operating_system": "focal"
+                        },
                         "reference": "tag/v3.1",
                         "_embedded": {
                           "codebase": {
