@@ -39278,7 +39278,7 @@
         ]
       }
     },
-    "/api/site-instances/{siteId}.{environmentId}/database": {
+    "/site-instances/{siteId}.{environmentId}/database": {
       "get": {
         "operationId": "site_instance_database",
         "x-cli-name": "site-instances:database",
@@ -39434,7 +39434,7 @@
             "allowReserved": false
           }
         ],
-        "deprecated": false,
+        "deprecated": true,
         "security": [
           {
             "Environment_Service_JWT": []
@@ -39632,7 +39632,7 @@
           },
           "required": false
         },
-        "deprecated": false,
+        "deprecated": true,
         "security": [
           {
             "Environment_Service_JWT": []
@@ -39640,7 +39640,7 @@
         ]
       }
     },
-    "/api/site-instances/{siteId}.{environmentId}/database/backups": {
+    "/site-instances/{siteId}.{environmentId}/database/backups": {
       "get": {
         "operationId": "get_database_backups",
         "x-cli-name": "site-instances:database:backups",
@@ -39933,7 +39933,7 @@
             "allowReserved": false
           }
         ],
-        "deprecated": false,
+        "deprecated": true,
         "security": [
           {
             "Environment_Service_JWT": []
@@ -40110,7 +40110,7 @@
             "allowReserved": false
           }
         ],
-        "deprecated": false,
+        "deprecated": true,
         "security": [
           {
             "Environment_Service_JWT": []
@@ -40118,7 +40118,7 @@
         ]
       }
     },
-    "/api/site-instances/{siteId}.{environmentId}/database/backups/{id}": {
+    "/site-instances/{siteId}.{environmentId}/database/backups/{id}": {
       "get": {
         "operationId": "get_database_backup",
         "x-cli-name": "site-instances:database:backups:get",
@@ -40284,7 +40284,7 @@
             "allowReserved": false
           }
         ],
-        "deprecated": false,
+        "deprecated": true,
         "security": [
           {
             "Environment_Service_JWT": []
@@ -40433,7 +40433,7 @@
             "allowReserved": false
           }
         ],
-        "deprecated": false,
+        "deprecated": true,
         "security": [
           {
             "Environment_Service_JWT": []
@@ -40441,7 +40441,7 @@
         ]
       }
     },
-    "/api/site-instances/{siteId}.{environmentId}/database/backups/{id}/actions/download": {
+    "/site-instances/{siteId}.{environmentId}/database/backups/{id}/actions/download": {
       "get": {
         "operationId": "api_site-instances_siteId._environmentIddatabasebackups_idactionsdownload_get",
         "x-cli-name": "site-instances:database:backups:download",
@@ -40604,7 +40604,7 @@
             "allowReserved": false
           }
         ],
-        "deprecated": false,
+        "deprecated": true,
         "security": [
           {
             "Environment_Service_JWT": []
@@ -40612,7 +40612,7 @@
         ]
       }
     },
-    "/api/site-instances/{siteId}.{environmentId}/database/backups/{id}/actions/restore": {
+    "/site-instances/{siteId}.{environmentId}/database/backups/{id}/actions/restore": {
       "post": {
         "operationId": "restore_database_backup",
         "x-cli-name": "site-instances:database:backups:restore",
@@ -40786,7 +40786,7 @@
             "allowReserved": false
           }
         ],
-        "deprecated": false,
+        "deprecated": true,
         "security": [
           {
             "Environment_Service_JWT": []
@@ -40794,7 +40794,7 @@
         ]
       }
     },
-    "/api/site-instances/{siteId}.{environmentId}/domains": {
+    "/site-instances/{siteId}.{environmentId}/domains": {
       "get": {
         "operationId": "site_instance_domains",
         "x-cli-name": "site-instances:domains",
@@ -41073,7 +41073,7 @@
             "allowReserved": false
           }
         ],
-        "deprecated": false,
+        "deprecated": true,
         "security": [
           {
             "Environment_Service_JWT": []
@@ -41081,7 +41081,7 @@
         ]
       }
     },
-    "/api/site-instances/{siteId}.{environmentId}/domains/{domainName}": {
+    "/site-instances/{siteId}.{environmentId}/domains/{domainName}": {
       "get": {
         "operationId": "site_instance_domain",
         "x-cli-name": "site-instances:domain",
@@ -41239,7 +41239,7 @@
             "allowReserved": false
           }
         ],
-        "deprecated": false,
+        "deprecated": true,
         "security": [
           {
             "Environment_Service_JWT": []
@@ -41422,7 +41422,7 @@
           },
           "required": false
         },
-        "deprecated": false,
+        "deprecated": true,
         "security": [
           {
             "Environment_Service_JWT": []
@@ -41571,7 +41571,7 @@
             "allowReserved": false
           }
         ],
-        "deprecated": false,
+        "deprecated": true,
         "security": [
           {
             "Environment_Service_JWT": []
@@ -41579,7 +41579,7 @@
         ]
       }
     },
-    "/api/site-instances/{siteId}.{environmentId}/domains/{domainName}/status": {
+    "/site-instances/{siteId}.{environmentId}/domains/{domainName}/status": {
       "get": {
         "operationId": "site_instance_domain_status",
         "x-cli-name": "site-instances:domain:status",
@@ -41773,7 +41773,7 @@
             "allowReserved": false
           }
         ],
-        "deprecated": false,
+        "deprecated": true,
         "security": [
           {
             "Environment_Service_JWT": []
@@ -41781,7 +41781,7 @@
         ]
       }
     },
-    "/api/codebases/{codebaseId}/environments": {
+    "/codebases/{codebaseId}/environments": {
       "get": {
         "operationId": "environments_by_codebase",
         "x-cli-name": "codebases:environments-list",
@@ -42153,7 +42153,7 @@
             "allowReserved": false
           }
         ],
-        "deprecated": false,
+        "deprecated": true,
         "security": [
           {
             "Environment_Service_JWT": []
@@ -42161,7 +42161,7 @@
         ]
       }
     },
-    "/api/codebases/{codebaseId}/environments/{environmentId}": {
+    "/codebases/{codebaseId}/environments/{environmentId}": {
       "get": {
         "operationId": "environment_by_codebase_id",
         "x-cli-name": "codebases:environments-find",
@@ -42386,7 +42386,7 @@
             "allowReserved": false
           }
         ],
-        "deprecated": false,
+        "deprecated": true,
         "security": [
           {
             "Environment_Service_JWT": []
@@ -42394,10 +42394,10 @@
         ]
       }
     },
-    "/api/environments/{environmentId}": {
+    "/v3/environments/{environmentId}": {
       "get": {
         "operationId": "environment_by_id",
-        "x-cli-name": "environments:find",
+        "x-cli-name": "environments-v3:find",
         "tags": [
           "Environment"
         ],
@@ -42605,7 +42605,7 @@
             "allowReserved": false
           }
         ],
-        "deprecated": false,
+        "deprecated": true,
         "security": [
           {
             "Environment_Service_JWT": []
@@ -42614,7 +42614,7 @@
       },
       "put": {
         "operationId": "update_environment",
-        "x-cli-name": "environments:update",
+        "x-cli-name": "environments-v3:update",
         "tags": [
           "Environment"
         ],
@@ -42806,7 +42806,7 @@
           },
           "required": false
         },
-        "deprecated": false,
+        "deprecated": true,
         "security": [
           {
             "Environment_Service_JWT": []
@@ -42814,10 +42814,10 @@
         ]
       }
     },
-    "/api/environments/{environmentId}/private-network": {
+    "/v3/environments/{environmentId}/private-network": {
       "get": {
         "operationId": "api_environments_environmentIdprivate-network_get",
-        "x-cli-name": "environments:private-network:get",
+        "x-cli-name": "environments-v3:private-network:get",
         "tags": [
           "Environment"
         ],
@@ -42949,7 +42949,7 @@
             "allowReserved": false
           }
         ],
-        "deprecated": false,
+        "deprecated": true,
         "security": [
           {
             "Environment_Service_JWT": []
@@ -42958,7 +42958,7 @@
       },
       "delete": {
         "operationId": "update_environment_private_network",
-        "x-cli-name": "environments:private-network:delete",
+        "x-cli-name": "environments-v3:private-network:delete",
         "tags": [
           "Environment"
         ],
@@ -43109,7 +43109,7 @@
             "allowReserved": false
           }
         ],
-        "deprecated": false,
+        "deprecated": true,
         "security": [
           {
             "Environment_Service_JWT": []
@@ -43117,7 +43117,7 @@
         ]
       }
     },
-    "/api/sites/{siteId}/environments": {
+    "/sites/{siteId}/environments": {
       "get": {
         "operationId": "environments_by_site",
         "x-cli-name": "sites:environments-list",
@@ -43487,7 +43487,7 @@
             "allowReserved": false
           }
         ],
-        "deprecated": false,
+        "deprecated": true,
         "security": [
           {
             "Environment_Service_JWT": []
@@ -43495,10 +43495,10 @@
         ]
       }
     },
-    "/api/environments/{environmentId}/site-instances": {
+    "/v3/environments/{environmentId}/site-instances": {
       "post": {
         "operationId": "api_environments_environmentIdsite-instances_post",
-        "x-cli-name": "environments:site-instances:create",
+        "x-cli-name": "environments-v3:site-instances:create",
         "tags": [
           "SiteInstance"
         ],
@@ -43669,7 +43669,7 @@
           },
           "required": false
         },
-        "deprecated": false,
+        "deprecated": true,
         "security": [
           {
             "Environment_Service_JWT": []
@@ -43677,7 +43677,7 @@
         ]
       }
     },
-    "/api/site-instances/{siteId}.{environmentId}": {
+    "/site-instances/{siteId}.{environmentId}": {
       "get": {
         "operationId": "site_instance",
         "x-cli-name": "site-instances:find",
@@ -43857,7 +43857,7 @@
             "allowReserved": false
           }
         ],
-        "deprecated": false,
+        "deprecated": true,
         "security": [
           {
             "Environment_Service_JWT": []
@@ -44007,7 +44007,7 @@
             "allowReserved": false
           }
         ],
-        "deprecated": false,
+        "deprecated": true,
         "security": [
           {
             "Environment_Service_JWT": []
@@ -44015,7 +44015,7 @@
         ]
       }
     },
-    "/api/site-instances/{siteId}.{environmentId}/files": {
+    "/site-instances/{siteId}.{environmentId}/files": {
       "post": {
         "operationId": "api_site-instances_siteId._environmentIdfiles_post",
         "x-cli-name": "site-instances:files:copy",
@@ -44203,7 +44203,7 @@
           },
           "required": false
         },
-        "deprecated": false,
+        "deprecated": true,
         "security": [
           {
             "Environment_Service_JWT": []
@@ -44211,7 +44211,7 @@
         ]
       }
     },
-    "/api/codebases/{codebaseId}/sites": {
+    "/codebases/{codebaseId}/sites": {
       "get": {
         "operationId": "api_codebases_codebaseIdsites_get_collection",
         "x-cli-name": "codebases:sites-list",
@@ -44439,7 +44439,7 @@
             "allowReserved": false
           }
         ],
-        "deprecated": false,
+        "deprecated": true,
         "security": [
           {
             "Site_Service_JWT": []
@@ -44447,7 +44447,7 @@
         ]
       }
     },
-    "/api/environments/{environmentId}/sites": {
+    "/environments/{environmentId}/sites": {
       "get": {
         "operationId": "api_environments_environmentIdsites_get_collection",
         "x-cli-name": "environments:sites-list",
@@ -44684,7 +44684,7 @@
             "allowReserved": false
           }
         ],
-        "deprecated": false,
+        "deprecated": true,
         "security": [
           {
             "Site_Service_JWT": []
@@ -44692,7 +44692,7 @@
         ]
       }
     },
-    "/api/organizations/{organizationId}/sites": {
+    "/organizations/{organizationId}/sites": {
       "get": {
         "operationId": "api_organizations_organizationIdsites_get_collection",
         "x-cli-name": "organizations:sites-list",
@@ -44917,7 +44917,7 @@
             "allowReserved": false
           }
         ],
-        "deprecated": false,
+        "deprecated": true,
         "security": [
           {
             "Site_Service_JWT": []
@@ -44925,7 +44925,7 @@
         ]
       }
     },
-    "/api/sites": {
+    "/sites": {
       "get": {
         "operationId": "get_sites",
         "x-cli-name": "sites:list",
@@ -45139,7 +45139,7 @@
             "allowReserved": false
           }
         ],
-        "deprecated": false,
+        "deprecated": true,
         "security": [
           {
             "Site_Service_JWT": []
@@ -45254,7 +45254,7 @@
           },
           "required": false
         },
-        "deprecated": false,
+        "deprecated": true,
         "security": [
           {
             "Site_Service_JWT": []
@@ -45262,7 +45262,7 @@
         ]
       }
     },
-    "/api/sites/{siteId}": {
+    "/sites/{siteId}": {
       "get": {
         "operationId": "get_site_by_id",
         "x-cli-name": "sites:find",
@@ -45358,7 +45358,7 @@
             "allowReserved": false
           }
         ],
-        "deprecated": false,
+        "deprecated": true,
         "security": [
           {
             "Site_Service_JWT": []
@@ -45467,7 +45467,7 @@
           },
           "required": false
         },
-        "deprecated": false,
+        "deprecated": true,
         "security": [
           {
             "Site_Service_JWT": []
@@ -45553,7 +45553,7 @@
             "allowReserved": false
           }
         ],
-        "deprecated": false,
+        "deprecated": true,
         "security": [
           {
             "Site_Service_JWT": []
@@ -45561,7 +45561,7 @@
         ]
       }
     },
-    "/api/teams/{teamId}/sites": {
+    "/teams/{teamId}/sites": {
       "get": {
         "operationId": "api_teams_teamIdsites_get_collection",
         "x-cli-name": "teams:sites-list",
@@ -45786,7 +45786,7 @@
             "allowReserved": false
           }
         ],
-        "deprecated": false,
+        "deprecated": true,
         "security": [
           {
             "Site_Service_JWT": []
