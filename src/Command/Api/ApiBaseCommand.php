@@ -251,7 +251,7 @@ class ApiBaseCommand extends CommandBase
             'boolean' => $this->castBool($value),
             'array' => $this->parseArrayValue($value),
             'string' => (string) $value,
-            'object' => is_string($value) ? json_decode($value, false, 512, JSON_THROW_ON_ERROR) : $value,
+            'object' => $this->castObject($value),
         };
     }
 
@@ -267,18 +267,25 @@ class ApiBaseCommand extends CommandBase
         }
 
         $trimmed = trim($value);
-        if ($trimmed !== '' && ($trimmed[0] === '[' || $trimmed[0] === '{')) {
-            try {
-                $decoded = json_decode($trimmed, true, 512, JSON_THROW_ON_ERROR);
-                if (is_array($decoded)) {
-                    return $decoded;
-                }
-            } catch (\JsonException) {
-                // Fall back to comma-separated parsing.
+        if ($trimmed !== '' && in_array($trimmed[0], ['[', '{'], true)) {
+            $decoded = json_decode($trimmed, true);
+            if (is_array($decoded)) {
+                return $decoded;
             }
         }
 
         return explode(',', $value);
+    }
+    private function castObject(mixed $value): object|string
+    {
+        if (!is_string($value)) {
+            return $value;
+        }
+        try {
+            return json_decode($value, false, 512, JSON_THROW_ON_ERROR);
+        } catch (\JsonException) {
+            return $value;
+        }
     }
 
     public function castBool(mixed $val): bool
