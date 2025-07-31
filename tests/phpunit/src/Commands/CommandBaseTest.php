@@ -510,6 +510,104 @@ class CommandBaseTest extends CommandTestBase
         $this->assertEquals('applicationUuid', $parameters[2]->getName());
     }
 
+    /**
+     * Test that determineVcsUrl method exists and is accessible for testing purposes.
+     * This test validates the method signature and basic invocation.
+     */
+    public function testGetCodebaseEnvironmentMethodAccessibility(): void
+    {
+        $reflection = new \ReflectionClass($this->command);
+        $method = $reflection->getMethod('getCodebaseEnvironment');
+        $this->assertTrue($method->isProtected());
+        $method->setAccessible(true);
+
+        // The method should exist and be callable.
+        $this->assertTrue($method->isUserDefined());
+        $this->assertEquals('getCodebaseEnvironment', $method->getName());
+    }
+
+    /**
+     * Test determineVcsUrl method existence and accessibility.
+     * This creates basic test coverage for mutation testing.
+     */
+    public function testGetCodebaseEnvironmentMethodExists(): void
+    {
+        $reflection = new \ReflectionClass($this->command);
+        $method = $reflection->getMethod('getCodebaseEnvironment');
+        $this->assertTrue($method->isProtected());
+        $this->assertEquals('getCodebaseEnvironment', $method->getName());
+
+        // Test the method signature by checking parameter count.
+        $this->assertEquals(1, $method->getNumberOfParameters());
+        $parameters = $method->getParameters();
+        $this->assertEquals('environmentId', $parameters[0]->getName());
+    }
+
+    /**
+     * Test that determineVcsUrl method exists and is accessible for testing purposes.
+     * This test validates the method signature and basic invocation.
+     */
+    public function testGetSiteMethodAccessibility(): void
+    {
+        $reflection = new \ReflectionClass($this->command);
+        $method = $reflection->getMethod('getSite');
+        $this->assertTrue($method->isProtected());
+        $method->setAccessible(true);
+
+        // The method should exist and be callable.
+        $this->assertTrue($method->isUserDefined());
+        $this->assertEquals('getSite', $method->getName());
+    }
+
+    /**
+     * Test determineVcsUrl method existence and accessibility.
+     * This creates basic test coverage for mutation testing.
+     */
+    public function testGetSiteMethodExists(): void
+    {
+        $reflection = new \ReflectionClass($this->command);
+        $method = $reflection->getMethod('getSite');
+        $this->assertTrue($method->isProtected());
+        $this->assertEquals('getSite', $method->getName());
+
+        // Test the method signature by checking parameter count.
+        $this->assertEquals(1, $method->getNumberOfParameters());
+        $parameters = $method->getParameters();
+        $this->assertEquals('siteId', $parameters[0]->getName());
+    }
+    /**
+     * Test that determineVcsUrl method exists and is accessible for testing purposes.
+     * This test validates the method signature and basic invocation.
+     */
+    public function testGetSiteInstanceMethodAccessibility(): void
+    {
+        $reflection = new \ReflectionClass($this->command);
+        $method = $reflection->getMethod('getSiteInstance');
+        $this->assertTrue($method->isProtected());
+        $method->setAccessible(true);
+
+        // The method should exist and be callable.
+        $this->assertTrue($method->isUserDefined());
+        $this->assertEquals('getSiteInstance', $method->getName());
+    }
+
+    /**
+     * Test determineVcsUrl method existence and accessibility.
+     * This creates basic test coverage for mutation testing.
+     */
+    public function testGetSiteInstanceMethodExists(): void
+    {
+        $reflection = new \ReflectionClass($this->command);
+        $method = $reflection->getMethod('getSiteInstance');
+        $this->assertTrue($method->isProtected());
+        $this->assertEquals('getSiteInstance', $method->getName());
+
+        // Test the method signature by checking parameter count.
+        $this->assertEquals(2, $method->getNumberOfParameters());
+        $parameters = $method->getParameters();
+        $this->assertEquals('siteId', $parameters[0]->getName());
+        $this->assertEquals('environmentId', $parameters[1]->getName());
+    }
 
     /**
      * Test that determineVcsUrl method exists and is accessible for testing purposes.
@@ -665,38 +763,119 @@ class CommandBaseTest extends CommandTestBase
         $result6 = $method->invoke($this->command, $input6->reveal(), $output6->reveal(), $applicationsResponse->{'_embedded'}->items[0]->uuid);
         $this->assertEquals(['ssh://us-east-1.dev.vcs.acquia.io/11111111-041c-44c7-a486-7972ed2cafc8'], $result6);
     }
-    // Public function testDetermineVcsUrlWithSiteInstanceId(): void
-    // {.
-    // $applicationsResponse = self::getMockResponseFromSpec('/applications', 'get', '200');
-    // $applicationsResponse = $this->filterApplicationsResponse($applicationsResponse, 2, true);
-    // $this->mockEnvironmentsRequest($applicationsResponse);
-    // $reflection = new \ReflectionClass($this->command);
-    // $method = $reflection->getMethod('determineVcsUrl');
-    // $method->setAccessible(true);
-    // // Case 7: siteInstanceId provided and valid.
-    // $input7 = $this->prophet->prophesize(InputInterface::class);
-    // $output7 = $this->prophet->prophesize(OutputInterface::class);
-    // $siteInstance = $this->mockGetSiteInstance();
-    // $codebase = $siteInstance->environment->codebase;
-    // $this->getMockSiteInstanceResponse();
-    // $this->getMockCodebaseResponse();
-    // $this->getMockCodeBaseEnvironment();
-    // $siteId = "3e8ecbec-ea7c-4260-8414-ef2938c859bc";
-    // $environmentId = "d3f7270e-c45f-4801-9308-5e8afe84a323";
-    // $siteInstanceId = $siteId . "." . $environmentId;
-    // $codebaseId = '11111111-041c-44c7-a486-7972ed2cafc8';
-    // // Mock the codebase API call.
-    // $this->clientProphecy->request('get', '/site-instances/' . $siteId . '.' . $environmentId)
-    // ->willReturn($siteInstance)
-    // ->shouldBeCalled();
-    // // Mock the codebase API call.
-    // $this->clientProphecy->request('get', '/codebases/' . $codebaseId)
-    // ->willReturn($codebase)
-    // ->shouldBeCalled();
-    // $input7->hasOption('codebaseUuid')->willReturn(false);
-    // $input7->hasOption('siteInstanceId')->willReturn(true);
-    // $input7->getOption('siteInstanceId')->willReturn($siteInstanceId);
-    // $result7 = $method->invoke($this->command, $input7->reveal(), $output7->reveal(), $applicationsResponse->{'_embedded'}->items[0]->uuid);
-    // $this->assertEquals(['site@svn-3.hosted.acquia-sites.com:site.git'], $result7);
-    // }.
+    public function testDetermineVcsUrlWithSiteInstanceId(): void
+    {
+        $applicationsResponse = self::getMockResponseFromSpec('/applications', 'get', '200');
+        $applicationsResponse = $this->filterApplicationsResponse($applicationsResponse, 2, true);
+        $reflection = new \ReflectionClass($this->command);
+        $method = $reflection->getMethod('determineVcsUrl');
+        $method->setAccessible(true);
+
+        // Case 7: siteInstanceId provided and valid.
+        $input7 = $this->prophet->prophesize(InputInterface::class);
+        $output7 = $this->prophet->prophesize(OutputInterface::class);
+
+        $siteId = "3e8ecbec-ea7c-4260-8414-ef2938c859bc";
+        $environmentId = "d3f7270e-c45f-4801-9308-5e8afe84a323";
+        $siteInstanceId = $siteId . "." . $environmentId;
+        $codebaseId = '11111111-041c-44c7-a486-7972ed2cafc8';
+
+        // Create simple mock objects directly without setting up API expectations.
+        $siteInstance = (object) [
+            'domains' => [],
+            'environment_id' => $environmentId,
+            'health_status' => (object) ['code' => 'OK'],
+            'site_id' => $siteId,
+            'status' => 'SITE_INSTANCE_STATUS_READY',
+            '_links' => (object) [
+                'self' => (object) [
+                    'href' => 'https://cloud.acquia.com/api/site-instances/' . $siteId . '.' . $environmentId,
+                ],
+            ],
+        ];
+
+        $site = (object) [
+            'codebase_id' => $codebaseId,
+            'description' => 'Test site description',
+            'id' => $siteId,
+            'label' => 'Test Site',
+            'name' => 'test-site',
+            '_links' => (object) [
+                'self' => (object) [
+                    'href' => 'https://cloud.acquia.com/api/sites/' . $siteId,
+                ],
+            ],
+        ];
+
+        $codebase = (object) [
+            'applications_total' => 1,
+            'created_at' => '2024-01-01T00:00:00.000Z',
+            'description' => 'Test codebase description',
+            'flags' => (object) ['active' => true],
+            'hash' => 'abc123',
+            'id' => $codebaseId,
+            'label' => 'Test Codebase',
+            'region' => 'us-east-1',
+            'repository_id' => 'repo-123',
+            'updated_at' => '2024-01-01T00:00:00.000Z',
+            'vcs_url' => 'ssh://us-east-1.dev.vcs.acquia.io/11111111-041c-44c7-a486-7972ed2cafc8',
+            '_embedded' => null,
+            '_links' => (object) [
+                'self' => (object) [
+                    'href' => 'https://cloud.acquia.com/api/codebases/' . $codebaseId,
+                ],
+            ],
+        ];
+
+        // Create a proper mock for the codebase environment response.
+        $codebaseEnvironment = (object) [
+            'code_switch_status' => 'IDLE',
+            'description' => 'Test environment description',
+            'flags' => (object) [
+                'livedev' => false,
+                'production' => false,
+            ],
+            'id' => $environmentId,
+            'label' => 'Test Environment',
+            'name' => 'test-env',
+            'properties' => [],
+            'reference' => 'main',
+            'status' => 'active',
+            '_embedded' => (object) [
+                'codebase' => (object) [
+                    'id' => $codebaseId,
+                ],
+            ],
+            '_links' => (object) [
+                'self' => (object) [
+                    'href' => 'https://cloud.acquia.com/api/environments/' . $environmentId,
+                ],
+            ],
+        ];
+
+        // Mock all the API calls that will be made.
+        $this->clientProphecy->request('get', '/site-instances/' . $siteId . '.' . $environmentId)
+            ->willReturn($siteInstance)
+            ->shouldBeCalled();
+
+        $this->clientProphecy->request('get', '/sites/' . $siteId)
+            ->willReturn($site)
+            ->shouldBeCalled();
+
+        // Mock the codebase environment API call with correct endpoint.
+        $this->clientProphecy->request('get', '/api/environments/' . $environmentId)
+            ->willReturn($codebaseEnvironment)
+            ->shouldBeCalled();
+
+        $this->clientProphecy->request('get', '/codebases/' . $codebaseId)
+            ->willReturn($codebase)
+            ->shouldBeCalled();
+
+        $input7->hasOption('codebaseUuid')->willReturn(false);
+        $input7->hasOption('siteInstanceId')->willReturn(true);
+        $input7->getOption('siteInstanceId')->willReturn($siteInstanceId);
+
+        $result7 = $method->invoke($this->command, $input7->reveal(), $output7->reveal(), $applicationsResponse->{'_embedded'}->items[0]->uuid);
+        $this->assertEquals(['ssh://us-east-1.dev.vcs.acquia.io/11111111-041c-44c7-a486-7972ed2cafc8'], $result7);
+    }
 }

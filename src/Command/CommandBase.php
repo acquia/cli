@@ -1307,11 +1307,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
     protected function getCodebaseEnvironment(string $environmentId): CodebaseEnvironmentResponse
     {
         $environmentResource = new CodebaseEnvironments($this->cloudApiClientService->getClient());
-        if ($this->isTestingEnvironment()) {
-            $codebaseEnvironment = $this->mockCodebaseEnvironment($environmentId);
-        } else {
-            $codebaseEnvironment = $environmentResource->getById($environmentId);
-        }
+        $codebaseEnvironment = $environmentResource->getById($environmentId);
         return $codebaseEnvironment;
     }
 
@@ -1333,6 +1329,10 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
             $method,
             $httpCode
         );
+        // Ensure the mock environment has a codebase_uuid for testing.
+        if (!isset($environment->codebase_uuid)) {
+            $environment->codebase_uuid = '11111111-041c-44c7-a486-7972ed2cafc8';
+        }
         return new CodebaseEnvironmentResponse($environment);
     }
     protected function getCodebase(string $codebaseId): CodebaseResponse
@@ -1345,11 +1345,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
     protected function getSite(string $siteId): SiteResponse
     {
         $siteResource = new Sites($this->cloudApiClientService->getClient());
-        if ($this->isTestingEnvironment()) {
-            $site = $this->mockSite($siteId);
-        } else {
-            $site = $siteResource->get($siteId);
-        }
+        $site = $siteResource->get($siteId);
         return $site;
     }
     protected function mockSite(string $siteId): SiteResponse
@@ -1369,15 +1365,11 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
      */
     protected function getSiteInstance(string $siteId, string $environmentId): SiteInstanceResponse
     {
-        if ($this->isTestingEnvironment()) {
-            $siteInstance = $this->mockSiteInstance();
-        } else {
-            $acquiaCloudClient = $this->cloudApiClientService->getClient();
-            $siteInstancesResource = new SiteInstances($acquiaCloudClient);
-            $siteInstance = $siteInstancesResource->get($siteId, $environmentId);
-            if (!$siteInstance) {
-                throw new AcquiaCliException("Site instance with ID $siteId.$environmentId not found.");
-            }
+        $acquiaCloudClient = $this->cloudApiClientService->getClient();
+        $siteInstancesResource = new SiteInstances($acquiaCloudClient);
+        $siteInstance = $siteInstancesResource->get($siteId, $environmentId);
+        if (!$siteInstance) {
+            throw new AcquiaCliException("Site instance with ID $siteId.$environmentId not found.");
         }
         return $siteInstance;
     }
