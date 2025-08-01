@@ -108,4 +108,41 @@ class ApiBaseCommandTest extends CommandTestBase
         $this->assertIsArray($result8, 'Should cast object to array');
         $this->assertEquals(['a' => 1], $result8, 'Casted array should match expected values');
     }
+    public function testCastObjectMaxDepth(): void
+    {
+        $reflection = new \ReflectionClass($this->command);
+        $method = $reflection->getMethod('castObject');
+        $method->setAccessible(true);
+
+        // Safer nesting depth that avoids PHP stack overflow.
+        $depth = 100;
+        $input = str_repeat('{"a":', $depth) . '"value"' . str_repeat('}', $depth);
+
+        try {
+            $expected = json_decode($input, false, 512, JSON_THROW_ON_ERROR);
+            $this->assertIsObject($expected, 'Expected decoded object');
+
+            $result = $method->invoke($this->command, $input);
+            $this->assertEquals($expected, $result, 'Should decode nested JSON safely');
+        } catch (\JsonException $e) {
+            $this->fail('JSON at safe depth should not throw: ' . $e->getMessage());
+        }
+    }
+    public function testCastObjectFailsAtDepth511(): void
+    {
+        $reflection = new \ReflectionClass($this->command);
+        $method = $reflection->getMethod('castObject');
+        $method->setAccessible(true);
+
+        $depth = 511;
+        $json = str_repeat('{"a":', $depth) . '"ok"' . str_repeat('}', $depth);
+
+        // Ensure native json_decode at 512 works.
+        $expected = json_decode($json, false, 512, JSON_THROW_ON_ERROR);
+        $this->assertIsObject($expected, 'Expected JSON to decode at depth 512');
+
+        // Now test the method under test.
+        $result = $method->invoke($this->command, $json);
+        $this->assertEquals($expected, $result, 'Should decode deeply nested JSON at depth 512');
+    }
 }
