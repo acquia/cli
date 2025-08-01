@@ -117,6 +117,17 @@ class ApiBaseCommandTest extends CommandTestBase
         $result = $method->invoke($this->command, $invalidJson);
         $this->assertSame($invalidJson, $result);
     }
+
+    public function testCastObjectHandlesArray(): void
+    {
+        $method = (new \ReflectionClass($this->command))->getMethod('castObject');
+        $method->setAccessible(true);
+
+        $input = ['key' => 'value'];
+        $result = $method->invoke($this->command, $input);
+        $this->assertIsObject($result);
+    }
+
     private function generateDeepJson(int $depth): string
     {
         $data = '"end"';
