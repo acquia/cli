@@ -108,4 +108,41 @@ class ApiBaseCommandTest extends CommandTestBase
         $this->assertIsArray($result8, 'Should cast object to array');
         $this->assertEquals(['a' => 1], $result8, 'Casted array should match expected values');
     }
+    public function testCastObjectHandlesInvalidJson(): void
+    {
+        $method = (new \ReflectionClass($this->command))->getMethod('castObject');
+        $method->setAccessible(true);
+
+        $invalidJson = '{invalid:"json"}';
+        $result = $method->invoke($this->command, $invalidJson);
+        $this->assertSame($invalidJson, $result);
+    }
+    private function generateDeepJson(int $depth): string
+    {
+        $data = '"end"';
+        for ($i = 0; $i < $depth; $i++) {
+            $data = '{"level":' . $data . '}';
+        }
+        return $data;
+    }
+    public function testCastObjectJsonDepthLimits(): void
+    {
+        $method = (new \ReflectionClass($this->command))->getMethod('castObject');
+        $method->setAccessible(true);
+
+        // Generate JSON within safe depth (<=512)
+        $validJson = $this->generateDeepJson(511);
+        $result = $method->invoke($this->command, $validJson);
+        $this->assertIsObject($result);
+        $this->assertObjectHasProperty('level', $result);
+
+        // Generate JSON that exceeds depth (513)
+        $tooDeepJson = $this->generateDeepJson(513);
+        $result = $method->invoke($this->command, $tooDeepJson);
+
+        // Since castObject swallows JsonException and returns original string,
+        // verify fallback works.
+        $this->assertIsString($result, 'Should return original string if JSON depth exceeded');
+        $this->assertStringStartsWith('{', $result);
+    }
 }
