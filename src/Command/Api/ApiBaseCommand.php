@@ -282,7 +282,7 @@ class ApiBaseCommand extends CommandBase
             return $value;
         }
         try {
-            return json_decode($value, false, 512, JSON_THROW_ON_ERROR);
+            return json_decode($value, false);
         } catch (\JsonException) {
             return $value;
         }
