@@ -21,7 +21,6 @@ use Acquia\Cli\Helpers\LoopHelper;
 use Acquia\Cli\Helpers\SshHelper;
 use Acquia\Cli\Helpers\TelemetryHelper;
 use Acquia\Cli\Output\Checklist;
-use Acquia\Cli\Tests\ApplicationTestBase;
 use Acquia\Cli\Transformer\EnvironmentTransformer;
 use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
 use AcquiaCloudApi\Connector\Client;
@@ -674,24 +673,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
     protected function determineEnvironment(InputInterface $input, OutputInterface $output, bool $allowProduction = false, bool $allowNode = false): array|string|EnvironmentResponse
     {
         if ($input->hasOption('siteInstanceId') && $input->getOption('siteInstanceId')) {
-            $siteInstanceId = $input->getOption('siteInstanceId');
-            $siteEnvParts = explode('.', $siteInstanceId);
-            if (count($siteEnvParts) !== 2) {
-                throw new AcquiaCliException('Site instance ID must be in the format <siteId>.<environmentId>');
-            }
-            [$siteId, $environmentId] = $siteEnvParts;
-            $chosenEnvironment = $this->getCodebaseEnvironment($environmentId);
-            if (!$chosenEnvironment) {
-                throw new AcquiaCliException("Environment with ID $environmentId not found.");
-            }
-            $site = $this->getSite($siteId);
-            if (!$site) {
-                throw new AcquiaCliException("Site with ID $siteId not found.");
-            }
-            $siteInstance = $this->getSiteInstance($siteId, $environmentId);
-            $siteInstance->site = $site;
-            $chosenEnvironment->codebase = $this->getCodebase($chosenEnvironment->codebase_uuid);
-            $siteInstance->environment = $chosenEnvironment;
+            $siteInstance = $this->determineSiteInstance($input);
             $chosenEnvironment = EnvironmentTransformer::transform($siteInstance->environment);
             $chosenEnvironment->vcs->url = $siteInstance->environment->codebase->vcs_url ?? '';
         } elseif ($input->hasOption('codebaseUuid') && $input->getOption('codebaseUuid')) {
@@ -1192,28 +1174,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
 
         return true;
     }
-    /**
-     * Determine and return the codebase and environment if codebaseUuid option is present.
-     *
-     * @return array{codebase: CodebaseResponse|null, environment: EnvironmentResponse|null}
-     * @throws \Acquia\Cli\Exception\AcquiaCliException
-     */
-    protected function resolveCodebaseAndEnvironment(InputInterface $input, OutputInterface $output): array
-    {
-        $codebase = null;
-        $environment = null;
-
-        if ($input->hasOption('codebaseUuid') && $input->getOption('codebaseUuid')) {
-            $codebaseUuid = $input->getOption('codebaseUuid');
-            $codebase = $this->getCodebase($codebaseUuid);
-            $environment = $this->determineEnvironment($input, $output);
-        }
-
-        return [
-            'codebase' => $codebase,
-            'environment' => $environment,
-        ];
-    }
     protected function getCloudUuidFromDatastore(): ?string
     {
         return $this->datastoreAcli->get('cloud_app_uuid');
@@ -1313,27 +1273,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
     /**
      * Returns true if the application is running in a test environment.
      */
-    protected function isTestingEnvironment(): bool
-    {
-        // You can customize this logic as needed for your test environment.
-        return defined('PHPUNIT_COMPOSER_INSTALL') || getenv('APP_ENV') === 'test';
-    }
-    protected function mockCodebaseEnvironment(string $environmentId): CodebaseEnvironmentResponse
-    {
-        $method = 'get';
-        $httpCode = 200;
-        $testBase = new ApplicationTestBase("testCloneRepo");
-        $environment = $testBase->getMockResponseFromSpec(
-            '/api/environments/{environmentId}',
-            $method,
-            $httpCode
-        );
-        // Ensure the mock environment has a codebase_uuid for testing.
-        if (!isset($environment->codebase_uuid)) {
-            $environment->codebase_uuid = '11111111-041c-44c7-a486-7972ed2cafc8';
-        }
-        return new CodebaseEnvironmentResponse($environment);
-    }
     protected function getCodebase(string $codebaseId): CodebaseResponse
     {
         $codebaseResource = new Codebases($this->cloudApiClientService->getClient());
@@ -1347,18 +1286,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
         $site = $siteResource->get($siteId);
         return $site;
     }
-    protected function mockSite(string $siteId): SiteResponse
-    {
-        $method = 'get';
-        $httpCode = 200;
-        $testBase = new ApplicationTestBase("testCloneRepo");
-        $site = $testBase->getMockResponseFromSpec(
-            '/sites/{siteId}',
-            $method,
-            $httpCode
-        );
-        return new SiteResponse($site);
-    }
     /**
      * Get the SiteInstances endpoint.
      */
@@ -1371,18 +1298,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
             throw new AcquiaCliException("Site instance with ID $siteId.$environmentId not found.");
         }
         return $siteInstance;
-    }
-    protected function mockSiteInstance(): SiteInstanceResponse
-    {
-        $method = 'get';
-        $httpCode = 200;
-        $testBase = new ApplicationTestBase("testCloneRepo");
-        $siteInstance = $testBase->getMockResponseFromSpec(
-            '/site-instances/{siteId}.{environmentId}',
-            $method,
-            $httpCode
-        );
-        return new SiteInstanceResponse($siteInstance);
     }
 
     public static function validateEnvironmentAlias(string $alias): string

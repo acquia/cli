@@ -82,7 +82,7 @@ class EnvironmentTransformer
         $env->active_domain = $codebaseEnv->properties['active_domain'] ?? '';
         $env->default_domain = $codebaseEnv->properties['default_domain'] ?? '';
         $env->image_url = $codebaseEnv->properties['image_url'] ?? null;
-        $env->ssh_url = $codebaseEnv->properties['ssh_url'] ?? ($codebaseEnv->vcs_url ?? "");
+        $env->ssh_url =  $codebaseEnv->vcs_url;
         $env->ips = $codebaseEnv->properties['ips'] ?? [];
         $env->domains = $codebaseEnv->properties['domains'] ?? [];
         $env->region = $codebaseEnv->properties['region'] ?? null;

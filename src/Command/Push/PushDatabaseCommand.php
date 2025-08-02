@@ -9,7 +9,6 @@ use Acquia\Cli\Attribute\RequireLocalDb;
 use Acquia\Cli\Attribute\RequireRemoteDb;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Output\Checklist;
-use Acquia\Cli\Transformer\EnvironmentTransformer;
 use AcquiaCloudApi\Response\DatabaseResponse;
 use AcquiaCloudApi\Response\EnvironmentResponse;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -38,10 +37,6 @@ final class PushDatabaseCommand extends PushCommandBase
     {
 
         $destinationEnvironment = $this->determineEnvironment($input, $output);
-        $siteInstance = $this->determineSiteInstance($input);
-        if ($siteInstance) {
-            $destinationEnvironment = EnvironmentTransformer::transform($siteInstance->environment);
-        }
 
         $acquiaCloudClient = $this->cloudApiClientService->getClient();
         $databases = $this->determineCloudDatabases($acquiaCloudClient, $destinationEnvironment, $input->getArgument('site'));
