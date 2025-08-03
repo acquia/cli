@@ -1559,27 +1559,12 @@ class CommandBaseTest extends CommandTestBase
         $inputMock = $this->prophet->prophesize(\Symfony\Component\Console\Input\InputInterface::class);
         $inputMock->getOption('codebaseUuid')->willReturn(null);
 
-        $commandMock = $this->getMockBuilder(\Acquia\Cli\Command\CommandBase::class)
-            ->setConstructorArgs([
-                $this->localMachineHelper,
-                $this->datastoreCloud,
-                $this->datastoreAcli,
-                $this->cloudCredentials,
-                $this->telemetryHelper,
-                $this->projectDir,
-                $this->clientServiceProphecy->reveal(),
-                $this->sshHelper,
-                $this->sshDir,
-                $this->logger,
-                $this->selfUpdateManager,
-            ])
-            ->getMockForAbstractClass();
 
-        $reflection = new \ReflectionClass($commandMock);
+        $reflection = new \ReflectionClass($this->command);
         $method = $reflection->getMethod('determineCodebase');
         $method->setAccessible(true);
 
-        $result = $method->invoke($commandMock, $inputMock->reveal());
+        $result = $method->invoke($this->command, $inputMock->reveal());
         $this->assertNull($result);
     }
 
