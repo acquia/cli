@@ -1649,6 +1649,10 @@ class CommandBaseTest extends CommandTestBase
             // This would trigger: $output->writeln('No VCS URL found...'); return false;.
             // Confirms we reached this condition.
             $this->assertTrue(true);
+        } else {
+            // This else branch would be reached if any VCS URL options are provided
+            // or if getAnyVcsUrl returns a valid URL array.
+            $this->fail('Expected to reach the false return path, but conditions led to else branch');
         }
     }
 }
