@@ -46371,7 +46371,7 @@
         "summary": "Create or update a VPN for a Private Network.",
         "operationId": "updateVpnInPrivateNetwork",
         "description": "Creates a new VPN or updates an existing VPN for a Private Network by Private Network ID and VPN ID.",
-        "x-cli-name": "private-networks:update-vpn'",
+        "x-cli-name": "private-networks:update-vpn",
         "parameters": [
           {
             "$ref": "#/components/parameters/Private_Network_Service_API_VpnId"
