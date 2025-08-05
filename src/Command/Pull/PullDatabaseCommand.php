@@ -23,6 +23,7 @@ final class PullDatabaseCommand extends PullCommandBase
             ->setHelp('This uses the latest available database backup, which may be up to 24 hours old. If no backup exists, one will be created.')
             ->acceptEnvironmentId()
             ->acceptSite()
+            ->acceptSiteInstanceId()
             ->addOption(
                 'no-scripts',
                 null,
@@ -61,6 +62,7 @@ final class PullDatabaseCommand extends PullCommandBase
         // $noImport implies $noScripts.
         $noScripts = $noImport || $noScripts;
         $this->setDirAndRequireProjectCwd($input);
+
         $sourceEnvironment = $this->determineEnvironment($input, $output, true);
         $this->pullDatabase($input, $output, $sourceEnvironment, $onDemand, $noImport, $multipleDbs);
         if (!$noScripts) {

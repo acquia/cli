@@ -21,19 +21,24 @@ use Acquia\Cli\Helpers\LoopHelper;
 use Acquia\Cli\Helpers\SshHelper;
 use Acquia\Cli\Helpers\TelemetryHelper;
 use Acquia\Cli\Output\Checklist;
+use Acquia\Cli\Transformer\EnvironmentTransformer;
 use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
 use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Connector\Connector;
 use AcquiaCloudApi\Endpoints\Account;
 use AcquiaCloudApi\Endpoints\Applications;
+use AcquiaCloudApi\Endpoints\CodebaseEnvironments;
 use AcquiaCloudApi\Endpoints\Codebases;
 use AcquiaCloudApi\Endpoints\Databases;
 use AcquiaCloudApi\Endpoints\Environments;
 use AcquiaCloudApi\Endpoints\Notifications;
 use AcquiaCloudApi\Endpoints\Organizations;
+use AcquiaCloudApi\Endpoints\SiteInstances;
+use AcquiaCloudApi\Endpoints\Sites;
 use AcquiaCloudApi\Endpoints\Subscriptions;
 use AcquiaCloudApi\Response\AccountResponse;
 use AcquiaCloudApi\Response\ApplicationResponse;
+use AcquiaCloudApi\Response\CodebaseEnvironmentResponse;
 use AcquiaCloudApi\Response\CodebaseResponse;
 use AcquiaCloudApi\Response\CodebasesResponse;
 use AcquiaCloudApi\Response\DatabaseResponse;
@@ -41,6 +46,8 @@ use AcquiaCloudApi\Response\DatabasesResponse;
 use AcquiaCloudApi\Response\EnvironmentResponse;
 use AcquiaCloudApi\Response\EnvironmentsResponse;
 use AcquiaCloudApi\Response\NotificationResponse;
+use AcquiaCloudApi\Response\SiteInstanceResponse;
+use AcquiaCloudApi\Response\SiteResponse;
 use AcquiaCloudApi\Response\SubscriptionResponse;
 use AcquiaLogstream\LogstreamManager;
 use ArrayObject;
@@ -61,6 +68,7 @@ use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
@@ -321,7 +329,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
 
         return $this;
     }
-
     /**
      * Add argument and usage examples for environmentId.
      */
@@ -332,6 +339,17 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
             ->addUsage('myapp.dev')
             ->addUsage('prod:myapp.dev')
             ->addUsage('12345-abcd1234-1111-2222-3333-0e02b2c3d470');
+
+        return $this;
+    }
+
+    /**
+     * Add argument and usage examples for SiteInstanceId.
+     */
+    protected function acceptSiteInstanceId(): static
+    {
+        $this->addOption('siteInstanceId', null, InputOption::VALUE_OPTIONAL, 'The Site Instance ID (SITEID.EnvironmentID)')
+            ->addUsage('3e8ecbec-ea7c-4260-8414-ef2938c859bc.abcd1234-1111-2222-3333-0e02b2c3d470');
 
         return $this;
     }
@@ -643,7 +661,11 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
      */
     protected function determineEnvironment(InputInterface $input, OutputInterface $output, bool $allowProduction = false, bool $allowNode = false): array|string|EnvironmentResponse
     {
-        if ($input->getArgument('environmentId')) {
+        if ($input->hasOption('siteInstanceId') && $input->getOption('siteInstanceId')) {
+            $siteInstance = $this->determineSiteInstance($input);
+            $chosenEnvironment = EnvironmentTransformer::transform($siteInstance->environment);
+            $chosenEnvironment->vcs->url = $siteInstance->environment->codebase->vcs_url ?? '';
+        } elseif ($input->getArgument('environmentId')) {
             $environmentId = $input->getArgument('environmentId');
             $chosenEnvironment = $this->getCloudEnvironment($environmentId);
         } else {
@@ -658,8 +680,39 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
         return $chosenEnvironment;
     }
 
-    // Todo: obviously combine this with promptChooseEnvironment.
 
+    /**
+     * Determine the site instance for the given environment.
+     *
+     * This method determines an environment that contains the specified site.
+     * Until the SiteInstances endpoint is available in the SDK, this method
+     * combines environment and site determination.
+     */
+    protected function determineSiteInstance(InputInterface $input): ?SiteInstanceResponse
+    {
+        $siteInstanceId = $input->getOption('siteInstanceId');
+        if ($siteInstanceId) {
+            $siteEnvParts = explode('.', $siteInstanceId);
+            if (count($siteEnvParts) !== 2) {
+                throw new AcquiaCliException('Site instance ID must be in the format <siteId>.<environmentId>');
+            }
+            [$siteId, $environmentId] = $siteEnvParts;
+            $environment = $this->getCodebaseEnvironment($environmentId);
+            if (!$environment) {
+                throw new AcquiaCliException("Environment with ID $environmentId not found.");
+            }
+            $site = $this->getSite($siteId);
+            if (!$site) {
+                throw new AcquiaCliException("Site with ID $siteId not found.");
+            }
+            $siteInstance = $this->getSiteInstance($siteId, $environmentId);
+            $siteInstance->site = $site;
+            $environment->codebase = $this->getCodebase($environment->codebase_uuid);
+            $siteInstance->environment = $environment;
+            return $siteInstance;
+        }
+        return null;
+    }
     /**
      * @throws \Acquia\Cli\Exception\AcquiaCliException
      */
@@ -1026,7 +1079,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
         if ($this->input->isInteractive()) {
             /** @var CodebaseResponse $codebase */
             $codebase = $this->promptChooseCodebase();
-            if ($codebase) {
+            if ($codebase != null) {
                 return $codebase->id;
             }
         }
@@ -1089,7 +1142,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
 
         return true;
     }
-
     protected function getCloudUuidFromDatastore(): ?string
     {
         return $this->datastoreAcli->get('cloud_app_uuid');
@@ -1178,6 +1230,42 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
         $environmentResource = new Environments($this->cloudApiClientService->getClient());
 
         return $environmentResource->get($environmentId);
+    }
+    protected function getCodebaseEnvironment(string $environmentId): CodebaseEnvironmentResponse
+    {
+        $environmentResource = new CodebaseEnvironments($this->cloudApiClientService->getClient());
+        $codebaseEnvironment = $environmentResource->getById($environmentId);
+        return $codebaseEnvironment;
+    }
+
+    /**
+     * Returns true if the application is running in a test environment.
+     */
+    protected function getCodebase(string $codebaseId): CodebaseResponse
+    {
+        $codebaseResource = new Codebases($this->cloudApiClientService->getClient());
+        $codebase = $codebaseResource->get($codebaseId);
+
+        return $codebase;
+    }
+    protected function getSite(string $siteId): SiteResponse
+    {
+        $siteResource = new Sites($this->cloudApiClientService->getClient());
+        $site = $siteResource->get($siteId);
+        return $site;
+    }
+    /**
+     * Get the SiteInstances endpoint.
+     */
+    protected function getSiteInstance(string $siteId, string $environmentId): SiteInstanceResponse
+    {
+        $acquiaCloudClient = $this->cloudApiClientService->getClient();
+        $siteInstancesResource = new SiteInstances($acquiaCloudClient);
+        $siteInstance = $siteInstancesResource->get($siteId, $environmentId);
+        if (!$siteInstance) {
+            throw new AcquiaCliException("Site instance with ID $siteId.$environmentId not found.");
+        }
+        return $siteInstance;
     }
 
     public static function validateEnvironmentAlias(string $alias): string
@@ -1994,7 +2082,18 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
             return $environment->flags->production && $environment->type === 'drupal';
         });
     }
-
+    protected function determineVcsUrl(InputInterface $input, OutputInterface $output, string $applicationUuid): array|false
+    {
+        if ($input->hasOption('siteInstanceId') && $input->getOption('siteInstanceId')) {
+            $siteInstance = $this->determineSiteInstance($input);
+            $vcsUrl = $siteInstance->environment->codebase->vcs_url ?? $this->getAnyVcsUrl($applicationUuid);
+            return [$vcsUrl];
+        } elseif ($vcsUrl = $this->getAnyVcsUrl($applicationUuid)) {
+            return [$vcsUrl];
+        }
+        $output->writeln('No VCS URL found for this application. Please provide one with the --vcs-url option.');
+        return false;
+    }
     /**
      * Get the first VCS URL for a given Cloud application.
      */

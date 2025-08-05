@@ -128,8 +128,8 @@ EOD;
         $this->expectExceptionMessage('No branch or tag is deployed on any of the environment of this application.');
         $this->executeCommand(
             [
+                '--deployed' => true,
                 'applicationUuid' => 'a47ac10b-58cc-4372-a567-0e02b2c3d470',
-                '--deployed',
             ],
         );
     }
@@ -147,8 +147,8 @@ EOD;
 
         $this->executeCommand(
             [
+                '--deployed' => true,
                 'applicationUuid' => 'a47ac10b-58cc-4372-a567-0e02b2c3d470',
-                '--deployed',
             ],
         );
 

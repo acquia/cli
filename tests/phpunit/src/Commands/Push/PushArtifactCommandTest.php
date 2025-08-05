@@ -244,7 +244,6 @@ EOF;
         $this->assertStringNotContainsString('Adding and committing changed files', $output);
         $this->assertStringNotContainsString('Pushing changes to Acquia Git (site@svn-3.hosted.acquia-sites.com:site.git)', $output);
     }
-
     protected function setUpPushArtifact(ObjectProphecy $localMachineHelper, string $vcsPath, array $vcsUrls, string $destGitRef = 'master:master', bool $clone = true, bool $commit = true, bool $push = true, bool $printOutput = true): void
     {
         touch(Path::join($this->projectDir, 'composer.json'));

@@ -18,13 +18,16 @@ final class PullFilesCommand extends PullCommandBase
     {
         $this
             ->acceptEnvironmentId()
-            ->acceptSite();
+            ->acceptSite()
+            ->acceptSiteInstanceId();
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->setDirAndRequireProjectCwd($input);
-        $sourceEnvironment = $this->determineEnvironment($input, $output, true);
+
+        $sourceEnvironment = $this->determineEnvironment($input, $output);
+
         $this->pullFiles($input, $output, $sourceEnvironment);
 
         return Command::SUCCESS;

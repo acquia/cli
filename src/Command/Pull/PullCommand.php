@@ -26,6 +26,7 @@ final class PullCommand extends PullCommandBase
         $this
             ->acceptEnvironmentId()
             ->acceptSite()
+            ->acceptSiteInstanceId()
             ->addOption('dir', null, InputArgument::OPTIONAL, 'The directory containing the Drupal project to be refreshed')
             ->addOption('no-code', null, InputOption::VALUE_NONE, 'Do not refresh code from remote repository')
             ->addOption('no-files', null, InputOption::VALUE_NONE, 'Do not refresh files')
