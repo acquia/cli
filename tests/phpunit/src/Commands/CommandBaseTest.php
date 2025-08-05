@@ -347,92 +347,6 @@ class CommandBaseTest extends CommandTestBase
     }
 
     /**
-     * Test acceptCodebaseId method adds the correct argument and usage.
-     */
-    public function testAcceptCodebaseId(): void
-    {
-        // Get a fresh command instance.
-        $command = $this->createCommand();
-
-        // Use reflection to call the protected method.
-        $reflection = new \ReflectionClass($command);
-        $method = $reflection->getMethod('acceptCodebaseId');
-        $method->setAccessible(true);
-
-        // Call acceptCodebaseId method.
-        $result = $method->invoke($command);
-
-        // Verify it returns the command instance for method chaining.
-        $this->assertSame($command, $result);
-
-        // Verify the argument was added with correct configuration.
-        $definition = $command->getDefinition();
-        $this->assertTrue($definition->hasArgument('codebaseId'));
-
-        $argument = $definition->getArgument('codebaseId');
-        $this->assertSame('codebaseId', $argument->getName());
-        $this->assertSame('The Cloud Platform codebase ID', $argument->getDescription());
-        $this->assertFalse($argument->isRequired(), 'codebaseId argument should be optional');
-
-        // Verify the usage example was added.
-        $usages = $command->getUsages();
-        $this->assertGreaterThan(0, count($usages), 'Command should have usage examples');
-
-        // Check that the usage contains the expected UUID format.
-        $usageFound = false;
-        foreach ($usages as $usage) {
-            if (strpos($usage, 'abcd1234-1111-2222-3333-0e02b2c3d470') !== false) {
-                $usageFound = true;
-                break;
-            }
-        }
-        $this->assertTrue($usageFound, 'Usage should contain the expected UUID example. Found usages: ' . implode(', ', $usages));
-    }
-
-    /**
-     * Test acceptCodebaseUuid method adds the correct option and usage.
-     */
-    public function testAcceptCodebaseUuid(): void
-    {
-        // Get a fresh command instance.
-        $command = $this->createCommand();
-
-        // Use reflection to call the protected method.
-        $reflection = new \ReflectionClass($command);
-        $method = $reflection->getMethod('acceptCodebaseUuid');
-        $method->setAccessible(true);
-
-        // Call acceptCodebaseUuid method.
-        $result = $method->invoke($command);
-
-        // Verify it returns the command instance for method chaining.
-        $this->assertSame($command, $result);
-
-        // Verify the argument was added with correct configuration.
-        $definition = $command->getDefinition();
-        $this->assertTrue($definition->hasOption('codebaseUuid'));
-
-        $option = $definition->getOption('codebaseUuid');
-        $this->assertSame('codebaseUuid', $option->getName());
-        $this->assertSame('The Cloud Platform codebase UUID', $option->getDescription());
-        $this->assertFalse($option->isValueRequired(), 'codebaseUuid option should be optional');
-
-        // Verify the usage example was added.
-        $usages = $command->getUsages();
-        $this->assertGreaterThan(0, count($usages), 'Command should have usage examples');
-
-        // Check that the usage contains the expected UUID format.
-        $usageFound = false;
-        foreach ($usages as $usage) {
-            if (strpos($usage, 'abcd1234-1111-2222-3333-0e02b2c3d470') !== false) {
-                $usageFound = true;
-                break;
-            }
-        }
-        $this->assertTrue($usageFound, 'Usage should contain the expected UUID example. Found usages: ' . implode(', ', $usages));
-    }
-
-    /**
      * Test siteInstanceId method adds the correct option and usage.
      */
     public function testAcceptSiteInstanceId(): void
@@ -646,38 +560,6 @@ class CommandBaseTest extends CommandTestBase
      * Test that determineVcsUrl method exists and is accessible for testing purposes.
      * This test validates the method signature and basic invocation.
      */
-    public function testDetermineCodebaseMethodAccessibility(): void
-    {
-        $reflection = new \ReflectionClass($this->command);
-        $method = $reflection->getMethod('determineCodebase');
-        $this->assertTrue($method->isProtected());
-        $method->setAccessible(true);
-
-        // The method should exist and be callable.
-        $this->assertTrue($method->isUserDefined());
-        $this->assertEquals('determineCodebase', $method->getName());
-    }
-
-    /**
-     * Test determineVcsUrl method existence and accessibility.
-     * This creates basic test coverage for mutation testing.
-     */
-    public function testDetermineCodeBaseMethodExists(): void
-    {
-        $reflection = new \ReflectionClass($this->command);
-        $method = $reflection->getMethod('determineCodebase');
-        $this->assertTrue($method->isProtected());
-        $this->assertEquals('determineCodebase', $method->getName());
-
-        // Test the method signature by checking parameter count.
-        $this->assertEquals(1, $method->getNumberOfParameters());
-        $parameters = $method->getParameters();
-        $this->assertEquals('input', $parameters[0]->getName());
-    }
-    /**
-     * Test that determineVcsUrl method exists and is accessible for testing purposes.
-     * This test validates the method signature and basic invocation.
-     */
     public function testGetCodebaseMethodAccessibility(): void
     {
         $reflection = new \ReflectionClass($this->command);
@@ -725,11 +607,10 @@ class CommandBaseTest extends CommandTestBase
         $method = $reflection->getMethod('determineVcsUrl');
         $method->setAccessible(true);
 
-        // Case 1: Neither siteInstanceId nor codebaseUuid provided.
+        // Case 1: Neither siteInstanceId  provided.
         $input1 = $this->prophet->prophesize(InputInterface::class);
         $output1 = $this->prophet->prophesize(OutputInterface::class);
         $input1->hasOption('siteInstanceId')->willReturn(false);
-        $input1->hasOption('codebaseUuid')->willReturn(false);
 
         $result1 = $method->invoke($this->command, $input1->reveal(), $output1->reveal(), $applicationsResponse->{'_embedded'}->items[0]->uuid);
         $this->assertEquals(['site@svn-3.hosted.acquia-sites.com:site.git'], $result1);
@@ -740,7 +621,6 @@ class CommandBaseTest extends CommandTestBase
         $output2 = $this->prophet->prophesize(OutputInterface::class);
         $input2->hasOption('siteInstanceId')->willReturn(true);
         $input2->getOption('siteInstanceId')->willReturn(null);
-        $input2->hasOption('codebaseUuid')->willReturn(false);
 
         $result2 = $method->invoke($this->command, $input2->reveal(), $output2->reveal(), $applicationsResponse->{'_embedded'}->items[0]->uuid);
         $this->assertEquals(['site@svn-3.hosted.acquia-sites.com:site.git'], $result2);
@@ -751,50 +631,9 @@ class CommandBaseTest extends CommandTestBase
         $output3 = $this->prophet->prophesize(OutputInterface::class);
         $input3->hasOption('siteInstanceId')->willReturn(true);
         $input3->getOption('siteInstanceId')->willReturn('');
-        $input3->hasOption('codebaseUuid')->willReturn(false);
 
         $result3 = $method->invoke($this->command, $input3->reveal(), $output3->reveal(), $applicationsResponse->{'_embedded'}->items[0]->uuid);
         $this->assertEquals(['site@svn-3.hosted.acquia-sites.com:site.git'], $result3);
-
-        // Case 4: codebaseUuid provided but null
-        // Covers: hasOption = true, getOption = null.
-        $input4 = $this->prophet->prophesize(InputInterface::class);
-        $output4 = $this->prophet->prophesize(OutputInterface::class);
-        $input4->hasOption('siteInstanceId')->willReturn(false);
-        $input4->hasOption('codebaseUuid')->willReturn(true);
-        $input4->getOption('codebaseUuid')->willReturn(null);
-
-        $result4 = $method->invoke($this->command, $input4->reveal(), $output4->reveal(), $applicationsResponse->{'_embedded'}->items[0]->uuid);
-        $this->assertEquals(['site@svn-3.hosted.acquia-sites.com:site.git'], $result4);
-
-        // Case 5: codebaseUuid provided but empty string
-        // Covers: hasOption = true, getOption = ''.
-        $input5 = $this->prophet->prophesize(InputInterface::class);
-        $output5 = $this->prophet->prophesize(OutputInterface::class);
-        $input5->hasOption('siteInstanceId')->willReturn(false);
-        $input5->hasOption('codebaseUuid')->willReturn(true);
-        $input5->getOption('codebaseUuid')->willReturn('');
-
-        $result5 = $method->invoke($this->command, $input5->reveal(), $output5->reveal(), $applicationsResponse->{'_embedded'}->items[0]->uuid);
-        $this->assertEquals(['site@svn-3.hosted.acquia-sites.com:site.git'], $result5);
-
-        // Case 6: codebaseUuid provided and valid.
-        $input6 = $this->prophet->prophesize(InputInterface::class);
-        $output6 = $this->prophet->prophesize(OutputInterface::class);
-        $codebase = $this->getMockCodebaseResponse();
-        $codebaseId = $codebase->id;
-
-        // Mock the codebase API call.
-        $this->clientProphecy->request('get', '/codebases/' . $codebaseId)
-            ->willReturn($codebase)
-            ->shouldBeCalled();
-
-        $input6->hasOption('siteInstanceId')->willReturn(false);
-        $input6->hasOption('codebaseUuid')->willReturn(true);
-        $input6->getOption('codebaseUuid')->willReturn($codebaseId);
-
-        $result6 = $method->invoke($this->command, $input6->reveal(), $output6->reveal(), $applicationsResponse->{'_embedded'}->items[0]->uuid);
-        $this->assertEquals(['ssh://us-east-1.dev.vcs.acquia.io/11111111-041c-44c7-a486-7972ed2cafc8'], $result6);
     }
     public function testDetermineVcsUrlWithSiteInstanceId(): void
     {
@@ -904,7 +743,6 @@ class CommandBaseTest extends CommandTestBase
             ->willReturn($codebase)
             ->shouldBeCalled();
 
-        $input7->hasOption('codebaseUuid')->willReturn(false);
         $input7->hasOption('siteInstanceId')->willReturn(true);
         $input7->getOption('siteInstanceId')->willReturn($siteInstanceId);
 
@@ -1004,36 +842,6 @@ class CommandBaseTest extends CommandTestBase
         $this->assertEquals($siteId, $parsedSiteId);
         $this->assertEquals($environmentId, $parsedEnvironmentId);
         $this->assertEquals($codebaseId, $parsedTempId);
-    }
-
-    /**
-     * Test codebaseUuid option processing logic.
-     */
-    public function testCodebaseUuidProcessing(): void
-    {
-        $codebaseUuid = '11111111-041c-44c7-a486-7972ed2cafc8';
-
-        $inputMock = $this->prophet->prophesize(\Symfony\Component\Console\Input\InputInterface::class);
-        $inputMock->hasOption('codebaseUuid')->willReturn(true);
-        $inputMock->getOption('codebaseUuid')->willReturn($codebaseUuid);
-
-        // Test the processing logic.
-        $this->assertTrue($inputMock->reveal()->hasOption('codebaseUuid'));
-        $this->assertEquals($codebaseUuid, $inputMock->reveal()->getOption('codebaseUuid'));
-    }
-
-    /**
-     * Test the mockCodebaseEnvironment helper method.
-     */
-    public function testMockCodebaseEnvironmentMethod(): void
-    {
-        $environmentId = 'test-environment-id';
-        $mockEnvironment = $this->mockCodebaseEnvironment($environmentId);
-
-        $this->assertIsObject($mockEnvironment);
-        $this->assertEquals($environmentId, $mockEnvironment->id);
-        $this->assertNotNull($mockEnvironment->codebase_uuid);
-        $this->assertEquals('11111111-041c-44c7-a486-7972ed2cafc8', $mockEnvironment->codebase_uuid);
     }
 
     /**
@@ -1204,61 +1012,6 @@ class CommandBaseTest extends CommandTestBase
     }
 
     /**
-     * Test actual execution of determineEnvironment codebaseUuid branch with reflection.
-     */
-    public function testDetermineEnvironmentCodebaseUuidReflection(): void
-    {
-        $codebaseUuid = '11111111-041c-44c7-a486-7972ed2cafc8';
-
-        // Create input and output mocks.
-        $inputMock = $this->prophet->prophesize(\Symfony\Component\Console\Input\InputInterface::class);
-        $outputMock = $this->prophet->prophesize(\Symfony\Component\Console\Output\OutputInterface::class);
-
-        // Set up input mock for codebaseUuid path.
-        $inputMock->hasOption('siteInstanceId')->willReturn(false);
-        $inputMock->hasOption('codebaseUuid')->willReturn(true);
-        $inputMock->getOption('codebaseUuid')->willReturn($codebaseUuid);
-        $inputMock->getArgument('environmentId')->willReturn(null);
-
-        // Test the specific branch conditions that we want to cover.
-        $input = $inputMock->reveal();
-
-        // Verify the first if condition evaluates to false.
-        $siteInstanceCondition = $input->hasOption('siteInstanceId') && $input->getOption('siteInstanceId');
-        $this->assertFalse($siteInstanceCondition);
-
-        // Verify the first elseif condition evaluates to true.
-        $codebaseCondition = $input->hasOption('codebaseUuid') && $input->getOption('codebaseUuid');
-        $this->assertTrue($codebaseCondition);
-
-        // Test the codebaseUuid assignment that happens in this branch.
-        $actualCodebaseUuid = $input->getOption('codebaseUuid');
-        $this->assertEquals($codebaseUuid, $actualCodebaseUuid);
-
-        // Test the error condition: if (!$codebase)
-        $codebase = null;
-        if (!$codebase) {
-            $exception = new AcquiaCliException("Codebase with ID $codebaseUuid not found.");
-            $this->assertEquals("Codebase with ID $codebaseUuid not found.", $exception->getMessage());
-        }
-
-        // Test the successful path with a mock codebase.
-        $mockCodebase = (object) [
-            'id' => $codebaseUuid,
-            'label' => 'Test Codebase',
-            'vcs_url' => 'ssh://test.com/repo.git',
-        ];
-
-        // Test the transformFromCodeBase call that happens in this branch.
-        $chosenEnvironment = \Acquia\Cli\Transformer\EnvironmentTransformer::transformFromCodeBase($mockCodebase);
-        $this->assertNotNull($chosenEnvironment);
-
-        // Test the VCS URL assignment: $chosenEnvironment->vcs->url = $codebase->vcs_url ?? $chosenEnvironment->vcs->url;.
-        $chosenEnvironment->vcs->url = $mockCodebase->vcs_url ?? $chosenEnvironment->vcs->url;
-        $this->assertEquals('ssh://test.com/repo.git', $chosenEnvironment->vcs->url);
-    }
-
-    /**
      * Test actual execution of determineEnvironment environmentId branch with reflection.
      */
     public function testDetermineEnvironmentEnvironmentIdReflection(): void
@@ -1271,7 +1024,6 @@ class CommandBaseTest extends CommandTestBase
 
         // Set up input mock for environmentId path.
         $inputMock->hasOption('siteInstanceId')->willReturn(false);
-        $inputMock->hasOption('codebaseUuid')->willReturn(false);
         $inputMock->getArgument('environmentId')->willReturn($environmentId);
 
         $input = $inputMock->reveal();
@@ -1279,10 +1031,6 @@ class CommandBaseTest extends CommandTestBase
         // Verify the first if condition evaluates to false.
         $siteInstanceCondition = $input->hasOption('siteInstanceId') && $input->getOption('siteInstanceId');
         $this->assertFalse($siteInstanceCondition);
-
-        // Verify the first elseif condition evaluates to false.
-        $codebaseCondition = $input->hasOption('codebaseUuid') && $input->getOption('codebaseUuid');
-        $this->assertFalse($codebaseCondition);
 
         // Verify the second elseif condition evaluates to true.
         $environmentIdCondition = $input->getArgument('environmentId');
@@ -1304,7 +1052,6 @@ class CommandBaseTest extends CommandTestBase
 
         // Set up input mock for else branch (interactive mode)
         $inputMock->hasOption('siteInstanceId')->willReturn(false);
-        $inputMock->hasOption('codebaseUuid')->willReturn(false);
         $inputMock->getArgument('environmentId')->willReturn(null);
 
         $input = $inputMock->reveal();
@@ -1312,19 +1059,13 @@ class CommandBaseTest extends CommandTestBase
 
         // Verify all conditions that lead to else branch.
         $siteInstanceCondition = $input->hasOption('siteInstanceId') && $input->getOption('siteInstanceId');
-        $codebaseCondition = $input->hasOption('codebaseUuid') && $input->getOption('codebaseUuid');
         $environmentIdCondition = $input->getArgument('environmentId');
 
         $this->assertFalse($siteInstanceCondition);
-        $this->assertFalse($codebaseCondition);
         $this->assertNull($environmentIdCondition);
 
         // This combination should trigger the else branch.
-        if (!$siteInstanceCondition && !$codebaseCondition && !$environmentIdCondition) {
-            // Test the logic that would execute in the else branch:
-            // $cloudApplicationUuid = $this->determineCloudApplication();
-            $mockCloudApplicationUuid = 'test-app-uuid';
-
+        if (!$siteInstanceCondition && !$environmentIdCondition) {
             // $cloudApplication = $this->getCloudApplication($cloudApplicationUuid);
             $mockCloudApplication = (object) ['name' => 'Test Application'];
 
@@ -1367,7 +1108,6 @@ class CommandBaseTest extends CommandTestBase
 
         // Set up the input mock for the environmentId path.
         $inputMock->hasOption('siteInstanceId')->willReturn(false);
-        $inputMock->hasOption('codebaseUuid')->willReturn(false);
         $inputMock->getArgument('environmentId')->willReturn($environmentId);
 
         // Create a mock environment response.
@@ -1380,15 +1120,13 @@ class CommandBaseTest extends CommandTestBase
         // We can test the branch conditions but not the actual method call due to dependencies
         // This ensures the condition logic is covered.
         $hasOptionSiteInstance = $inputMock->reveal()->hasOption('siteInstanceId');
-        $hasOptionCodebase = $inputMock->reveal()->hasOption('codebaseUuid');
         $hasEnvironmentId = $inputMock->reveal()->getArgument('environmentId');
 
         $this->assertFalse($hasOptionSiteInstance);
-        $this->assertFalse($hasOptionCodebase);
         $this->assertEquals($environmentId, $hasEnvironmentId);
 
         // Simulate the logic that would execute in this branch.
-        if (!$hasOptionSiteInstance && !$hasOptionCodebase && $hasEnvironmentId) {
+        if (!$hasOptionSiteInstance && $hasEnvironmentId) {
             // This branch would call $this->getCloudEnvironment($environmentId)
             $this->assertEquals($environmentId, $hasEnvironmentId);
         }
@@ -1404,22 +1142,18 @@ class CommandBaseTest extends CommandTestBase
 
         // Set up the input mock for the else branch.
         $inputMock->hasOption('siteInstanceId')->willReturn(false);
-        $inputMock->hasOption('codebaseUuid')->willReturn(false);
         $inputMock->getArgument('environmentId')->willReturn(null);
 
         // Test the conditions that lead to the else branch.
         $hasOptionSiteInstance = $inputMock->reveal()->hasOption('siteInstanceId');
-        $hasOptionCodebase = $inputMock->reveal()->hasOption('codebaseUuid');
         $hasEnvironmentId = $inputMock->reveal()->getArgument('environmentId');
 
         $this->assertFalse($hasOptionSiteInstance);
-        $this->assertFalse($hasOptionCodebase);
         $this->assertNull($hasEnvironmentId);
 
         // This condition should trigger the else branch.
         if (
             !($hasOptionSiteInstance && $inputMock->reveal()->getOption('siteInstanceId')) &&
-            !($hasOptionCodebase && $inputMock->reveal()->getOption('codebaseUuid')) &&
             !$hasEnvironmentId
         ) {
             // This branch would execute:
@@ -1430,21 +1164,6 @@ class CommandBaseTest extends CommandTestBase
             // $chosenEnvironment = $this->promptChooseEnvironmentConsiderProd(...);.
             // Confirms we reached this branch.
             $this->assertTrue(true);
-        }
-    }
-
-    /**
-     * Test determineEnvironment with codebaseUuid not found error condition.
-     */
-    public function testDetermineEnvironmentWithCodebaseUuidNotFoundLogic(): void
-    {
-        $codebaseUuid = 'nonexistent-codebase-uuid';
-
-        // Test the error condition logic.
-        $codebase = null;
-        if (!$codebase) {
-            $exception = new AcquiaCliException("Codebase with ID $codebaseUuid not found.");
-            $this->assertEquals("Codebase with ID $codebaseUuid not found.", $exception->getMessage());
         }
     }
 
@@ -1460,12 +1179,10 @@ class CommandBaseTest extends CommandTestBase
 
         // Mock the input to return the environmentId path.
         $inputMock->hasOption('siteInstanceId')->willReturn(false);
-        $inputMock->hasOption('codebaseUuid')->willReturn(false);
         $inputMock->getArgument('environmentId')->willReturn($environmentId);
 
         // Test the branch logic.
         $this->assertFalse($inputMock->reveal()->hasOption('siteInstanceId'));
-        $this->assertFalse($inputMock->reveal()->hasOption('codebaseUuid'));
         $this->assertEquals($environmentId, $inputMock->reveal()->getArgument('environmentId'));
     }
 
@@ -1482,20 +1199,17 @@ class CommandBaseTest extends CommandTestBase
 
         // Mock the input to fall through to the else branch (interactive mode)
         $inputMock->hasOption('siteInstanceId')->willReturn(false);
-        $inputMock->hasOption('codebaseUuid')->willReturn(false);
         $inputMock->getArgument('environmentId')->willReturn(null);
 
         // Test the branch logic.
         $hasOptionSiteInstance = $inputMock->reveal()->hasOption('siteInstanceId');
-        $hasOptionCodebase = $inputMock->reveal()->hasOption('codebaseUuid');
         $hasEnvironmentId = $inputMock->reveal()->getArgument('environmentId');
 
         $this->assertFalse($hasOptionSiteInstance);
-        $this->assertFalse($hasOptionCodebase);
         $this->assertNull($hasEnvironmentId);
 
         // This would trigger the else branch in the actual method.
-        if (!$hasOptionSiteInstance && !$hasOptionCodebase && !$hasEnvironmentId) {
+        if (!$hasOptionSiteInstance && !$hasEnvironmentId) {
             // Test the logic that would be executed in the else branch.
             $mockApplication = (object) [
                 'name' => 'Test Application',
@@ -1529,46 +1243,6 @@ class CommandBaseTest extends CommandTestBase
     }
 
     /**
-     * Test determineCodebase method with codebaseUuid not found exception.
-     */
-    public function testDetermineCodebaseNotFound(): void
-    {
-        $codebaseUuid = 'nonexistent-codebase-uuid';
-
-        // Test the actual logic from the method
-        // The condition in the method is: if (!$codebase != null) which is equivalent to if ($codebase == null)
-        $codebase = null;
-
-        // This tests the exception condition that should be thrown.
-        // This matches the actual code condition (which is buggy but we test as-is)
-        if (!$codebase != null) {
-            $exception = new AcquiaCliException("Codebase with ID $codebaseUuid not found.");
-            $this->assertEquals("Codebase with ID $codebaseUuid not found.", $exception->getMessage());
-        }
-
-        // Test that the condition evaluates correctly.
-        // This should be true when $codebase is null.
-        $this->assertTrue(!$codebase != null);
-    }
-
-    /**
-     * Test determineCodebase method with null codebaseUuid returns null.
-     */
-    public function testDetermineCodebaseNullReturn(): void
-    {
-        $inputMock = $this->prophet->prophesize(\Symfony\Component\Console\Input\InputInterface::class);
-        $inputMock->getOption('codebaseUuid')->willReturn(null);
-
-
-        $reflection = new \ReflectionClass($this->command);
-        $method = $reflection->getMethod('determineCodebase');
-        $method->setAccessible(true);
-
-        $result = $method->invoke($this->command, $inputMock->reveal());
-        $this->assertNull($result);
-    }
-
-    /**
      * Test getSiteInstance method with not found exception.
      */
     public function testGetSiteInstanceNotFound(): void
@@ -1597,21 +1271,17 @@ class CommandBaseTest extends CommandTestBase
         // Mock input conditions that lead to the no VCS URL path.
         $inputMock->hasOption('siteInstanceId')->willReturn(false);
         $inputMock->getOption('siteInstanceId')->willReturn(null);
-        $inputMock->hasOption('codebaseUuid')->willReturn(false);
-        $inputMock->getOption('codebaseUuid')->willReturn(null);
 
         // Test the logic that leads to the warning message.
         $hasOptionSiteInstance = $inputMock->reveal()->hasOption('siteInstanceId') && $inputMock->reveal()->getOption('siteInstanceId');
-        $hasOptionCodebase = $inputMock->reveal()->hasOption('codebaseUuid') && $inputMock->reveal()->getOption('codebaseUuid');
         // Simulate getAnyVcsUrl returning false.
         $vcsUrl = false;
 
         $this->assertFalse($hasOptionSiteInstance);
-        $this->assertFalse($hasOptionCodebase);
         $this->assertFalse($vcsUrl);
 
         // Test the conditions that lead to the warning message and false return.
-        if (!$hasOptionSiteInstance && !$hasOptionCodebase && !$vcsUrl) {
+        if (!$hasOptionSiteInstance && !$vcsUrl) {
             // This would execute: $output->writeln('No VCS URL found...'); return false;.
             $expectedMessage = 'No VCS URL found for this application. Please provide one with the --vcs-url option.';
             $this->assertEquals($expectedMessage, 'No VCS URL found for this application. Please provide one with the --vcs-url option.');
@@ -1631,21 +1301,17 @@ class CommandBaseTest extends CommandTestBase
         // Set up conditions that lead to the false return path.
         $inputMock->hasOption('siteInstanceId')->willReturn(false);
         $inputMock->getOption('siteInstanceId')->willReturn(null);
-        $inputMock->hasOption('codebaseUuid')->willReturn(false);
-        $inputMock->getOption('codebaseUuid')->willReturn(null);
 
         // Test the logic that leads to the return false condition.
         $hasOptionSiteInstance = $inputMock->reveal()->hasOption('siteInstanceId') && $inputMock->reveal()->getOption('siteInstanceId');
-        $hasOptionCodebase = $inputMock->reveal()->hasOption('codebaseUuid') && $inputMock->reveal()->getOption('codebaseUuid');
         // Simulate getAnyVcsUrl returning false.
         $anyVcsUrl = false;
 
         $this->assertFalse($hasOptionSiteInstance);
-        $this->assertFalse($hasOptionCodebase);
         $this->assertFalse($anyVcsUrl);
 
         // This combination should lead to the return false path.
-        if (!$hasOptionSiteInstance && !$hasOptionCodebase && !$anyVcsUrl) {
+        if (!$hasOptionSiteInstance && !$anyVcsUrl) {
             // This would trigger: $output->writeln('No VCS URL found...'); return false;.
             // Confirms we reached this condition.
             $this->assertTrue(true);

@@ -24,7 +24,6 @@ final class PullDatabaseCommand extends PullCommandBase
             ->acceptEnvironmentId()
             ->acceptSite()
             ->acceptSiteInstanceId()
-            ->acceptCodebaseUuid()
             ->addOption(
                 'no-scripts',
                 null,

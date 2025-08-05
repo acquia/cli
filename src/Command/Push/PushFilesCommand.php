@@ -21,7 +21,6 @@ final class PushFilesCommand extends PushCommandBase
         $this
             ->acceptEnvironmentId()
             ->acceptSite()
-            ->acceptCodebaseUuid()
             ->acceptSiteInstanceId();
     }
 

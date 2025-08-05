@@ -19,8 +19,7 @@ final class PullFilesCommand extends PullCommandBase
         $this
             ->acceptEnvironmentId()
             ->acceptSite()
-            ->acceptSiteInstanceId()
-            ->acceptCodebaseUuid();
+            ->acceptSiteInstanceId();
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int

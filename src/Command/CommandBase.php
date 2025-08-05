@@ -330,17 +330,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
         return $this;
     }
     /**
-     * Add argument and usage examples for codebaseId.
-     */
-    protected function acceptCodebaseUuid(): static
-    {
-        $this->addOption('codebaseUuid', null, InputOption::VALUE_OPTIONAL, 'The Cloud Platform codebase UUID')
-            ->addUsage('abcd1234-1111-2222-3333-0e02b2c3d470');
-
-        return $this;
-    }
-
-    /**
      * Add argument and usage examples for environmentId.
      */
     protected function acceptEnvironmentId(): static
@@ -676,14 +665,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
             $siteInstance = $this->determineSiteInstance($input);
             $chosenEnvironment = EnvironmentTransformer::transform($siteInstance->environment);
             $chosenEnvironment->vcs->url = $siteInstance->environment->codebase->vcs_url ?? '';
-        } elseif ($input->hasOption('codebaseUuid') && $input->getOption('codebaseUuid')) {
-            $codebaseUuid = $input->getOption('codebaseUuid');
-            $codebase = $this->getCodebase($codebaseUuid);
-            if (!$codebase) {
-                throw new AcquiaCliException("Codebase with ID $codebaseUuid not found.");
-            }
-            $chosenEnvironment = EnvironmentTransformer::transformFromCodeBase($codebase);
-            $chosenEnvironment->vcs->url = $codebase->vcs_url ?? $chosenEnvironment->vcs->url;
         } elseif ($input->getArgument('environmentId')) {
             $environmentId = $input->getArgument('environmentId');
             $chosenEnvironment = $this->getCloudEnvironment($environmentId);
@@ -732,19 +713,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
         }
         return null;
     }
-    protected function determineCodebase(InputInterface $input): ?CodebaseResponse
-    {
-        $codebaseUuid = $input->getOption('codebaseUuid');
-        if ($codebaseUuid) {
-            $codebase = $this->getCodebase($codebaseUuid);
-            if (!$codebase != null) {
-                throw new AcquiaCliException("Codebase with ID $codebaseUuid not found.");
-            }
-            return $codebase;
-        }
-        return null;
-    }
-
     /**
      * @throws \Acquia\Cli\Exception\AcquiaCliException
      */
@@ -2119,10 +2087,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
         if ($input->hasOption('siteInstanceId') && $input->getOption('siteInstanceId')) {
             $siteInstance = $this->determineSiteInstance($input);
             $vcsUrl = $siteInstance->environment->codebase->vcs_url ?? $this->getAnyVcsUrl($applicationUuid);
-            return [$vcsUrl];
-        } elseif ($input->hasOption('codebaseUuid') && $input->getOption('codebaseUuid')) {
-            $codebase = $this->determineCodebase($input);
-            $vcsUrl = $codebase->vcs_url ?? $this->getAnyVcsUrl($applicationUuid);
             return [$vcsUrl];
         } elseif ($vcsUrl = $this->getAnyVcsUrl($applicationUuid)) {
             return [$vcsUrl];
