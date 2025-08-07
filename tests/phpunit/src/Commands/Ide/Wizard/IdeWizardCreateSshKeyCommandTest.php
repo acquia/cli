@@ -53,4 +53,11 @@ class IdeWizardCreateSshKeyCommandTest extends IdeWizardTestBase
     {
         $this->runTestSshKeyCodebaseUuidExists();
     }
+    /**
+     * @group brokenProphecy
+     */
+    public function testPromptWaitForSshReturnsTrue(): void
+    {
+        $this->runTestPromptWaitForSshReturnsTrue();
+    }
 }

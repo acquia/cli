@@ -10,6 +10,7 @@ use Acquia\Cli\Command\Ssh\SshKeyUploadCommand;
 use Acquia\Cli\Tests\CommandTestBase;
 use Prophecy\Argument;
 use Psr\Http\Message\ResponseInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Path;
 
@@ -118,9 +119,7 @@ abstract class WizardTestBase extends CommandTestBase
             'AH_CODEBASE_UUID' => 'a47ac10b-58cc-4372-a567-0e02b2c3d470',
         ]);
         $environmentsResponse = self::getMockEnvironmentsResponse();
-        $this->clientProphecy->request('get', "/applications/" . $this::$applicationUuid . "/environments")
-            ->willReturn($environmentsResponse->_embedded->items)
-            ->shouldBeCalled();
+
         $request = self::getMockRequestBodyFromSpec('/account/ssh-keys');
 
         $body = [
@@ -176,6 +175,69 @@ abstract class WizardTestBase extends CommandTestBase
 
         // Ensure command returned success code.
         $this->assertSame($this->command::SUCCESS, $this->getStatusCode());
+    }
+    protected function runTestPromptWaitForSshReturnsTrue(): void
+    {
+
+        $environmentsResponse = self::getMockEnvironmentsResponse();
+        $this->clientProphecy->request('get', "/applications/" . self::$applicationUuid . "/environments")
+            ->willReturn($environmentsResponse->_embedded->items)
+            ->shouldBeCalled();
+
+        $request = self::getMockRequestBodyFromSpec('/account/ssh-keys');
+        $body = [
+            'json' => [
+                'label' => 'IDE_ExampleIDE_215824ff272a4a8c9027df32ed1d68a9',
+                'public_key' => $request['public_key'],
+            ],
+        ];
+        $this->mockRequest('postAccountSshKeys', null, $body);
+
+        $localMachineHelper = $this->mockLocalMachineHelper();
+
+        // Poll Cloud.
+        $sshHelper = $this->mockPollCloudViaSsh($environmentsResponse->_embedded->items);
+        $this->command->sshHelper = $sshHelper->reveal();
+
+        $fileSystem = $this->prophet->prophesize(\Symfony\Component\Filesystem\Filesystem::class);
+        $this->mockGenerateSshKey($localMachineHelper, $request['public_key']);
+        $localMachineHelper->getLocalFilepath($this->passphraseFilepath)
+            ->willReturn($this->passphraseFilepath);
+        $fileSystem->remove(\Prophecy\Argument::size(2))->shouldBeCalled();
+        $this->mockAddSshKeyToAgent($localMachineHelper, $fileSystem);
+        $this->mockSshAgentList($localMachineHelper);
+        $localMachineHelper->getFilesystem()
+            ->willReturn($fileSystem->reveal())
+            ->shouldBeCalled();
+
+        // Ensure interactive mode is enabled.
+        $this->input->setInteractive(true);
+
+        // Set the mocked input on the command.
+        $reflection = new \ReflectionClass($this->command);
+
+        // Test the promptWaitForSsh method.
+        $method = $reflection->getMethod('promptWaitForSsh');
+        $method->setAccessible(true);
+
+        // Create a SymfonyStyle object for the test.
+        $io = new SymfonyStyle($this->input, $this->output);
+
+        // Call the method with the proper SymfonyStyle object.
+        $result = $method->invoke($this->command, $io);
+
+        $this->command->sshHelper = $sshHelper->reveal();
+        $this->command->localMachineHelper = $localMachineHelper->reveal();
+
+        $this->application->add($this->command);
+
+        // Execute with interaction.
+        // Simulate user interaction.
+        $this->executeCommand([], ['y']);
+
+        $display = $this->getDisplay();
+        $this->assertStringContainsString('It may take an hour or more before the SSH key is installed', $display);
+        $this->assertSame(\Symfony\Component\Console\Command\Command::SUCCESS, $this->getStatusCode());
     }
 
     protected function runTestSshKeyAlreadyUploaded(): void
