@@ -45,4 +45,12 @@ class IdeWizardCreateSshKeyCommandTest extends IdeWizardTestBase
     {
         $this->runTestSshKeyAlreadyUploaded();
     }
+
+    /**
+     * @group brokenProphecy
+     */
+    public function testSshKeyCodebaseUuidExists(): void
+    {
+        $this->runTestSshKeyCodebaseUuidExists();
+    }
 }
