@@ -94,7 +94,7 @@ final class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase
         // Wait for the key to register on the Cloud Platform.
         if ($keyWasUploaded) {
             if ($this->getCodebaseUuid()) {
-                $output->writeln('<info>SSH key has been successfully uploaded to the Cloud Platform.</info>');
+                $output->writeln('<info>Your SSH key has been successfully uploaded to the Cloud Platform.</info>');
                 $this->io->note("It may take an hour or more before the SSH key is installed on all of your servers. Create a Support ticket for further assistance.");
                 return Command::SUCCESS;
             }
