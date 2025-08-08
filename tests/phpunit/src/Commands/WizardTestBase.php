@@ -174,6 +174,70 @@ abstract class WizardTestBase extends CommandTestBase
 
         // Ensure command returned success code.
         $this->assertSame($this->command::SUCCESS, $this->getStatusCode());
+        self::unsetEnvVars([
+            'AH_CODEBASE_UUID' => 'a47ac10b-58cc-4372-a567-0e02b2c3d470',
+        ]);
+    }
+    protected function runTestPromptWaitForSshReturnsTrue(): void
+    {
+
+        $environmentsResponse = self::getMockEnvironmentsResponse();
+        $this->clientProphecy->request('get', "/applications/" . $this::$applicationUuid . "/environments")
+            ->willReturn($environmentsResponse->_embedded->items)
+            ->shouldBeCalled();
+
+        $request = self::getMockRequestBodyFromSpec('/account/ssh-keys');
+
+        $body = [
+            'json' => [
+                'label' => 'IDE_ExampleIDE_215824ff272a4a8c9027df32ed1d68a9',
+                'public_key' => $request['public_key'],
+            ],
+        ];
+        $this->mockRequest('postAccountSshKeys', null, $body);
+
+        $localMachineHelper = $this->mockLocalMachineHelper();
+
+        // Poll Cloud.
+        $sshHelper = $this->mockPollCloudViaSsh($environmentsResponse->_embedded->items);
+        $this->command->sshHelper = $sshHelper->reveal();
+
+        $fileSystem = $this->prophet->prophesize(Filesystem::class);
+        $this->mockGenerateSshKey($localMachineHelper, $request['public_key']);
+        $localMachineHelper->getLocalFilepath($this->passphraseFilepath)
+            ->willReturn($this->passphraseFilepath);
+        $fileSystem->remove(Argument::size(2))->shouldBeCalled();
+        $this->mockAddSshKeyToAgent($localMachineHelper, $fileSystem);
+        $this->mockSshAgentList($localMachineHelper);
+        $localMachineHelper->getFilesystem()
+            ->willReturn($fileSystem->reveal())
+            ->shouldBeCalled();
+
+        /** @var SshKeyCreateCommand $sshKeyCreateCommand */
+        $sshKeyCreateCommand = $this->application->find(SshKeyCreateCommand::getDefaultName());
+        $sshKeyCreateCommand->localMachineHelper = $this->command->localMachineHelper;
+        /** @var SshKeyUploadCommand $sshKeyUploadCommand */
+        $sshKeyUploadCommand = $this->application->find(SshKeyUploadCommand::getDefaultName());
+        $sshKeyUploadCommand->localMachineHelper = $this->command->localMachineHelper;
+        /** @var SshKeyDeleteCommand $sshKeyDeleteCommand */
+        $sshKeyDeleteCommand = $this->application->find(SshKeyDeleteCommand::getDefaultName());
+        $sshKeyDeleteCommand->localMachineHelper = $this->command->localMachineHelper;
+
+        // Remove SSH key if it exists.
+        $this->fs->remove(Path::join(sys_get_temp_dir(), $this->sshKeyFileName));
+
+        // Set properties and execute.
+        $this->executeCommand([], [
+            // Would you like to wait until your key is installed on all of your application's servers?
+            'y',
+        ]);
+
+        // Assertions.
+        $display = $this->getDisplay();
+        // Assert success message is shown.
+        $this->assertStringContainsString('Your SSH key is ready for use!', $display);
+        // Ensure command returned success code.
+        $this->assertSame($this->command::SUCCESS, $this->getStatusCode());
     }
 
 
