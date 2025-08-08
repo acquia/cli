@@ -93,10 +93,22 @@ final class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase
 
         // Wait for the key to register on the Cloud Platform.
         if ($keyWasUploaded) {
-            if ($this->input->isInteractive() && !$this->promptWaitForSsh($this->io)) {
-                $this->io->success('Your SSH key has been successfully uploaded to the Cloud Platform.');
+            if ($this->getCodebaseUuid()) {
+                $output->writeln('<info>Your SSH key has been successfully uploaded to the Cloud Platform.</info>');
+                $this->io->note("It may take an hour or more before the SSH key is installed on all of your servers. Create a Support ticket for further assistance.");
                 return Command::SUCCESS;
             }
+
+            // Default behavior: wait for SSH key installation
+            // In interactive mode, ask user if they want to wait.
+            if ($this->input->isInteractive()) {
+                if (!$this->promptWaitForSsh($this->io)) {
+                    $this->io->success('Your SSH key has been successfully uploaded to the Cloud Platform.');
+                    return Command::SUCCESS;
+                }
+            }
+
+            // Non-interactive mode or user chose to wait: poll for SSH success.
             $this->pollAcquiaCloudUntilSshSuccess($output);
         }
 
