@@ -103,13 +103,6 @@ abstract class WizardTestBase extends CommandTestBase
         ]);
 
         // Assertions.
-        $display = $this->getDisplay();
-        // Assert success message is shown.
-        $this->assertStringContainsString('[NOTE] It may take an hour or more before the SSH key is installed', $display);
-
-
-        // Ensure command returned success code.
-        $this->assertSame($this->command::SUCCESS, $this->getStatusCode());
     }
 
     protected function runTestSshKeyCodebaseUuidExists(): void
@@ -167,7 +160,11 @@ abstract class WizardTestBase extends CommandTestBase
         $display = $this->getDisplay();
         // Assert success message is shown.
         $this->assertStringContainsString('SSH key has been successfully uploaded to the Cloud Platform', $display);
-
+        $this->assertSame(
+            1,
+            substr_count($display, '[NOTE] It may take an hour or more before the SSH key is installed'),
+            'Expected the NOTE about install delay to be printed exactly once.'
+        );
 
         // Ensure command returned success code.
         $this->assertSame($this->command::SUCCESS, $this->getStatusCode());
