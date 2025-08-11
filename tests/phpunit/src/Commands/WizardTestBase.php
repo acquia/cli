@@ -117,8 +117,10 @@ abstract class WizardTestBase extends CommandTestBase
         self::setEnvVars([
             'AH_CODEBASE_UUID' => 'a47ac10b-58cc-4372-a567-0e02b2c3d470',
         ]);
-        $environmentsResponse = self::getMockEnvironmentsResponse();
 
+        $this->clientProphecy->request('get', "/applications/" . self::$applicationUuid)
+            ->shouldNotBeCalled();
+        // $this->mockApplicationRequest();
         $request = self::getMockRequestBodyFromSpec('/account/ssh-keys');
 
         $body = [
@@ -130,10 +132,6 @@ abstract class WizardTestBase extends CommandTestBase
         $this->mockRequest('postAccountSshKeys', null, $body);
 
         $localMachineHelper = $this->mockLocalMachineHelper();
-
-        // Poll Cloud.
-        $sshHelper = $this->mockPollCloudViaSsh($environmentsResponse->_embedded->items);
-        $this->command->sshHelper = $sshHelper->reveal();
 
         $fileSystem = $this->prophet->prophesize(Filesystem::class);
         $this->mockGenerateSshKey($localMachineHelper, $request['public_key']);
@@ -169,14 +167,11 @@ abstract class WizardTestBase extends CommandTestBase
         $display = $this->getDisplay();
         // Assert success message is shown.
         $this->assertStringContainsString('SSH key has been successfully uploaded to the Cloud Platform', $display);
-        $this->assertStringContainsString('[NOTE] It may take an hour or more before the SSH key is installed', $display);
 
 
         // Ensure command returned success code.
         $this->assertSame($this->command::SUCCESS, $this->getStatusCode());
-        self::unsetEnvVars([
-            'AH_CODEBASE_UUID' => 'a47ac10b-58cc-4372-a567-0e02b2c3d470',
-        ]);
+        self::unsetEnvVars(['AH_CODEBASE_UUID']);
     }
     protected function runTestPromptWaitForSshReturnsTrue(): void
     {
@@ -244,10 +239,8 @@ abstract class WizardTestBase extends CommandTestBase
     protected function runTestPromptWaitForSshReturnsFalse(): void
     {
 
-        $environmentsResponse = self::getMockEnvironmentsResponse();
-        $this->clientProphecy->request('get', "/applications/" . $this::$applicationUuid . "/environments")
-            ->willReturn($environmentsResponse->_embedded->items)
-            ->shouldBeCalled();
+        $this->clientProphecy->request('get', "/applications/" . self::$applicationUuid)
+            ->shouldNotBeCalled();
 
         $request = self::getMockRequestBodyFromSpec('/account/ssh-keys');
 
@@ -260,10 +253,6 @@ abstract class WizardTestBase extends CommandTestBase
         $this->mockRequest('postAccountSshKeys', null, $body);
 
         $localMachineHelper = $this->mockLocalMachineHelper();
-
-        // Poll Cloud.
-        $sshHelper = $this->mockPollCloudViaSsh($environmentsResponse->_embedded->items);
-        $this->command->sshHelper = $sshHelper->reveal();
 
         $fileSystem = $this->prophet->prophesize(Filesystem::class);
         $this->mockGenerateSshKey($localMachineHelper, $request['public_key']);

@@ -32,9 +32,7 @@ class IdeWizardCreateSshKeyCommandTest extends IdeWizardTestBase
     {
         return $this->injectCommand(IdeWizardCreateSshKeyCommand::class);
     }
-    /**
-     * @group brokenProphecy
-     */
+
     public function testCreate(): void
     {
         $this->runTestCreate();
@@ -48,23 +46,16 @@ class IdeWizardCreateSshKeyCommandTest extends IdeWizardTestBase
         $this->runTestSshKeyAlreadyUploaded();
     }
 
-    /**
-     * @group brokenProphecy
-     */
     public function testSshKeyCodebaseUuidExists(): void
     {
         $this->runTestSshKeyCodebaseUuidExists();
     }
-    /**
-     * @group brokenProphecy
-     */
+
     public function testPromptWaitForSshReturnsTrue(): void
     {
         $this->runTestPromptWaitForSshReturnsTrue();
     }
-    /**
-     * @group brokenProphecy
-     */
+
     public function testPromptWaitForSshReturnsFalse(): void
     {
         $this->runTestPromptWaitForSshReturnsFalse();
