@@ -1188,6 +1188,15 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
     }
 
     /**
+     * Get the Cloud Codebase UUID from a Cloud IDE's environmental variable.
+     *
+     * This command assumes it is being run inside a Cloud IDE.
+     */
+    protected static function getCodebaseUuid(): false|string
+    {
+        return getenv('AH_CODEBASE_UUID');
+    }
+    /**
      * Get the UUID from a Cloud IDE's environmental variable.
      *
      * This command assumes it is being run inside a Cloud IDE.

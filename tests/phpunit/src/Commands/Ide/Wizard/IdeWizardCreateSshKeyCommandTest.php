@@ -45,4 +45,19 @@ class IdeWizardCreateSshKeyCommandTest extends IdeWizardTestBase
     {
         $this->runTestSshKeyAlreadyUploaded();
     }
+
+    public function testSshKeyCodebaseUuidExists(): void
+    {
+        $this->runTestSshKeyCodebaseUuidExists();
+    }
+
+    public function testPromptWaitForSshReturnsTrue(): void
+    {
+        $this->runTestPromptWaitForSshReturnsTrue();
+    }
+
+    public function testPromptWaitForSshReturnsFalse(): void
+    {
+        $this->runTestPromptWaitForSshReturnsFalse();
+    }
 }
