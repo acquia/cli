@@ -17,7 +17,24 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
+    outputs:
+      release_name: ${{ steps.set-outputs.outputs.release_name }}
+      release_body: ${{ steps.set-outputs.outputs.release_body }}
+      release_html_url: ${{ steps.set-outputs.outputs.release_html_url }}
     steps:
       - uses: release-drafter/release-drafter@v6.0.0
+        id: draft
+        with:
+          publish: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Set outputs
+        id: set-outputs
+        run: |
+          echo "release_name=${{ steps.draft.outputs.name }}" >> $GITHUB_OUTPUT
+          echo "release_html_url=${{ steps.draft.outputs.html_url }}" >> $GITHUB_OUTPUT
+          {
+            echo "release_body<<EOF"
+            echo "${{ steps.draft.outputs.body }}"
+            echo "EOF"
+          } >> $GITHUB_OUTPUT

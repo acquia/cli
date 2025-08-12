@@ -29,4 +29,3 @@ template: |
 
   $CHANGES
 prerelease: true
-publish: true

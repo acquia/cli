@@ -2,6 +2,11 @@ name: Jira release creator
 on:
   release:
     types: [published]
+  workflow_run:
+      types:
+          - 'completed'
+      workflows:
+          - 'Release Drafter'
 
 jobs:
   create-ticket:
@@ -12,15 +17,41 @@ jobs:
       - uses: shivammathur/setup-php@v2
         with:
           coverage: none
+      - name: Set release variables
+        id: set-release-vars
+        run: |
+            if [[ "${{ github.event_name }}" == "workflow_run" ]]; then
+              # Retrieve workflow_run outputs via the GitHub API
+              RUN_ID="${{ github.event.workflow_run.id }}"
+              REPO="${{ github.repository }}"
+              GH_TOKEN="${{ secrets.GITHUB_TOKEN }}"
+              API_URL="https://api.github.com/repos/$REPO/actions/runs/$RUN_ID"
+              # This doesn't work, you can't parse workflow_run outputs directly
+              RESPONSE=$(curl -s -H "Authorization: Bearer $GH_TOKEN" -H "Accept: application/vnd.github+json" "$API_URL")
+              echo "RELEASE_NAME=$(echo "$RESPONSE" | jq -r '.outputs.release_name // empty')" >> $GITHUB_ENV
+              echo "RELEASE_BODY=$(echo "$RESPONSE" | jq -r '.outputs.release_body // empty')" >> $GITHUB_ENV
+              echo "RELEASE_HTML_URL=$(echo "$RESPONSE" | jq -r '.outputs.release_html_url // empty')" >> $GITHUB_ENV
+            else
+              echo "RELEASE_NAME=${{ github.event.release.name }}" >> $GITHUB_ENV
+              echo "RELEASE_BODY=${{ github.event.release.body }}" >> $GITHUB_ENV
+              echo "RELEASE_HTML_URL=${{ github.event.release.html_url }}" >> $GITHUB_ENV
+            fi
+        shell: bash
+      - name: Skip workflow if RELEASE_BODY is empty
+        if: env.RELEASE_BODY == ''
+        run: |
+            echo "RELEASE_BODY is empty. Skipping workflow."
+            exit 1
+        shell: bash
       - name: Install dependencies
         run: composer install --optimize-autoloader --no-interaction
       - name: Generate Jira ticket body
         env:
           GITHUB_ACTIONS_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-          RELEASE_BODY: ${{ github.event.release.body }}
+          RELEASE_BODY: ${{ env.RELEASE_BODY }}
           JIRA_BASE_URL: ${{ vars.JIRA_BASE_URL }}
         run: |
-          ${GITHUB_WORKSPACE}/.github/workflows/create-ccb-ticket.sh "$RELEASE_BODY" "${{ github.event.release.name }}" "${{ github.event.release.html_url }}" "$GITHUB_ACTIONS_RUN_URL" "$JIRA_BASE_URL" >> jira_description.md
+          ${GITHUB_WORKSPACE}/.github/workflows/create-ccb-ticket.sh "$RELEASE_BODY" "${{ env.RELEASE_NAME }}" "${{ env.RELEASE_HTML_URL }}" "$GITHUB_ACTIONS_RUN_URL" "$JIRA_BASE_URL" >> jira_description.md
           JIRA_DESCRIPTION=$(<jira_description.md)
           echo "JIRA_DESCRIPTION<<EOF" >> $GITHUB_ENV
           echo "$JIRA_DESCRIPTION" >> $GITHUB_ENV
