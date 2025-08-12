@@ -45837,13 +45837,160 @@
                     "type": "string"
                   },
                   "isolation": {
-                    "$ref": "#/components/schemas/Private_Network_Service_API_Isolation"
+                    "type": "object",
+                    "properties": {
+                      "dedicated_compute": {
+                        "type": "boolean"
+                      },
+                      "dedicated_network": {
+                        "type": "boolean"
+                      }
+                    }
                   },
                   "ingress": {
-                    "$ref": "#/components/schemas/Private_Network_Service_API_Ingress"
+                    "type": "object",
+                    "properties": {
+                      "drupal_ssh": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "integer"
+                          },
+                          "ingress_acls": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          },
+                          "private": {
+                            "type": "boolean",
+                            "default": false
+                          }
+                        }
+                      }
+                    }
                   },
                   "connections": {
-                    "$ref": "#/components/schemas/Private_Network_Service_API_Connections"
+                    "type": "object",
+                    "required": [
+                      "cidr"
+                    ],
+                    "properties": {
+                      "private_egress_access": {
+                        "type": "object",
+                        "properties": {
+                          "drupal": {
+                            "type": "boolean"
+                          }
+                        }
+                      },
+                      "cidr": {
+                        "type": "string",
+                        "pattern": "^([0-9]{1,3}\\.){3}[0-9]{1,3}/[0-9]{1,2}$"
+                      },
+                      "vpns": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "required": [
+                            "name",
+                            "gateway_ip",
+                            "routes"
+                          ],
+                          "properties": {
+                            "id": {
+                              "type": "integer"
+                            },
+                            "name": {
+                              "type": "string"
+                            },
+                            "gateway_ip": {
+                              "type": "string",
+                              "format": "ipv4"
+                            },
+                            "routes": {
+                              "type": "array",
+                              "items": {
+                                "type": "string",
+                                "pattern": "^([0-9]{1,3}\\.){3}[0-9]{1,3}/[0-9]{1,2}$"
+                              }
+                            },
+                            "tunnel1": {
+                              "type": "object",
+                              "properties": {
+                                "id": {
+                                  "type": "integer"
+                                },
+                                "shared_key": {
+                                  "type": "string"
+                                },
+                                "internal_cidr": {
+                                  "type": "string",
+                                  "pattern": "^([0-9]{1,3}\\.){3}[0-9]{1,3}/[0-9]{1,2}$"
+                                },
+                                "ike_versions": {
+                                  "type": "string"
+                                },
+                                "startup_action": {
+                                  "type": "string"
+                                },
+                                "dpd_timeout_action": {
+                                  "type": "string"
+                                }
+                              }
+                            },
+                            "tunnel2": {
+                              "type": "object",
+                              "properties": {
+                                "id": {
+                                  "type": "integer"
+                                },
+                                "shared_key": {
+                                  "type": "string"
+                                },
+                                "internal_cidr": {
+                                  "type": "string",
+                                  "pattern": "^([0-9]{1,3}\\.){3}[0-9]{1,3}/[0-9]{1,2}$"
+                                },
+                                "ike_versions": {
+                                  "type": "string"
+                                },
+                                "startup_action": {
+                                  "type": "string"
+                                },
+                                "dpd_timeout_action": {
+                                  "type": "string"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "vpc_peers": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "integer"
+                            },
+                            "name": {
+                              "type": "string"
+                            },
+                            "aws_account": {
+                              "type": "string"
+                            },
+                            "vpc_id": {
+                              "type": "string"
+                            },
+                            "vpc_cidr": {
+                              "type": "string",
+                              "pattern": "^([0-9]{1,3}\\.){3}[0-9]{1,3}/[0-9]{1,2}$"
+                            }
+                          }
+                        }
+                      }
+                    }
                   }
                 },
                 "example": {
