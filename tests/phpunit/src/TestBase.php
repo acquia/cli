@@ -494,7 +494,6 @@ abstract class TestBase extends TestCase
             throw new RuntimeException('Invalid number of parameters');
         }
         $response = self::getMockResponseFromSpec($path, $method, $code);
-
         // This is a set of example responses.
         if (isset($exampleResponse) && property_exists($response, $exampleResponse)) {
             $response = $response->$exampleResponse->value;
@@ -632,6 +631,55 @@ abstract class TestBase extends TestCase
             $method,
             $httpCode
         );
+    }
+
+    protected function getMockSiteInstanceResponse(string $method = 'get', string $httpCode = '200'): object
+    {
+        return self::getMockResponseFromSpec(
+            '/site-instances/{siteId}.{environmentId}',
+            $method,
+            $httpCode
+        );
+    }
+    protected function getMockCodebaseResponse(string $method = 'get', string $httpCode = '200'): object
+    {
+        return self::getMockResponseFromSpec(
+            '/codebases/{codebaseId}',
+            $method,
+            $httpCode
+        );
+    }
+    protected function getMockCodeBaseEnvironment(string $method = 'get', string $httpCode = '200'): object
+    {
+        return self::getMockResponseFromSpec(
+            '/api/environments/{environmentId}',
+            $method,
+            $httpCode
+        );
+    }
+    protected function getMockCodeBase(string $method = 'get', string $httpCode = '200'): object
+    {
+        return self::getMockResponseFromSpec(
+            '/codebases/{codebaseId}',
+            $method,
+            $httpCode
+        );
+    }
+
+    protected function mockCodebaseEnvironment(string $environmentId): object
+    {
+        $method = 'get';
+        $httpCode = '200';
+        $environment = self::getMockResponseFromSpec(
+            '/api/environments/{environmentId}',
+            $method,
+            $httpCode
+        );
+        // Ensure the mock environment has a codebase_uuid for testing.
+        if (!isset($environment->codebase_uuid)) {
+            $environment->codebase_uuid = '11111111-041c-44c7-a486-7972ed2cafc8';
+        }
+        return $environment;
     }
 
     protected static function getMockEnvironmentsResponse(): object

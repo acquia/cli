@@ -21,6 +21,8 @@ final class PullScriptsCommand extends CommandBase
     {
         $this
             ->acceptEnvironmentId()
+            ->acceptSite()
+            ->acceptSiteInstanceId()
             ->addOption('dir', null, InputArgument::OPTIONAL, 'The directory containing the Drupal project to be refreshed');
     }
 

@@ -8,7 +8,6 @@ use Acquia\Cli\Attribute\RequireAuth;
 use Acquia\Cli\Attribute\RequireLocalDb;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -22,7 +21,8 @@ final class PullCodeCommand extends PullCommandBase
     {
         $this
             ->acceptEnvironmentId()
-            ->addOption('dir', null, InputArgument::OPTIONAL, 'The directory containing the Drupal project to be refreshed')
+            ->acceptSiteInstanceId()
+            ->addOption('dir', null, InputOption::VALUE_OPTIONAL, 'The directory containing the Drupal project to be refreshed')
             ->addOption(
                 'no-scripts',
                 null,
