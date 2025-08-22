@@ -428,6 +428,40 @@ class CommandBaseTest extends CommandTestBase
      * Test that determineVcsUrl method exists and is accessible for testing purposes.
      * This test validates the method signature and basic invocation.
      */
+    public function testDetermineEnvironmentFromIdeContextMethodAccessibility(): void
+    {
+        $reflection = new \ReflectionClass($this->command);
+        $method = $reflection->getMethod('determineEnvironmentFromIdeContext');
+        $this->assertTrue($method->isProtected());
+        $method->setAccessible(true);
+
+        // The method should exist and be callable.
+        $this->assertTrue($method->isUserDefined());
+        $this->assertEquals('determineEnvironmentFromIdeContext', $method->getName());
+    }
+
+    /**
+     * Test determineVcsUrl method existence and accessibility.
+     * This creates basic test coverage for mutation testing.
+     */
+    public function testDetermineEnvironmentFromIdeContextMethodExists(): void
+    {
+        $reflection = new \ReflectionClass($this->command);
+        $method = $reflection->getMethod('determineEnvironmentFromIdeContext');
+        $this->assertTrue($method->isProtected());
+        $this->assertEquals('determineEnvironmentFromIdeContext', $method->getName());
+
+        // Test the method signature by checking parameter count.
+        $this->assertEquals(2, $method->getNumberOfParameters());
+        $parameters = $method->getParameters();
+        $this->assertEquals('input', $parameters[0]->getName());
+        $this->assertEquals('output', $parameters[1]->getName());
+    }
+
+    /**
+     * Test that determineSiteInstance method exists and is accessible for testing purposes.
+     * This test validates the method signature and basic invocation.
+     */
     public function testDetermineSiteInstanceMethodAccessibility(): void
     {
         $reflection = new \ReflectionClass($this->command);

@@ -271,14 +271,32 @@ abstract class CommandTestBase extends TestBase
         $environment->codebase = (object)$codebase;
         return $environment;
     }
-    public function mockGetCodebase(): mixed
+    public function mockGetCodebaseEnvironments(): mixed
     {
         $sites = $this->mockRequest('get_sites');
         $site = $sites[self::$INPUT_DEFAULT_CHOICE];
         $environments = $this->mockRequest('environments_by_site', $site->id);
-        $environment = $environments[self::$INPUT_DEFAULT_CHOICE];
-        $codebase = $this->mockRequest('get_codebase_by_id', $environment->_embedded->codebase->id);
+        foreach ($environments as $environment) {
+            $codebase = $this->mockRequest('get_codebase_by_id', $environment->_embedded->codebase->id);
+            $environment->codebase = (object)$codebase;
+        }
+        return $environments;
+    }
+    public function mockGetCodebaseSites(): mixed
+    {
+        $sites = $this->mockRequest('get_sites');
+        return $sites;
+    }
+    public function mockGetCodebase(): mixed
+    {
+        $codebases = $this->mockRequest('api_codebases_get_collection');
+        $codebase = $codebases[self::$INPUT_DEFAULT_CHOICE];
         return $codebase;
+    }
+    public function mockGetCodebases(): mixed
+    {
+        $codebases = $this->mockRequest('api_codebases_get_collection');
+        return $codebases;
     }
 
     protected function mockLocalMachineHelper(): LocalMachineHelper|ObjectProphecy

@@ -14,7 +14,6 @@ class EnvironmentTransformer
     public static function transform(mixed $codebaseEnv): EnvironmentResponse
     {
         $env = new \stdClass();
-
         // Core fields.
         $env->id = $codebaseEnv->id;
         $env->uuid = $codebaseEnv->id;
@@ -22,6 +21,9 @@ class EnvironmentTransformer
         $env->label = $codebaseEnv->label;
         $env->status = $codebaseEnv->status;
 
+        if (isset($codebaseEnv->properties) && is_object($codebaseEnv->properties)) {
+            $codebaseEnv->properties = (array)$codebaseEnv->properties;
+        }
         // Domains, network, etc.
         $env->active_domain = $codebaseEnv->properties['active_domain'] ?? '';
         $env->default_domain = $codebaseEnv->properties['default_domain'] ?? '';
@@ -48,6 +50,7 @@ class EnvironmentTransformer
         ) {
             $vcsUrl = $codebaseEnv->codebase->vcs_url;
         }
+        $env->ssh_url = $env->ssh_url ?? $vcsUrl;
         $env->vcs = (object) [
             'branch' => $branch,
             'path' => $branch,
@@ -60,9 +63,7 @@ class EnvironmentTransformer
         // Cast for mutation safety.
         $env->flags = (object) ($codebaseEnv->flags ?? []);
         $env->_links = (object) ($codebaseEnv->links ?? []);
-
         $env->type = $codebaseEnv->properties['type'] ?? '';
-
         // Now instantiate EnvironmentResponse.
         return new EnvironmentResponse($env);
     }

@@ -668,6 +668,8 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
         } elseif ($input->getArgument('environmentId')) {
             $environmentId = $input->getArgument('environmentId');
             $chosenEnvironment = $this->getCloudEnvironment($environmentId);
+        } elseif ($ideEnvironment = $this->determineEnvironmentFromIdeContext($input, $output)) {
+            $chosenEnvironment = $ideEnvironment;
         } else {
             $cloudApplicationUuid = $this->determineCloudApplication();
             $cloudApplication = $this->getCloudApplication($cloudApplicationUuid);
@@ -678,6 +680,183 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
         $this->logger->debug("Using environment $chosenEnvironment->label $chosenEnvironment->uuid");
 
         return $chosenEnvironment;
+    }
+
+    /**
+     * Determine environment from IDE context using AH_CODEBASE_UUID.
+     *
+     * @throws \Acquia\Cli\Exception\AcquiaCliException
+     */
+    protected function determineEnvironmentFromIdeContext(InputInterface $input, OutputInterface $output): ?EnvironmentResponse
+    {
+
+        // Check for AH_CODEBASE_UUID.
+        $codebaseUuid = self::getCodebaseUuid();
+
+        if (!$codebaseUuid) {
+            return null;
+        }
+
+        $output->writeln('Detected IDE context with codebase UUID: <options=bold>' . $codebaseUuid . '</>');
+
+        try {
+            // Get codebase information.
+            $codebase = $this->getCodebase($codebaseUuid);
+            $output->writeln('Using codebase: <options=bold>' . $codebase->label . '</>');
+
+            // Get environments for this codebase.
+            $environments = $this->getEnvironmentsByCodebase($codebaseUuid);
+
+            if (empty($environments)) {
+                throw new AcquiaCliException('No environments found for this codebase.');
+            }
+
+            // Prompt user to choose environment.
+            $chosenEnvironment = $this->promptChooseCodebaseEnvironment($environments);
+
+            return $chosenEnvironment;
+        } catch (Exception $e) {
+            $output->writeln('<error>Error accessing codebase information: ' . $e->getMessage() . '</error>');
+            $output->writeln('Falling back to standard environment selection.');
+            return null;
+        }
+    }
+
+
+    /**
+     * Get environments by codebase UUID.
+     *
+     * @throws \Acquia\Cli\Exception\AcquiaCliException
+     */
+    /**
+     * @return array<mixed>
+     */
+    protected function getEnvironmentsByCodebase(string $codebaseUuid): array
+    {
+        $acquiaCloudClient = $this->cloudApiClientService->getClient();
+
+        try {
+            // Use the codebase environments endpoint.
+            $response = $acquiaCloudClient->request('get', "/codebases/$codebaseUuid/environments");
+            // Transform codebase environments to standard environment format.
+            $environments = [];
+            foreach ($response as $codebaseEnv) {
+                $environments[] = EnvironmentTransformer::transform($codebaseEnv);
+            }
+
+            return $environments;
+        } catch (Exception $e) {
+            throw new AcquiaCliException('Failed to fetch environments for codebase: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Prompt user to choose from codebase environments.
+     *
+     * @throws \Acquia\Cli\Exception\AcquiaCliException
+     */
+    protected function promptChooseCodebaseEnvironment(array $environments): EnvironmentResponse
+    {
+        if (count($environments) === 1) {
+            return reset($environments);
+        }
+
+        $choices = [];
+        foreach ($environments as $environment) {
+            $choices[] = "$environment->label, $environment->name (branch: {$environment->vcs->branch})";
+        }
+
+        $chosenEnvironmentLabel = $this->io->choice('Choose a Cloud Platform environment', $choices, $choices[0]);
+        $chosenEnvironmentIndex = array_search($chosenEnvironmentLabel, $choices, true);
+
+        return $environments[$chosenEnvironmentIndex];
+    }
+
+    /**
+     * Get sites by codebase UUID.
+     *
+     * @throws \Acquia\Cli\Exception\AcquiaCliException
+     */
+    /**
+     * @return array<mixed>
+     */
+    protected function getSitesByCodebase(string $codebaseUuid): array
+    {
+        $acquiaCloudClient = $this->cloudApiClientService->getClient();
+
+        try {
+            $response = $acquiaCloudClient->request('get', "/codebases/$codebaseUuid/sites");
+
+            if (!isset($response->_embedded->items)) {
+                return $response;
+            }
+
+            return (array) $response->_embedded->items;
+        } catch (Exception $e) {
+            throw new AcquiaCliException('Failed to fetch sites for codebase: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Determine site instance from IDE context.
+     *
+     * @throws \Acquia\Cli\Exception\AcquiaCliException
+     */
+    protected function determineSiteInstanceFromIdeContext(EnvironmentResponse $environment, InputInterface $input, OutputInterface $output): ?string
+    {
+        // Check if we're in IDE context and have a codebase UUID.
+        $codebaseUuid = self::getCodebaseUuid();
+        if (!$codebaseUuid) {
+            return null;
+        }
+
+        // Get sites for this codebase.
+        $sites = $this->getSitesByCodebase($codebaseUuid);
+
+        if (empty($sites)) {
+            $output->writeln('<comment>No sites found for this codebase.</comment>');
+            return null;
+        }
+
+        // Get site instances for the selected environment.
+        $siteInstances = [];
+        foreach ($sites as $site) {
+            try {
+                $siteInstance = $this->getSiteInstance($site->id, $environment->uuid);
+                $siteInstances[] = [
+                    'displayName' => "{$site->label} ({$site->name})",
+                    'site' => $site,
+                    'siteInstance' => $siteInstance,
+                    'siteInstanceId' => $site->id . '.' . $environment->uuid,
+                ];
+            } catch (Exception $e) {
+                // Site instance doesn't exist for this environment, skip it.
+                $this->logger->debug("Site instance {$site->id}.{$environment->uuid} not found: " . $e->getMessage());
+            }
+        }
+
+        if (empty($siteInstances)) {
+            $output->writeln('<comment>No site instances found for the selected environment.</comment>');
+            return null;
+        }
+
+        // If only one site instance, use it automatically.
+        if (count($siteInstances) === 1) {
+            $selectedInstance = reset($siteInstances);
+            $output->writeln('Using site instance: <options=bold>' . $selectedInstance['displayName'] . '</>');
+            return $selectedInstance['siteInstanceId'];
+        }
+
+        // Prompt user to choose site instance.
+        $choices = array_map(function ($instance) {
+            return $instance['displayName'];
+        }, $siteInstances);
+
+        $chosenSiteLabel = $this->io->choice('Choose a site instance', $choices, $choices[0]);
+        $chosenSiteIndex = array_search($chosenSiteLabel, $choices, true);
+
+        $selectedInstance = $siteInstances[$chosenSiteIndex];
+        return $selectedInstance['siteInstanceId'];
     }
 
 
