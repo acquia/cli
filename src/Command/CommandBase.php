@@ -687,7 +687,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
      *
      * @throws \Acquia\Cli\Exception\AcquiaCliException
      */
-    protected function determineEnvironmentFromIdeContext(InputInterface $input, OutputInterface $output): ?EnvironmentResponse
+    private function determineEnvironmentFromIdeContext(InputInterface $input, OutputInterface $output): ?EnvironmentResponse
     {
 
         // Check for AH_CODEBASE_UUID.
