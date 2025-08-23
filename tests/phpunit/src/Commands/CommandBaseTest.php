@@ -424,8 +424,9 @@ class CommandBaseTest extends CommandTestBase
         $this->assertEquals('applicationUuid', $parameters[2]->getName());
     }
 
+
     /**
-     * Test that determineVcsUrl method exists and is accessible for testing purposes.
+     * Test that determineSiteInstance method exists and is accessible for testing purposes.
      * This test validates the method signature and basic invocation.
      */
     public function testDetermineSiteInstanceMethodAccessibility(): void

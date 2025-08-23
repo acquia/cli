@@ -652,7 +652,7 @@ abstract class TestBase extends TestCase
     protected function getMockCodeBaseEnvironment(string $method = 'get', string $httpCode = '200'): object
     {
         return self::getMockResponseFromSpec(
-            '/api/environments/{environmentId}',
+            '/v3/environments/{environmentId}',
             $method,
             $httpCode
         );

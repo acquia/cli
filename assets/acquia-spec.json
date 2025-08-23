@@ -42884,7 +42884,7 @@
                                     "properties": {
                                       "id": {
                                         "type": "string",
-                                        "example": "1111-1111-1111"
+                                        "example": "11111111-041c-44c7-a486-7972ed2cafc8"
                                       },
                                       "_links": {
                                         "type": "object",
@@ -42895,7 +42895,7 @@
                                               "href": {
                                                 "type": "string",
                                                 "format": "uri",
-                                                "example": "https://codebase-service.acquia.com/api/codebases/1111-1111-1111"
+                                                "example": "https://codebase-service.acquia.com/api/codebases/11111111-041c-44c7-a486-7972ed2cafc8"
                                               }
                                             }
                                           }
@@ -43035,10 +43035,10 @@
                         "reference": "tag/v3.1",
                         "_embedded": {
                           "codebase": {
-                            "id": "1111-1111-1111",
+                            "id": "11111111-041c-44c7-a486-7972ed2cafc8",
                             "_links": {
                               "self": {
-                                "href": "https://codebase-service.acquia.com/api/codebases/1111-1111-1111"
+                                "href": "https://codebase-service.acquia.com/api/codebases/11111111-041c-44c7-a486-7972ed2cafc8"
                               }
                             }
                           }
@@ -44504,7 +44504,7 @@
                                     "properties": {
                                       "id": {
                                         "type": "string",
-                                        "example": "1111-1111-1111"
+                                        "example": "11111111-041c-44c7-a486-7972ed2cafc8"
                                       },
                                       "_links": {
                                         "type": "object",
@@ -44515,7 +44515,7 @@
                                               "href": {
                                                 "type": "string",
                                                 "format": "uri",
-                                                "example": "https://cloud.acquia.com/api/codebases/1111-1111-1111"
+                                                "example": "https://cloud.acquia.com/api/codebases/11111111-041c-44c7-a486-7972ed2cafc8"
                                               }
                                             }
                                           }
@@ -44658,10 +44658,10 @@
                         "reference": "tag/v3.1",
                         "_embedded": {
                           "codebase": {
-                            "id": "1111-1111-1111",
+                            "id": "11111111-041c-44c7-a486-7972ed2cafc8",
                             "_links": {
                               "self": {
-                                "href": "https://cloud.acquia.com/api/codebases/1111-1111-1111"
+                                "href": "https://cloud.acquia.com/api/codebases/11111111-041c-44c7-a486-7972ed2cafc8"
                               }
                             }
                           }

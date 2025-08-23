@@ -196,4 +196,64 @@ class EnvironmentTransformerTest extends TestCase
         // Empty object.
         $this->assertEquals((object)[], $env->application);
     }
+    public function testTransformWithPropertiesAsObject(): void
+    {
+        $codebaseEnv = (object)[
+            'id' => 'env-id',
+            'label' => 'Env with Object Props',
+            'name' => 'obj-props',
+            'properties' => (object)[
+                'active_domain' => 'object.example.com',
+                'domains' => ['obj.com'],
+            ],
+            'status' => 'active',
+        ];
+
+        $env = EnvironmentTransformer::transform($codebaseEnv);
+
+        // Ensure properties were cast from object → array properly.
+        $this->assertEquals('object.example.com', $env->active_domain);
+        $this->assertEquals(['obj.com'], $env->domains);
+    }
+    public function testSshUrlPrefersPropertiesOverVcsUrl(): void
+    {
+        $codebaseEnv = (object)[
+            'codebase' => (object)['vcs_url' => 'https://github.com/acquia/repo.git'],
+            'id' => 'env-id',
+            'label' => 'Dev',
+            'name' => 'dev',
+            'properties' => [
+            // Explicit ssh_url present → MUST win.
+                'ssh_url' => 'ssh://from-properties',
+            ],
+            'status' => 'active',
+        ];
+
+        $env = EnvironmentTransformer::transform($codebaseEnv);
+
+        // If the mutant is present ($env->ssh_url = $vcsUrl ?? $env->ssh_url),
+        // this would wrongly become the VCS URL. This assertion kills the mutant.
+        $this->assertSame('ssh://from-properties', $env->sshUrl);
+        $this->assertSame('https://github.com/acquia/repo.git', $env->vcs->url);
+    }
+
+    public function testSshUrlFallsBackToVcsUrlWhenPropertiesMissing(): void
+    {
+        $codebaseEnv = (object)[
+            'codebase' => (object)['vcs_url' => 'https://github.com/acquia/repo.git'],
+            'id' => 'env-id',
+            'label' => 'Dev',
+            'name' => 'dev',
+            'properties' => [
+            // No ssh_url key → should fall back to VCS URL.
+            ],
+            'status' => 'active',
+        ];
+
+        $env = EnvironmentTransformer::transform($codebaseEnv);
+
+        // With correct code ($env->ssh_url = $env->ssh_url ?? $vcsUrl), ssh_url should be the VCS URL.
+        $this->assertSame('https://github.com/acquia/repo.git', $env->sshUrl);
+        $this->assertSame('https://github.com/acquia/repo.git', $env->vcs->url);
+    }
 }
