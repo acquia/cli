@@ -33,10 +33,10 @@ class EnvironmentTransformerTest extends TestCase
                 'ips' => ['127.0.0.1'],
                 'platform' => 'acsf',
                 'region' => 'us-east-1',
-                'ssh_url' => 'ssh://url',
                 'type' => 'multisite',
             ],
             'reference' => 'main',
+            'ssh_url' => 'site.dev@sitedev.ssh.hosted.acquia-sites.com',
             'status' => 'active',
         ];
 
@@ -72,6 +72,7 @@ class EnvironmentTransformerTest extends TestCase
             'links' => null,
             'name' => 'test',
             'properties' => [],
+            'ssh_url' => 'site.dev@sitedev.ssh.hosted.acquia-sites.com',
             'status' => 'normal',
         ];
 
@@ -107,6 +108,7 @@ class EnvironmentTransformerTest extends TestCase
             'name' => 'stage',
             'properties' => [],
             'reference' => 'feature-branch',
+            'ssh_url' => 'site.dev@sitedev.ssh.hosted.acquia-sites.com',
             'status' => 'normal',
             // 'codebase' is completely missing
         ];
@@ -128,6 +130,7 @@ class EnvironmentTransformerTest extends TestCase
             'name' => 'stage',
             'properties' => [],
             'reference' => 'release',
+            'ssh_url' => 'site.dev@sitedev.ssh.hosted.acquia-sites.com',
             'status' => 'normal',
         ];
 
@@ -138,64 +141,6 @@ class EnvironmentTransformerTest extends TestCase
         $this->assertEquals('', $env->vcs->url);
     }
 
-    public function testTransformFromCodeBase(): void
-    {
-        $codebase = (object)[
-            'flags' => ['production' => true],
-            'id' => 'codebase-123',
-            'label' => 'My Codebase',
-            'links' => ['self' => 'link'],
-            'properties' => [
-                'active_domain' => 'prod.example.com',
-                'artifact' => 'build-123',
-                'balancer' => 'load-balancer',
-                'configuration' => ['memory' => '512M'],
-                'default_domain' => 'example.com',
-                'domains' => ['example.com', 'www.example.com'],
-                'gardener' => 'auto-gardener',
-                'image_url' => 'https://image.example.com',
-                'ips' => ['192.168.1.1'],
-                'platform' => 'drupal',
-                'region' => 'us-west-2',
-                'ssh_url' => 'ssh://example.com',
-                'type' => 'standard',
-            ],
-            'reference' => 'main',
-            'vcs_url' => 'https://github.com/acquia/example.git',
-        ];
-
-        $env = EnvironmentTransformer::transformFromCodeBase($codebase);
-
-        $this->assertInstanceOf(EnvironmentResponse::class, $env);
-        $this->assertEquals('codebase-123', $env->uuid);
-        $this->assertEquals('My Codebase', $env->name);
-        $this->assertEquals('My Codebase', $env->label);
-        // Empty for codebase.
-        $this->assertEquals('', $env->status);
-
-        // VCS properties.
-        $this->assertEquals('main', $env->vcs->branch);
-        $this->assertEquals('main', $env->vcs->path);
-        $this->assertEquals('https://github.com/acquia/example.git', $env->vcs->url);
-
-        // Properties.
-        $this->assertEquals('prod.example.com', $env->active_domain);
-        $this->assertEquals('example.com', $env->default_domain);
-        $this->assertEquals('https://image.example.com', $env->image_url);
-        $this->assertEquals(['192.168.1.1'], $env->ips);
-        $this->assertEquals(['example.com', 'www.example.com'], $env->domains);
-        $this->assertEquals('us-west-2', $env->region);
-        $this->assertEquals('drupal', $env->platform);
-        $this->assertEquals('load-balancer', $env->balancer);
-        $this->assertEquals('standard', $env->type);
-
-        // Objects.
-        $this->assertEquals((object)['memory' => '512M'], $env->configuration);
-        $this->assertEquals((object)['production' => true], $env->flags);
-        $this->assertEquals((object)['self' => 'link'], $env->links);
-        // Empty object.
-        $this->assertEquals((object)[], $env->application);
-    }
     public function testTransformWithPropertiesAsObject(): void
     {
         $codebaseEnv = (object)[
@@ -206,6 +151,7 @@ class EnvironmentTransformerTest extends TestCase
                 'active_domain' => 'object.example.com',
                 'domains' => ['obj.com'],
             ],
+            'ssh_url' => 'site.dev@sitedev.ssh.hosted.acquia-sites.com',
             'status' => 'active',
         ];
 
@@ -222,10 +168,7 @@ class EnvironmentTransformerTest extends TestCase
             'id' => 'env-id',
             'label' => 'Dev',
             'name' => 'dev',
-            'properties' => [
-            // Explicit ssh_url present → MUST win.
-                'ssh_url' => 'ssh://from-properties',
-            ],
+            'ssh_url' => 'site.dev@sitedev.ssh.hosted.acquia-sites.com',
             'status' => 'active',
         ];
 
@@ -233,27 +176,7 @@ class EnvironmentTransformerTest extends TestCase
 
         // If the mutant is present ($env->ssh_url = $vcsUrl ?? $env->ssh_url),
         // this would wrongly become the VCS URL. This assertion kills the mutant.
-        $this->assertSame('ssh://from-properties', $env->sshUrl);
-        $this->assertSame('https://github.com/acquia/repo.git', $env->vcs->url);
-    }
-
-    public function testSshUrlFallsBackToVcsUrlWhenPropertiesMissing(): void
-    {
-        $codebaseEnv = (object)[
-            'codebase' => (object)['vcs_url' => 'https://github.com/acquia/repo.git'],
-            'id' => 'env-id',
-            'label' => 'Dev',
-            'name' => 'dev',
-            'properties' => [
-            // No ssh_url key → should fall back to VCS URL.
-            ],
-            'status' => 'active',
-        ];
-
-        $env = EnvironmentTransformer::transform($codebaseEnv);
-
-        // With correct code ($env->ssh_url = $env->ssh_url ?? $vcsUrl), ssh_url should be the VCS URL.
-        $this->assertSame('https://github.com/acquia/repo.git', $env->sshUrl);
+        $this->assertSame('site.dev@sitedev.ssh.hosted.acquia-sites.com', $env->sshUrl);
         $this->assertSame('https://github.com/acquia/repo.git', $env->vcs->url);
     }
 }

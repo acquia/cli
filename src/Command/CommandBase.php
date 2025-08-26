@@ -696,30 +696,29 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
         if (!$codebaseUuid) {
             return null;
         }
+        $output->writeln(sprintf(
+            'Detected IDE context with codebase UUID: <options=bold>%s</>',
+            $codebaseUuid
+        ));
 
-        $output->writeln('Detected IDE context with codebase UUID: <options=bold>' . $codebaseUuid . '</>');
+        // Get codebase information.
+        $codebase = $this->getCodebase($codebaseUuid);
+        $output->writeln(sprintf(
+            'Using codebase: <options=bold>%s</>',
+            $codebase->label
+        ));
 
-        try {
-            // Get codebase information.
-            $codebase = $this->getCodebase($codebaseUuid);
-            $output->writeln('Using codebase: <options=bold>' . $codebase->label . '</>');
+        // Get environments for this codebase.
+        $environments = $this->getEnvironmentsByCodebase($codebaseUuid);
 
-            // Get environments for this codebase.
-            $environments = $this->getEnvironmentsByCodebase($codebaseUuid);
-
-            if (empty($environments)) {
-                throw new AcquiaCliException('No environments found for this codebase.');
-            }
-
-            // Prompt user to choose environment.
-            $chosenEnvironment = $this->promptChooseCodebaseEnvironment($environments);
-
-            return $chosenEnvironment;
-        } catch (Exception $e) {
-            $output->writeln('<error>Error accessing codebase information: ' . $e->getMessage() . '</error>');
-            $output->writeln('Falling back to standard environment selection.');
-            return null;
+        if (empty($environments)) {
+            throw new AcquiaCliException('No environments found for this codebase.');
         }
+
+        // Prompt user to choose environment.
+        $chosenEnvironment = $this->promptChooseCodebaseEnvironment($environments);
+
+        return $chosenEnvironment;
     }
 
 
@@ -731,16 +730,15 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
     /**
      * @return array<mixed>
      */
-    protected function getEnvironmentsByCodebase(string $codebaseUuid): array
+    private function getEnvironmentsByCodebase(string $codebaseUuid): array
     {
-        $acquiaCloudClient = $this->cloudApiClientService->getClient();
-
         try {
             // Use the codebase environments endpoint.
-            $response = $acquiaCloudClient->request('get', "/codebases/$codebaseUuid/environments");
+            $codebaseEnvironmentResource = new CodebaseEnvironments($this->cloudApiClientService->getClient());
+            $codebaseEnvironments = $codebaseEnvironmentResource->getAll($codebaseUuid);
             // Transform codebase environments to standard environment format.
             $environments = [];
-            foreach ($response as $codebaseEnv) {
+            foreach ($codebaseEnvironments as $codebaseEnv) {
                 $environments[] = EnvironmentTransformer::transform($codebaseEnv);
             }
 
@@ -755,7 +753,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
      *
      * @throws \Acquia\Cli\Exception\AcquiaCliException
      */
-    protected function promptChooseCodebaseEnvironment(array $environments): EnvironmentResponse
+    private function promptChooseCodebaseEnvironment(array $environments): EnvironmentResponse
     {
         if (count($environments) === 1) {
             return reset($environments);
@@ -780,7 +778,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
     /**
      * @return array<mixed>
      */
-    protected function getSitesByCodebase(string $codebaseUuid): array
+    private function getSitesByCodebase(string $codebaseUuid): array
     {
         $acquiaCloudClient = $this->cloudApiClientService->getClient();
 
@@ -788,7 +786,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
             $response = $acquiaCloudClient->request('get', "/codebases/$codebaseUuid/sites");
 
             if (!isset($response->_embedded->items)) {
-                return $response;
+                return (array) $response;
             }
 
             return (array) $response->_embedded->items;
@@ -812,7 +810,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
 
         // Get sites for this codebase.
         $sites = $this->getSitesByCodebase($codebaseUuid);
-
         if (empty($sites)) {
             $output->writeln('<comment>No sites found for this codebase.</comment>');
             return null;
@@ -823,12 +820,12 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
         foreach ($sites as $site) {
             try {
                 $siteInstance = $this->getSiteInstance($site->id, $environment->uuid);
-                $siteInstances[] = [
-                    'displayName' => "{$site->label} ({$site->name})",
-                    'site' => $site,
-                    'siteInstance' => $siteInstance,
-                    'siteInstanceId' => $site->id . '.' . $environment->uuid,
-                ];
+                if ($siteInstance) {
+                    $siteInstanceObj = new stdClass();
+                    $siteInstanceObj->name = $site->name;
+                    $siteInstanceObj->siteInstanceId = $site->id . '.' . $environment->uuid;
+                    $siteInstances[] = $siteInstanceObj;
+                }
             } catch (Exception $e) {
                 // Site instance doesn't exist for this environment, skip it.
                 $this->logger->debug("Site instance {$site->id}.{$environment->uuid} not found: " . $e->getMessage());
@@ -843,20 +840,19 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
         // If only one site instance, use it automatically.
         if (count($siteInstances) === 1) {
             $selectedInstance = reset($siteInstances);
-            $output->writeln('Using site instance: <options=bold>' . $selectedInstance['displayName'] . '</>');
-            return $selectedInstance['siteInstanceId'];
+            return $selectedInstance->siteInstanceId;
         }
 
         // Prompt user to choose site instance.
         $choices = array_map(function ($instance) {
-            return $instance['displayName'];
+            return $instance->name;
         }, $siteInstances);
 
         $chosenSiteLabel = $this->io->choice('Choose a site instance', $choices, $choices[0]);
         $chosenSiteIndex = array_search($chosenSiteLabel, $choices, true);
 
         $selectedInstance = $siteInstances[$chosenSiteIndex];
-        return $selectedInstance['siteInstanceId'];
+        return $selectedInstance->siteInstanceId;
     }
 
 

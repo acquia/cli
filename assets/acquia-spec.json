@@ -42876,6 +42876,11 @@
                                 "type": "string",
                                 "example": "tag/v3.1"
                               },
+                              "ssh_url": {
+                                "type": "string",
+                                "format": "uri",
+                                "example": "site.dev@sitedev.ssh.hosted.acquia-sites.com"
+                              },
                               "_embedded": {
                                 "type": "object",
                                 "properties": {
@@ -43033,6 +43038,7 @@
                           "operating_system": "focal"
                         },
                         "reference": "tag/v3.1",
+                        "ssh_url": "site.dev@sitedev.ssh.hosted.acquia-sites.com",
                         "_embedded": {
                           "codebase": {
                             "id": "11111111-041c-44c7-a486-7972ed2cafc8",
@@ -43317,6 +43323,11 @@
                       "type": "string",
                       "example": "tag/v3.1"
                     },
+                    "ssh_url": {
+                      "type": "string",
+                      "format": "uri",
+                      "example": "site.dev@sitedev.ssh.hosted.acquia-sites.com"
+                    },
                     "_embedded": {
                       "type": "object",
                       "properties": {
@@ -43378,6 +43389,7 @@
                     "operating_system": "focal"
                   },
                   "reference": "tag/v3.1",
+                  "ssh_url": "site.dev@sitedev.ssh.hosted.acquia-sites.com",
                   "_embedded": {
                     "codebase": {
                       "id": "d3f7270e-c45f-4801-9308-5e8afe84a323",
@@ -43606,6 +43618,11 @@
                       "type": "string",
                       "example": "tag/v3.1"
                     },
+                    "ssh_url": {
+                      "type": "string",
+                      "format": "uri",
+                      "example": "site.dev@sitedev.ssh.hosted.acquia-sites.com"
+                    },
                     "_embedded": {
                       "type": "object",
                       "properties": {
@@ -43656,6 +43673,7 @@
                   },
                   "properties": {},
                   "reference": "tag/v3.1",
+                  "ssh_url": "site.dev@sitedev.ssh.hosted.acquia-sites.com",
                   "_embedded": {
                     "codebase": {
                       "id": "d3f7270e-c45f-4801-9308-5e8afe84a323",
@@ -44496,6 +44514,11 @@
                                 "type": "string",
                                 "example": "tag/v3.1"
                               },
+                              "ssh_url": {
+                                "type": "string",
+                                "format": "uri",
+                                "example": "site.dev@sitedev.ssh.hosted.acquia-sites.com"
+                              },
                               "_embedded": {
                                 "type": "object",
                                 "properties": {
@@ -44656,6 +44679,7 @@
                           "operating_system": "focal"
                         },
                         "reference": "tag/v3.1",
+                        "ssh_url": "site.dev@sitedev.ssh.hosted.acquia-sites.com",
                         "_embedded": {
                           "codebase": {
                             "id": "11111111-041c-44c7-a486-7972ed2cafc8",
