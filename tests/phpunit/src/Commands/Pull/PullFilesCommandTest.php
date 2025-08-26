@@ -196,7 +196,7 @@ class PullFilesCommandTest extends PullCommandTestBase
             ->shouldBeCalled();
         $selectedEnvironment =  $expectedCodebaseEnvironments->_embedded->items[0];
         $sshHelper = $this->mockSshHelper();
-        // $this->mockGetCloudSites($sshHelper, $selectedEnvironment);
+
         $localMachineHelper = $this->mockLocalMachineHelper();
         $this->mockGetFilesystem($localMachineHelper);
         $parts = explode('.', $selectedEnvironment->ssh_url);
@@ -223,6 +223,9 @@ class PullFilesCommandTest extends PullCommandTestBase
         $this->executeCommand([], $inputs);
         $output = $this->getDisplay();
         $this->assertStringContainsString('Detected IDE context with codebase UUID: ', $output);
+        // $this->assertStringContainsString('Using codebase:', $output);
+        // $this->assertStringContainsString('Using site instance:', $output);
+        // $this->assertStringContainsString('[0] Dev, dev (vcs: master)', $output);
         self::unsetEnvVars(["AH_CODEBASE_UUID"]);
     }
 }
