@@ -124,6 +124,11 @@
     {
       "name": "Sites",
       "x-displayName": "Sites"
+    },
+    {
+      "name": "Private Networks",
+      "description": "Private Network Service API",
+      "x-displayName": "Private Networks"
     }
   ],
   "paths": {
@@ -47555,6 +47560,1552 @@
           }
         ]
       }
+    },
+    "/private-networks": {
+      "post": {
+        "summary": "Create a new Private Network",
+        "description": "Creates a new Private Network with optional subresource configuration.\n\nThis comprehensive endpoint allows you to create a private network and optionally configure \nits subresources (connections, VPNs, VPC peers, ingress, and isolation) during the initial creation.\n\n**Subresource Creation:**\n- **Connections**: Configure CIDR block and egress access settings\n- **VPNs**: Create one or more VPN connections with tunnel configurations\n- **VPC Peers**: Create one or more VPC peering connections\n- **Ingress**: Configure ingress access rules and privacy settings\n- **Isolation**: Configure compute and network isolation flags\n\nAll subresources are optional. If not specified during creation, they can be configured later\nusing their respective endpoints.\n",
+        "tags": [
+          "Private Networks"
+        ],
+        "operationId": "createPrivateNetwork",
+        "x-cli-name": "private-networks:create",
+        "requestBody": {
+          "description": "Private Network creation request body",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "subscription_id",
+                  "region",
+                  "name",
+                  "connections"
+                ],
+                "properties": {
+                  "subscription_id": {
+                    "type": "string"
+                  },
+                  "region": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "label": {
+                    "type": "string"
+                  },
+                  "isolation": {
+                    "type": "object",
+                    "properties": {
+                      "dedicated_compute": {
+                        "type": "boolean"
+                      },
+                      "dedicated_network": {
+                        "type": "boolean"
+                      }
+                    }
+                  },
+                  "ingress": {
+                    "type": "object",
+                    "properties": {
+                      "drupal_ssh": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "integer"
+                          },
+                          "ingress_acls": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          },
+                          "private": {
+                            "type": "boolean",
+                            "default": false
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "connections": {
+                    "type": "object",
+                    "required": [
+                      "cidr"
+                    ],
+                    "properties": {
+                      "private_egress_access": {
+                        "type": "object",
+                        "properties": {
+                          "drupal": {
+                            "type": "boolean"
+                          }
+                        }
+                      },
+                      "cidr": {
+                        "type": "string",
+                        "pattern": "^([0-9]{1,3}\\.){3}[0-9]{1,3}/[0-9]{1,2}$"
+                      },
+                      "vpns": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "required": [
+                            "name",
+                            "gateway_ip",
+                            "routes"
+                          ],
+                          "properties": {
+                            "id": {
+                              "type": "integer"
+                            },
+                            "name": {
+                              "type": "string"
+                            },
+                            "gateway_ip": {
+                              "type": "string",
+                              "format": "ipv4"
+                            },
+                            "routes": {
+                              "type": "array",
+                              "items": {
+                                "type": "string",
+                                "pattern": "^([0-9]{1,3}\\.){3}[0-9]{1,3}/[0-9]{1,2}$"
+                              }
+                            },
+                            "tunnel1": {
+                              "type": "object",
+                              "properties": {
+                                "id": {
+                                  "type": "integer"
+                                },
+                                "shared_key": {
+                                  "type": "string"
+                                },
+                                "internal_cidr": {
+                                  "type": "string",
+                                  "pattern": "^([0-9]{1,3}\\.){3}[0-9]{1,3}/[0-9]{1,2}$"
+                                },
+                                "ike_versions": {
+                                  "type": "string"
+                                },
+                                "startup_action": {
+                                  "type": "string"
+                                },
+                                "dpd_timeout_action": {
+                                  "type": "string"
+                                }
+                              }
+                            },
+                            "tunnel2": {
+                              "type": "object",
+                              "properties": {
+                                "id": {
+                                  "type": "integer"
+                                },
+                                "shared_key": {
+                                  "type": "string"
+                                },
+                                "internal_cidr": {
+                                  "type": "string",
+                                  "pattern": "^([0-9]{1,3}\\.){3}[0-9]{1,3}/[0-9]{1,2}$"
+                                },
+                                "ike_versions": {
+                                  "type": "string"
+                                },
+                                "startup_action": {
+                                  "type": "string"
+                                },
+                                "dpd_timeout_action": {
+                                  "type": "string"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "vpc_peers": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "integer"
+                            },
+                            "name": {
+                              "type": "string"
+                            },
+                            "aws_account": {
+                              "type": "string"
+                            },
+                            "vpc_id": {
+                              "type": "string"
+                            },
+                            "vpc_cidr": {
+                              "type": "string",
+                              "pattern": "^([0-9]{1,3}\\.){3}[0-9]{1,3}/[0-9]{1,2}$"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "subscription_id": "123e4567-e89b-12d3-a456-426614174000",
+                  "region": "us-east-1",
+                  "name": "customer-private-network",
+                  "description": "Private network for customer",
+                  "label": "anyLabel",
+                  "isolation": {
+                    "dedicated_compute": false,
+                    "dedicated_network": false
+                  },
+                  "ingress": {
+                    "drupal_ssh": {
+                      "ingress_acls": [
+                        "test-acls"
+                      ]
+                    }
+                  },
+                  "connections": {
+                    "cidr": "114.7.55.1/16",
+                    "private_egress_access": {
+                      "drupal": true
+                    },
+                    "vpns": [
+                      {
+                        "name": "vpn1",
+                        "gateway_ip": "10.10.10.10",
+                        "routes": [
+                          "127.0.0.1/32",
+                          "127.0.0.2/32"
+                        ],
+                        "tunnel1": {
+                          "shared_key": "sharedKey1",
+                          "internal_cidr": "192.1.1.0/24",
+                          "ike_versions": "1",
+                          "startup_action": "start",
+                          "dpd_timeout_action": "stop"
+                        },
+                        "tunnel2": {
+                          "shared_key": "sharedKey2",
+                          "internal_cidr": "192.1.1.0/14",
+                          "ike_versions": "1",
+                          "startup_action": "start",
+                          "dpd_timeout_action": "stop"
+                        }
+                      }
+                    ],
+                    "vpc_peers": [
+                      {
+                        "name": "vpcPeer1",
+                        "aws_account": "123456789012",
+                        "vpc_id": "vpc-1234567890abcdef0",
+                        "vpc_cidr": "120.24.16.1/24"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Request accepted",
+            "content": {
+              "application/hal+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Private_Network_Service_API_Message"
+                },
+                "example": {
+                  "message": "Private network is being created",
+                  "_links": {
+                    "self": {
+                      "href": "https://cloud.acquia.com/api/private-networks/123e4567-e89b-12d3-a456-426614174000"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Request failed to be validated",
+            "content": {
+              "application/hal+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Private_Network_Service_API_ValidationError"
+                },
+                "example": {
+                  "error": "validation_failed",
+                  "message": {
+                    "region": "Invalid region specified",
+                    "name": "Name is required and must be unique"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Private_Network_Service_API_UnauthorizedError"
+          },
+          "409": {
+            "$ref": "#/components/responses/Private_Network_Service_API_ConflictError"
+          },
+          "500": {
+            "$ref": "#/components/responses/Private_Network_Service_API_InternalServerError"
+          }
+        },
+        "security": [
+          {
+            "Private_Network_Service_API_BearerAuth": [],
+            "Private_Network_Service_API_ClientCredentials": [],
+            "Private_Network_Service_API_OIDC": []
+          }
+        ]
+      }
+    },
+    "/private-networks/{privateNetworkId}": {
+      "get": {
+        "summary": "Retrieve a Private Network by ID",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Private_Network_Service_API_PrivateNetworkId"
+          }
+        ],
+        "operationId": "getPrivateNetwork",
+        "description": "Retrieves a Private Network by its ID.",
+        "x-cli-name": "private-networks:find",
+        "tags": [
+          "Private Networks"
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/Private_Network_Service_API_PrivateNetwork"
+          },
+          "401": {
+            "$ref": "#/components/responses/Private_Network_Service_API_UnauthorizedError"
+          },
+          "404": {
+            "$ref": "#/components/responses/Private_Network_Service_API_NotFoundError"
+          },
+          "500": {
+            "$ref": "#/components/responses/Private_Network_Service_API_InternalServerError"
+          }
+        },
+        "security": [
+          {
+            "Private_Network_Service_API_BearerAuth": [],
+            "Private_Network_Service_API_ClientCredentials": [],
+            "Private_Network_Service_API_OIDC": []
+          }
+        ]
+      },
+      "put": {
+        "summary": "Update a Private Network",
+        "description": "Updates an existing Private Network by its ID. Does not allow creation of new Private Networks.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Private_Network_Service_API_PrivateNetworkId"
+          }
+        ],
+        "operationId": "updatePrivateNetwork",
+        "x-cli-name": "private-networks:update",
+        "tags": [
+          "Private Networks"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Private_Network_Service_API_UpdatePrivateNetworkRequestSpec"
+              },
+              "example": {
+                "description": "Private network for customer",
+                "label": "anyLabel"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Private network updated",
+            "content": {
+              "application/hal+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Private_Network_Service_API_Message"
+                },
+                "example": {
+                  "message": "Private network update is in progress",
+                  "_links": {
+                    "self": {
+                      "href": "https://cloud.acquia.com/api/private-networks/456e4567-e89b-11d3-a789-426614174000"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Private_Network_Service_API_BadRequestError"
+          },
+          "401": {
+            "$ref": "#/components/responses/Private_Network_Service_API_UnauthorizedError"
+          },
+          "404": {
+            "$ref": "#/components/responses/Private_Network_Service_API_NotFoundError"
+          },
+          "409": {
+            "$ref": "#/components/responses/Private_Network_Service_API_ConflictError"
+          },
+          "500": {
+            "$ref": "#/components/responses/Private_Network_Service_API_InternalServerError"
+          }
+        },
+        "security": [
+          {
+            "Private_Network_Service_API_BearerAuth": [],
+            "Private_Network_Service_API_ClientCredentials": [],
+            "Private_Network_Service_API_OIDC": []
+          }
+        ]
+      },
+      "delete": {
+        "summary": "Delete a Private Network",
+        "description": "Deletes a Private Network by its ID.",
+        "operationId": "deletePrivateNetwork",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Private_Network_Service_API_PrivateNetworkId"
+          }
+        ],
+        "x-cli-name": "private-networks:delete",
+        "tags": [
+          "Private Networks"
+        ],
+        "responses": {
+          "202": {
+            "description": "Private network deleted",
+            "content": {
+              "application/hal+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Private_Network_Service_API_Message"
+                },
+                "example": {
+                  "message": "Private network is being deleted",
+                  "_links": {
+                    "self": {
+                      "href": "https://cloud.acquia.com/api/private-networks/456e4567-e89b-11d3-a789-426614174000"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Private_Network_Service_API_UnauthorizedError"
+          },
+          "404": {
+            "$ref": "#/components/responses/Private_Network_Service_API_NotFoundError"
+          },
+          "409": {
+            "$ref": "#/components/responses/Private_Network_Service_API_ConflictError"
+          },
+          "500": {
+            "$ref": "#/components/responses/Private_Network_Service_API_InternalServerError"
+          }
+        },
+        "security": [
+          {
+            "Private_Network_Service_API_BearerAuth": [],
+            "Private_Network_Service_API_ClientCredentials": [],
+            "Private_Network_Service_API_OIDC": []
+          }
+        ]
+      }
+    },
+    "/subscriptions/{subscriptionId}/private-networks": {
+      "get": {
+        "summary": "List Private Networks for a Subscription",
+        "operationId": "getPrivateNetworksBySubscription",
+        "description": "Retrieves a paginated list of Private Networks for a given subscription.",
+        "x-cli-name": "private-networks:list",
+        "tags": [
+          "Private Networks"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Private_Network_Service_API_SubscriptionId"
+          },
+          {
+            "$ref": "#/components/parameters/Private_Network_Service_API_Limit"
+          },
+          {
+            "$ref": "#/components/parameters/Private_Network_Service_API_Offset"
+          },
+          {
+            "$ref": "#/components/parameters/Private_Network_Service_API_Sort"
+          },
+          {
+            "$ref": "#/components/parameters/Private_Network_Service_API_Filter"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/Private_Network_Service_API_PrivateNetworkList"
+          },
+          "400": {
+            "$ref": "#/components/responses/Private_Network_Service_API_ValidationError"
+          },
+          "401": {
+            "$ref": "#/components/responses/Private_Network_Service_API_UnauthorizedError"
+          },
+          "403": {
+            "$ref": "#/components/responses/Private_Network_Service_API_ForbiddenError"
+          },
+          "404": {
+            "$ref": "#/components/responses/Private_Network_Service_API_NotFoundError"
+          },
+          "500": {
+            "$ref": "#/components/responses/Private_Network_Service_API_InternalServerError"
+          }
+        },
+        "security": [
+          {
+            "Private_Network_Service_API_BearerAuth": [],
+            "Private_Network_Service_API_ClientCredentials": [],
+            "Private_Network_Service_API_OIDC": []
+          }
+        ]
+      }
+    },
+    "/private-networks/{privateNetworkId}/connections/vpns": {
+      "post": {
+        "summary": "Add a new VPN to an existing private network",
+        "operationId": "addVpnToPrivateNetwork",
+        "description": "Adds a new VPN to the connections block of an existing private network",
+        "x-cli-name": "private-networks:create-vpn",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Private_Network_Service_API_PrivateNetworkId"
+          }
+        ],
+        "tags": [
+          "Private Networks"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Private_Network_Service_API_VPN"
+              },
+              "example": {
+                "name": "vpn2",
+                "gateway_ip": "10.10.20.20",
+                "routes": [
+                  "192.168.1.0/24",
+                  "192.168.2.0/24"
+                ],
+                "tunnel1": {
+                  "shared_key": "sharedKey3",
+                  "internal_cidr": "192.2.1.0/24",
+                  "ike_versions": "1",
+                  "startup_action": "start",
+                  "dpd_timeout_action": "stop"
+                },
+                "tunnel2": {
+                  "shared_key": "sharedKey4",
+                  "internal_cidr": "192.2.2.0/24",
+                  "ike_versions": "2",
+                  "startup_action": "start",
+                  "dpd_timeout_action": "stop"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "VPN request accepted",
+            "content": {
+              "application/hal+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Private_Network_Service_API_Message"
+                },
+                "example": {
+                  "message": "VPN is being created",
+                  "_links": {
+                    "self": {
+                      "href": "https://cloud.acquia.com/api/private-networks/123e4567-e89b-12d3-a456-426614174000/connections/vpns/2"
+                    },
+                    "parent": {
+                      "href": "https://cloud.acquia.com/api/private-networks/123e4567-e89b-12d3-a456-426614174000/connections/vpns"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/hal+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Private_Network_Service_API_ValidationError"
+                },
+                "example": {
+                  "error": "validation_failed",
+                  "message": {
+                    "gateway_ip": "Invalid IP address format"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Private_Network_Service_API_UnauthorizedError"
+          },
+          "404": {
+            "$ref": "#/components/responses/Private_Network_Service_API_NotFoundError"
+          },
+          "409": {
+            "$ref": "#/components/responses/Private_Network_Service_API_ConflictError"
+          },
+          "500": {
+            "$ref": "#/components/responses/Private_Network_Service_API_InternalServerError"
+          }
+        },
+        "security": [
+          {
+            "Private_Network_Service_API_BearerAuth": [],
+            "Private_Network_Service_API_ClientCredentials": [],
+            "Private_Network_Service_API_OIDC": []
+          }
+        ]
+      },
+      "get": {
+        "summary": "Get VPNs for a Private Network",
+        "operationId": "getAllVpnsFromPrivateNetwork",
+        "description": "Retrieves the VPN Connections for a Private Network.",
+        "x-cli-name": "private-networks:list-vpns",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Private_Network_Service_API_PrivateNetworkId"
+          },
+          {
+            "$ref": "#/components/parameters/Private_Network_Service_API_Limit"
+          },
+          {
+            "$ref": "#/components/parameters/Private_Network_Service_API_Offset"
+          },
+          {
+            "$ref": "#/components/parameters/Private_Network_Service_API_Sort"
+          },
+          {
+            "$ref": "#/components/parameters/Private_Network_Service_API_Filter"
+          }
+        ],
+        "tags": [
+          "Private Networks"
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/Private_Network_Service_API_VPNList"
+          },
+          "401": {
+            "$ref": "#/components/responses/Private_Network_Service_API_UnauthorizedError"
+          },
+          "404": {
+            "$ref": "#/components/responses/Private_Network_Service_API_NotFoundError"
+          },
+          "500": {
+            "$ref": "#/components/responses/Private_Network_Service_API_InternalServerError"
+          }
+        },
+        "security": [
+          {
+            "Private_Network_Service_API_BearerAuth": [],
+            "Private_Network_Service_API_ClientCredentials": [],
+            "Private_Network_Service_API_OIDC": []
+          }
+        ]
+      }
+    },
+    "/private-networks/{privateNetworkId}/connections/vpns/{vpnId}": {
+      "get": {
+        "summary": "Retrieve a VPN for a Private Network.",
+        "operationId": "getVpnFromPrivateNetwork",
+        "description": "Retrieves a VPN for a Private Network by Private Network ID and VPN ID.",
+        "x-cli-name": "private-networks:find-vpn",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Private_Network_Service_API_VpnId"
+          },
+          {
+            "$ref": "#/components/parameters/Private_Network_Service_API_PrivateNetworkId"
+          }
+        ],
+        "tags": [
+          "Private Networks"
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/Private_Network_Service_API_Vpn"
+          },
+          "401": {
+            "$ref": "#/components/responses/Private_Network_Service_API_UnauthorizedError"
+          },
+          "404": {
+            "$ref": "#/components/responses/Private_Network_Service_API_NotFoundError"
+          },
+          "500": {
+            "$ref": "#/components/responses/Private_Network_Service_API_InternalServerError"
+          }
+        },
+        "security": [
+          {
+            "Private_Network_Service_API_BearerAuth": [],
+            "Private_Network_Service_API_ClientCredentials": [],
+            "Private_Network_Service_API_OIDC": []
+          }
+        ]
+      },
+      "put": {
+        "summary": "Create or update a VPN for a Private Network.",
+        "operationId": "updateVpnInPrivateNetwork",
+        "description": "Creates a new VPN or updates an existing VPN for a Private Network by Private Network ID and VPN ID.",
+        "x-cli-name": "private-networks:update-vpn",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Private_Network_Service_API_VpnId"
+          },
+          {
+            "$ref": "#/components/parameters/Private_Network_Service_API_PrivateNetworkId"
+          }
+        ],
+        "tags": [
+          "Private Networks"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Private_Network_Service_API_VPN"
+              },
+              "example": {
+                "name": "vpn1",
+                "gateway_ip": "10.10.10.11",
+                "routes": [
+                  "127.0.0.1/32",
+                  "127.0.0.2/32",
+                  "192.168.3.0/24"
+                ],
+                "tunnel1": {
+                  "shared_key": "updatedSharedKey1",
+                  "internal_cidr": "192.1.1.0/24",
+                  "ike_versions": "1",
+                  "startup_action": "start",
+                  "dpd_timeout_action": "stop"
+                },
+                "tunnel2": {
+                  "shared_key": "updatedSharedKey2",
+                  "internal_cidr": "192.1.2.0/24",
+                  "ike_versions": "2",
+                  "startup_action": "start",
+                  "dpd_timeout_action": "stop"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "VPN request accepted",
+            "content": {
+              "application/hal+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Private_Network_Service_API_Message"
+                },
+                "examples": {
+                  "creation": {
+                    "summary": "VPN creation response",
+                    "description": "Response when creating a new VPN",
+                    "value": {
+                      "_links": {
+                        "self": {
+                          "href": "https://cloud.acquia.com/api/private-networks/456e4567-e89b-11d3-a789-426614174000/connections/vpns/1"
+                        }
+                      },
+                      "message": "The VPN is being created."
+                    }
+                  },
+                  "update": {
+                    "summary": "VPN update response",
+                    "description": "Response when updating an existing VPN",
+                    "value": {
+                      "_links": {
+                        "self": {
+                          "href": "https://cloud.acquia.com/api/private-networks/456e4567-e89b-11d3-a789-426614174000/connections/vpns/1"
+                        }
+                      },
+                      "message": "The VPN is being updated."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Private_Network_Service_API_BadRequestError"
+          },
+          "401": {
+            "$ref": "#/components/responses/Private_Network_Service_API_UnauthorizedError"
+          },
+          "404": {
+            "$ref": "#/components/responses/Private_Network_Service_API_NotFoundError"
+          },
+          "409": {
+            "$ref": "#/components/responses/Private_Network_Service_API_ConflictError"
+          },
+          "500": {
+            "$ref": "#/components/responses/Private_Network_Service_API_InternalServerError"
+          }
+        },
+        "security": [
+          {
+            "Private_Network_Service_API_BearerAuth": [],
+            "Private_Network_Service_API_ClientCredentials": [],
+            "Private_Network_Service_API_OIDC": []
+          }
+        ]
+      },
+      "delete": {
+        "summary": "Delete a VPN for a Private Network.",
+        "operationId": "deleteVpnFromPrivateNetwork",
+        "description": "Deletes a VPN for a Private Network by Private Network ID and VPN ID.",
+        "x-cli-name": "private-networks:delete-vpn",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Private_Network_Service_API_VpnId"
+          },
+          {
+            "$ref": "#/components/parameters/Private_Network_Service_API_PrivateNetworkId"
+          }
+        ],
+        "tags": [
+          "Private Networks"
+        ],
+        "responses": {
+          "202": {
+            "description": "VPN removed successfully",
+            "content": {
+              "application/hal+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Private_Network_Service_API_Message"
+                },
+                "example": {
+                  "message": "The VPN is being deleted.",
+                  "_links": {
+                    "self": {
+                      "href": "https://cloud.acquia.com/api/private-networks/123e4567-e89b-12d3-a456-426614174000/connections/vpns/1"
+                    },
+                    "parent": {
+                      "href": "https://cloud.acquia.com/api/private-networks/123e4567-e89b-12d3-a456-426614174000"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Private_Network_Service_API_UnauthorizedError"
+          },
+          "404": {
+            "$ref": "#/components/responses/Private_Network_Service_API_NotFoundError"
+          },
+          "409": {
+            "$ref": "#/components/responses/Private_Network_Service_API_ConflictError"
+          },
+          "500": {
+            "$ref": "#/components/responses/Private_Network_Service_API_InternalServerError"
+          }
+        },
+        "security": [
+          {
+            "Private_Network_Service_API_BearerAuth": [],
+            "Private_Network_Service_API_ClientCredentials": [],
+            "Private_Network_Service_API_OIDC": []
+          }
+        ]
+      }
+    },
+    "/private-networks/{privateNetworkId}/connections/vpc-peers": {
+      "post": {
+        "summary": "Add a new VPC Peer to an existing private network",
+        "operationId": "addVpcPeerToPrivateNetwork",
+        "description": "Adds a new VPC Peer to the connections block of an existing private network",
+        "x-cli-name": "private-networks:create-vpc-peer",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Private_Network_Service_API_PrivateNetworkId"
+          }
+        ],
+        "tags": [
+          "Private Networks"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Private_Network_Service_API_VPCPeers"
+              },
+              "example": {
+                "name": "vpcPeer2",
+                "aws_account": "123456789012",
+                "vpc_id": "vpc-1234567890abcdef0",
+                "vpc_cidr": "120.24.16.1/24"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "VPC Peer request accepted",
+            "content": {
+              "application/hal+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Private_Network_Service_API_Message"
+                },
+                "example": {
+                  "message": "VPC Peer is being created",
+                  "_links": {
+                    "self": {
+                      "href": "https://cloud.acquia.com/api/private-networks/123e4567-e89b-12d3-a456-426614174000/connections/vpc-peers/2"
+                    },
+                    "parent": {
+                      "href": "https://cloud.acquia.com/api/private-networks/123e4567-e89b-12d3-a456-426614174000/connections/vpc-peers"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Private_Network_Service_API_BadRequestError"
+          },
+          "401": {
+            "$ref": "#/components/responses/Private_Network_Service_API_UnauthorizedError"
+          },
+          "404": {
+            "$ref": "#/components/responses/Private_Network_Service_API_NotFoundError"
+          },
+          "409": {
+            "$ref": "#/components/responses/Private_Network_Service_API_ConflictError"
+          }
+        },
+        "security": [
+          {
+            "Private_Network_Service_API_BearerAuth": [],
+            "Private_Network_Service_API_ClientCredentials": [],
+            "Private_Network_Service_API_OIDC": []
+          }
+        ]
+      },
+      "get": {
+        "summary": "Get VPC Peers for a Private Network",
+        "operationId": "getAllVpcPeersFromPrivateNetwork",
+        "description": "Retrieves the VPC Peers for a Private Network.",
+        "x-cli-name": "private-networks:list-vpc-peers",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Private_Network_Service_API_PrivateNetworkId"
+          },
+          {
+            "$ref": "#/components/parameters/Private_Network_Service_API_Limit"
+          },
+          {
+            "$ref": "#/components/parameters/Private_Network_Service_API_Offset"
+          },
+          {
+            "$ref": "#/components/parameters/Private_Network_Service_API_Sort"
+          },
+          {
+            "$ref": "#/components/parameters/Private_Network_Service_API_Filter"
+          }
+        ],
+        "tags": [
+          "Private Networks"
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/Private_Network_Service_API_VpcPeerList"
+          },
+          "401": {
+            "$ref": "#/components/responses/Private_Network_Service_API_UnauthorizedError"
+          },
+          "404": {
+            "$ref": "#/components/responses/Private_Network_Service_API_NotFoundError"
+          },
+          "500": {
+            "$ref": "#/components/responses/Private_Network_Service_API_InternalServerError"
+          }
+        },
+        "security": [
+          {
+            "Private_Network_Service_API_BearerAuth": [],
+            "Private_Network_Service_API_ClientCredentials": [],
+            "Private_Network_Service_API_OIDC": []
+          }
+        ]
+      }
+    },
+    "/private-networks/{privateNetworkId}/connections/vpc-peers/{vpcPeerId}": {
+      "put": {
+        "summary": "Create or update a VPC Peer for a Private Network",
+        "operationId": "updateVPCPeerByPrivateNetworkIdAndName",
+        "x-cli-name": "private-networks:update-vpc-peer",
+        "description": "Creates a new VPC Peer or updates an existing VPC Peer for a Private Network by Private Network ID and VPC Peer name.",
+        "tags": [
+          "Private Networks"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Private_Network_Service_API_PrivateNetworkId"
+          },
+          {
+            "$ref": "#/components/parameters/Private_Network_Service_API_VpcPeerId"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Private_Network_Service_API_VPCPeers"
+              },
+              "example": {
+                "name": "vpcPeer1",
+                "aws_account": "123456789012",
+                "vpc_id": "vpc-1234567890abcdef0",
+                "vpc_cidr": "120.24.16.1/24"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "VPC Peer creation or update initiated",
+            "content": {
+              "application/hal+json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Private_Network_Service_API_Message"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "message": {
+                          "type": "string",
+                          "description": "Confirmation message that varies based on whether the VPC Peer was created or updated",
+                          "enum": [
+                            "The VPC Peer is being created.",
+                            "The VPC Peer is being updated."
+                          ]
+                        }
+                      }
+                    }
+                  ]
+                },
+                "examples": {
+                  "creation": {
+                    "summary": "VPC Peer creation response",
+                    "description": "Response when creating a new VPC Peer",
+                    "value": {
+                      "_links": {
+                        "self": {
+                          "href": "https://cloud.acquia.com/api/private-networks/456e4567-e89b-11d3-a789-426614174000/connections/vpc-peers/1"
+                        }
+                      },
+                      "message": "The VPC Peer is being created."
+                    }
+                  },
+                  "update": {
+                    "summary": "VPC Peer update response",
+                    "description": "Response when updating an existing VPC Peer",
+                    "value": {
+                      "_links": {
+                        "self": {
+                          "href": "https://cloud.acquia.com/api/private-networks/456e4567-e89b-11d3-a789-426614174000/connections/vpc-peers/1"
+                        }
+                      },
+                      "message": "The VPC Peer is being updated."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Private_Network_Service_API_ValidationError"
+          },
+          "401": {
+            "$ref": "#/components/responses/Private_Network_Service_API_UnauthorizedError"
+          },
+          "404": {
+            "$ref": "#/components/responses/Private_Network_Service_API_NotFoundError"
+          },
+          "409": {
+            "$ref": "#/components/responses/Private_Network_Service_API_ConflictError"
+          },
+          "500": {
+            "$ref": "#/components/responses/Private_Network_Service_API_InternalServerError"
+          }
+        },
+        "security": [
+          {
+            "Private_Network_Service_API_BearerAuth": [],
+            "Private_Network_Service_API_ClientCredentials": [],
+            "Private_Network_Service_API_OIDC": []
+          }
+        ]
+      },
+      "get": {
+        "summary": "Get a specific VPC Peer from a private network",
+        "operationId": "getVpcPeerFromPrivateNetwork",
+        "description": "Retrieves details of a specific VPC Peer from a private network",
+        "x-cli-name": "private-networks:find-vpc-peer",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Private_Network_Service_API_PrivateNetworkId"
+          },
+          {
+            "$ref": "#/components/parameters/Private_Network_Service_API_VpcPeerId"
+          }
+        ],
+        "tags": [
+          "Private Networks"
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/Private_Network_Service_API_VpcPeer"
+          },
+          "401": {
+            "$ref": "#/components/responses/Private_Network_Service_API_UnauthorizedError"
+          },
+          "404": {
+            "$ref": "#/components/responses/Private_Network_Service_API_NotFoundError"
+          },
+          "500": {
+            "$ref": "#/components/responses/Private_Network_Service_API_InternalServerError"
+          }
+        },
+        "security": [
+          {
+            "Private_Network_Service_API_BearerAuth": [],
+            "Private_Network_Service_API_ClientCredentials": [],
+            "Private_Network_Service_API_OIDC": []
+          }
+        ]
+      },
+      "delete": {
+        "summary": "Delete a VPC Peer for a Private Network.",
+        "operationId": "deleteVpcPeerFromPrivateNetwork",
+        "description": "Deletes a VPC Peer for a Private Network by Private Network ID and VPC Peer name.",
+        "x-cli-name": "private-networks:delete-vpc-peer",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Private_Network_Service_API_PrivateNetworkId"
+          },
+          {
+            "$ref": "#/components/parameters/Private_Network_Service_API_VpcPeerId"
+          }
+        ],
+        "tags": [
+          "Private Networks"
+        ],
+        "responses": {
+          "202": {
+            "description": "VPC Peer removed successfully",
+            "content": {
+              "application/hal+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Private_Network_Service_API_Message"
+                },
+                "example": {
+                  "message": "The VPC Peer is being deleted.",
+                  "_links": {
+                    "self": {
+                      "href": "https://cloud.acquia.com/api/private-networks/123e4567-e89b-12d3-a456-426614174000/connections/vpc-peers/1"
+                    },
+                    "parent": {
+                      "href": "https://cloud.acquia.com/api/private-networks/123e4567-e89b-12d3-a456-426614174000"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Private_Network_Service_API_UnauthorizedError"
+          },
+          "404": {
+            "$ref": "#/components/responses/Private_Network_Service_API_NotFoundError"
+          },
+          "409": {
+            "$ref": "#/components/responses/Private_Network_Service_API_ConflictError"
+          },
+          "500": {
+            "$ref": "#/components/responses/Private_Network_Service_API_InternalServerError"
+          }
+        },
+        "security": [
+          {
+            "Private_Network_Service_API_BearerAuth": [],
+            "Private_Network_Service_API_ClientCredentials": [],
+            "Private_Network_Service_API_OIDC": []
+          }
+        ]
+      }
+    },
+    "/private-networks/{privateNetworkId}/connections": {
+      "put": {
+        "summary": "Update Connections for a Private Network.",
+        "operationId": "updatePrivateNetworkConnections",
+        "description": "Updates the Connections configuration for a Private Network by Private Network ID.",
+        "x-cli-name": "private-networks:update-connections",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Private_Network_Service_API_PrivateNetworkId"
+          }
+        ],
+        "tags": [
+          "Private Networks"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Private_Network_Service_API_UpdateConnectionRequestSpec"
+              },
+              "example": {
+                "private_egress_access": {
+                  "drupal": true
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Connections updated",
+            "content": {
+              "application/hal+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Private_Network_Service_API_Message"
+                },
+                "example": {
+                  "message": "Private network connections update is in progress",
+                  "_links": {
+                    "self": {
+                      "href": "https://cloud.acquia.com/api/private-networks/456e4567-e89b-11d3-a789-426614174000/connections"
+                    },
+                    "parent": {
+                      "href": "https://cloud.acquia.com/api/private-networks/456e4567-e89b-11d3-a789-426614174000"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Private_Network_Service_API_BadRequestError"
+          },
+          "401": {
+            "$ref": "#/components/responses/Private_Network_Service_API_UnauthorizedError"
+          },
+          "404": {
+            "$ref": "#/components/responses/Private_Network_Service_API_NotFoundError"
+          },
+          "409": {
+            "$ref": "#/components/responses/Private_Network_Service_API_ConflictError"
+          },
+          "500": {
+            "$ref": "#/components/responses/Private_Network_Service_API_InternalServerError"
+          }
+        },
+        "security": [
+          {
+            "Private_Network_Service_API_BearerAuth": [],
+            "Private_Network_Service_API_ClientCredentials": [],
+            "Private_Network_Service_API_OIDC": []
+          }
+        ]
+      },
+      "get": {
+        "summary": "Get Connections for a Private Network.",
+        "operationId": "getPrivateNetworkConnections",
+        "x-cli-name": "private-networks:get-connections",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Private_Network_Service_API_PrivateNetworkId"
+          }
+        ],
+        "description": "Retrieves the Connections block for a Private Network, including VPNs and VPC Peers.",
+        "tags": [
+          "Private Networks"
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/Private_Network_Service_API_Connection"
+          },
+          "401": {
+            "$ref": "#/components/responses/Private_Network_Service_API_UnauthorizedError"
+          },
+          "404": {
+            "$ref": "#/components/responses/Private_Network_Service_API_NotFoundError"
+          },
+          "500": {
+            "$ref": "#/components/responses/Private_Network_Service_API_InternalServerError"
+          }
+        },
+        "security": [
+          {
+            "Private_Network_Service_API_BearerAuth": [],
+            "Private_Network_Service_API_ClientCredentials": [],
+            "Private_Network_Service_API_OIDC": []
+          }
+        ]
+      }
+    },
+    "/private-networks/{privateNetworkId}/isolation": {
+      "get": {
+        "summary": "Get Isolation for a Private Network.",
+        "operationId": "getPrivateNetworkIsolation",
+        "description": "Retrieves the Isolation configuration for a Private Network.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Private_Network_Service_API_PrivateNetworkId"
+          }
+        ],
+        "x-cli-name": "private-networks:get-isolation",
+        "tags": [
+          "Private Networks"
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/Private_Network_Service_API_Isolation"
+          },
+          "401": {
+            "$ref": "#/components/responses/Private_Network_Service_API_UnauthorizedError"
+          },
+          "404": {
+            "$ref": "#/components/responses/Private_Network_Service_API_NotFoundError"
+          },
+          "500": {
+            "$ref": "#/components/responses/Private_Network_Service_API_InternalServerError"
+          }
+        },
+        "security": [
+          {
+            "Private_Network_Service_API_BearerAuth": [],
+            "Private_Network_Service_API_ClientCredentials": [],
+            "Private_Network_Service_API_OIDC": []
+          }
+        ]
+      },
+      "put": {
+        "summary": "Update isolation settings of a private network",
+        "operationId": "updatePrivateNetworkIsolation",
+        "description": "Updates the isolation settings of a private network",
+        "tags": [
+          "Private Networks"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Private_Network_Service_API_PrivateNetworkId"
+          }
+        ],
+        "x-cli-name": "private-networks:update-isolation",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Private_Network_Service_API_Isolation"
+              },
+              "example": {
+                "dedicated_compute": true,
+                "dedicated_network": true
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Isolation settings updated",
+            "content": {
+              "application/hal+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Private_Network_Service_API_Message"
+                },
+                "example": {
+                  "message": "Private network isolation settings have been updated successfully.",
+                  "_links": {
+                    "self": {
+                      "href": "https://cloud.acquia.com/api/private-networks/456e4567-e89b-11d3-a789-426614174000/isolation"
+                    },
+                    "parent": {
+                      "href": "https://cloud.acquia.com/api/private-networks/456e4567-e89b-11d3-a789-426614174000"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Private_Network_Service_API_BadRequestError"
+          },
+          "401": {
+            "$ref": "#/components/responses/Private_Network_Service_API_UnauthorizedError"
+          },
+          "404": {
+            "$ref": "#/components/responses/Private_Network_Service_API_NotFoundError"
+          },
+          "409": {
+            "$ref": "#/components/responses/Private_Network_Service_API_ConflictError"
+          },
+          "500": {
+            "$ref": "#/components/responses/Private_Network_Service_API_InternalServerError"
+          }
+        },
+        "security": [
+          {
+            "Private_Network_Service_API_BearerAuth": [],
+            "Private_Network_Service_API_ClientCredentials": [],
+            "Private_Network_Service_API_OIDC": []
+          }
+        ]
+      }
+    },
+    "/private-networks/{privateNetworkId}/ingress": {
+      "put": {
+        "summary": "Update Ingress for a Private Network.",
+        "x-cli-name": "private-networks:update-ingress",
+        "description": "Updates the Ingress configuration for a Private Network by Private Network ID. Ingress always exists for a Private Network.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Private_Network_Service_API_PrivateNetworkId"
+          }
+        ],
+        "tags": [
+          "Private Networks"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Private_Network_Service_API_Ingress"
+              },
+              "example": {
+                "drupal_ssh": {
+                  "ingress_acls": [
+                    "test-acls"
+                  ],
+                  "private": true
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Ingress settings updated",
+            "content": {
+              "application/hal+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Private_Network_Service_API_Message"
+                },
+                "example": {
+                  "message": "Private network ingress settings have been updated successfully.",
+                  "_links": {
+                    "self": {
+                      "href": "https://cloud.acquia.com/api/private-networks/456e4567-e89b-11d3-a789-426614174000/ingress"
+                    },
+                    "parent": {
+                      "href": "https://cloud.acquia.com/api/private-networks/456e4567-e89b-11d3-a789-426614174000"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Private_Network_Service_API_BadRequestError"
+          },
+          "401": {
+            "$ref": "#/components/responses/Private_Network_Service_API_UnauthorizedError"
+          },
+          "404": {
+            "$ref": "#/components/responses/Private_Network_Service_API_NotFoundError"
+          },
+          "409": {
+            "$ref": "#/components/responses/Private_Network_Service_API_ConflictError"
+          },
+          "500": {
+            "$ref": "#/components/responses/Private_Network_Service_API_InternalServerError"
+          }
+        },
+        "security": [
+          {
+            "Private_Network_Service_API_BearerAuth": [],
+            "Private_Network_Service_API_ClientCredentials": [],
+            "Private_Network_Service_API_OIDC": []
+          }
+        ]
+      },
+      "get": {
+        "summary": "Get Ingress for a Private Network",
+        "x-cli-name": "private-networks:get-ingress",
+        "description": "Retrieves the Ingress configuration for a Private Network.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Private_Network_Service_API_PrivateNetworkId"
+          }
+        ],
+        "tags": [
+          "Private Networks"
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/Private_Network_Service_API_Ingress"
+          },
+          "401": {
+            "$ref": "#/components/responses/Private_Network_Service_API_UnauthorizedError"
+          },
+          "404": {
+            "$ref": "#/components/responses/Private_Network_Service_API_NotFoundError"
+          },
+          "500": {
+            "$ref": "#/components/responses/Private_Network_Service_API_InternalServerError"
+          }
+        },
+        "security": [
+          {
+            "Private_Network_Service_API_BearerAuth": [],
+            "Private_Network_Service_API_ClientCredentials": [],
+            "Private_Network_Service_API_OIDC": []
+          }
+        ]
+      }
     }
   },
   "components": {
@@ -48339,6 +49890,90 @@
       },
       "Acquia_Cloud_API_Documentation_Resolution": {
         "$ref": "#/components/parameters/Acquia_Cloud_API_Documentation_resolution"
+      },
+      "Private_Network_Service_API_Limit": {
+        "name": "limit",
+        "in": "query",
+        "description": "The maximum number of items to return per page.",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "example": 10
+        }
+      },
+      "Private_Network_Service_API_Offset": {
+        "name": "offset",
+        "in": "query",
+        "description": "The number of items to skip before starting to collect the result set.",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 0,
+          "example": 20
+        }
+      },
+      "Private_Network_Service_API_Sort": {
+        "name": "sort",
+        "in": "query",
+        "description": "Sort the result set by one or more fields.\n\n**Format:** `field1,field2,-field3`\n\n**Sort order:**\n- No prefix - Ascending order (default)\n- `-` prefix - Descending order\n\n**Multiple fields:**\n- Fields are processed in the order specified\n- First field has highest priority\n- Use comma to separate multiple fields\n\n**Examples:**\n- `name` - Sort by name in ascending order\n- `-created_at` - Sort by created_at in descending order\n- `name,-created_at` - Sort by name ascending, then created_at descending\n- `status,name,-updated_at` - Sort by status ascending, then name ascending, then updated_at descending\n",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "pattern": "^(-?[a-zA-Z0-9_]+)(,-?[a-zA-Z0-9_]+)*$"
+        },
+        "example": "name,-created_at"
+      },
+      "Private_Network_Service_API_Filter": {
+        "name": "filter",
+        "in": "query",
+        "description": "Filter the result set using field-based criteria.\n\n**Format:** `field:value` or `field:operator:value`\n\n**Logical operators:**\n- `,` (comma) - OR logic between filters\n- `;` (semicolon) - AND logic between filters\n- **Note:** Cannot mix OR and AND operators in the same query\n\n**Comparison operators:**\n- `=` - Equals (default if no operator specified)\n- `!=` - Does not equal\n- `>` - Greater than\n- `<` - Less than\n- `>=` - Greater than or equal to\n- `<=` - Less than or equal to\n- `=@` - Contains substring\n- `!@` - Does not contain substring\n\n**Wildcards:**\n- `*` - Wildcard character for pattern matching\n\n**Examples:**\n- `status=active` - Filter by status equals active\n- `name=@prod` - Filter by name containing \"prod\"\n- `status=active;type=standard` - Status is active AND type is standard\n- `status=active,status=pending` - Status is active OR pending\n",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "pattern": "^([a-zA-Z0-9_]+:(?:[a-zA-Z0-9_\\-*]+|[><!@=%3D%3E%3C%3D@!%3D@]+)+)([;,][a-zA-Z0-9_]+:(?:[a-zA-Z0-9_\\-*]+|[><!@=%3D%3E%3C%3D@!%3D@]+)+)*$"
+        },
+        "example": "status:active;type:standard"
+      },
+      "Private_Network_Service_API_PrivateNetworkId": {
+        "name": "privateNetworkId",
+        "in": "path",
+        "description": "ID of the private network",
+        "required": true,
+        "schema": {
+          "type": "string"
+        },
+        "description": "ID of the private network"
+      },
+      "Private_Network_Service_API_VpnId": {
+        "name": "vpnId",
+        "in": "path",
+        "description": "ID of the VPN",
+        "required": true,
+        "schema": {
+          "type": "integer",
+          "description": "ID of the VPN"
+        }
+      },
+      "Private_Network_Service_API_VpcPeerId": {
+        "name": "vpcPeerId",
+        "in": "path",
+        "description": "ID of the VPC peer",
+        "required": true,
+        "schema": {
+          "type": "integer",
+          "description": "ID of the VPC Peer"
+        }
+      },
+      "Private_Network_Service_API_SubscriptionId": {
+        "name": "subscriptionId",
+        "in": "path",
+        "description": "ID of the subscription",
+        "required": true,
+        "schema": {
+          "type": "string"
+        },
+        "description": "ID of the subscription"
       }
     },
     "schemas": {
@@ -61044,6 +62679,593 @@
             ]
           }
         }
+      },
+      "Private_Network_Service_API_Message": {
+        "type": "object",
+        "required": [
+          "message"
+        ],
+        "properties": {
+          "message": {
+            "type": "string",
+            "description": "Message describing the operation result"
+          },
+          "_links": {
+            "$ref": "#/components/schemas/Private_Network_Service_API_HalItem"
+          }
+        }
+      },
+      "Private_Network_Service_API_UpdatePrivateNetworkRequestSpec": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          }
+        }
+      },
+      "Private_Network_Service_API_UpdateConnectionRequestSpec": {
+        "type": "object",
+        "properties": {
+          "private_egress_access": {
+            "type": "object",
+            "properties": {
+              "drupal": {
+                "type": "boolean"
+              }
+            }
+          }
+        }
+      },
+      "Private_Network_Service_API_Isolation": {
+        "type": "object",
+        "properties": {
+          "dedicated_compute": {
+            "type": "boolean"
+          },
+          "dedicated_network": {
+            "type": "boolean"
+          }
+        }
+      },
+      "Private_Network_Service_API_IsolationResponse": {
+        "type": "object",
+        "properties": {
+          "dedicated_compute": {
+            "type": "boolean"
+          },
+          "dedicated_network": {
+            "type": "boolean"
+          },
+          "_links": {
+            "$ref": "#/components/schemas/Private_Network_Service_API_HalItem"
+          }
+        }
+      },
+      "Private_Network_Service_API_Ingress": {
+        "type": "object",
+        "properties": {
+          "drupal_ssh": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "integer"
+              },
+              "ingress_acls": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "private": {
+                "type": "boolean",
+                "default": false
+              }
+            }
+          }
+        }
+      },
+      "Private_Network_Service_API_IngressResponse": {
+        "type": "object",
+        "properties": {
+          "drupal_ssh": {
+            "$ref": "#/components/schemas/Private_Network_Service_API_DrupalSSH"
+          },
+          "_links": {
+            "$ref": "#/components/schemas/Private_Network_Service_API_HalItem"
+          }
+        }
+      },
+      "Private_Network_Service_API_DrupalSSH": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "ingress_acls": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "private": {
+            "type": "boolean",
+            "default": false
+          }
+        }
+      },
+      "Private_Network_Service_API_PrivateEgressAccess": {
+        "type": "object",
+        "properties": {
+          "drupal": {
+            "type": "boolean"
+          }
+        }
+      },
+      "Private_Network_Service_API_ConnectionsResponse": {
+        "type": "object",
+        "required": [
+          "cidr"
+        ],
+        "description": "Connections block of a private network",
+        "properties": {
+          "cidr": {
+            "type": "string",
+            "pattern": "^([0-9]{1,3}\\.){3}[0-9]{1,3}/[0-9]{1,2}$"
+          },
+          "private_egress_access": {
+            "type": "object",
+            "properties": {
+              "drupal": {
+                "type": "boolean"
+              }
+            }
+          },
+          "_links": {
+            "$ref": "#/components/schemas/Private_Network_Service_API_HalItem"
+          }
+        }
+      },
+      "Private_Network_Service_API_Connections": {
+        "type": "object",
+        "required": [
+          "cidr"
+        ],
+        "properties": {
+          "private_egress_access": {
+            "type": "object",
+            "properties": {
+              "drupal": {
+                "type": "boolean"
+              }
+            }
+          },
+          "cidr": {
+            "type": "string",
+            "pattern": "^([0-9]{1,3}\\.){3}[0-9]{1,3}/[0-9]{1,2}$"
+          },
+          "vpns": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Private_Network_Service_API_VPN"
+            }
+          },
+          "vpc_peers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Private_Network_Service_API_VPCPeers"
+            }
+          }
+        }
+      },
+      "Private_Network_Service_API_VPN": {
+        "type": "object",
+        "required": [
+          "name",
+          "gateway_ip",
+          "routes"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "name": {
+            "type": "string"
+          },
+          "gateway_ip": {
+            "type": "string",
+            "format": "ipv4"
+          },
+          "routes": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^([0-9]{1,3}\\.){3}[0-9]{1,3}/[0-9]{1,2}$"
+            }
+          },
+          "tunnel1": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "integer"
+              },
+              "shared_key": {
+                "type": "string"
+              },
+              "internal_cidr": {
+                "type": "string",
+                "pattern": "^([0-9]{1,3}\\.){3}[0-9]{1,3}/[0-9]{1,2}$"
+              },
+              "ike_versions": {
+                "type": "string"
+              },
+              "startup_action": {
+                "type": "string"
+              },
+              "dpd_timeout_action": {
+                "type": "string"
+              }
+            }
+          },
+          "tunnel2": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "integer"
+              },
+              "shared_key": {
+                "type": "string"
+              },
+              "internal_cidr": {
+                "type": "string",
+                "pattern": "^([0-9]{1,3}\\.){3}[0-9]{1,3}/[0-9]{1,2}$"
+              },
+              "ike_versions": {
+                "type": "string"
+              },
+              "startup_action": {
+                "type": "string"
+              },
+              "dpd_timeout_action": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "Private_Network_Service_API_VPNResponse": {
+        "type": "object",
+        "required": [
+          "name",
+          "gateway_ip",
+          "routes"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "name": {
+            "type": "string"
+          },
+          "gateway_ip": {
+            "type": "string",
+            "format": "ipv4"
+          },
+          "routes": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^([0-9]{1,3}\\.){3}[0-9]{1,3}/[0-9]{1,2}$"
+            }
+          },
+          "tunnel1": {
+            "$ref": "#/components/schemas/Private_Network_Service_API_TunnelResponse"
+          },
+          "tunnel2": {
+            "$ref": "#/components/schemas/Private_Network_Service_API_TunnelResponse"
+          },
+          "_links": {
+            "$ref": "#/components/schemas/Private_Network_Service_API_HalItem"
+          }
+        }
+      },
+      "Private_Network_Service_API_Tunnel": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "shared_key": {
+            "type": "string"
+          },
+          "internal_cidr": {
+            "type": "string",
+            "pattern": "^([0-9]{1,3}\\.){3}[0-9]{1,3}/[0-9]{1,2}$"
+          },
+          "ike_versions": {
+            "type": "string"
+          },
+          "startup_action": {
+            "type": "string"
+          },
+          "dpd_timeout_action": {
+            "type": "string"
+          }
+        }
+      },
+      "Private_Network_Service_API_TunnelResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "shared_key": {
+            "type": "string"
+          },
+          "internal_cidr": {
+            "type": "string",
+            "pattern": "^([0-9]{1,3}\\.){3}[0-9]{1,3}/[0-9]{1,2}$"
+          },
+          "ike_versions": {
+            "type": "string"
+          },
+          "startup_action": {
+            "type": "string"
+          },
+          "dpd_timeout_action": {
+            "type": "string"
+          },
+          "address": {
+            "type": "string",
+            "format": "ipv4"
+          }
+        }
+      },
+      "Private_Network_Service_API_VPCPeers": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "name": {
+            "type": "string"
+          },
+          "aws_account": {
+            "type": "string"
+          },
+          "vpc_id": {
+            "type": "string"
+          },
+          "vpc_cidr": {
+            "type": "string",
+            "pattern": "^([0-9]{1,3}\\.){3}[0-9]{1,3}/[0-9]{1,2}$"
+          }
+        }
+      },
+      "Private_Network_Service_API_VPCPeersResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "name": {
+            "type": "string"
+          },
+          "aws_account": {
+            "type": "string"
+          },
+          "vpc_id": {
+            "type": "string"
+          },
+          "vpc_cidr": {
+            "type": "string",
+            "pattern": "^([0-9]{1,3}\\.){3}[0-9]{1,3}/[0-9]{1,2}$"
+          },
+          "peering_connection_id": {
+            "type": "string",
+            "description": "The ID of the peering connection (optional)"
+          },
+          "_links": {
+            "$ref": "#/components/schemas/Private_Network_Service_API_HalItem"
+          }
+        }
+      },
+      "Private_Network_Service_API_HalLink": {
+        "type": "object",
+        "description": "HAL link object",
+        "properties": {
+          "href": {
+            "type": "string",
+            "anyOf": [
+              {
+                "format": "uri"
+              },
+              {
+                "format": "uri-template"
+              }
+            ],
+            "description": "The target URI of the link (can be a URI or URI template)"
+          }
+        },
+        "required": [
+          "href"
+        ]
+      },
+      "Private_Network_Service_API_HalItem": {
+        "type": "object",
+        "properties": {
+          "self": {
+            "$ref": "#/components/schemas/Private_Network_Service_API_HalLink"
+          },
+          "parent": {
+            "$ref": "#/components/schemas/Private_Network_Service_API_HalLink"
+          }
+        },
+        "required": [
+          "self"
+        ]
+      },
+      "Private_Network_Service_API_LinkType": {
+        "type": "object",
+        "required": [
+          "href"
+        ],
+        "properties": {
+          "href": {
+            "type": "string"
+          }
+        }
+      },
+      "Private_Network_Service_API_Error": {
+        "type": "object",
+        "required": [
+          "message",
+          "error"
+        ],
+        "properties": {
+          "error": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      },
+      "Private_Network_Service_API_ValidationError": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string"
+          },
+          "message": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "example": {
+              "fieldName": "This field is required",
+              "another_field": "Invalid value provided"
+            }
+          }
+        },
+        "required": [
+          "error",
+          "message"
+        ]
+      },
+      "Private_Network_Service_API_PrivateNetworkResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "subscription_id": {
+            "type": "string"
+          },
+          "region": {
+            "type": "string",
+            "description": "The region where the private network is deployed"
+          },
+          "name": {
+            "type": "string",
+            "description": "The name of the private network"
+          },
+          "description": {
+            "type": "string",
+            "description": "A brief description of the private network"
+          },
+          "label": {
+            "type": "string",
+            "description": "A label for the private network"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "creating",
+              "active",
+              "create-failed",
+              "updating",
+              "update-failed",
+              "deleting",
+              "deleted",
+              "delete-failed"
+            ],
+            "description": "The current status of the private network"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp when the private network was created"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp when the private network was last updated"
+          },
+          "_links": {
+            "$ref": "#/components/schemas/Private_Network_Service_API_PrivateNetworkHALLinks"
+          }
+        }
+      },
+      "Private_Network_Service_API_PrivateNetworkHALLinks": {
+        "required": [
+          "self"
+        ],
+        "properties": {
+          "self": {
+            "$ref": "#/components/schemas/Private_Network_Service_API_HalLink"
+          },
+          "isolation": {
+            "$ref": "#/components/schemas/Private_Network_Service_API_HalLink"
+          },
+          "ingress": {
+            "$ref": "#/components/schemas/Private_Network_Service_API_HalLink"
+          },
+          "connections": {
+            "$ref": "#/components/schemas/Private_Network_Service_API_HalLink"
+          },
+          "vpns": {
+            "$ref": "#/components/schemas/Private_Network_Service_API_HalLink"
+          },
+          "vpc_peers": {
+            "$ref": "#/components/schemas/Private_Network_Service_API_HalLink"
+          }
+        }
+      },
+      "Private_Network_Service_API_EmbeddedPrivateNetworkList": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Private_Network_Service_API_PrivateNetworkResponse"
+            }
+          }
+        }
+      },
+      "Private_Network_Service_API_EmbeddedVPCPeerList": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Private_Network_Service_API_VPCPeersResponse"
+            }
+          }
+        }
+      },
+      "Private_Network_Service_API_EmbeddedVPNList": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Private_Network_Service_API_VPNResponse"
+            }
+          }
+        }
       }
     },
     "securitySchemes": {
@@ -61076,9 +63298,582 @@
         "in": "header"
       }
     },
-    "responses": {},
+    "responses": {
+      "Private_Network_Service_API_ForbiddenError": {
+        "description": "Forbidden",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Private_Network_Service_API_Error"
+            },
+            "example": {
+              "error": "forbidden",
+              "message": "You do not have permission to perform this action."
+            }
+          }
+        }
+      },
+      "Private_Network_Service_API_ValidationError": {
+        "description": "Validation failed",
+        "content": {
+          "application/hal+json": {
+            "schema": {
+              "$ref": "#/components/schemas/Private_Network_Service_API_ValidationError"
+            },
+            "example": {
+              "error": "validation_failed",
+              "message": {
+                "region": "region is required",
+                "another_field": "Invalid value provided"
+              }
+            }
+          }
+        }
+      },
+      "Private_Network_Service_API_NotFoundError": {
+        "description": "Resource not found",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Private_Network_Service_API_Error"
+            },
+            "example": {
+              "error": "not_found",
+              "message": "The requested resource could not be found."
+            }
+          }
+        }
+      },
+      "Private_Network_Service_API_BadRequestError": {
+        "description": "Bad request",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Private_Network_Service_API_Error"
+            },
+            "example": {
+              "error": "bad_request",
+              "message": "The request was invalid or cannot be served. Check the request parameters and try again."
+            }
+          }
+        }
+      },
+      "Private_Network_Service_API_UnauthorizedError": {
+        "description": "Unauthorized",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Private_Network_Service_API_Error"
+            },
+            "example": {
+              "error": "unauthorized",
+              "message": "You must be authenticated to access this resource."
+            }
+          }
+        }
+      },
+      "Private_Network_Service_API_ConflictError": {
+        "description": "Conflict",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Private_Network_Service_API_Error"
+            },
+            "example": {
+              "error": "conflict",
+              "message": "The request could not be completed due to a conflict with the current state of the resource."
+            }
+          }
+        }
+      },
+      "Private_Network_Service_API_InternalServerError": {
+        "description": "Internal server error",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Private_Network_Service_API_Error"
+            },
+            "example": {
+              "error": "system",
+              "message": "An unknown error occurred. Please try your request again. If the problem persists, contact Acquia Support. Request ID: abc123-def456-ghi789."
+            }
+          }
+        }
+      },
+      "Private_Network_Service_API_PrivateNetwork": {
+        "description": "Response for GET /private-networks/{privateNetworkId}",
+        "x-go-name": "PrivateNetworkGetResponse",
+        "content": {
+          "application/hal+json": {
+            "schema": {
+              "$ref": "#/components/schemas/Private_Network_Service_API_PrivateNetworkResponse"
+            },
+            "example": {
+              "_links": {
+                "self": {
+                  "href": "https://cloud.acquia.com/api/private-networks/123e4567-e89b-12d3-a456-426614174000"
+                },
+                "isolation": {
+                  "href": "https://cloud.acquia.com/api/private-networks/123e4567-e89b-12d3-a456-426614174000/isolation"
+                },
+                "ingress": {
+                  "href": "https://cloud.acquia.com/api/private-networks/123e4567-e89b-12d3-a456-426614174000/ingress"
+                },
+                "connections": {
+                  "href": "https://cloud.acquia.com/api/private-networks/123e4567-e89b-12d3-a456-426614174000/connections"
+                },
+                "vpns": {
+                  "href": "https://cloud.acquia.com/api/private-networks/123e4567-e89b-12d3-a456-426614174000/connections/vpns"
+                },
+                "vpc_peers": {
+                  "href": "https://cloud.acquia.com/api/private-networks/123e4567-e89b-12d3-a456-426614174000/connections/vpc-peers"
+                }
+              },
+              "id": "123e4567-e89b-12d3-a456-426614174000",
+              "subscription_id": "123e4567-e89b-12d3-a456-426614174000",
+              "region": "us-east-1",
+              "name": "ngc-private-network",
+              "description": "Private network for NGC",
+              "label": "ngc-private",
+              "status": "active",
+              "created_at": "2023-10-01T12:00:00.000Z",
+              "updated_at": "2023-10-01T12:00:00.000Z"
+            }
+          }
+        }
+      },
+      "Private_Network_Service_API_Connection": {
+        "description": "Response for GET /private-networks/{privateNetworkId}/connections",
+        "x-go-name": "ConnectionGetResponse",
+        "content": {
+          "application/hal+json": {
+            "schema": {
+              "$ref": "#/components/schemas/Private_Network_Service_API_ConnectionsResponse"
+            },
+            "example": {
+              "_links": {
+                "self": {
+                  "href": "https://cloud.acquia.com/api/private-networks/456e4567-e89b-11d3-a789-426614174000/connections"
+                },
+                "parent": {
+                  "href": "https://cloud.acquia.com/api/private-networks/456e4567-e89b-11d3-a789-426614174000"
+                }
+              },
+              "cidr": "1.1.1.1/11",
+              "private_egress_access": {
+                "drupal": true
+              }
+            }
+          }
+        }
+      },
+      "Private_Network_Service_API_Isolation": {
+        "description": "Response for GET /private-networks/{privateNetworkId}/isolation",
+        "x-go-name": "IsolationGetResponse",
+        "content": {
+          "application/hal+json": {
+            "schema": {
+              "$ref": "#/components/schemas/Private_Network_Service_API_IsolationResponse"
+            },
+            "example": {
+              "_links": {
+                "self": {
+                  "href": "https://cloud.acquia.com/api/private-networks/456e4567-e89b-11d3-a789-426614174000/isolation"
+                },
+                "parent": {
+                  "href": "https://cloud.acquia.com/api/private-networks/456e4567-e89b-11d3-a789-426614174000"
+                }
+              },
+              "dedicated_compute": true,
+              "dedicated_network": true
+            }
+          }
+        }
+      },
+      "Private_Network_Service_API_VpcPeer": {
+        "description": "VPC Peer details",
+        "x-go-name": "VpcPeerGetResponse",
+        "content": {
+          "application/hal+json": {
+            "schema": {
+              "$ref": "#/components/schemas/Private_Network_Service_API_VPCPeersResponse"
+            },
+            "example": {
+              "_links": {
+                "self": {
+                  "href": "https://cloud.acquia.com/api/private-networks/456e4567-e89b-11d3-a789-426614174000/connections/vpc-peers/1"
+                },
+                "parent": {
+                  "href": "https://cloud.acquia.com/api/private-networks/456e4567-e89b-11d3-a789-426614174000"
+                }
+              },
+              "name": "vpcPeer1",
+              "id": 1,
+              "aws_account": "123456789012",
+              "vpc_id": "vpc-1234567890abcdef0",
+              "vpc_cidr": "120.24.16.1/24",
+              "peering_connection_id": "pcx-1234567890abcdef0"
+            }
+          }
+        }
+      },
+      "Private_Network_Service_API_Vpn": {
+        "description": "VPN details",
+        "x-go-name": "VpnGetResponse",
+        "content": {
+          "application/hal+json": {
+            "schema": {
+              "$ref": "#/components/schemas/Private_Network_Service_API_VPNResponse"
+            },
+            "example": {
+              "_links": {
+                "self": {
+                  "href": "https://cloud.acquia.com/api/private-networks/456e4567-e89b-11d3-a789-426614174000/connections/vpns/test-vpn"
+                },
+                "parent": {
+                  "href": "https://cloud.acquia.com/api/private-networks/456e4567-e89b-11d3-a789-426614174000"
+                }
+              },
+              "id": 1,
+              "name": "test-vpn",
+              "gateway_ip": "192.1.1.0",
+              "routes": [
+                "192.1.1.0/14",
+                "192.1.2.0/14"
+              ],
+              "tunnel1": {
+                "shared_key": "sharedKey1",
+                "internal_cidr": "1.1.1.1/24",
+                "ike_versions": "1",
+                "startup_action": "start",
+                "dpd_timeout_action": "stop"
+              },
+              "tunnel2": {
+                "shared_key": "sharedKey2",
+                "internal_cidr": "1.1.1.1/24",
+                "ike_versions": "2",
+                "startup_action": "start",
+                "dpd_timeout_action": "stop"
+              }
+            }
+          }
+        }
+      },
+      "Private_Network_Service_API_Ingress": {
+        "description": "Ingress details",
+        "x-go-name": "IngressGetResponse",
+        "content": {
+          "application/hal+json": {
+            "schema": {
+              "$ref": "#/components/schemas/Private_Network_Service_API_IngressResponse"
+            },
+            "example": {
+              "_links": {
+                "self": {
+                  "href": "https://cloud.acquia.com/api/private-networks/456e4567-e89b-11d3-a789-426614174000/ingress"
+                },
+                "parent": {
+                  "href": "https://cloud.acquia.com/api/private-networks/456e4567-e89b-11d3-a789-426614174000"
+                }
+              },
+              "drupal_ssh": {
+                "ingress_acls": [
+                  "test-acls"
+                ],
+                "private": false
+              }
+            }
+          }
+        }
+      },
+      "Private_Network_Service_API_PrivateNetworkList": {
+        "description": "List of private networks",
+        "x-go-name": "PrivateNetworkListResponse",
+        "content": {
+          "application/hal+json": {
+            "schema": {
+              "type": "object",
+              "required": [
+                "count",
+                "total"
+              ],
+              "properties": {
+                "count": {
+                  "type": "integer",
+                  "description": "The total number of entries in this page"
+                },
+                "total": {
+                  "type": "integer",
+                  "description": "The total number of entries available"
+                },
+                "_embedded": {
+                  "$ref": "#/components/schemas/Private_Network_Service_API_EmbeddedPrivateNetworkList"
+                },
+                "_links": {
+                  "$ref": "#/components/schemas/Private_Network_Service_API_HalItem"
+                }
+              },
+              "example": {
+                "_links": {
+                  "self": {
+                    "href": "https://cloud.acquia.com/api/subscriptions/123e4567-e89b-12d3-a456-426614174000/private-networks"
+                  }
+                },
+                "count": 2,
+                "total": 2,
+                "_embedded": {
+                  "items": [
+                    {
+                      "subscription_id": "123e4567-e89b-12d3-a456-426614174000",
+                      "region": "us-east-1",
+                      "id": "456e4567-e89b-11d3-a789-426614174000",
+                      "status": "active",
+                      "name": "test-private-network-1",
+                      "label": "some label",
+                      "description": "Private network description",
+                      "created_at": "2021-01-01T00:00:00.000Z",
+                      "updated_at": "2021-01-01T00:00:00.000Z",
+                      "_links": {
+                        "self": {
+                          "href": "https://cloud.acquia.com/api/private-networks/456e4567-e89b-11d3-a789-426614174000"
+                        }
+                      }
+                    },
+                    {
+                      "subscription_id": "123e4567-e89b-12d3-a456-426614174000",
+                      "region": "us-east-1",
+                      "id": "456e4567-e89b-11d3-a789-426614174001",
+                      "status": "creating",
+                      "name": "test-private-network-2",
+                      "label": "some label",
+                      "description": "Private network description",
+                      "created_at": "2021-01-01T00:00:00.000Z",
+                      "updated_at": "2021-01-01T00:00:00.000Z",
+                      "_links": {
+                        "self": {
+                          "href": "https://cloud.acquia.com/api/private-networks/456e4567-e89b-11d3-a789-426614174001"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "Private_Network_Service_API_VPNList": {
+        "description": "List of VPNs in a private network",
+        "x-go-name": "VpnListResponse",
+        "content": {
+          "application/hal+json": {
+            "schema": {
+              "type": "object",
+              "required": [
+                "count",
+                "total"
+              ],
+              "properties": {
+                "count": {
+                  "type": "integer",
+                  "description": "The total number of entries in this page"
+                },
+                "total": {
+                  "type": "integer",
+                  "description": "The total number of entries available"
+                },
+                "_embedded": {
+                  "$ref": "#/components/schemas/Private_Network_Service_API_EmbeddedVPNList"
+                },
+                "_links": {
+                  "$ref": "#/components/schemas/Private_Network_Service_API_HalItem"
+                }
+              }
+            },
+            "example": {
+              "_links": {
+                "self": {
+                  "href": "https://cloud.acquia.com/api/private-networks/123e4567-e89b-12d3-a456-426614174000/connections/vpns"
+                }
+              },
+              "count": 1,
+              "total": 1,
+              "_embedded": {
+                "items": [
+                  {
+                    "id": 1,
+                    "name": "vpn1",
+                    "gateway_ip": "1.1.1.1",
+                    "routes": [
+                      "1.1.1.1/12"
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
+      "Private_Network_Service_API_VpcPeerList": {
+        "description": "List of VPC Peers in a private network",
+        "x-go-name": "VpcPeerListResponse",
+        "content": {
+          "application/hal+json": {
+            "schema": {
+              "type": "object",
+              "required": [
+                "count",
+                "total"
+              ],
+              "properties": {
+                "count": {
+                  "type": "integer",
+                  "description": "The total number of entries in this page"
+                },
+                "total": {
+                  "type": "integer",
+                  "description": "The total number of entries available"
+                },
+                "_embedded": {
+                  "$ref": "#/components/schemas/Private_Network_Service_API_EmbeddedVPCPeerList"
+                },
+                "_links": {
+                  "$ref": "#/components/schemas/Private_Network_Service_API_HalItem"
+                }
+              }
+            },
+            "example": {
+              "_links": {
+                "self": {
+                  "href": "https://cloud.acquia.com/api/private-networks/123e4567-e89b-12d3-a456-426614174000/connections/vpc-peers"
+                }
+              },
+              "count": 2,
+              "total": 2,
+              "_embedded": {
+                "items": [
+                  {
+                    "id": 1,
+                    "name": "vpcPeer1",
+                    "aws_account": "123456789012",
+                    "vpc_id": "vpc-1234567890abcdef0",
+                    "vpc_cidr": "10.0.0.0/16"
+                  },
+                  {
+                    "id": 2,
+                    "name": "vpcPeer2",
+                    "aws_account": "123456789012",
+                    "vpc_id": "vpc-1234567890abcdef0",
+                    "vpc_cidr": "10.0.0.0/16"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
     "examples": {},
-    "requestBodies": {},
+    "requestBodies": {
+      "Private_Network_Service_API_PrivateNetworkCreateRequest": {
+        "description": "Private Network creation request body",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "required": [
+                "subscription_id",
+                "region",
+                "name",
+                "connections"
+              ],
+              "properties": {
+                "subscription_id": {
+                  "type": "string"
+                },
+                "region": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "label": {
+                  "type": "string"
+                },
+                "isolation": {
+                  "$ref": "#/components/schemas/Private_Network_Service_API_Isolation"
+                },
+                "ingress": {
+                  "$ref": "#/components/schemas/Private_Network_Service_API_Ingress"
+                },
+                "connections": {
+                  "$ref": "#/components/schemas/Private_Network_Service_API_Connections"
+                }
+              },
+              "example": {
+                "subscription_id": "123e4567-e89b-12d3-a456-426614174000",
+                "region": "us-east-1",
+                "name": "customer-private-network",
+                "description": "Private network for customer",
+                "label": "anyLabel",
+                "isolation": {
+                  "dedicated_compute": false,
+                  "dedicated_network": false
+                },
+                "ingress": {
+                  "drupal_ssh": {
+                    "ingress_acls": [
+                      "test-acls"
+                    ]
+                  }
+                },
+                "connections": {
+                  "cidr": "114.7.55.1/16",
+                  "private_egress_access": {
+                    "drupal": true
+                  },
+                  "vpns": [
+                    {
+                      "name": "vpn1",
+                      "gateway_ip": "10.10.10.10",
+                      "routes": [
+                        "127.0.0.1/32",
+                        "127.0.0.2/32"
+                      ],
+                      "tunnel1": {
+                        "shared_key": "sharedKey1",
+                        "internal_cidr": "192.1.1.0/24",
+                        "ike_versions": "1",
+                        "startup_action": "start",
+                        "dpd_timeout_action": "stop"
+                      },
+                      "tunnel2": {
+                        "shared_key": "sharedKey2",
+                        "internal_cidr": "192.1.1.0/14",
+                        "ike_versions": "1",
+                        "startup_action": "start",
+                        "dpd_timeout_action": "stop"
+                      }
+                    }
+                  ],
+                  "vpc_peers": [
+                    {
+                      "name": "vpcPeer1",
+                      "aws_account": "123456789012",
+                      "vpc_id": "vpc-1234567890abcdef0",
+                      "vpc_cidr": "120.24.16.1/24"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "headers": {}
   }
 }
