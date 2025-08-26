@@ -318,7 +318,7 @@ class ApiBaseCommand extends CommandBase
                 if (in_array($type, ['int', 'integer'])) {
                     // Need to evaluate whether a string contains only digits.
                     $constraints[] = new Type('digit');
-                } elseif ($type === 'array') {
+                } elseif (in_array($type, ['array', 'object'])) {
                     $constraints[] = new Type('string');
                 } else {
                     $constraints[] = new Type($type);
