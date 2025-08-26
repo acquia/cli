@@ -221,7 +221,6 @@ class PullFilesCommandTest extends PullCommandTestBase
         ];
 
         $this->executeCommand([], $inputs);
-
         $output = $this->getDisplay();
         $this->assertStringContainsString('Detected IDE context with codebase UUID: ', $output);
         // $this->assertStringContainsString('Using codebase:', $output);

@@ -9,6 +9,8 @@ use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Command\Ide\IdeListCommand;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Tests\CommandTestBase;
+use Acquia\Cli\Transformer\EnvironmentTransformer;
+use AcquiaCloudApi\Response\EnvironmentResponse;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -1395,6 +1397,41 @@ class CommandBaseTest extends CommandTestBase
         self::unsetEnvVars(['AH_CODEBASE_UUID']);
     }
 
+
+    /**
+     * determineEnvironmentFromIdeContext: no environments found path (caught and returns null).
+     */
+    public function testDetermineEnvironmentFromIdeContextSuccess(): void
+    {
+        $codebaseUuid = '11111111-041c-44c7-a486-7972ed2cafc8';
+        self::SetEnvVars(['AH_CODEBASE_UUID' => $codebaseUuid]);
+
+        $codebase = $this->getMockCodeBase();
+        $this->clientProphecy->request('get', '/codebases/' . $codebaseUuid)
+            ->willReturn($codebase)
+            ->shouldBeCalled();
+
+        $codebaseEnvironments = $this->getMockCodeBaseEnvironments();
+        $this->clientProphecy->request('get', '/codebases/' . $codebaseUuid . '/environments')
+            ->willReturn($codebaseEnvironments->_embedded->items)
+            ->shouldBeCalled();
+
+        $input = $this->prophet->prophesize(InputInterface::class)->reveal();
+        $output = new BufferedOutput();
+
+        $reflection = new \ReflectionClass($this->command);
+        $method = $reflection->getMethod('determineEnvironmentFromIdeContext');
+        $method->setAccessible(true);
+
+        $result = $method->invoke($this->command, $input, $output);
+        $expectedEnvironment = $codebaseEnvironments->_embedded->items[0];
+        $this->assertNotNull($result);
+        $this->assertEquals($expectedEnvironment->id, $result->uuid);
+        $this->assertEquals($expectedEnvironment->label, $result->label);
+
+        self::unsetEnvVars(['AH_CODEBASE_UUID']);
+    }
+
     /**
      * getEnvironmentsByCodebase: transforms array of codebase environments.
      */
@@ -1726,5 +1763,189 @@ class CommandBaseTest extends CommandTestBase
         // Assert: returns null AND prints the message.
         $this->assertStringContainsString('8979a8ac-80dc-4df8-b2f0-6be36554a370.3e8ecbec-ea7c-4260-8414-ef2938c859bc', $result);
         self::unsetEnvVars(['AH_CODEBASE_UUID']);
+    }
+
+    public function testDetermineSiteInstanceFromIdeContextWhenMultipleSiteInstancesAvailable(): void
+    {
+        $codebaseUuid = '11111111-041c-44c7-a486-7972ed2cafc8';
+        // Arrange.
+        $env = $this->getMockCodeBaseEnvironment();
+        $environment = \Acquia\Cli\Transformer\EnvironmentTransformer::transform($env);
+        self::SetEnvVars(['AH_CODEBASE_UUID' =>  $codebaseUuid]);
+        $site2 = (object)[
+            'codebase_id' => '1234-5678',
+            'description' => 'My Site 3 description',
+            'id'          => '8979a8ac-80dc-4df8-b2f0-6be36554a371',
+            'label'       => 'My Site 3',
+            'name'        => 'site3',
+            '_links' => [
+                'self' => [
+                    'href' => 'https://cloud.acquia.com/api/codebases/1234-5678/sites',
+                ],
+            ],
+        ];
+        $sites = $this->getMockCodeBaseSites();
+        $sites->_embedded->items[1] = $site2;
+        $this->clientProphecy->request('get', '/codebases/' . $codebaseUuid . '/sites')
+            ->willReturn($sites)
+            ->shouldBeCalled();
+
+        $siteInstance = $this->getMockSiteInstanceResponse();
+
+        $this->clientProphecy->request('get', '/site-instances/' . $sites->_embedded->items[0]->id . '.' . $environment->uuid)
+            ->willReturn($siteInstance)
+            ->shouldBeCalled();
+        $this->clientProphecy->request('get', '/site-instances/' . $sites->_embedded->items[1]->id . '.' . $environment->uuid)
+            ->willReturn($siteInstance)
+            ->shouldBeCalled();
+
+        $input  = $this->createMock(\Symfony\Component\Console\Input\InputInterface::class);
+        // Capture.
+        $output = new \Symfony\Component\Console\Output\BufferedOutput();
+
+         // Mock io->choice to select the second environment.
+        $ioProphecy = $this->prophet->prophesize(\Symfony\Component\Console\Style\SymfonyStyle::class);
+        $choices = [
+            'site2',
+            'site3',
+        ];
+        $ioProphecy->choice('Choose a site instance', $choices, $choices[0])
+            ->willReturn($choices[1])
+            ->shouldBeCalled();
+
+        $reflection = new \ReflectionClass($this->command);
+
+        $ioProperty = $reflection->getProperty('io');
+        $ioProperty->setAccessible(true);
+        $ioProperty->setValue($this->command, $ioProphecy->reveal());
+
+        $method = $reflection->getMethod('determineSiteInstanceFromIdeContext');
+        $method->setAccessible(true);
+
+        // Act.
+        $result = $method->invoke(
+            $this->command,
+            $environment,
+            $input,
+            $output
+        );
+        // Assert: returns null AND prints the message.
+        $this->assertStringContainsString('8979a8ac-80dc-4df8-b2f0-6be36554a371.3e8ecbec-ea7c-4260-8414-ef2938c859bc', $result);
+        self::unsetEnvVars(['AH_CODEBASE_UUID']);
+    }
+    /**
+     * Test promptChooseCodebaseEnvironment returns the only environment if one is provided.
+     */
+    public function testPromptChooseCodebaseEnvironmentSingle(): void
+    {
+        $env = EnvironmentTransformer::transform($this->getMockCodeBaseEnvironment());
+        $environments = [$env];
+
+        $reflection = new \ReflectionClass($this->command);
+        $method = $reflection->getMethod('promptChooseCodebaseEnvironment');
+        $method->setAccessible(true);
+
+        $result = $method->invoke($this->command, $environments);
+        $this->assertSame($env, $result);
+    }
+
+    /**
+     * Test promptChooseCodebaseEnvironment prompts and returns the selected environment.
+     */
+    public function testPromptChooseCodebaseEnvironmentMultiple(): void
+    {
+        $env1 = new EnvironmentResponse((object)[
+            'active_domain'  => '',
+            // Empty object placeholder.
+            'application'    => (object)[],
+            // Empty object placeholder.
+            'artifact'       => (object)[],
+            'balancer'       => '',
+            // Empty object placeholder.
+            'configuration'  => (object)[],
+            'default_domain' => '',
+            'domains'        => [],
+            'flags' => (object)[
+                'production' => false,
+            ],
+            // Empty object placeholder.
+            'gardener'       => (object)[],
+            'id'           => '3e8ecbec-ea7c-4260-8414-ef2938c859bc',
+            'image_url'      => null,
+            'ips'            => [],
+            'label'          => 'Env1',
+            // Empty object placeholder.
+            'links'          => (object)[],
+            'name'           => 'dev',
+            'platform'       => '',
+            'region'         => null,
+            'sshUrl'         => 'site.dev@sitedev.ssh.hosted.acquia-sites.com',
+            'status'         => 'normal',
+            'type'           => '',
+            'vcs' => (object)[
+                'branch' => 'main',
+                'path'   => 'tag/v3.1',
+                'url'    => '',
+            ],
+            '_links' => (object)[],
+        ]);
+        $env2 =  new EnvironmentResponse((object)[
+            'active_domain'  => '',
+            // Empty object placeholder.
+            'application'    => (object)[],
+            // Empty object placeholder.
+            'artifact'       => (object)[],
+            'balancer'       => '',
+            // Empty object placeholder.
+            'configuration'  => (object)[],
+            'default_domain' => '',
+            'domains'        => [],
+            'flags' => (object)[
+                'production' => false,
+            ],
+            // Empty object placeholder.
+            'gardener'       => (object)[],
+            'id'           => '3e8ecbec-ea7c-4260-8414-ef2938c859bb',
+            'image_url'      => null,
+            'ips'            => [],
+            'label'          => 'Env2',
+            // Empty object placeholder.
+            'links'          => (object)[],
+            'name'           => 'prod',
+            'platform'       => '',
+            'region'         => null,
+            'sshUrl'         => 'site.dev2@sitedev.ssh.hosted.acquia-sites.com',
+            'status'         => 'normal',
+            'type'           => '',
+            'vcs' => (object)[
+                'branch' => 'release',
+                'path'   => 'tag/v3.2',
+                'url'    => '',
+            ],
+            '_links' => (object)[],
+        ]);
+        $environments = [$env1, $env2];
+
+        // Mock io->choice to select the second environment.
+        $ioProphecy = $this->prophet->prophesize(\Symfony\Component\Console\Style\SymfonyStyle::class);
+        $choices = [
+            'Env1, dev (branch: main)',
+            'Env2, prod (branch: release)',
+        ];
+        $ioProphecy->choice('Choose a Cloud Platform environment', $choices, $choices[0])
+            ->willReturn($choices[1])
+            ->shouldBeCalled();
+
+        // Inject the mocked io into the command.
+        $reflection = new \ReflectionClass($this->command);
+        $ioProperty = $reflection->getProperty('io');
+        $ioProperty->setAccessible(true);
+        $ioProperty->setValue($this->command, $ioProphecy->reveal());
+
+        $method = $reflection->getMethod('promptChooseCodebaseEnvironment');
+        $method->setAccessible(true);
+
+        $result = $method->invoke($this->command, $environments);
+        $this->assertSame($env2, $result);
     }
 }

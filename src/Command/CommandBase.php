@@ -766,7 +766,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
 
         $chosenEnvironmentLabel = $this->io->choice('Choose a Cloud Platform environment', $choices, $choices[0]);
         $chosenEnvironmentIndex = array_search($chosenEnvironmentLabel, $choices, true);
-
         return $environments[$chosenEnvironmentIndex];
     }
 
@@ -781,18 +780,13 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
     private function getSitesByCodebase(string $codebaseUuid): array
     {
         $acquiaCloudClient = $this->cloudApiClientService->getClient();
+        $response = $acquiaCloudClient->request('get', "/codebases/$codebaseUuid/sites");
 
-        try {
-            $response = $acquiaCloudClient->request('get', "/codebases/$codebaseUuid/sites");
-
-            if (!isset($response->_embedded->items)) {
-                return (array) $response;
-            }
-
-            return (array) $response->_embedded->items;
-        } catch (Exception $e) {
-            throw new AcquiaCliException('Failed to fetch sites for codebase: ' . $e->getMessage());
+        if (!isset($response->_embedded->items)) {
+            return (array) $response;
         }
+
+        return (array) $response->_embedded->items;
     }
 
     /**
