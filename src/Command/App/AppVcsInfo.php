@@ -70,7 +70,7 @@ class AppVcsInfo extends CommandBase
         if (!$showDeployedVcsOnly) {
             // Prepare list of all non-deployed VCS paths.
             foreach ($allBranchesAndTags as $branchTag) {
-                if (!isset($deployedVcs[$branchTag->name])) {
+                if (!in_array($branchTag->name, $deployedVcs, true)) {
                     $nonDeployedVcs[$branchTag->name] = $branchTag->name;
                 }
             }
