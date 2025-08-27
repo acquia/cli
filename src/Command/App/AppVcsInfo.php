@@ -47,7 +47,9 @@ class AppVcsInfo extends CommandBase
         $deployedVcs = [];
         foreach ($environments as $environment) {
             if (isset($environment->vcs->path)) {
-                $deployedVcs[$environment->vcs->path] = $environment->label;
+                // Using paths as keys negates dev/stage/prod environments
+                // having the same branch/tag deployed.
+                $deployedVcs[$environment->label] = $environment->vcs->path;
             }
         }
 
@@ -81,12 +83,14 @@ class AppVcsInfo extends CommandBase
         $table->setHeaders($headers);
         $table->setHeaderTitle('Status of Branches and Tags of the Application');
         foreach ($allVcs as $vscPath => $env) {
+            // Flip the env and path if it is deployed.
+            $isDeployed = in_array($vscPath, array_keys($deployedVcs), true);
             $table->addRow([
-                $vscPath,
+                $isDeployed ? $env : $vscPath,
                 // If VCS and env name is not same, it means it is deployed.
                 $vscPath !== $env ? 'Yes' : 'No',
                 // If VCS and env name is same, it means it is deployed.
-                $vscPath !== $env ? $env : 'None',
+                $vscPath !== $env ? ($isDeployed ? $vscPath : $env) : 'None',
             ]);
         }
 
