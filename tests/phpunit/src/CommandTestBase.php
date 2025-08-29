@@ -231,55 +231,6 @@ abstract class CommandTestBase extends TestBase
         $environments = $this->mockRequest('getApplicationEnvironments', $application->uuid);
         return $environments[self::$INPUT_DEFAULT_CHOICE];
     }
-    public function mockGetSiteInstance(): mixed
-    {
-        $sites = $this->mockRequest('get_sites');
-        $site = $sites[self::$INPUT_DEFAULT_CHOICE];
-        $environments = $this->mockRequest('environments_by_site', $site->id);
-        $environment = $environments[self::$INPUT_DEFAULT_CHOICE];
-        $codebase = $this->mockRequest('get_codebase_by_id', $environment->_embedded->codebase->id);
-        $environment->codebase = (object)$codebase;
-        $siteInstance = $this->mockRequest('site_instance', [$site->id, $environment->id]);
-        $siteInstance->site = $site;
-        $siteInstance->environment = $environment;
-        return $siteInstance;
-    }
-    public function mockGetSingleSiteInstance(): mixed
-    {
-        $sites = $this->mockRequest('get_sites');
-        $site = $sites[self::$INPUT_DEFAULT_CHOICE];
-        $environments = $this->mockRequest('environments_by_site', $site->id);
-        $environment = $environments[self::$INPUT_DEFAULT_CHOICE];
-        $codebase = $this->mockRequest('get_codebase_by_id', $environment->_embedded->codebase->id);
-        $environment->codebase = (object)$codebase;
-        $siteInstance = $this->mockRequest('site_instance', [$site->id, $environment->id]);
-        return $siteInstance;
-    }
-    public function mockGetSite(): mixed
-    {
-        $sites = $this->mockRequest('get_sites');
-        $site = $sites[self::$INPUT_DEFAULT_CHOICE];
-        return $site;
-    }
-    public function mockGetCodebaseEnvironment(): mixed
-    {
-        $sites = $this->mockRequest('get_sites');
-        $site = $sites[self::$INPUT_DEFAULT_CHOICE];
-        $environments = $this->mockRequest('environments_by_site', $site->id);
-        $environment = $environments[self::$INPUT_DEFAULT_CHOICE];
-        $codebase = $this->mockRequest('get_codebase_by_id', $environment->_embedded->codebase->id);
-        $environment->codebase = (object)$codebase;
-        return $environment;
-    }
-    public function mockGetCodebase(): mixed
-    {
-        $sites = $this->mockRequest('get_sites');
-        $site = $sites[self::$INPUT_DEFAULT_CHOICE];
-        $environments = $this->mockRequest('environments_by_site', $site->id);
-        $environment = $environments[self::$INPUT_DEFAULT_CHOICE];
-        $codebase = $this->mockRequest('get_codebase_by_id', $environment->_embedded->codebase->id);
-        return $codebase;
-    }
 
     protected function mockLocalMachineHelper(): LocalMachineHelper|ObjectProphecy
     {
