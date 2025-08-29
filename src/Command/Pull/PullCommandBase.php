@@ -459,7 +459,7 @@ abstract class PullCommandBase extends CommandBase
         }
 
         // Check for IDE context and auto-determine site instance.
-        $siteInstanceId = $this->determineSiteInstanceFromIdeContext($environment, $input, $this->output);
+        $siteInstanceId = $this->determineSiteInstanceFromCodebaseUuid($environment, $input, $this->output);
         if ($siteInstanceId) {
             // Extract site from siteInstanceId for this method's return.
             [$siteId,] = explode('.', $siteInstanceId);

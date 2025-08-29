@@ -668,14 +668,15 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
         } elseif ($input->getArgument('environmentId')) {
             $environmentId = $input->getArgument('environmentId');
             $chosenEnvironment = $this->getCloudEnvironment($environmentId);
-        } elseif ($ideEnvironment = $this->determineEnvironmentFromIdeContext($input, $output)) {
-            $chosenEnvironment = $ideEnvironment;
         } else {
-            $cloudApplicationUuid = $this->determineCloudApplication();
-            $cloudApplication = $this->getCloudApplication($cloudApplicationUuid);
-            $output->writeln('Using Cloud Application <options=bold>' . $cloudApplication->name . '</>');
-            $acquiaCloudClient = $this->cloudApiClientService->getClient();
-            $chosenEnvironment = $this->promptChooseEnvironmentConsiderProd($acquiaCloudClient, $cloudApplicationUuid, $allowProduction, $allowNode);
+            $chosenEnvironment = $this->determineCodebaseEnvironment($input, $output);
+            if (!$chosenEnvironment) {
+                $cloudApplicationUuid = $this->determineCloudApplication();
+                $cloudApplication = $this->getCloudApplication($cloudApplicationUuid);
+                $output->writeln(sprintf('Using Cloud Application <options=bold>%s</>', $cloudApplication->name));
+                $acquiaCloudClient = $this->cloudApiClientService->getClient();
+                $chosenEnvironment = $this->promptChooseEnvironmentConsiderProd($acquiaCloudClient, $cloudApplicationUuid, $allowProduction, $allowNode);
+            }
         }
         $this->logger->debug("Using environment $chosenEnvironment->label $chosenEnvironment->uuid");
 
@@ -683,11 +684,11 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
     }
 
     /**
-     * Determine environment from IDE context using AH_CODEBASE_UUID.
+     * Determine environment using AH_CODEBASE_UUID.
      *
      * @throws \Acquia\Cli\Exception\AcquiaCliException
      */
-    private function determineEnvironmentFromIdeContext(InputInterface $input, OutputInterface $output): ?EnvironmentResponse
+    private function determineCodebaseEnvironment(InputInterface $input, OutputInterface $output): ?EnvironmentResponse
     {
 
         // Check for AH_CODEBASE_UUID.
@@ -697,7 +698,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
             return null;
         }
         $output->writeln(sprintf(
-            'Detected IDE context with codebase UUID: <options=bold>%s</>',
+            'Detected Codebase UUID: <options=bold>%s</>',
             $codebaseUuid
         ));
 
@@ -794,7 +795,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
      *
      * @throws \Acquia\Cli\Exception\AcquiaCliException
      */
-    protected function determineSiteInstanceFromIdeContext(EnvironmentResponse $environment, InputInterface $input, OutputInterface $output): ?string
+    protected function determineSiteInstanceFromCodebaseUuid(EnvironmentResponse $environment, InputInterface $input, OutputInterface $output): ?string
     {
         // Check if we're in IDE context and have a codebase UUID.
         $codebaseUuid = self::getCodebaseUuid();
@@ -1190,7 +1191,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
         }
 
         // Get from the Cloud Platform env var.
-        if ($applicationUuid = self::getThisCloudIdeCloudAppUuid()) {
+        if ($applicationUuid = self::getCloudAppUuid()) {
             return $applicationUuid;
         }
 
@@ -1341,7 +1342,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
      *
      * This command assumes it is being run inside a Cloud IDE.
      */
-    protected static function getThisCloudIdeCloudAppUuid(): false|string
+    protected static function getCloudAppUuid(): false|string
     {
         return getenv('ACQUIA_APPLICATION_UUID');
     }

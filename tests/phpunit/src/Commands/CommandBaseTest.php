@@ -801,6 +801,70 @@ class CommandBaseTest extends CommandTestBase
     }
 
     /**
+     * Test determineEnvironment with invalid siteInstanceId format throws exception.
+     */
+    public function testDetermineEnvironmentElseBlock(): void
+    {
+        $applicationUuid = 'a47ac10b-58cc-4372-a567-0e02b2c3d470';
+        self::setEnvVars(['ACQUIA_APPLICATION_UUID' => $applicationUuid]);
+        $applicationsResponse = self::getMockResponseFromSpec('/applications', 'get', '200');
+        $applicationsResponse = $this->filterApplicationsResponse($applicationsResponse, 2, true);
+        $this->clientProphecy->request(
+            'get',
+            "/applications/{$applicationUuid}"
+        )
+            ->willReturn($applicationsResponse->{'_embedded'}->items[0])
+            ->shouldBeCalled();
+
+        $this->mockEnvironmentsRequest($applicationsResponse);
+        $inputMock = $this->prophet->prophesize(\Symfony\Component\Console\Input\InputInterface::class);
+        $outputMock = $this->prophet->prophesize(\Symfony\Component\Console\Output\OutputInterface::class);
+        $ioProphecy = $this->prophet->prophesize(\Symfony\Component\Console\Style\SymfonyStyle::class);
+
+        $inputMock->hasOption('siteInstanceId')->willReturn(false);
+        $inputMock->getOption('siteInstanceId')->willReturn(null);
+        $inputMock->hasArgument('applicationUuid')->willReturn(false);
+        $inputMock->getArgument('applicationUuid')->willReturn(null);
+        $inputMock->hasArgument('environmentId')->willReturn(false);
+        $inputMock->getArgument('environmentId')->willReturn(null);
+        $inputMock->isInteractive()->willReturn(true);
+
+        // Ensure confirm() returns a bool to avoid TypeError.
+        $ioProphecy->confirm(\Prophecy\Argument::cetera())->willReturn(true);
+        $ioProphecy->success(\Prophecy\Argument::cetera())->willReturn(null);
+
+        $choices = [
+            "Dev, dev (vcs: master)",
+        ];
+        $ioProphecy->choice('Choose a Cloud Platform environment', $choices, $choices[0])
+        ->willReturn($choices[0])
+        ->shouldBeCalled();
+        // Use reflection to set the protected $input property.
+        $reflectionCommand = new \ReflectionClass($this->command);
+        $inputProperty = $reflectionCommand->getProperty('input');
+        $inputProperty->setAccessible(true);
+        $inputProperty->setValue($this->command, $inputMock->reveal());
+        $outputProperty = $reflectionCommand->getProperty('output');
+        $outputProperty->setAccessible(true);
+        $outputProperty->setValue($this->command, $outputMock->reveal());
+
+        $ioProperty = $reflectionCommand->getProperty('io');
+        $ioProperty->setAccessible(true);
+        $ioProperty->setValue($this->command, $ioProphecy->reveal());
+
+        $reflection = new \ReflectionClass($this->command);
+        $method = $reflection->getMethod('determineEnvironment');
+        $method->setAccessible(true);
+        $output = new \Symfony\Component\Console\Output\BufferedOutput();
+
+        $result = $method->invoke($this->command, $inputMock->reveal(), $output);
+        $this->assertEquals('24-a47ac10b-58cc-4372-a567-0e02b2c3d470', $result->uuid);
+        $this->assertStringContainsString('Using Cloud Application', $output->fetch());
+
+        self::unSetEnvVars(['ACQUIA_APPLICATION_UUID']);
+    }
+
+    /**
      * Test siteInstanceId parsing and processing logic.
      */
     public function testSiteInstanceIdParsing(): void
@@ -1015,43 +1079,6 @@ class CommandBaseTest extends CommandTestBase
     }
 
     /**
-     * Test actual execution of determineEnvironment else branch conditions.
-     */
-    public function testDetermineEnvironmentElseBranchReflection(): void
-    {
-        // Create input and output mocks.
-        $inputMock = $this->prophet->prophesize(\Symfony\Component\Console\Input\InputInterface::class);
-        $outputMock = $this->prophet->prophesize(\Symfony\Component\Console\Output\OutputInterface::class);
-
-        // Set up input mock for else branch (interactive mode)
-        $inputMock->hasOption('siteInstanceId')->willReturn(false);
-        $inputMock->getArgument('environmentId')->willReturn(null);
-
-        $input = $inputMock->reveal();
-        $output = $outputMock->reveal();
-
-        // Verify all conditions that lead to else branch.
-        $siteInstanceCondition = $input->hasOption('siteInstanceId') && $input->getOption('siteInstanceId');
-        $environmentIdCondition = $input->getArgument('environmentId');
-
-        $this->assertFalse($siteInstanceCondition);
-        $this->assertNull($environmentIdCondition);
-
-        // This combination should trigger the else branch.
-        if (!$siteInstanceCondition && !$environmentIdCondition) {
-            // $cloudApplication = $this->getCloudApplication($cloudApplicationUuid);
-            $mockCloudApplication = (object) ['name' => 'Test Application'];
-
-            // $output->writeln('Using Cloud Application <options=bold>' . $cloudApplication->name . '</>');
-            $expectedOutput = 'Using Cloud Application <options=bold>' . $mockCloudApplication->name . '</>';
-            $this->assertEquals('Using Cloud Application <options=bold>Test Application</>', $expectedOutput);
-
-            // Test that we reached the else branch.
-            $this->assertTrue(true);
-        }
-    }
-
-    /**
      * Test the logger debug line at the end of determineEnvironment.
      */
     public function testDetermineEnvironmentLoggerDebugLine(): void
@@ -1102,41 +1129,6 @@ class CommandBaseTest extends CommandTestBase
         if (!$hasOptionSiteInstance && $hasEnvironmentId) {
             // This branch would call $this->getCloudEnvironment($environmentId)
             $this->assertEquals($environmentId, $hasEnvironmentId);
-        }
-    }
-
-    /**
-     * Test determine environment else branch (interactive mode) conditions.
-     */
-    public function testDetermineEnvironmentElseBranchConditions(): void
-    {
-        $inputMock = $this->prophet->prophesize(\Symfony\Component\Console\Input\InputInterface::class);
-        $outputMock = $this->prophet->prophesize(\Symfony\Component\Console\Output\OutputInterface::class);
-
-        // Set up the input mock for the else branch.
-        $inputMock->hasOption('siteInstanceId')->willReturn(false);
-        $inputMock->getArgument('environmentId')->willReturn(null);
-
-        // Test the conditions that lead to the else branch.
-        $hasOptionSiteInstance = $inputMock->reveal()->hasOption('siteInstanceId');
-        $hasEnvironmentId = $inputMock->reveal()->getArgument('environmentId');
-
-        $this->assertFalse($hasOptionSiteInstance);
-        $this->assertNull($hasEnvironmentId);
-
-        // This condition should trigger the else branch.
-        if (
-            !($hasOptionSiteInstance && $inputMock->reveal()->getOption('siteInstanceId')) &&
-            !$hasEnvironmentId
-        ) {
-            // This branch would execute:
-            // $cloudApplicationUuid = $this->determineCloudApplication();
-            // $cloudApplication = $this->getCloudApplication($cloudApplicationUuid);
-            // $output->writeln('Using Cloud Application <options=bold>' . $cloudApplication->name . '</>');
-            // $acquiaCloudClient = $this->cloudApiClientService->getClient();
-            // $chosenEnvironment = $this->promptChooseEnvironmentConsiderProd(...);.
-            // Confirms we reached this branch.
-            $this->assertTrue(true);
         }
     }
 
@@ -1296,9 +1288,9 @@ class CommandBaseTest extends CommandTestBase
     }
 
     /**
-     * determineEnvironmentFromIdeContext: returns null when AH_CODEBASE_UUID is absent.
+     * determineCodebaseEnvironment: returns null when AH_CODEBASE_UUID is absent.
      */
-    public function testDetermineEnvironmentFromIdeContextReturnsNullWhenNoCodebaseUuid(): void
+    public function testdetermineCodebaseEnvironmentReturnsNullWhenNoCodebaseUuid(): void
     {
         self::unsetEnvVars(['AH_CODEBASE_UUID']);
 
@@ -1306,7 +1298,7 @@ class CommandBaseTest extends CommandTestBase
         $output = $this->prophet->prophesize(OutputInterface::class)->reveal();
 
         $reflection = new \ReflectionClass($this->command);
-        $method = $reflection->getMethod('determineEnvironmentFromIdeContext');
+        $method = $reflection->getMethod('determineCodebaseEnvironment');
         $method->setAccessible(true);
 
         $result = $method->invoke($this->command, $input, $output);
@@ -1314,9 +1306,9 @@ class CommandBaseTest extends CommandTestBase
     }
 
     /**
-     * determineEnvironmentFromIdeContext: happy-path with a single environment (no prompt).
+     * determineCodebaseEnvironment: happy-path with a single environment (no prompt).
      */
-    public function testDetermineEnvironmentFromIdeContextSuccessSingleEnvironment(): void
+    public function testdetermineCodebaseEnvironmentSuccessSingleEnvironment(): void
     {
         $codebaseUuid = '11111111-041c-44c7-a486-7972ed2cafc8';
         self::SetEnvVars(['AH_CODEBASE_UUID' => $codebaseUuid]);
@@ -1337,7 +1329,7 @@ class CommandBaseTest extends CommandTestBase
         $outputProphecy = $this->prophet->prophesize(OutputInterface::class);
 
         $outputProphecy->writeln(sprintf(
-            'Detected IDE context with codebase UUID: <options=bold>%s</>',
+            'Detected Codebase UUID: <options=bold>%s</>',
             $codebaseUuid
         ))->shouldBeCalled();
         $outputProphecy->writeln(sprintf(
@@ -1347,12 +1339,12 @@ class CommandBaseTest extends CommandTestBase
         $output = $outputProphecy->reveal();
 
         $reflection = new \ReflectionClass($this->command);
-        $method = $reflection->getMethod('determineEnvironmentFromIdeContext');
+        $method = $reflection->getMethod('determineCodebaseEnvironment');
         $method->setAccessible(true);
 
         $result = $method->invoke($this->command, $input, $output);
-        $expectedOutput = "Detected IDE context with codebase UUID: <options=bold>$codebaseUuid</>";
-        $this->assertEquals("Detected IDE context with codebase UUID: <options=bold>11111111-041c-44c7-a486-7972ed2cafc8</>", $expectedOutput);
+        $expectedOutput = "Detected Codebase UUID: <options=bold>$codebaseUuid</>";
+        $this->assertEquals("Detected Codebase UUID: <options=bold>11111111-041c-44c7-a486-7972ed2cafc8</>", $expectedOutput);
 
         $expectedOutputCodebase = "Using codebase: <options=bold>" . $codebase->label . "</>";
         $this->assertEquals("Using codebase: <options=bold>Test codebase with attached applications</>", $expectedOutputCodebase);
@@ -1365,9 +1357,9 @@ class CommandBaseTest extends CommandTestBase
     }
 
     /**
-     * determineEnvironmentFromIdeContext: no environments found path (caught and returns null).
+     * determineCodebaseEnvironment: no environments found path (caught and returns null).
      */
-    public function testDetermineEnvironmentFromIdeContextNoEnvironmentsReturnsNull(): void
+    public function testdetermineCodebaseEnvironmentNoEnvironmentsReturnsNull(): void
     {
         $codebaseUuid = '11111111-041c-44c7-a486-7972ed2cafc8';
         self::SetEnvVars(['AH_CODEBASE_UUID' => $codebaseUuid]);
@@ -1386,7 +1378,7 @@ class CommandBaseTest extends CommandTestBase
         $output = new BufferedOutput();
 
         $reflection = new \ReflectionClass($this->command);
-        $method = $reflection->getMethod('determineEnvironmentFromIdeContext');
+        $method = $reflection->getMethod('determineCodebaseEnvironment');
         $method->setAccessible(true);
 
         $this->expectException(AcquiaCliException::class);
@@ -1399,9 +1391,9 @@ class CommandBaseTest extends CommandTestBase
 
 
     /**
-     * determineEnvironmentFromIdeContext: no environments found path (caught and returns null).
+     * determineCodebaseEnvironment: no environments found path (caught and returns null).
      */
-    public function testDetermineEnvironmentFromIdeContextSuccess(): void
+    public function testdetermineCodebaseEnvironmentSuccess(): void
     {
         $codebaseUuid = '11111111-041c-44c7-a486-7972ed2cafc8';
         self::SetEnvVars(['AH_CODEBASE_UUID' => $codebaseUuid]);
@@ -1420,7 +1412,7 @@ class CommandBaseTest extends CommandTestBase
         $output = new BufferedOutput();
 
         $reflection = new \ReflectionClass($this->command);
-        $method = $reflection->getMethod('determineEnvironmentFromIdeContext');
+        $method = $reflection->getMethod('determineCodebaseEnvironment');
         $method->setAccessible(true);
 
         $result = $method->invoke($this->command, $input, $output);
@@ -1587,9 +1579,9 @@ class CommandBaseTest extends CommandTestBase
         $this->assertSame($bare, $result);
     }
     /**
-     * determineSiteInstanceFromIdeContext: returns null when AH_CODEBASE_UUID is absent.
+     * determineSiteInstanceFromCodebaseUuid: returns null when AH_CODEBASE_UUID is absent.
      */
-    public function testDetermineSiteInstanceFromIdeContextReturnsNullWithoutUuid(): void
+    public function testDetermineSiteInstanceFromCodebaseUuidReturnsNullWithoutUuid(): void
     {
         self::UnsetEnvVars(['AH_CODEBASE_UUID']);
 
@@ -1612,7 +1604,7 @@ class CommandBaseTest extends CommandTestBase
         $output = $this->prophet->prophesize(OutputInterface::class)->reveal();
 
         $reflection = new \ReflectionClass($this->command);
-        $method = $reflection->getMethod('determineSiteInstanceFromIdeContext');
+        $method = $reflection->getMethod('determineSiteInstanceFromCodebaseUuid');
         $method->setAccessible(true);
 
         $result = $method->invoke($this->command, $environment, $input, $output);
@@ -1621,9 +1613,9 @@ class CommandBaseTest extends CommandTestBase
     }
 
     /**
-     * determineSiteInstanceFromIdeContext: single site instance auto-selected.
+     * determineSiteInstanceFromCodebaseUuid: single site instance auto-selected.
      */
-    public function testDetermineSiteInstanceFromIdeContextSingleSiteInstance(): void
+    public function testDetermineSiteInstanceFromCodebaseUuidSingleSiteInstance(): void
     {
         $codebaseUuid = '11111111-041c-44c7-a486-7972ed2cafc8';
         self::SetEnvVars(['AH_CODEBASE_UUID' => $codebaseUuid]);
@@ -1646,7 +1638,7 @@ class CommandBaseTest extends CommandTestBase
         $output = $this->prophet->prophesize(OutputInterface::class)->reveal();
 
         $reflection = new \ReflectionClass($this->command);
-        $method = $reflection->getMethod('determineSiteInstanceFromIdeContext');
+        $method = $reflection->getMethod('determineSiteInstanceFromCodebaseUuid');
         $method->setAccessible(true);
 
         $result = $method->invoke($this->command, $environment, $input, $output);
@@ -1655,9 +1647,9 @@ class CommandBaseTest extends CommandTestBase
     }
 
     /**
-     * determineSiteInstanceFromIdeContext: when no sites are found, returns null.
+     * determineSiteInstanceFromCodebaseUuid: when no sites are found, returns null.
      */
-    public function testDetermineSiteInstanceFromIdeContextNoSitesReturnsNull(): void
+    public function testDetermineSiteInstanceFromCodebaseUuidNoSitesReturnsNull(): void
     {
         $codebaseUuid = '11111111-041c-44c7-a486-7972ed2cafc8';
         self::SetEnvVars(['AH_CODEBASE_UUID' => $codebaseUuid]);
@@ -1686,14 +1678,14 @@ class CommandBaseTest extends CommandTestBase
         $output = $this->prophet->prophesize(OutputInterface::class)->reveal();
 
         $reflection = new \ReflectionClass($this->command);
-        $method = $reflection->getMethod('determineSiteInstanceFromIdeContext');
+        $method = $reflection->getMethod('determineSiteInstanceFromCodebaseUuid');
         $method->setAccessible(true);
 
         $result = $method->invoke($this->command, $environment, $input, $output);
         $this->assertNull($result);
         self::unsetEnvVars(['AH_CODEBASE_UUID']);
     }
-    public function testDetermineSiteInstanceFromIdeContextPrintsWhenNoSites(): void
+    public function testDetermineSiteInstanceFromCodebaseUuidPrintsWhenNoSites(): void
     {
         $codebaseUuid = '11111111-041c-44c7-a486-7972ed2cafc8';
         // Arrange.
@@ -1705,7 +1697,7 @@ class CommandBaseTest extends CommandTestBase
         // Capture.
         $output = new \Symfony\Component\Console\Output\BufferedOutput();
         $reflection = new \ReflectionClass($this->command);
-        $method = $reflection->getMethod('determineSiteInstanceFromIdeContext');
+        $method = $reflection->getMethod('determineSiteInstanceFromCodebaseUuid');
         $method->setAccessible(true);
 
         // Act.
@@ -1726,7 +1718,7 @@ class CommandBaseTest extends CommandTestBase
         self::unsetEnvVars(['AH_CODEBASE_UUID']);
     }
 
-    public function testDetermineSiteInstanceFromIdeContextWhenSitesAvailable(): void
+    public function testDetermineSiteInstanceFromCodebaseUuidWhenSitesAvailable(): void
     {
         $codebaseUuid = '11111111-041c-44c7-a486-7972ed2cafc8';
         // Arrange.
@@ -1750,7 +1742,7 @@ class CommandBaseTest extends CommandTestBase
         // Capture.
         $output = new \Symfony\Component\Console\Output\BufferedOutput();
         $reflection = new \ReflectionClass($this->command);
-        $method = $reflection->getMethod('determineSiteInstanceFromIdeContext');
+        $method = $reflection->getMethod('determineSiteInstanceFromCodebaseUuid');
         $method->setAccessible(true);
 
         // Act.
@@ -1765,7 +1757,7 @@ class CommandBaseTest extends CommandTestBase
         self::unsetEnvVars(['AH_CODEBASE_UUID']);
     }
 
-    public function testDetermineSiteInstanceFromIdeContextWhenMultipleSiteInstancesAvailable(): void
+    public function testDetermineSiteInstanceFromCodebaseUuidWhenMultipleSiteInstancesAvailable(): void
     {
         $codebaseUuid = '11111111-041c-44c7-a486-7972ed2cafc8';
         // Arrange.
@@ -1819,7 +1811,7 @@ class CommandBaseTest extends CommandTestBase
         $ioProperty->setAccessible(true);
         $ioProperty->setValue($this->command, $ioProphecy->reveal());
 
-        $method = $reflection->getMethod('determineSiteInstanceFromIdeContext');
+        $method = $reflection->getMethod('determineSiteInstanceFromCodebaseUuid');
         $method->setAccessible(true);
 
         // Act.
