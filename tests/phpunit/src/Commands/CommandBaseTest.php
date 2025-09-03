@@ -10,6 +10,7 @@ use Acquia\Cli\Command\Ide\IdeListCommand;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Tests\CommandTestBase;
 use Acquia\Cli\Transformer\EnvironmentTransformer;
+use AcquiaCloudApi\Response\CodebaseResponse;
 use AcquiaCloudApi\Response\EnvironmentResponse;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\BufferedOutput;
@@ -593,13 +594,13 @@ class CommandBaseTest extends CommandTestBase
         $this->assertEquals('codebaseId', $parameters[0]->getName());
     }
     /**
-    * Test determineVcsUrl method logic paths through TestableCommand.
-    * This test fully covers mutation scenarios including:
-    * - hasOption = true && getOption = null
-    * - hasOption = true && getOption = ''
-    * - hasOption = false && getOption = null
-    * - No options at all
-    */
+     * Test determineVcsUrl method logic paths through TestableCommand.
+     * This test fully covers mutation scenarios including:
+     * - hasOption = true && getOption = null
+     * - hasOption = true && getOption = ''
+     * - hasOption = false && getOption = null
+     * - No options at all
+     */
     public function testDetermineVcsUrlLogicPaths(): void
     {
         $applicationsResponse = self::getMockResponseFromSpec('/applications', 'get', '200');
@@ -837,8 +838,8 @@ class CommandBaseTest extends CommandTestBase
             "Dev, dev (vcs: master)",
         ];
         $ioProphecy->choice('Choose a Cloud Platform environment', $choices, $choices[0])
-        ->willReturn($choices[0])
-        ->shouldBeCalled();
+            ->willReturn($choices[0])
+            ->shouldBeCalled();
         // Use reflection to set the protected $input property.
         $reflectionCommand = new \ReflectionClass($this->command);
         $inputProperty = $reflectionCommand->getProperty('input');
@@ -1429,11 +1430,11 @@ class CommandBaseTest extends CommandTestBase
      */
     public function testGetEnvironmentsByCodebaseTransforms(): void
     {
-        $codebaseUuid = 'cb-1234-uuid';
+        $codebase = new CodebaseResponse($this->getMockCodeBase());
         $env1 = $this->getMockCodeBaseEnvironment();
         $env2 = $this->getMockCodeBaseEnvironment();
 
-        $this->clientProphecy->request('get', '/codebases/' . $codebaseUuid . '/environments')
+        $this->clientProphecy->request('get', '/codebases/' . $codebase->id . '/environments')
             ->willReturn([$env1, $env2])
             ->shouldBeCalled();
 
@@ -1442,7 +1443,7 @@ class CommandBaseTest extends CommandTestBase
         $method->setAccessible(true);
 
         /** @var array<mixed> $result */
-        $result = $method->invoke($this->command, $codebaseUuid);
+        $result = $method->invoke($this->command, $codebase);
         $this->assertIsArray($result);
         $this->assertCount(2, $result);
         $this->assertEquals('3e8ecbec-ea7c-4260-8414-ef2938c859bc', $result[0]->uuid);
@@ -1454,8 +1455,9 @@ class CommandBaseTest extends CommandTestBase
      */
     public function testGetEnvironmentsByCodebaseThrowsOnClientError(): void
     {
-        $codebaseUuid = 'cb-error-uuid';
-        $this->clientProphecy->request('get', '/codebases/' . $codebaseUuid . '/environments')
+        $codebase = new CodebaseResponse($this->getMockCodeBase());
+
+        $this->clientProphecy->request('get', '/codebases/' . $codebase->id . '/environments')
             ->willThrow(new \Exception('boom'));
 
         $reflection = new \ReflectionClass($this->command);
@@ -1464,7 +1466,7 @@ class CommandBaseTest extends CommandTestBase
 
         $this->expectException(\Acquia\Cli\Exception\AcquiaCliException::class);
         $this->expectExceptionMessage('Failed to fetch environments for codebase: boom');
-        $method->invoke($this->command, $codebaseUuid);
+        $method->invoke($this->command, $codebase);
     }
 
     /**
@@ -1795,7 +1797,7 @@ class CommandBaseTest extends CommandTestBase
         // Capture.
         $output = new \Symfony\Component\Console\Output\BufferedOutput();
 
-         // Mock io->choice to select the second environment.
+        // Mock io->choice to select the second environment.
         $ioProphecy = $this->prophet->prophesize(\Symfony\Component\Console\Style\SymfonyStyle::class);
         $choices = [
             'site2',

@@ -233,7 +233,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
         $this->formatter = $this->getHelper('formatter');
 
         $this->output->writeln('Acquia CLI version: ' . $this->getApplication()
-                ->getVersion(), OutputInterface::VERBOSITY_DEBUG);
+            ->getVersion(), OutputInterface::VERBOSITY_DEBUG);
         if (getenv('ACLI_NO_TELEMETRY') !== 'true') {
             $this->checkAndPromptTelemetryPreference();
             $this->telemetryHelper->initialize();
@@ -710,7 +710,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
         ));
 
         // Get environments for this codebase.
-        $environments = $this->getEnvironmentsByCodebase($codebaseUuid);
+        $environments = $this->getEnvironmentsByCodebase($codebase);
 
         if (empty($environments)) {
             throw new AcquiaCliException('No environments found for this codebase.');
@@ -731,15 +731,16 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
     /**
      * @return array<mixed>
      */
-    private function getEnvironmentsByCodebase(string $codebaseUuid): array
+    private function getEnvironmentsByCodebase(CodebaseResponse $codebase): array
     {
         try {
             // Use the codebase environments endpoint.
             $codebaseEnvironmentResource = new CodebaseEnvironments($this->cloudApiClientService->getClient());
-            $codebaseEnvironments = $codebaseEnvironmentResource->getAll($codebaseUuid);
+            $codebaseEnvironments = $codebaseEnvironmentResource->getAll($codebase->id);
             // Transform codebase environments to standard environment format.
             $environments = [];
             foreach ($codebaseEnvironments as $codebaseEnv) {
+                $codebaseEnv->codebase = $codebase;
                 $environments[] = EnvironmentTransformer::transform($codebaseEnv);
             }
 
@@ -805,6 +806,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
 
         // Get sites for this codebase.
         $sites = $this->getSitesByCodebase($codebaseUuid);
+
         if (empty($sites)) {
             $output->writeln('<comment>No sites found for this codebase.</comment>');
             return null;
@@ -813,15 +815,18 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
         // Get site instances for the selected environment.
         $siteInstances = [];
         foreach ($sites as $site) {
-            $siteInstance = $this->getSiteInstance($site->id, $environment->uuid);
-            if ($siteInstance) {
-                $siteInstanceObj = new stdClass();
-                $siteInstanceObj->name = $site->name;
-                $siteInstanceObj->siteInstanceId = $site->id . '.' . $environment->uuid;
-                $siteInstances[] = $siteInstanceObj;
+            try {
+                $siteInstance = $this->getSiteInstance($site->id, $environment->uuid);
+                if ($siteInstance) {
+                    $siteInstanceObj = new stdClass();
+                    $siteInstanceObj->name = $site->name;
+                    $siteInstanceObj->siteInstanceId = $site->id . '.' . $environment->uuid;
+                    $siteInstances[] = $siteInstanceObj;
+                }
+            } catch (\Exception $e) {
+                // Throw new AcquiaCliException('Failed to get site instance for site ' . $site->id . $environment->uuid . ': ' . $e->getMessage());
             }
         }
-
         // If only one site instance, use it automatically.
         if (count($siteInstances) === 1) {
             $selectedInstance = reset($siteInstances);
@@ -908,8 +913,8 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
     {
         $this->localMachineHelper->checkRequiredBinariesExist(['git']);
         $process = $this->localMachineHelper->executeFromCmd(
-        // Problem with this is that it stages changes for the user. They may
-        // not want that.
+            // Problem with this is that it stages changes for the user. They may
+            // not want that.
             'git add . && git diff-index --cached --quiet HEAD',
             null,
             $this->dir,
@@ -1211,7 +1216,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
         return null;
     }
 
-     /**
+    /**
      * Determine the Cloud codebase.
      *
      * @throws \Acquia\Cli\Exception\AcquiaCliException
@@ -1626,8 +1631,8 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
     {
         if (
             $input->hasArgument('applicationUuid') && !$input->getArgument('applicationUuid') && $this->getDefinition()
-                ->getArgument('applicationUuid')
-                ->isRequired()
+            ->getArgument('applicationUuid')
+            ->isRequired()
         ) {
             $output->writeln('Inferring Cloud Application UUID for this command since none was provided...', OutputInterface::VERBOSITY_VERBOSE);
             if ($applicationUuid = $this->determineCloudApplication()) {
