@@ -824,13 +824,18 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
                     $siteInstances[] = $siteInstanceObj;
                 }
             } catch (\Exception $e) {
-                // Throw new AcquiaCliException('Failed to get site instance for site ' . $site->id . $environment->uuid . ': ' . $e->getMessage());
+                // Ignore errors for sites that don't have an instance in this environment.
+                $this->logger->debug("Site {$site->name} does not have an instance in environment {$environment->name}: " . $e->getMessage());
             }
         }
         // If only one site instance, use it automatically.
         if (count($siteInstances) === 1) {
             $selectedInstance = reset($siteInstances);
             return $selectedInstance->siteInstanceId;
+        }
+
+        if (count($siteInstances) === 0) {
+            return null;
         }
 
         // Prompt user to choose site instance.
@@ -1840,10 +1845,12 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
         throw new AcquiaCliException("Could not get Cloud sites for " . $cloudEnvironment->name);
     }
 
-    protected function getCloudSitesPath(mixed $cloudEnvironment, mixed $sitegroup): string
+    private function getCloudSitesPath(mixed $cloudEnvironment, mixed $sitegroup): string
     {
         if ($cloudEnvironment->platform === 'cloud-next') {
             $path = "/home/clouduser/$cloudEnvironment->name/sites";
+        } elseif ($cloudEnvironment->platform === 'MEO') {
+            $path = "/mnt/files/$cloudEnvironment->name/sites";
         } else {
             $path = "/mnt/files/$sitegroup.$cloudEnvironment->name/sites";
         }

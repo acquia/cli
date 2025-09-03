@@ -32,7 +32,7 @@ class EnvironmentTransformer
         $env->ips = $codebaseEnv->properties['ips'] ?? [];
         $env->domains = $codebaseEnv->properties['domains'] ?? [];
         $env->region = $codebaseEnv->properties['region'] ?? null;
-        $env->platform = $codebaseEnv->properties['platform'] ?? 'cloud-next';
+        $env->platform = $codebaseEnv->properties['platform'] ?? 'MEO';
         $env->balancer = $codebaseEnv->properties['balancer'] ?? '';
         $env->artifact = (object)($codebaseEnv->properties['artifact'] ?? null);
         $env->gardener = (object)($codebaseEnv->properties['gardener'] ?? null);

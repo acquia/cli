@@ -1648,6 +1648,58 @@ class CommandBaseTest extends CommandTestBase
         self::unsetEnvVars(['AH_CODEBASE_UUID']);
     }
 
+
+    /**
+     * determineSiteInstanceFromCodebaseUuid: no site instance available.
+     */
+    public function testDetermineSiteInstanceFromCodebaseUuidNoSiteInstance(): void
+    {
+        $codebaseUuid = '11111111-041c-44c7-a486-7972ed2cafc8';
+        self::SetEnvVars(['AH_CODEBASE_UUID' => $codebaseUuid]);
+
+        // EnvironmentResponse built via transformer.
+        $envPayload = $this->getMockCodeBaseEnvironment();
+        $environment = \Acquia\Cli\Transformer\EnvironmentTransformer::transform($envPayload);
+
+        $codeabaseSites = $this->getMockCodeBaseSites();
+        $this->clientProphecy->request('get', '/codebases/' . $codebaseUuid . '/sites')
+            ->willReturn($codeabaseSites)
+            ->shouldBeCalled();
+
+        $siteInstance = $this->getMockSiteInstanceResponse();
+
+        $this->clientProphecy->request('get', '/site-instances/8979a8ac-80dc-4df8-b2f0-6be36554a370.3e8ecbec-ea7c-4260-8414-ef2938c859bc')
+            ->willThrow(new \Exception('Failed to get site instance for site 8979a8ac-80dc-4df8-b2f0-6be36554a370'))
+            ->shouldBeCalled();
+
+        $input = $this->prophet->prophesize(InputInterface::class)->reveal();
+        $output = $this->prophet->prophesize(OutputInterface::class)->reveal();
+
+        $ioProphecy = $this->prophet->prophesize(\Symfony\Component\Console\Style\SymfonyStyle::class);
+
+        $loggerProphecy = $this->prophet->prophesize(\Psr\Log\LoggerInterface::class);
+        $loggerProphecy->debug(
+            "Site site2 does not have an instance in environment environment_3e8ecbec-ea7c-4260-8414-ef2938c859bc: Failed to get site instance for site 8979a8ac-80dc-4df8-b2f0-6be36554a370"
+        )->shouldBeCalled();
+
+        $this->command->setLogger($loggerProphecy->reveal());
+
+        $reflection = new \ReflectionClass($this->command);
+
+        $ioProperty = $reflection->getProperty('io');
+        $ioProperty->setAccessible(true);
+        $ioProperty->setValue($this->command, $ioProphecy->reveal());
+
+        $method = $reflection->getMethod('determineSiteInstanceFromCodebaseUuid');
+        $method->setAccessible(true);
+
+        // $this->expectException(AcquiaCliException::class);
+        // $this->expectExceptionMessage('Failed to get site instance for site 8979a8ac-80dc-4df8-b2f0-6be36554a370');
+        $result = $method->invoke($this->command, $environment, $input, $output);
+        $this->assertNull($result);
+        self::unsetEnvVars(['AH_CODEBASE_UUID']);
+    }
+
     /**
      * determineSiteInstanceFromCodebaseUuid: when no sites are found, returns null.
      */
