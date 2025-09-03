@@ -92,7 +92,7 @@ class EnvironmentTransformerTest extends TestCase
         // Fallback to empty array.
         $this->assertEquals([], $env->domains);
         // Fallback to empty string.
-        $this->assertEquals('', $env->platform);
+        $this->assertEquals('cloud-next', $env->platform);
         // Fallback to empty string.
         $this->assertEquals('', $env->balancer);
         $this->assertEquals('', $env->active_domain);
