@@ -25,7 +25,6 @@ class EnvironmentTransformerTest extends TestCase
                 'active_domain' => 'active.example.com',
                 'artifact' => 'artifact-info',
                 'balancer' => 'balancer-url',
-                'configuration' => ['php_version' => '8.1'],
                 'default_domain' => 'default.example.com',
                 'domains' => ['example.com'],
                 'gardener' => 'gardener-name',
@@ -39,7 +38,6 @@ class EnvironmentTransformerTest extends TestCase
             'ssh_url' => 'site.dev@sitedev.ssh.hosted.acquia-sites.com',
             'status' => 'active',
         ];
-
         $env = EnvironmentTransformer::transform($codebaseEnv);
 
         $this->assertInstanceOf(EnvironmentResponse::class, $env);
@@ -61,6 +59,8 @@ class EnvironmentTransformerTest extends TestCase
         $this->assertEquals('active.example.com', $env->active_domain);
         $this->assertEquals('default.example.com', $env->default_domain);
         $this->assertEquals(['127.0.0.1'], $env->ips);
+        $this->assertIsObject($env->configuration->php);
+        $this->assertEquals($codebaseEnv->properties, (array)$env->configuration->php);
     }
 
     public function testTransformWithMissingOptionalFields(): void

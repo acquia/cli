@@ -57,7 +57,8 @@ class EnvironmentTransformer
         ];
 
         // Optional config.
-        $env->configuration = (object) ($codebaseEnv->properties['configuration'] ?? null);
+        $env->configuration = (object) [];
+        $env->configuration->php = (object) ($codebaseEnv->properties ?? []);
 
         // Cast for mutation safety.
         $env->flags = (object) ($codebaseEnv->flags ?? []);
