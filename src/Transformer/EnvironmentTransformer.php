@@ -6,6 +6,7 @@ namespace Acquia\Cli\Transformer;
 
 use AcquiaCloudApi\Response\DatabaseResponse;
 use AcquiaCloudApi\Response\EnvironmentResponse;
+use stdClass;
 
 class EnvironmentTransformer
 {
@@ -77,13 +78,13 @@ class EnvironmentTransformer
         $db = new \stdClass();
         $db->id = $siteInstanceDb->databaseName;
         $db->name = $siteInstanceDb->databaseName;
-        $db->user_name = $siteInstanceDb->databaseUser;
+        $db->user_name = $siteInstanceDb->databaseUserName;
         $db->password = $siteInstanceDb->databasePassword;
         $db->url = null;
         $db->db_host = $siteInstanceDb->databaseHost;
         $db->ssh_host = null;
         $db->flags = (object) ['role' => $siteInstanceDb->databaseRole];
-        $db->environment = null;
+        $db->environment = new stdClass();
         return new DatabaseResponse($db);
     }
 }

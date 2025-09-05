@@ -12,7 +12,12 @@
     ],
     "repositories": [
         {
-            "type": "vcs", "url": "https://github.com/danepowell/phplint"
+            "type": "vcs",
+            "url": "https://github.com/danepowell/phplint"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/jigar-shah-acquia/acquia-php-sdk-v2"
         }
     ],
     "minimum-stability": "dev",
@@ -52,7 +57,7 @@
         "symfony/yaml": "^6.3",
         "thecodingmachine/safe": "3.0.2 as 2.5.0",
         "typhonius/acquia-logstream": "^0.0.15",
-        "typhonius/acquia-php-sdk-v2": "^3.7.2",
+        "typhonius/acquia-php-sdk-v2": "dev-CLI-1596 as 3.7.2",
         "vlucas/phpdotenv": "^5.5",
         "zumba/amplitude-php": "^1.0.4"
     },

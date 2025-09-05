@@ -100,6 +100,8 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
 
     private ApplicationResponse $cloudApplication;
 
+    protected string $siteId = "";
+
     protected string $dir;
 
     protected string $localDbUser = 'drupal';
@@ -575,16 +577,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
     {
         $codebaseUuid = self::getCodebaseUuid();
         if ($codebaseUuid) {
-            $codebase = $this->getCloudCodebase($codebaseUuid);
-            $codebaseSites = $this->getSitesByCodebase($codebase->id);
-            $selectedSite = null;
-            foreach ($codebaseSites as $codebaseSite) {
-                if ($codebaseSite->name == $site) {
-                    $selectedSite = $codebaseSite;
-                    break;
-                }
-            }
-            $database = EnvironmentTransformer::transformSiteInstanceDatabase($this->getSiteInstanceDatabase($selectedSite->id, $chosenEnvironment->uuid));
+            $database = EnvironmentTransformer::transformSiteInstanceDatabase($this->getSiteInstanceDatabase($this->siteId, $chosenEnvironment->uuid));
             if ($database) {
                 return [$database];
             }

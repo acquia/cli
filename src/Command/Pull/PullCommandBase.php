@@ -19,6 +19,7 @@ use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
 use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Endpoints\DatabaseBackups;
 use AcquiaCloudApi\Endpoints\Domains;
+use AcquiaCloudApi\Endpoints\SiteInstances;
 use AcquiaCloudApi\Response\BackupResponse;
 use AcquiaCloudApi\Response\DatabaseResponse;
 use AcquiaCloudApi\Response\EnvironmentResponse;
@@ -330,6 +331,12 @@ abstract class PullCommandBase extends CommandBase
      */
     private function createBackup(EnvironmentResponse $environment, DatabaseResponse $database, Client $acquiaCloudClient): void
     {
+
+        $codebaseUuid = self::getCodebaseUuid();
+        if ($codebaseUuid) {
+            $this->createCodeabaseDatabaseBackup($this->siteId, $environment->uuid);
+            return;
+        }
         $backups = new DatabaseBackups($acquiaCloudClient);
         $response = $backups->create($environment->uuid, $database->name);
         $urlParts = explode('/', $response->links->notification->href);
@@ -337,6 +344,19 @@ abstract class PullCommandBase extends CommandBase
         $this->waitForBackup($notificationUuid, $acquiaCloudClient);
     }
 
+    /**
+     * Get sites by codebase UUID.
+     *
+     * @throws \Acquia\Cli\Exception\AcquiaCliException
+     */
+    /**
+     * @return array<mixed>
+     */
+    private function createCodeabaseDatabaseBackup(string $siteId, string $environmentId): array
+    {
+        $siteInstanceResource = new SiteInstances($this->cloudApiClientService->getClient());
+        return $siteInstanceResource->createDatabaseBackup($siteId, $environmentId);
+    }
     /**
      * Wait for an on-demand backup to become available (Cloud API
      * notification).
@@ -465,6 +485,7 @@ abstract class PullCommandBase extends CommandBase
             [$siteId,] = explode('.', $siteInstanceId);
             $site = $this->getSite($siteId);
             $this->site = $site->name;
+            $this->siteId = $siteId;
             return $this->site;
         }
         $this->site = $this->promptChooseDrupalSite($environment);
