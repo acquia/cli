@@ -46,6 +46,7 @@ use AcquiaCloudApi\Response\DatabasesResponse;
 use AcquiaCloudApi\Response\EnvironmentResponse;
 use AcquiaCloudApi\Response\EnvironmentsResponse;
 use AcquiaCloudApi\Response\NotificationResponse;
+use AcquiaCloudApi\Response\SiteInstanceDatabaseResponse;
 use AcquiaCloudApi\Response\SiteInstanceResponse;
 use AcquiaCloudApi\Response\SiteResponse;
 use AcquiaCloudApi\Response\SubscriptionResponse;
@@ -572,6 +573,22 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
      */
     protected function determineCloudDatabases(Client $acquiaCloudClient, EnvironmentResponse $chosenEnvironment, ?string $site = null, bool $multipleDbs = false): array
     {
+        $codebaseUuid = self::getCodebaseUuid();
+        if ($codebaseUuid) {
+            $codebase = $this->getCloudCodebase($codebaseUuid);
+            $codebaseSites = $this->getSitesByCodebase($codebase->id);
+            $selectedSite = null;
+            foreach ($codebaseSites as $codebaseSite) {
+                if ($codebaseSite->name == $site) {
+                    $selectedSite = $codebaseSite;
+                    break;
+                }
+            }
+            $database = EnvironmentTransformer::transformSiteInstanceDatabase($this->getSiteInstanceDatabase($selectedSite->id, $chosenEnvironment->uuid));
+            if ($database) {
+                return [$database];
+            }
+        }
         $databasesRequest = new Databases($acquiaCloudClient);
         $databases = $databasesRequest->getAll($chosenEnvironment->uuid);
 
@@ -1446,6 +1463,24 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
         }
         return $siteInstance;
     }
+    /**
+     * Get the database for a site instance in a given environment.
+     *
+     * @param object|null $site (site object from getSitesByCodebase)
+     * @return DatabaseResponse|null
+     */
+    protected function getSiteInstanceDatabase(string $siteUuid, string $environmentUuid): ?SiteInstanceDatabaseResponse
+    {
+        try {
+            $acquiaCloudClient = $this->cloudApiClientService->getClient();
+            $siteInstancesResource = new SiteInstances($acquiaCloudClient);
+            $siteInstanceDatabase = $siteInstancesResource->getDatabase($siteUuid, $environmentUuid);
+            return $siteInstanceDatabase;
+        } catch (\Exception $e) {
+            $this->logger->debug('Could not get site instance database: ' . $e->getMessage());
+        }
+        return null;
+    }
 
     public static function validateEnvironmentAlias(string $alias): string
     {
@@ -2238,7 +2273,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
     {
         $acquiaCloudClient = $this->cloudApiClientService->getClient();
         $environmentResource = new Environments($acquiaCloudClient);
-        /** @var EnvironmentResponse[] $applicationEnvironments */
+        /** @var \Twig\EnvironmentResponse[] $applicationEnvironments */
         $applicationEnvironments = iterator_to_array($environmentResource->getAll($cloudAppUuid));
         $candidates = array_filter($applicationEnvironments, $filter);
         return reset($candidates);
