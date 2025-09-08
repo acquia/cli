@@ -1679,7 +1679,7 @@ class CommandBaseTest extends CommandTestBase
 
         $loggerProphecy = $this->prophet->prophesize(\Psr\Log\LoggerInterface::class);
         $loggerProphecy->debug(
-            "Site site2 does not have an instance in environment environment_3e8ecbec-ea7c-4260-8414-ef2938c859bc: Failed to get site instance for site 8979a8ac-80dc-4df8-b2f0-6be36554a370"
+            "Site site2(8979a8ac-80dc-4df8-b2f0-6be36554a370) does not have an instance in environment environment_3e8ecbec-ea7c-4260-8414-ef2938c859bc(3e8ecbec-ea7c-4260-8414-ef2938c859bc): Failed to get site instance for site 8979a8ac-80dc-4df8-b2f0-6be36554a370"
         )->shouldBeCalled();
 
         $this->command->setLogger($loggerProphecy->reveal());

@@ -835,7 +835,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
                 }
             } catch (\Exception $e) {
                 // Ignore errors for sites that don't have an instance in this environment.
-                $this->logger->debug("Site {$site->name} does not have an instance in environment {$environment->name}: " . $e->getMessage());
+                $this->logger->debug("Site {$site->name}({$site->id}) does not have an instance in environment {$environment->name}({$environment->uuid}): " . $e->getMessage());
             }
         }
         // If only one site instance, use it automatically.

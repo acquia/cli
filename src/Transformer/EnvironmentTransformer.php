@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Acquia\Cli\Transformer;
 
+use AcquiaCloudApi\Response\BackupResponse;
 use AcquiaCloudApi\Response\DatabaseResponse;
 use AcquiaCloudApi\Response\EnvironmentResponse;
 use stdClass;
@@ -83,8 +84,39 @@ class EnvironmentTransformer
         $db->url = null;
         $db->db_host = $siteInstanceDb->databaseHost;
         $db->ssh_host = null;
-        $db->flags = (object) ['role' => $siteInstanceDb->databaseRole];
+        $db->flags = (object) ['role' => $siteInstanceDb->databaseRole, 'default' => false];
         $db->environment = new stdClass();
         return new DatabaseResponse($db);
+    }
+    /**
+     * Transform a SiteInstanceDatabaseResponse object to a DatabaseResponse object.
+     */
+    public static function transformSiteInstanceDatabaseBackup(mixed $data): BackupResponse
+    {
+        $backup = new \stdClass();
+        $backup->id = $data->id;
+        $backup->database_id = $data->database_id;
+        $backup->created_at = $data->created_at;
+        $backup->started_at = $data->created_at;
+        $backup->completed_at = $data->created_at;
+        $backup->_links = $data->links;
+        $backup->type = "daily";
+        $backup->database = (object) [
+            'id' => $data->database_id,
+            '_links' => $data->links,
+        ];
+        $backup->flags = (object) [
+            'deleted' => false,
+        ];
+        // Extract environment ID from the environment href link.
+        $environmentId = null;
+        if (isset($data->_links->environment->href)) {
+            $environmentId = basename($data->_links->environment->href);
+        }
+        $backup->environment = (object) [
+            'id' => $environmentId,
+        ];
+
+        return new BackupResponse($backup);
     }
 }

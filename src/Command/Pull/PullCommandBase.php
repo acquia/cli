@@ -15,6 +15,7 @@ use Acquia\Cli\Helpers\LocalMachineHelper;
 use Acquia\Cli\Helpers\SshHelper;
 use Acquia\Cli\Helpers\TelemetryHelper;
 use Acquia\Cli\Output\Checklist;
+use Acquia\Cli\Transformer\EnvironmentTransformer;
 use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
 use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Endpoints\DatabaseBackups;
@@ -23,6 +24,7 @@ use AcquiaCloudApi\Endpoints\SiteInstances;
 use AcquiaCloudApi\Response\BackupResponse;
 use AcquiaCloudApi\Response\DatabaseResponse;
 use AcquiaCloudApi\Response\EnvironmentResponse;
+use AcquiaCloudApi\Response\SiteInstanceDatabaseBackupsResponse;
 use Closure;
 use Exception;
 use GuzzleHttp\Exception\RequestException;
@@ -255,6 +257,15 @@ abstract class PullCommandBase extends CommandBase
         });
 
         try {
+            $codebaseUuid = self::getCodebaseUuid();
+            if ($codebaseUuid) {
+                $acquiaCloudClient->stream(
+                    "get",
+                    $backupResponse->links->download->href,
+                    $acquiaCloudClient->getOptions()
+                );
+                return $localFilepath;
+            }
             $acquiaCloudClient->stream(
                 "get",
                 "/environments/$environment->uuid/databases/$database->name/backups/$backupResponse->id/actions/download",
@@ -345,7 +356,7 @@ abstract class PullCommandBase extends CommandBase
     }
 
     /**
-     * Get sites by codebase UUID.
+     * Create a database backup for a codebase.
      *
      * @throws \Acquia\Cli\Exception\AcquiaCliException
      */
@@ -355,7 +366,22 @@ abstract class PullCommandBase extends CommandBase
     private function createCodeabaseDatabaseBackup(string $siteId, string $environmentId): array
     {
         $siteInstanceResource = new SiteInstances($this->cloudApiClientService->getClient());
-        return $siteInstanceResource->createDatabaseBackup($siteId, $environmentId);
+        $response = $siteInstanceResource->createDatabaseBackup($siteId, $environmentId);
+        return (array)$response;
+    }
+    /**
+     * Get the latest database backup.
+     *
+     * @throws \Acquia\Cli\Exception\AcquiaCliException
+     */
+    /**
+     * @return SiteInstanceDatabaseBackupsResponse<SiteInstanceDatabaseBackupResponse>
+     */
+    private function getCodeabaseDatabaseBackups(string $siteId, string $environmentId): SiteInstanceDatabaseBackupsResponse
+    {
+        $siteInstanceResource = new SiteInstances($this->cloudApiClientService->getClient());
+        $response = $siteInstanceResource->getDatabaseBackups($siteId, $environmentId);
+        return $response;
     }
     /**
      * Wait for an on-demand backup to become available (Cloud API
@@ -592,6 +618,11 @@ abstract class PullCommandBase extends CommandBase
         string|EnvironmentResponse|array $environment,
         DatabaseResponse $database
     ): BackupResponse {
+        $codebaseUuid = self::getCodebaseUuid();
+        if ($codebaseUuid) {
+            $databaseBackups = $this->getCodeabaseDatabaseBackups($this->siteId, $environment->uuid);
+            return EnvironmentTransformer::transformSiteInstanceDatabaseBackup($databaseBackups[0]);
+        }
         $databaseBackups = new DatabaseBackups($acquiaCloudClient);
         $backupsResponse = $databaseBackups->getAll($environment->uuid, $database->name);
         if (!count($backupsResponse)) {
