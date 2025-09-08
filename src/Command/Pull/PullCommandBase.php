@@ -259,11 +259,14 @@ abstract class PullCommandBase extends CommandBase
         try {
             $codebaseUuid = self::getCodebaseUuid();
             if ($codebaseUuid) {
-                $acquiaCloudClient->stream(
-                    "get",
-                    $backupResponse->links->download->href,
-                    $acquiaCloudClient->getOptions()
-                );
+                // Download the backup file directly from the provided URL.
+                $downloadUrl = $backupResponse->links->download->href;
+                $this->httpClient->request('GET', $downloadUrl, [
+                    'progress' => static function (mixed $totalBytes, mixed $downloadedBytes) use (&$progress, $output): void {
+                        self::displayDownloadProgress($totalBytes, $downloadedBytes, $progress, $output);
+                    },
+                    'sink' => $localFilepath,
+                ]);
                 return $localFilepath;
             }
             $acquiaCloudClient->stream(
@@ -477,6 +480,7 @@ abstract class PullCommandBase extends CommandBase
             $outputCallback('out', "Importing downloaded file to database $dbName");
         }
         $this->logger->debug("Importing $localDumpFilepath to MySQL on local machine");
+
         $this->localMachineHelper->checkRequiredBinariesExist([
             'gunzip',
             'mysql',

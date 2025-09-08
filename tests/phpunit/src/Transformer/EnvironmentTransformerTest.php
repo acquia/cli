@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Acquia\Cli\Tests\Transformer;
 
 use Acquia\Cli\Transformer\EnvironmentTransformer;
+use AcquiaCloudApi\Response\BackupResponse;
+use AcquiaCloudApi\Response\DatabaseResponse;
 use AcquiaCloudApi\Response\EnvironmentResponse;
 use PHPUnit\Framework\TestCase;
 
@@ -178,5 +180,146 @@ class EnvironmentTransformerTest extends TestCase
         // this would wrongly become the VCS URL. This assertion kills the mutant.
         $this->assertSame('site.dev@sitedev.ssh.hosted.acquia-sites.com', $env->sshUrl);
         $this->assertSame('https://github.com/acquia/repo.git', $env->vcs->url);
+    }
+
+    public function testTransformSiteInstanceDatabase(): void
+    {
+        $siteInstanceDb = (object)[
+            'databaseHost' => 'test.example.com',
+            'databaseName' => 'test_db',
+            'databasePassword' => 'test_password',
+            'databaseRole' => 'primary',
+            'databaseUserName' => 'test_user',
+        ];
+
+        $databaseResponse = EnvironmentTransformer::transformSiteInstanceDatabase($siteInstanceDb);
+
+        $this->assertInstanceOf(DatabaseResponse::class, $databaseResponse);
+        $this->assertEquals('test_db', $databaseResponse->id);
+        $this->assertEquals('test_db', $databaseResponse->name);
+        $this->assertEquals('test_user', $databaseResponse->user_name);
+        $this->assertEquals('test_password', $databaseResponse->password);
+        $this->assertNull($databaseResponse->url);
+        $this->assertEquals('test.example.com', $databaseResponse->db_host);
+        $this->assertNull($databaseResponse->ssh_host);
+        $this->assertIsObject($databaseResponse->flags);
+        $this->assertEquals('primary', $databaseResponse->flags->role);
+        $this->assertFalse($databaseResponse->flags->default);
+        $this->assertIsObject($databaseResponse->environment);
+    }
+
+    public function testTransformSiteInstanceDatabaseBackup(): void
+    {
+        $backupData = (object)[
+            'created_at' => '2025-09-08T10:00:00Z',
+            'database_id' => 'db-456',
+            'id' => '123',
+            'links' => (object)[
+                'self' => 'backup-link',
+            ],
+            '_links' => (object)[
+                'environment' => (object)[
+                    'href' => 'https://n3stg.network.acquia-sites.com/api/environments/5997a125-e73e-495e-9951-11d9ea9c1b69',
+                ],
+            ],
+        ];
+
+        $backupResponse = EnvironmentTransformer::transformSiteInstanceDatabaseBackup($backupData);
+
+        $this->assertInstanceOf(BackupResponse::class, $backupResponse);
+        $this->assertEquals(123, $backupResponse->id);
+        $this->assertEquals('2025-09-08T10:00:00Z', $backupResponse->startedAt);
+        $this->assertEquals('2025-09-08T10:00:00Z', $backupResponse->completedAt);
+        $this->assertEquals('daily', $backupResponse->type);
+        $this->assertIsObject($backupResponse->database);
+        $this->assertEquals('db-456', $backupResponse->database->id);
+        $this->assertIsObject($backupResponse->flags);
+        $this->assertFalse($backupResponse->flags->deleted);
+        $this->assertIsObject($backupResponse->environment);
+        $this->assertEquals('5997a125-e73e-495e-9951-11d9ea9c1b69', $backupResponse->environment->id);
+    }
+
+    public function testTransformSiteInstanceDatabaseBackupWithoutEnvironmentLink(): void
+    {
+        $backupData = (object)[
+            'created_at' => '2025-09-08T11:00:00Z',
+            'database_id' => 'db-012',
+            'id' => '789',
+            'links' => (object)[
+                'self' => 'backup-link-2',
+            ],
+            '_links' => (object)[
+                // No environment link.
+            ],
+        ];
+
+        $backupResponse = EnvironmentTransformer::transformSiteInstanceDatabaseBackup($backupData);
+
+        $this->assertInstanceOf(BackupResponse::class, $backupResponse);
+        $this->assertEquals(789, $backupResponse->id);
+        $this->assertIsObject($backupResponse->environment);
+        $this->assertNull($backupResponse->environment->id);
+    }
+
+    public function testTransformSiteInstanceDatabaseBackupCastsIdToInteger(): void
+    {
+        $backupData = (object)[
+            'created_at' => '2025-09-08T12:00:00Z',
+            'database_id' => 'db-cast-test',
+            // String ID to test casting.
+            'id' => '456',
+            'links' => (object)[
+                'self' => 'cast-test-link',
+            ],
+            '_links' => (object)[],
+        ];
+
+        $backupResponse = EnvironmentTransformer::transformSiteInstanceDatabaseBackup($backupData);
+
+        // This assertion kills the CastInt mutation by ensuring the ID is specifically an integer.
+        $this->assertSame(456, $backupResponse->id);
+        $this->assertIsInt($backupResponse->id);
+    }
+
+    public function testTransformSiteInstanceDatabaseBackupDatabaseLinksStructure(): void
+    {
+        $linksObject = (object)[
+            'download' => 'download-link',
+            'self' => 'database-link',
+        ];
+
+        $backupData = (object)[
+            'created_at' => '2025-09-08T13:00:00Z',
+            'database_id' => 'db-links-test',
+            'id' => '999',
+            'links' => $linksObject,
+            '_links' => (object)[],
+        ];
+
+        $backupResponse = EnvironmentTransformer::transformSiteInstanceDatabaseBackup($backupData);
+
+        // This assertion kills the ArrayItem mutation by verifying the _links structure.
+        $this->assertIsObject($backupResponse->database);
+        $this->assertEquals('db-links-test', $backupResponse->database->id);
+        $this->assertSame($linksObject, $backupResponse->database->_links);
+        $this->assertObjectHasProperty('self', $backupResponse->database->_links);
+        $this->assertEquals('database-link', $backupResponse->database->_links->self);
+
+        $backupData = (object)[
+            'created_at' => '2025-09-08T13:00:00Z',
+            'database_id' => 'db-links-test',
+            'id' => 'a1',
+            'links' => $linksObject,
+            '_links' => (object)[],
+        ];
+
+        $backupResponse = EnvironmentTransformer::transformSiteInstanceDatabaseBackup($backupData);
+
+        // This assertion kills the ArrayItem mutation by verifying the _links structure.
+        $this->assertIsObject($backupResponse->database);
+        $this->assertEquals('db-links-test', $backupResponse->database->id);
+        $this->assertSame($linksObject, $backupResponse->database->_links);
+        $this->assertObjectHasProperty('self', $backupResponse->database->_links);
+        $this->assertEquals('database-link', $backupResponse->database->_links->self);
     }
 }

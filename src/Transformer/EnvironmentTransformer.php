@@ -94,7 +94,7 @@ class EnvironmentTransformer
     public static function transformSiteInstanceDatabaseBackup(mixed $data): BackupResponse
     {
         $backup = new \stdClass();
-        $backup->id = $data->id;
+        $backup->id = (int) $data->id;
         $backup->database_id = $data->database_id;
         $backup->created_at = $data->created_at;
         $backup->started_at = $data->created_at;
