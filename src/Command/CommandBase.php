@@ -1446,15 +1446,17 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
     /**
      * Get the SiteInstances endpoint.
      */
-    protected function getSiteInstance(string $siteId, string $environmentId): SiteInstanceResponse
+    protected function getSiteInstance(string $siteId, string $environmentId): ?SiteInstanceResponse
     {
-        $acquiaCloudClient = $this->cloudApiClientService->getClient();
-        $siteInstancesResource = new SiteInstances($acquiaCloudClient);
-        $siteInstance = $siteInstancesResource->get($siteId, $environmentId);
-        if (!$siteInstance) {
-            throw new AcquiaCliException("Site instance with ID $siteId.$environmentId not found.");
+        try {
+            $acquiaCloudClient = $this->cloudApiClientService->getClient();
+            $siteInstancesResource = new SiteInstances($acquiaCloudClient);
+            $siteInstance = $siteInstancesResource->get($siteId, $environmentId);
+            return $siteInstance;
+        } catch (\Exception $e) {
+            $this->logger->debug("Site instance with ID $siteId.$environmentId not found." . $e->getMessage());
+            return null;
         }
-        return $siteInstance;
     }
     /**
      * Get the database for a site instance in a given environment.

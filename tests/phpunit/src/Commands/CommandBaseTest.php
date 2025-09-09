@@ -12,6 +12,7 @@ use Acquia\Cli\Tests\CommandTestBase;
 use Acquia\Cli\Transformer\EnvironmentTransformer;
 use AcquiaCloudApi\Response\CodebaseResponse;
 use AcquiaCloudApi\Response\EnvironmentResponse;
+use Prophecy\Argument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -560,7 +561,85 @@ class CommandBaseTest extends CommandTestBase
         $this->assertEquals('siteId', $parameters[0]->getName());
         $this->assertEquals('environmentId', $parameters[1]->getName());
     }
+    /**
+     * Test determineVcsUrl method existence and accessibility.
+     * This creates basic test coverage for mutation testing.
+     */
+    public function testGetSiteInstanceMethodExecute(): void
+    {
+        $reflection = new \ReflectionClass($this->command);
+        $method = $reflection->getMethod('getSiteInstance');
+        $this->assertTrue($method->isProtected());
+        $this->assertEquals('getSiteInstance', $method->getName());
+        $method->setAccessible(true);
+        $siteInstance = $this->getMockSiteInstanceResponse();
+        $this->clientProphecy->request('get', '/site-instances/mock-site-id.mock-environment-id')
+            ->willReturn($siteInstance)
+            ->shouldBeCalled();
+        // Test the method execution with mock parameters.
+        $siteId = 'mock-site-id';
+        $environmentId = 'mock-environment-id';
+        $result = $method->invokeArgs($this->command, [$siteId, $environmentId]);
+        $this->assertNotNull($result);
+    }
+    /**
+     * Test determineVcsUrl method existence and accessibility.
+     * This creates basic test coverage for mutation testing.
+     */
+    public function testGetSiteInstanceMethodExecuteException(): void
+    {
+        $reflection = new \ReflectionClass($this->command);
+        $method = $reflection->getMethod('getSiteInstance');
+        $this->assertTrue($method->isProtected());
+        $this->assertEquals('getSiteInstance', $method->getName());
+        $method->setAccessible(true);
+        $loggerProphecy = $this->prophet->prophesize(\Symfony\Component\Console\Logger\ConsoleLogger::class);
+        $this->logger = $loggerProphecy->reveal();
 
+        $loggerProphecy->debug(
+            Argument::containingString('Site instance with ID mock-site-id.mock-environment-id not found.')
+        )->shouldBeCalled();
+        $this->command->setLogger($loggerProphecy->reveal());
+
+        $siteInstance = $this->getMockSiteInstanceResponse();
+        // $this->expectException(AcquiaCliException::class);
+        // $this->expectExceptionMessage("Site instance with ID mock-site-id.mock-environment-id not found.");
+        $this->clientProphecy->request('get', '/site-instances/mock-site-id.mock-environment-id')
+            ->willThrow(new \Exception())
+            ->shouldBeCalled();
+        // Test the method execution with mock parameters.
+        $siteId = 'mock-site-id';
+        $environmentId = 'mock-environment-id';
+        $result = $method->invokeArgs($this->command, [$siteId, $environmentId]);
+        $this->assertNull($result);
+    }
+    /**
+     * Test determineVcsUrl method existence and accessibility.
+     * This creates basic test coverage for mutation testing.
+     */
+    public function testGetSiteInstanceDatabaseMethodExecuteException(): void
+    {
+        $reflection = new \ReflectionClass($this->command);
+        $method = $reflection->getMethod('getSiteInstanceDatabase');
+        $this->assertEquals('getSiteInstanceDatabase', $method->getName());
+        $method->setAccessible(true);
+        $loggerProphecy = $this->prophet->prophesize(\Symfony\Component\Console\Logger\ConsoleLogger::class);
+        $this->logger = $loggerProphecy->reveal();
+
+        $loggerProphecy->debug(
+            Argument::containingString('Could not get site instance database: ')
+        )->shouldBeCalled();
+        $this->command->setLogger($loggerProphecy->reveal());
+
+        $this->clientProphecy->request('get', '/site-instances/mock-site-id.mock-environment-id/database')
+            ->willThrow(new \Exception())
+            ->shouldBeCalled();
+        // Test the method execution with mock parameters.
+        $siteId = 'mock-site-id';
+        $environmentId = 'mock-environment-id';
+        $result = $method->invokeArgs($this->command, [$siteId, $environmentId]);
+        $this->assertNull($result);
+    }
     /**
      * Test that determineVcsUrl method exists and is accessible for testing purposes.
      * This test validates the method signature and basic invocation.
@@ -1679,9 +1758,8 @@ class CommandBaseTest extends CommandTestBase
 
         $loggerProphecy = $this->prophet->prophesize(\Psr\Log\LoggerInterface::class);
         $loggerProphecy->debug(
-            "Site site2(8979a8ac-80dc-4df8-b2f0-6be36554a370) does not have an instance in environment environment_3e8ecbec-ea7c-4260-8414-ef2938c859bc(3e8ecbec-ea7c-4260-8414-ef2938c859bc): Failed to get site instance for site 8979a8ac-80dc-4df8-b2f0-6be36554a370"
+            "Site instance with ID 8979a8ac-80dc-4df8-b2f0-6be36554a370.3e8ecbec-ea7c-4260-8414-ef2938c859bc not found.Failed to get site instance for site 8979a8ac-80dc-4df8-b2f0-6be36554a370"
         )->shouldBeCalled();
-
         $this->command->setLogger($loggerProphecy->reveal());
 
         $reflection = new \ReflectionClass($this->command);
@@ -1693,8 +1771,6 @@ class CommandBaseTest extends CommandTestBase
         $method = $reflection->getMethod('determineSiteInstanceFromCodebaseUuid');
         $method->setAccessible(true);
 
-        // $this->expectException(AcquiaCliException::class);
-        // $this->expectExceptionMessage('Failed to get site instance for site 8979a8ac-80dc-4df8-b2f0-6be36554a370');
         $result = $method->invoke($this->command, $environment, $input, $output);
         $this->assertNull($result);
         self::unsetEnvVars(['AH_CODEBASE_UUID']);
