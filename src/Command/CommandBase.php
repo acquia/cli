@@ -825,17 +825,12 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
         // Get site instances for the selected environment.
         $siteInstances = [];
         foreach ($sites as $site) {
-            try {
-                $siteInstance = $this->getSiteInstance($site->id, $environment->uuid);
-                if ($siteInstance) {
-                    $siteInstanceObj = new stdClass();
-                    $siteInstanceObj->name = $site->name;
-                    $siteInstanceObj->siteInstanceId = $site->id . '.' . $environment->uuid;
-                    $siteInstances[] = $siteInstanceObj;
-                }
-            } catch (\Exception $e) {
-                // Ignore errors for sites that don't have an instance in this environment.
-                $this->logger->debug("Site {$site->name}({$site->id}) does not have an instance in environment {$environment->name}({$environment->uuid}): " . $e->getMessage());
+            $siteInstance = $this->getSiteInstance($site->id, $environment->uuid);
+            if ($siteInstance) {
+                $siteInstanceObj = new stdClass();
+                $siteInstanceObj->name = $site->name;
+                $siteInstanceObj->siteInstanceId = $site->id . '.' . $environment->uuid;
+                $siteInstances[] = $siteInstanceObj;
             }
         }
         // If only one site instance, use it automatically.
