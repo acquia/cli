@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "c0d89d4487f79045662f4fcc8359807b",
+    "content-hash": "84adb4185c4be36d1278897f409b6473",
     "packages": [
         {
             "name": "acquia/drupal-environment-detector",
@@ -6315,16 +6315,16 @@
         },
         {
             "name": "typhonius/acquia-php-sdk-v2",
-            "version": "dev-CLI-1596",
+            "version": "3.7.3",
             "source": {
                 "type": "git",
-                "url": "https://github.com/jigar-shah-acquia/acquia-php-sdk-v2.git",
-                "reference": "03d7547e43583b2673bcec34077e480e6d82060a"
+                "url": "https://github.com/typhonius/acquia-php-sdk-v2.git",
+                "reference": "eca4b1d1b250ff7a29f9a2fab9a6fc3d558c22b8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/jigar-shah-acquia/acquia-php-sdk-v2/zipball/03d7547e43583b2673bcec34077e480e6d82060a",
-                "reference": "03d7547e43583b2673bcec34077e480e6d82060a",
+                "url": "https://api.github.com/repos/typhonius/acquia-php-sdk-v2/zipball/eca4b1d1b250ff7a29f9a2fab9a6fc3d558c22b8",
+                "reference": "eca4b1d1b250ff7a29f9a2fab9a6fc3d558c22b8",
                 "shasum": ""
             },
             "require": {
@@ -6347,47 +6347,13 @@
             "type": "library",
             "autoload": {
                 "psr-4": {
+                    "AcquiaCloudApi\\Response\\": "src/Response",
                     "AcquiaCloudApi\\Connector\\": "src/Connector",
                     "AcquiaCloudApi\\Endpoints\\": "src/Endpoints",
-                    "AcquiaCloudApi\\Response\\": "src/Response",
                     "AcquiaCloudApi\\Exception\\": "src/Exception"
                 }
             },
-            "autoload-dev": {
-                "psr-4": {
-                    "AcquiaCloudApi\\Tests\\": "tests/",
-                    "League\\OAuth2\\Client\\Test\\": "vendor/league/oauth2-client/test/src/"
-                }
-            },
-            "scripts": {
-                "lint": [
-                    "phplint"
-                ],
-                "cs": [
-                    "phpcs"
-                ],
-                "cbf": [
-                    "phpcbf"
-                ],
-                "unit": [
-                    "php -dpcov.enabled=1 -dpcov.directory=. -dpcov.exclude='~vendor~' ./vendor/bin/phpunit --configuration=phpunit.xml --testdox"
-                ],
-                "stan": [
-                    "phpstan analyse"
-                ],
-                "test": [
-                    "@lint",
-                    "@unit",
-                    "@cs",
-                    "@stan"
-                ],
-                "release": [
-                    "release VERSION"
-                ],
-                "coveralls": [
-                    "php ./vendor/bin/php-coveralls -v"
-                ]
-            },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -6399,15 +6365,16 @@
             ],
             "description": "A PHP SDK for Acquia CloudAPI v2",
             "support": {
-                "source": "https://github.com/jigar-shah-acquia/acquia-php-sdk-v2/tree/CLI-1596"
+                "issues": "https://github.com/typhonius/acquia-php-sdk-v2/issues",
+                "source": "https://github.com/typhonius/acquia-php-sdk-v2/tree/3.7.3"
             },
             "funding": [
                 {
-                    "type": "github",
-                    "url": "https://github.com/typhonius"
+                    "url": "https://github.com/typhonius",
+                    "type": "github"
                 }
             ],
-            "time": "2025-09-05T07:00:41+00:00"
+            "time": "2025-09-08T15:28:31+00:00"
         },
         {
             "name": "vlucas/phpdotenv",
@@ -10148,18 +10115,18 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/PHPCompatibility/PHPCompatibility.git",
-                "reference": "5693dcd2514e21cd96ad396c6e59337d41c49c74"
+                "reference": "645a525bebce492b0c5808a1a8077ee72fa7b296"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PHPCompatibility/PHPCompatibility/zipball/5693dcd2514e21cd96ad396c6e59337d41c49c74",
-                "reference": "5693dcd2514e21cd96ad396c6e59337d41c49c74",
+                "url": "https://api.github.com/repos/PHPCompatibility/PHPCompatibility/zipball/645a525bebce492b0c5808a1a8077ee72fa7b296",
+                "reference": "645a525bebce492b0c5808a1a8077ee72fa7b296",
                 "shasum": ""
             },
             "require": {
                 "php": ">=5.4",
-                "phpcsstandards/phpcsutils": "^1.1.1",
-                "squizlabs/php_codesniffer": "^3.13.0"
+                "phpcsstandards/phpcsutils": "^1.1.2",
+                "squizlabs/php_codesniffer": "^3.13.3 || ^4.0"
             },
             "replace": {
                 "wimg/php-compatibility": "*"
@@ -10234,7 +10201,7 @@
                     "type": "thanks_dev"
                 }
             ],
-            "time": "2025-09-02T01:00:59+00:00"
+            "time": "2025-09-08T15:22:19+00:00"
         },
         {
             "name": "phpcsstandards/phpcsutils",
@@ -11791,16 +11758,16 @@
         },
         {
             "name": "sebastian/comparator",
-            "version": "5.0.3",
+            "version": "5.0.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/comparator.git",
-                "reference": "a18251eb0b7a2dcd2f7aa3d6078b18545ef0558e"
+                "reference": "e8e53097718d2b53cfb2aa859b06a41abf58c62e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/comparator/zipball/a18251eb0b7a2dcd2f7aa3d6078b18545ef0558e",
-                "reference": "a18251eb0b7a2dcd2f7aa3d6078b18545ef0558e",
+                "url": "https://api.github.com/repos/sebastianbergmann/comparator/zipball/e8e53097718d2b53cfb2aa859b06a41abf58c62e",
+                "reference": "e8e53097718d2b53cfb2aa859b06a41abf58c62e",
                 "shasum": ""
             },
             "require": {
@@ -11856,15 +11823,27 @@
             "support": {
                 "issues": "https://github.com/sebastianbergmann/comparator/issues",
                 "security": "https://github.com/sebastianbergmann/comparator/security/policy",
-                "source": "https://github.com/sebastianbergmann/comparator/tree/5.0.3"
+                "source": "https://github.com/sebastianbergmann/comparator/tree/5.0.4"
             },
             "funding": [
                 {
                     "url": "https://github.com/sebastianbergmann",
                     "type": "github"
+                },
+                {
+                    "url": "https://liberapay.com/sebastianbergmann",
+                    "type": "liberapay"
+                },
+                {
+                    "url": "https://thanks.dev/u/gh/sebastianbergmann",
+                    "type": "thanks_dev"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/sebastian/comparator",
+                    "type": "tidelift"
                 }
             ],
-            "time": "2024-10-18T14:56:07+00:00"
+            "time": "2025-09-07T05:25:07+00:00"
         },
         {
             "name": "sebastian/complexity",
@@ -13503,18 +13482,11 @@
             "version": "3.0.2.0",
             "alias": "2.5.0",
             "alias_normalized": "2.5.0.0"
-        },
-        {
-            "package": "typhonius/acquia-php-sdk-v2",
-            "version": "dev-CLI-1596",
-            "alias": "3.7.2",
-            "alias_normalized": "3.7.2.0"
         }
     ],
     "minimum-stability": "dev",
     "stability-flags": {
-        "overtrue/phplint": 20,
-        "typhonius/acquia-php-sdk-v2": 20
+        "overtrue/phplint": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,
