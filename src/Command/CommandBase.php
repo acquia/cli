@@ -46,6 +46,7 @@ use AcquiaCloudApi\Response\DatabasesResponse;
 use AcquiaCloudApi\Response\EnvironmentResponse;
 use AcquiaCloudApi\Response\EnvironmentsResponse;
 use AcquiaCloudApi\Response\NotificationResponse;
+use AcquiaCloudApi\Response\SiteInstanceDatabaseResponse;
 use AcquiaCloudApi\Response\SiteInstanceResponse;
 use AcquiaCloudApi\Response\SiteResponse;
 use AcquiaCloudApi\Response\SubscriptionResponse;
@@ -98,6 +99,8 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
     protected FormatterHelper $formatter;
 
     private ApplicationResponse $cloudApplication;
+
+    protected string $siteId = "";
 
     protected string $dir;
 
@@ -233,7 +236,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
         $this->formatter = $this->getHelper('formatter');
 
         $this->output->writeln('Acquia CLI version: ' . $this->getApplication()
-                ->getVersion(), OutputInterface::VERBOSITY_DEBUG);
+            ->getVersion(), OutputInterface::VERBOSITY_DEBUG);
         if (getenv('ACLI_NO_TELEMETRY') !== 'true') {
             $this->checkAndPromptTelemetryPreference();
             $this->telemetryHelper->initialize();
@@ -572,6 +575,13 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
      */
     protected function determineCloudDatabases(Client $acquiaCloudClient, EnvironmentResponse $chosenEnvironment, ?string $site = null, bool $multipleDbs = false): array
     {
+        $codebaseUuid = self::getCodebaseUuid();
+        if ($codebaseUuid) {
+            $database = EnvironmentTransformer::transformSiteInstanceDatabase($this->getSiteInstanceDatabase($this->siteId, $chosenEnvironment->uuid));
+            if ($database) {
+                return [$database];
+            }
+        }
         $databasesRequest = new Databases($acquiaCloudClient);
         $databases = $databasesRequest->getAll($chosenEnvironment->uuid);
 
@@ -669,15 +679,180 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
             $environmentId = $input->getArgument('environmentId');
             $chosenEnvironment = $this->getCloudEnvironment($environmentId);
         } else {
-            $cloudApplicationUuid = $this->determineCloudApplication();
-            $cloudApplication = $this->getCloudApplication($cloudApplicationUuid);
-            $output->writeln('Using Cloud Application <options=bold>' . $cloudApplication->name . '</>');
-            $acquiaCloudClient = $this->cloudApiClientService->getClient();
-            $chosenEnvironment = $this->promptChooseEnvironmentConsiderProd($acquiaCloudClient, $cloudApplicationUuid, $allowProduction, $allowNode);
+            $chosenEnvironment = $this->determineCodebaseEnvironment($input, $output);
+            if (!$chosenEnvironment) {
+                $cloudApplicationUuid = $this->determineCloudApplication();
+                $cloudApplication = $this->getCloudApplication($cloudApplicationUuid);
+                $output->writeln(sprintf('Using Cloud Application <options=bold>%s</>', $cloudApplication->name));
+                $acquiaCloudClient = $this->cloudApiClientService->getClient();
+                $chosenEnvironment = $this->promptChooseEnvironmentConsiderProd($acquiaCloudClient, $cloudApplicationUuid, $allowProduction, $allowNode);
+            }
         }
         $this->logger->debug("Using environment $chosenEnvironment->label $chosenEnvironment->uuid");
 
         return $chosenEnvironment;
+    }
+
+    /**
+     * Determine environment using AH_CODEBASE_UUID.
+     *
+     * @throws \Acquia\Cli\Exception\AcquiaCliException
+     */
+    private function determineCodebaseEnvironment(InputInterface $input, OutputInterface $output): ?EnvironmentResponse
+    {
+
+        // Check for AH_CODEBASE_UUID.
+        $codebaseUuid = self::getCodebaseUuid();
+
+        if (!$codebaseUuid) {
+            return null;
+        }
+        $output->writeln(sprintf(
+            'Detected Codebase UUID: <options=bold>%s</>',
+            $codebaseUuid
+        ));
+
+        // Get codebase information.
+        $codebase = $this->getCodebase($codebaseUuid);
+        $output->writeln(sprintf(
+            'Using codebase: <options=bold>%s</>',
+            $codebase->label
+        ));
+
+        // Get environments for this codebase.
+        $environments = $this->getEnvironmentsByCodebase($codebase);
+
+        if (empty($environments)) {
+            throw new AcquiaCliException('No environments found for this codebase.');
+        }
+
+        // Prompt user to choose environment.
+        $chosenEnvironment = $this->promptChooseCodebaseEnvironment($environments);
+
+        return $chosenEnvironment;
+    }
+
+
+    /**
+     * Get environments by codebase UUID.
+     *
+     * @throws \Acquia\Cli\Exception\AcquiaCliException
+     */
+    /**
+     * @return array<mixed>
+     */
+    private function getEnvironmentsByCodebase(CodebaseResponse $codebase): array
+    {
+        try {
+            // Use the codebase environments endpoint.
+            $codebaseEnvironmentResource = new CodebaseEnvironments($this->cloudApiClientService->getClient());
+            $codebaseEnvironments = $codebaseEnvironmentResource->getAll($codebase->id);
+            // Transform codebase environments to standard environment format.
+            $environments = [];
+            foreach ($codebaseEnvironments as $codebaseEnv) {
+                $codebaseEnv->codebase = $codebase;
+                $environments[] = EnvironmentTransformer::transform($codebaseEnv);
+            }
+
+            return $environments;
+        } catch (Exception $e) {
+            throw new AcquiaCliException('Failed to fetch environments for codebase: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Prompt user to choose from codebase environments.
+     *
+     * @throws \Acquia\Cli\Exception\AcquiaCliException
+     */
+    private function promptChooseCodebaseEnvironment(array $environments): EnvironmentResponse
+    {
+        if (count($environments) === 1) {
+            return reset($environments);
+        }
+
+        $choices = [];
+        foreach ($environments as $environment) {
+            $choices[] = "$environment->label, $environment->name (branch: {$environment->vcs->branch})";
+        }
+
+        $chosenEnvironmentLabel = $this->io->choice('Choose a Cloud Platform environment', $choices, $choices[0]);
+        $chosenEnvironmentIndex = array_search($chosenEnvironmentLabel, $choices, true);
+        return $environments[$chosenEnvironmentIndex];
+    }
+
+    /**
+     * Get sites by codebase UUID.
+     *
+     * @throws \Acquia\Cli\Exception\AcquiaCliException
+     */
+    /**
+     * @return array<mixed>
+     */
+    private function getSitesByCodebase(string $codebaseUuid): array
+    {
+        $acquiaCloudClient = $this->cloudApiClientService->getClient();
+        $response = $acquiaCloudClient->request('get', "/codebases/$codebaseUuid/sites");
+
+        if (!isset($response->_embedded->items)) {
+            return (array) $response;
+        }
+
+        return (array) $response->_embedded->items;
+    }
+
+    /**
+     * Determine site instance from IDE context.
+     *
+     * @throws \Acquia\Cli\Exception\AcquiaCliException
+     */
+    protected function determineSiteInstanceFromCodebaseUuid(EnvironmentResponse $environment, InputInterface $input, OutputInterface $output): ?string
+    {
+        // Check if we're in IDE context and have a codebase UUID.
+        $codebaseUuid = self::getCodebaseUuid();
+        if (!$codebaseUuid) {
+            return null;
+        }
+
+        // Get sites for this codebase.
+        $sites = $this->getSitesByCodebase($codebaseUuid);
+
+        if (empty($sites)) {
+            $output->writeln('<comment>No sites found for this codebase.</comment>');
+            return null;
+        }
+
+        // Get site instances for the selected environment.
+        $siteInstances = [];
+        foreach ($sites as $site) {
+            $siteInstance = $this->getSiteInstance($site->id, $environment->uuid);
+            if ($siteInstance) {
+                $siteInstanceObj = new stdClass();
+                $siteInstanceObj->name = $site->name;
+                $siteInstanceObj->siteInstanceId = $site->id . '.' . $environment->uuid;
+                $siteInstances[] = $siteInstanceObj;
+            }
+        }
+        // If only one site instance, use it automatically.
+        if (count($siteInstances) === 1) {
+            $selectedInstance = reset($siteInstances);
+            return $selectedInstance->siteInstanceId;
+        }
+
+        if (count($siteInstances) === 0) {
+            return null;
+        }
+
+        // Prompt user to choose site instance.
+        $choices = array_map(function ($instance) {
+            return $instance->name;
+        }, $siteInstances);
+
+        $chosenSiteLabel = $this->io->choice('Choose a site instance', $choices, $choices[0]);
+        $chosenSiteIndex = array_search($chosenSiteLabel, $choices, true);
+
+        $selectedInstance = $siteInstances[$chosenSiteIndex];
+        return $selectedInstance->siteInstanceId;
     }
 
 
@@ -748,8 +923,8 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
     {
         $this->localMachineHelper->checkRequiredBinariesExist(['git']);
         $process = $this->localMachineHelper->executeFromCmd(
-        // Problem with this is that it stages changes for the user. They may
-        // not want that.
+            // Problem with this is that it stages changes for the user. They may
+            // not want that.
             'git add . && git diff-index --cached --quiet HEAD',
             null,
             $this->dir,
@@ -1031,7 +1206,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
         }
 
         // Get from the Cloud Platform env var.
-        if ($applicationUuid = self::getThisCloudIdeCloudAppUuid()) {
+        if ($applicationUuid = self::getCloudAppUuid()) {
             return $applicationUuid;
         }
 
@@ -1051,7 +1226,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
         return null;
     }
 
-     /**
+    /**
      * Determine the Cloud codebase.
      *
      * @throws \Acquia\Cli\Exception\AcquiaCliException
@@ -1182,7 +1357,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
      *
      * This command assumes it is being run inside a Cloud IDE.
      */
-    protected static function getThisCloudIdeCloudAppUuid(): false|string
+    protected static function getCloudAppUuid(): false|string
     {
         return getenv('ACQUIA_APPLICATION_UUID');
     }
@@ -1266,15 +1441,35 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
     /**
      * Get the SiteInstances endpoint.
      */
-    protected function getSiteInstance(string $siteId, string $environmentId): SiteInstanceResponse
+    protected function getSiteInstance(string $siteId, string $environmentId): ?SiteInstanceResponse
     {
-        $acquiaCloudClient = $this->cloudApiClientService->getClient();
-        $siteInstancesResource = new SiteInstances($acquiaCloudClient);
-        $siteInstance = $siteInstancesResource->get($siteId, $environmentId);
-        if (!$siteInstance) {
-            throw new AcquiaCliException("Site instance with ID $siteId.$environmentId not found.");
+        try {
+            $acquiaCloudClient = $this->cloudApiClientService->getClient();
+            $siteInstancesResource = new SiteInstances($acquiaCloudClient);
+            $siteInstance = $siteInstancesResource->get($siteId, $environmentId);
+            return $siteInstance;
+        } catch (\Exception $e) {
+            $this->logger->debug("Site instance with ID $siteId.$environmentId not found." . $e->getMessage());
+            return null;
         }
-        return $siteInstance;
+    }
+    /**
+     * Get the database for a site instance in a given environment.
+     *
+     * @param object|null $site (site object from getSitesByCodebase)
+     * @return DatabaseResponse|null
+     */
+    private function getSiteInstanceDatabase(string $siteUuid, string $environmentUuid): ?SiteInstanceDatabaseResponse
+    {
+        try {
+            $acquiaCloudClient = $this->cloudApiClientService->getClient();
+            $siteInstancesResource = new SiteInstances($acquiaCloudClient);
+            $siteInstanceDatabase = $siteInstancesResource->getDatabase($siteUuid, $environmentUuid);
+            return $siteInstanceDatabase;
+        } catch (\Exception $e) {
+            $this->logger->debug('Could not get site instance database: ' . $e->getMessage());
+        }
+        return null;
     }
 
     public static function validateEnvironmentAlias(string $alias): string
@@ -1466,8 +1661,8 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
     {
         if (
             $input->hasArgument('applicationUuid') && !$input->getArgument('applicationUuid') && $this->getDefinition()
-                ->getArgument('applicationUuid')
-                ->isRequired()
+            ->getArgument('applicationUuid')
+            ->isRequired()
         ) {
             $output->writeln('Inferring Cloud Application UUID for this command since none was provided...', OutputInterface::VERBOSITY_VERBOSE);
             if ($applicationUuid = $this->determineCloudApplication()) {
@@ -1675,10 +1870,12 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
         throw new AcquiaCliException("Could not get Cloud sites for " . $cloudEnvironment->name);
     }
 
-    protected function getCloudSitesPath(mixed $cloudEnvironment, mixed $sitegroup): string
+    private function getCloudSitesPath(mixed $cloudEnvironment, mixed $sitegroup): string
     {
         if ($cloudEnvironment->platform === 'cloud-next') {
             $path = "/home/clouduser/$cloudEnvironment->name/sites";
+        } elseif ($cloudEnvironment->platform === 'MEO') {
+            $path = "/mnt/files/$cloudEnvironment->name/sites";
         } else {
             $path = "/mnt/files/$sitegroup.$cloudEnvironment->name/sites";
         }
@@ -2066,7 +2263,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
     {
         $acquiaCloudClient = $this->cloudApiClientService->getClient();
         $environmentResource = new Environments($acquiaCloudClient);
-        /** @var EnvironmentResponse[] $applicationEnvironments */
+        /** @var \Twig\EnvironmentResponse[] $applicationEnvironments */
         $applicationEnvironments = iterator_to_array($environmentResource->getAll($cloudAppUuid));
         $candidates = array_filter($applicationEnvironments, $filter);
         return reset($candidates);

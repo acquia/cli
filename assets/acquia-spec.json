@@ -39914,6 +39914,10 @@
                       "type": "string",
                       "example": "example"
                     },
+                    "database_user_name": {
+                      "type": "string",
+                      "example": "example"
+                    },
                     "database_role": {
                       "type": "string",
                       "example": "example"
@@ -39932,7 +39936,7 @@
                   },
                   "database_host": "localhost",
                   "database_name": "example",
-                  "database_user": "example",
+                  "database_user_name": "example",
                   "database_port": 3306,
                   "database_role": "example",
                   "database_password": "example@123"
@@ -40354,11 +40358,64 @@
                                 "type": "timestamp",
                                 "example": "2025-04-01T13:01:06.603Z"
                               },
+                              "type": {
+                                "type": "string",
+                                "example": "DAILY"
+                              },
                               "_links": {
-                                "type": "array",
-                                "example": [
-                                  "www.example.com"
-                                ]
+                                "type": "object",
+                                "properties": {
+                                  "self": {
+                                    "type": "object",
+                                    "properties": {
+                                      "href": {
+                                        "type": "string",
+                                        "format": "uri",
+                                        "example": "https://environment-service-php.acquia.com/api/site-instances/3e8ecbec-ea7c-4260-8414-ef2938c859bc.d3f7270e-c45f-4801-9308-5e8afe84a323/database/backups/a0c9dff7-56b6-4c0d-bad0-0e6593f66cd3"
+                                      }
+                                    }
+                                  },
+                                  "parent": {
+                                    "type": "object",
+                                    "properties": {
+                                      "href": {
+                                        "type": "string",
+                                        "format": "uri",
+                                        "example": "https://environment-service-php.acquia.com/api/site-instances/3e8ecbec-ea7c-4260-8414-ef2938c859bc.d3f7270e-c45f-4801-9308-5e8afe84a323/database/backups"
+                                      }
+                                    }
+                                  },
+                                  "site-instance": {
+                                    "type": "object",
+                                    "properties": {
+                                      "href": {
+                                        "type": "string",
+                                        "format": "uri",
+                                        "example": "https://environment-service-php.acquia.com/api/site-instances/3e8ecbec-ea7c-4260-8414-ef2938c859bc.d3f7270e-c45f-4801-9308-5e8afe84a323"
+                                      }
+                                    }
+                                  },
+                                  "site": {
+                                    "type": "object",
+                                    "properties": {
+                                      "href": {
+                                        "type": "string",
+                                        "format": "uri",
+                                        "example": "https://environment-service-php.acquia.com/api/sites/3e8ecbec-ea7c-4260-8414-ef2938c859bc"
+                                      }
+                                    }
+                                  },
+                                  "environment": {
+                                    "type": "object",
+                                    "properties": {
+                                      "href": {
+                                        "type": "string",
+                                        "format": "uri",
+                                        "example": "https://environment-service-php.acquia.com/api/environments/d3f7270e-c45f-4801-9308-5e8afe84a323"
+                                      }
+                                    }
+                                  }
+                                }
                               }
                             }
                           }
@@ -40462,9 +40519,26 @@
                         "id": "e0c9dff7-56b6-4c0d-bad0-0e6593f66cd3",
                         "database_id": "b0c9dff7-56b6-4c0d-bad0-0e6593f66cd3",
                         "created_at": "2025-04-01T13:01:06.603Z",
-                        "_links": [
-                          "www.example.com"
-                        ]
+                        "_links": {
+                          "self": {
+                            "href": "https://environment-service-php.acquia.com/api/site-instances/3e8ecbec-ea7c-4260-8414-ef2938c859bc.d3f7270e-c45f-4801-9308-5e8afe84a323/database/backups/a0c9dff7-56b6-4c0d-bad0-0e6593f66cd3"
+                          },
+                          "parent": {
+                            "href": "https://environment-service-php.acquia.com/api/site-instances/3e8ecbec-ea7c-4260-8414-ef2938c859bc.d3f7270e-c45f-4801-9308-5e8afe84a323/database/backups"
+                          },
+                          "site-instance": {
+                            "href": "https://environment-service-php.acquia.com/api/site-instances/3e8ecbec-ea7c-4260-8414-ef2938c859bc.d3f7270e-c45f-4801-9308-5e8afe84a323"
+                          },
+                          "site": {
+                            "href": "https://environment-service-php.acquia.com/api/sites/3e8ecbec-ea7c-4260-8414-ef2938c859bc"
+                          },
+                          "environment": {
+                            "href": "https://environment-service-php.acquia.com/api/environments/d3f7270e-c45f-4801-9308-5e8afe84a323"
+                          },
+                          "download": {
+                            "href": "https://environment-service-php.acquia.com/api/environments/d3f7270e-c45f-4801-9308-5e8afe84a323"
+                          }
+                        }
                       }
                     ]
                   },
@@ -42881,6 +42955,11 @@
                                 "type": "string",
                                 "example": "tag/v3.1"
                               },
+                              "ssh_url": {
+                                "type": "string",
+                                "format": "uri",
+                                "example": "site.dev@sitedev.ssh.hosted.acquia-sites.com"
+                              },
                               "_embedded": {
                                 "type": "object",
                                 "properties": {
@@ -42889,7 +42968,7 @@
                                     "properties": {
                                       "id": {
                                         "type": "string",
-                                        "example": "1111-1111-1111"
+                                        "example": "11111111-041c-44c7-a486-7972ed2cafc8"
                                       },
                                       "_links": {
                                         "type": "object",
@@ -42900,7 +42979,7 @@
                                               "href": {
                                                 "type": "string",
                                                 "format": "uri",
-                                                "example": "https://codebase-service.acquia.com/api/codebases/1111-1111-1111"
+                                                "example": "https://codebase-service.acquia.com/api/codebases/11111111-041c-44c7-a486-7972ed2cafc8"
                                               }
                                             }
                                           }
@@ -43038,12 +43117,13 @@
                           "operating_system": "focal"
                         },
                         "reference": "tag/v3.1",
+                        "ssh_url": "site.dev@sitedev.ssh.hosted.acquia-sites.com",
                         "_embedded": {
                           "codebase": {
-                            "id": "1111-1111-1111",
+                            "id": "11111111-041c-44c7-a486-7972ed2cafc8",
                             "_links": {
                               "self": {
-                                "href": "https://codebase-service.acquia.com/api/codebases/1111-1111-1111"
+                                "href": "https://codebase-service.acquia.com/api/codebases/11111111-041c-44c7-a486-7972ed2cafc8"
                               }
                             }
                           }
@@ -43322,6 +43402,11 @@
                       "type": "string",
                       "example": "tag/v3.1"
                     },
+                    "ssh_url": {
+                      "type": "string",
+                      "format": "uri",
+                      "example": "site.dev@sitedev.ssh.hosted.acquia-sites.com"
+                    },
                     "_embedded": {
                       "type": "object",
                       "properties": {
@@ -43383,6 +43468,7 @@
                     "operating_system": "focal"
                   },
                   "reference": "tag/v3.1",
+                  "ssh_url": "site.dev@sitedev.ssh.hosted.acquia-sites.com",
                   "_embedded": {
                     "codebase": {
                       "id": "d3f7270e-c45f-4801-9308-5e8afe84a323",
@@ -43611,6 +43697,11 @@
                       "type": "string",
                       "example": "tag/v3.1"
                     },
+                    "ssh_url": {
+                      "type": "string",
+                      "format": "uri",
+                      "example": "site.dev@sitedev.ssh.hosted.acquia-sites.com"
+                    },
                     "_embedded": {
                       "type": "object",
                       "properties": {
@@ -43661,6 +43752,7 @@
                   },
                   "properties": {},
                   "reference": "tag/v3.1",
+                  "ssh_url": "site.dev@sitedev.ssh.hosted.acquia-sites.com",
                   "_embedded": {
                     "codebase": {
                       "id": "d3f7270e-c45f-4801-9308-5e8afe84a323",
@@ -44501,6 +44593,11 @@
                                 "type": "string",
                                 "example": "tag/v3.1"
                               },
+                              "ssh_url": {
+                                "type": "string",
+                                "format": "uri",
+                                "example": "site.dev@sitedev.ssh.hosted.acquia-sites.com"
+                              },
                               "_embedded": {
                                 "type": "object",
                                 "properties": {
@@ -44509,7 +44606,7 @@
                                     "properties": {
                                       "id": {
                                         "type": "string",
-                                        "example": "1111-1111-1111"
+                                        "example": "11111111-041c-44c7-a486-7972ed2cafc8"
                                       },
                                       "_links": {
                                         "type": "object",
@@ -44520,7 +44617,7 @@
                                               "href": {
                                                 "type": "string",
                                                 "format": "uri",
-                                                "example": "https://cloud.acquia.com/api/codebases/1111-1111-1111"
+                                                "example": "https://cloud.acquia.com/api/codebases/11111111-041c-44c7-a486-7972ed2cafc8"
                                               }
                                             }
                                           }
@@ -44661,12 +44758,13 @@
                           "operating_system": "focal"
                         },
                         "reference": "tag/v3.1",
+                        "ssh_url": "site.dev@sitedev.ssh.hosted.acquia-sites.com",
                         "_embedded": {
                           "codebase": {
-                            "id": "1111-1111-1111",
+                            "id": "11111111-041c-44c7-a486-7972ed2cafc8",
                             "_links": {
                               "self": {
-                                "href": "https://cloud.acquia.com/api/codebases/1111-1111-1111"
+                                "href": "https://cloud.acquia.com/api/codebases/11111111-041c-44c7-a486-7972ed2cafc8"
                               }
                             }
                           }
@@ -49942,8 +50040,7 @@
         "required": true,
         "schema": {
           "type": "string"
-        },
-        "description": "ID of the private network"
+        }
       },
       "Private_Network_Service_API_VpnId": {
         "name": "vpnId",
@@ -49972,8 +50069,7 @@
         "required": true,
         "schema": {
           "type": "string"
-        },
-        "description": "ID of the subscription"
+        }
       }
     },
     "schemas": {

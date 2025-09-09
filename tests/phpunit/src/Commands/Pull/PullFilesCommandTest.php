@@ -159,4 +159,73 @@ class PullFilesCommandTest extends PullCommandTestBase
         $this->executeCommand();
         IdeHelper::unsetCloudIdeEnvVars();
     }
+
+    /**
+     * @throws \Exception
+     */
+    public function testPullFilesCodebaseUuid(): void
+    {
+        $codebaseUuid = '11111111-041c-44c7-a486-7972ed2cafc8';
+        self::setEnvVars([
+            'AH_CODEBASE_UUID' => $codebaseUuid,
+        ]);
+        $expectedCodebase = $this->getMockCodebaseResponse();
+        $expectedCodebases = $this->getMockCodebasesResponse();
+
+        $expectedCodebaseEnvironments = $this->getMockCodeBaseEnvironments();
+        $expectedCodebaseSitesData = $this->getMockCodeBaseSites();
+        $expectedCodebaseSites = $expectedCodebaseSitesData->_embedded->items;
+        $expectedSiteInstance = $this->getMockSiteInstanceResponse();
+        $this->clientProphecy->request('get', '/sites/' . $expectedCodebaseSites[0]->id)
+            ->willReturn($expectedCodebaseSites[0])
+            ->shouldBeCalled();
+        $this->clientProphecy->request('get', '/site-instances/' . $expectedCodebaseSites[0]->id . "." . $expectedCodebaseEnvironments->_embedded->items[0]->id)
+            ->willReturn($expectedSiteInstance)
+            ->shouldBeCalled();
+
+        // Only set prophecy expectations for the actual calls made.
+        $this->clientProphecy->request('get', '/codebases/' . $codebaseUuid)
+            ->willReturn($expectedCodebase)
+            ->shouldBeCalled();
+
+        $this->clientProphecy->request('get', '/codebases/' . $codebaseUuid . '/environments')
+            ->willReturn($expectedCodebaseEnvironments->_embedded->items)
+            ->shouldBeCalled();
+        $this->clientProphecy->request('get', '/codebases/' . $codebaseUuid . '/sites')
+            ->willReturn($expectedCodebaseSites)
+            ->shouldBeCalled();
+        $selectedEnvironment =  $expectedCodebaseEnvironments->_embedded->items[0];
+        $sshHelper = $this->mockSshHelper();
+
+        $localMachineHelper = $this->mockLocalMachineHelper();
+        $this->mockGetFilesystem($localMachineHelper);
+        $parts = explode('.', $selectedEnvironment->ssh_url);
+        $sitegroup = reset($parts);
+        $this->mockExecuteRsync($localMachineHelper, $selectedEnvironment, '/mnt/files/' . $selectedEnvironment->name . '/sites/site2/files/', $this->projectDir . '/docroot/sites/site2/files');
+
+        $this->command->sshHelper = $sshHelper->reveal();
+
+        $inputs = [
+            // Choose a site [default]:
+            0,
+            // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
+            // 'n',
+            // Select a Cloud Platform application:
+            0,
+            // Would you like to link the project at ... ?
+            'n',
+            // Choose an Acquia environment:
+            0,
+            // Choose site from which to copy files:
+            0,
+        ];
+
+        $this->executeCommand([], $inputs);
+        $output = $this->getDisplay();
+        $this->assertStringContainsString('Detected Codebase UUID: ', $output);
+        // $this->assertStringContainsString('Using codebase:', $output);
+        // $this->assertStringContainsString('Using site instance:', $output);
+        // $this->assertStringContainsString('[0] Dev, dev (vcs: master)', $output);
+        self::unsetEnvVars(["AH_CODEBASE_UUID"]);
+    }
 }

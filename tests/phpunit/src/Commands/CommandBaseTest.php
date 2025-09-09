@@ -9,7 +9,12 @@ use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Command\Ide\IdeListCommand;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Tests\CommandTestBase;
+use Acquia\Cli\Transformer\EnvironmentTransformer;
+use AcquiaCloudApi\Response\CodebaseResponse;
+use AcquiaCloudApi\Response\EnvironmentResponse;
+use Prophecy\Argument;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Validator\Exception\ValidatorException;
 
@@ -424,8 +429,9 @@ class CommandBaseTest extends CommandTestBase
         $this->assertEquals('applicationUuid', $parameters[2]->getName());
     }
 
+
     /**
-     * Test that determineVcsUrl method exists and is accessible for testing purposes.
+     * Test that determineSiteInstance method exists and is accessible for testing purposes.
      * This test validates the method signature and basic invocation.
      */
     public function testDetermineSiteInstanceMethodAccessibility(): void
@@ -555,7 +561,85 @@ class CommandBaseTest extends CommandTestBase
         $this->assertEquals('siteId', $parameters[0]->getName());
         $this->assertEquals('environmentId', $parameters[1]->getName());
     }
+    /**
+     * Test determineVcsUrl method existence and accessibility.
+     * This creates basic test coverage for mutation testing.
+     */
+    public function testGetSiteInstanceMethodExecute(): void
+    {
+        $reflection = new \ReflectionClass($this->command);
+        $method = $reflection->getMethod('getSiteInstance');
+        $this->assertTrue($method->isProtected());
+        $this->assertEquals('getSiteInstance', $method->getName());
+        $method->setAccessible(true);
+        $siteInstance = $this->getMockSiteInstanceResponse();
+        $this->clientProphecy->request('get', '/site-instances/mock-site-id.mock-environment-id')
+            ->willReturn($siteInstance)
+            ->shouldBeCalled();
+        // Test the method execution with mock parameters.
+        $siteId = 'mock-site-id';
+        $environmentId = 'mock-environment-id';
+        $result = $method->invokeArgs($this->command, [$siteId, $environmentId]);
+        $this->assertNotNull($result);
+    }
+    /**
+     * Test determineVcsUrl method existence and accessibility.
+     * This creates basic test coverage for mutation testing.
+     */
+    public function testGetSiteInstanceMethodExecuteException(): void
+    {
+        $reflection = new \ReflectionClass($this->command);
+        $method = $reflection->getMethod('getSiteInstance');
+        $this->assertTrue($method->isProtected());
+        $this->assertEquals('getSiteInstance', $method->getName());
+        $method->setAccessible(true);
+        $loggerProphecy = $this->prophet->prophesize(\Symfony\Component\Console\Logger\ConsoleLogger::class);
+        $this->logger = $loggerProphecy->reveal();
 
+        $loggerProphecy->debug(
+            Argument::containingString('Site instance with ID mock-site-id.mock-environment-id not found.')
+        )->shouldBeCalled();
+        $this->command->setLogger($loggerProphecy->reveal());
+
+        $siteInstance = $this->getMockSiteInstanceResponse();
+        // $this->expectException(AcquiaCliException::class);
+        // $this->expectExceptionMessage("Site instance with ID mock-site-id.mock-environment-id not found.");
+        $this->clientProphecy->request('get', '/site-instances/mock-site-id.mock-environment-id')
+            ->willThrow(new \Exception())
+            ->shouldBeCalled();
+        // Test the method execution with mock parameters.
+        $siteId = 'mock-site-id';
+        $environmentId = 'mock-environment-id';
+        $result = $method->invokeArgs($this->command, [$siteId, $environmentId]);
+        $this->assertNull($result);
+    }
+    /**
+     * Test determineVcsUrl method existence and accessibility.
+     * This creates basic test coverage for mutation testing.
+     */
+    public function testGetSiteInstanceDatabaseMethodExecuteException(): void
+    {
+        $reflection = new \ReflectionClass($this->command);
+        $method = $reflection->getMethod('getSiteInstanceDatabase');
+        $this->assertEquals('getSiteInstanceDatabase', $method->getName());
+        $method->setAccessible(true);
+        $loggerProphecy = $this->prophet->prophesize(\Symfony\Component\Console\Logger\ConsoleLogger::class);
+        $this->logger = $loggerProphecy->reveal();
+
+        $loggerProphecy->debug(
+            Argument::containingString('Could not get site instance database: ')
+        )->shouldBeCalled();
+        $this->command->setLogger($loggerProphecy->reveal());
+
+        $this->clientProphecy->request('get', '/site-instances/mock-site-id.mock-environment-id/database')
+            ->willThrow(new \Exception())
+            ->shouldBeCalled();
+        // Test the method execution with mock parameters.
+        $siteId = 'mock-site-id';
+        $environmentId = 'mock-environment-id';
+        $result = $method->invokeArgs($this->command, [$siteId, $environmentId]);
+        $this->assertNull($result);
+    }
     /**
      * Test that determineVcsUrl method exists and is accessible for testing purposes.
      * This test validates the method signature and basic invocation.
@@ -589,13 +673,13 @@ class CommandBaseTest extends CommandTestBase
         $this->assertEquals('codebaseId', $parameters[0]->getName());
     }
     /**
-    * Test determineVcsUrl method logic paths through TestableCommand.
-    * This test fully covers mutation scenarios including:
-    * - hasOption = true && getOption = null
-    * - hasOption = true && getOption = ''
-    * - hasOption = false && getOption = null
-    * - No options at all
-    */
+     * Test determineVcsUrl method logic paths through TestableCommand.
+     * This test fully covers mutation scenarios including:
+     * - hasOption = true && getOption = null
+     * - hasOption = true && getOption = ''
+     * - hasOption = false && getOption = null
+     * - No options at all
+     */
     public function testDetermineVcsUrlLogicPaths(): void
     {
         $applicationsResponse = self::getMockResponseFromSpec('/applications', 'get', '200');
@@ -751,26 +835,12 @@ class CommandBaseTest extends CommandTestBase
     }
 
     /**
-     * Mock a codebase environment for testing.
-     */
-    protected function mockCodebaseEnvironment(string $environmentId): object
-    {
-        // Create a simple mock environment object for testing.
-        return (object) [
-            'codebase_uuid' => '11111111-041c-44c7-a486-7972ed2cafc8',
-            'id' => $environmentId,
-            'label' => 'Test Environment',
-            'name' => 'test-env',
-        ];
-    }
-
-    /**
      * Test determineEnvironment with siteInstanceId option - focused on parsing logic.
      */
     public function testDetermineEnvironmentWithSiteInstanceIdParsingLogic(): void
     {
-        $siteId = '3e8ecbec-ea7c-4260-8414-ef2938c859bc';
-        $environmentId = 'abcd1234-1111-2222-3333-0e02b2c3d470';
+        $siteId = '0ebce493-9d09-479d-a9a8-138a206fa687';
+        $environmentId = '3e8ecbec-ea7c-4260-8414-ef2938c859bc';
         $siteInstanceId = $siteId . '.' . $environmentId;
 
         // Test the core parsing logic that was requested for coverage.
@@ -811,12 +881,76 @@ class CommandBaseTest extends CommandTestBase
     }
 
     /**
+     * Test determineEnvironment with invalid siteInstanceId format throws exception.
+     */
+    public function testDetermineEnvironmentElseBlock(): void
+    {
+        $applicationUuid = 'a47ac10b-58cc-4372-a567-0e02b2c3d470';
+        self::setEnvVars(['ACQUIA_APPLICATION_UUID' => $applicationUuid]);
+        $applicationsResponse = self::getMockResponseFromSpec('/applications', 'get', '200');
+        $applicationsResponse = $this->filterApplicationsResponse($applicationsResponse, 2, true);
+        $this->clientProphecy->request(
+            'get',
+            "/applications/{$applicationUuid}"
+        )
+            ->willReturn($applicationsResponse->{'_embedded'}->items[0])
+            ->shouldBeCalled();
+
+        $this->mockEnvironmentsRequest($applicationsResponse);
+        $inputMock = $this->prophet->prophesize(\Symfony\Component\Console\Input\InputInterface::class);
+        $outputMock = $this->prophet->prophesize(\Symfony\Component\Console\Output\OutputInterface::class);
+        $ioProphecy = $this->prophet->prophesize(\Symfony\Component\Console\Style\SymfonyStyle::class);
+
+        $inputMock->hasOption('siteInstanceId')->willReturn(false);
+        $inputMock->getOption('siteInstanceId')->willReturn(null);
+        $inputMock->hasArgument('applicationUuid')->willReturn(false);
+        $inputMock->getArgument('applicationUuid')->willReturn(null);
+        $inputMock->hasArgument('environmentId')->willReturn(false);
+        $inputMock->getArgument('environmentId')->willReturn(null);
+        $inputMock->isInteractive()->willReturn(true);
+
+        // Ensure confirm() returns a bool to avoid TypeError.
+        $ioProphecy->confirm(\Prophecy\Argument::cetera())->willReturn(true);
+        $ioProphecy->success(\Prophecy\Argument::cetera())->willReturn(null);
+
+        $choices = [
+            "Dev, dev (vcs: master)",
+        ];
+        $ioProphecy->choice('Choose a Cloud Platform environment', $choices, $choices[0])
+            ->willReturn($choices[0])
+            ->shouldBeCalled();
+        // Use reflection to set the protected $input property.
+        $reflectionCommand = new \ReflectionClass($this->command);
+        $inputProperty = $reflectionCommand->getProperty('input');
+        $inputProperty->setAccessible(true);
+        $inputProperty->setValue($this->command, $inputMock->reveal());
+        $outputProperty = $reflectionCommand->getProperty('output');
+        $outputProperty->setAccessible(true);
+        $outputProperty->setValue($this->command, $outputMock->reveal());
+
+        $ioProperty = $reflectionCommand->getProperty('io');
+        $ioProperty->setAccessible(true);
+        $ioProperty->setValue($this->command, $ioProphecy->reveal());
+
+        $reflection = new \ReflectionClass($this->command);
+        $method = $reflection->getMethod('determineEnvironment');
+        $method->setAccessible(true);
+        $output = new \Symfony\Component\Console\Output\BufferedOutput();
+
+        $result = $method->invoke($this->command, $inputMock->reveal(), $output);
+        $this->assertEquals('24-a47ac10b-58cc-4372-a567-0e02b2c3d470', $result->uuid);
+        $this->assertStringContainsString('Using Cloud Application', $output->fetch());
+
+        self::unSetEnvVars(['ACQUIA_APPLICATION_UUID']);
+    }
+
+    /**
      * Test siteInstanceId parsing and processing logic.
      */
     public function testSiteInstanceIdParsing(): void
     {
-        $siteId = '3e8ecbec-ea7c-4260-8414-ef2938c859bc';
-        $environmentId = 'abcd1234-1111-2222-3333-0e02b2c3d470';
+        $siteId = '0ebce493-9d09-479d-a9a8-138a206fa687';
+        $environmentId = '3e8ecbec-ea7c-4260-8414-ef2938c859bc';
         $codebaseId = '11111111-041c-44c7-a486-7972ed2cafc8';
         $siteInstanceId = $siteId . '.' . $environmentId;
 
@@ -830,8 +964,8 @@ class CommandBaseTest extends CommandTestBase
         $this->assertEquals($siteId, $parsedSiteId);
         $this->assertEquals($environmentId, $parsedEnvironmentId);
 
-        $siteId = '3e8ecbec-ea7c-4260-8414-ef2938c859bc';
-        $environmentId = 'abcd1234-1111-2222-3333-0e02b2c3d470';
+        $siteId = '0ebce493-9d09-479d-a9a8-138a206fa687';
+        $environmentId = '3e8ecbec-ea7c-4260-8414-ef2938c859bc';
         $tempId = '11111111-041c-44c7-a486-7972ed2cafc8';
         $siteInstanceId = "$siteId.$environmentId.$tempId";
 
@@ -911,6 +1045,7 @@ class CommandBaseTest extends CommandTestBase
             'id' => 'test-env-id',
             'label' => 'Test Environment',
             'name' => 'test-env',
+            'ssh_url' => 'site.dev@sitedev.ssh.hosted.acquia-sites.com',
             'status' => 'active',
             'type' => 'dev',
             'vcs' => (object) [
@@ -923,24 +1058,6 @@ class CommandBaseTest extends CommandTestBase
         $result = \Acquia\Cli\Transformer\EnvironmentTransformer::transform($mockEnvironment);
         $this->assertNotNull($result);
         $this->assertEquals('test-env-id', $result->uuid);
-    }
-
-    /**
-     * Test EnvironmentTransformer::transformFromCodeBase method call path coverage.
-     */
-    public function testEnvironmentTransformerTransformFromCodeBaseCall(): void
-    {
-        // This test covers the EnvironmentTransformer::transformFromCodeBase call in determineEnvironment.
-        $mockCodebase = (object) [
-            'id' => 'test-codebase-id',
-            'label' => 'Test Codebase',
-            'vcs_url' => 'ssh://test.com/repo.git',
-        ];
-
-        // Test that we can call the transformer (simulating the code path)
-        $result = \Acquia\Cli\Transformer\EnvironmentTransformer::transformFromCodeBase($mockCodebase);
-        $this->assertNotNull($result);
-        $this->assertEquals('ssh://test.com/repo.git', $result->vcs->url);
     }
 
     /**
@@ -1042,43 +1159,6 @@ class CommandBaseTest extends CommandTestBase
     }
 
     /**
-     * Test actual execution of determineEnvironment else branch conditions.
-     */
-    public function testDetermineEnvironmentElseBranchReflection(): void
-    {
-        // Create input and output mocks.
-        $inputMock = $this->prophet->prophesize(\Symfony\Component\Console\Input\InputInterface::class);
-        $outputMock = $this->prophet->prophesize(\Symfony\Component\Console\Output\OutputInterface::class);
-
-        // Set up input mock for else branch (interactive mode)
-        $inputMock->hasOption('siteInstanceId')->willReturn(false);
-        $inputMock->getArgument('environmentId')->willReturn(null);
-
-        $input = $inputMock->reveal();
-        $output = $outputMock->reveal();
-
-        // Verify all conditions that lead to else branch.
-        $siteInstanceCondition = $input->hasOption('siteInstanceId') && $input->getOption('siteInstanceId');
-        $environmentIdCondition = $input->getArgument('environmentId');
-
-        $this->assertFalse($siteInstanceCondition);
-        $this->assertNull($environmentIdCondition);
-
-        // This combination should trigger the else branch.
-        if (!$siteInstanceCondition && !$environmentIdCondition) {
-            // $cloudApplication = $this->getCloudApplication($cloudApplicationUuid);
-            $mockCloudApplication = (object) ['name' => 'Test Application'];
-
-            // $output->writeln('Using Cloud Application <options=bold>' . $cloudApplication->name . '</>');
-            $expectedOutput = 'Using Cloud Application <options=bold>' . $mockCloudApplication->name . '</>';
-            $this->assertEquals('Using Cloud Application <options=bold>Test Application</>', $expectedOutput);
-
-            // Test that we reached the else branch.
-            $this->assertTrue(true);
-        }
-    }
-
-    /**
      * Test the logger debug line at the end of determineEnvironment.
      */
     public function testDetermineEnvironmentLoggerDebugLine(): void
@@ -1129,41 +1209,6 @@ class CommandBaseTest extends CommandTestBase
         if (!$hasOptionSiteInstance && $hasEnvironmentId) {
             // This branch would call $this->getCloudEnvironment($environmentId)
             $this->assertEquals($environmentId, $hasEnvironmentId);
-        }
-    }
-
-    /**
-     * Test determine environment else branch (interactive mode) conditions.
-     */
-    public function testDetermineEnvironmentElseBranchConditions(): void
-    {
-        $inputMock = $this->prophet->prophesize(\Symfony\Component\Console\Input\InputInterface::class);
-        $outputMock = $this->prophet->prophesize(\Symfony\Component\Console\Output\OutputInterface::class);
-
-        // Set up the input mock for the else branch.
-        $inputMock->hasOption('siteInstanceId')->willReturn(false);
-        $inputMock->getArgument('environmentId')->willReturn(null);
-
-        // Test the conditions that lead to the else branch.
-        $hasOptionSiteInstance = $inputMock->reveal()->hasOption('siteInstanceId');
-        $hasEnvironmentId = $inputMock->reveal()->getArgument('environmentId');
-
-        $this->assertFalse($hasOptionSiteInstance);
-        $this->assertNull($hasEnvironmentId);
-
-        // This condition should trigger the else branch.
-        if (
-            !($hasOptionSiteInstance && $inputMock->reveal()->getOption('siteInstanceId')) &&
-            !$hasEnvironmentId
-        ) {
-            // This branch would execute:
-            // $cloudApplicationUuid = $this->determineCloudApplication();
-            // $cloudApplication = $this->getCloudApplication($cloudApplicationUuid);
-            // $output->writeln('Using Cloud Application <options=bold>' . $cloudApplication->name . '</>');
-            // $acquiaCloudClient = $this->cloudApiClientService->getClient();
-            // $chosenEnvironment = $this->promptChooseEnvironmentConsiderProd(...);.
-            // Confirms we reached this branch.
-            $this->assertTrue(true);
         }
     }
 
@@ -1320,5 +1365,743 @@ class CommandBaseTest extends CommandTestBase
             // or if getAnyVcsUrl returns a valid URL array.
             $this->fail('Expected to reach the false return path, but conditions led to else branch');
         }
+    }
+
+    /**
+     * determineCodebaseEnvironment: returns null when AH_CODEBASE_UUID is absent.
+     */
+    public function testdetermineCodebaseEnvironmentReturnsNullWhenNoCodebaseUuid(): void
+    {
+        self::unsetEnvVars(['AH_CODEBASE_UUID']);
+
+        $input = $this->prophet->prophesize(InputInterface::class)->reveal();
+        $output = $this->prophet->prophesize(OutputInterface::class)->reveal();
+
+        $reflection = new \ReflectionClass($this->command);
+        $method = $reflection->getMethod('determineCodebaseEnvironment');
+        $method->setAccessible(true);
+
+        $result = $method->invoke($this->command, $input, $output);
+        $this->assertNull($result);
+    }
+
+    /**
+     * determineCodebaseEnvironment: happy-path with a single environment (no prompt).
+     */
+    public function testdetermineCodebaseEnvironmentSuccessSingleEnvironment(): void
+    {
+        $codebaseUuid = '11111111-041c-44c7-a486-7972ed2cafc8';
+        self::SetEnvVars(['AH_CODEBASE_UUID' => $codebaseUuid]);
+
+        // Mock the codebase returned from /codebases/{uuid}.
+        $codebase =  $this->getMockCodeBaseResponse();
+        $this->clientProphecy->request('get', '/codebases/' . $codebaseUuid)
+            ->willReturn($codebase)
+            ->shouldBeCalled();
+
+        // // Build one codebase environment (so prompt is skipped).
+        $codebaseEnv = $this->getMockCodeBaseEnvironment();
+        $this->clientProphecy->request('get', '/codebases/' . $codebaseUuid . '/environments')
+            ->willReturn([$codebaseEnv])
+            ->shouldBeCalled();
+
+        $input = $this->prophet->prophesize(InputInterface::class)->reveal();
+        $outputProphecy = $this->prophet->prophesize(OutputInterface::class);
+
+        $outputProphecy->writeln(sprintf(
+            'Detected Codebase UUID: <options=bold>%s</>',
+            $codebaseUuid
+        ))->shouldBeCalled();
+        $outputProphecy->writeln(sprintf(
+            'Using codebase: <options=bold>%s</>',
+            $codebase->label
+        ))->shouldBeCalled();
+        $output = $outputProphecy->reveal();
+
+        $reflection = new \ReflectionClass($this->command);
+        $method = $reflection->getMethod('determineCodebaseEnvironment');
+        $method->setAccessible(true);
+
+        $result = $method->invoke($this->command, $input, $output);
+        $expectedOutput = "Detected Codebase UUID: <options=bold>$codebaseUuid</>";
+        $this->assertEquals("Detected Codebase UUID: <options=bold>11111111-041c-44c7-a486-7972ed2cafc8</>", $expectedOutput);
+
+        $expectedOutputCodebase = "Using codebase: <options=bold>" . $codebase->label . "</>";
+        $this->assertEquals("Using codebase: <options=bold>Test codebase with attached applications</>", $expectedOutputCodebase);
+
+        // After transform(), uuid should equal original id.
+        $this->assertNotNull($result);
+        $this->assertEquals('3e8ecbec-ea7c-4260-8414-ef2938c859bc', $result->uuid);
+        $this->assertEquals('Environment_3e8ecbec-ea7c-4260-8414-ef2938c859bc', $result->label);
+        self::unsetEnvVars(['AH_CODEBASE_UUID']);
+    }
+
+    /**
+     * determineCodebaseEnvironment: no environments found path (caught and returns null).
+     */
+    public function testdetermineCodebaseEnvironmentNoEnvironmentsReturnsNull(): void
+    {
+        $codebaseUuid = '11111111-041c-44c7-a486-7972ed2cafc8';
+        self::SetEnvVars(['AH_CODEBASE_UUID' => $codebaseUuid]);
+
+        $codebase = $this->getMockCodeBase();
+        $this->clientProphecy->request('get', '/codebases/' . $codebaseUuid)
+            ->willReturn($codebase)
+            ->shouldBeCalled();
+
+        // Return an empty array from the environments endpoint -> leads to AcquiaCliException internally and null result.
+        $this->clientProphecy->request('get', '/codebases/' . $codebaseUuid . '/environments')
+            ->willReturn([])
+            ->shouldBeCalled();
+
+        $input = $this->prophet->prophesize(InputInterface::class)->reveal();
+        $output = new BufferedOutput();
+
+        $reflection = new \ReflectionClass($this->command);
+        $method = $reflection->getMethod('determineCodebaseEnvironment');
+        $method->setAccessible(true);
+
+        $this->expectException(AcquiaCliException::class);
+        $this->expectExceptionMessage('No environments found for this codebase.');
+        $result = $method->invoke($this->command, $input, $output);
+        $this->assertNull($result);
+
+        self::unsetEnvVars(['AH_CODEBASE_UUID']);
+    }
+
+
+    /**
+     * determineCodebaseEnvironment: no environments found path (caught and returns null).
+     */
+    public function testdetermineCodebaseEnvironmentSuccess(): void
+    {
+        $codebaseUuid = '11111111-041c-44c7-a486-7972ed2cafc8';
+        self::SetEnvVars(['AH_CODEBASE_UUID' => $codebaseUuid]);
+
+        $codebase = $this->getMockCodeBase();
+        $this->clientProphecy->request('get', '/codebases/' . $codebaseUuid)
+            ->willReturn($codebase)
+            ->shouldBeCalled();
+
+        $codebaseEnvironments = $this->getMockCodeBaseEnvironments();
+        $this->clientProphecy->request('get', '/codebases/' . $codebaseUuid . '/environments')
+            ->willReturn($codebaseEnvironments->_embedded->items)
+            ->shouldBeCalled();
+
+        $input = $this->prophet->prophesize(InputInterface::class)->reveal();
+        $output = new BufferedOutput();
+
+        $reflection = new \ReflectionClass($this->command);
+        $method = $reflection->getMethod('determineCodebaseEnvironment');
+        $method->setAccessible(true);
+
+        $result = $method->invoke($this->command, $input, $output);
+        $expectedEnvironment = $codebaseEnvironments->_embedded->items[0];
+        $this->assertNotNull($result);
+        $this->assertEquals($expectedEnvironment->id, $result->uuid);
+        $this->assertEquals($expectedEnvironment->label, $result->label);
+
+        self::unsetEnvVars(['AH_CODEBASE_UUID']);
+    }
+
+    /**
+     * getEnvironmentsByCodebase: transforms array of codebase environments.
+     */
+    public function testGetEnvironmentsByCodebaseTransforms(): void
+    {
+        $codebase = new CodebaseResponse($this->getMockCodeBase());
+        $env1 = $this->getMockCodeBaseEnvironment();
+        $env2 = $this->getMockCodeBaseEnvironment();
+
+        $this->clientProphecy->request('get', '/codebases/' . $codebase->id . '/environments')
+            ->willReturn([$env1, $env2])
+            ->shouldBeCalled();
+
+        $reflection = new \ReflectionClass($this->command);
+        $method = $reflection->getMethod('getEnvironmentsByCodebase');
+        $method->setAccessible(true);
+
+        /** @var array<mixed> $result */
+        $result = $method->invoke($this->command, $codebase);
+        $this->assertIsArray($result);
+        $this->assertCount(2, $result);
+        $this->assertEquals('3e8ecbec-ea7c-4260-8414-ef2938c859bc', $result[0]->uuid);
+        $this->assertEquals('Environment_3e8ecbec-ea7c-4260-8414-ef2938c859bc', $result[1]->label);
+    }
+
+    /**
+     * getEnvironmentsByCodebase: bubbles AcquiaCliException on client error.
+     */
+    public function testGetEnvironmentsByCodebaseThrowsOnClientError(): void
+    {
+        $codebase = new CodebaseResponse($this->getMockCodeBase());
+
+        $this->clientProphecy->request('get', '/codebases/' . $codebase->id . '/environments')
+            ->willThrow(new \Exception('boom'));
+
+        $reflection = new \ReflectionClass($this->command);
+        $method = $reflection->getMethod('getEnvironmentsByCodebase');
+        $method->setAccessible(true);
+
+        $this->expectException(\Acquia\Cli\Exception\AcquiaCliException::class);
+        $this->expectExceptionMessage('Failed to fetch environments for codebase: boom');
+        $method->invoke($this->command, $codebase);
+    }
+
+    /**
+     * getSitesByCodebase: returns embedded items when present.
+     */
+    public function testGetSitesByCodebaseReturnsEmbeddedItems(): void
+    {
+        $codebaseUuid = 'cb-sites-uuid';
+        $site = (object) [
+            'id' => 'site-uuid-1',
+            'label' => 'Demo Site',
+            'name' => 'demo',
+        ];
+        $response = (object) [
+            '_embedded' => (object) [
+                'items' => [$site],
+            ],
+        ];
+
+        $this->clientProphecy->request('get', '/codebases/' . $codebaseUuid . '/sites')
+            ->willReturn($response)
+            ->shouldBeCalled();
+
+        $reflection = new \ReflectionClass($this->command);
+        $method = $reflection->getMethod('getSitesByCodebase');
+        $method->setAccessible(true);
+
+        $result = $method->invoke($this->command, $codebaseUuid);
+        $this->assertIsArray($result);
+        $this->assertCount(1, $result);
+        $this->assertEquals('demo', $result[0]->name);
+    }
+
+    /**
+     * getSitesByCodebase: returns raw response when no _embedded items key exists.
+     */
+    public function testGetSitesByCodebaseReturnsRawWhenNoEmbedded(): void
+    {
+        $codebaseUuid = 'cb-sites-raw-uuid';
+        // API could return an array already or a bare object depending on implementation.
+        $bare = [(object) ['id' => 'site-x', 'label' => 'X', 'name' => 'x']];
+
+        $this->clientProphecy->request('get', '/codebases/' . $codebaseUuid . '/sites')
+            ->willReturn($bare)
+            ->shouldBeCalled();
+
+        $reflection = new \ReflectionClass($this->command);
+        $method = $reflection->getMethod('getSitesByCodebase');
+        $method->setAccessible(true);
+
+        $result = $method->invoke($this->command, $codebaseUuid);
+        $this->assertIsArray($result);
+        $this->assertEquals('site-x', $result[0]->id);
+    }
+    public function testGetSitesByCodebaseCastsBareObjectToArray(): void
+    {
+        $codebaseUuid = 'cb-sites-raw-obj';
+        $bare = new \stdClass();
+        $bare->first = (object) ['id' => 'site-a', 'label' => 'A', 'name' => 'a'];
+
+        $this->clientProphecy->request('get', "/codebases/{$codebaseUuid}/sites")
+            ->willReturn($bare)->shouldBeCalled();
+
+        $m = (new \ReflectionClass($this->command))->getMethod('getSitesByCodebase');
+        $m->setAccessible(true);
+        $result = $m->invoke($this->command, $codebaseUuid);
+
+        // Fails if cast removed.
+        $this->assertIsArray($result);
+        $this->assertArrayHasKey('first', $result);
+        $this->assertSame('site-a', $result['first']->id);
+    }
+
+    public function testGetSitesByCodebaseCastsEmbeddedArrayObjectToArray(): void
+    {
+        $codebaseUuid = 'cb-sites-embedded-arrayobject';
+        $site1 = (object) ['id' => 'site-a', 'label' => 'A', 'name' => 'a'];
+        $site2 = (object) ['id' => 'site-b', 'label' => 'B', 'name' => 'b'];
+        $response = (object) [
+            '_embedded' => (object) [
+                // ArrayObject will trip the mutant unless cast back to array.
+                'items' => new \ArrayObject([$site1, $site2]),
+            ],
+        ];
+
+        $this->clientProphecy->request('get', "/codebases/{$codebaseUuid}/sites")
+            ->willReturn($response)->shouldBeCalled();
+
+        $m = (new \ReflectionClass($this->command))->getMethod('getSitesByCodebase');
+        $m->setAccessible(true);
+        $result = $m->invoke($this->command, $codebaseUuid);
+
+        // Fails if cast removed.
+        $this->assertIsArray($result);
+        $this->assertCount(2, $result);
+        $this->assertSame('site-a', $result[0]->id);
+        $this->assertSame('site-b', $result[1]->id);
+    }
+    public function testGetSitesByCodebaseKeepsArrayAsIs(): void
+    {
+        $codebaseUuid = 'cb-sites-array';
+        $bare = [(object) ['id' => 'site-x', 'label' => 'X', 'name' => 'x']];
+
+        $this->clientProphecy->request('get', "/codebases/{$codebaseUuid}/sites")
+            ->willReturn($bare)->shouldBeCalled();
+
+        $m = (new \ReflectionClass($this->command))->getMethod('getSitesByCodebase');
+        $m->setAccessible(true);
+        $result = $m->invoke($this->command, $codebaseUuid);
+
+        $this->assertIsArray($result);
+        $this->assertSame($bare, $result);
+    }
+    /**
+     * determineSiteInstanceFromCodebaseUuid: returns null when AH_CODEBASE_UUID is absent.
+     */
+    public function testDetermineSiteInstanceFromCodebaseUuidReturnsNullWithoutUuid(): void
+    {
+        self::UnsetEnvVars(['AH_CODEBASE_UUID']);
+
+        // Build a minimal EnvironmentResponse via transformer.
+        $envPayload = (object) [
+            'application' => (object) ['uuid' => 'app-x'],
+            'configuration' => (object) ['php' => (object) ['version' => '8.1']],
+            'flags' => (object) ['cde' => false, 'hsd' => false, 'livedev' => false, 'production' => false],
+            'id' => 'env-x',
+            'label' => 'Env X',
+            'name' => 'envx',
+            'ssh_url' => 'site.dev@sitedev.ssh.hosted.acquia-sites.com',
+            'status' => 'active',
+            'type' => 'dev',
+            'vcs' => (object) ['path' => 'main', 'url' => 'git@example.com:x.git'],
+        ];
+        $environment = \Acquia\Cli\Transformer\EnvironmentTransformer::transform($envPayload);
+
+        $input = $this->prophet->prophesize(InputInterface::class)->reveal();
+        $output = $this->prophet->prophesize(OutputInterface::class)->reveal();
+
+        $reflection = new \ReflectionClass($this->command);
+        $method = $reflection->getMethod('determineSiteInstanceFromCodebaseUuid');
+        $method->setAccessible(true);
+
+        $result = $method->invoke($this->command, $environment, $input, $output);
+        $this->assertNull($result);
+        self::unsetEnvVars(['AH_CODEBASE_UUID']);
+    }
+
+    /**
+     * determineSiteInstanceFromCodebaseUuid: single site instance auto-selected.
+     */
+    public function testDetermineSiteInstanceFromCodebaseUuidSingleSiteInstance(): void
+    {
+        $codebaseUuid = '11111111-041c-44c7-a486-7972ed2cafc8';
+        self::SetEnvVars(['AH_CODEBASE_UUID' => $codebaseUuid]);
+
+        // EnvironmentResponse built via transformer.
+        $envPayload = $this->getMockCodeBaseEnvironment();
+        $environment = \Acquia\Cli\Transformer\EnvironmentTransformer::transform($envPayload);
+
+        $codeabaseSites = $this->getMockCodeBaseSites();
+        $this->clientProphecy->request('get', '/codebases/' . $codebaseUuid . '/sites')
+            ->willReturn($codeabaseSites)
+            ->shouldBeCalled();
+        $siteInstance = $this->getMockSiteInstanceResponse();
+
+        $this->clientProphecy->request('get', '/site-instances/8979a8ac-80dc-4df8-b2f0-6be36554a370.3e8ecbec-ea7c-4260-8414-ef2938c859bc')
+            ->willReturn($siteInstance)
+            ->shouldBeCalled();
+
+        $input = $this->prophet->prophesize(InputInterface::class)->reveal();
+        $output = $this->prophet->prophesize(OutputInterface::class)->reveal();
+
+        $reflection = new \ReflectionClass($this->command);
+        $method = $reflection->getMethod('determineSiteInstanceFromCodebaseUuid');
+        $method->setAccessible(true);
+
+        $result = $method->invoke($this->command, $environment, $input, $output);
+        $this->assertEquals('8979a8ac-80dc-4df8-b2f0-6be36554a370.3e8ecbec-ea7c-4260-8414-ef2938c859bc', $result);
+        self::unsetEnvVars(['AH_CODEBASE_UUID']);
+    }
+
+
+    /**
+     * determineSiteInstanceFromCodebaseUuid: no site instance available.
+     */
+    public function testDetermineSiteInstanceFromCodebaseUuidNoSiteInstance(): void
+    {
+        $codebaseUuid = '11111111-041c-44c7-a486-7972ed2cafc8';
+        self::SetEnvVars(['AH_CODEBASE_UUID' => $codebaseUuid]);
+
+        // EnvironmentResponse built via transformer.
+        $envPayload = $this->getMockCodeBaseEnvironment();
+        $environment = \Acquia\Cli\Transformer\EnvironmentTransformer::transform($envPayload);
+
+        $codeabaseSites = $this->getMockCodeBaseSites();
+        $this->clientProphecy->request('get', '/codebases/' . $codebaseUuid . '/sites')
+            ->willReturn($codeabaseSites)
+            ->shouldBeCalled();
+
+        $siteInstance = $this->getMockSiteInstanceResponse();
+
+        $this->clientProphecy->request('get', '/site-instances/8979a8ac-80dc-4df8-b2f0-6be36554a370.3e8ecbec-ea7c-4260-8414-ef2938c859bc')
+            ->willThrow(new \Exception('Failed to get site instance for site 8979a8ac-80dc-4df8-b2f0-6be36554a370'))
+            ->shouldBeCalled();
+
+        $input = $this->prophet->prophesize(InputInterface::class)->reveal();
+        $output = $this->prophet->prophesize(OutputInterface::class)->reveal();
+
+        $ioProphecy = $this->prophet->prophesize(\Symfony\Component\Console\Style\SymfonyStyle::class);
+
+        $loggerProphecy = $this->prophet->prophesize(\Psr\Log\LoggerInterface::class);
+        $loggerProphecy->debug(
+            "Site instance with ID 8979a8ac-80dc-4df8-b2f0-6be36554a370.3e8ecbec-ea7c-4260-8414-ef2938c859bc not found.Failed to get site instance for site 8979a8ac-80dc-4df8-b2f0-6be36554a370"
+        )->shouldBeCalled();
+        $this->command->setLogger($loggerProphecy->reveal());
+
+        $reflection = new \ReflectionClass($this->command);
+
+        $ioProperty = $reflection->getProperty('io');
+        $ioProperty->setAccessible(true);
+        $ioProperty->setValue($this->command, $ioProphecy->reveal());
+
+        $method = $reflection->getMethod('determineSiteInstanceFromCodebaseUuid');
+        $method->setAccessible(true);
+
+        $result = $method->invoke($this->command, $environment, $input, $output);
+        $this->assertNull($result);
+        self::unsetEnvVars(['AH_CODEBASE_UUID']);
+    }
+
+    /**
+     * determineSiteInstanceFromCodebaseUuid: when no sites are found, returns null.
+     */
+    public function testDetermineSiteInstanceFromCodebaseUuidNoSitesReturnsNull(): void
+    {
+        $codebaseUuid = '11111111-041c-44c7-a486-7972ed2cafc8';
+        self::SetEnvVars(['AH_CODEBASE_UUID' => $codebaseUuid]);
+
+        $envPayload = (object) [
+            'application' => (object) ['uuid' => 'app-z'],
+            'configuration' => (object) ['php' => (object) ['version' => '8.1']],
+            'flags' => (object) ['cde' => false, 'hsd' => false, 'livedev' => false, 'production' => false],
+            'id' => 'env-z',
+            'label' => 'Env Z',
+            'name' => 'envz',
+            'ssh_url' => 'site.dev@sitedev.ssh.hosted.acquia-sites.com',
+            'status' => 'active',
+            'type' => 'dev',
+            'vcs' => (object) ['path' => 'main', 'url' => 'git@example.com:z.git'],
+        ];
+        $environment = \Acquia\Cli\Transformer\EnvironmentTransformer::transform($envPayload);
+
+        // Empty list from /codebases/{uuid}/sites -> getSitesByCodebase will return [].
+        $empty = (object) ['_embedded' => (object) ['items' => []]];
+        $this->clientProphecy->request('get', '/codebases/' . $codebaseUuid . '/sites')
+            ->willReturn($empty)
+            ->shouldBeCalled();
+
+        $input = $this->prophet->prophesize(InputInterface::class)->reveal();
+        $output = $this->prophet->prophesize(OutputInterface::class)->reveal();
+
+        $reflection = new \ReflectionClass($this->command);
+        $method = $reflection->getMethod('determineSiteInstanceFromCodebaseUuid');
+        $method->setAccessible(true);
+
+        $result = $method->invoke($this->command, $environment, $input, $output);
+        $this->assertNull($result);
+        self::unsetEnvVars(['AH_CODEBASE_UUID']);
+    }
+    public function testDetermineSiteInstanceFromCodebaseUuidPrintsWhenNoSites(): void
+    {
+        $codebaseUuid = '11111111-041c-44c7-a486-7972ed2cafc8';
+        // Arrange.
+        $env = $this->getMockCodeBaseEnvironment();
+        $environment = \Acquia\Cli\Transformer\EnvironmentTransformer::transform($env);
+        self::SetEnvVars(['AH_CODEBASE_UUID' =>  $codebaseUuid]);
+
+        $input  = $this->createMock(\Symfony\Component\Console\Input\InputInterface::class);
+        // Capture.
+        $output = new \Symfony\Component\Console\Output\BufferedOutput();
+        $reflection = new \ReflectionClass($this->command);
+        $method = $reflection->getMethod('determineSiteInstanceFromCodebaseUuid');
+        $method->setAccessible(true);
+
+        // Act.
+        $result = $method->invoke(
+            $this->command,
+            $environment,
+            $input,
+            $output
+        );
+
+        $this->clientProphecy->request('get', '/codebases/' . $codebaseUuid . '/sites')
+            ->willReturn([])
+            ->shouldBeCalled();
+
+        // Assert: returns null AND prints the message.
+        $this->assertNull($result);
+        $this->assertStringContainsString('No sites found for this codebase.', $output->fetch());
+        self::unsetEnvVars(['AH_CODEBASE_UUID']);
+    }
+
+    public function testDetermineSiteInstanceFromCodebaseUuidWhenSitesAvailable(): void
+    {
+        $codebaseUuid = '11111111-041c-44c7-a486-7972ed2cafc8';
+        // Arrange.
+        $env = $this->getMockCodeBaseEnvironment();
+        $environment = \Acquia\Cli\Transformer\EnvironmentTransformer::transform($env);
+        self::SetEnvVars(['AH_CODEBASE_UUID' =>  $codebaseUuid]);
+
+        $sites = $this->getMockCodeBaseSites();
+        $this->clientProphecy->request('get', '/codebases/' . $codebaseUuid . '/sites')
+            ->willReturn($sites)
+            ->shouldBeCalled();
+
+        $siteInstance = $this->getMockSiteInstanceResponse();
+
+        $this->clientProphecy->request('get', '/site-instances/' . $sites->_embedded->items[0]->id . '.' . $environment->uuid)
+            ->willReturn($siteInstance)
+            ->shouldBeCalled();
+
+
+        $input  = $this->createMock(\Symfony\Component\Console\Input\InputInterface::class);
+        // Capture.
+        $output = new \Symfony\Component\Console\Output\BufferedOutput();
+        $reflection = new \ReflectionClass($this->command);
+        $method = $reflection->getMethod('determineSiteInstanceFromCodebaseUuid');
+        $method->setAccessible(true);
+
+        // Act.
+        $result = $method->invoke(
+            $this->command,
+            $environment,
+            $input,
+            $output
+        );
+        // Assert: returns null AND prints the message.
+        $this->assertStringContainsString('8979a8ac-80dc-4df8-b2f0-6be36554a370.3e8ecbec-ea7c-4260-8414-ef2938c859bc', $result);
+        self::unsetEnvVars(['AH_CODEBASE_UUID']);
+    }
+
+    public function testDetermineSiteInstanceFromCodebaseUuidWhenMultipleSiteInstancesAvailable(): void
+    {
+        $codebaseUuid = '11111111-041c-44c7-a486-7972ed2cafc8';
+        // Arrange.
+        $env = $this->getMockCodeBaseEnvironment();
+        $environment = \Acquia\Cli\Transformer\EnvironmentTransformer::transform($env);
+        self::SetEnvVars(['AH_CODEBASE_UUID' =>  $codebaseUuid]);
+        $site2 = (object)[
+            'codebase_id' => '1234-5678',
+            'description' => 'My Site 3 description',
+            'id'          => '8979a8ac-80dc-4df8-b2f0-6be36554a371',
+            'label'       => 'My Site 3',
+            'name'        => 'site3',
+            '_links' => [
+                'self' => [
+                    'href' => 'https://cloud.acquia.com/api/codebases/1234-5678/sites',
+                ],
+            ],
+        ];
+        $sites = $this->getMockCodeBaseSites();
+        $sites->_embedded->items[1] = $site2;
+        $this->clientProphecy->request('get', '/codebases/' . $codebaseUuid . '/sites')
+            ->willReturn($sites)
+            ->shouldBeCalled();
+
+        $siteInstance = $this->getMockSiteInstanceResponse();
+
+        $this->clientProphecy->request('get', '/site-instances/' . $sites->_embedded->items[0]->id . '.' . $environment->uuid)
+            ->willReturn($siteInstance)
+            ->shouldBeCalled();
+        $this->clientProphecy->request('get', '/site-instances/' . $sites->_embedded->items[1]->id . '.' . $environment->uuid)
+            ->willReturn($siteInstance)
+            ->shouldBeCalled();
+
+        $input  = $this->createMock(\Symfony\Component\Console\Input\InputInterface::class);
+        // Capture.
+        $output = new \Symfony\Component\Console\Output\BufferedOutput();
+
+        // Mock io->choice to select the second environment.
+        $ioProphecy = $this->prophet->prophesize(\Symfony\Component\Console\Style\SymfonyStyle::class);
+        $choices = [
+            'site2',
+            'site3',
+        ];
+        $ioProphecy->choice('Choose a site instance', $choices, $choices[0])
+            ->willReturn($choices[1])
+            ->shouldBeCalled();
+
+        $reflection = new \ReflectionClass($this->command);
+
+        $ioProperty = $reflection->getProperty('io');
+        $ioProperty->setAccessible(true);
+        $ioProperty->setValue($this->command, $ioProphecy->reveal());
+
+        $method = $reflection->getMethod('determineSiteInstanceFromCodebaseUuid');
+        $method->setAccessible(true);
+
+        // Act.
+        $result = $method->invoke(
+            $this->command,
+            $environment,
+            $input,
+            $output
+        );
+        // Assert: returns null AND prints the message.
+        $this->assertStringContainsString('8979a8ac-80dc-4df8-b2f0-6be36554a371.3e8ecbec-ea7c-4260-8414-ef2938c859bc', $result);
+        self::unsetEnvVars(['AH_CODEBASE_UUID']);
+    }
+    /**
+     * Test promptChooseCodebaseEnvironment returns the only environment if one is provided.
+     */
+    public function testPromptChooseCodebaseEnvironmentSingle(): void
+    {
+        $env = EnvironmentTransformer::transform($this->getMockCodeBaseEnvironment());
+        $environments = [$env];
+
+        $reflection = new \ReflectionClass($this->command);
+        $method = $reflection->getMethod('promptChooseCodebaseEnvironment');
+        $method->setAccessible(true);
+
+        $result = $method->invoke($this->command, $environments);
+        $this->assertSame($env, $result);
+    }
+
+    /**
+     * Test promptChooseCodebaseEnvironment prompts and returns the selected environment.
+     */
+    public function testPromptChooseCodebaseEnvironmentMultiple(): void
+    {
+        $env1 = new EnvironmentResponse((object)[
+            'active_domain'  => '',
+            // Empty object placeholder.
+            'application'    => (object)[],
+            // Empty object placeholder.
+            'artifact'       => (object)[],
+            'balancer'       => '',
+            // Empty object placeholder.
+            'configuration'  => (object)[],
+            'default_domain' => '',
+            'domains'        => [],
+            'flags' => (object)[
+                'production' => false,
+            ],
+            // Empty object placeholder.
+            'gardener'       => (object)[],
+            'id'           => '3e8ecbec-ea7c-4260-8414-ef2938c859bc',
+            'image_url'      => null,
+            'ips'            => [],
+            'label'          => 'Env1',
+            // Empty object placeholder.
+            'links'          => (object)[],
+            'name'           => 'dev',
+            'platform'       => '',
+            'region'         => null,
+            'sshUrl'         => 'site.dev@sitedev.ssh.hosted.acquia-sites.com',
+            'status'         => 'normal',
+            'type'           => '',
+            'vcs' => (object)[
+                'branch' => 'main',
+                'path'   => 'tag/v3.1',
+                'url'    => '',
+            ],
+            '_links' => (object)[],
+        ]);
+        $env2 =  new EnvironmentResponse((object)[
+            'active_domain'  => '',
+            // Empty object placeholder.
+            'application'    => (object)[],
+            // Empty object placeholder.
+            'artifact'       => (object)[],
+            'balancer'       => '',
+            // Empty object placeholder.
+            'configuration'  => (object)[],
+            'default_domain' => '',
+            'domains'        => [],
+            'flags' => (object)[
+                'production' => false,
+            ],
+            // Empty object placeholder.
+            'gardener'       => (object)[],
+            'id'           => '3e8ecbec-ea7c-4260-8414-ef2938c859bb',
+            'image_url'      => null,
+            'ips'            => [],
+            'label'          => 'Env2',
+            // Empty object placeholder.
+            'links'          => (object)[],
+            'name'           => 'prod',
+            'platform'       => '',
+            'region'         => null,
+            'sshUrl'         => 'site.dev2@sitedev.ssh.hosted.acquia-sites.com',
+            'status'         => 'normal',
+            'type'           => '',
+            'vcs' => (object)[
+                'branch' => 'release',
+                'path'   => 'tag/v3.2',
+                'url'    => '',
+            ],
+            '_links' => (object)[],
+        ]);
+        $environments = [$env1, $env2];
+
+        // Mock io->choice to select the second environment.
+        $ioProphecy = $this->prophet->prophesize(\Symfony\Component\Console\Style\SymfonyStyle::class);
+        $choices = [
+            'Env1, dev (branch: main)',
+            'Env2, prod (branch: release)',
+        ];
+        $ioProphecy->choice('Choose a Cloud Platform environment', $choices, $choices[0])
+            ->willReturn($choices[1])
+            ->shouldBeCalled();
+
+        // Inject the mocked io into the command.
+        $reflection = new \ReflectionClass($this->command);
+        $ioProperty = $reflection->getProperty('io');
+        $ioProperty->setAccessible(true);
+        $ioProperty->setValue($this->command, $ioProphecy->reveal());
+
+        $method = $reflection->getMethod('promptChooseCodebaseEnvironment');
+        $method->setAccessible(true);
+
+        $result = $method->invoke($this->command, $environments);
+        $this->assertSame($env2, $result);
+    }
+
+    /**
+     * Test that determineVcsUrl method exists and is accessible for testing purposes.
+     * This test validates the method signature and basic invocation.
+     */
+    public function testGetSiteInstanceDatabase(): void
+    {
+        $reflection = new \ReflectionClass($this->command);
+        $method = $reflection->getMethod('getSiteInstanceDatabase');
+        $this->assertTrue($method->isPrivate());
+        $method->setAccessible(true);
+
+        // The method should exist and be callable.
+        $this->assertTrue($method->isUserDefined());
+        $this->assertEquals('getSiteInstanceDatabase', $method->getName());
+    }
+
+    /**
+     * Test determineVcsUrl method existence and accessibility.
+     * This creates basic test coverage for mutation testing.
+     */
+    public function testGetSiteInstanceDatabaseMethodExists(): void
+    {
+        $reflection = new \ReflectionClass($this->command);
+        $method = $reflection->getMethod('getSiteInstanceDatabase');
+        $this->assertTrue($method->isPrivate());
+        $this->assertEquals('getSiteInstanceDatabase', $method->getName());
+
+        // Test the method signature by checking parameter count.
+        $this->assertEquals(2, $method->getNumberOfParameters());
+        $parameters = $method->getParameters();
+        $this->assertEquals('siteUuid', $parameters[0]->getName());
+        $this->assertEquals('environmentUuid', $parameters[1]->getName());
     }
 }

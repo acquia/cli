@@ -641,6 +641,40 @@ abstract class TestBase extends TestCase
             $httpCode
         );
     }
+    protected function getMockSiteInstanceDatabaseResponse(string $method = 'get', string $httpCode = '200'): object
+    {
+        return self::getMockResponseFromSpec(
+            '/site-instances/{siteId}.{environmentId}/database',
+            $method,
+            $httpCode
+        );
+    }
+    protected function getMockSiteInstanceDatabaseBackupsResponse(string $method = 'get', string $httpCode = '200'): object
+    {
+        return self::getMockResponseFromSpec(
+            '/site-instances/{siteId}.{environmentId}/database/backups',
+            $method,
+            $httpCode
+        );
+    }
+
+    protected function getMockSite(string $method = 'get', string $httpCode = '200'): object
+    {
+        return self::getMockResponseFromSpec(
+            '/sites/{siteId}',
+            $method,
+            $httpCode
+        );
+    }
+
+    protected function getMockSites(string $method = 'get', string $httpCode = '200'): object
+    {
+        return self::getMockResponseFromSpec(
+            '/sites',
+            $method,
+            $httpCode
+        );
+    }
     protected function getMockCodebaseResponse(string $method = 'get', string $httpCode = '200'): object
     {
         return self::getMockResponseFromSpec(
@@ -649,10 +683,34 @@ abstract class TestBase extends TestCase
             $httpCode
         );
     }
+    protected function getMockCodebasesResponse(string $method = 'get', string $httpCode = '200'): object
+    {
+        return self::getMockResponseFromSpec(
+            '/codebases',
+            $method,
+            $httpCode
+        );
+    }
     protected function getMockCodeBaseEnvironment(string $method = 'get', string $httpCode = '200'): object
     {
         return self::getMockResponseFromSpec(
-            '/api/environments/{environmentId}',
+            '/v3/environments/{environmentId}',
+            $method,
+            $httpCode
+        );
+    }
+    protected function getMockCodeBaseSites(string $method = 'get', string $httpCode = '200'): object
+    {
+        return self::getMockResponseFromSpec(
+            '/codebases/{codebaseId}/sites',
+            $method,
+            $httpCode
+        );
+    }
+    protected function getMockCodeBaseEnvironments(string $method = 'get', string $httpCode = '200'): object
+    {
+        return self::getMockResponseFromSpec(
+            '/codebases/{codebaseId}/environments',
             $method,
             $httpCode
         );
@@ -671,7 +729,7 @@ abstract class TestBase extends TestCase
         $method = 'get';
         $httpCode = '200';
         $environment = self::getMockResponseFromSpec(
-            '/api/environments/{environmentId}',
+            '/v3/environments/{environmentId}',
             $method,
             $httpCode
         );
