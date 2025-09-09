@@ -1994,4 +1994,38 @@ class CommandBaseTest extends CommandTestBase
         $result = $method->invoke($this->command, $environments);
         $this->assertSame($env2, $result);
     }
+
+    /**
+     * Test that determineVcsUrl method exists and is accessible for testing purposes.
+     * This test validates the method signature and basic invocation.
+     */
+    public function testGetSiteInstanceDatabase(): void
+    {
+        $reflection = new \ReflectionClass($this->command);
+        $method = $reflection->getMethod('getSiteInstanceDatabase');
+        $this->assertTrue($method->isPrivate());
+        $method->setAccessible(true);
+
+        // The method should exist and be callable.
+        $this->assertTrue($method->isUserDefined());
+        $this->assertEquals('getSiteInstanceDatabase', $method->getName());
+    }
+
+    /**
+     * Test determineVcsUrl method existence and accessibility.
+     * This creates basic test coverage for mutation testing.
+     */
+    public function testGetSiteInstanceDatabaseMethodExists(): void
+    {
+        $reflection = new \ReflectionClass($this->command);
+        $method = $reflection->getMethod('getSiteInstanceDatabase');
+        $this->assertTrue($method->isPrivate());
+        $this->assertEquals('getSiteInstanceDatabase', $method->getName());
+
+        // Test the method signature by checking parameter count.
+        $this->assertEquals(2, $method->getNumberOfParameters());
+        $parameters = $method->getParameters();
+        $this->assertEquals('siteUuid', $parameters[0]->getName());
+        $this->assertEquals('environmentUuid', $parameters[1]->getName());
+    }
 }

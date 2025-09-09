@@ -9,6 +9,9 @@ use Acquia\Cli\Command\Pull\PullCommandBase;
 use Acquia\Cli\Command\Pull\PullDatabaseCommand;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Helpers\SshHelper;
+use Acquia\Cli\Transformer\EnvironmentTransformer;
+use AcquiaCloudApi\Response\SiteInstanceDatabaseBackupResponse;
+use AcquiaCloudApi\Response\SiteInstanceDatabaseResponse;
 use GuzzleHttp\Client;
 use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
@@ -423,5 +426,83 @@ class PullDatabaseCommandTest extends PullCommandTestBase
             // Choose an Acquia environment:
             1,
         ]);
+    }
+
+    public function testPullDatabasesWithCodebaseUuid(): void
+    {
+        $codebaseUuid = '11111111-041c-44c7-a486-7972ed2cafc8';
+        self::SetEnvVars(['AH_CODEBASE_UUID' =>  $codebaseUuid]);
+
+        // Mock the codebase returned from /codebases/{uuid}.
+        $codebase =  $this->getMockCodeBaseResponse();
+        $this->clientProphecy->request('get', '/codebases/' . $codebaseUuid)
+            ->willReturn($codebase);
+
+        // // Build one codebase environment (so prompt is skipped).
+        $codebaseEnv = $this->getMockCodeBaseEnvironment();
+        $this->clientProphecy->request('get', '/codebases/' . $codebaseUuid . '/environments')
+            ->willReturn([$codebaseEnv])
+            ->shouldBeCalled();
+
+        $codeabaseSites = $this->getMockCodeBaseSites();
+        $this->clientProphecy->request('get', '/codebases/' . $codebaseUuid . '/sites')
+            ->willReturn($codeabaseSites);
+        $siteInstance = $this->getMockSiteInstanceResponse();
+
+        $this->clientProphecy->request('get', '/site-instances/8979a8ac-80dc-4df8-b2f0-6be36554a370.3e8ecbec-ea7c-4260-8414-ef2938c859bc')
+            ->willReturn($siteInstance)
+            ->shouldBeCalled();
+        $siteId = '8979a8ac-80dc-4df8-b2f0-6be36554a370';
+        $site = $this->getMockSite();
+        $this->clientProphecy->request('get', '/sites/' . $siteId)
+            ->willReturn($site)
+            ->shouldBeCalled();
+        $siteInstanceDatabase = $this->getMockSiteInstanceDatabaseResponse();
+        $this->clientProphecy->request('get', '/site-instances/8979a8ac-80dc-4df8-b2f0-6be36554a370.3e8ecbec-ea7c-4260-8414-ef2938c859bc/database')
+            ->willReturn($siteInstanceDatabase)
+            ->shouldBeCalled();
+        $createSiteInstanceDatabaseBackup = $this->getMockSiteInstanceDatabaseBackupsResponse('post', '201');
+        $this->clientProphecy->request('post', '/site-instances/8979a8ac-80dc-4df8-b2f0-6be36554a370.3e8ecbec-ea7c-4260-8414-ef2938c859bc/database/backups')
+            ->willReturn($createSiteInstanceDatabaseBackup);
+        $siteInstanceDatabaseBackups = $this->getMockSiteInstanceDatabaseBackupsResponse();
+        $this->clientProphecy->request('get', '/site-instances/8979a8ac-80dc-4df8-b2f0-6be36554a370.3e8ecbec-ea7c-4260-8414-ef2938c859bc/database/backups')
+            ->willReturn($siteInstanceDatabaseBackups->_embedded->items)
+            ->shouldBeCalled();
+
+        $url = "https://environment-service-php.acquia.com/api/environments/d3f7270e-c45f-4801-9308-5e8afe84a323/";
+        $this->mockDownloadCodebaseBackup(EnvironmentTransformer::transformSiteInstanceDatabase(new SiteInstanceDatabaseResponse($siteInstanceDatabase)), $url, EnvironmentTransformer::transformSiteInstanceDatabaseBackup(new SiteInstanceDatabaseBackupResponse($siteInstanceDatabaseBackups->_embedded->items[0])));
+
+        $localMachineHelper = $this->mockLocalMachineHelper();
+        $this->mockExecuteMySqlConnect($localMachineHelper, true);
+        $this->mockExecuteMySqlListTables($localMachineHelper, 'example');
+        $fs = $this->prophet->prophesize(Filesystem::class);
+        $this->mockExecuteMySqlDropDb($localMachineHelper, true, $fs);
+        $this->mockExecuteMySqlImport($localMachineHelper, true, true, 'example', 'dbexample', 'example', 'environment_3e8ecbec-ea7c-4260-8414-ef2938c859bc', '2025-04-01T13:01:06.603Z');
+        $fs->remove(Argument::type('string'))->shouldBeCalled();
+        $localMachineHelper->getFilesystem()->willReturn($fs)->shouldBeCalled();
+        // $this->mockExecuteDrushExists($localMachineHelper);
+        // $this->mockExecuteDrushStatus($localMachineHelper, $this->projectDir);
+        // $process = $this->mockProcess();
+        // $this->mockExecuteDrushCacheRebuild($localMachineHelper, $process);
+        // $this->mockExecuteDrushSqlSanitize($localMachineHelper, $process);
+        $inputs = self::inputChooseEnvironment();
+
+        $this->executeCommand([
+            '--no-scripts' => true,
+            '--on-demand' => false,
+        ], $inputs);
+
+        $output = $this->getDisplay();
+
+        $this->assertStringContainsString('Detected Codebase UUID:', $output);
+        $this->assertStringContainsString('Using codebase: Test codebase with attached application', $output);
+        $this->assertStringContainsString('Connecting to database drupal', $output);
+
+        // NEW: prove that progress actually rendered
+        // $this->assertStringContainsString('0/100 [', $output);
+        // $this->assertStringContainsString('50/100 [', $output);.
+        $this->assertStringContainsString('100/100 [', $output);
+
+        self::unsetEnvVars(['AH_CODEBASE_UUID']);
     }
 }

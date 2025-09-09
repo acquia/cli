@@ -641,6 +641,22 @@ abstract class TestBase extends TestCase
             $httpCode
         );
     }
+    protected function getMockSiteInstanceDatabaseResponse(string $method = 'get', string $httpCode = '200'): object
+    {
+        return self::getMockResponseFromSpec(
+            '/site-instances/{siteId}.{environmentId}/database',
+            $method,
+            $httpCode
+        );
+    }
+    protected function getMockSiteInstanceDatabaseBackupsResponse(string $method = 'get', string $httpCode = '200'): object
+    {
+        return self::getMockResponseFromSpec(
+            '/site-instances/{siteId}.{environmentId}/database/backups',
+            $method,
+            $httpCode
+        );
+    }
 
     protected function getMockSite(string $method = 'get', string $httpCode = '200'): object
     {

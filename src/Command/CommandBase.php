@@ -1462,7 +1462,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
      * @param object|null $site (site object from getSitesByCodebase)
      * @return DatabaseResponse|null
      */
-    protected function getSiteInstanceDatabase(string $siteUuid, string $environmentUuid): ?SiteInstanceDatabaseResponse
+    private function getSiteInstanceDatabase(string $siteUuid, string $environmentUuid): ?SiteInstanceDatabaseResponse
     {
         try {
             $acquiaCloudClient = $this->cloudApiClientService->getClient();
