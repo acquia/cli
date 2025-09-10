@@ -34,21 +34,22 @@ final class SshKeyInfoCommand extends SshKeyCommandBase
         if (array_key_exists('cloud', $key)) {
             $location = array_key_exists('local', $key) ? 'Local + Cloud' : 'Cloud';
         }
-        $this->io->definitionList(
-            ['SSH key property' => 'SSH key value'],
-            new TableSeparator(),
-            ['Location' => $location],
-            ['Fingerprint (sha256)' => $key['fingerprint']],
-            ['Fingerprint (md5)' => array_key_exists('cloud', $key) ? $key['cloud']['fingerprint'] : 'n/a'],
-            ['UUID' => array_key_exists('cloud', $key) ? $key['cloud']['uuid'] : 'n/a'],
-            ['Label' => array_key_exists('cloud', $key) ? $key['cloud']['label'] : $key['local']['filename']],
-            ['Created at' => array_key_exists('cloud', $key) ? $key['cloud']['created_at'] : 'n/a'],
-        );
+        if (isset($key['fingerprint'])) {
+            $this->io->definitionList(
+                ['SSH key property' => 'SSH key value'],
+                new TableSeparator(),
+                ['Location' => $location],
+                ['Fingerprint (sha256)' => $key['fingerprint']],
+                ['Fingerprint (md5)' => array_key_exists('cloud', $key) ? $key['cloud']['fingerprint'] : 'n/a'],
+                ['UUID' => array_key_exists('cloud', $key) ? $key['cloud']['uuid'] : 'n/a'],
+                ['Label' => array_key_exists('cloud', $key) ? $key['cloud']['label'] : $key['local']['filename']],
+                ['Created at' => array_key_exists('cloud', $key) ? $key['cloud']['created_at'] : 'n/a'],
+            );
 
-        $this->io->writeln('Public key');
-        $this->io->writeln('----------');
-        $this->io->writeln($key['public_key']);
-
+            $this->io->writeln('Public key');
+            $this->io->writeln('----------');
+            $this->io->writeln($key['public_key']);
+        }
         return Command::SUCCESS;
     }
 
@@ -87,12 +88,15 @@ final class SshKeyInfoCommand extends SshKeyCommandBase
             }
             return $keys[$fingerprint];
         }
-
-        return $this->promptChooseFromObjectsOrArrays(
-            $keys,
-            'fingerprint',
-            'fingerprint',
-            'Choose an SSH key to view'
-        );
+        if (count($keys) > 0) {
+            return $this->promptChooseFromObjectsOrArrays(
+                $keys,
+                'fingerprint',
+                'fingerprint',
+                'Choose an SSH key to view'
+            );
+        } else {
+            return [];
+        }
     }
 }
