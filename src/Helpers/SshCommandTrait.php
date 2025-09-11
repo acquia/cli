@@ -24,7 +24,8 @@ trait SshCommandTrait
         $output->writeln("<info>Successfully deleted SSH key <options=bold>$cloudKey->label</> from the Cloud Platform.</info>");
         $localKeys = $this->findLocalSshKeys();
         foreach ($localKeys as $localFile) {
-            if (trim($localFile->getContents()) === trim($cloudKey->public_key) && $localFile->getRealPath()) {
+            $localFileContents = $localFile->getContents() ?? '';
+            if (trim($localFileContents) === trim($cloudKey->public_key) && $localFile->getRealPath()) {
                 $privateKeyPath = str_replace('.pub', '', $localFile->getRealPath());
                 $publicKeyPath = $localFile->getRealPath();
                 $answer = $this->io->confirm("Do you also want to delete the corresponding local key files {$localFile->getRealPath()} and $privateKeyPath ?", false);
@@ -66,7 +67,16 @@ trait SshCommandTrait
             ->in($this->sshDir)
             ->name('*.pub')
             ->ignoreUnreadableDirs();
-        return iterator_to_array($finder);
+
+        $validKeys = [];
+        $pattern = '/^(ssh-(rsa|ed25519)|ecdsa-sha2-nistp(256|384|521)) [A-Za-z0-9+\/=]+(?: .*)?$/';
+        foreach ($finder as $file) {
+            $contents = trim($file->getContents() ?? '');
+            if (preg_match($pattern, $contents)) {
+                $validKeys[] = $file;
+            }
+        }
+        return $validKeys;
     }
 
     protected function promptWaitForSsh(SymfonyStyle $io): bool

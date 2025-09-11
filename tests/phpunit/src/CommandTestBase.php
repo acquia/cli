@@ -520,6 +520,7 @@ abstract class CommandTestBase extends TestBase
         $fileName = 'id_rsa.pub';
         $file->getFileName()->willReturn($fileName);
         $file->getRealPath()->willReturn('somepath');
+        $file->getContents()->willReturn($publicKey);
         $localMachineHelper->readFile('somepath')->willReturn($publicKey);
         $finder->getIterator()
             ->willReturn(new \ArrayIterator([$file->reveal()]));

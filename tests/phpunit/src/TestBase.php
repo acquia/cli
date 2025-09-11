@@ -756,6 +756,13 @@ abstract class TestBase extends TestCase
     {
         return $this->mockRequest('getAccountSshKeys');
     }
+    /**
+     * @return array<mixed>
+     */
+    protected function mockListSshKeyRequest(): array
+    {
+        return [$this->mockRequest('getAccountSshKeys')[0]];
+    }
 
     protected function mockListSshKeysRequestWithIdeKey(string $ideLabel, string $ideUuid): object
     {
