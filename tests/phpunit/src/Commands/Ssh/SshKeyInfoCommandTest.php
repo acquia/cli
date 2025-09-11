@@ -45,7 +45,7 @@ class SshKeyInfoCommandTest extends CommandTestBase
         $this->assertStringContainsString('Created at             2017-05-09T20:30:35.000Z', $output);
         $this->assertStringContainsString('Public key', $output);
         // Check for the specific separator line after "Public key" and before the SSH key content.
-        $this->assertStringContainsString("Public key\n----------", $output);
+        $this->assertStringContainsString("Public key" . "\n" . "----------", $output);
         $this->assertStringContainsString('ssh-rsa AAAAB3NzaC1yc2EADHrfHY17SbrmAAABIwAAAQEAklOUpkTIpNLTGK9Tjom/BWDSUGPl+nafzlZ5ew18JH4JW9jbhUFrviQzM7xlELEVf4h9lFX5HDTYW7hdI4yQVkbPppSwg0cda3Pbv7kOdJ/MTyBlWXFCR+HAo3FXRitBqxiX1nKhXpHAZsMciLq8V6RjsNAQwdsdMFvSlVK/7XAt3FaoJoAsncM1Q9x5+3V0Ww68/eIFmb1zuUFljQJKprrX88XypNDvjYNby6vw/Pb0rwert/EnmZ+AW4OZPnTPI89ZPmVMLuayrD2cE86Z/il8b+gw3r3+1nKatmIkjn2so1d01QraTlMqVSsbxNrRFi9wrf+M7Q== example@example.com', $output);
     }
     public function testInfoWithoutKey(): void
