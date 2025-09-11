@@ -46,8 +46,7 @@ final class SshKeyInfoCommand extends SshKeyCommandBase
                 ['Created at' => array_key_exists('cloud', $key) ? $key['cloud']['created_at'] : 'n/a'],
             );
 
-            $this->io->writeln('Public key');
-            $this->io->writeln('----------');
+            $this->io->writeln("Public key\n----------");
             $this->io->writeln($key['public_key']);
         }
         return Command::SUCCESS;
