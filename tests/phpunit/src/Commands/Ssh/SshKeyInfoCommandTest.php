@@ -119,7 +119,6 @@ class SshKeyInfoCommandTest extends CommandTestBase
         $this->executeCommand([], $inputs);
         $output = $this->getDisplay();
         $this->assertEmpty($output);
-        // $this->assertStringContainsString('local-key.pub', $output);
     }
 
     protected static function getFingerprint(mixed $sshPublicKey): string
