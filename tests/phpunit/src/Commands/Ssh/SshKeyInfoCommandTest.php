@@ -202,7 +202,6 @@ class SshKeyInfoCommandTest extends CommandTestBase
         // Inject LocalMachineHelper that returns our Finder.
         $localMachineHelper = $this->createMock(LocalMachineHelper::class);
         $localMachineHelper->method('getFinder')->willReturn($finder);
-        // $this->setPrivateProperty($this->command, 'localMachineHelper', $localMachineHelper);
         $ioProphecy = $this->prophet->prophesize(\Symfony\Component\Console\Style\SymfonyStyle::class);
         // Expect the confirm prompt (this is the branch we need to hit)
         $ioProphecy->confirm($this->stringContains('Do you also want to delete the corresponding local key files /home/jigar/.ssh/id_test.pub and /home/jigar/.ssh/id_test ?'))
