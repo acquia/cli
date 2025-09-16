@@ -24,8 +24,7 @@ trait SshCommandTrait
         $output->writeln("<info>Successfully deleted SSH key <options=bold>$cloudKey->label</> from the Cloud Platform.</info>");
         $localKeys = $this->findLocalSshKeys();
         foreach ($localKeys as $localFile) {
-            $localFileContents = $localFile->getContents() ?? '';
-            if (trim($localFileContents) === trim($cloudKey->public_key) && $localFile->getRealPath()) {
+            if (trim($localFile->getContents()) === trim($cloudKey->public_key) && $localFile->getRealPath()) {
                 $privateKeyPath = str_replace('.pub', '', $localFile->getRealPath());
                 $publicKeyPath = $localFile->getRealPath();
                 $answer = $this->io->confirm("Do you also want to delete the corresponding local key files {$localFile->getRealPath()} and $privateKeyPath ?", false);
