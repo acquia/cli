@@ -219,7 +219,7 @@ class EnvironmentTransformerTest extends TestCase
             ],
             '_links' => (object)[
                 'environment' => (object)[
-                    'href' => 'https://n3stg.network.acquia-sites.com/api/environments/5997a125-e73e-495e-9951-11d9ea9c1b69',
+                    'href' => 'https://staging.cloud.acquia.com/api/environments/5997a125-e73e-495e-9951-11d9ea9c1b69',
                 ],
             ],
         ];
