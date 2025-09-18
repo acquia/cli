@@ -156,6 +156,16 @@ class SshKeyInfoCommandTest extends CommandTestBase
         $this->assertIsString($fingerprint);
         $this->assertNotEmpty($fingerprint);
     }
+
+    public function testGetFingerprintWithEmptyKeyData(): void
+    {
+        // Test that getFingerprint handles malformed SSH keys gracefully.
+        // Missing the key data part.
+        $malformedKey = 'ssh-rsa';
+        $fingerprint = \Acquia\Cli\Command\Ssh\SshKeyCommandBase::getFingerprint($malformedKey);
+        $this->assertIsString($fingerprint);
+        $this->assertEmpty($fingerprint);
+    }
     public function testInfoWithLocalAndCloudKey(): void
     {
         $mockBody = self::getMockResponseFromSpec('/account/ssh-keys', 'get', '200');

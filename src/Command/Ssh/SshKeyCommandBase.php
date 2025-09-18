@@ -423,6 +423,9 @@ EOT
     public static function getFingerprint(mixed $sshPublicKey): string
     {
         $content = explode(' ', $sshPublicKey, 3);
+        if (empty($content[1])) {
+            return '';
+        }
         return base64_encode(hash('sha256', base64_decode($content[1]), true));
     }
 }
