@@ -72,7 +72,10 @@ trait SshCommandTrait
         foreach ($finder as $file) {
             $contents = trim($file->getContents() ?? '');
             if (preg_match($pattern, $contents)) {
-                $validKeys[] = $file;
+                $fingerprint = \Acquia\Cli\Command\Ssh\SshKeyCommandBase::getFingerprint($contents);
+                if (!empty($fingerprint)) {
+                    $validKeys[] = $file;
+                }
             }
         }
         return $validKeys;

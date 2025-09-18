@@ -29,26 +29,26 @@ final class SshKeyInfoCommand extends SshKeyCommandBase
     {
         $acquiaCloudClient = $this->cloudApiClientService->getClient();
         $key = $this->determineSshKey($acquiaCloudClient);
-
+        if (empty($key)) {
+            throw new AcquiaCliException('No valid SSH key found.');
+        }
         $location = 'Local';
         if (array_key_exists('cloud', $key)) {
             $location = array_key_exists('local', $key) ? 'Local + Cloud' : 'Cloud';
         }
-        if (isset($key['fingerprint'])) {
-            $this->io->definitionList(
-                ['SSH key property' => 'SSH key value'],
-                new TableSeparator(),
-                ['Location' => $location],
-                ['Fingerprint (sha256)' => $key['fingerprint']],
-                ['Fingerprint (md5)' => array_key_exists('cloud', $key) ? $key['cloud']['fingerprint'] : 'n/a'],
-                ['UUID' => array_key_exists('cloud', $key) ? $key['cloud']['uuid'] : 'n/a'],
-                ['Label' => array_key_exists('cloud', $key) ? $key['cloud']['label'] : $key['local']['filename']],
-                ['Created at' => array_key_exists('cloud', $key) ? $key['cloud']['created_at'] : 'n/a'],
-            );
+        $this->io->definitionList(
+            ['SSH key property' => 'SSH key value'],
+            new TableSeparator(),
+            ['Location' => $location],
+            ['Fingerprint (sha256)' => $key['fingerprint']],
+            ['Fingerprint (md5)' => array_key_exists('cloud', $key) ? $key['cloud']['fingerprint'] : 'n/a'],
+            ['UUID' => array_key_exists('cloud', $key) ? $key['cloud']['uuid'] : 'n/a'],
+            ['Label' => array_key_exists('cloud', $key) ? $key['cloud']['label'] : $key['local']['filename']],
+            ['Created at' => array_key_exists('cloud', $key) ? $key['cloud']['created_at'] : 'n/a'],
+        );
 
-            $this->io->writeln("Public key\n----------");
-            $this->io->writeln($key['public_key']);
-        }
+        $this->io->writeln("Public key\n----------");
+        $this->io->writeln($key['public_key']);
         return Command::SUCCESS;
     }
 
@@ -64,22 +64,26 @@ final class SshKeyInfoCommand extends SshKeyCommandBase
         /** @var \AcquiaCloudApi\Response\SshKeyResponse $key */
         foreach ($cloudKeys as $key) {
             $fingerprint = self::getFingerprint($key->public_key);
-            $keys[$fingerprint]['fingerprint'] = $fingerprint;
-            $keys[$fingerprint]['public_key'] = $key->public_key;
-            $keys[$fingerprint]['cloud'] = [
-                'created_at' => $key->created_at,
-                'fingerprint' => $key->fingerprint,
-                'label' => $key->label,
-                'uuid' => $key->uuid,
-            ];
+            if (!empty($fingerprint)) {
+                $keys[$fingerprint]['fingerprint'] = $fingerprint;
+                $keys[$fingerprint]['public_key'] = $key->public_key;
+                $keys[$fingerprint]['cloud'] = [
+                    'created_at' => $key->created_at,
+                    'fingerprint' => $key->fingerprint,
+                    'label' => $key->label,
+                    'uuid' => $key->uuid,
+                ];
+            }
         }
         foreach ($localKeys as $key) {
             $fingerprint = self::getFingerprint($key->getContents());
-            $keys[$fingerprint]['fingerprint'] = $fingerprint;
-            $keys[$fingerprint]['public_key'] = $key->getContents();
-            $keys[$fingerprint]['local'] = [
-                'filename' => $key->getFilename(),
-            ];
+            if (!empty($fingerprint)) {
+                $keys[$fingerprint]['fingerprint'] = $fingerprint;
+                $keys[$fingerprint]['public_key'] = $key->getContents();
+                $keys[$fingerprint]['local'] = [
+                    'filename' => $key->getFilename(),
+                ];
+            }
         }
         if ($fingerprint = $this->input->getOption('fingerprint')) {
             if (!array_key_exists($fingerprint, $keys)) {

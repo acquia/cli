@@ -57,14 +57,9 @@ class SshKeyInfoCommandTest extends CommandTestBase
             // Choose key.
             '0',
         ];
+        $this->expectException(\Acquia\Cli\Exception\AcquiaCliException::class);
         $this->executeCommand([], $inputs);
-
-        // Assert.
-        $output = $this->getDisplay();
-
-        $this->assertStringContainsString('', $output);
     }
-
     public function testInfoWithValidFingerprintOption(): void
     {
         $this->mockListSshKeysRequest();
@@ -115,16 +110,51 @@ class SshKeyInfoCommandTest extends CommandTestBase
         $this->mockLocalSshKeys([
             $this->createLocalKeyProphecy('ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQClocal', 'local-key.pub'),
         ]);
+
+        // Recreate command with mocked LocalMachineHelper.
+        $this->command = $this->createCommand();
+
         $inputs = ['0'];
         $this->executeCommand([], $inputs);
         $output = $this->getDisplay();
-        $this->assertEmpty($output);
+        $this->assertStringContainsString('Choose an SSH key to view', $output);
+    }
+    public function testHandlesLocalKeysAvailable(): void
+    {
+        // Simulate only local key present.
+        $this->clientProphecy->request('get', '/account/ssh-keys')
+            ->willReturn([])
+            ->shouldBeCalled();
+            $mockBody = self::getMockResponseFromSpec('/account/ssh-keys', 'get', '200');
+        $cloudKey = (array) $mockBody->{'_embedded'}->items[0];
+
+        $this->mockLocalSshKeys([
+            $this->createLocalKeyProphecy($cloudKey['public_key'], $this->sshDir . '/both-key.pub'),
+            $this->createLocalKeyProphecy('ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQClocal', $this->sshDir . '/local-key.pub'),
+        ]);
+
+        // Recreate command with mocked LocalMachineHelper.
+        $this->command = $this->createCommand();
+
+        $inputs = ['0'];
+        $this->executeCommand([], $inputs);
+        $output = $this->getDisplay();
+        $this->assertStringContainsString('Choose an SSH key to view', $output);
     }
 
     protected static function getFingerprint(mixed $sshPublicKey): string
     {
         $content = explode(' ', $sshPublicKey, 3);
         return base64_encode(hash('sha256', base64_decode($content[1]), true));
+    }
+
+    public function testGetFingerprintMethodIsPublic(): void
+    {
+        // Test that the getFingerprint method is accessible as a public static method.
+        $publicKey = 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQClocal';
+        $fingerprint = \Acquia\Cli\Command\Ssh\SshKeyCommandBase::getFingerprint($publicKey);
+        $this->assertIsString($fingerprint);
+        $this->assertNotEmpty($fingerprint);
     }
     public function testInfoWithLocalAndCloudKey(): void
     {
@@ -137,6 +167,8 @@ class SshKeyInfoCommandTest extends CommandTestBase
             $this->createLocalKeyProphecy($cloudKey['public_key'], 'both-key.pub'),
         ]);
 
+        // Recreate command with mocked LocalMachineHelper.
+        $this->command = $this->createCommand();
 
         $inputs = ['0'];
         $this->executeCommand([], $inputs);
@@ -163,8 +195,8 @@ class SshKeyInfoCommandTest extends CommandTestBase
         $finder->method('name')->willReturnSelf();
         $finder->method('ignoreUnreadableDirs')->willReturnSelf();
         $finder->method('getIterator')->willReturn(new \ArrayIterator($keys));
-        $localMachineHelper = $this->createMock(LocalMachineHelper::class);
-        $localMachineHelper->method('getFinder')->willReturn($finder);
+        $this->localMachineHelper = $this->createMock(LocalMachineHelper::class);
+        $this->localMachineHelper->method('getFinder')->willReturn($finder);
     }
 
     private function createLocalKeyProphecy(string $publicKey, string $filename): \Symfony\Component\Finder\SplFileInfo|\PHPUnit\Framework\MockObject\MockObject
@@ -200,13 +232,16 @@ class SshKeyInfoCommandTest extends CommandTestBase
         $finder->method('getIterator')->willReturn(new \ArrayIterator([$local]));
 
         // Inject LocalMachineHelper that returns our Finder.
-        $localMachineHelper = $this->createMock(LocalMachineHelper::class);
-        $localMachineHelper->method('getFinder')->willReturn($finder);
+        $this->localMachineHelper = $this->createMock(LocalMachineHelper::class);
+        $this->localMachineHelper->method('getFinder')->willReturn($finder);
         $ioProphecy = $this->prophet->prophesize(\Symfony\Component\Console\Style\SymfonyStyle::class);
         // Expect the confirm prompt (this is the branch we need to hit)
         $ioProphecy->confirm($this->stringContains('Do you also want to delete the corresponding local key files /home/jigar/.ssh/id_test.pub and /home/jigar/.ssh/id_test ?'))
             // Choose "No" to avoid actually deleting files.
             ->willReturn(false);
+
+        // Recreate command with mocked LocalMachineHelper.
+        $this->command = $this->createCommand();
 
         // Act
         // Provide inputs if your command is interactive; otherwise call execute directly.
@@ -234,8 +269,7 @@ class SshKeyInfoCommandTest extends CommandTestBase
             ->shouldBeCalled();
         $this->mockLocalSshKeys([]);
         $inputs = ['0'];
+        $this->expectException(\Acquia\Cli\Exception\AcquiaCliException::class);
         $this->executeCommand([], $inputs);
-        $output = $this->getDisplay();
-        $this->assertEmpty($output);
     }
 }
