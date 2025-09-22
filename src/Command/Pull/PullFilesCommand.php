@@ -26,7 +26,7 @@ final class PullFilesCommand extends PullCommandBase
     {
         $this->setDirAndRequireProjectCwd($input);
 
-        $sourceEnvironment = $this->determineEnvironment($input, $output);
+        $sourceEnvironment = $this->determineEnvironment($input, $output, false);
 
         $this->pullFiles($input, $output, $sourceEnvironment);
 

@@ -228,4 +228,93 @@ class PullFilesCommandTest extends PullCommandTestBase
         // $this->assertStringContainsString('[0] Dev, dev (vcs: master)', $output);
         self::unsetEnvVars(["AH_CODEBASE_UUID"]);
     }
+
+    /**
+     * Test that production environments are filtered out when allowProduction=false.
+     * This test verifies that production environments are not allowed.
+     *
+     * @throws \Exception
+     */
+    public function testPullFilesWithProductionEnvironmentFiltered(): void
+    {
+        $applicationsResponse = $this->mockApplicationsRequest();
+        $this->mockApplicationRequest();
+
+        // Create a mock environment response with production flag set to true.
+        $environmentsResponse = $this->mockEnvironmentsRequest($applicationsResponse);
+        $productionEnvironment = $environmentsResponse->_embedded->items[0];
+        $productionEnvironment->flags->production = true;
+        $productionEnvironment->label = 'Production';
+        $productionEnvironment->name = 'prod';
+        $productionEnvironment->ssh_url = 'dev@dev.ssh.acquia-sites.com';
+
+        // Since allowProduction=false, this should throw an exception.
+        $this->expectException(\Acquia\Cli\Exception\AcquiaCliException::class);
+        $this->expectExceptionMessage('No compatible environments found');
+
+        $this->executeCommand([], [
+            // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
+            'n',
+            // Select a Cloud Platform application:
+            0,
+            // Would you like to link the project at ... ?
+            'n',
+        ]);
+    }
+
+    /**
+     * Test that non-production environments are allowed when allowProduction=false.
+     * This test verifies that only non-production environments are available.
+     *
+     * @throws \Exception
+     */
+    public function testPullFilesWithNonProductionEnvironmentAllowed(): void
+    {
+        $applicationsResponse = $this->mockApplicationsRequest();
+        $this->mockApplicationRequest();
+
+        // Create a mock environment response with only non-production environment
+        // since allowProduction=false should filter out production environments.
+        $environmentsResponse = $this->mockEnvironmentsRequest($applicationsResponse);
+
+        // Set up the environment as non-production.
+        $nonProductionEnvironment = $environmentsResponse->_embedded->items[0];
+        $nonProductionEnvironment->flags->production = false;
+        $nonProductionEnvironment->label = 'Dev';
+        $nonProductionEnvironment->name = 'dev';
+        $nonProductionEnvironment->id = 'dev-env-id';
+        $nonProductionEnvironment->ssh_url = 'dev@dev.ssh.acquia-sites.com';
+
+        $sshHelper = $this->mockSshHelper();
+        $this->mockGetCloudSites($sshHelper, $nonProductionEnvironment);
+        $localMachineHelper = $this->mockLocalMachineHelper();
+        $this->mockGetFilesystem($localMachineHelper);
+        $parts = explode('.', $nonProductionEnvironment->ssh_url);
+        $sitegroup = reset($parts);
+        $this->mockExecuteRsync($localMachineHelper, $nonProductionEnvironment, '/mnt/files/' . $sitegroup . '.' . $nonProductionEnvironment->name . '/sites/default/files/', $this->projectDir . '/docroot/sites/default/files');
+
+        $this->command->sshHelper = $sshHelper->reveal();
+
+        $inputs = [
+            // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
+            'n',
+            // Select a Cloud Platform application:
+            0,
+            // Would you like to link the project at ... ?
+            'n',
+            // Choose an Acquia environment:
+            0,
+            // Choose site from which to copy files:
+            0,
+        ];
+
+        $this->executeCommand([], $inputs);
+
+        $output = $this->getDisplay();
+        $this->assertStringContainsString('Select a Cloud Platform application', $output);
+        $this->assertStringContainsString('[0] Sample application 1', $output);
+        $this->assertStringContainsString('Choose a Cloud Platform environment', $output);
+        // Should only show the non-production environment.
+        $this->assertStringContainsString('[0] Dev, dev (vcs: master)', $output);
+    }
 }
