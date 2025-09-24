@@ -65,8 +65,9 @@ composer update-cloud-api-spec
 2. Ensure that release notes are accurate and issues are correctly labeled.
 3. Ensure that release has been approved by maintainers and any other required stakeholders.
 4. Validate that testing has passed on the commit to be released.
-5. In the GitHub UI, publish the release. This will trigger a [GitHub actions build](https://github.com/acquia/cli/blob/731cb747060e06940b2b5e6994df1bcc86325a7a/.github/workflows/ci.yml#L47-L69) that generates a phar file and attaches it to the release. ![image](https://user-images.githubusercontent.com/539205/134036674-4dd6db98-5fe4-413c-abe3-3a6f35b0fc31.png)
-
+5. In the GitHub UI, publish the release. **Do not modify any fields in the release**. ![image](https://user-images.githubusercontent.com/539205/134036674-4dd6db98-5fe4-413c-abe3-3a6f35b0fc31.png)
+6. This will trigger a [GitHub actions build](https://github.com/acquia/cli/blob/731cb747060e06940b2b5e6994df1bcc86325a7a/.github/workflows/ci.yml#L47-L69) that generates a phar file and attaches it to the release. Verify the phar file is attached; if not, proceed to the next section to attach it manually.
+7. This will also trigger a CCB ticket to be created. Once that ticket is approved, a separate workflow will mark the release as the latest release automatically.
 
 ### If the build fails...
 
