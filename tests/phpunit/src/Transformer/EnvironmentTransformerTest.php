@@ -10,6 +10,9 @@ use AcquiaCloudApi\Response\DatabaseResponse;
 use AcquiaCloudApi\Response\EnvironmentResponse;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * @group serial
+ */
 class EnvironmentTransformerTest extends TestCase
 {
     public function testTransformWithAllProperties(): void
