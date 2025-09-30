@@ -6,7 +6,7 @@ on:
       - 'dependabot/**'
   pull_request:
   schedule:
-    - cron: '7 2 * * *'
+    - cron: '0 2 * * *'
   release:
     types: [published]
   workflow_dispatch:
