@@ -145,7 +145,7 @@
             "@unit-parallel"
         ],
         "unit-serial": "phpunit tests/phpunit --group serial",
-        "unit-parallel": "paratest --exclude-group serial",
+        "unit-parallel": "paratest --exclude-group serial --verbose",
         "coverage": "php -d pcov.enabled=1 vendor/bin/phpunit tests/phpunit --coverage-clover var/logs/clover.xml",
         "lint": "phplint",
         "test": [
