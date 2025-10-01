@@ -10,14 +10,9 @@
             "role": "Maintainer"
         }
     ],
-    "repositories": [
-        {
-            "type": "vcs", "url": "https://github.com/danepowell/phplint"
-        }
-    ],
     "minimum-stability": "dev",
     "require": {
-        "php": "^8.1",
+        "php": "^8.2",
         "ext-json": "*",
         "acquia/drupal-environment-detector": "^1.7.0",
         "bugsnag/bugsnag": "^3.29",
@@ -61,17 +56,17 @@
         "brianium/paratest": "^7",
         "dealerdirect/phpcodesniffer-composer-installer": "^1.0.0",
         "dominikb/composer-license-checker": "^2.4",
-        "infection/infection": "^0.27.7",
+        "infection/infection": "^0.31.2",
         "jangregor/phpstan-prophecy": "^1.0",
         "mikey179/vfsstream": "^1.6",
-        "overtrue/phplint": "9.4.x-dev",
+        "overtrue/phplint": "^9.6.2",
         "phpro/grumphp": "^2.9.0",
         "phpspec/prophecy": "^1.17",
         "phpspec/prophecy-phpunit": "^2.0",
         "phpstan/extension-installer": "^1.1",
         "phpstan/phpstan": "^1.0",
         "phpstan/phpstan-deprecation-rules": "^1.0",
-        "phpunit/phpunit": "10.5.31",
+        "phpunit/phpunit": "^11",
         "slevomat/coding-standard": "^8.10",
         "squizlabs/php_codesniffer": "^3.5",
         "twig/twig": "^3.3"
@@ -91,7 +86,7 @@
     ],
     "config": {
         "platform": {
-            "php": "8.1.25"
+            "php": "8.2.29"
         },
         "process-timeout": 3600,
         "optimize-autoloader": true,
@@ -133,10 +128,10 @@
             "php var/box.phar compile"
         ],
         "mutation": [
-            "infection --threads=max --only-covered"
+            "infection --threads=max"
         ],
         "mutation-diff-lines": [
-            "infection --threads=max --only-covered --git-diff-lines --git-diff-base=origin/$GITHUB_BASE_REF --min-covered-msi=100 --ignore-msi-with-no-mutations"
+            "infection --threads=max --git-diff-lines --git-diff-base=origin/$GITHUB_BASE_REF --min-covered-msi=100 --ignore-msi-with-no-mutations"
         ],
         "cs": "phpcs",
         "cbf": "phpcbf",
@@ -145,7 +140,7 @@
             "@unit-parallel"
         ],
         "unit-serial": "phpunit tests/phpunit --group serial",
-        "unit-parallel": "paratest --exclude-group serial --verbose",
+        "unit-parallel": "paratest --exclude-group serial",
         "coverage": "php -d pcov.enabled=1 vendor/bin/phpunit tests/phpunit --coverage-clover var/logs/clover.xml",
         "lint": "phplint",
         "test": [
