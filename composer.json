@@ -128,10 +128,10 @@
             "php var/box.phar compile"
         ],
         "mutation": [
-            "infection --threads=max --only-covered"
+            "infection --threads=max"
         ],
         "mutation-diff-lines": [
-            "infection --threads=max --only-covered --git-diff-lines --git-diff-base=origin/$GITHUB_BASE_REF --min-covered-msi=100 --ignore-msi-with-no-mutations"
+            "infection --threads=max --git-diff-lines --git-diff-base=origin/$GITHUB_BASE_REF --min-covered-msi=100 --ignore-msi-with-no-mutations"
         ],
         "cs": "phpcs",
         "cbf": "phpcbf",
