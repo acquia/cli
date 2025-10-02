@@ -170,7 +170,7 @@ jobs:
           echo 'build='"$BUILD_CMD" >> "$GITHUB_OUTPUT"
           echo 'run='"$RUNS_ON" >> "$GITHUB_OUTPUT"
   build:
-    name: "Build ${{ inputs.version }} on ${{ inputs.os }}"
+    name: "Build ${{ inputs.php-version }} on ${{ inputs.os }}"
     runs-on: ${{ needs.define-build.outputs.run }}
     needs: define-build
     timeout-minutes: 240
