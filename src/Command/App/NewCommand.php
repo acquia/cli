@@ -59,15 +59,9 @@ final class NewCommand extends CommandBase
 
         $output->writeln('<info>Creating project. This may take a few minutes.</info>');
 
-        if ($project === 'acquia_next_acms') {
-            $successMessage = "<info>New Next.js project created in $dir. 🎉</info>";
-            $this->localMachineHelper->checkRequiredBinariesExist(['node']);
-            $this->createNextJsProject($dir);
-        } else {
-            $successMessage = "<info>New 💧 Drupal project created in $dir. 🎉</info>";
-            $this->localMachineHelper->checkRequiredBinariesExist(['composer']);
-            $this->createDrupalProject(self::$distros[$project], $dir);
-        }
+        $successMessage = "<info>New 💧 Drupal project created in $dir. 🎉</info>";
+        $this->localMachineHelper->checkRequiredBinariesExist(['composer']);
+        $this->createDrupalProject(self::$distros[$project], $dir);
 
         $this->initializeGitRepository($dir);
 
@@ -75,23 +69,6 @@ final class NewCommand extends CommandBase
         $output->writeln($successMessage);
 
         return Command::SUCCESS;
-    }
-
-    /**
-     * @throws \Acquia\Cli\Exception\AcquiaCliException
-     */
-    private function createNextJsProject(string $dir): void
-    {
-        $process = $this->localMachineHelper->execute([
-            'npx',
-            'create-next-app',
-            '-e',
-            'https://github.com/acquia/next-acms/tree/main/starters/basic-starter',
-            $dir,
-        ]);
-        if (!$process->isSuccessful()) {
-            throw new AcquiaCliException("Unable to create new next-acms project.");
-        }
     }
 
     /**
