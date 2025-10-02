@@ -92,6 +92,7 @@ class NewCommandTest extends CommandTestBase
         $output = $this->getDisplay();
         $this->assertStringContainsString('Acquia recommends most customers use acquia/drupal-recommended-project to setup a Drupal project', $output);
         $this->assertStringContainsString('acquia/drupal-cms-project is Drupal CMS scaffolded to work with Acquia hosting.', $output);
+        $this->assertStringNotContainsString('acquia/next-acms is a starter template for building a headless site powered by Acquia CMS and Next.js.', $output);
         $this->assertStringContainsString('Choose a starting project', $output);
         $this->assertStringContainsString($project, $output);
         $this->assertTrue($mockFileSystem->isAbsolutePath($this->newProjectDir), 'Directory path is not absolute');
