@@ -101,7 +101,7 @@ EOT
         );
         $this->localMachineHelper->getFilesystem()->chmod($tempFilepath, 0755);
         $privateKeyFilepath = str_replace('.pub', '', $filepath);
-        $process = $this->localMachineHelper->executeFromCmd('SSH_PASS=' . $password . ' DISPLAY=1 SSH_ASKPASS=' . $tempFilepath . ' ssh-add ' . $privateKeyFilepath, null, null, false);
+        $process = $this->localMachineHelper->executeFromCmd('SSH_PASS=' . escapeshellarg($password) . ' DISPLAY=1 SSH_ASKPASS=' . $tempFilepath . ' ssh-add ' . $privateKeyFilepath, null, null, false);
         $this->localMachineHelper->getFilesystem()->remove($tempFilepath);
         if (!$process->isSuccessful()) {
             throw new AcquiaCliException('Unable to add the SSH key to local SSH agent:' . $process->getOutput() . $process->getErrorOutput());
