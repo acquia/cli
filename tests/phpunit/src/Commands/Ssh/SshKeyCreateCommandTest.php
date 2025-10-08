@@ -431,4 +431,79 @@ class SshKeyCreateCommandTest extends CommandTestBase
             '--password' => $password,
         ], []);
     }
+
+    /**
+     * Test that catches specific concatenation mutants.
+     */
+    public function testCommandConcatenationMutants(): void
+    {
+        $sshKeyFilepath = Path::join($this->sshDir, '/' . self::$filename);
+        $this->fs->remove($sshKeyFilepath);
+        $localMachineHelper = $this->mockLocalMachineHelper();
+        $localMachineHelper->getLocalFilepath('~/.passphrase')
+            ->willReturn('~/.passphrase');
+        $fileSystem = $this->prophet->prophesize(Filesystem::class);
+
+        // Mock the SSH key generation.
+        $this->mockGenerateSshKey($localMachineHelper);
+
+        // Mock SSH agent list to return false so addSshKeyToAgent is called.
+        $this->mockSshAgentList($localMachineHelper, false);
+
+        // Mock the addSshKeyToAgent method with specific command verification.
+        $process = $this->prophet->prophesize(Process::class);
+        $process->isSuccessful()->willReturn(true);
+
+        // Mock the executeFromCmd call with specific checks for concatenation mutants.
+        $localMachineHelper->executeFromCmd(
+            Argument::that(function ($command) {
+                $escapedPassword = escapeshellarg('test password');
+
+                // Check for the specific escaped mutants:
+                // 1. ConcatOperandRemoval: SSH_ASKPASS= removed.
+                if (!str_contains($command, 'SSH_ASKPASS=')) {
+                    return false;
+                }
+
+                // 2. Concat: ssh-add and privateKeyFilepath concatenated without space
+                if (str_contains($command, 'ssh-add/') || str_contains($command, 'ssh-add.')) {
+                    return false;
+                }
+
+                // 3. Concat: ssh-add moved to end without space
+                if (str_ends_with($command, 'ssh-add')) {
+                    return false;
+                }
+
+                // 4. ConcatOperandRemoval: privateKeyFilepath removed
+                if (!preg_match('/ssh-add\s+\S+$/', $command)) {
+                    return false;
+                }
+
+                // Verify the complete command structure.
+                $expectedPattern = '/^SSH_PASS=' . preg_quote($escapedPassword, '/') . '\s+DISPLAY=1\s+SSH_ASKPASS=\S+\s+ssh-add\s+\S+$/';
+                return preg_match($expectedPattern, $command) === 1;
+            }),
+            null,
+            null,
+            false
+        )->willReturn($process->reveal())->shouldBeCalled();
+
+        $fileSystem->tempnam(Argument::type('string'), 'acli')
+            ->willReturn('something');
+        $fileSystem->chmod('something', 493)->shouldBeCalled();
+        $fileSystem->remove('something')->shouldBeCalled();
+        $localMachineHelper->writeFile('something', Argument::type('string'))
+            ->shouldBeCalled();
+
+        $localMachineHelper->getFilesystem()
+            ->willReturn($fileSystem->reveal())
+            ->shouldBeCalled();
+
+        // Execute command with password containing spaces.
+        $this->executeCommand([
+            '--filename' => self::$filename,
+            '--password' => 'test password',
+        ], []);
+    }
 }
