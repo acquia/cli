@@ -206,9 +206,9 @@ class SshKeyCreateCommandTest extends CommandTestBase
             $this->assertStringStartsWith($expectedQuote, $escaped, "Password '$password' should start with $expectedQuote quote");
             $this->assertStringEndsWith($expectedQuote, $escaped, "Password '$password' should end with $expectedQuote quote");
 
-            // For passwords with single quotes, the escaping changes the content
+            // For passwords with quotes, the escaping changes the content
             // so we need to check differently.
-            if (str_contains($password, "'")) {
+            if (str_contains($password, "'") || str_contains($password, '"')) {
                 // The escaped version should contain the password content but with escaped quotes.
                 $this->assertStringContainsString("password with", $escaped, "Escaped password should contain password content");
             } else {
