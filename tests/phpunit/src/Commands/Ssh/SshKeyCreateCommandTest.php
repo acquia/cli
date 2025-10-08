@@ -145,12 +145,15 @@ class SshKeyCreateCommandTest extends CommandTestBase
         // Mock the addSshKeyToAgent method with specific command verification.
         $process = $this->prophet->prophesize(Process::class);
         $process->isSuccessful()->willReturn(true);
+        $process->getOutput()->willReturn('');
+        $process->getErrorOutput()->willReturn('');
 
         // Verify the exact command structure to catch string concatenation bugs.
         $localMachineHelper->executeFromCmd(
             Argument::that(function ($command) {
                 // Verify the command has the correct structure with properly escaped password.
-                $expectedPattern = '/^SSH_PASS=\'two words\' DISPLAY=1 SSH_ASKPASS=.* ssh-add .*$/';
+                $escapedPassword = escapeshellarg('two words');
+                $expectedPattern = '/^SSH_PASS=' . preg_quote($escapedPassword, '/') . ' DISPLAY=1 SSH_ASKPASS=.* ssh-add .*$/';
                 return preg_match($expectedPattern, $command) === 1;
             }),
             null,
@@ -196,8 +199,12 @@ class SshKeyCreateCommandTest extends CommandTestBase
             $escaped = escapeshellarg($password);
 
             // Verify that the escaped password is properly quoted.
-            $this->assertStringStartsWith("'", $escaped, "Password '$password' should start with single quote");
-            $this->assertStringEndsWith("'", $escaped, "Password '$password' should end with single quote");
+            // On Windows, escapeshellarg() uses double quotes; on Unix, it uses single quotes.
+            $isWindows = PHP_OS_FAMILY === 'Windows';
+            $expectedQuote = $isWindows ? '"' : "'";
+
+            $this->assertStringStartsWith($expectedQuote, $escaped, "Password '$password' should start with $expectedQuote quote");
+            $this->assertStringEndsWith($expectedQuote, $escaped, "Password '$password' should end with $expectedQuote quote");
 
             // For passwords with single quotes, the escaping changes the content
             // so we need to check differently.
@@ -213,7 +220,9 @@ class SshKeyCreateCommandTest extends CommandTestBase
         // Test that malicious passwords are safely escaped.
         $maliciousPassword = '; rm -rf /';
         $safeEscaped = escapeshellarg($maliciousPassword);
-        $this->assertEquals("'; rm -rf /'", $safeEscaped, "Malicious password should be safely escaped");
+        $isWindows = PHP_OS_FAMILY === 'Windows';
+        $expectedEscaped = $isWindows ? '"; rm -rf /"' : "'; rm -rf /'";
+        $this->assertEquals($expectedEscaped, $safeEscaped, "Malicious password should be safely escaped");
     }
 
     /**
