@@ -310,7 +310,7 @@ abstract class PullCommandTestBase extends CommandTestBase
         $this->mockExecutePvExists($localMachineHelper, $pvExists);
         $process = $this->mockProcess($success);
         $filePath = Path::join(sys_get_temp_dir(), "$env-$dbName-$dbMachineName-$createdAt.sql.gz");
-        $command = $pvExists ? "pv $filePath --bytes --rate | gunzip | MYSQL_PWD=drupal mysql --host=localhost --user=drupal $localDbName" : "gunzip -c $filePath | MYSQL_PWD=drupal mysql --host=localhost --user=drupal $localDbName";
+        $command = $pvExists ? "pv $filePath --bytes --rate | gunzip | MYSQL_PWD=" . escapeshellarg('drupal') . " mysql --host=localhost --user=drupal $localDbName" : "gunzip -c $filePath | MYSQL_PWD=" . escapeshellarg('drupal') . " mysql --host=localhost --user=drupal $localDbName";
         // MySQL import command.
         $localMachineHelper
             ->executeFromCmd(

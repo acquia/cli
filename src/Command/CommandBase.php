@@ -2124,10 +2124,10 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
             $outputCallback('out', "Dumping MySQL database to $localFilepath on this machine");
         }
         if ($this->localMachineHelper->commandExists('pv')) {
-            $command = "bash -c \"set -o pipefail; MYSQL_PWD=$dbPassword mysqldump --host=$dbHost --user=$dbUser $dbName | pv --rate --bytes | gzip -9 > $localFilepath\"";
+            $command = "bash -c \"set -o pipefail; MYSQL_PWD=" . escapeshellarg($dbPassword) . " mysqldump --host=$dbHost --user=$dbUser $dbName | pv --rate --bytes | gzip -9 > $localFilepath\"";
         } else {
             $this->io->warning('Install `pv` to see progress bar');
-            $command = "bash -c \"set -o pipefail; MYSQL_PWD=$dbPassword mysqldump --host=$dbHost --user=$dbUser $dbName | gzip -9 > $localFilepath\"";
+            $command = "bash -c \"set -o pipefail; MYSQL_PWD=" . escapeshellarg($dbPassword) . " mysqldump --host=$dbHost --user=$dbUser $dbName | gzip -9 > $localFilepath\"";
         }
 
         $process = $this->localMachineHelper->executeFromCmd($command, $outputCallback, null, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
