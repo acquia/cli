@@ -101,7 +101,6 @@ class SshKeyCreateCommandTest extends CommandTestBase
 
     /**
      * @dataProvider providerTestCreate
-     * @group brokenProphecy
      */
     public function testCreate(mixed $sshAddSuccess, mixed $args, mixed $inputs): void
     {
@@ -111,21 +110,27 @@ class SshKeyCreateCommandTest extends CommandTestBase
         $localMachineHelper->getLocalFilepath('~/.passphrase')
             ->willReturn('~/.passphrase');
         $fileSystem = $this->prophet->prophesize(Filesystem::class);
-        $this->mockAddSshKeyToAgent($localMachineHelper, $fileSystem);
+
+        // Only mock addSshKeyToAgent if sshAddSuccess is false (meaning key is not already in agent)
+        if (!$sshAddSuccess) {
+            $this->mockAddSshKeyToAgent($localMachineHelper, $fileSystem);
+        }
+
         $this->mockSshAgentList($localMachineHelper, $sshAddSuccess);
         $this->mockGenerateSshKey($localMachineHelper);
 
-        $localMachineHelper->getFilesystem()
-            ->willReturn($fileSystem->reveal())
-            ->shouldBeCalled();
+        // Only expect getFilesystem to be called if addSshKeyToAgent will be called.
+        if (!$sshAddSuccess) {
+            $localMachineHelper->getFilesystem()
+                ->willReturn($fileSystem->reveal())
+                ->shouldBeCalled();
+        }
 
         $this->executeCommand($args, $inputs);
     }
 
     /**
      * Test that passwords with spaces are properly escaped in shell commands.
-     *
-     * @group brokenProphecy
      */
     public function testCreateWithPasswordContainingSpaces(): void
     {
@@ -227,8 +232,6 @@ class SshKeyCreateCommandTest extends CommandTestBase
 
     /**
      * Test command construction with various password formats to catch string concatenation bugs.
-     *
-     * @group brokenProphecy
      */
     public function testCommandConstructionWithVariousPasswords(): void
     {
@@ -292,8 +295,6 @@ class SshKeyCreateCommandTest extends CommandTestBase
 
     /**
      * Test exact command structure to catch string concatenation bugs.
-     *
-     * @group brokenProphecy
      */
     public function testExactCommandStructure(): void
     {
@@ -366,8 +367,6 @@ class SshKeyCreateCommandTest extends CommandTestBase
     /**
      * Test that malformed commands would cause failures.
      * This helps catch string concatenation bugs that create invalid commands.
-     *
-     * @group brokenProphecy
      */
     public function testMalformedCommandDetection(): void
     {
