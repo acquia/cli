@@ -9,6 +9,9 @@ use Acquia\Cli\Helpers\LocalMachineHelper;
 use Acquia\Cli\Tests\TestBase;
 use Symfony\Component\Console\Output\BufferedOutput;
 
+/**
+ * @group serial
+ */
 class LocalMachineHelperTest extends TestBase
 {
     public function testStartBrowser(): void
@@ -34,7 +37,6 @@ class LocalMachineHelperTest extends TestBase
 
     /**
      * @dataProvider providerTestExecuteFromCmd()
-     * @group serial
      */
     public function testExecuteFromCmd(bool $interactive, bool|null $isTty, bool|null $printOutput): void
     {

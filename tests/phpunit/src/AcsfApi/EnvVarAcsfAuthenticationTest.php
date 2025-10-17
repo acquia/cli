@@ -25,6 +25,7 @@ class EnvVarAcsfAuthenticationTest extends TestBase
         parent::tearDown();
         putenv('ACSF_USERNAME');
         putenv('ACSF_KEY');
+        putenv('ACSF_FACTORY_URI');
     }
 
     public function testKeyAndSecret(): void
