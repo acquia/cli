@@ -486,13 +486,22 @@ abstract class PullCommandBase extends CommandBase
             'mysql',
         ]);
         if ($this->localMachineHelper->commandExists('pv')) {
-            $command = "pv $localDumpFilepath --bytes --rate | gunzip | MYSQL_PWD=$dbPassword mysql --host=$dbHost --user=$dbUser $dbName";
+            $command = "pv \"\${:LOCAL_DUMP_FILEPATH}\" --bytes --rate | gunzip | MYSQL_PWD=\"\${:MYSQL_PASSWORD}\" mysql --host=\"\${:MYSQL_HOST}\" --user=\"\${:MYSQL_USER}\" \"\${:MYSQL_DATABASE}\"";
         } else {
             $this->io->warning('Install `pv` to see progress bar');
-            $command = "gunzip -c $localDumpFilepath | MYSQL_PWD=$dbPassword mysql --host=$dbHost --user=$dbUser $dbName";
+            $command = "gunzip -c \"\${:LOCAL_DUMP_FILEPATH}\" | MYSQL_PWD=\"\${:MYSQL_PASSWORD}\" mysql --host=\"\${:MYSQL_HOST}\" --user=\"\${:MYSQL_USER}\" \"\${:MYSQL_DATABASE}\"";
         }
 
-        $process = $this->localMachineHelper->executeFromCmd($command, $outputCallback, null, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
+        $env = [
+            'LOCAL_DUMP_FILEPATH' => $localDumpFilepath,
+            'MYSQL_DATABASE' => $dbName,
+            'MYSQL_HOST' => $dbHost,
+            'MYSQL_PASSWORD' => $dbPassword,
+            'MYSQL_USER' => $dbUser,
+        ];
+
+        // Suppress noisy MySQL import output by default; progress is handled via callbacks and warnings.
+        $process = $this->localMachineHelper->executeFromCmd($command, $outputCallback, null, false, null, $env);
         if (!$process->isSuccessful()) {
             throw new AcquiaCliException('Unable to import local database. {message}', ['message' => $process->getErrorOutput()]);
         }
