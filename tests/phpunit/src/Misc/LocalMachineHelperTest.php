@@ -144,14 +144,14 @@ class LocalMachineHelperTest extends TestBase
         $localMachineHelper = $this->localMachineHelper;
 
         // Test that executeFromCmd with default printOutput (true) captures output.
-        $process = $localMachineHelper->executeFromCmd('echo "test output"');
+        $process = $localMachineHelper->executeFromCmd('echo test_output');
         $this->assertTrue($process->isSuccessful());
-        $this->assertEquals("test output\n", str_replace("\r\n", "\n", $process->getOutput()));
+        $this->assertEquals("test_output\n", str_replace("\r\n", "\n", $process->getOutput()));
 
         // Test that executeFromCmd with explicit printOutput=false also works.
-        $process = $localMachineHelper->executeFromCmd('echo "test output"', null, null, false);
+        $process = $localMachineHelper->executeFromCmd('echo test_output', null, null, false);
         $this->assertTrue($process->isSuccessful());
-        $this->assertEquals("test output\n", str_replace("\r\n", "\n", $process->getOutput()));
+        $this->assertEquals("test_output\n", str_replace("\r\n", "\n", $process->getOutput()));
     }
 
     public function testExecuteDefaultPrintOutputBehavior(): void
@@ -159,14 +159,14 @@ class LocalMachineHelperTest extends TestBase
         $localMachineHelper = $this->localMachineHelper;
 
         // Test that execute with default printOutput (true) captures output.
-        $process = $localMachineHelper->execute(['echo', 'test output']);
+        $process = $localMachineHelper->execute(['echo', 'test_output']);
         $this->assertTrue($process->isSuccessful());
-        $this->assertEquals("test output\n", str_replace("\r\n", "\n", $process->getOutput()));
+        $this->assertEquals("test_output\n", str_replace("\r\n", "\n", $process->getOutput()));
 
         // Test that execute with explicit printOutput=false also works.
-        $process = $localMachineHelper->execute(['echo', 'test output'], null, null, false);
+        $process = $localMachineHelper->execute(['echo', 'test_output'], null, null, false);
         $this->assertTrue($process->isSuccessful());
-        $this->assertEquals("test output\n", str_replace("\r\n", "\n", $process->getOutput()));
+        $this->assertEquals("test_output\n", str_replace("\r\n", "\n", $process->getOutput()));
     }
 
     public function testExecuteProcessDefaultParameterValue(): void
@@ -177,14 +177,14 @@ class LocalMachineHelperTest extends TestBase
         // The mutation changes the default value from true to false, so we need to verify
         // that the default behavior is indeed true (output is captured)
         // Test executeFromCmd with no printOutput parameter (should default to true)
-        $process = $localMachineHelper->executeFromCmd('echo "default behavior test"');
+        $process = $localMachineHelper->executeFromCmd('echo default_behavior_test');
         $this->assertTrue($process->isSuccessful());
-        $this->assertEquals("default behavior test\n", str_replace("\r\n", "\n", $process->getOutput()));
+        $this->assertEquals("default_behavior_test\n", str_replace("\r\n", "\n", $process->getOutput()));
 
         // Test execute with no printOutput parameter (should default to true)
-        $process = $localMachineHelper->execute(['echo', 'default behavior test']);
+        $process = $localMachineHelper->execute(['echo', 'default_behavior_test']);
         $this->assertTrue($process->isSuccessful());
-        $this->assertEquals("default behavior test\n", str_replace("\r\n", "\n", $process->getOutput()));
+        $this->assertEquals("default_behavior_test\n", str_replace("\r\n", "\n", $process->getOutput()));
     }
 
     public function testExecuteProcessDefaultParameterWithReflection(): void
@@ -198,14 +198,14 @@ class LocalMachineHelperTest extends TestBase
         $method->setAccessible(true);
 
         // Create a process that will succeed.
-        $process = new \Symfony\Component\Process\Process(['echo', 'reflection test']);
+        $process = new \Symfony\Component\Process\Process(['echo', 'reflection_test']);
 
         // Call executeProcess without printOutput parameter to test the default value (true)
         // The method signature is: executeProcess(Process $process, ?callable $callback = null, ?bool $printOutput = true, ?array $env = null)
         $result = $method->invoke($localMachineHelper, $process, null);
 
         $this->assertTrue($result->isSuccessful());
-        $this->assertEquals("reflection test\n", str_replace("\r\n", "\n", $result->getOutput()));
+        $this->assertEquals("reflection_test\n", str_replace("\r\n", "\n", $result->getOutput()));
     }
 
     public function testExecuteProcessDefaultParameterCallbackBehavior(): void
@@ -229,14 +229,14 @@ class LocalMachineHelperTest extends TestBase
         $method->setAccessible(true);
 
         // Create a process that will succeed.
-        $process = new \Symfony\Component\Process\Process(['echo', 'callback test']);
+        $process = new \Symfony\Component\Process\Process(['echo', 'callback_test']);
 
         // Call executeProcess without printOutput parameter to test the default value (true)
         // This should set a callback that writes to output.
         $result = $method->invoke($localMachineHelper, $process, null);
 
         $this->assertTrue($result->isSuccessful());
-        $this->assertEquals("callback test\n", str_replace("\r\n", "\n", $result->getOutput()));
+        $this->assertEquals("callback_test\n", str_replace("\r\n", "\n", $result->getOutput()));
 
         // If the default is true, the callback should have written to output
         // If the default is false (mutated), no callback should be set and output should be empty.
