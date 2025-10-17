@@ -136,7 +136,7 @@ class LocalMachineHelperTest extends TestBase
         $env = ['TEST_VAR' => 'test_value'];
         $process = $localMachineHelper->executeFromCmd('echo "${:TEST_VAR}"', null, null, false, null, $env);
         $this->assertTrue($process->isSuccessful());
-        $this->assertEquals("test_value\n", $process->getOutput());
+        $this->assertEquals("test_value\n", str_replace("\r\n", "\n", $process->getOutput()));
     }
 
     public function testExecuteFromCmdDefaultPrintOutputBehavior(): void
@@ -146,12 +146,12 @@ class LocalMachineHelperTest extends TestBase
         // Test that executeFromCmd with default printOutput (true) captures output.
         $process = $localMachineHelper->executeFromCmd('echo "test output"');
         $this->assertTrue($process->isSuccessful());
-        $this->assertEquals("test output\n", $process->getOutput());
+        $this->assertEquals("test output\n", str_replace("\r\n", "\n", $process->getOutput()));
 
         // Test that executeFromCmd with explicit printOutput=false also works.
         $process = $localMachineHelper->executeFromCmd('echo "test output"', null, null, false);
         $this->assertTrue($process->isSuccessful());
-        $this->assertEquals("test output\n", $process->getOutput());
+        $this->assertEquals("test output\n", str_replace("\r\n", "\n", $process->getOutput()));
     }
 
     public function testExecuteDefaultPrintOutputBehavior(): void
@@ -161,12 +161,12 @@ class LocalMachineHelperTest extends TestBase
         // Test that execute with default printOutput (true) captures output.
         $process = $localMachineHelper->execute(['echo', 'test output']);
         $this->assertTrue($process->isSuccessful());
-        $this->assertEquals("test output\n", $process->getOutput());
+        $this->assertEquals("test output\n", str_replace("\r\n", "\n", $process->getOutput()));
 
         // Test that execute with explicit printOutput=false also works.
         $process = $localMachineHelper->execute(['echo', 'test output'], null, null, false);
         $this->assertTrue($process->isSuccessful());
-        $this->assertEquals("test output\n", $process->getOutput());
+        $this->assertEquals("test output\n", str_replace("\r\n", "\n", $process->getOutput()));
     }
 
     public function testExecuteProcessDefaultParameterValue(): void
@@ -179,12 +179,12 @@ class LocalMachineHelperTest extends TestBase
         // Test executeFromCmd with no printOutput parameter (should default to true)
         $process = $localMachineHelper->executeFromCmd('echo "default behavior test"');
         $this->assertTrue($process->isSuccessful());
-        $this->assertEquals("default behavior test\n", $process->getOutput());
+        $this->assertEquals("default behavior test\n", str_replace("\r\n", "\n", $process->getOutput()));
 
         // Test execute with no printOutput parameter (should default to true)
         $process = $localMachineHelper->execute(['echo', 'default behavior test']);
         $this->assertTrue($process->isSuccessful());
-        $this->assertEquals("default behavior test\n", $process->getOutput());
+        $this->assertEquals("default behavior test\n", str_replace("\r\n", "\n", $process->getOutput()));
     }
 
     public function testExecuteProcessDefaultParameterWithReflection(): void
@@ -205,7 +205,7 @@ class LocalMachineHelperTest extends TestBase
         $result = $method->invoke($localMachineHelper, $process, null);
 
         $this->assertTrue($result->isSuccessful());
-        $this->assertEquals("reflection test\n", $result->getOutput());
+        $this->assertEquals("reflection test\n", str_replace("\r\n", "\n", $result->getOutput()));
     }
 
     public function testExecuteProcessDefaultParameterCallbackBehavior(): void
@@ -236,7 +236,7 @@ class LocalMachineHelperTest extends TestBase
         $result = $method->invoke($localMachineHelper, $process, null);
 
         $this->assertTrue($result->isSuccessful());
-        $this->assertEquals("callback test\n", $result->getOutput());
+        $this->assertEquals("callback test\n", str_replace("\r\n", "\n", $result->getOutput()));
 
         // If the default is true, the callback should have written to output
         // If the default is false (mutated), no callback should be set and output should be empty.
