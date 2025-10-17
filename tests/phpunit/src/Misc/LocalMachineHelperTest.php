@@ -9,6 +9,14 @@ use Acquia\Cli\Helpers\LocalMachineHelper;
 use Acquia\Cli\Tests\TestBase;
 use Symfony\Component\Console\Output\BufferedOutput;
 
+/**
+ * This test class must run serially because its tests have unavoidable side effects
+ * on the environment (e.g., modifying environment variables like DISPLAY) and the filesystem
+ * (e.g., setting up and tearing down fixtures). Running these tests in parallel could cause
+ * interference and unpredictable failures. Do not remove the @group serial annotation.
+ *
+ * @group serial
+ */
 class LocalMachineHelperTest extends TestBase
 {
     public function testStartBrowser(): void
@@ -34,7 +42,6 @@ class LocalMachineHelperTest extends TestBase
 
     /**
      * @dataProvider providerTestExecuteFromCmd()
-     * @group serial
      */
     public function testExecuteFromCmd(bool $interactive, bool|null $isTty, bool|null $printOutput): void
     {
