@@ -2124,13 +2124,21 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
             $outputCallback('out', "Dumping MySQL database to $localFilepath on this machine");
         }
         if ($this->localMachineHelper->commandExists('pv')) {
-            $command = "bash -c \"set -o pipefail; MYSQL_PWD=" . escapeshellarg($dbPassword) . " mysqldump --host=$dbHost --user=$dbUser $dbName | pv --rate --bytes | gzip -9 > $localFilepath\"";
+            $command = "bash -c \"set -o pipefail; MYSQL_PWD=\\\"\${:MYSQL_PASSWORD}\\\" mysqldump --host=\\\"\${:MYSQL_HOST}\\\" --user=\\\"\${:MYSQL_USER}\\\" \\\"\${:MYSQL_DATABASE}\\\" | pv --rate --bytes | gzip -9 > \\\"\${:LOCAL_FILEPATH}\\\"\"";
         } else {
             $this->io->warning('Install `pv` to see progress bar');
-            $command = "bash -c \"set -o pipefail; MYSQL_PWD=" . escapeshellarg($dbPassword) . " mysqldump --host=$dbHost --user=$dbUser $dbName | gzip -9 > $localFilepath\"";
+            $command = "bash -c \"set -o pipefail; MYSQL_PWD=\\\"\${:MYSQL_PASSWORD}\\\" mysqldump --host=\\\"\${:MYSQL_HOST}\\\" --user=\\\"\${:MYSQL_USER}\\\" \\\"\${:MYSQL_DATABASE}\\\" | gzip -9 > \\\"\${:LOCAL_FILEPATH}\\\"\"";
         }
 
-        $process = $this->localMachineHelper->executeFromCmd($command, $outputCallback, null, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
+        $env = [
+            'LOCAL_FILEPATH' => $localFilepath,
+            'MYSQL_DATABASE' => $dbName,
+            'MYSQL_HOST' => $dbHost,
+            'MYSQL_PASSWORD' => $dbPassword,
+            'MYSQL_USER' => $dbUser,
+        ];
+
+        $process = $this->localMachineHelper->executeFromCmd($command, $outputCallback, null, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL), null, $env);
         if (!$process->isSuccessful() || $process->getOutput()) {
             throw new AcquiaCliException('Unable to create a dump of the local database. {message}', ['message' => $process->getErrorOutput()]);
         }

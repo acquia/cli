@@ -83,7 +83,7 @@ class LocalMachineHelper
     {
         $process = new Process($cmd);
         $process = $this->configureProcess($process, $cwd, $printOutput, $timeout, $env, $stdin);
-        return $this->executeProcess($process, $callback, $printOutput);
+        return $this->executeProcess($process, $callback, $printOutput, $env);
     }
 
     /**
@@ -102,7 +102,7 @@ class LocalMachineHelper
         $process = Process::fromShellCommandline($cmd);
         $process = $this->configureProcess($process, $cwd, $printOutput, $timeout, $env);
 
-        return $this->executeProcess($process, $callback, $printOutput);
+        return $this->executeProcess($process, $callback, $printOutput, $env);
     }
 
     /**
@@ -119,22 +119,21 @@ class LocalMachineHelper
         if ($printOutput) {
             $process->setTty($this->useTty());
         }
-        if ($env) {
-            $process->setEnv($env);
-        }
+        // Do not set env here; we pass env to Process::start() to ensure portable ${:VAR} replacement.
         $process->setTimeout($timeout);
 
         return $process;
     }
 
-    private function executeProcess(Process $process, ?callable $callback = null, ?bool $printOutput = true): Process
+    private function executeProcess(Process $process, ?callable $callback = null, ?bool $printOutput = true, ?array $env = null): Process
     {
         if ($callback === null && $printOutput !== false) {
             $callback = function (mixed $type, mixed $buffer): void {
                 $this->output->write($buffer);
             };
         }
-        $process->start();
+        // Env has already been configured on the Process instance; do not override here.
+        $process->start($callback, $env ?? []);
         $process->wait($callback);
 
         $this->logger->notice('Command: {command} [Exit: {exit}]', [

@@ -54,6 +54,8 @@ class PullDatabaseCommandTest extends PullCommandTestBase
     public function testPullDatabases(): void
     {
         $localMachineHelper = $this->mockLocalMachineHelper();
+        // Force normal verbosity so printOutput should be false (> VERBOSITY_NORMAL)
+        $this->output->setVerbosity(BufferedOutput::VERBOSITY_NORMAL);
         $this->mockExecuteMySqlConnect($localMachineHelper, true);
         $environment = $this->mockGetEnvironment();
         $sshHelper = $this->mockSshHelper();
@@ -82,7 +84,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase
         $this->assertStringContainsString('Choose a Cloud Platform environment', $output);
         $this->assertStringContainsString('[0] Dev, dev (vcs: master)', $output);
         $this->assertStringContainsString('Choose a database [my_db (default)]:', $output);
-        $this->assertStringContainsString('Downloading backup 1', $output);
+        $this->assertStringContainsString('Using a database backup that is 11766', $output);
     }
 
     public function testPullProdDatabase(): void
@@ -120,7 +122,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase
             'n',
             // Choose an Acquia environment:
             1,
-        ]);
+        ], \Symfony\Component\Console\Output\OutputInterface::VERBOSITY_NORMAL);
 
         $output = $this->getDisplay();
 
@@ -129,7 +131,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase
         $this->assertStringContainsString('Choose a Cloud Platform environment', $output);
         $this->assertStringContainsString('[0] Dev, dev (vcs: master)', $output);
         $this->assertStringContainsString('Choose a database [my_db (default)]:', $output);
-        $this->assertStringContainsString('Downloading backup 1', $output);
+        $this->assertStringContainsString('Using a database backup that is 11766', $output);
     }
 
     public function testPullDatabasesLocalConnectionFailure(): void
@@ -142,7 +144,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase
         $this->expectExceptionMessage('Unable to connect');
         $this->executeCommand([
             '--no-scripts' => true,
-        ], self::inputChooseEnvironment());
+        ], self::inputChooseEnvironment(), \Symfony\Component\Console\Output\OutputInterface::VERBOSITY_NORMAL);
     }
 
     public function testPullDatabaseNoPv(): void

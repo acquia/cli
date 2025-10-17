@@ -156,14 +156,25 @@ class SshKeyCreateCommandTest extends CommandTestBase
         // Verify the exact command structure to catch string concatenation bugs.
         $localMachineHelper->executeFromCmd(
             Argument::that(function ($command) {
-                // Verify the command has the correct structure with properly escaped password.
-                $escapedPassword = escapeshellarg('two words');
-                $expectedPattern = '/^SSH_PASS=' . preg_quote($escapedPassword, '/') . ' DISPLAY=1 SSH_ASKPASS=.* ssh-add .*$/';
+                // Verify the command has the correct structure with environment variables.
+                $expectedPattern = '/^SSH_PASS="\\${:SSH_PASS}" DISPLAY=1 SSH_ASKPASS="\\${:SSH_ASKPASS}" ssh-add "\\${:PRIVATE_KEY_FILEPATH}"$/';
                 return preg_match($expectedPattern, $command) === 1;
             }),
             null,
             null,
-            false
+            false,
+            null,
+            Argument::that(function ($env) {
+                // This specifically targets the ArrayItemRemoval mutation
+                // Original: ['PRIVATE_KEY_FILEPATH' => $privateKeyFilepath, 'SSH_ASKPASS' => $tempFilepath, 'SSH_PASS' => $password]
+                // Mutated: ['SSH_ASKPASS' => $tempFilepath, 'SSH_PASS' => $password] (PRIVATE_KEY_FILEPATH removed)
+                return is_array($env) &&
+                       array_key_exists('PRIVATE_KEY_FILEPATH', $env) &&
+                       array_key_exists('SSH_ASKPASS', $env) &&
+                       array_key_exists('SSH_PASS', $env) &&
+                       // Ensure exactly 3 keys are present.
+                       count($env) === 3;
+            })
         )->willReturn($process->reveal())->shouldBeCalled();
 
         $fileSystem->tempnam(Argument::type('string'), 'acli')
@@ -263,15 +274,16 @@ class SshKeyCreateCommandTest extends CommandTestBase
 
             // Verify the command contains the properly escaped password and correct structure.
             $localMachineHelper->executeFromCmd(
-                Argument::that(function ($command) use ($password) {
-                    $escapedPassword = escapeshellarg($password);
-                    // Verify the command has the exact expected structure.
-                    $expectedPattern = '/^SSH_PASS=' . preg_quote($escapedPassword, '/') . ' DISPLAY=1 SSH_ASKPASS=.* ssh-add .*$/';
+                Argument::that(function ($command) {
+                    // Verify the command has the exact expected structure with environment variables.
+                    $expectedPattern = '/^SSH_PASS="\\${:SSH_PASS}" DISPLAY=1 SSH_ASKPASS="\\${:SSH_ASKPASS}" ssh-add "\\${:PRIVATE_KEY_FILEPATH}"$/';
                     return preg_match($expectedPattern, $command) === 1;
                 }),
                 null,
                 null,
-                false
+                false,
+                null,
+                Argument::type('array')
             )->willReturn($process->reveal())->shouldBeCalled();
 
             $fileSystem->tempnam(Argument::type('string'), 'acli')
@@ -318,15 +330,14 @@ class SshKeyCreateCommandTest extends CommandTestBase
 
         // Verify the exact command structure with all components in correct order.
         $localMachineHelper->executeFromCmd(
-            Argument::that(function ($command) use ($password) {
-                $escapedPassword = escapeshellarg($password);
-
+            Argument::that(function ($command) {
                 // Check that all required components are present in the correct order.
                 $components = [
-                    "SSH_PASS=$escapedPassword",
+                    'SSH_PASS="${:SSH_PASS}"',
                     'DISPLAY=1',
-                    'SSH_ASKPASS=',
+                    'SSH_ASKPASS="${:SSH_ASKPASS}"',
                     'ssh-add',
+                    '"${:PRIVATE_KEY_FILEPATH}"',
                 ];
 
                 $position = 0;
@@ -339,11 +350,13 @@ class SshKeyCreateCommandTest extends CommandTestBase
                 }
 
                 // Additional check: ensure the command starts correctly.
-                return str_starts_with($command, "SSH_PASS=$escapedPassword DISPLAY=1 SSH_ASKPASS=");
+                return str_starts_with($command, 'SSH_PASS="${:SSH_PASS}" DISPLAY=1 SSH_ASKPASS="${:SSH_ASKPASS}" ssh-add "${:PRIVATE_KEY_FILEPATH}"');
             }),
             null,
             null,
-            false
+            false,
+            null,
+            Argument::type('array')
         )->willReturn($process->reveal())->shouldBeCalled();
 
         $fileSystem->tempnam(Argument::type('string'), 'acli')
@@ -390,15 +403,13 @@ class SshKeyCreateCommandTest extends CommandTestBase
 
         // Verify the command has the exact expected format and reject malformed versions.
         $localMachineHelper->executeFromCmd(
-            Argument::that(function ($command) use ($password) {
-                $escapedPassword = escapeshellarg($password);
-
+            Argument::that(function ($command) {
                 // Reject commands that are missing required spaces or have wrong order.
                 $malformedPatterns = [
                     // Missing space.
-                    '/SSH_PASS=' . preg_quote($escapedPassword, '/') . 'DISPLAY=1/',
+                    '/SSH_PASS="\\${:SSH_PASS}"DISPLAY=1/',
                     // Missing DISPLAY=1.
-                    '/SSH_PASS=' . preg_quote($escapedPassword, '/') . 'SSH_ASKPASS=/',
+                    '/SSH_PASS="\\${:SSH_PASS}"SSH_ASKPASS=/',
                     // Missing space.
                     '/DISPLAY=1SSH_ASKPASS=/',
                     // Missing space.
@@ -414,12 +425,14 @@ class SshKeyCreateCommandTest extends CommandTestBase
                 }
 
                 // Accept only the correctly formatted command.
-                $correctPattern = '/^SSH_PASS=' . preg_quote($escapedPassword, '/') . ' DISPLAY=1 SSH_ASKPASS=.* ssh-add .*$/';
+                $correctPattern = '/^SSH_PASS="\\${:SSH_PASS}" DISPLAY=1 SSH_ASKPASS="\\${:SSH_ASKPASS}" ssh-add "\\${:PRIVATE_KEY_FILEPATH}"$/';
                 return preg_match($correctPattern, $command) === 1;
             }),
             null,
             null,
-            false
+            false,
+            null,
+            Argument::type('array')
         )->willReturn($process->reveal())->shouldBeCalled();
 
         $fileSystem->tempnam(Argument::type('string'), 'acli')
@@ -465,8 +478,6 @@ class SshKeyCreateCommandTest extends CommandTestBase
         // Mock the executeFromCmd call with specific checks for concatenation mutants.
         $localMachineHelper->executeFromCmd(
             Argument::that(function ($command) {
-                $escapedPassword = escapeshellarg('test password');
-
                 // Check for the specific escaped mutants:
                 // 1. ConcatOperandRemoval: SSH_ASKPASS= removed.
                 if (!str_contains($command, 'SSH_ASKPASS=')) {
@@ -489,12 +500,14 @@ class SshKeyCreateCommandTest extends CommandTestBase
                 }
 
                 // Verify the complete command structure.
-                $expectedPattern = '/^SSH_PASS=' . preg_quote($escapedPassword, '/') . '\s+DISPLAY=1\s+SSH_ASKPASS=\S+\s+ssh-add\s+\S+$/';
+                $expectedPattern = '/^SSH_PASS="\\${:SSH_PASS}"\s+DISPLAY=1\s+SSH_ASKPASS="\\${:SSH_ASKPASS}"\s+ssh-add\s+"\\${:PRIVATE_KEY_FILEPATH}"$/';
                 return preg_match($expectedPattern, $command) === 1;
             }),
             null,
             null,
-            false
+            false,
+            null,
+            Argument::type('array')
         )->willReturn($process->reveal())->shouldBeCalled();
 
         $fileSystem->tempnam(Argument::type('string'), 'acli')
