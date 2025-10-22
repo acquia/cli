@@ -59,7 +59,7 @@ class DrushCommandTest extends SshCommandTestBase
             '--uri=http://sitedev.hosted.acquia-sites.com status --fields=db-status',
         ];
         $localMachineHelper
-            ->execute($sshCommand, Argument::type('callable'), null, true, null)
+            ->execute($sshCommand, Argument::type('callable'), null, true, null, null)
             ->willReturn($process->reveal())
             ->shouldBeCalled();
 

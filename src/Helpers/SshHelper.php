@@ -29,13 +29,13 @@ class SshHelper implements LoggerAwareInterface
     /**
      * Execute the command in a remote environment.
      */
-    public function executeCommand(string $sshUrl, array $commandArgs, bool $printOutput = true, ?int $timeout = null): Process
+    public function executeCommand(string $sshUrl, array $commandArgs, bool $printOutput = true, ?int $timeout = null, ?array $env = null): Process
     {
         $commandSummary = $this->getCommandSummary($commandArgs);
 
         // Remove site_env arg.
         unset($commandArgs['alias']);
-        $process = $this->sendCommand($sshUrl, $commandArgs, $printOutput, $timeout);
+        $process = $this->sendCommand($sshUrl, $commandArgs, $printOutput, $timeout, $env);
 
         $this->logger->debug('Command: {command} [Exit: {exit}]', [
             'command' => $commandSummary,
@@ -50,12 +50,12 @@ class SshHelper implements LoggerAwareInterface
         return $process;
     }
 
-    private function sendCommand(string $url, array $command, bool $printOutput, ?int $timeout = null): Process
+    private function sendCommand(string $url, array $command, bool $printOutput, ?int $timeout = null, ?array $env = null): Process
     {
         $command = array_values($this->getSshCommand($url, $command));
         $this->localMachineHelper->checkRequiredBinariesExist(['ssh']);
 
-        return $this->localMachineHelper->execute($command, $this->getOutputCallback(), null, $printOutput, $timeout);
+        return $this->localMachineHelper->execute($command, $this->getOutputCallback(), null, $printOutput, $timeout, $env);
     }
 
     /**

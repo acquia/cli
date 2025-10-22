@@ -236,12 +236,6 @@ abstract class CommandTestBase extends TestBase
     {
         $localMachineHelper = $this->prophet->prophesize(LocalMachineHelper::class);
         $localMachineHelper->useTty()->willReturn(false);
-        // Default stub to avoid null returns in tests not asserting this call.
-        $process = $this->mockProcess(true);
-        $localMachineHelper->executeFromCmd(Argument::any(), Argument::any(), Argument::any(), Argument::any(), Argument::any(), Argument::any())
-            ->willReturn($process->reveal());
-        $localMachineHelper->execute(Argument::any(), Argument::any(), Argument::any(), Argument::any(), Argument::any(), Argument::any(), Argument::any())
-            ->willReturn($process->reveal());
         $this->command->localMachineHelper = $localMachineHelper->reveal();
 
         return $localMachineHelper;
@@ -340,6 +334,7 @@ abstract class CommandTestBase extends TestBase
         $process = $this->prophet->prophesize(Process::class);
         $process->isSuccessful()->willReturn($success);
         $process->getExitCode()->willReturn($success ? 0 : 1);
+        $process->getOutput()->willReturn('');
         if (!$success) {
             $process->getErrorOutput()->willReturn('error');
         } else {

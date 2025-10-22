@@ -212,6 +212,7 @@ class SshKeyCreateCommandTest extends CommandTestBase
         ];
 
         foreach ($testPasswords as $password) {
+            // phpcs:ignore Generic.PHP.ForbiddenFunctions -- Testing escapeshellarg() function itself
             $escaped = escapeshellarg($password);
 
             // Verify that the escaped password is properly quoted.
@@ -235,6 +236,7 @@ class SshKeyCreateCommandTest extends CommandTestBase
 
         // Test that malicious passwords are safely escaped.
         $maliciousPassword = '; rm -rf /';
+        // phpcs:ignore Generic.PHP.ForbiddenFunctions -- Testing escapeshellarg() function itself
         $safeEscaped = escapeshellarg($maliciousPassword);
         $isWindows = PHP_OS_FAMILY === 'Windows';
         $expectedEscaped = $isWindows ? '"; rm -rf /"' : "'; rm -rf /'";
