@@ -1819,7 +1819,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
 
     protected function isAcsfEnv(mixed $cloudEnvironment): bool
     {
-        if (str_contains($cloudEnvironment->sshUrl, 'enterprise-g1')) {
+        if ($cloudEnvironment->sshUrl !== null && str_contains($cloudEnvironment->sshUrl, 'enterprise-g1')) {
             return true;
         }
         foreach ($cloudEnvironment->domains as $domain) {
