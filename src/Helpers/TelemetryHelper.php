@@ -58,6 +58,8 @@ class TelemetryHelper
                 case str_starts_with($report->getMessage(), 'fgets'):
                     // Exclude exhausted disk space.
                 case str_starts_with($report->getMessage(), 'fwrite'):
+                    // Exclude SSH network errors.
+                case str_starts_with($report->getMessage(), 'fread'):
                     return false;
             }
             // Set user info.
