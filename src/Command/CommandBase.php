@@ -576,7 +576,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
     protected function determineCloudDatabases(Client $acquiaCloudClient, EnvironmentResponse $chosenEnvironment, ?string $site = null, bool $multipleDbs = false): array
     {
         $codebaseUuid = self::getCodebaseUuid();
-        if ($codebaseUuid) {
+        if ($codebaseUuid && $this->siteId) {
             $database = EnvironmentTransformer::transformSiteInstanceDatabase($this->getSiteInstanceDatabase($this->siteId, $chosenEnvironment->uuid));
             if ($database) {
                 return [$database];
