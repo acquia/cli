@@ -585,4 +585,43 @@ class PullDatabaseCommandTest extends PullCommandTestBase
 
         self::unsetEnvVars(['AH_CODEBASE_UUID']);
     }
+
+    /**
+     * Test edge case scenarios to kill the LogicalAnd mutant in determineCloudDatabases()
+     * This test verifies that with codebaseUuid but no siteId, the site instance database path is skipped
+     */
+    public function testDetermineCloudDatabasesLogicalAndMutantKiller(): void
+    {
+        // Test case 1: codebaseUuid exists but siteId is empty - should use regular database path.
+        $codebaseUuid = '11111111-041c-44c7-a486-7972ed2cafc8';
+        self::SetEnvVars(['AH_CODEBASE_UUID' => $codebaseUuid]);
+
+        // Mock regular database flow - this should be called since siteId is empty.
+        $this->mockRequest('getEnvironments', 'a47ac10b-58cc-4372-a567-0e02b2c3d479');
+        $environments = $this->mockRequest('getEnvironments', 'a47ac10b-58cc-4372-a567-0e02b2c3d479');
+        $this->mockRequest('getEnvironmentsDatabases', $environments[0]->uuid);
+
+        $localMachineHelper = $this->mockLocalMachineHelper();
+        $this->mockExecuteMySqlConnect($localMachineHelper, true);
+
+        $inputs = [
+            // Select environment.
+            '0',
+            // Choose database.
+            '0',
+        ];
+        $this->executeCommand([], $inputs);
+
+        // Cleanup.
+        self::unsetEnvVars(['AH_CODEBASE_UUID']);
+
+        // Test case 2: Regular case without codebase UUID - should also use regular database path.
+        $this->mockRequest('getEnvironments', 'a47ac10b-58cc-4372-a567-0e02b2c3d479');
+        $environments = $this->mockRequest('getEnvironments', 'a47ac10b-58cc-4372-a567-0e02b2c3d479');
+        $this->mockRequest('getEnvironmentsDatabases', $environments[0]->uuid);
+
+        $this->mockExecuteMySqlConnect($localMachineHelper, true);
+
+        $this->executeCommand([], $inputs);
+    }
 }
