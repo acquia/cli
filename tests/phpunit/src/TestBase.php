@@ -795,7 +795,17 @@ abstract class TestBase extends TestCase
     {
         $process = $this->prophet->prophesize(Process::class);
         $process->isSuccessful()->willReturn(true);
-        $localMachineHelper->executeFromCmd(Argument::containingString('SSH_PASS'), null, null, false)
+        $localMachineHelper->executeFromCmd(Argument::containingString('SSH_PASS="${:SSH_PASS}"'), null, null, false, null, Argument::that(function ($env) {
+            // This specifically targets the ArrayItemRemoval mutation
+            // Original: ['PRIVATE_KEY_FILEPATH' => $privateKeyFilepath, 'SSH_ASKPASS' => $tempFilepath, 'SSH_PASS' => $password]
+            // Mutated: ['SSH_ASKPASS' => $tempFilepath, 'SSH_PASS' => $password] (PRIVATE_KEY_FILEPATH removed)
+            return is_array($env) &&
+                   array_key_exists('PRIVATE_KEY_FILEPATH', $env) &&
+                   array_key_exists('SSH_ASKPASS', $env) &&
+                   array_key_exists('SSH_PASS', $env) &&
+                   // Ensure exactly 3 keys are present.
+                   count($env) === 3;
+        }))
             ->willReturn($process->reveal());
         $fileSystem->tempnam(Argument::type('string'), 'acli')
             ->willReturn('something');

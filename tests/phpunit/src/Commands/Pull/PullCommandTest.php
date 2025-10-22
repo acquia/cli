@@ -41,6 +41,8 @@ class PullCommandTest extends PullCommandTestBase
         $environment = $this->mockGetEnvironment();
         $this->createMockGitConfigFile();
         $localMachineHelper = $this->mockLocalMachineHelper();
+        // Force normal verbosity so printOutput should be false for DB import.
+        $this->output->setVerbosity(\Symfony\Component\Console\Output\OutputInterface::VERBOSITY_NORMAL);
         $localMachineHelper->checkRequiredBinariesExist(["git"])
             ->shouldBeCalled();
         $finder = $this->mockFinder();
@@ -80,7 +82,7 @@ class PullCommandTest extends PullCommandTestBase
             // Choose an Acquia environment:
             self::$INPUT_DEFAULT_CHOICE,
             self::$INPUT_DEFAULT_CHOICE,
-        ]);
+        ], \Symfony\Component\Console\Output\OutputInterface::VERBOSITY_NORMAL);
 
         $output = $this->getDisplay();
 
