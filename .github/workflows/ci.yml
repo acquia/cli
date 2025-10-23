@@ -121,22 +121,43 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: us-east-1
+
+  build-linux-executable:
+    runs-on: ${{ matrix.os }}
+    needs: build-release
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-22.04
+            artifact_name: acli-linux-x86_64
+            phpmicro_url: https://acquia-cli.s3.us-east-1.amazonaws.com/static-php-cli/php-micro-8.4-linux-x86_64.zip
+            spc_url: https://github.com/crazywhalecc/static-php-cli/releases/download/2.7.4/spc-linux-x86_64.tar.gz
+          - os: macos-13
+            artifact_name: acli-darwin-x86_64
+            phpmicro_url: https://acquia-cli.s3.us-east-1.amazonaws.com/static-php-cli/php-micro-8.4-darwin-x86_64.zip
+            spc_url: https://github.com/crazywhalecc/static-php-cli/releases/download/2.7.4/spc-darwin-x86_64.tar.gz
+    steps:
+      - uses: actions/checkout@v5
+      - name: Download acli.phar artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: acli.phar
       - name: "Download SPC and phpmicro"
         run: |
-          curl -fsSL https://acquia-cli.s3.us-east-1.amazonaws.com/static-php-cli/php-micro-8.4-linux-x86_64.zip -o tmp.zip
+          curl -fsSL "${{ matrix.phpmicro_url }}" -o tmp.zip
           unzip tmp.zip
-          curl -fsSL https://github.com/crazywhalecc/static-php-cli/releases/download/2.7.4/spc-linux-x86_64.tar.gz -o spc.tar.gz
+          curl -fsSL "${{ matrix.spc_url }}" -o spc.tar.gz
           tar -xzf spc.tar.gz
           chmod +x spc
       - name: "Generate Executable"
         run: |
-          ./spc micro:combine var/acli.phar -M micro.sfx -O acli -I "memory_limit=2G"
+          ./spc micro:combine acli.phar -M micro.sfx -O acli -I "memory_limit=2G"
           chmod +x acli
       - name: "Upload Artifact"
         uses: actions/upload-artifact@v4
         with:
-            path: acli
-            name: acli-linux-x86_64
+          path: acli
+          name: ${{ matrix.artifact_name }}
 
   # Require all checks to pass without having to enumerate them in the branch protection UI.
   # @see https://github.community/t/is-it-possible-to-require-all-github-actions-tasks-to-pass-without-enumerating-them/117957
@@ -145,6 +166,7 @@ jobs:
     needs:
     - test
     - build-release
+    - build-linux-executable
     runs-on: ubuntu-22.04
     steps:
     - name: Decide whether the needed jobs succeeded or failed
