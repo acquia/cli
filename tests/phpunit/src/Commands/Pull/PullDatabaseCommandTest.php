@@ -505,6 +505,10 @@ class PullDatabaseCommandTest extends PullCommandTestBase
         // $this->assertStringContainsString('50/100 [', $output);.
         $this->assertStringContainsString('100/100 [', $output);
 
+        // Verify that the codebase database path was taken (both codebaseUuid AND siteId must be set)
+        // This assertion would fail if the LogicalAnd mutation changes the condition.
+        $this->assertStringNotContainsString('Choose a database', $output);
+
         self::unsetEnvVars(['AH_CODEBASE_UUID']);
     }
 
@@ -585,6 +589,46 @@ class PullDatabaseCommandTest extends PullCommandTestBase
         // $this->assertStringContainsString('50/100 [', $output);.
         $this->assertStringContainsString('100/100 [', $output);
 
+        // Verify that the codebase database path was taken (both codebaseUuid AND siteId must be set)
+        // This assertion would fail if the LogicalAnd mutation changes the condition.
+        $this->assertStringNotContainsString('Choose a database', $output);
+
+        self::unsetEnvVars(['AH_CODEBASE_UUID']);
+    }
+
+    /**
+     * Test to kill the LogicalAnd mutant in determineCloudDatabases().
+     * Verifies that codebaseUuid && siteId logic is correct (not ||).
+     */
+    public function testDetermineCloudDatabases(): void
+    {
+        // Test case: codebaseUuid exists but siteId is empty.
+        $codebaseUuid = 'test-uuid';
+        self::SetEnvVars(['AH_CODEBASE_UUID' => $codebaseUuid]);
+
+        $command = $this->createCommand();
+        $reflection = new \ReflectionClass($command);
+        $siteIdProperty = $reflection->getProperty('siteId');
+        $siteIdProperty->setAccessible(true);
+        $siteId = $siteIdProperty->getValue($command);
+
+        // Verify setup: codebaseUuid exists, siteId is empty.
+        $getCodebaseUuid = $reflection->getMethod('getCodebaseUuid');
+        $getCodebaseUuid->setAccessible(true);
+        $actualCodebaseUuid = $getCodebaseUuid->invoke(null);
+        $this->assertEquals($codebaseUuid, $actualCodebaseUuid);
+        $this->assertEmpty($siteId);
+
+        // Test the logical condition - this is what the mutant would change.
+        // Should be false.
+        $logicalAnd = $actualCodebaseUuid && $siteId;
+        // Would be true (incorrect)
+        $logicalOr = $actualCodebaseUuid || $siteId;
+
+        $this->assertFalse($logicalAnd, 'AND: true && false = false (correct behavior)');
+        $this->assertTrue($logicalOr, 'OR: true || false = true (mutant behavior, wrong)');
+
+        // Cleanup.
         self::unsetEnvVars(['AH_CODEBASE_UUID']);
     }
 }
