@@ -503,6 +503,10 @@ class PullDatabaseCommandTest extends PullCommandTestBase
         // $this->assertStringContainsString('50/100 [', $output);.
         $this->assertStringContainsString('100/100 [', $output);
 
+        // Verify that the codebase database path was taken (both codebaseUuid AND siteId must be set)
+        // This assertion would fail if the LogicalAnd mutation changes the condition.
+        $this->assertStringNotContainsString('Choose a database', $output);
+
         self::unsetEnvVars(['AH_CODEBASE_UUID']);
     }
 
@@ -582,6 +586,10 @@ class PullDatabaseCommandTest extends PullCommandTestBase
         // $this->assertStringContainsString('0/100 [', $output);
         // $this->assertStringContainsString('50/100 [', $output);.
         $this->assertStringContainsString('100/100 [', $output);
+
+        // Verify that the codebase database path was taken (both codebaseUuid AND siteId must be set)
+        // This assertion would fail if the LogicalAnd mutation changes the condition.
+        $this->assertStringNotContainsString('Choose a database', $output);
 
         self::unsetEnvVars(['AH_CODEBASE_UUID']);
     }
