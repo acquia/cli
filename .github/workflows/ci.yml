@@ -162,7 +162,7 @@ jobs:
     needs:
     - test
     - build-release
-    - build-linux-executable
+    - build-native
     runs-on: ubuntu-22.04
     steps:
     - name: Decide whether the needed jobs succeeded or failed
