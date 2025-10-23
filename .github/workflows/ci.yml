@@ -129,13 +129,9 @@ jobs:
       matrix:
         include:
           - os: ubuntu-22.04
-            artifact_name: acli-linux-x86_64
-            phpmicro_url: https://acquia-cli.s3.us-east-1.amazonaws.com/static-php-cli/php-micro-8.4-linux-x86_64.zip
-            spc_url: https://github.com/crazywhalecc/static-php-cli/releases/download/2.7.4/spc-linux-x86_64.tar.gz
+            platform: linux-x86_64
           - os: macos-13
-            artifact_name: acli-darwin-x86_64
-            phpmicro_url: https://acquia-cli.s3.us-east-1.amazonaws.com/static-php-cli/php-micro-8.4-darwin-x86_64.zip
-            spc_url: https://github.com/crazywhalecc/static-php-cli/releases/download/2.7.4/spc-darwin-x86_64.tar.gz
+            platform: macos-aarch64
     steps:
       - uses: actions/checkout@v5
       - name: Download acli.phar artifact
@@ -144,9 +140,9 @@ jobs:
           name: acli.phar
       - name: "Download SPC and phpmicro"
         run: |
-          curl -fsSL "${{ matrix.phpmicro_url }}" -o tmp.zip
-          unzip tmp.zip
-          curl -fsSL "${{ matrix.spc_url }}" -o spc.tar.gz
+          curl -fsSL "https://acquia-cli.s3.us-east-1.amazonaws.com/static-php-cli/php-micro-8.4-${{ matrix.platform }}.tar.gz" -o tmp.tar.gz
+          tar -xzf tmp.tar.gz
+          curl -fsSL "https://github.com/crazywhalecc/static-php-cli/releases/download/2.7.4/spc-${{ matrix.platform }}.tar.gz" -o spc.tar.gz
           tar -xzf spc.tar.gz
           chmod +x spc
       - name: "Generate Executable"
@@ -157,7 +153,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           path: acli
-          name: ${{ matrix.artifact_name }}
+          name: acli-${{ matrix.platform }}
 
   # Require all checks to pass without having to enumerate them in the branch protection UI.
   # @see https://github.community/t/is-it-possible-to-require-all-github-actions-tasks-to-pass-without-enumerating-them/117957
