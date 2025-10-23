@@ -122,7 +122,7 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: us-east-1
 
-  build-linux-executable:
+  build-native:
     runs-on: ${{ matrix.os }}
     needs: build-release
     strategy:
