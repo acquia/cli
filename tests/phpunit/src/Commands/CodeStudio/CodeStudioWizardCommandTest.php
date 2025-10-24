@@ -60,7 +60,7 @@ class CodeStudioWizardCommandTest extends WizardTestBase
         return [
             // Application: Drupal_project, PHP 8.2.
             [
-                [],
+                [self::getMockedGitLabProject(self::$gitLabProjectId), self::getMockedGitLabProject(self::$gitLabProjectId)],
                 [
                     // Project type: Drupal_project.
                     0,
@@ -70,9 +70,7 @@ class CodeStudioWizardCommandTest extends WizardTestBase
                     0,
                     // Do you want to continue?
                     'y',
-                    // Create a new GitLab project.
-                    'y',
-                    // Choose group for the new project: awesome-demo.
+                    // Select from multiple GitLab projects.
                     0,
                     // One time push?
                     'y',
