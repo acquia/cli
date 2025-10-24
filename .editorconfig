@@ -11,3 +11,6 @@ trim_trailing_whitespace = true
 
 [*.xml.dist]
 indent_size = 2
+
+[*-spec.json]
+indent_size = 2
