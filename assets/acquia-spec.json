@@ -44081,7 +44081,102 @@
         "operationId": "createPrivateNetwork",
         "x-cli-name": "private-networks:create",
         "requestBody": {
-          "$ref": "#/components/requestBodies/Private_Network_Service_API_PrivateNetworkCreateRequest"
+          "description": "Private Network creation request body",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "subscription_id",
+                  "region",
+                  "name",
+                  "connections"
+                ],
+                "properties": {
+                  "subscription_id": {
+                    "type": "string"
+                  },
+                  "region": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "label": {
+                    "type": "string"
+                  },
+                  "isolation": {
+                    "$ref": "#/components/schemas/Private_Network_Service_API_Isolation"
+                  },
+                  "ingress": {
+                    "$ref": "#/components/schemas/Private_Network_Service_API_Ingress"
+                  },
+                  "connections": {
+                    "$ref": "#/components/schemas/Private_Network_Service_API_Connections"
+                  }
+                },
+                "example": {
+                  "subscription_id": "123e4567-e89b-12d3-a456-426614174000",
+                  "region": "us-east-1",
+                  "name": "customer-private-network",
+                  "description": "Private network for customer",
+                  "label": "anyLabel",
+                  "isolation": {
+                    "dedicated_compute": false,
+                    "dedicated_network": false
+                  },
+                  "ingress": {
+                    "drupal_ssh": {
+                      "ingress_acls": [
+                        "test-acls"
+                      ]
+                    }
+                  },
+                  "connections": {
+                    "cidr": "114.7.55.1/16",
+                    "private_egress_access": {
+                      "drupal": true
+                    },
+                    "vpns": [
+                      {
+                        "name": "vpn1",
+                        "gateway_ip": "10.10.10.10",
+                        "routes": [
+                          "127.0.0.1/32",
+                          "127.0.0.2/32"
+                        ],
+                        "tunnel1": {
+                          "shared_key": "sharedKey1",
+                          "internal_cidr": "192.1.1.0/24",
+                          "ike_versions": "1",
+                          "startup_action": "start",
+                          "dpd_timeout_action": "stop"
+                        },
+                        "tunnel2": {
+                          "shared_key": "sharedKey2",
+                          "internal_cidr": "192.1.1.0/14",
+                          "ike_versions": "1",
+                          "startup_action": "start",
+                          "dpd_timeout_action": "stop"
+                        }
+                      }
+                    ],
+                    "vpc_peers": [
+                      {
+                        "name": "vpcPeer1",
+                        "aws_account": "123456789012",
+                        "vpc_id": "vpc-1234567890abcdef0",
+                        "vpc_cidr": "120.24.16.1/24"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
         },
         "responses": {
           "202": {
