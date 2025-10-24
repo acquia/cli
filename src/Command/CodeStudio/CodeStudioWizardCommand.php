@@ -329,7 +329,6 @@ final class CodeStudioWizardCommand extends WizardCommandBase
     private function promptForPhpVersions(): string
     {
         $phpVersions = [
-            'PHP_version_8.1' => "8.1",
             'PHP_version_8.2' => "8.2",
             'PHP_version_8.3' => "8.3",
             'PHP_version_8.4' => "8.4",

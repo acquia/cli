@@ -58,28 +58,6 @@ class CodeStudioWizardCommandTest extends WizardTestBase
     public static function providerTestCommand(): array
     {
         return [
-            // Application: Drupal_project, PHP 8.1.
-            [
-                [self::getMockedGitLabProject(self::$gitLabProjectId), self::getMockedGitLabProject(self::$gitLabProjectId)],
-                [
-                    // Project type: Drupal_project.
-                    0,
-                    // MySQL version: 5.7.
-                    0,
-                    // PHP version: 8.1.
-                    0,
-                    // Do you want to continue?
-                    'y',
-                    // Select from multiple GitLab projects.
-                    0,
-                    // One time push?
-                    'y',
-                ],
-                [
-                    self::ARG_KEY => self::$key,
-                    self::ARG_SECRET => self::$secret,
-                ],
-            ],
             // Application: Drupal_project, PHP 8.2.
             [
                 [],
@@ -89,7 +67,7 @@ class CodeStudioWizardCommandTest extends WizardTestBase
                     // MySQL version: 5.7.
                     0,
                     // PHP version: 8.2.
-                    1,
+                    0,
                     // Do you want to continue?
                     'y',
                     // Create a new GitLab project.
@@ -113,7 +91,7 @@ class CodeStudioWizardCommandTest extends WizardTestBase
                     // MySQL version: 8.0.
                     1,
                     // PHP version: 8.3.
-                    2,
+                    1,
                     // Do you want to continue?
                     'y',
                     // Create a new GitLab project.
@@ -137,7 +115,7 @@ class CodeStudioWizardCommandTest extends WizardTestBase
                     // MySQL version: 8.0.
                     1,
                     // PHP version: 8.4.
-                    3,
+                    2,
                     // Do you want to continue?
                     'y',
                     // One time push?
@@ -307,7 +285,7 @@ class CodeStudioWizardCommandTest extends WizardTestBase
     public static function providerTestCommandCodebase(): array
     {
         return [
-            // Codebase: Drupal_project, PHP 8.1.
+            // Codebase: Drupal_project, PHP 8.2.
             [
                 [],
                 [
@@ -316,7 +294,7 @@ class CodeStudioWizardCommandTest extends WizardTestBase
                     // Project type: Drupal_project [Auto selected].
                     // MySQL version: 5.7.
                     0,
-                    // PHP version: 8.1.
+                    // PHP version: 8.2.
                     0,
                     // Select project.
                     0,
@@ -865,7 +843,7 @@ class CodeStudioWizardCommandTest extends WizardTestBase
             0,
             // MySQL version: 8.0.
             1,
-            // PHP version: 8.1.
+            // PHP version: 8.2.
             0,
             // Do you want to continue?
             'y',
