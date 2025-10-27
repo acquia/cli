@@ -16,7 +16,7 @@ jobs:
           --url "$JIRA_BASE_URL/rest/api/3/search?jql=project%20%3D%20CLI%20AND%20issuetype%20%3D%20Release%20AND%20status%20%3D%20Reviewed" \
           --user "$JIRA_USER_EMAIL:$JIRA_API_TOKEN" \
           --header 'Accept: application/json')
-          echo "FIX_VERSION=$(printf '%s' $ISSUES | jq -r '.issues[0].fields.fixVersions[0].name' | sed 's/AcquiaCLI//')" >> $GITHUB_ENV
+          echo "FIX_VERSION=$(printf '%s' $ISSUES | jq -r '.issues[0].fields.fixVersions[0].name' | sed 's/Acquia CLI //')" >> $GITHUB_ENV
           echo "ISSUE_KEY=$(printf '%s' $ISSUES | jq -r '.issues[0].key')" >> $GITHUB_ENV
         env:
           JIRA_BASE_URL: ${{ vars.JIRA_BASE_URL }}
