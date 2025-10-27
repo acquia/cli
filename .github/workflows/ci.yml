@@ -103,7 +103,7 @@ jobs:
           ./bin/acli
           composer box-compile
       - name: Store artifact in Actions
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: acli.phar
           path: var/acli.phar
@@ -150,7 +150,7 @@ jobs:
           ./spc micro:combine acli.phar -M micro.sfx -O acli -I "memory_limit=2G"
           chmod +x acli
       - name: "Upload Artifact"
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           path: acli
           name: acli-${{ matrix.platform }}
