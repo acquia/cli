@@ -2341,9 +2341,8 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
             throw new AcquiaCliException("{{$argumentName}} must not be null");
         }
         try {
-            // Environment IDs take the form of [env-num]-[app-uuid].
+            // Environment IDs take the form of [app-uuid].
             $uuidParts = explode('-', $envUuidArgument);
-            unset($uuidParts[0]);
             $applicationUuid = implode('-', $uuidParts);
             self::validateUuid($applicationUuid);
         } catch (ValidatorException) {
