@@ -174,7 +174,7 @@ class ApiCommandHelper
             $prefix = $type === 'argument' ? '' : "--$propKey=";
             if (array_key_exists($propKey, $example)) {
                 if (!array_key_exists('type', $paramDefinition)) {
-                    return 'unknown';
+                    return $usage;
                 }
                 switch ($paramDefinition['type']) {
                     case 'object':
