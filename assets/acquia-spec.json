@@ -59996,12 +59996,7 @@
         "type": "object",
         "properties": {
           "private_egress_access": {
-            "type": "object",
-            "properties": {
-              "drupal": {
-                "type": "boolean"
-              }
-            }
+            "$ref": "#/components/schemas/Private_Network_Service_API_PrivateEgressAccess"
           }
         }
       },
@@ -60034,22 +60029,7 @@
         "type": "object",
         "properties": {
           "drupal_ssh": {
-            "type": "object",
-            "properties": {
-              "id": {
-                "type": "integer"
-              },
-              "ingress_acls": {
-                "type": "array",
-                "items": {
-                  "type": "string"
-                }
-              },
-              "private": {
-                "type": "boolean",
-                "default": false
-              }
-            }
+            "$ref": "#/components/schemas/Private_Network_Service_API_DrupalSSH"
           }
         }
       },
@@ -60057,22 +60037,7 @@
         "type": "object",
         "properties": {
           "drupal_ssh": {
-            "type": "object",
-            "properties": {
-              "id": {
-                "type": "integer"
-              },
-              "ingress_acls": {
-                "type": "array",
-                "items": {
-                  "type": "string"
-                }
-              },
-              "private": {
-                "type": "boolean",
-                "default": false
-              }
-            }
+            "$ref": "#/components/schemas/Private_Network_Service_API_DrupalSSH"
           },
           "_links": {
             "$ref": "#/components/schemas/Private_Network_Service_API_HalItem"
@@ -60117,12 +60082,7 @@
             "pattern": "^([0-9]{1,3}\\.){3}[0-9]{1,3}/[0-9]{1,2}$"
           },
           "private_egress_access": {
-            "type": "object",
-            "properties": {
-              "drupal": {
-                "type": "boolean"
-              }
-            }
+            "$ref": "#/components/schemas/Private_Network_Service_API_PrivateEgressAccess"
           },
           "_links": {
             "$ref": "#/components/schemas/Private_Network_Service_API_HalItem"
@@ -60136,12 +60096,7 @@
         ],
         "properties": {
           "private_egress_access": {
-            "type": "object",
-            "properties": {
-              "drupal": {
-                "type": "boolean"
-              }
-            }
+            "$ref": "#/components/schemas/Private_Network_Service_API_PrivateEgressAccess"
           },
           "cidr": {
             "type": "string",
@@ -60187,52 +60142,10 @@
             }
           },
           "tunnel1": {
-            "type": "object",
-            "properties": {
-              "id": {
-                "type": "integer"
-              },
-              "shared_key": {
-                "type": "string"
-              },
-              "internal_cidr": {
-                "type": "string",
-                "pattern": "^([0-9]{1,3}\\.){3}[0-9]{1,3}/[0-9]{1,2}$"
-              },
-              "ike_versions": {
-                "type": "string"
-              },
-              "startup_action": {
-                "type": "string"
-              },
-              "dpd_timeout_action": {
-                "type": "string"
-              }
-            }
+            "$ref": "#/components/schemas/Private_Network_Service_API_Tunnel"
           },
           "tunnel2": {
-            "type": "object",
-            "properties": {
-              "id": {
-                "type": "integer"
-              },
-              "shared_key": {
-                "type": "string"
-              },
-              "internal_cidr": {
-                "type": "string",
-                "pattern": "^([0-9]{1,3}\\.){3}[0-9]{1,3}/[0-9]{1,2}$"
-              },
-              "ike_versions": {
-                "type": "string"
-              },
-              "startup_action": {
-                "type": "string"
-              },
-              "dpd_timeout_action": {
-                "type": "string"
-              }
-            }
+            "$ref": "#/components/schemas/Private_Network_Service_API_Tunnel"
           }
         }
       },
@@ -60262,60 +60175,10 @@
             }
           },
           "tunnel1": {
-            "type": "object",
-            "properties": {
-              "id": {
-                "type": "integer"
-              },
-              "shared_key": {
-                "type": "string"
-              },
-              "internal_cidr": {
-                "type": "string",
-                "pattern": "^([0-9]{1,3}\\.){3}[0-9]{1,3}/[0-9]{1,2}$"
-              },
-              "ike_versions": {
-                "type": "string"
-              },
-              "startup_action": {
-                "type": "string"
-              },
-              "dpd_timeout_action": {
-                "type": "string"
-              },
-              "address": {
-                "type": "string",
-                "format": "ipv4"
-              }
-            }
+            "$ref": "#/components/schemas/Private_Network_Service_API_TunnelResponse"
           },
           "tunnel2": {
-            "type": "object",
-            "properties": {
-              "id": {
-                "type": "integer"
-              },
-              "shared_key": {
-                "type": "string"
-              },
-              "internal_cidr": {
-                "type": "string",
-                "pattern": "^([0-9]{1,3}\\.){3}[0-9]{1,3}/[0-9]{1,2}$"
-              },
-              "ike_versions": {
-                "type": "string"
-              },
-              "startup_action": {
-                "type": "string"
-              },
-              "dpd_timeout_action": {
-                "type": "string"
-              },
-              "address": {
-                "type": "string",
-                "format": "ipv4"
-              }
-            }
+            "$ref": "#/components/schemas/Private_Network_Service_API_TunnelResponse"
           },
           "_links": {
             "$ref": "#/components/schemas/Private_Network_Service_API_HalItem"
