@@ -170,7 +170,6 @@ class PullFilesCommandTest extends PullCommandTestBase
             'AH_CODEBASE_UUID' => $codebaseUuid,
         ]);
         $expectedCodebase = $this->getMockCodebaseResponse();
-        $expectedCodebases = $this->getMockCodebasesResponse();
 
         $expectedCodebaseEnvironments = $this->getMockCodeBaseEnvironments();
         $expectedCodebaseSitesData = $this->getMockCodeBaseSites();
