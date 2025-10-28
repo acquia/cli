@@ -173,6 +173,9 @@ class ApiCommandHelper
             $example = $requestBodyContent['example'];
             $prefix = $type === 'argument' ? '' : "--$propKey=";
             if (array_key_exists($propKey, $example)) {
+                if (!array_key_exists('type', $paramDefinition)) {
+                    return 'unknown';
+                }
                 switch ($paramDefinition['type']) {
                     case 'object':
                         $usage .= $prefix . '"' . json_encode($example[$propKey], JSON_THROW_ON_ERROR) . '"" ';
