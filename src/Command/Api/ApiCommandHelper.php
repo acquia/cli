@@ -122,7 +122,7 @@ class ApiCommandHelper
         $requestBodySchema = $this->getRequestBodyFromParameterSchema($schema, $acquiaCloudSpec);
 
         if (!array_key_exists('properties', $requestBodySchema)) {
-            return [];
+            $requestBodySchema['properties'] = [];
         }
         foreach ($requestBodySchema['properties'] as $propKey => $paramDefinition) {
             $isRequired = array_key_exists('required', $requestBodySchema) && in_array($propKey, $requestBodySchema['required'], true);
