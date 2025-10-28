@@ -141,7 +141,7 @@ class ApiCommandHelper
                     array_key_exists('type', $paramDefinition) && $paramDefinition['type'] === 'array' ? InputArgument::IS_ARRAY | InputArgument::REQUIRED : InputArgument::REQUIRED,
                     $description
                 );
-                $usage = $this->addPostArgumentUsageToExample($schema['requestBody'], $propKey, $paramDefinition, 'argument', $usage);
+                $usage = $this->addPostArgumentUsageToExample($schema['requestBody'], $propKey, $paramDefinition, 'argument', $usage, $acquiaCloudSpec);
             } else {
                 $inputDefinition[] = new InputOption(
                     $propKey,
@@ -149,7 +149,7 @@ class ApiCommandHelper
                     array_key_exists('type', $paramDefinition) && $paramDefinition['type'] === 'array' ? InputOption::VALUE_IS_ARRAY | InputOption::VALUE_REQUIRED : InputOption::VALUE_REQUIRED,
                     array_key_exists('description', $paramDefinition) ? $paramDefinition['description'] : $propKey
                 );
-                $usage = $this->addPostArgumentUsageToExample($schema["requestBody"], $propKey, $paramDefinition, 'option', $usage);
+                $usage = $this->addPostArgumentUsageToExample($schema["requestBody"], $propKey, $paramDefinition, 'option', $usage, $acquiaCloudSpec);
                 // @todo Add validator for $param['enum'] values?
             }
         }
@@ -165,9 +165,9 @@ class ApiCommandHelper
         return [$inputDefinition, $usage];
     }
 
-    private function addPostArgumentUsageToExample(mixed $requestBody, mixed $propKey, mixed $paramDefinition, string $type, string $usage): string
+    private function addPostArgumentUsageToExample(mixed $requestBody, mixed $propKey, mixed $paramDefinition, string $type, string $usage, array $acquiaCloudSpec): string
     {
-        $requestBodyContent = $this->getRequestBodyContent($requestBody);
+        $requestBodyContent = $this->getRequestBodyContent($requestBody, $acquiaCloudSpec);
 
         if (array_key_exists('example', $requestBodyContent)) {
             $example = $requestBodyContent['example'];
@@ -439,7 +439,7 @@ class ApiCommandHelper
      */
     private function getRequestBodyFromParameterSchema(array $schema, array $acquiaCloudSpec): array
     {
-        $requestBodyContent = $this->getRequestBodyContent($schema['requestBody']);
+        $requestBodyContent = $this->getRequestBodyContent($schema['requestBody'], $acquiaCloudSpec);
         $requestBodySchema = $requestBodyContent['schema'];
 
         // If this is a reference to the top level schema, go grab the referenced component.
@@ -520,8 +520,13 @@ class ApiCommandHelper
      * @param array<mixed> $requestBody
      * @return array<mixed>
      */
-    private function getRequestBodyContent(array $requestBody): array
+    private function getRequestBodyContent(array $requestBody, array $acquiaCloudSpec): array
     {
+        if (array_key_exists('$ref', $requestBody)) {
+            $parts = explode('/', $requestBody['$ref']);
+            $paramKey = end($parts);
+            $requestBody = $acquiaCloudSpec['components']['requestBodies'][$paramKey];
+        }
         $content = $requestBody['content'];
         $knownContentTypes = [
             'application/hal+json',
