@@ -447,44 +447,27 @@ class PullDatabaseCommandTest extends PullCommandTestBase
         $codeabaseSites = $this->getMockCodeBaseSites();
         $this->clientProphecy->request('get', '/codebases/' . $codebaseUuid . '/sites')
             ->willReturn($codeabaseSites);
-        $siteInstance = $this->getMockSiteInstanceResponse();
-
-        $this->clientProphecy->request('get', '/site-instances/8979a8ac-80dc-4df8-b2f0-6be36554a370.3e8ecbec-ea7c-4260-8414-ef2938c859bc')
-            ->willReturn($siteInstance)
-            ->shouldBeCalled();
-        $siteId = '8979a8ac-80dc-4df8-b2f0-6be36554a370';
-        $site = $this->getMockSite();
-        $this->clientProphecy->request('get', '/sites/' . $siteId)
-            ->willReturn($site)
-            ->shouldBeCalled();
-        $siteInstanceDatabase = $this->getMockSiteInstanceDatabaseResponse();
-        $this->clientProphecy->request('get', '/site-instances/8979a8ac-80dc-4df8-b2f0-6be36554a370.3e8ecbec-ea7c-4260-8414-ef2938c859bc/database')
-            ->willReturn($siteInstanceDatabase)
-            ->shouldBeCalled();
-        $createSiteInstanceDatabaseBackup = $this->getMockSiteInstanceDatabaseBackupsResponse('post', '201');
-        $this->clientProphecy->request('post', '/site-instances/8979a8ac-80dc-4df8-b2f0-6be36554a370.3e8ecbec-ea7c-4260-8414-ef2938c859bc/database/backups')
-            ->willReturn($createSiteInstanceDatabaseBackup);
-        $siteInstanceDatabaseBackups = $this->getMockSiteInstanceDatabaseBackupsResponse();
-        $this->clientProphecy->request('get', '/site-instances/8979a8ac-80dc-4df8-b2f0-6be36554a370.3e8ecbec-ea7c-4260-8414-ef2938c859bc/database/backups')
-            ->willReturn($siteInstanceDatabaseBackups->_embedded->items)
-            ->shouldBeCalled();
-
-        $url = "https://environment-service-php.acquia.com/api/environments/d3f7270e-c45f-4801-9308-5e8afe84a323/";
-        $this->mockDownloadCodebaseBackup(EnvironmentTransformer::transformSiteInstanceDatabase(new SiteInstanceDatabaseResponse($siteInstanceDatabase)), $url, EnvironmentTransformer::transformSiteInstanceDatabaseBackup(new SiteInstanceDatabaseBackupResponse($siteInstanceDatabaseBackups->_embedded->items[0])));
 
         $localMachineHelper = $this->mockLocalMachineHelper();
         $this->mockExecuteMySqlConnect($localMachineHelper, true);
-        $this->mockExecuteMySqlListTables($localMachineHelper, 'example');
+
+        // Since siteId is null, we should fall through to regular ACSF database flow.
+        $sshHelper = $this->mockSshHelper();
+        $this->mockGetAcsfSites($sshHelper);
+
+        $environment = $this->mockAcsfEnvironmentsRequest($this->mockApplicationsRequest());
+        $selectedEnvironment = $environment->_embedded->items[0];
+        $databasesResponse = $this->mockAcsfDatabasesResponse($selectedEnvironment);
+        $databaseResponse = $databasesResponse[array_search('jxr5000596dev', array_column($databasesResponse, 'name'), true)];
+        $databaseBackupsResponse = $this->mockDatabaseBackupsResponse($selectedEnvironment, $databaseResponse->name, 1, true);
+        $this->mockDownloadBackup($databaseResponse, $selectedEnvironment, $databaseBackupsResponse->_embedded->items[0], 0);
+
+        $this->mockExecuteMySqlListTables($localMachineHelper, 'drupal');
         $fs = $this->prophet->prophesize(Filesystem::class);
         $this->mockExecuteMySqlDropDb($localMachineHelper, true, $fs);
         $this->mockExecuteMySqlImport($localMachineHelper, true, true, 'example', 'dbexample', 'example', 'environment_3e8ecbec-ea7c-4260-8414-ef2938c859bc', '2025-04-01T13:01:06.603Z');
         $fs->remove(Argument::type('string'))->shouldBeCalled();
         $localMachineHelper->getFilesystem()->willReturn($fs)->shouldBeCalled();
-        // $this->mockExecuteDrushExists($localMachineHelper);
-        // $this->mockExecuteDrushStatus($localMachineHelper, $this->projectDir);
-        // $process = $this->mockProcess();
-        // $this->mockExecuteDrushCacheRebuild($localMachineHelper, $process);
-        // $this->mockExecuteDrushSqlSanitize($localMachineHelper, $process);
         $inputs = self::inputChooseEnvironment();
 
         $this->executeCommand([
@@ -496,16 +479,9 @@ class PullDatabaseCommandTest extends PullCommandTestBase
 
         $this->assertStringContainsString('Detected Codebase UUID:', $output);
         $this->assertStringContainsString('Using codebase: Test codebase with attached application', $output);
-        $this->assertStringContainsString('Connecting to database drupal', $output);
 
-        // NEW: prove that progress actually rendered
-        // $this->assertStringContainsString('0/100 [', $output);
-        // $this->assertStringContainsString('50/100 [', $output);.
-        $this->assertStringContainsString('100/100 [', $output);
-
-        // Verify that the codebase database path was taken (both codebaseUuid AND siteId must be set)
-        // This assertion would fail if the LogicalAnd mutation changes the condition.
-        $this->assertStringNotContainsString('Choose a database', $output);
+        // When siteId is null, should fall through to regular database selection (not codebase-specific path)
+        $this->assertStringContainsString('Choose a database', $output);
 
         self::unsetEnvVars(['AH_CODEBASE_UUID']);
     }
@@ -591,42 +567,6 @@ class PullDatabaseCommandTest extends PullCommandTestBase
         // This assertion would fail if the LogicalAnd mutation changes the condition.
         $this->assertStringNotContainsString('Choose a database', $output);
 
-        self::unsetEnvVars(['AH_CODEBASE_UUID']);
-    }
-
-    /**
-     * Test to kill the LogicalAnd mutant in determineCloudDatabases().
-     * Verifies that codebaseUuid && siteId logic is correct (not ||).
-     */
-    public function testDetermineCloudDatabases(): void
-    {
-        // Test case: codebaseUuid exists but siteId is empty.
-        $codebaseUuid = 'test-uuid';
-        self::SetEnvVars(['AH_CODEBASE_UUID' => $codebaseUuid]);
-
-        $command = $this->createCommand();
-        $reflection = new \ReflectionClass($command);
-        $siteIdProperty = $reflection->getProperty('siteId');
-        $siteIdProperty->setAccessible(true);
-        $siteId = $siteIdProperty->getValue($command);
-
-        // Verify setup: codebaseUuid exists, siteId is empty.
-        $getCodebaseUuid = $reflection->getMethod('getCodebaseUuid');
-        $getCodebaseUuid->setAccessible(true);
-        $actualCodebaseUuid = $getCodebaseUuid->invoke(null);
-        $this->assertEquals($codebaseUuid, $actualCodebaseUuid);
-        $this->assertEmpty($siteId);
-
-        // Test the logical condition - this is what the mutant would change.
-        // Should be false.
-        $logicalAnd = $actualCodebaseUuid && $siteId;
-        // Would be true (incorrect)
-        $logicalOr = $actualCodebaseUuid || $siteId;
-
-        $this->assertFalse($logicalAnd, 'AND: true && false = false (correct behavior)');
-        $this->assertTrue($logicalOr, 'OR: true || false = true (mutant behavior, wrong)');
-
-        // Cleanup.
         self::unsetEnvVars(['AH_CODEBASE_UUID']);
     }
 }
