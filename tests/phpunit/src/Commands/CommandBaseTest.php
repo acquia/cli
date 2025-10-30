@@ -585,8 +585,7 @@ class CommandBaseTest extends CommandTestBase
 
     /**
      * Test isAcsfEnv method directly to ensure it properly detects ACSF environments.
-     * This test verifies the method's protected visibility is maintained and tests the core logic.
-     * If this method were changed to private, it would break inheritance for subclasses that might need it.
+     * This test verifies the method's functionality and visibility level.
      */
     public function testIsAcsfEnvDirectAccess(): void
     {
