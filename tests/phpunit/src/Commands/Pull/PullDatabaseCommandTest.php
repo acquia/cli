@@ -512,6 +512,49 @@ class PullDatabaseCommandTest extends PullCommandTestBase
         self::unsetEnvVars(['AH_CODEBASE_UUID']);
     }
 
+    /**
+     * CRITICAL: Test that kills the LogicalAnd (&&) -> LogicalOr (||) mutation in determineCloudDatabases.
+     *
+     * This test creates a scenario where $this->siteId is set but codebaseUuid is null.
+     * With && (correct): null && "value" = false, so regular ACSF path is used
+     * With || (mutant): null || "value" = true, so codebase path is attempted
+     *
+     * The mutant MUST fail because it would call getSiteInstanceDatabase() without
+     * the required codebase-specific API mocks, causing the test to fail.
+     */
+    public function testPullDatabasesKillsLogicalAndMutation(): void
+    {
+        // CRITICAL: Ensure codebaseUuid is null/empty.
+        self::unsetEnvVars(['AH_CODEBASE_UUID']);
+
+        // Set siteId using reflection to simulate the || mutation scenario.
+        $reflection = new \ReflectionClass($this->command);
+        $siteIdProperty = $reflection->getProperty('siteId');
+        $siteIdProperty->setAccessible(true);
+        $siteIdProperty->setValue($this->command, '8979a8ac-80dc-4df8-b2f0-6be36554a370');
+
+        // IMPORTANT: Only mock ACSF database calls, NOT codebase-specific calls
+        // This ensures the mutant would fail when trying to call getSiteInstanceDatabase.
+        $this->setupPullDatabase(true, true, false, false);
+        $inputs = self::inputChooseEnvironment();
+
+        // If mutation is active (||), this would fail because getSiteInstanceDatabase
+        // would be called without proper mocks for /site-instances/* endpoints.
+        $this->executeCommand([
+            '--no-scripts' => true,
+            'site' => 'jxr5000596dev',
+        ], $inputs);
+
+        $output = $this->getDisplay();
+
+        // These assertions prove the ACSF path was used (not codebase path)
+        $this->assertStringNotContainsString('Detected Codebase UUID', $output);
+        $this->assertStringContainsString('Downloading', $output);
+
+        // The mutant (||) would cause getSiteInstanceDatabase() to be called,
+        // which would fail due to missing API mocks.
+    }
+
     public function testPullDatabasesWithCodebaseUuidOnDemand(): void
     {
         $codebaseUuid = '11111111-041c-44c7-a486-7972ed2cafc8';
@@ -593,42 +636,6 @@ class PullDatabaseCommandTest extends PullCommandTestBase
         // This assertion would fail if the LogicalAnd mutation changes the condition.
         $this->assertStringNotContainsString('Choose a database', $output);
 
-        self::unsetEnvVars(['AH_CODEBASE_UUID']);
-    }
-
-    /**
-     * Test to kill the LogicalAnd mutant in determineCloudDatabases().
-     * Verifies that codebaseUuid && siteId logic is correct (not ||).
-     */
-    public function testDetermineCloudDatabases(): void
-    {
-        // Test case: codebaseUuid exists but siteId is empty.
-        $codebaseUuid = 'test-uuid';
-        self::SetEnvVars(['AH_CODEBASE_UUID' => $codebaseUuid]);
-
-        $command = $this->createCommand();
-        $reflection = new \ReflectionClass($command);
-        $siteIdProperty = $reflection->getProperty('siteId');
-        $siteIdProperty->setAccessible(true);
-        $siteId = $siteIdProperty->getValue($command);
-
-        // Verify setup: codebaseUuid exists, siteId is empty.
-        $getCodebaseUuid = $reflection->getMethod('getCodebaseUuid');
-        $getCodebaseUuid->setAccessible(true);
-        $actualCodebaseUuid = $getCodebaseUuid->invoke(null);
-        $this->assertEquals($codebaseUuid, $actualCodebaseUuid);
-        $this->assertEmpty($siteId);
-
-        // Test the logical condition - this is what the mutant would change.
-        // Should be false.
-        $logicalAnd = $actualCodebaseUuid && $siteId;
-        // Would be true (incorrect)
-        $logicalOr = $actualCodebaseUuid || $siteId;
-
-        $this->assertFalse($logicalAnd, 'AND: true && false = false (correct behavior)');
-        $this->assertTrue($logicalOr, 'OR: true || false = true (mutant behavior, wrong)');
-
-        // Cleanup.
         self::unsetEnvVars(['AH_CODEBASE_UUID']);
     }
 }
