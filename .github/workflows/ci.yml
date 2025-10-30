@@ -153,7 +153,7 @@ jobs:
         uses: actions/upload-artifact@v5
         with:
           path: acli
-          name: acli-${{ matrix.platform }}
+          name: native-acli-${{ matrix.platform }}
 
   # Require all checks to pass without having to enumerate them in the branch protection UI.
   # @see https://github.community/t/is-it-possible-to-require-all-github-actions-tasks-to-pass-without-enumerating-them/117957
