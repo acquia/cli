@@ -159,4 +159,186 @@ class PullFilesCommandTest extends PullCommandTestBase
         $this->executeCommand();
         IdeHelper::unsetCloudIdeEnvVars();
     }
+
+    /**
+     * @throws \Exception
+     */
+    public function testPullFilesCodebaseUuid(): void
+    {
+        $codebaseUuid = '11111111-041c-44c7-a486-7972ed2cafc8';
+        self::setEnvVars([
+            'AH_CODEBASE_UUID' => $codebaseUuid,
+        ]);
+        $expectedCodebase = $this->getMockCodebaseResponse();
+
+        $expectedCodebaseEnvironments = $this->getMockCodeBaseEnvironments();
+        $expectedCodebaseSitesData = $this->getMockCodeBaseSites();
+        $expectedCodebaseSites = $expectedCodebaseSitesData->_embedded->items;
+        $expectedSiteInstance = $this->getMockSiteInstanceResponse();
+        $this->clientProphecy->request('get', '/sites/' . $expectedCodebaseSites[0]->id)
+            ->willReturn($expectedCodebaseSites[0])
+            ->shouldBeCalled();
+        $this->clientProphecy->request('get', '/site-instances/' . $expectedCodebaseSites[0]->id . "." . $expectedCodebaseEnvironments->_embedded->items[0]->id)
+            ->willReturn($expectedSiteInstance)
+            ->shouldBeCalled();
+
+        // Only set prophecy expectations for the actual calls made.
+        $this->clientProphecy->request('get', '/codebases/' . $codebaseUuid)
+            ->willReturn($expectedCodebase)
+            ->shouldBeCalled();
+
+        $this->clientProphecy->request('get', '/codebases/' . $codebaseUuid . '/environments')
+            ->willReturn($expectedCodebaseEnvironments->_embedded->items)
+            ->shouldBeCalled();
+        $this->clientProphecy->request('get', '/codebases/' . $codebaseUuid . '/sites')
+            ->willReturn($expectedCodebaseSites)
+            ->shouldBeCalled();
+        $selectedEnvironment =  $expectedCodebaseEnvironments->_embedded->items[0];
+        $sshHelper = $this->mockSshHelper();
+
+        $localMachineHelper = $this->mockLocalMachineHelper();
+        $this->mockGetFilesystem($localMachineHelper);
+        $parts = explode('.', $selectedEnvironment->ssh_url);
+        $sitegroup = reset($parts);
+        $this->mockExecuteRsync($localMachineHelper, $selectedEnvironment, '/mnt/files/' . $selectedEnvironment->name . '/sites/site2/files/', $this->projectDir . '/docroot/sites/site2/files');
+
+        $this->command->sshHelper = $sshHelper->reveal();
+
+        $inputs = [
+            // Choose a site [default]:
+            0,
+            // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
+            // 'n',
+            // Select a Cloud Platform application:
+            0,
+            // Would you like to link the project at ... ?
+            'n',
+            // Choose an Acquia environment:
+            0,
+            // Choose site from which to copy files:
+            0,
+        ];
+
+        $this->executeCommand([], $inputs);
+        $output = $this->getDisplay();
+        $this->assertStringContainsString('Detected Codebase UUID: ', $output);
+        // $this->assertStringContainsString('Using codebase:', $output);
+        // $this->assertStringContainsString('Using site instance:', $output);
+        // $this->assertStringContainsString('[0] Dev, dev (vcs: master)', $output);
+        self::unsetEnvVars(["AH_CODEBASE_UUID"]);
+    }
+
+    /**
+     * Test that production environments are allowed when allowProduction=true.
+     * This test verifies that production environments can be selected and used.
+     *
+     * @throws \Exception
+     */
+    public function testPullFilesWithProductionEnvironmentAllowed(): void
+    {
+        $applicationsResponse = $this->mockApplicationsRequest();
+        $this->mockApplicationRequest();
+
+        // Create a mock environment response with production flag set to true.
+        $environmentsResponse = $this->mockEnvironmentsRequest($applicationsResponse);
+        $productionEnvironment = $environmentsResponse->_embedded->items[0];
+        $productionEnvironment->flags->production = true;
+        $productionEnvironment->label = 'Production';
+        $productionEnvironment->name = 'prod';
+        $productionEnvironment->ssh_url = 'dev@dev.ssh.acquia-sites.com';
+
+        $sshHelper = $this->mockSshHelper();
+        $this->mockGetCloudSites($sshHelper, $productionEnvironment);
+        $localMachineHelper = $this->mockLocalMachineHelper();
+        $this->mockGetFilesystem($localMachineHelper);
+        $parts = explode('.', $productionEnvironment->ssh_url);
+        $sitegroup = reset($parts);
+        $this->mockExecuteRsync($localMachineHelper, $productionEnvironment, '/mnt/files/' . $sitegroup . '.' . $productionEnvironment->name . '/sites/default/files/', $this->projectDir . '/docroot/sites/default/files');
+
+        $this->command->sshHelper = $sshHelper->reveal();
+
+        $this->executeCommand([], [
+            // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
+            'n',
+            // Select a Cloud Platform application:
+            0,
+            // Would you like to link the project at ... ?
+            'n',
+            // Choose an Acquia environment:
+            0,
+            // Choose site from which to copy files:
+            0,
+        ]);
+
+        $output = $this->getDisplay();
+        $this->assertStringContainsString('Select a Cloud Platform application', $output);
+        $this->assertStringContainsString('[0] Sample application 1', $output);
+        $this->assertStringContainsString('Choose a Cloud Platform environment', $output);
+        $this->assertStringContainsString('[0] Production, prod (vcs: master)', $output);
+    }
+
+    /**
+     * Test that both production and non-production environments are allowed when allowProduction=true.
+     * This test verifies that all environments are available for selection.
+     *
+     * @throws \Exception
+     */
+    public function testPullFilesWithAllEnvironmentsAllowed(): void
+    {
+        $applicationsResponse = $this->mockApplicationsRequest();
+        $this->mockApplicationRequest();
+
+        // Create a mock environment response with both production and non-production environments.
+        $environmentsResponse = $this->mockEnvironmentsRequest($applicationsResponse);
+
+        // Set up the first environment as non-production.
+        $nonProductionEnvironment = $environmentsResponse->_embedded->items[0];
+        $nonProductionEnvironment->flags->production = false;
+        $nonProductionEnvironment->label = 'Dev';
+        $nonProductionEnvironment->name = 'dev';
+        $nonProductionEnvironment->id = 'dev-env-id';
+        $nonProductionEnvironment->ssh_url = 'dev@dev.ssh.acquia-sites.com';
+
+        // Add a second environment as production.
+        $productionEnvironment = clone $nonProductionEnvironment;
+        $productionEnvironment->flags->production = true;
+        $productionEnvironment->label = 'Production';
+        $productionEnvironment->name = 'prod';
+        $productionEnvironment->id = 'prod-env-id';
+        $productionEnvironment->ssh_url = 'prod@prod.ssh.acquia-sites.com';
+        $environmentsResponse->_embedded->items[] = $productionEnvironment;
+
+        $sshHelper = $this->mockSshHelper();
+        $this->mockGetCloudSites($sshHelper, $nonProductionEnvironment);
+        $localMachineHelper = $this->mockLocalMachineHelper();
+        $this->mockGetFilesystem($localMachineHelper);
+        $parts = explode('.', $nonProductionEnvironment->ssh_url);
+        $sitegroup = reset($parts);
+        $this->mockExecuteRsync($localMachineHelper, $nonProductionEnvironment, '/mnt/files/' . $sitegroup . '.' . $nonProductionEnvironment->name . '/sites/default/files/', $this->projectDir . '/docroot/sites/default/files');
+
+        $this->command->sshHelper = $sshHelper->reveal();
+
+        $inputs = [
+            // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
+            'n',
+            // Select a Cloud Platform application:
+            0,
+            // Would you like to link the project at ... ?
+            'n',
+            // Choose an Acquia environment (select the first one - Dev):
+            0,
+            // Choose site from which to copy files:
+            0,
+        ];
+
+        $this->executeCommand([], $inputs);
+
+        $output = $this->getDisplay();
+        $this->assertStringContainsString('Select a Cloud Platform application', $output);
+        $this->assertStringContainsString('[0] Sample application 1', $output);
+        $this->assertStringContainsString('Choose a Cloud Platform environment', $output);
+        // Should show both environments since allowProduction=true.
+        $this->assertStringContainsString('[0] Dev, dev (vcs: master)', $output);
+        $this->assertStringContainsString('[1] Production, prod (vcs:', $output);
+    }
 }

@@ -66,7 +66,19 @@ trait SshCommandTrait
             ->in($this->sshDir)
             ->name('*.pub')
             ->ignoreUnreadableDirs();
-        return iterator_to_array($finder);
+
+        $validKeys = [];
+        $pattern = '/^(ssh-(rsa|ed25519)|ecdsa-sha2-nistp(256|384|521)) [A-Za-z0-9+\/=]+(?: .*)?$/';
+        foreach ($finder as $file) {
+            $contents = trim($file->getContents() ?? '');
+            if (preg_match($pattern, $contents)) {
+                $fingerprint = \Acquia\Cli\Command\Ssh\SshKeyCommandBase::getFingerprint($contents);
+                if (!empty($fingerprint)) {
+                    $validKeys[] = $file;
+                }
+            }
+        }
+        return $validKeys;
     }
 
     protected function promptWaitForSsh(SymfonyStyle $io): bool

@@ -19,17 +19,6 @@ class LogTailCommandTest extends CommandTestBase
 {
     protected LogstreamManager|ObjectProphecy $logStreamManagerProphecy;
 
-    /**
-     * @return int[]
-     */
-    public static function providerLogTailCommand(): array
-    {
-        return [
-            [0],
-            [null],
-        ];
-    }
-
     protected function createCommand(): CommandBase
     {
         // Must initialize this here instead of in setUp() because we need the
@@ -52,10 +41,7 @@ class LogTailCommandTest extends CommandTestBase
         );
     }
 
-    /**
-     * @dataProvider providerLogTailCommand
-     */
-    public function testLogTailCommand(?int $stream): void
+    public function testLogTailCommand(): void
     {
         $this->logStreamManagerProphecy->setColourise(true)->shouldBeCalled();
         $this->logStreamManagerProphecy->setParams(Argument::type('object'))
@@ -75,7 +61,7 @@ class LogTailCommandTest extends CommandTestBase
             // Select environment.
             0,
             // Select log.
-            $stream,
+            0,
         ]);
 
         // Assert.

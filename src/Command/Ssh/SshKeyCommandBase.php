@@ -101,7 +101,13 @@ EOT
         );
         $this->localMachineHelper->getFilesystem()->chmod($tempFilepath, 0755);
         $privateKeyFilepath = str_replace('.pub', '', $filepath);
-        $process = $this->localMachineHelper->executeFromCmd('SSH_PASS=' . $password . ' DISPLAY=1 SSH_ASKPASS=' . $tempFilepath . ' ssh-add ' . $privateKeyFilepath, null, null, false);
+        $command = 'SSH_PASS="${:SSH_PASS}" DISPLAY=1 SSH_ASKPASS="${:SSH_ASKPASS}" ssh-add "${:PRIVATE_KEY_FILEPATH}"';
+        $env = [
+            'PRIVATE_KEY_FILEPATH' => $privateKeyFilepath,
+            'SSH_ASKPASS' => $tempFilepath,
+            'SSH_PASS' => $password,
+        ];
+        $process = $this->localMachineHelper->executeFromCmd($command, null, null, false, null, $env);
         $this->localMachineHelper->getFilesystem()->remove($tempFilepath);
         if (!$process->isSuccessful()) {
             throw new AcquiaCliException('Unable to add the SSH key to local SSH agent:' . $process->getOutput() . $process->getErrorOutput());
@@ -420,9 +426,12 @@ EOT
         }
     }
 
-    protected static function getFingerprint(mixed $sshPublicKey): string
+    public static function getFingerprint(mixed $sshPublicKey): string
     {
         $content = explode(' ', $sshPublicKey, 3);
+        if (empty($content[1])) {
+            return '';
+        }
         return base64_encode(hash('sha256', base64_decode($content[1]), true));
     }
 }

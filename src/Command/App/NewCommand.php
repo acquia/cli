@@ -24,7 +24,6 @@ final class NewCommand extends CommandBase
     private static array $distros = [
         'acquia_drupal_cms' => 'acquia/drupal-cms-project',
         'acquia_drupal_recommended' => 'acquia/drupal-recommended-project',
-        'acquia_next_acms' => 'acquia/next-acms',
     ];
     protected function configure(): void
     {
@@ -41,7 +40,6 @@ final class NewCommand extends CommandBase
     {
         $this->output->writeln('Acquia recommends most customers use <options=bold>acquia/drupal-recommended-project</> to setup a Drupal project, which includes useful utilities such as Acquia Connector.');
         $this->output->writeln('<options=bold>acquia/drupal-cms-project</> is Drupal CMS scaffolded to work with Acquia hosting.');
-        $this->output->writeln('<options=bold>acquia/next-acms</> is a starter template for building a headless site powered by Acquia CMS and Next.js.');
 
         if ($input->hasOption('template') && $input->getOption('template')) {
             $project = $input->getOption('template');
@@ -61,15 +59,9 @@ final class NewCommand extends CommandBase
 
         $output->writeln('<info>Creating project. This may take a few minutes.</info>');
 
-        if ($project === 'acquia_next_acms') {
-            $successMessage = "<info>New Next.js project created in $dir. 🎉</info>";
-            $this->localMachineHelper->checkRequiredBinariesExist(['node']);
-            $this->createNextJsProject($dir);
-        } else {
-            $successMessage = "<info>New 💧 Drupal project created in $dir. 🎉</info>";
-            $this->localMachineHelper->checkRequiredBinariesExist(['composer']);
-            $this->createDrupalProject(self::$distros[$project], $dir);
-        }
+        $successMessage = "<info>New 💧 Drupal project created in $dir. 🎉</info>";
+        $this->localMachineHelper->checkRequiredBinariesExist(['composer']);
+        $this->createDrupalProject(self::$distros[$project], $dir);
 
         $this->initializeGitRepository($dir);
 
@@ -77,23 +69,6 @@ final class NewCommand extends CommandBase
         $output->writeln($successMessage);
 
         return Command::SUCCESS;
-    }
-
-    /**
-     * @throws \Acquia\Cli\Exception\AcquiaCliException
-     */
-    private function createNextJsProject(string $dir): void
-    {
-        $process = $this->localMachineHelper->execute([
-            'npx',
-            'create-next-app',
-            '-e',
-            'https://github.com/acquia/next-acms/tree/main/starters/basic-starter',
-            $dir,
-        ]);
-        if (!$process->isSuccessful()) {
-            throw new AcquiaCliException("Unable to create new next-acms project.");
-        }
     }
 
     /**

@@ -10,19 +10,14 @@
             "role": "Maintainer"
         }
     ],
-    "repositories": [
-        {
-            "type": "vcs", "url": "https://github.com/danepowell/phplint"
-        }
-    ],
     "minimum-stability": "dev",
     "require": {
-        "php": "^8.1",
+        "php": "^8.2",
         "ext-json": "*",
         "acquia/drupal-environment-detector": "^1.7.0",
         "bugsnag/bugsnag": "^3.29",
         "composer/semver": "^3.3",
-        "consolidation/self-update": "^3.0.1",
+        "consolidation/self-update": "^3.1.0",
         "dflydev/dot-access-data": "^3",
         "grasmash/expander": "^3.0.1",
         "guzzlehttp/guzzle": "^7.4",
@@ -52,7 +47,7 @@
         "symfony/yaml": "^6.3",
         "thecodingmachine/safe": "3.0.2 as 2.5.0",
         "typhonius/acquia-logstream": "^0.0.15",
-        "typhonius/acquia-php-sdk-v2": "^3.7.1",
+        "typhonius/acquia-php-sdk-v2": "^3.7.3",
         "vlucas/phpdotenv": "^5.5",
         "zumba/amplitude-php": "^1.0.4"
     },
@@ -61,17 +56,17 @@
         "brianium/paratest": "^7",
         "dealerdirect/phpcodesniffer-composer-installer": "^1.0.0",
         "dominikb/composer-license-checker": "^2.4",
-        "infection/infection": "^0.27.7",
+        "infection/infection": "^0.31.2",
         "jangregor/phpstan-prophecy": "^1.0",
         "mikey179/vfsstream": "^1.6",
-        "overtrue/phplint": "9.4.x-dev",
+        "overtrue/phplint": "^9.6.2",
         "phpro/grumphp": "^2.9.0",
         "phpspec/prophecy": "^1.17",
         "phpspec/prophecy-phpunit": "^2.0",
         "phpstan/extension-installer": "^1.1",
         "phpstan/phpstan": "^1.0",
         "phpstan/phpstan-deprecation-rules": "^1.0",
-        "phpunit/phpunit": "10.5.31",
+        "phpunit/phpunit": "^11",
         "slevomat/coding-standard": "^8.10",
         "squizlabs/php_codesniffer": "^3.5",
         "twig/twig": "^3.3"
@@ -91,7 +86,7 @@
     ],
     "config": {
         "platform": {
-            "php": "8.1.25"
+            "php": "8.2.29"
         },
         "process-timeout": 3600,
         "optimize-autoloader": true,
@@ -116,7 +111,7 @@
         "update-cloud-api-spec": [
             "[ -d var/cx-api-spec/.git ] && (cd var/cx-api-spec && git pull) || git clone git@github.com:acquia/cx-api-spec.git var/cx-api-spec",
             "cd var/cx-api-spec && npm install && make install && make spec",
-            "cp var/cx-api-spec/dist/spec/acquia-spec.json assets/",
+            "cp var/cx-api-spec/dist/spec/acquia-spec-prerelease.json assets/acquia-spec.json",
             "git -C var/cx-api-spec rev-parse HEAD > assets/acquia-spec.version"
         ],
         "update-acsf-api-spec": [
@@ -127,16 +122,16 @@
             "rm -rf gardener"
         ],
         "box-install": [
-            "curl -f -L https://github.com/box-project/box/releases/download/4.4.0/box.phar -o var/box.phar"
+            "curl -f -L https://github.com/box-project/box/releases/download/4.6.7/box.phar -o var/box.phar"
         ],
         "box-compile": [
             "php var/box.phar compile"
         ],
         "mutation": [
-            "infection --threads=max --only-covered"
+            "infection --threads=max"
         ],
         "mutation-diff-lines": [
-            "infection --threads=max --only-covered --git-diff-lines --git-diff-base=origin/$GITHUB_BASE_REF --min-covered-msi=100 --ignore-msi-with-no-mutations"
+            "infection --threads=max --git-diff-lines --git-diff-base=origin/$GITHUB_BASE_REF --min-covered-msi=100 --ignore-msi-with-no-mutations"
         ],
         "cs": "phpcs",
         "cbf": "phpcbf",

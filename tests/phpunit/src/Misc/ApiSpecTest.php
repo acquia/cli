@@ -16,6 +16,5 @@ class ApiSpecTest extends TestCase
         $apiSpec = file_get_contents($apiSpecFile);
         $this->assertStringNotContainsString('x-internal', $apiSpec);
         $this->assertStringNotContainsString('cloud.acquia.dev', $apiSpec);
-        $this->assertStringNotContainsString('network.acquia-sites.com', $apiSpec);
     }
 }

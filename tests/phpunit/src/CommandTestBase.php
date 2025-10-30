@@ -231,55 +231,6 @@ abstract class CommandTestBase extends TestBase
         $environments = $this->mockRequest('getApplicationEnvironments', $application->uuid);
         return $environments[self::$INPUT_DEFAULT_CHOICE];
     }
-    public function mockGetSiteInstance(): mixed
-    {
-        $sites = $this->mockRequest('get_sites');
-        $site = $sites[self::$INPUT_DEFAULT_CHOICE];
-        $environments = $this->mockRequest('environments_by_site', $site->id);
-        $environment = $environments[self::$INPUT_DEFAULT_CHOICE];
-        $codebase = $this->mockRequest('get_codebase_by_id', $environment->_embedded->codebase->id);
-        $environment->codebase = (object)$codebase;
-        $siteInstance = $this->mockRequest('site_instance', [$site->id, $environment->id]);
-        $siteInstance->site = $site;
-        $siteInstance->environment = $environment;
-        return $siteInstance;
-    }
-    public function mockGetSingleSiteInstance(): mixed
-    {
-        $sites = $this->mockRequest('get_sites');
-        $site = $sites[self::$INPUT_DEFAULT_CHOICE];
-        $environments = $this->mockRequest('environments_by_site', $site->id);
-        $environment = $environments[self::$INPUT_DEFAULT_CHOICE];
-        $codebase = $this->mockRequest('get_codebase_by_id', $environment->_embedded->codebase->id);
-        $environment->codebase = (object)$codebase;
-        $siteInstance = $this->mockRequest('site_instance', [$site->id, $environment->id]);
-        return $siteInstance;
-    }
-    public function mockGetSite(): mixed
-    {
-        $sites = $this->mockRequest('get_sites');
-        $site = $sites[self::$INPUT_DEFAULT_CHOICE];
-        return $site;
-    }
-    public function mockGetCodebaseEnvironment(): mixed
-    {
-        $sites = $this->mockRequest('get_sites');
-        $site = $sites[self::$INPUT_DEFAULT_CHOICE];
-        $environments = $this->mockRequest('environments_by_site', $site->id);
-        $environment = $environments[self::$INPUT_DEFAULT_CHOICE];
-        $codebase = $this->mockRequest('get_codebase_by_id', $environment->_embedded->codebase->id);
-        $environment->codebase = (object)$codebase;
-        return $environment;
-    }
-    public function mockGetCodebase(): mixed
-    {
-        $sites = $this->mockRequest('get_sites');
-        $site = $sites[self::$INPUT_DEFAULT_CHOICE];
-        $environments = $this->mockRequest('environments_by_site', $site->id);
-        $environment = $environments[self::$INPUT_DEFAULT_CHOICE];
-        $codebase = $this->mockRequest('get_codebase_by_id', $environment->_embedded->codebase->id);
-        return $codebase;
-    }
 
     protected function mockLocalMachineHelper(): LocalMachineHelper|ObjectProphecy
     {
@@ -383,6 +334,7 @@ abstract class CommandTestBase extends TestBase
         $process = $this->prophet->prophesize(Process::class);
         $process->isSuccessful()->willReturn($success);
         $process->getExitCode()->willReturn($success ? 0 : 1);
+        $process->getOutput()->willReturn('');
         if (!$success) {
             $process->getErrorOutput()->willReturn('error');
         } else {
@@ -489,13 +441,32 @@ abstract class CommandTestBase extends TestBase
         $process = $this->mockProcess();
         $process->getOutput()->willReturn('');
         if ($pv) {
-            $command = 'bash -c "set -o pipefail; MYSQL_PWD=drupal mysqldump --host=localhost --user=drupal drupal | pv --rate --bytes | gzip -9 > ' . sys_get_temp_dir() . '/acli-mysql-dump-drupal.sql.gz"';
+            $command = 'bash -c "set -o pipefail; MYSQL_PWD=\\"\\${:MYSQL_PASSWORD}\\" mysqldump --host=\\"\\${:MYSQL_HOST}\\" --user=\\"\\${:MYSQL_USER}\\" \\"\\${:MYSQL_DATABASE}\\" | pv --rate --bytes | gzip -9 > \\"\\${:LOCAL_FILEPATH}\\""';
         } else {
-            $command = 'bash -c "set -o pipefail; MYSQL_PWD=drupal mysqldump --host=localhost --user=drupal drupal | gzip -9 > ' . sys_get_temp_dir() . '/acli-mysql-dump-drupal.sql.gz"';
+            $command = 'bash -c "set -o pipefail; MYSQL_PWD=\\"\\${:MYSQL_PASSWORD}\\" mysqldump --host=\\"\\${:MYSQL_HOST}\\" --user=\\"\\${:MYSQL_USER}\\" \\"\\${:MYSQL_DATABASE}\\" | gzip -9 > \\"\\${:LOCAL_FILEPATH}\\""';
         }
-        $localMachineHelper->executeFromCmd($command, Argument::type('callable'), null, $printOutput)
-            ->willReturn($process->reveal())
-            ->shouldBeCalled();
+        $env = [
+            'LOCAL_FILEPATH' => sys_get_temp_dir() . '/acli-mysql-dump-drupal.sql.gz',
+            'MYSQL_DATABASE' => 'drupal',
+            'MYSQL_HOST' => 'localhost',
+            'MYSQL_PASSWORD' => 'drupal',
+            'MYSQL_USER' => 'drupal',
+        ];
+        if ($pv) {
+            $localMachineHelper->executeFromCmd(Argument::containingString('pv --rate --bytes'), Argument::any(), null, $printOutput, null, Argument::that(function ($env) {
+                return is_array($env) && array_key_exists('LOCAL_FILEPATH', $env);
+            }))
+                ->willReturn($process->reveal())
+                ->shouldBeCalled();
+        } else {
+            $localMachineHelper->executeFromCmd(Argument::that(function ($command) {
+                return str_contains($command, 'MYSQL_PWD=') && !str_contains($command, 'pv --rate --bytes');
+            }), Argument::any(), null, $printOutput, null, Argument::that(function ($env) {
+                return is_array($env) && array_key_exists('LOCAL_FILEPATH', $env);
+            }))
+                ->willReturn($process->reveal())
+                ->shouldBeCalled();
+        }
     }
 
     protected function mockExecutePvExists(
@@ -569,6 +540,7 @@ abstract class CommandTestBase extends TestBase
         $fileName = 'id_rsa.pub';
         $file->getFileName()->willReturn($fileName);
         $file->getRealPath()->willReturn('somepath');
+        $file->getContents()->willReturn($publicKey);
         $localMachineHelper->readFile('somepath')->willReturn($publicKey);
         $finder->getIterator()
             ->willReturn(new \ArrayIterator([$file->reveal()]));

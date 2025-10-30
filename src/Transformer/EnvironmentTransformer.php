@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace Acquia\Cli\Transformer;
 
+use AcquiaCloudApi\Response\BackupResponse;
+use AcquiaCloudApi\Response\DatabaseResponse;
 use AcquiaCloudApi\Response\EnvironmentResponse;
+use stdClass;
 
 class EnvironmentTransformer
 {
@@ -14,23 +17,25 @@ class EnvironmentTransformer
     public static function transform(mixed $codebaseEnv): EnvironmentResponse
     {
         $env = new \stdClass();
-
         // Core fields.
         $env->id = $codebaseEnv->id;
         $env->uuid = $codebaseEnv->id;
         $env->name = $codebaseEnv->name;
         $env->label = $codebaseEnv->label;
         $env->status = $codebaseEnv->status;
+        $env->ssh_url =  $codebaseEnv->ssh_url;
 
+        if (isset($codebaseEnv->properties) && is_object($codebaseEnv->properties)) {
+            $codebaseEnv->properties = (array)$codebaseEnv->properties;
+        }
         // Domains, network, etc.
         $env->active_domain = $codebaseEnv->properties['active_domain'] ?? '';
         $env->default_domain = $codebaseEnv->properties['default_domain'] ?? '';
         $env->image_url = $codebaseEnv->properties['image_url'] ?? null;
-        $env->ssh_url = $codebaseEnv->properties['ssh_url'] ?? null;
         $env->ips = $codebaseEnv->properties['ips'] ?? [];
         $env->domains = $codebaseEnv->properties['domains'] ?? [];
         $env->region = $codebaseEnv->properties['region'] ?? null;
-        $env->platform = $codebaseEnv->properties['platform'] ?? '';
+        $env->platform = $codebaseEnv->properties['platform'] ?? 'MEO';
         $env->balancer = $codebaseEnv->properties['balancer'] ?? '';
         $env->artifact = (object)($codebaseEnv->properties['artifact'] ?? null);
         $env->gardener = (object)($codebaseEnv->properties['gardener'] ?? null);
@@ -55,69 +60,63 @@ class EnvironmentTransformer
         ];
 
         // Optional config.
-        $env->configuration = (object) ($codebaseEnv->properties['configuration'] ?? null);
+        $env->configuration = (object) [];
+        $env->configuration->php = (object) ($codebaseEnv->properties ?? []);
 
         // Cast for mutation safety.
         $env->flags = (object) ($codebaseEnv->flags ?? []);
         $env->_links = (object) ($codebaseEnv->links ?? []);
-
         $env->type = $codebaseEnv->properties['type'] ?? '';
-
         // Now instantiate EnvironmentResponse.
         return new EnvironmentResponse($env);
     }
-    public static function transformFromCodeBase(mixed $codebaseEnv): EnvironmentResponse
+
+    /**
+     * Transform a SiteInstanceDatabaseResponse object to a DatabaseResponse object.
+     */
+    public static function transformSiteInstanceDatabase(mixed $siteInstanceDb): DatabaseResponse
     {
-
-        $env = new \stdClass();
-
-        // Core fields.
-        $env->id = $codebaseEnv->id;
-        $env->uuid = $codebaseEnv->id;
-        $env->name = $codebaseEnv->label;
-        $env->label = $codebaseEnv->label;
-        $env->status = '';
-
-        // Domains, network, etc.
-        $env->active_domain = $codebaseEnv->properties['active_domain'] ?? '';
-        $env->default_domain = $codebaseEnv->properties['default_domain'] ?? '';
-        $env->image_url = $codebaseEnv->properties['image_url'] ?? null;
-        $env->ssh_url =  $codebaseEnv->vcs_url;
-        $env->ips = $codebaseEnv->properties['ips'] ?? [];
-        $env->domains = $codebaseEnv->properties['domains'] ?? [];
-        $env->region = $codebaseEnv->properties['region'] ?? null;
-        $env->platform = $codebaseEnv->properties['platform'] ?? '';
-        $env->balancer = $codebaseEnv->properties['balancer'] ?? '';
-        $env->artifact = (object)($codebaseEnv->properties['artifact'] ?? null);
-        $env->gardener = (object)($codebaseEnv->properties['gardener'] ?? null);
-
-        // Application context (not present in CodebaseEnvironment, set to empty object)
-        $env->application = (object) [];
-
-        // VCS logic.
-        $branch = $codebaseEnv->reference ?? 'master';
-        $vcsUrl = '';
-        if (
-            property_exists($codebaseEnv, 'vcs_url')
-        ) {
-            $vcsUrl = $codebaseEnv->vcs_url;
+        $db = new \stdClass();
+        $db->id = $siteInstanceDb->databaseName;
+        $db->name = $siteInstanceDb->databaseName;
+        $db->user_name = $siteInstanceDb->databaseUserName;
+        $db->password = $siteInstanceDb->databasePassword;
+        $db->url = null;
+        $db->db_host = $siteInstanceDb->databaseHost;
+        $db->ssh_host = null;
+        $db->flags = (object) ['role' => $siteInstanceDb->databaseRole, 'default' => false];
+        $db->environment = new stdClass();
+        return new DatabaseResponse($db);
+    }
+    /**
+     * Transform a SiteInstanceDatabaseResponse object to a DatabaseResponse object.
+     */
+    public static function transformSiteInstanceDatabaseBackup(mixed $data): BackupResponse
+    {
+        $backup = new \stdClass();
+        $backup->id = (int) $data->id;
+        $backup->database_id = $data->database_id;
+        $backup->created_at = $data->created_at;
+        $backup->started_at = $data->created_at;
+        $backup->completed_at = $data->created_at;
+        $backup->_links = $data->links;
+        $backup->type = "daily";
+        $backup->database = (object) [
+            'id' => $data->database_id,
+            '_links' => $data->links,
+        ];
+        $backup->flags = (object) [
+            'deleted' => false,
+        ];
+        // Extract environment ID from the environment href link.
+        $environmentId = null;
+        if (isset($data->_links->environment->href)) {
+            $environmentId = basename($data->_links->environment->href);
         }
-        $env->vcs = (object) [
-            'branch' => $branch,
-            'path' => $branch,
-            'url' => $vcsUrl,
+        $backup->environment = (object) [
+            'id' => $environmentId,
         ];
 
-        // Optional config.
-        $env->configuration = (object) ($codebaseEnv->properties['configuration'] ?? null);
-
-        // Cast for mutation safety.
-        $env->flags = (object) ($codebaseEnv->flags ?? []);
-        $env->_links = (object) ($codebaseEnv->links ?? []);
-
-        $env->type = $codebaseEnv->properties['type'] ?? '';
-
-        // Now instantiate EnvironmentResponse.
-        return new EnvironmentResponse($env);
+        return new BackupResponse($backup);
     }
 }

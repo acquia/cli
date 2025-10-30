@@ -40,7 +40,7 @@ class SshCommandTest extends SshCommandTestBase
             'cd /var/www/html/devcloud2.dev; exec $SHELL -l',
         ];
         $localMachineHelper
-            ->execute($sshCommand, Argument::type('callable'), null, true, null)
+            ->execute($sshCommand, Argument::type('callable'), null, true, null, null)
             ->willReturn($process->reveal())
             ->shouldBeCalled();
 

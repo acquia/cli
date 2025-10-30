@@ -635,26 +635,431 @@ abstract class TestBase extends TestCase
 
     protected function getMockSiteInstanceResponse(string $method = 'get', string $httpCode = '200'): object
     {
+        return (object) array(
+            'domains' =>
+                array (
+                    0 => 'example.com',
+                ),
+            'environment_id' => 'd3f7270e-c45f-4801-9308-5e8afe84a323',
+            'health_status' =>
+                (object) array(
+                    'code' => 'OK',
+                    'details' => 'The site instance is active',
+                    'summary' => 'The health status is OK.',
+                ),
+            'site_id' => '3e8ecbec-ea7c-4260-8414-ef2938c859bc',
+            'status' => 'active',
+            '_links' =>
+                (object) array(
+                    'self' =>
+                        (object) array(
+                            'href' => 'https://environment-service-php.acquia.com/api/site-instances/3e8ecbec-ea7c-4260-8414-ef2938c859bc.d3f7270e-c45f-4801-9308-5e8afe84a323',
+                        ),
+                ),
+        );
+    }
+    protected function getMockSiteInstanceDatabaseResponse(string $method = 'get', string $httpCode = '200'): object
+    {
+        return (object) array(
+            'database_host' => 'localhost',
+            'database_name' => 'example',
+            'database_password' => 'example@123',
+            'database_port' => 3306,
+            'database_role' => 'example',
+            'database_user_name' => 'example',
+            '_links' =>
+                (object) array(
+                    'self' =>
+                        (object) array(
+                            'href' => 'https://environment-service-php.acquia.com/api/site-instances/3e8ecbec-ea7c-4260-8414-ef2938c859bc.d3f7270e-c45f-4801-9308-5e8afe84a323/database',
+                        ),
+                ),
+        );
+    }
+    protected function getMockSiteInstanceDatabaseBackupsResponse(string $method = 'get', string $httpCode = '200'): object
+    {
+        if ($method === 'post') {
+            return (object) [
+                'message' => 'Database backup started.',
+                '_links' =>
+                    (object) [
+                        'self' =>
+                            (object) [
+                                'href' => 'https://environment-service-php.acquia.com/api/site-instances/d9a0fe17-cb18-4c21-b8ea-9e3a0b7b4c18.e8a2c3c1-baf3-4d9a-9b56-87d8f61ab9f7/database/backups',
+                            ],
+                    ],
+            ];
+        } else {
+            return (object) array(
+                'count' => 1,
+                'pagination' =>
+                    (object) array(
+                        'limit' => 25,
+                        'offset' => 1,
+                        'total' => 1,
+                    ),
+                'total' => 1,
+                '_embedded' =>
+                    (object) array(
+                        'items' =>
+                            array (
+                                0 =>
+                                    (object) array(
+                                        'created_at' => '2025-04-01T13:01:06.603Z',
+                                        'database_id' => 'b0c9dff7-56b6-4c0d-bad0-0e6593f66cd3',
+                                        'id' => 'e0c9dff7-56b6-4c0d-bad0-0e6593f66cd3',
+                                        '_links' =>
+                                            (object) array(
+                                                'download' =>
+                                                    (object) array(
+                                                        'href' => 'https://environment-service-php.acquia.com/api/environments/d3f7270e-c45f-4801-9308-5e8afe84a323',
+                                                    ),
+                                                'environment' =>
+                                                    (object) array(
+                                                        'href' => 'https://environment-service-php.acquia.com/api/environments/d3f7270e-c45f-4801-9308-5e8afe84a323',
+                                                    ),
+                                                'parent' =>
+                                                    (object) array(
+                                                        'href' => 'https://environment-service-php.acquia.com/api/site-instances/3e8ecbec-ea7c-4260-8414-ef2938c859bc.d3f7270e-c45f-4801-9308-5e8afe84a323/database/backups',
+                                                    ),
+                                                'self' =>
+                                                    (object) array(
+                                                        'href' => 'https://environment-service-php.acquia.com/api/site-instances/3e8ecbec-ea7c-4260-8414-ef2938c859bc.d3f7270e-c45f-4801-9308-5e8afe84a323/database/backups/a0c9dff7-56b6-4c0d-bad0-0e6593f66cd3',
+                                                    ),
+                                                'site' =>
+                                                    (object) array(
+                                                        'href' => 'https://environment-service-php.acquia.com/api/sites/3e8ecbec-ea7c-4260-8414-ef2938c859bc',
+                                                    ),
+                                                'site-instance' =>
+                                                    (object) array(
+                                                        'href' => 'https://environment-service-php.acquia.com/api/site-instances/3e8ecbec-ea7c-4260-8414-ef2938c859bc.d3f7270e-c45f-4801-9308-5e8afe84a323',
+                                                    ),
+                                            ),
+                                    ),
+                            ),
+                    ),
+                '_links' =>
+                    (object) array(
+                        'filter' =>
+                            (object) array(
+                                'href' => 'https://environment-service-php.acquia.com/api/site-instances/3e8ecbec-ea7c-4260-8414-ef2938c859bc.a0c9dff7-56b6-4c0d-bad0-0e6593f66cd3/database/backups?limit=25&offset=1{&filter}',
+                                'templated' => true,
+                            ),
+                        'limit' =>
+                            (object) array(
+                                'href' => 'https://environment-service-php.acquia.com/api/site-instances/3e8ecbec-ea7c-4260-8414-ef2938c859bc.a0c9dff7-56b6-4c0d-bad0-0e6593f66cd3/database/backups?offset=1{&limit}',
+                                'templated' => true,
+                            ),
+                        'offset' =>
+                            (object) array(
+                                'href' => 'https://environment-service-php.acquia.com/api/site-instances/3e8ecbec-ea7c-4260-8414-ef2938c859bc.a0c9dff7-56b6-4c0d-bad0-0e6593f66cd3/database/backups?limit=25{&offset}',
+                                'templated' => true,
+                            ),
+                        'prev' =>
+                            (object) array(
+                                'href' => 'https://environment-service-php.acquia.com/api/site-instances/3e8ecbec-ea7c-4260-8414-ef2938c859bc.a0c9dff7-56b6-4c0d-bad0-0e6593f66cd3/database/backups?limit=25&offset=1',
+                            ),
+                        'self' =>
+                            (object) array(
+                                'href' => 'https://environment-service-php.acquia.com/api/site-instances/3e8ecbec-ea7c-4260-8414-ef2938c859bc.a0c9dff7-56b6-4c0d-bad0-0e6593f66cd3/database/backups?limit=25&offset=1',
+                            ),
+                        'sort' =>
+                            (object) array(
+                                'href' => 'https://environment-service-php.acquia.com/api/site-instances/3e8ecbec-ea7c-4260-8414-ef2938c859bc.a0c9dff7-56b6-4c0d-bad0-0e6593f66cd3/database/backups?limit=25&offset=1{&sort}',
+                                'templated' => true,
+                            ),
+                    ),
+            );
+        }
+    }
+
+    protected function getMockSite(string $method = 'get', string $httpCode = '200'): object
+    {
+        return (object) array(
+            'codebase_id' => '8765-4321',
+            'description' => 'My Site 1 description',
+            'id' => '0ebce493-9d09-479d-a9a8-138a206fa687',
+            'label' => 'My Site 1',
+            'name' => 'site1',
+            '_links' =>
+                (object) array(
+                    'self' =>
+                        (object) array(
+                            'href' => 'https://cloud.acquia.com/api/sites/0ebce493-9d09-479d-a9a8-138a206fa687',
+                        ),
+                ),
+        );
+    }
+
+    protected function getMockSites(string $method = 'get', string $httpCode = '200'): object
+    {
         return self::getMockResponseFromSpec(
-            '/site-instances/{siteId}.{environmentId}',
+            '/sites',
             $method,
             $httpCode
         );
     }
     protected function getMockCodebaseResponse(string $method = 'get', string $httpCode = '200'): object
     {
+        return (object) array(
+            'applications_total' => 2,
+            'created_at' => '2024-12-11T04:25:47.000Z',
+            'description' => '',
+            'flags' =>
+                (object) array(
+                    'active' => true,
+                ),
+            'hash' => 'pte116m',
+            'id' => '11111111-041c-44c7-a486-7972ed2cafc8',
+            'label' => 'Test codebase with attached applications',
+            'region' => 'us-east-1',
+            'repository_id' => 'f03e15f9-0d97-498d-ba7d-99bd87b1417f',
+            'updated_at' => '2024-12-11T04:25:47.000Z',
+            'vcs_url' => 'ssh://us-east-1.dev.vcs.acquia.io/11111111-041c-44c7-a486-7972ed2cafc8',
+            '_embedded' =>
+                (object) array(
+                    'subscription' =>
+                        (object) array(
+                            'id' => 'f47ac10b-58cc-4372-a567-0e02b2c3d479',
+                            '_links' =>
+                                (object) array(
+                                    'self' =>
+                                        (object) array(
+                                            'href' => 'https://cloud.acquia.com/api/subscriptions/f47ac10b-58cc-4372-a567-0e02b2c3d479',
+                                        ),
+                                ),
+                        ),
+                ),
+            '_links' =>
+                (object) array(
+                    'applications' =>
+                        (object) array(
+                            'href' => 'https://cloud.acquia.com/api/codebases/11111111-041c-44c7-a486-7972ed2cafc8/applications',
+                        ),
+                    'self' =>
+                        (object) array(
+                            'href' => 'https://cloud.acquia.com/api/codebases/11111111-041c-44c7-a486-7972ed2cafc8',
+                        ),
+                    'subscription' =>
+                        (object) array(
+                            'href' => 'https://cloud.acquia.com/api/subscriptions/f47ac10b-58cc-4372-a567-0e02b2c3d479',
+                        ),
+                ),
+        );
+    }
+    protected function getMockCodebasesResponse(string $method = 'get', string $httpCode = '200'): object
+    {
         return self::getMockResponseFromSpec(
-            '/codebases/{codebaseId}',
+            '/codebases',
             $method,
             $httpCode
         );
     }
     protected function getMockCodeBaseEnvironment(string $method = 'get', string $httpCode = '200'): object
     {
-        return self::getMockResponseFromSpec(
-            '/api/environments/{environmentId}',
-            $method,
-            $httpCode
+        return (object) array(
+            'description' => 'Description of 3e8ecbec-ea7c-4260-8414-ef2938c859bc',
+            'flags' =>
+                (object) array(
+                    'production' => false,
+                ),
+            'id' => '3e8ecbec-ea7c-4260-8414-ef2938c859bc',
+            'label' => 'Environment_3e8ecbec-ea7c-4260-8414-ef2938c859bc',
+            'name' => 'environment_3e8ecbec-ea7c-4260-8414-ef2938c859bc',
+            'properties' =>
+                array (
+                ),
+            'reference' => 'tag/v3.1',
+            'ssh_url' => 'site.dev@sitedev.ssh.hosted.acquia-sites.com',
+            'status' => 'normal',
+            '_embedded' =>
+                (object) array(
+                    'codebase' =>
+                        (object) array(
+                            'id' => 'd3f7270e-c45f-4801-9308-5e8afe84a323',
+                            '_links' =>
+                                (object) array(
+                                    'self' =>
+                                        (object) array(
+                                            'href' => 'https://codebase-service.acquia.com/api/codebases/d3f7270e-c45f-4801-9308-5e8afe84a323',
+                                        ),
+                                ),
+                        ),
+                ),
+            '_links' =>
+                (object) array(
+                    'codebase' =>
+                        (object) array(
+                            'href' => 'https://codebase-service.acquia.com/api/codebases/d3f7270e-c45f-4801-9308-5e8afe84a323',
+                        ),
+                    'self' =>
+                        (object) array(
+                            'href' => 'https://environment-service-php.acquia.com/api/environments/3e8ecbec-ea7c-4260-8414-ef2938c859bc',
+                        ),
+                ),
+        );
+    }
+    protected function getMockCodeBaseSites(string $method = 'get', string $httpCode = '200'): object
+    {
+        return (object) array(
+            'count' => 1,
+            'pagination' =>
+                (object) array(
+                    'limit' => 25,
+                    'offset' => 1,
+                    'total' => 1,
+                ),
+            'total' => 1,
+            '_embedded' =>
+                (object) array(
+                    'items' =>
+                        array (
+                            0 =>
+                                (object) array(
+                                    'codebase_id' => '1234-5678',
+                                    'description' => 'My Site 2 description',
+                                    'id' => '8979a8ac-80dc-4df8-b2f0-6be36554a370',
+                                    'label' => 'My Site 2',
+                                    'name' => 'site2',
+                                    '_links' =>
+                                        (object) array(
+                                            'self' =>
+                                                (object) array(
+                                                    'href' => 'https://cloud.acquia.com/api/codebases/1234-5678/sites',
+                                                ),
+                                        ),
+                                ),
+                        ),
+                ),
+            '_links' =>
+                (object) array(
+                    'filter' =>
+                        (object) array(
+                            'href' => 'https://cloud.acquia.com/api/codebases/1234-5678/sites?limit=25&offset=1{&filter}',
+                        ),
+                    'limit' =>
+                        (object) array(
+                            'href' => 'https://cloud.acquia.com/api/codebases/1234-5678/sites?offset=1{&limit}',
+                        ),
+                    'offset' =>
+                        (object) array(
+                            'href' => 'https://cloud.acquia.com/api/codebases/1234-5678/sites?limit=25{&offset}',
+                        ),
+                    'prev' =>
+                        (object) array(
+                            'href' => 'https://cloud.acquia.com/api/codebases/1234-5678/sites?limit=25&offset=1',
+                        ),
+                    'self' =>
+                        (object) array(
+                            'href' => 'https://cloud.acquia.com/api/codebases/1234-5678/sites?limit=25&offset=1',
+                        ),
+                    'sort' =>
+                        (object) array(
+                            'href' => 'https://cloud.acquia.com/api/codebases/1234-5678/sites?limit=25&offset=1{&sort}',
+                        ),
+                ),
+        );
+    }
+    protected function getMockCodeBaseEnvironments(string $method = 'get', string $httpCode = '200'): object
+    {
+        return (object) array(
+            'count' => 1,
+            'pagination' =>
+                (object) array(
+                    'limit' => 25,
+                    'offset' => 1,
+                    'total' => 1,
+                ),
+            'total' => 1,
+            '_embedded' =>
+                (object) array(
+                    'items' =>
+                        array (
+                            0 =>
+                                (object) array(
+                                    'description' => 'Description of1111-1111-1111',
+                                    'flags' =>
+                                        (object) array(
+                                            'production' => false,
+                                        ),
+                                    'id' => '1111-1111-1111',
+                                    'label' => 'Environment 1111-1111-1111',
+                                    'name' => 'environment_1111-1111-1111',
+                                    'properties' =>
+                                        (object) array(
+                                            'apcu' => 32,
+                                            'client_max_body_size' => 192,
+                                            'max_execution_time' => 10,
+                                            'max_input_vars' => 1000,
+                                            'max_post_size' => 256,
+                                            'memcached_limit' => 128,
+                                            'memory_limit' => 192,
+                                            'operating_system' => 'focal',
+                                            'upload_max_filesize' => 192,
+                                            'version' => '8.3',
+                                        ),
+                                    'reference' => 'tag/v3.1',
+                                    'ssh_url' => 'site.dev@sitedev.ssh.hosted.acquia-sites.com',
+                                    'status' => 'normal',
+                                    '_embedded' =>
+                                        (object) array(
+                                            'codebase' =>
+                                                (object) array(
+                                                    'id' => '11111111-041c-44c7-a486-7972ed2cafc8',
+                                                    '_links' =>
+                                                        (object) array(
+                                                            'self' =>
+                                                                (object) array(
+                                                                    'href' => 'https://codebase-service.acquia.com/api/codebases/11111111-041c-44c7-a486-7972ed2cafc8',
+                                                                ),
+                                                        ),
+                                                ),
+                                        ),
+                                    '_links' =>
+                                        (object) array(
+                                            'codebase' =>
+                                                (object) array(
+                                                    'href' => 'https://codebase-service.acquia.com/api/codebases/3e8ecbec-ea7c-4260-8414-ef2938c859bc',
+                                                ),
+                                            'self' =>
+                                                (object) array(
+                                                    'href' => 'https://environment-service-php.acquia.com/api/codebases/3e8ecbec-ea7c-4260-8414-ef2938c859bc/environments',
+                                                ),
+                                        ),
+                                ),
+                        ),
+                ),
+            '_links' =>
+                (object) array(
+                    'filter' =>
+                        (object) array(
+                            'href' => 'https://environment-service-php.acquia.com/api/codebases/3e8ecbec-ea7c-4260-8414-ef2938c859bc/environments?limit=25&offset=1{&filter}',
+                            'templated' => true,
+                        ),
+                    'limit' =>
+                        (object) array(
+                            'href' => 'https://environment-service-php.acquia.com/api/codebases/3e8ecbec-ea7c-4260-8414-ef2938c859bc/environments?offset=1{&limit}',
+                            'templated' => true,
+                        ),
+                    'offset' =>
+                        (object) array(
+                            'href' => 'https://environment-service-php.acquia.com/api/codebases/3e8ecbec-ea7c-4260-8414-ef2938c859bc/environments?limit=25{&offset}',
+                            'templated' => true,
+                        ),
+                    'prev' =>
+                        (object) array(
+                            'href' => 'https://environment-service-php.acquia.com/api/codebases/3e8ecbec-ea7c-4260-8414-ef2938c859bc/environments?limit=25&offset=1',
+                        ),
+                    'self' =>
+                        (object) array(
+                            'href' => 'https://environment-service-php.acquia.com/api/codebases/3e8ecbec-ea7c-4260-8414-ef2938c859bc/environments?limit=25&offset=1',
+                        ),
+                    'sort' =>
+                        (object) array(
+                            'href' => 'https://environment-service-php.acquia.com/api/codebases/3e8ecbec-ea7c-4260-8414-ef2938c859bc/environments?limit=25&offset=1{&sort}',
+                            'templated' => true,
+                        ),
+                ),
         );
     }
     protected function getMockCodeBase(string $method = 'get', string $httpCode = '200'): object
@@ -671,7 +1076,7 @@ abstract class TestBase extends TestCase
         $method = 'get';
         $httpCode = '200';
         $environment = self::getMockResponseFromSpec(
-            '/api/environments/{environmentId}',
+            '/v3/environments/{environmentId}',
             $method,
             $httpCode
         );
@@ -697,6 +1102,13 @@ abstract class TestBase extends TestCase
     protected function mockListSshKeysRequest(): array
     {
         return $this->mockRequest('getAccountSshKeys');
+    }
+    /**
+     * @return array<mixed>
+     */
+    protected function mockListSshKeyRequest(): array
+    {
+        return [$this->mockRequest('getAccountSshKeys')[0]];
     }
 
     protected function mockListSshKeysRequestWithIdeKey(string $ideLabel, string $ideUuid): object
@@ -730,7 +1142,17 @@ abstract class TestBase extends TestCase
     {
         $process = $this->prophet->prophesize(Process::class);
         $process->isSuccessful()->willReturn(true);
-        $localMachineHelper->executeFromCmd(Argument::containingString('SSH_PASS'), null, null, false)
+        $localMachineHelper->executeFromCmd(Argument::containingString('SSH_PASS="${:SSH_PASS}"'), null, null, false, null, Argument::that(function ($env) {
+            // This specifically targets the ArrayItemRemoval mutation
+            // Original: ['PRIVATE_KEY_FILEPATH' => $privateKeyFilepath, 'SSH_ASKPASS' => $tempFilepath, 'SSH_PASS' => $password]
+            // Mutated: ['SSH_ASKPASS' => $tempFilepath, 'SSH_PASS' => $password] (PRIVATE_KEY_FILEPATH removed)
+            return is_array($env) &&
+                   array_key_exists('PRIVATE_KEY_FILEPATH', $env) &&
+                   array_key_exists('SSH_ASKPASS', $env) &&
+                   array_key_exists('SSH_PASS', $env) &&
+                   // Ensure exactly 3 keys are present.
+                   count($env) === 3;
+        }))
             ->willReturn($process->reveal());
         $fileSystem->tempnam(Argument::type('string'), 'acli')
             ->willReturn('something');

@@ -23,6 +23,7 @@ class EnvVarAuthenticationTest extends TestBase
         parent::tearDown();
         putenv('ACLI_KEY');
         putenv('ACLI_SECRET');
+        putenv('ACLI_CLOUD_API_BASE_URI');
     }
 
     public function testKeyAndSecret(): void

@@ -33,7 +33,7 @@ final class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase
         $account = $accountAdapter->get();
         $this->validateRequiredCloudPermissions(
             $acquiaCloudClient,
-            self::getThisCloudIdeCloudAppUuid(),
+            self::getCloudAppUuid(),
             $account,
             [
                 // Add SSH key to git repository.

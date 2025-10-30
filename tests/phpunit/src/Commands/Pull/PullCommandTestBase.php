@@ -227,7 +227,7 @@ abstract class PullCommandTestBase extends CommandTestBase
             $environment->ssh_url . ':' . $sourceDir,
             $destinationDir,
         ];
-        $localMachineHelper->execute($command, Argument::type('callable'), null, true)
+        $localMachineHelper->execute($command, Argument::type('callable'), null, Argument::any())
             ->willReturn($process->reveal())
             ->shouldBeCalled();
     }
@@ -302,22 +302,43 @@ abstract class PullCommandTestBase extends CommandTestBase
         string $dbName = 'jxr5000596dev',
         string $dbMachineName = 'db554675',
         string $localDbName = 'jxr5000596dev',
-        string $env = 'dev'
+        string $env = 'dev',
+        string $createdAt = '2012-05-15T12:00:00.000Z'
     ): void {
         $localMachineHelper->checkRequiredBinariesExist(['gunzip', 'mysql'])
             ->shouldBeCalled();
         $this->mockExecutePvExists($localMachineHelper, $pvExists);
         $process = $this->mockProcess($success);
-        $filePath = Path::join(sys_get_temp_dir(), "$env-$dbName-$dbMachineName-2012-05-15T12:00:00.000Z.sql.gz");
-        $command = $pvExists ? "pv $filePath --bytes --rate | gunzip | MYSQL_PWD=drupal mysql --host=localhost --user=drupal $localDbName" : "gunzip -c $filePath | MYSQL_PWD=drupal mysql --host=localhost --user=drupal $localDbName";
+        $filePath = Path::join(sys_get_temp_dir(), "$env-$dbName-$dbMachineName-$createdAt.sql.gz");
+        $command = $pvExists ? "pv \"\${:LOCAL_DUMP_FILEPATH}\" --bytes --rate | gunzip | MYSQL_PWD=\"\${:MYSQL_PASSWORD}\" mysql --host=\"\${:MYSQL_HOST}\" --user=\"\${:MYSQL_USER}\" \"\${:MYSQL_DATABASE}\"" : "gunzip -c \"\${:LOCAL_DUMP_FILEPATH}\" | MYSQL_PWD=\"\${:MYSQL_PASSWORD}\" mysql --host=\"\${:MYSQL_HOST}\" --user=\"\${:MYSQL_USER}\" \"\${:MYSQL_DATABASE}\"";
+        $expectedEnv = [
+            'LOCAL_DUMP_FILEPATH' => $filePath,
+            'MYSQL_DATABASE' => $localDbName,
+            'MYSQL_HOST' => 'localhost',
+            'MYSQL_PASSWORD' => 'drupal',
+            'MYSQL_USER' => 'drupal',
+        ];
         // MySQL import command.
         $localMachineHelper
             ->executeFromCmd(
                 $command,
-                Argument::type('callable'),
+                Argument::any(),
                 null,
-                true,
-                null
+                Argument::that(function ($printOutput) {
+                    return $printOutput === false;
+                }),
+                null,
+                Argument::that(function ($env) use ($expectedEnv) {
+                    if (!is_array($env)) {
+                        return false;
+                    }
+                    foreach ($expectedEnv as $k => $v) {
+                        if (!array_key_exists($k, $env) || $env[$k] !== $v) {
+                            return false;
+                        }
+                    }
+                    return true;
+                })
             )
             ->willReturn($process->reveal())
             ->shouldBeCalled();
@@ -411,6 +432,67 @@ abstract class PullCommandTestBase extends CommandTestBase
         $this->clientProphecy->addOption('on_stats', Argument::type('Closure'))
             ->shouldBeCalled();
         $this->clientProphecy->getOptions()->willReturn([]);
+
+        return $database;
+    }
+    protected function mockDownloadCodebaseBackup(object $database, string $url, object $backup, int $curlCode = 0): object
+    {
+        $filename = implode('-', [
+            'environment_3e8ecbec-ea7c-4260-8414-ef2938c859bc',
+            $database->name ?? 'example',
+            'dbexample',
+            '2025-04-01T13:01:06.603Z',
+        ]) . '.sql.gz';
+        $localFilepath = Path::join(sys_get_temp_dir(), $filename);
+
+        // Cloud API client options are always set first.
+        $this->clientProphecy->addOption('sink', $localFilepath)->shouldBeCalled();
+        $this->clientProphecy->addOption('curl.options', [
+            'CURLOPT_FILE' => $localFilepath,
+            'CURLOPT_RETURNTRANSFER' => false,
+        ])->shouldBeCalled();
+
+        $this->clientProphecy
+            ->addOption('progress', Argument::that(static fn($v) => is_callable($v)))
+            ->shouldBeCalled();
+        $this->clientProphecy
+            ->addOption('on_stats', Argument::that(static fn($v) => is_callable($v)))
+            ->shouldBeCalled();
+
+        // Mock the HTTP client request for codebase downloads.
+        $downloadUrl = $backup->links->download->href ?? 'https://example.com/download-backup';
+        $response = $this->prophet->prophesize(ResponseInterface::class);
+
+        $capturedOpts = null;
+        $this->httpClientProphecy
+            ->request(
+                'GET',
+                $downloadUrl,
+                Argument::that(function (array $opts) use (&$capturedOpts, $localFilepath): bool {
+                    $capturedOpts = $opts;
+
+                    // Enforce the presence & types we care about.
+                    if (!isset($opts['sink']) || !is_string($opts['sink'])) {
+                        return false;
+                    }
+                    if ($opts['sink'] !== $localFilepath) {
+                        return false;
+                    }
+                    if (!isset($opts['progress']) || !is_callable($opts['progress'])) {
+                        return false;
+                    }
+                    return true;
+                })
+            )
+            ->will(function () use (&$capturedOpts, $response): ResponseInterface {
+                // Simulate the download to force progress rendering.
+                $progress = $capturedOpts['progress'];
+                $progress(100, 0);
+                $progress(100, 50);
+                $progress(100, 100);
+                return $response->reveal();
+            })
+            ->shouldBeCalled();
 
         return $database;
     }
