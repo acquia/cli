@@ -227,7 +227,7 @@ abstract class PullCommandTestBase extends CommandTestBase
             $environment->ssh_url . ':' . $sourceDir,
             $destinationDir,
         ];
-        $localMachineHelper->execute($command, Argument::type('callable'), null, true)
+        $localMachineHelper->execute($command, Argument::type('callable'), null, Argument::any())
             ->willReturn($process->reveal())
             ->shouldBeCalled();
     }
@@ -310,15 +310,35 @@ abstract class PullCommandTestBase extends CommandTestBase
         $this->mockExecutePvExists($localMachineHelper, $pvExists);
         $process = $this->mockProcess($success);
         $filePath = Path::join(sys_get_temp_dir(), "$env-$dbName-$dbMachineName-$createdAt.sql.gz");
-        $command = $pvExists ? "pv $filePath --bytes --rate | gunzip | MYSQL_PWD=drupal mysql --host=localhost --user=drupal $localDbName" : "gunzip -c $filePath | MYSQL_PWD=drupal mysql --host=localhost --user=drupal $localDbName";
+        $command = $pvExists ? "pv \"\${:LOCAL_DUMP_FILEPATH}\" --bytes --rate | gunzip | MYSQL_PWD=\"\${:MYSQL_PASSWORD}\" mysql --host=\"\${:MYSQL_HOST}\" --user=\"\${:MYSQL_USER}\" \"\${:MYSQL_DATABASE}\"" : "gunzip -c \"\${:LOCAL_DUMP_FILEPATH}\" | MYSQL_PWD=\"\${:MYSQL_PASSWORD}\" mysql --host=\"\${:MYSQL_HOST}\" --user=\"\${:MYSQL_USER}\" \"\${:MYSQL_DATABASE}\"";
+        $expectedEnv = [
+            'LOCAL_DUMP_FILEPATH' => $filePath,
+            'MYSQL_DATABASE' => $localDbName,
+            'MYSQL_HOST' => 'localhost',
+            'MYSQL_PASSWORD' => 'drupal',
+            'MYSQL_USER' => 'drupal',
+        ];
         // MySQL import command.
         $localMachineHelper
             ->executeFromCmd(
                 $command,
-                Argument::type('callable'),
+                Argument::any(),
                 null,
-                true,
-                null
+                Argument::that(function ($printOutput) {
+                    return $printOutput === false;
+                }),
+                null,
+                Argument::that(function ($env) use ($expectedEnv) {
+                    if (!is_array($env)) {
+                        return false;
+                    }
+                    foreach ($expectedEnv as $k => $v) {
+                        if (!array_key_exists($k, $env) || $env[$k] !== $v) {
+                            return false;
+                        }
+                    }
+                    return true;
+                })
             )
             ->willReturn($process->reveal())
             ->shouldBeCalled();

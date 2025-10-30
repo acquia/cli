@@ -17,7 +17,7 @@
         "acquia/drupal-environment-detector": "^1.7.0",
         "bugsnag/bugsnag": "^3.29",
         "composer/semver": "^3.3",
-        "consolidation/self-update": "^3.0.1",
+        "consolidation/self-update": "^3.1.0",
         "dflydev/dot-access-data": "^3",
         "grasmash/expander": "^3.0.1",
         "guzzlehttp/guzzle": "^7.4",
@@ -111,7 +111,7 @@
         "update-cloud-api-spec": [
             "[ -d var/cx-api-spec/.git ] && (cd var/cx-api-spec && git pull) || git clone git@github.com:acquia/cx-api-spec.git var/cx-api-spec",
             "cd var/cx-api-spec && npm install && make install && make spec",
-            "cp var/cx-api-spec/dist/spec/acquia-spec.json assets/",
+            "cp var/cx-api-spec/dist/spec/acquia-spec-prerelease.json assets/acquia-spec.json",
             "git -C var/cx-api-spec rev-parse HEAD > assets/acquia-spec.version"
         ],
         "update-acsf-api-spec": [
