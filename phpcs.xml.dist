@@ -36,6 +36,7 @@
       <property name="forbiddenFunctions" type="array">
         <element key="echo" value="$output->writeln"/>
         <element key="shell_exec" value="$localmachinehelper->execute"/>
+        <element key="escapeshellarg" value="$localMachineHelper->executeFromCmd"/>
       </property>
     </properties>
   </rule>
