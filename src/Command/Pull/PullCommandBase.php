@@ -486,10 +486,10 @@ abstract class PullCommandBase extends CommandBase
             'mysql',
         ]);
         if ($this->localMachineHelper->commandExists('pv')) {
-            $command = "pv \"\${:LOCAL_DUMP_FILEPATH}\" --bytes --rate | gunzip | MYSQL_PWD=\"\${:MYSQL_PASSWORD}\" mysql --host=\"\${:MYSQL_HOST}\" --user=\"\${:MYSQL_USER}\" \"\${:MYSQL_DATABASE}\"";
+            $command = 'pv "${:LOCAL_DUMP_FILEPATH}" --bytes --rate | gunzip | MYSQL_PWD="${:MYSQL_PASSWORD}" mysql --host="${:MYSQL_HOST}" --user="${:MYSQL_USER}" "${:MYSQL_DATABASE}""';
         } else {
             $this->io->warning('Install `pv` to see progress bar');
-            $command = "gunzip -c \"\${:LOCAL_DUMP_FILEPATH}\" | MYSQL_PWD=\"\${:MYSQL_PASSWORD}\" mysql --host=\"\${:MYSQL_HOST}\" --user=\"\${:MYSQL_USER}\" \"\${:MYSQL_DATABASE}\"";
+            $command = 'gunzip -c "${:LOCAL_DUMP_FILEPATH}" | MYSQL_PWD="${:MYSQL_PASSWORD}" mysql --host="${:MYSQL_HOST}" --user="${:MYSQL_USER}" "${:MYSQL_DATABASE}"';
         }
 
         $env = [

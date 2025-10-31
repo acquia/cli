@@ -98,7 +98,7 @@ final class PushDatabaseCommand extends PushCommandBase
     private function importDatabaseDumpOnRemote(EnvironmentResponse $environment, string $remoteDumpFilepath, DatabaseResponse $database): void
     {
         $this->logger->debug("Importing $remoteDumpFilepath to MySQL on remote machine");
-        $command = "pv $remoteDumpFilepath --bytes --rate | gunzip | MYSQL_PWD=\${:MYSQL_PASSWORD} mysql --host={$this->getHostFromDatabaseResponse($environment, $database)} --user=$database->user_name {$this->getNameFromDatabaseResponse($database)}";
+        $command = "pv $remoteDumpFilepath --bytes --rate | gunzip | MYSQL_PWD=" . '"${:MYSQL_PASSWORD}"' . " mysql --host={$this->getHostFromDatabaseResponse($environment, $database)} --user=$database->user_name {$this->getNameFromDatabaseResponse($database)}";
         $env = [
             'MYSQL_PASSWORD' => $database->password,
         ];

@@ -220,7 +220,7 @@ class PushDatabaseCommandTest extends CommandTestBase
             3 => '-o StrictHostKeyChecking=no',
             4 => '-o AddressFamily inet',
             5 => '-o LogLevel=ERROR',
-            6 => 'pv /mnt/tmp/profserv2.01dev/acli-mysql-dump-drupal.sql.gz --bytes --rate | gunzip | MYSQL_PWD=${:MYSQL_PASSWORD} mysql --host=fsdb-74.enterprise-g1.hosting.acquia.com.enterprise-g1.hosting.acquia.com --user=s164 profserv2db14390',
+            6 => 'pv /mnt/tmp/profserv2.01dev/acli-mysql-dump-drupal.sql.gz --bytes --rate | gunzip | MYSQL_PWD="${:MYSQL_PASSWORD}" mysql --host=fsdb-74.enterprise-g1.hosting.acquia.com.enterprise-g1.hosting.acquia.com --user=s164 profserv2db14390',
         ];
         $env = [
             'MYSQL_PASSWORD' => 'password',
