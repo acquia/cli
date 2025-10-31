@@ -155,8 +155,8 @@ jobs:
       - name: "Upload Artifact"
         uses: actions/upload-artifact@v5
         with:
-          path: native-acli-${{ matrix.platform }}.zip
-          name: native-acli-${{ matrix.platform }}.zip
+          path: acli
+          name: native-acli-${{ matrix.platform }}
       -  name: Release
          uses: softprops/action-gh-release@v2
          if: startsWith(github.ref, 'refs/tags/')
