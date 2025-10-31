@@ -310,7 +310,7 @@ abstract class PullCommandTestBase extends CommandTestBase
         $this->mockExecutePvExists($localMachineHelper, $pvExists);
         $process = $this->mockProcess($success);
         $filePath = Path::join(sys_get_temp_dir(), "$env-$dbName-$dbMachineName-$createdAt.sql.gz");
-        $command = $pvExists ? "pv \"\${:LOCAL_DUMP_FILEPATH}\" --bytes --rate | gunzip | MYSQL_PWD=\"\${:MYSQL_PASSWORD}\" mysql --host=\"\${:MYSQL_HOST}\" --user=\"\${:MYSQL_USER}\" \"\${:MYSQL_DATABASE}\"" : "gunzip -c \"\${:LOCAL_DUMP_FILEPATH}\" | MYSQL_PWD=\"\${:MYSQL_PASSWORD}\" mysql --host=\"\${:MYSQL_HOST}\" --user=\"\${:MYSQL_USER}\" \"\${:MYSQL_DATABASE}\"";
+        $command = $pvExists ? 'pv "${:LOCAL_DUMP_FILEPATH}" --bytes --rate | gunzip | MYSQL_PWD="${:MYSQL_PASSWORD}" mysql --host="${:MYSQL_HOST}" --user="${:MYSQL_USER}" "${:MYSQL_DATABASE}""' : 'gunzip -c "${:LOCAL_DUMP_FILEPATH}" | MYSQL_PWD="${:MYSQL_PASSWORD}" mysql --host="${:MYSQL_HOST}" --user="${:MYSQL_USER}" "${:MYSQL_DATABASE}"';
         $expectedEnv = [
             'LOCAL_DUMP_FILEPATH' => $filePath,
             'MYSQL_DATABASE' => $localDbName,

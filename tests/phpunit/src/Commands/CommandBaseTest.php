@@ -538,4 +538,117 @@ class CommandBaseTest extends CommandTestBase
             $this->fail('Expected to reach the false return path, but conditions led to else branch');
         }
     }
+
+    public function testGetHostFromDatabaseResponseAcsfEnvironment(): void
+    {
+        // Create a mock ACSF environment (like the one created in mockAcsfEnvironmentsRequest)
+        $acsfEnvironment = (object) [
+            'domains' => ['profserv201dev.enterprise-g1.acquia-sites.com'],
+            'sshUrl' => 'profserv2.01dev@profserv201dev.ssh.enterprise-g1.acquia-sites.com',
+        ];
+
+        // Create a mock database response.
+        $database = $this->createMock(\AcquiaCloudApi\Response\DatabaseResponse::class);
+        $database->db_host = 'staging-123';
+
+        // Use reflection to access the protected method.
+        $reflectionClass = new \ReflectionClass($this->command);
+        $method = $reflectionClass->getMethod('getHostFromDatabaseResponse');
+        $method->setAccessible(true);
+
+        // Test that ACSF environments get the enterprise-g1 suffix.
+        $result = $method->invoke($this->command, $acsfEnvironment, $database);
+        $this->assertEquals('staging-123.enterprise-g1.hosting.acquia.com', $result);
+    }
+
+    public function testGetHostFromDatabaseResponseRegularEnvironment(): void
+    {
+        // Create a mock regular Cloud environment (non-ACSF)
+        $regularEnvironment = (object) [
+            'domains' => ['staging-123.prod.hosting.acquia.com'],
+            'sshUrl' => 'staging@staging-123.prod.hosting.acquia.com',
+        ];
+
+        // Create a mock database response.
+        $database = $this->createMock(\AcquiaCloudApi\Response\DatabaseResponse::class);
+        $database->db_host = 'staging-123';
+
+        // Use reflection to access the protected method.
+        $reflectionClass = new \ReflectionClass($this->command);
+        $method = $reflectionClass->getMethod('getHostFromDatabaseResponse');
+        $method->setAccessible(true);
+
+        // Test that regular environments return the db_host as-is.
+        $result = $method->invoke($this->command, $regularEnvironment, $database);
+        $this->assertEquals('staging-123', $result);
+    }
+
+    /**
+     * Test isAcsfEnv method directly to ensure it properly detects ACSF environments.
+     * This test verifies the method's functionality and visibility level.
+     */
+    public function testIsAcsfEnvDirectAccess(): void
+    {
+        // Use reflection to access the protected isAcsfEnv method.
+        $reflectionClass = new \ReflectionClass($this->command);
+        $method = $reflectionClass->getMethod('isAcsfEnv');
+        $method->setAccessible(true);
+
+        // Test ACSF environment detection via SSH URL with enterprise-g1 - should return true.
+        $acsfEnvironment = (object) [
+            'domains' => ['profserv201dev.acquia-sites.com'],
+            'sshUrl' => 'profserv2.01dev@profserv201dev.ssh.enterprise-g1.acquia-sites.com',
+        ];
+        $this->assertTrue($method->invoke($this->command, $acsfEnvironment));
+
+        // Test environment with enterprise-g1 in SSH URL but different domains - should return true.
+        $acsfEnvironment2 = (object) [
+            'domains' => ['site01dev.acquia-sites.com'],
+            'sshUrl' => 'site.01dev@site01dev.ssh.enterprise-g1.acquia-sites.com',
+        ];
+        $this->assertTrue($method->invoke($this->command, $acsfEnvironment2));
+
+        // Test environment with acsitefactory in domains - should return true.
+        $acsfEnvironment3 = (object) [
+            'domains' => ['site01dev.acsitefactory.com', 'site01dev.acquia-sites.com'],
+            'sshUrl' => 'site.01dev@site01dev.ssh.acquia-sites.com',
+        ];
+        $this->assertTrue($method->invoke($this->command, $acsfEnvironment3));
+
+        // Test regular Cloud environment - should return false.
+        $regularEnvironment = (object) [
+            'domains' => ['staging-123.prod.hosting.acquia.com'],
+            'sshUrl' => 'staging@staging-123.prod.hosting.acquia.com',
+        ];
+        $this->assertFalse($method->invoke($this->command, $regularEnvironment));
+
+        // Test environment with null SSH URL and no ACSF domains - should return false.
+        $nullSshEnvironment = (object) [
+            'domains' => ['example.com'],
+            'sshUrl' => null,
+        ];
+        $this->assertFalse($method->invoke($this->command, $nullSshEnvironment));
+
+        // Test environment with null SSH URL but ACSF domain - should return true.
+        $nullSshAcsfEnvironment = (object) [
+            'domains' => ['test.acsitefactory.com'],
+            'sshUrl' => null,
+        ];
+        $this->assertTrue($method->invoke($this->command, $nullSshAcsfEnvironment));
+    }
+
+    /**
+     * Test that the isAcsfEnv method is protected (not private) by verifying reflection access.
+     * This test ensures that the visibility level supports inheritance as intended.
+     */
+    public function testIsAcsfEnvProtectedVisibility(): void
+    {
+        $reflectionClass = new \ReflectionClass($this->command);
+        $method = $reflectionClass->getMethod('isAcsfEnv');
+
+        // Verify the method is protected (accessible to subclasses)
+        $this->assertTrue($method->isProtected(), 'isAcsfEnv method should be protected to allow subclass access');
+        $this->assertFalse($method->isPrivate(), 'isAcsfEnv method should not be private as it may be needed by subclasses');
+        $this->assertFalse($method->isPublic(), 'isAcsfEnv method should not be public as it is an internal implementation detail');
+    }
 }

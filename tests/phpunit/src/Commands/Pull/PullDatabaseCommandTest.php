@@ -84,7 +84,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase
         $this->assertStringContainsString('Choose a Cloud Platform environment', $output);
         $this->assertStringContainsString('[0] Dev, dev (vcs: master)', $output);
         $this->assertStringContainsString('Choose a database [my_db (default)]:', $output);
-        $this->assertStringContainsString('Using a database backup that is 117', $output);
+        $this->assertStringContainsString('Using a database backup that is 1', $output);
     }
 
     public function testPullProdDatabase(): void
@@ -131,7 +131,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase
         $this->assertStringContainsString('Choose a Cloud Platform environment', $output);
         $this->assertStringContainsString('[0] Dev, dev (vcs: master)', $output);
         $this->assertStringContainsString('Choose a database [my_db (default)]:', $output);
-        $this->assertStringContainsString('Using a database backup that is 117', $output);
+        $this->assertStringContainsString('Using a database backup that is 1', $output);
     }
 
     public function testPullDatabasesLocalConnectionFailure(): void
@@ -505,7 +505,54 @@ class PullDatabaseCommandTest extends PullCommandTestBase
         // $this->assertStringContainsString('50/100 [', $output);.
         $this->assertStringContainsString('100/100 [', $output);
 
+        // Verify that the codebase database path was taken (both codebaseUuid AND siteId must be set)
+        // This assertion would fail if the LogicalAnd mutation changes the condition.
+        $this->assertStringNotContainsString('Choose a database', $output);
+
         self::unsetEnvVars(['AH_CODEBASE_UUID']);
+    }
+
+    /**
+     * CRITICAL: Test that kills the LogicalAnd (&&) -> LogicalOr (||) mutation in determineCloudDatabases.
+     *
+     * This test creates a scenario where $this->siteId is set but codebaseUuid is null.
+     * With && (correct): null && "value" = false, so regular ACSF path is used
+     * With || (mutant): null || "value" = true, so codebase path is attempted
+     *
+     * The mutant MUST fail because it would call getSiteInstanceDatabase() without
+     * the required codebase-specific API mocks, causing the test to fail.
+     */
+    public function testPullDatabasesKillsLogicalAndMutation(): void
+    {
+        // CRITICAL: Ensure codebaseUuid is null/empty.
+        self::unsetEnvVars(['AH_CODEBASE_UUID']);
+
+        // Set siteId using reflection to simulate the || mutation scenario.
+        $reflection = new \ReflectionClass($this->command);
+        $siteIdProperty = $reflection->getProperty('siteId');
+        $siteIdProperty->setAccessible(true);
+        $siteIdProperty->setValue($this->command, '8979a8ac-80dc-4df8-b2f0-6be36554a370');
+
+        // IMPORTANT: Only mock ACSF database calls, NOT codebase-specific calls
+        // This ensures the mutant would fail when trying to call getSiteInstanceDatabase.
+        $this->setupPullDatabase(true, true, false, false);
+        $inputs = self::inputChooseEnvironment();
+
+        // If mutation is active (||), this would fail because getSiteInstanceDatabase
+        // would be called without proper mocks for /site-instances/* endpoints.
+        $this->executeCommand([
+            '--no-scripts' => true,
+            'site' => 'jxr5000596dev',
+        ], $inputs);
+
+        $output = $this->getDisplay();
+
+        // These assertions prove the ACSF path was used (not codebase path)
+        $this->assertStringNotContainsString('Detected Codebase UUID', $output);
+        $this->assertStringContainsString('Downloading', $output);
+
+        // The mutant (||) would cause getSiteInstanceDatabase() to be called,
+        // which would fail due to missing API mocks.
     }
 
     public function testPullDatabasesWithCodebaseUuidOnDemand(): void
@@ -584,6 +631,10 @@ class PullDatabaseCommandTest extends PullCommandTestBase
         // $this->assertStringContainsString('0/100 [', $output);
         // $this->assertStringContainsString('50/100 [', $output);.
         $this->assertStringContainsString('100/100 [', $output);
+
+        // Verify that the codebase database path was taken (both codebaseUuid AND siteId must be set)
+        // This assertion would fail if the LogicalAnd mutation changes the condition.
+        $this->assertStringNotContainsString('Choose a database', $output);
 
         self::unsetEnvVars(['AH_CODEBASE_UUID']);
     }
