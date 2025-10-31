@@ -124,6 +124,8 @@ jobs:
 
   build-native:
     runs-on: ${{ matrix.os }}
+    permissions:
+        contents: write
     needs: build-release
     strategy:
       matrix:
