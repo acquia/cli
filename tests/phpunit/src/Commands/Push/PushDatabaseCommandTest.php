@@ -80,26 +80,6 @@ class PushDatabaseCommandTest extends CommandTestBase
 
         $this->command->sshHelper = new SshHelper($this->output, $localMachineHelper->reveal(), $this->logger);
 
-        // Add a general stub for all execute calls.
-        $localMachineHelper->execute(Argument::any(), Argument::any(), Argument::any(), Argument::any(), Argument::any(), Argument::any(), Argument::any())
-            ->willReturn($process->reveal());
-
-        // Override the general stub for the ACSF sites call to return proper JSON.
-        $acsfSitesProcess = $this->mockProcess();
-        $multisiteConfig = file_get_contents(Path::join($this->realFixtureDir, '/multisite-config.json'));
-        $acsfSitesProcess->getOutput()->willReturn($multisiteConfig);
-        $localMachineHelper->execute(
-            Argument::that(function ($cmd) {
-                return is_array($cmd) && in_array('cat', $cmd) && str_contains(implode(' ', $cmd), 'multisite-config.json');
-            }),
-            Argument::any(),
-            Argument::any(),
-            Argument::any(),
-            Argument::any(),
-            Argument::any(),
-            Argument::any()
-        )->willReturn($acsfSitesProcess->reveal());
-
         $inputs = [
             // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
             'n',
@@ -220,12 +200,9 @@ class PushDatabaseCommandTest extends CommandTestBase
             3 => '-o StrictHostKeyChecking=no',
             4 => '-o AddressFamily inet',
             5 => '-o LogLevel=ERROR',
-            6 => 'pv /mnt/tmp/profserv2.01dev/acli-mysql-dump-drupal.sql.gz --bytes --rate | gunzip | MYSQL_PWD="${:MYSQL_PASSWORD}" mysql --host=fsdb-74.enterprise-g1.hosting.acquia.com.enterprise-g1.hosting.acquia.com --user=s164 profserv2db14390',
+            6 => 'pv /mnt/tmp/profserv2.01dev/acli-mysql-dump-drupal.sql.gz --bytes --rate | gunzip | MYSQL_PWD=password mysql --host=fsdb-74.enterprise-g1.hosting.acquia.com.enterprise-g1.hosting.acquia.com --user=s164 profserv2db14390',
         ];
-        $env = [
-            'MYSQL_PASSWORD' => 'password',
-        ];
-        $localMachineHelper->execute($cmd, Argument::type('callable'), null, $printOutput, null, $env)
+        $localMachineHelper->execute($cmd, Argument::type('callable'), null, $printOutput, null, null)
             ->willReturn($process->reveal())
             ->shouldBeCalled();
     }

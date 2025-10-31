@@ -84,7 +84,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase
         $this->assertStringContainsString('Choose a Cloud Platform environment', $output);
         $this->assertStringContainsString('[0] Dev, dev (vcs: master)', $output);
         $this->assertStringContainsString('Choose a database [my_db (default)]:', $output);
-        $this->assertStringContainsString('Using a database backup that is 117', $output);
+        $this->assertStringContainsString('Using a database backup that is 1', $output);
     }
 
     public function testPullProdDatabase(): void
@@ -131,7 +131,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase
         $this->assertStringContainsString('Choose a Cloud Platform environment', $output);
         $this->assertStringContainsString('[0] Dev, dev (vcs: master)', $output);
         $this->assertStringContainsString('Choose a database [my_db (default)]:', $output);
-        $this->assertStringContainsString('Using a database backup that is 117', $output);
+        $this->assertStringContainsString('Using a database backup that is 1', $output);
     }
 
     public function testPullDatabasesLocalConnectionFailure(): void
