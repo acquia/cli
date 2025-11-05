@@ -384,7 +384,7 @@ EOD;
         $this->command = $this->getApiCommandByName('api:environments:find');
         $alias = 'devcloud2.invalid';
         $this->expectException(AcquiaCliException::class);
-        $this->expectExceptionMessage('{environmentId} must be a valid UUID or site alias.');
+        $this->expectExceptionMessage('Environment not found matching the alias devcloud2.invalid');
         $this->executeCommand(['environmentId' => $alias], []);
     }
 
