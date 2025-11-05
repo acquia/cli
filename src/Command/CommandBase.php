@@ -1310,7 +1310,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
         return $uuid;
     }
 
-    public static function validateLegacyEnvironmentId(string $environmentId): string
+    private static function validateLegacyEnvironmentId(string $environmentId): string
     {
         // Environment IDs take the form of [env-num]-[app-uuid].
         $uuidParts = explode('-', $environmentId);
