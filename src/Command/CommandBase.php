@@ -1310,6 +1310,16 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
         return $uuid;
     }
 
+    private static function validateLegacyEnvironmentId(string $environmentId): string
+    {
+        // Environment IDs take the form of [env-num]-[app-uuid].
+        $uuidParts = explode('-', $environmentId);
+        unset($uuidParts[0]);
+        $applicationUuid = implode('-', $uuidParts);
+        self::validateUuid($applicationUuid);
+        return $environmentId;
+    }
+
     private function saveCloudUuidToDatastore(ApplicationResponse $application): bool
     {
         $this->datastoreAcli->set('cloud_app_uuid', $application->uuid);
@@ -1514,7 +1524,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
     }
 
     /**
-     * @throws \Acquia\Cli\Exception\AcquiaCliException
+     * @throws \Acquia\Cli\Exception\AcquiaCliException|\Psr\Cache\InvalidArgumentException
      */
     private function doGetEnvFromAlias(string $alias): EnvironmentResponse
     {
@@ -2339,24 +2349,21 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
         if (is_null($envUuidArgument)) {
             throw new AcquiaCliException("{{$argumentName}} must not be null");
         }
+        // MEO environment IDs are just UUIDs.
         try {
-            // Environment IDs take the form of [env-num]-[app-uuid].
-            $uuidParts = explode('-', $envUuidArgument);
-            unset($uuidParts[0]);
-            $applicationUuid = implode('-', $uuidParts);
-            self::validateUuid($applicationUuid);
+            return self::validateUuid($envUuidArgument);
         } catch (ValidatorException) {
-            try {
-                // Since this isn't a valid environment ID, let's see if it's a valid alias.
-                $alias = $envUuidArgument;
-                $alias = $this->normalizeAlias($alias);
-                $alias = self::validateEnvironmentAlias($alias);
-                return $this->getEnvironmentFromAliasArg($alias)->uuid;
-            } catch (AcquiaCliException) {
-                throw new AcquiaCliException("{{$argumentName}} must be a valid UUID or site alias.");
-            }
         }
-        return $envUuidArgument;
+        // Legacy environment IDs have a numeric prefix.
+        try {
+            return self::validateLegacyEnvironmentId($envUuidArgument);
+        } catch (ValidatorException) {
+        }
+        // Since this isn't a valid environment ID, let's see if it's a valid alias.
+        $alias = $envUuidArgument;
+        $alias = $this->normalizeAlias($alias);
+        $alias = self::validateEnvironmentAlias($alias);
+        return $this->getEnvironmentFromAliasArg($alias)->uuid;
     }
 
     /**
