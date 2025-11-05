@@ -334,6 +334,14 @@ EOD;
         $this->executeCommand(['applicationUuid' => $alias], []);
     }
 
+    public function testEnvironmentV3UuidArgument(): void
+    {
+        $this->clientProphecy->addOption('headers', ['Accept' => 'application/hal+json, version=2'])
+            ->shouldBeCalled();
+        $this->mockRequest('environment_by_id', '3e8ecbec-ea7c-4260-8414-ef2938c859bc');
+        $this->command = $this->getApiCommandByName('api:environments-v3:find');
+        $this->executeCommand(['environmentId' => '3e8ecbec-ea7c-4260-8414-ef2938c859bc'], []);
+    }
     /**
      * @serial
      */
