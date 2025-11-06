@@ -441,19 +441,7 @@ abstract class CommandTestBase extends TestBase
         $process = $this->mockProcess();
         $process->getOutput()->willReturn('');
         if ($pv) {
-            $command = 'bash -c "set -o pipefail; MYSQL_PWD="${:MYSQL_PASSWORD}" mysqldump --host="${:MYSQL_HOST}" --user="${:MYSQL_USER}" "${:MYSQL_DATABASE}" | pv --rate --bytes | gzip -9 > "${:LOCAL_FILEPATH}""';
-        } else {
-            $command = 'bash -c "set -o pipefail; MYSQL_PWD="${:MYSQL_PASSWORD}" mysqldump --host="${:MYSQL_HOST}" --user="${:MYSQL_USER}" "${:MYSQL_DATABASE}" | gzip -9 > "${:LOCAL_FILEPATH}""';
-        }
-        $env = [
-            'LOCAL_FILEPATH' => sys_get_temp_dir() . '/acli-mysql-dump-drupal.sql.gz',
-            'MYSQL_DATABASE' => 'drupal',
-            'MYSQL_HOST' => 'localhost',
-            'MYSQL_PASSWORD' => 'drupal',
-            'MYSQL_USER' => 'drupal',
-        ];
-        if ($pv) {
-            $localMachineHelper->executeFromCmd(Argument::containingString('pv --rate --bytes'), Argument::any(), null, $printOutput, null, Argument::that(function ($env) {
+            $localMachineHelper->executeFromCmd(Argument::containingString('pv --rate --bytes'), Argument::any(), null, $printOutput, null, Argument::that(static function ($env) {
                 return is_array($env) && array_key_exists('LOCAL_FILEPATH', $env);
             }))
                 ->willReturn($process->reveal())
