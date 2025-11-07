@@ -44890,7 +44890,7 @@
           "Private Networks"
         ],
         "responses": {
-          "200": {
+          "202": {
             "description": "VPC Peer removed successfully",
             "content": {
               "application/hal+json": {
