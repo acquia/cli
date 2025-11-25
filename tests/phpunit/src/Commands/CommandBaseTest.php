@@ -554,7 +554,6 @@ class CommandBaseTest extends CommandTestBase
         // Use reflection to access the protected method.
         $reflectionClass = new \ReflectionClass($this->command);
         $method = $reflectionClass->getMethod('getHostFromDatabaseResponse');
-        $method->setAccessible(true);
 
         // Test that ACSF environments get the enterprise-g1 suffix.
         $result = $method->invoke($this->command, $acsfEnvironment, $database);
@@ -576,7 +575,6 @@ class CommandBaseTest extends CommandTestBase
         // Use reflection to access the protected method.
         $reflectionClass = new \ReflectionClass($this->command);
         $method = $reflectionClass->getMethod('getHostFromDatabaseResponse');
-        $method->setAccessible(true);
 
         // Test that regular environments return the db_host as-is.
         $result = $method->invoke($this->command, $regularEnvironment, $database);
@@ -592,7 +590,6 @@ class CommandBaseTest extends CommandTestBase
         // Use reflection to access the protected isAcsfEnv method.
         $reflectionClass = new \ReflectionClass($this->command);
         $method = $reflectionClass->getMethod('isAcsfEnv');
-        $method->setAccessible(true);
 
         // Test ACSF environment detection via SSH URL with enterprise-g1 - should return true.
         $acsfEnvironment = (object) [

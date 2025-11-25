@@ -34,7 +34,6 @@ class ApiBaseCommandTest extends CommandTestBase
         // Use reflection to access private method.
         $reflectionClass = new \ReflectionClass(ApiBaseCommand::class);
         $parseArrayValue = $reflectionClass->getMethod('parseArrayValue');
-        $parseArrayValue->setAccessible(true);
 
         // Case 1: Single object, not wrapped in array brackets.
         $inputSingle = '{"environment_id":"abc-123"}';
@@ -67,7 +66,6 @@ class ApiBaseCommandTest extends CommandTestBase
     {
         $reflection = new \ReflectionClass($this->command);
         $method = $reflection->getMethod('parseArrayValue');
-        $method->setAccessible(true);
 
         // Mutation 1: UnwrapTrim - test value that would fail without trim.
         $input1 = '  ["x","y"]  ';
@@ -111,7 +109,6 @@ class ApiBaseCommandTest extends CommandTestBase
     public function testCastObjectHandlesInvalidJson(): void
     {
         $method = (new \ReflectionClass($this->command))->getMethod('castObject');
-        $method->setAccessible(true);
 
         $invalidJson = '{invalid:"json"}';
         $result = $method->invoke($this->command, $invalidJson);
@@ -121,7 +118,6 @@ class ApiBaseCommandTest extends CommandTestBase
     public function testCastObjectHandlesArray(): void
     {
         $method = (new \ReflectionClass($this->command))->getMethod('castObject');
-        $method->setAccessible(true);
 
         $input = ['key' => 'value'];
         $result = $method->invoke($this->command, $input);
@@ -139,7 +135,6 @@ class ApiBaseCommandTest extends CommandTestBase
     public function testCastObjectJsonDepthLimits(): void
     {
         $method = (new \ReflectionClass($this->command))->getMethod('castObject');
-        $method->setAccessible(true);
 
         // Generate JSON within safe depth (<=512)
         $validJson = $this->generateDeepJson(511);

@@ -530,7 +530,6 @@ class PullDatabaseCommandTest extends PullCommandTestBase
         // Set siteId using reflection to simulate the || mutation scenario.
         $reflection = new \ReflectionClass($this->command);
         $siteIdProperty = $reflection->getProperty('siteId');
-        $siteIdProperty->setAccessible(true);
         $siteIdProperty->setValue($this->command, '8979a8ac-80dc-4df8-b2f0-6be36554a370');
 
         // IMPORTANT: Only mock ACSF database calls, NOT codebase-specific calls

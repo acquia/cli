@@ -749,7 +749,6 @@ class CodeStudioWizardCommandTest extends WizardTestBase
     {
         $reflection = new \ReflectionClass($this->command);
         $method = $reflection->getMethod('getRequiredCloudPermissions');
-        $method->setAccessible(true);
 
         $expected = [
             'deploy to non-prod',

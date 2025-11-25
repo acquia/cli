@@ -8,6 +8,7 @@ use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Helpers\LocalMachineHelper;
 use Acquia\Cli\Tests\TestBase;
 use Symfony\Component\Console\Output\BufferedOutput;
+use Symfony\Component\Process\Process;
 
 /**
  * This test class must run serially because its tests have unavoidable side effects
@@ -202,10 +203,9 @@ class LocalMachineHelperTest extends TestBase
         // This tests the default parameter value that the TrueValue mutation targets.
         $reflection = new \ReflectionClass($localMachineHelper);
         $method = $reflection->getMethod('executeProcess');
-        $method->setAccessible(true);
 
         // Create a process that will succeed.
-        $process = new \Symfony\Component\Process\Process(['echo', 'reflection_test']);
+        $process = new Process(['echo', 'reflection_test']);
 
         // Call executeProcess without printOutput parameter to test the default value (true)
         // The method signature is: executeProcess(Process $process, ?callable $callback = null, ?bool $printOutput = true, ?array $env = null)
@@ -233,10 +233,9 @@ class LocalMachineHelperTest extends TestBase
 
         $reflection = new \ReflectionClass($localMachineHelper);
         $method = $reflection->getMethod('executeProcess');
-        $method->setAccessible(true);
 
         // Create a process that will succeed.
-        $process = new \Symfony\Component\Process\Process(['echo', 'callback_test']);
+        $process = new Process(['echo', 'callback_test']);
 
         // Call executeProcess without printOutput parameter to test the default value (true)
         // This should set a callback that writes to output.
