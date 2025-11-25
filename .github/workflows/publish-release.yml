@@ -5,7 +5,7 @@ on:
     - cron: '0 0 * * *'
 jobs:
   publish-release:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     name: Publish release on CCB approval
     permissions:
       contents: write
