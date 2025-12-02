@@ -1,5 +1,5 @@
 php-version: 8.4
-extensions: "iconv,phar,openssl,filter,xml,curl"
+extensions: "curl,filter,iconv,openssl,phar,xml,zip"
 sapi: micro
 download-options:
   prefer-pre-built: true
