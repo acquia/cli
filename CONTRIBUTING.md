@@ -22,6 +22,22 @@ To test changes in production mode, build and run `acli.phar` using this process
 4. Install Box (only need to do this once): `composer box-install`
 5. Compile phar: `composer box-compile`
 
+### Building native binaries
+
+We use [static-php-cli](https://github.com/crazywhalecc/static-php-cli) (spc) to compile native binaries for various platforms. Static-php-cli works by combining acli.phar and the php-micro runtime into a single executable, thereby removing any dependence on the system PHP version. We use a custom-built version of php-micro in order to provide only the extensions necessary to run Acquia CLI (and thereby minimize binary size).
+
+To build a new version of php-micro (in order to update PHP versions or extensions):
+1. Use the GitHub Actions workflow here: https://github.com/danepowell/static-php-cli/actions/workflows/build-unix.yml
+2. Upload the resulting artifacts to this S3 bucket: `s3://acquia-cli/static-php-cli/`
+
+Subsequent builds of Acquia CLI native binaries will automatically pull the latest version of php-micro from that bucket.
+
+To build a native binary locally, after building `acli.phar` and `php-micro` as described above, follow these steps (examples are for macOS aarch64; adjust as necessary for other platforms):
+
+1. Download php-micro: `curl -fsSL "https://acquia-cli.s3.us-east-1.amazonaws.com/static-php-cli/php-micro-8.4-macos-aarch64.tar.gz" -o tmp.tar.gz && tar -xzf tmp.tar.gz && rm tmp.tar.gz`
+2. Download spc: `curl -fsSL "https://github.com/crazywhalecc/static-php-cli/releases/download/2.7.4/spc-macos-aarch64.tar.gz" -o spc.tar.gz && tar -xzf spc.tar.gz && rm spc.tar.gz`
+3. Compile the binary: `./spc micro:combine var/acli.phar -M micro.sfx -O acli -I "memory_limit=2G"`
+
 ### Writing tests
 
 New code should be covered at 100% (or as close to it as reasonably possible) by PHPUnit tests. It should also minimize the number of escaped mutants (as close to 0% as reasonably possible), which will appear as annotations on your PR after unit tests run.
