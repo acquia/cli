@@ -709,4 +709,58 @@ EOD;
             $this->assertStringContainsString('Whether this Cloud Action is enabled.', $output);
         }
     }
+
+    /**
+     * Tests that commands marked as deprecated are hidden.
+     */
+    public function testDeprecatedCommandsAreHidden(): void
+    {
+        // Load the API spec to find deprecated commands.
+        $apiSpecFile = Path::canonicalize(__DIR__ . '/../../../../assets/acquia-spec.json');
+        $apiSpec = json_decode(file_get_contents($apiSpecFile), true);
+
+        foreach ($apiSpec['paths'] as $path => $endpoint) {
+            foreach ($endpoint as $method => $schema) {
+                if (!array_key_exists('x-cli-name', $schema)) {
+                    continue;
+                }
+
+                // Test deprecated commands.
+                if (array_key_exists('deprecated', $schema) && $schema['deprecated'] === true) {
+                    $commandName = 'api:' . $schema['x-cli-name'];
+                    $command = $this->getApiCommandByName($commandName);
+                    if ($command) {
+                        $this->assertTrue($command->isHidden(), "Command $commandName should be hidden because it is deprecated");
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Tests that commands marked as pre-release are hidden.
+     */
+    public function testPrereleaseCommandsAreHidden(): void
+    {
+        // Load the API spec to find pre-release commands.
+        $apiSpecFile = Path::canonicalize(__DIR__ . '/../../../../assets/acquia-spec.json');
+        $apiSpec = json_decode(file_get_contents($apiSpecFile), true);
+
+        foreach ($apiSpec['paths'] as $path => $endpoint) {
+            foreach ($endpoint as $method => $schema) {
+                if (!array_key_exists('x-cli-name', $schema)) {
+                    continue;
+                }
+
+                // Test pre-release commands.
+                if (array_key_exists('x-prerelease', $schema) && $schema['x-prerelease'] === true) {
+                    $commandName = 'api:' . $schema['x-cli-name'];
+                    $command = $this->getApiCommandByName($commandName);
+                    if ($command) {
+                        $this->assertTrue($command->isHidden(), "Command $commandName should be hidden because it is pre-release");
+                    }
+                }
+            }
+        }
+    }
 }
