@@ -373,7 +373,10 @@ class ApiCommandHelper
                 $command->setDescription($schema['summary']);
                 $command->setMethod($method);
                 $command->setResponses($schema['responses']);
-                $command->setHidden(array_key_exists('deprecated', $schema) && $schema['deprecated']);
+                $command->setHidden(
+                    (array_key_exists('deprecated', $schema) && $schema['deprecated'])
+                    || (array_key_exists('x-prerelease', $schema) && $schema['x-prerelease'])
+                );
                 if (array_key_exists('servers', $acquiaCloudSpec)) {
                     $command->setServers($acquiaCloudSpec['servers']);
                 }
