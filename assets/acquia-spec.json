@@ -43550,7 +43550,6 @@
       },
       "delete": {
         "operationId": "api_site-instances_siteId._environmentId_delete",
-        "x-cli-name": "site-instances:delete",
         "x-prerelease": true,
         "tags": [],
         "responses": {
@@ -43701,7 +43700,7 @@
     "/site-instances/{siteId}.{environmentId}/actions/cancel": {
       "post": {
         "operationId": "api_site-instances_siteId._environmentIdactionscancel_post",
-        "x-cli-name": "site-instances:delete",
+        "x-cli-name": "site-instances:dissociate",
         "x-prerelease": true,
         "tags": [],
         "responses": {
@@ -44058,6 +44057,175 @@
                     "example": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
                   }
                 }
+              }
+            }
+          },
+          "required": false
+        },
+        "deprecated": false,
+        "security": [
+          {
+            "MEO_Environment_Service_JWT": []
+          }
+        ]
+      }
+    },
+    "/v3/environments/{environmentId}/actions/clear-caches": {
+      "post": {
+        "operationId": "postV3EnvironmentsClearCaches",
+        "x-cli-name": "environments-v3:clear-caches",
+        "x-prerelease": true,
+        "tags": [],
+        "responses": {
+          "202": {
+            "description": "Domains cache flush started.",
+            "content": {
+              "application/hal+json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "_links": {
+                      "type": "object",
+                      "properties": {
+                        "self": {
+                          "type": "object",
+                          "properties": {
+                            "href": {
+                              "type": "string",
+                              "format": "uri",
+                              "example": "https://cloud.acquia.com/api/environments/3e8ecbec-ea7c-4260-8414-ef2938c859bc/actions/clear-caches"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Varnish domain cache clear started."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input"
+          },
+          "401": {
+            "description": "Authorization required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "system"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Full authentication is required to access this resource."
+                    },
+                    "code": {
+                      "type": "integer",
+                      "example": 401
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access Denied",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "forbidden"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Access Denied."
+                    },
+                    "code": {
+                      "type": "integer",
+                      "example": 403
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Domain not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "not_found"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "The domain provided does not exist."
+                    },
+                    "code": {
+                      "type": "integer",
+                      "example": 404
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Clear caches for an environment with a list of domains.",
+        "description": "Clear caches for an environment with a list of domains.",
+        "parameters": [
+          {
+            "name": "environmentId",
+            "in": "path",
+            "description": "Environment unique identifier",
+            "required": true,
+            "deprecated": false,
+            "allowEmptyValue": false,
+            "schema": {
+              "type": "string"
+            },
+            "style": "simple",
+            "explode": false,
+            "allowReserved": false
+          }
+        ],
+        "requestBody": {
+          "description": "List of domains.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "domains": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "example": "example.com"
+                    }
+                  }
+                },
+                "required": [
+                  "domains"
+                ]
+              },
+              "example": {
+                "domains": [
+                  "example.com",
+                  "another-domain.com"
+                ]
               }
             }
           },
