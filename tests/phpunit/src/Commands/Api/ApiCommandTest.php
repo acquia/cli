@@ -716,8 +716,7 @@ EOD;
     public function testDeprecatedCommandsAreHidden(): void
     {
         // Load the API spec to find deprecated commands.
-        $apiSpecFile = Path::canonicalize(__DIR__ . '/../../../../assets/acquia-spec.json');
-        $apiSpec = json_decode(file_get_contents($apiSpecFile), true);
+        $apiSpec = self::getCloudApiSpec();
 
         foreach ($apiSpec['paths'] as $path => $endpoint) {
             foreach ($endpoint as $method => $schema) {
@@ -743,8 +742,7 @@ EOD;
     public function testPrereleaseCommandsAreHidden(): void
     {
         // Load the API spec to find pre-release commands.
-        $apiSpecFile = Path::canonicalize(__DIR__ . '/../../../../assets/acquia-spec.json');
-        $apiSpec = json_decode(file_get_contents($apiSpecFile), true);
+        $apiSpec = self::getCloudApiSpec();
 
         foreach ($apiSpec['paths'] as $path => $endpoint) {
             foreach ($endpoint as $method => $schema) {
