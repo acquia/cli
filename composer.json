@@ -15,6 +15,10 @@
         {
             "type": "github",
             "url": "https://github.com/danepowell/amplitude-php"
+        },
+        {
+            "type": "github",
+            "url": "https://github.com/danepowell/self-update"
         }
     ],
     "require": {
@@ -23,7 +27,7 @@
         "acquia/drupal-environment-detector": "^1.7.0",
         "bugsnag/bugsnag": "^3.29",
         "composer/semver": "^3.3",
-        "consolidation/self-update": "^3.1.0",
+        "consolidation/self-update": "dev-native-binaries as 3.1.0",
         "dflydev/dot-access-data": "^3",
         "grasmash/expander": "^3.0.1",
         "guzzlehttp/guzzle": "^7.4",

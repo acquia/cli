@@ -142,11 +142,10 @@ jobs:
           name: acli.phar
       - name: "Download SPC and phpmicro"
         run: |
-          curl -fsSL "https://acquia-cli.s3.us-east-1.amazonaws.com/static-php-cli/php-micro-8.4-${{ matrix.platform }}.tar.gz" -o tmp.tar.gz
-          tar -xzf tmp.tar.gz
+          curl -fsSL "https://acquia-cli.s3.us-east-1.amazonaws.com/static-php-cli/php-micro-8.4-${{ matrix.platform }}.zip" -o tmp.zip
+          unzip tmp.zip
           curl -fsSL "https://github.com/crazywhalecc/static-php-cli/releases/download/2.7.4/spc-${{ matrix.platform }}.tar.gz" -o spc.tar.gz
           tar -xzf spc.tar.gz
-          chmod +x spc
       - name: "Generate Executable"
         run: |
           ./spc micro:combine acli.phar -M micro.sfx -O acli -I "memory_limit=2G"
