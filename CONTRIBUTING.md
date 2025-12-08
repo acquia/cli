@@ -34,7 +34,7 @@ Subsequent builds of Acquia CLI native binaries will automatically pull the late
 
 To build a native binary locally, after building `acli.phar` and `php-micro` as described above, follow these steps (examples are for macOS aarch64; adjust as necessary for other platforms):
 
-1. Download php-micro: `curl -fsSL "https://acquia-cli.s3.us-east-1.amazonaws.com/static-php-cli/php-micro-8.4-macos-aarch64.tar.gz" -o tmp.tar.gz && tar -xzf tmp.tar.gz && rm tmp.tar.gz`
+1. Download php-micro: `curl -fsSL "https://acquia-cli.s3.us-east-1.amazonaws.com/static-php-cli/php-micro-8.4-macos-aarch64.zip" -o tmp.zip && unzip tmp.zip && rm tmp.zip`
 2. Download spc: `curl -fsSL "https://github.com/crazywhalecc/static-php-cli/releases/download/2.7.4/spc-macos-aarch64.tar.gz" -o spc.tar.gz && tar -xzf spc.tar.gz && rm spc.tar.gz`
 3. Compile the binary: `./spc micro:combine var/acli.phar -M micro.sfx -O acli -I "memory_limit=2G"`
 
