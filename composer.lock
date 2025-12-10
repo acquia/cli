@@ -402,17 +402,16 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/danepowell/self-update.git",
-                "reference": "eb6cbd928514fcf7086e6a77a140da9852f21ac5"
+                "reference": "7484c5cc95eeba10147e1be48ad19880a1832f1d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/danepowell/self-update/zipball/eb6cbd928514fcf7086e6a77a140da9852f21ac5",
-                "reference": "eb6cbd928514fcf7086e6a77a140da9852f21ac5",
+                "url": "https://api.github.com/repos/danepowell/self-update/zipball/7484c5cc95eeba10147e1be48ad19880a1832f1d",
+                "reference": "7484c5cc95eeba10147e1be48ad19880a1832f1d",
                 "shasum": ""
             },
             "require": {
                 "composer/semver": "^3.2",
-                "ext-zip": "*",
                 "guzzlehttp/guzzle": "^7.9",
                 "kevinrob/guzzle-cache-middleware": "^5.1 || ^6",
                 "php": "^8.1",
@@ -456,7 +455,7 @@
             "support": {
                 "source": "https://github.com/danepowell/self-update/tree/native-binaries"
             },
-            "time": "2025-12-08T19:29:29+00:00"
+            "time": "2025-12-10T18:39:57+00:00"
         },
         {
             "name": "dflydev/dot-access-data",
