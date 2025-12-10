@@ -46830,6 +46830,490 @@
           }
         ]
       }
+    },
+    "/translation/environments/{environmentId}/logs": {
+      "get": {
+        "operationId": "get_environment_logs",
+        "x-cli-name": "environments-v3:log-list",
+        "tags": [],
+        "responses": {
+          "200": {
+            "description": "List of available logs for the environment",
+            "content": {
+              "application/hal+json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "total": {
+                      "type": "integer",
+                      "example": 3
+                    },
+                    "_links": {
+                      "type": "object",
+                      "properties": {
+                        "self": {
+                          "type": "object",
+                          "properties": {
+                            "href": {
+                              "type": "string",
+                              "format": "string",
+                              "example": "https://cloud.acquia.com/api/translation/environments/830ea829-490a-4e2e-a16b-ff055fc58a0e/logs"
+                            }
+                          }
+                        },
+                        "parent": {
+                          "type": "object",
+                          "properties": {
+                            "href": {
+                              "type": "string",
+                              "format": "string",
+                              "example": "https://cloud.acquia.com/api/translation/environments/830ea829-490a-4e2e-a16b-ff055fc58a0e"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "_embedded": {
+                      "type": "object",
+                      "properties": {
+                        "items": {
+                          "type": "array",
+                          "example": [
+                            {
+                              "name": "apache-access",
+                              "type": "apache-access",
+                              "label": "Apache access",
+                              "flags": {
+                                "available": false
+                              },
+                              "_links": {
+                                "download": {
+                                  "href": "https://cloud.acquia.com/api/translation/environments/830ea829-490a-4e2e-a16b-ff055fc58a0e/logs/apache-access"
+                                }
+                              }
+                            },
+                            {
+                              "name": "apache-error",
+                              "type": "apache-error",
+                              "label": "Apache error",
+                              "flags": {
+                                "available": false
+                              },
+                              "_links": {
+                                "download": {
+                                  "href": "https://cloud.acquia.com/api/translation/environments/830ea829-490a-4e2e-a16b-ff055fc58a0e/logs/apache-error"
+                                }
+                              }
+                            },
+                            {
+                              "name": "cronjob",
+                              "type": "cronjob",
+                              "label": "Cronjob",
+                              "flags": {
+                                "available": false
+                              },
+                              "_links": {
+                                "download": {
+                                  "href": "https://cloud.acquia.com/api/translation/environments/830ea829-490a-4e2e-a16b-ff055fc58a0e/logs/cronjob"
+                                }
+                              }
+                            }
+                          ],
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "name": {
+                                "type": "string"
+                              },
+                              "type": {
+                                "type": "string"
+                              },
+                              "label": {
+                                "type": "string"
+                              },
+                              "flags": {
+                                "type": "object",
+                                "properties": {
+                                  "available": {
+                                    "type": "boolean"
+                                  }
+                                }
+                              },
+                              "_links": {
+                                "type": "object",
+                                "properties": {
+                                  "download": {
+                                    "type": "object",
+                                    "properties": {
+                                      "href": {
+                                        "type": "string",
+                                        "format": "string"
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authorization required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "system"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Full authentication is required to access this resource."
+                    },
+                    "code": {
+                      "type": "integer",
+                      "example": 401
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access Denied",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "forbidden"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Access Denied."
+                    },
+                    "code": {
+                      "type": "integer",
+                      "example": 403
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Retrieve a list of available logs for an environment",
+        "description": "Retrieve a list of available logs for an environment.",
+        "parameters": [
+          {
+            "name": "environmentId",
+            "in": "path",
+            "description": "Environment unique identifier",
+            "required": true,
+            "deprecated": false,
+            "allowEmptyValue": false,
+            "schema": {
+              "type": "string"
+            },
+            "style": "simple",
+            "explode": false,
+            "allowReserved": false
+          }
+        ],
+        "deprecated": true,
+        "x-prerelease": true
+      }
+    },
+    "/translation/environments/{environmentId}/logs/{logType}": {
+      "get": {
+        "operationId": "download_environment_log",
+        "x-cli-name": "environments-v3:log-download",
+        "tags": [],
+        "responses": {
+          "200": {
+            "description": "Download URL for the requested log",
+            "content": {
+              "application/hal+json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "url": {
+                      "type": "string",
+                      "format": "uri",
+                      "example": "https://s3.amazonaws.com/acn.prod.us-east-1/gardens/logs/meorb/dev01/cronjob-1764933742.gz?X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=..."
+                    },
+                    "expires_at": {
+                      "type": "string",
+                      "format": "date-time",
+                      "example": "2025-12-05T11:33:32.000Z"
+                    },
+                    "_links": {
+                      "type": "object",
+                      "properties": {
+                        "self": {
+                          "type": "object",
+                          "properties": {
+                            "href": {
+                              "type": "string",
+                              "format": "string",
+                              "example": "https://cloud.acquia.com/api/translation/environments/830ea829-490a-4e2e-a16b-ff055fc58a0e/logs/cronjob"
+                            }
+                          }
+                        },
+                        "parent": {
+                          "type": "object",
+                          "properties": {
+                            "href": {
+                              "type": "string",
+                              "format": "string",
+                              "example": "https://cloud.acquia.com/api/translation/environments/830ea829-490a-4e2e-a16b-ff055fc58a0e/logs"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authorization required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "system"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Full authentication is required to access this resource."
+                    },
+                    "code": {
+                      "type": "integer",
+                      "example": 401
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access Denied",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "forbidden"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Access Denied."
+                    },
+                    "code": {
+                      "type": "integer",
+                      "example": 403
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Download a specific log file for an environment",
+        "description": "Download a specific log file for an environment.",
+        "parameters": [
+          {
+            "name": "environmentId",
+            "in": "path",
+            "description": "Environment unique identifier",
+            "required": true,
+            "deprecated": false,
+            "allowEmptyValue": false,
+            "schema": {
+              "type": "string"
+            },
+            "style": "simple",
+            "explode": false,
+            "allowReserved": false
+          },
+          {
+            "name": "logType",
+            "in": "path",
+            "description": "Log type (e.g., cronjob, apache-access, apache-error, etc.)",
+            "required": true,
+            "deprecated": false,
+            "allowEmptyValue": false,
+            "schema": {
+              "type": "string"
+            },
+            "style": "simple",
+            "explode": false,
+            "allowReserved": false
+          }
+        ],
+        "deprecated": true,
+        "x-prerelease": true
+      }
+    },
+    "/translation/environments/{environmentId}/code/actions/switch": {
+      "post": {
+        "operationId": "switch_environment_code",
+        "x-cli-name": "environments-v3:code-switch",
+        "tags": [],
+        "responses": {
+          "202": {
+            "description": "Code switch initiated",
+            "content": {
+              "application/hal+json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Switching code."
+                    },
+                    "notification": {
+                      "type": "string",
+                      "format": "uuid",
+                      "example": "b1bc8f2b-c617-42c6-9bff-6b464263e359"
+                    },
+                    "_links": {
+                      "type": "object",
+                      "properties": {
+                        "self": {
+                          "type": "object",
+                          "properties": {
+                            "href": {
+                              "type": "string",
+                              "format": "string",
+                              "example": "https://cloud.acquia.com/api/translation/environments/830ea829-490a-4e2e-a16b-ff055fc58a0e/code/actions/switch"
+                            }
+                          }
+                        },
+                        "notification": {
+                          "type": "object",
+                          "properties": {
+                            "href": {
+                              "type": "string",
+                              "format": "string",
+                              "example": "https://cloud.acquia.com/api/notifications/b1bc8f2b-c617-42c6-9bff-6b464263e359"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authorization required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "system"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Full authentication is required to access this resource."
+                    },
+                    "code": {
+                      "type": "integer",
+                      "example": 401
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access Denied",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "forbidden"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Access Denied."
+                    },
+                    "code": {
+                      "type": "integer",
+                      "example": 403
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Switch code for an environment",
+        "description": "Switch code for an environment.",
+        "parameters": [
+          {
+            "name": "environmentId",
+            "in": "path",
+            "description": "Environment unique identifier",
+            "required": true,
+            "deprecated": false,
+            "allowEmptyValue": false,
+            "schema": {
+              "type": "string"
+            },
+            "style": "simple",
+            "explode": false,
+            "allowReserved": false
+          }
+        ],
+        "requestBody": {
+          "description": "Code switch request with branch name.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "branch"
+                ],
+                "properties": {
+                  "branch": {
+                    "type": "string",
+                    "example": "branch-name"
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "deprecated": true,
+        "x-prerelease": true
+      }
     }
   },
   "components": {
