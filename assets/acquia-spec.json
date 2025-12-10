@@ -46834,7 +46834,7 @@
     "/translation/environments/{environmentId}/logs": {
       "get": {
         "operationId": "get_environment_logs",
-        "x-cli-name": "get-environment-logs",
+        "x-cli-name": "environments-v3:log-list",
         "tags": [],
         "responses": {
           "200": {
@@ -47030,13 +47030,14 @@
             "allowReserved": false
           }
         ],
-        "deprecated": false
+        "deprecated": true,
+        "x-prerelease": true
       }
     },
     "/translation/environments/{environmentId}/logs/{logType}": {
       "get": {
         "operationId": "download_environment_log",
-        "x-cli-name": "download-environment-log",
+        "x-cli-name": "environments-v3:log-download",
         "tags": [],
         "responses": {
           "200": {
@@ -47167,13 +47168,14 @@
             "allowReserved": false
           }
         ],
-        "deprecated": false
+        "deprecated": true,
+        "x-prerelease": true
       }
     },
     "/translation/environments/{environmentId}/code/actions/switch": {
       "post": {
         "operationId": "switch_environment_code",
-        "x-cli-name": "switch-environment-code",
+        "x-cli-name": "environments-v3:code-switch",
         "tags": [],
         "responses": {
           "202": {
@@ -47309,7 +47311,8 @@
           },
           "required": true
         },
-        "deprecated": false
+        "deprecated": true,
+        "x-prerelease": true
       }
     }
   },
