@@ -151,7 +151,7 @@ jobs:
         run: |
           ./spc micro:combine acli.phar -M micro.sfx -O acli -I "memory_limit=2G"
           chmod +x acli
-          zip -j native-acli-${{ matrix.platform }}.zip acli
+          tar -czvf native-acli-${{ matrix.platform }}.tar.gz acli
       - name: "Upload Artifact"
         uses: actions/upload-artifact@v5
         with:
@@ -161,7 +161,7 @@ jobs:
          uses: softprops/action-gh-release@v2
          if: startsWith(github.ref, 'refs/tags/')
          with:
-           files: native-acli-${{ matrix.platform }}.zip
+           files: native-acli-${{ matrix.platform }}.tar.gz
 
   # Require all checks to pass without having to enumerate them in the branch protection UI.
   # @see https://github.community/t/is-it-possible-to-require-all-github-actions-tasks-to-pass-without-enumerating-them/117957
