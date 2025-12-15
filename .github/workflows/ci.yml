@@ -103,7 +103,7 @@ jobs:
           ./bin/acli
           composer box-compile
       - name: Store artifact in Actions
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: acli.phar
           path: var/acli.phar
@@ -153,7 +153,7 @@ jobs:
           chmod +x acli
           tar -czvf native-acli-${{ matrix.platform }}.tar.gz acli
       - name: "Upload Artifact"
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           path: acli
           name: native-acli-${{ matrix.platform }}
