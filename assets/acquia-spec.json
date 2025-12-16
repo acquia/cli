@@ -45003,116 +45003,6 @@
       }
     },
     "/private-networks/{privateNetworkId}/connections/vpc-peers/{vpcPeerId}": {
-      "put": {
-        "summary": "Create or update a VPC Peer for a Private Network",
-        "operationId": "updateVPCPeerByPrivateNetworkIdAndName",
-        "x-cli-name": "private-networks:update-vpc-peer",
-        "description": "Creates a new VPC Peer or updates an existing VPC Peer for a Private Network by Private Network ID and VPC Peer name.",
-        "tags": [
-          "Private Networks"
-        ],
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/Private_Network_Service_API_PrivateNetworkId"
-          },
-          {
-            "$ref": "#/components/parameters/Private_Network_Service_API_VpcPeerId"
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/Private_Network_Service_API_VPCPeers"
-              },
-              "example": {
-                "name": "vpcPeer1",
-                "aws_account": "123456789012",
-                "vpc_id": "vpc-1234567890abcdef0",
-                "vpc_cidr": "120.24.16.1/24"
-              }
-            }
-          }
-        },
-        "responses": {
-          "202": {
-            "description": "VPC Peer creation or update initiated",
-            "content": {
-              "application/hal+json": {
-                "schema": {
-                  "allOf": [
-                    {
-                      "$ref": "#/components/schemas/Private_Network_Service_API_Message"
-                    },
-                    {
-                      "type": "object",
-                      "properties": {
-                        "message": {
-                          "type": "string",
-                          "description": "Confirmation message that varies based on whether the VPC Peer was created or updated",
-                          "enum": [
-                            "The VPC Peer is being created.",
-                            "The VPC Peer is being updated."
-                          ]
-                        }
-                      }
-                    }
-                  ]
-                },
-                "examples": {
-                  "creation": {
-                    "summary": "VPC Peer creation response",
-                    "description": "Response when creating a new VPC Peer",
-                    "value": {
-                      "_links": {
-                        "self": {
-                          "href": "https://cloud.acquia.com/api/private-networks/456e4567-e89b-11d3-a789-426614174000/connections/vpc-peers/1"
-                        }
-                      },
-                      "message": "The VPC Peer is being created."
-                    }
-                  },
-                  "update": {
-                    "summary": "VPC Peer update response",
-                    "description": "Response when updating an existing VPC Peer",
-                    "value": {
-                      "_links": {
-                        "self": {
-                          "href": "https://cloud.acquia.com/api/private-networks/456e4567-e89b-11d3-a789-426614174000/connections/vpc-peers/1"
-                        }
-                      },
-                      "message": "The VPC Peer is being updated."
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "$ref": "#/components/responses/Private_Network_Service_API_ValidationError"
-          },
-          "401": {
-            "$ref": "#/components/responses/Private_Network_Service_API_UnauthorizedError"
-          },
-          "404": {
-            "$ref": "#/components/responses/Private_Network_Service_API_NotFoundError"
-          },
-          "409": {
-            "$ref": "#/components/responses/Private_Network_Service_API_ConflictError"
-          },
-          "500": {
-            "$ref": "#/components/responses/Private_Network_Service_API_InternalServerError"
-          }
-        },
-        "security": [
-          {
-            "Private_Network_Service_API_BearerAuth": [],
-            "Private_Network_Service_API_ClientCredentials": [],
-            "Private_Network_Service_API_OIDC": []
-          }
-        ]
-      },
       "get": {
         "summary": "Get a specific VPC Peer from a private network",
         "operationId": "getVpcPeerFromPrivateNetwork",
@@ -47668,11 +47558,11 @@
       "Private_Network_Service_API_Filter": {
         "name": "filter",
         "in": "query",
-        "description": "Filter the result set using field-based criteria.\n\n**Format:** `field:value` or `field:operator:value`\n\n**Logical operators:**\n- `,` (comma) - OR logic between filters\n- `;` (semicolon) - AND logic between filters\n- **Note:** Cannot mix OR and AND operators in the same query\n\n**Comparison operators:**\n- `=` - Equals (default if no operator specified)\n- `!=` - Does not equal\n- `>` - Greater than\n- `<` - Less than\n- `>=` - Greater than or equal to\n- `<=` - Less than or equal to\n- `=@` - Contains substring\n- `!@` - Does not contain substring\n\n**Wildcards:**\n- `*` - Wildcard character for pattern matching\n\n**Examples:**\n- `status=active` - Filter by status equals active\n- `name=@prod` - Filter by name containing \"prod\"\n- `status=active;type=standard` - Status is active AND type is standard\n- `status=active,status=pending` - Status is active OR pending\n",
+        "description": "Filter the result set using field-based criteria.\n\n**Format:** `field:value`, `field=value` or `field:operator:value`\n\n**Logical operators:**\n- `,` (comma) - OR logic between filters\n- `;` (semicolon) - AND logic between filters\n- **Note:** Cannot mix OR and AND operators in the same query\n\n**Comparison operators:**\n- `=` - Equals (default if no operator specified)\n- `!=` - Does not equal\n- `>` - Greater than\n- `<` - Less than\n- `>=` - Greater than or equal to\n- `<=` - Less than or equal to\n- `=@` - Contains substring\n- `!@` - Does not contain substring\n\n**Wildcards:**\n- `*` - Wildcard character for pattern matching\n\n**Examples:**\n- `status=active` - Filter by status equals active\n- `name=@prod` - Filter by name containing \"prod\"\n- `status=active;type=standard` - Status is active AND type is standard\n- `status=active,status=pending` - Status is active OR pending\n",
         "required": false,
         "schema": {
           "type": "string",
-          "pattern": "^([a-zA-Z0-9_]+:(?:[a-zA-Z0-9_\\-*]+|[><!@=%3D%3E%3C%3D@!%3D@]+)+)([;,][a-zA-Z0-9_]+:(?:[a-zA-Z0-9_\\-*]+|[><!@=%3D%3E%3C%3D@!%3D@]+)+)*$"
+          "pattern": "^([a-zA-Z0-9_]+[:=](?:[a-zA-Z0-9_\\-*]+|[><!@=%3D%3E%3C%3D@!%3D@]+)+)([;,][a-zA-Z0-9_]+[:=](?:[a-zA-Z0-9_\\-*]+|[><!@=%3D%3E%3C%3D@!%3D@]+)+)*$"
         },
         "example": "status:active;type:standard"
       },
@@ -60460,14 +60350,6 @@
         "properties": {
           "href": {
             "type": "string",
-            "anyOf": [
-              {
-                "format": "uri"
-              },
-              {
-                "format": "uri-template"
-              }
-            ],
             "description": "The target URI of the link (can be a URI or URI template)"
           }
         },
@@ -61346,14 +61228,16 @@
                 "internal_cidr": "1.1.1.1/24",
                 "ike_versions": "1",
                 "startup_action": "start",
-                "dpd_timeout_action": "stop"
+                "dpd_timeout_action": "stop",
+                "address": "1.1.1.1"
               },
               "tunnel2": {
                 "shared_key": "sharedKey2",
                 "internal_cidr": "1.1.1.1/24",
                 "ike_versions": "2",
                 "startup_action": "start",
-                "dpd_timeout_action": "stop"
+                "dpd_timeout_action": "stop",
+                "address": "1.1.1.1"
               }
             }
           }
