@@ -151,4 +151,34 @@ class ApiBaseCommandTest extends CommandTestBase
         $this->assertIsString($result, 'Should return original string if JSON depth exceeded');
         $this->assertStringStartsWith('{', $result);
     }
+
+    /**
+     * Tests the isBinaryParam method with different parameter specifications.
+     *
+     * @throws \ReflectionException
+     */
+    public function testIsBinaryParam(): void
+    {
+        $command = $this->createCommand();
+
+        // Use reflection to access private method.
+        $reflectionClass = new \ReflectionClass(ApiBaseCommand::class);
+        $isBinaryParam = $reflectionClass->getMethod('isBinaryParam');
+
+        // Case 1: null parameter spec (should return false)
+        $result1 = $isBinaryParam->invoke($command, null);
+        $this->assertFalse($result1, 'Null paramSpec should return false');
+
+        // Case 2: parameter spec without format key (should return false)
+        $result2 = $isBinaryParam->invoke($command, ['type' => 'string']);
+        $this->assertFalse($result2, 'ParamSpec without format should return false');
+
+        // Case 3: parameter spec with non-binary format (should return false)
+        $result3 = $isBinaryParam->invoke($command, ['type' => 'string', 'format' => 'text']);
+        $this->assertFalse($result3, 'Non-binary format should return false');
+
+        // Case 4: parameter spec with binary format (should return true)
+        $result4 = $isBinaryParam->invoke($command, ['type' => 'string', 'format' => 'binary']);
+        $this->assertTrue($result4, 'Binary format should return true');
+    }
 }

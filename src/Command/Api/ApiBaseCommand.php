@@ -449,13 +449,32 @@ class ApiBaseCommand extends CommandBase
             $paramValue = $this->getParamFromInput($input, $paramName);
             if (!is_null($paramValue)) {
                 // Check if this is a binary file upload (multipart) vs JSON.
-                if (!($paramSpec && array_key_exists('format', $paramSpec) && $paramSpec["format"] === 'binary')) {
-                    return true;
+                if ($this->isBinaryParam($paramSpec)) {
+                    // Skip binary params, they don't need Content-Type: application/json.
+                    continue;
                 }
+                // Found a non-binary param, need Content-Type: application/json.
+                return true;
             }
         }
 
         return false;
+    }
+
+    /**
+     * Checks if a parameter specification indicates a binary file upload.
+     */
+    private function isBinaryParam(?array $paramSpec): bool
+    {
+        if (!$paramSpec) {
+            return false;
+        }
+
+        if (!array_key_exists('format', $paramSpec)) {
+            return false;
+        }
+
+        return $paramSpec['format'] === 'binary';
     }
 
     private function askFreeFormQuestion(InputArgument $argument, array $params): mixed
