@@ -197,47 +197,47 @@ class ApiBaseCommandTest extends CommandTestBase
         $hasJsonPostParams = $reflectionClass->getMethod('hasJsonPostParams');
         $postParamsProperty = $reflectionClass->getProperty('postParams');
 
-        // Approach 1: Test with a mock that counts invocations
+        // Approach 1: Test with a mock that counts invocations.
         $input1 = $this->createMock(\Symfony\Component\Console\Input\InputInterface::class);
         $hasArgumentCallCount = 0;
-        $input1->method('hasArgument')->willReturnCallback(function($param) use (&$hasArgumentCallCount) {
+        $input1->method('hasArgument')->willReturnCallback(function ($param) use (&$hasArgumentCallCount) {
             $hasArgumentCallCount++;
             return false;
         });
         $input1->method('hasParameterOption')->willReturn(false);
-        
-        // Test with empty array - should use early return
+
+        // Test with empty array - should use early return.
         $postParamsProperty->setValue($command, []);
         $result1 = $hasJsonPostParams->invoke($command, $input1);
         $this->assertFalse($result1);
         $this->assertEquals(0, $hasArgumentCallCount, 'hasArgument should not be called with empty postParams - early return should prevent foreach execution');
-        
-        // Reset counter and test with non-empty array 
+
+        // Reset counter and test with non-empty array.
         $hasArgumentCallCount = 0;
         $postParamsProperty->setValue($command, ['test' => ['type' => 'string']]);
         $result1b = $hasJsonPostParams->invoke($command, $input1);
         $this->assertFalse($result1b);
         $this->assertGreaterThan(0, $hasArgumentCallCount, 'hasArgument should be called with non-empty postParams');
 
-        // Approach 2: Use a spy pattern to detect execution flow
+        // Approach 2: Use a spy pattern to detect execution flow.
         $executionPath = [];
         $input2 = $this->createMock(\Symfony\Component\Console\Input\InputInterface::class);
-        $input2->method('hasArgument')->willReturnCallback(function($param) use (&$executionPath) {
+        $input2->method('hasArgument')->willReturnCallback(function ($param) use (&$executionPath) {
             $executionPath[] = "hasArgument($param)";
             return false;
         });
-        $input2->method('hasParameterOption')->willReturnCallback(function($param) use (&$executionPath) {
+        $input2->method('hasParameterOption')->willReturnCallback(function ($param) use (&$executionPath) {
             $executionPath[] = "hasParameterOption($param)";
             return false;
         });
-        
-        // Test empty postParams - execution path should be empty
+
+        // Test empty postParams - execution path should be empty.
         $executionPath = [];
         $postParamsProperty->setValue($command, []);
         $hasJsonPostParams->invoke($command, $input2);
         $this->assertEmpty($executionPath, 'No methods should be called when postParams is empty (early return)');
-        
-        // Test non-empty postParams - execution path should not be empty
+
+        // Test non-empty postParams - execution path should not be empty.
         $executionPath = [];
         $postParamsProperty->setValue($command, ['param1' => ['type' => 'string']]);
         $hasJsonPostParams->invoke($command, $input2);
@@ -281,50 +281,50 @@ class ApiBaseCommandTest extends CommandTestBase
     public function testHasJsonPostParamsEarlyReturnMutation(): void
     {
         $command = $this->createCommand();
-        
+
         $reflectionClass = new \ReflectionClass(ApiBaseCommand::class);
         $hasJsonPostParams = $reflectionClass->getMethod('hasJsonPostParams');
         $postParamsProperty = $reflectionClass->getProperty('postParams');
-        
-        // Strategy: Use a mock that tracks exact call sequences and throws on unexpected calls
+
+        // Strategy: Use a mock that tracks exact call sequences and throws on unexpected calls.
         $sideEffectTracker = [];
         $input = $this->createMock(\Symfony\Component\Console\Input\InputInterface::class);
-        
-        // Configure mock to track all method calls with side effects
-        $input->method('hasArgument')->willReturnCallback(function($param) use (&$sideEffectTracker) {
+
+        // Configure mock to track all method calls with side effects.
+        $input->method('hasArgument')->willReturnCallback(function ($param) use (&$sideEffectTracker) {
             $sideEffectTracker[] = "hasArgument:$param";
             return false;
         });
-        
-        $input->method('hasParameterOption')->willReturnCallback(function($param) use (&$sideEffectTracker) {
+
+        $input->method('hasParameterOption')->willReturnCallback(function ($param) use (&$sideEffectTracker) {
             $sideEffectTracker[] = "hasParameterOption:$param";
             return false;
         });
-        
+
         // Test 1: Empty postParams should have NO side effects (early return should prevent foreach)
         $sideEffectTracker = [];
         $postParamsProperty->setValue($command, []);
         $result = $hasJsonPostParams->invoke($command, $input);
-        
+
         $this->assertFalse($result);
         $this->assertCount(0, $sideEffectTracker, 'Early return should prevent any method calls when postParams is empty');
-        
+
         // Test 2: Non-empty postParams should have side effects (foreach should execute)
         $sideEffectTracker = [];
         $postParamsProperty->setValue($command, ['test_param' => ['type' => 'string']]);
         $result = $hasJsonPostParams->invoke($command, $input);
-        
+
         $this->assertFalse($result);
         $this->assertContains('hasArgument:test_param', $sideEffectTracker, 'Non-empty postParams should cause method calls');
-        
-        // Test 3: Verify the exact sequence of calls
+
+        // Test 3: Verify the exact sequence of calls.
         $sideEffectTracker = [];
         $postParamsProperty->setValue($command, [
-            'param1' => ['type' => 'string'], 
-            'param2' => ['type' => 'integer']
+            'param1' => ['type' => 'string'],
+            'param2' => ['type' => 'integer'],
         ]);
         $hasJsonPostParams->invoke($command, $input);
-        
+
         $this->assertContains('hasArgument:param1', $sideEffectTracker);
         $this->assertContains('hasArgument:param2', $sideEffectTracker);
     }
@@ -335,49 +335,51 @@ class ApiBaseCommandTest extends CommandTestBase
     public function testHasJsonPostParamsPerformanceOptimization(): void
     {
         $command = $this->createCommand();
-        
+
         $reflectionClass = new \ReflectionClass(ApiBaseCommand::class);
         $hasJsonPostParams = $reflectionClass->getMethod('hasJsonPostParams');
         $postParamsProperty = $reflectionClass->getProperty('postParams');
-        
-        // Create a slow mock - if early return works, we won't hit the slow operations
+
+        // Create a slow mock - if early return works, we won't hit the slow operations.
         $slowInput = $this->createMock(\Symfony\Component\Console\Input\InputInterface::class);
         $operationCount = 0;
-        
-        $slowInput->method('hasArgument')->willReturnCallback(function($param) use (&$operationCount) {
+
+        $slowInput->method('hasArgument')->willReturnCallback(function ($param) use (&$operationCount) {
             $operationCount++;
-            // Simulate slow operation
-            usleep(1000); // 1ms delay
+            // Simulate slow operation.
+            // 1ms delay.
+            usleep(1000);
             return false;
         });
-        
-        $slowInput->method('hasParameterOption')->willReturnCallback(function($param) use (&$operationCount) {
+
+        $slowInput->method('hasParameterOption')->willReturnCallback(function ($param) use (&$operationCount) {
             $operationCount++;
-            usleep(1000); // 1ms delay  
+            // 1ms delay
+            usleep(1000);
             return false;
         });
-        
+
         // Test empty postParams - should be fast (early return)
         $startTime = microtime(true);
         $operationCount = 0;
         $postParamsProperty->setValue($command, []);
         $result = $hasJsonPostParams->invoke($command, $slowInput);
         $emptyParamsTime = microtime(true) - $startTime;
-        
+
         $this->assertFalse($result);
         $this->assertEquals(0, $operationCount, 'No operations should occur with empty postParams');
         $this->assertLessThan(0.0005, $emptyParamsTime, 'Empty postParams should be very fast due to early return');
-        
+
         // Test non-empty postParams - will be slower (foreach executes)
         $startTime = microtime(true);
         $operationCount = 0;
         $postParamsProperty->setValue($command, [
             'param1' => ['type' => 'string'],
-            'param2' => ['type' => 'integer']
+            'param2' => ['type' => 'integer'],
         ]);
         $result = $hasJsonPostParams->invoke($command, $slowInput);
         $nonEmptyParamsTime = microtime(true) - $startTime;
-        
+
         $this->assertFalse($result);
         $this->assertGreaterThan(0, $operationCount, 'Operations should occur with non-empty postParams');
         $this->assertGreaterThan($emptyParamsTime, $nonEmptyParamsTime, 'Non-empty postParams should take longer');
@@ -389,25 +391,25 @@ class ApiBaseCommandTest extends CommandTestBase
     public function testHasJsonPostParamsExecutionPath(): void
     {
         $command = $this->createCommand();
-        
+
         $reflectionClass = new \ReflectionClass(ApiBaseCommand::class);
         $hasJsonPostParams = $reflectionClass->getMethod('hasJsonPostParams');
         $postParamsProperty = $reflectionClass->getProperty('postParams');
-        
-        // Create input that tracks execution via exception messages
+
+        // Create input that tracks execution via exception messages.
         $pathTrackerInput = $this->createMock(\Symfony\Component\Console\Input\InputInterface::class);
-        
-        $pathTrackerInput->method('hasArgument')->willReturnCallback(function($param) {
+
+        $pathTrackerInput->method('hasArgument')->willReturnCallback(function ($param): void {
             throw new \RuntimeException("Execution reached hasArgument($param) - early return failed!");
         });
-        
-        $pathTrackerInput->method('hasParameterOption')->willReturnCallback(function($param) {
+
+        $pathTrackerInput->method('hasParameterOption')->willReturnCallback(function ($param): void {
             throw new \RuntimeException("Execution reached hasParameterOption($param) - early return failed!");
         });
-        
+
         // Test 1: Empty postParams should NOT reach the exception (early return prevents it)
         $postParamsProperty->setValue($command, []);
-        
+
         try {
             $result = $hasJsonPostParams->invoke($command, $pathTrackerInput);
             $this->assertFalse($result, 'Should return false via early return');
@@ -416,21 +418,24 @@ class ApiBaseCommandTest extends CommandTestBase
             $earlyReturnWorked = false;
             $this->fail('Early return did not work - execution reached foreach: ' . $e->getMessage());
         }
-        
+
         $this->assertTrue($earlyReturnWorked, 'Early return should prevent foreach execution with empty postParams');
-        
+
         // Test 2: Non-empty postParams SHOULD reach the exception (foreach executes)
         $postParamsProperty->setValue($command, ['test_param' => ['type' => 'string']]);
-        
+
         $expectedException = false;
         try {
             $hasJsonPostParams->invoke($command, $pathTrackerInput);
         } catch (\RuntimeException $e) {
             $expectedException = true;
-            $this->assertStringContainsString('hasArgument(test_param)', $e->getMessage(), 
-                'Should reach hasArgument call in foreach loop with non-empty postParams');
+            $this->assertStringContainsString(
+                'hasArgument(test_param)',
+                $e->getMessage(),
+                'Should reach hasArgument call in foreach loop with non-empty postParams'
+            );
         }
-        
+
         $this->assertTrue($expectedException, 'Non-empty postParams should cause foreach execution and throw exception');
     }
 }
