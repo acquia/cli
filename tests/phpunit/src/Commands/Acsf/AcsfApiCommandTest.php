@@ -47,6 +47,9 @@ class AcsfApiCommandTest extends AcsfCommandTestBase
             ->shouldBeCalled();
         $this->clientProphecy->addOption('json', ["uids" => ["1", "2", "3"]])
             ->shouldBeCalled();
+        // Override setup expectation for JSON POST requests.
+        $this->clientProphecy->addOption('headers', ['Accept' => 'application/hal+json, version=2', 'Content-Type' => 'application/json'])
+            ->shouldBeCalled();
         $this->command = $this->getApiCommandByName('acsf:groups:add-members');
         $this->executeCommand([
             'uids' => '1,2,3',
@@ -63,6 +66,9 @@ class AcsfApiCommandTest extends AcsfCommandTestBase
             ->willReturn($mockBody)
             ->shouldBeCalled();
         $this->clientProphecy->addOption('json', ["pause" => true])
+            ->shouldBeCalled();
+        // Override setup expectation for JSON POST requests.
+        $this->clientProphecy->addOption('headers', ['Accept' => 'application/hal+json, version=2', 'Content-Type' => 'application/json'])
             ->shouldBeCalled();
         $this->command = $this->getApiCommandByName('acsf:updates:pause');
         $this->executeCommand([], [
@@ -175,6 +181,11 @@ class AcsfApiCommandTest extends AcsfCommandTestBase
             ->shouldBeCalled();
         foreach ($jsonArguments as $argumentName => $value) {
             $this->clientProphecy->addOption('json', [$argumentName => $value]);
+        }
+        // If this is a POST request with JSON arguments, expect Content-Type header.
+        if ($method === 'post' && !empty($jsonArguments)) {
+            $this->clientProphecy->addOption('headers', ['Accept' => 'application/hal+json, version=2', 'Content-Type' => 'application/json'])
+                ->shouldBeCalled();
         }
         $this->command = $this->getApiCommandByName($command);
         $this->executeCommand($arguments);

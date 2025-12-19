@@ -111,9 +111,16 @@ class ApiBaseCommand extends CommandBase
         // Acquia PHP SDK cannot set the Accept header itself because it would break
         // API calls returning octet streams (e.g., db backups). It's safe to use
         // here because the API command should always return JSON.
-        $acquiaCloudClient->addOption('headers', [
+        $headers = [
             'Accept' => 'application/hal+json, version=2',
-        ]);
+        ];
+
+        // Add Content-Type header for requests with JSON body parameters.
+        if ($this->hasJsonPostParams($input)) {
+            $headers['Content-Type'] = 'application/json';
+        }
+
+        $acquiaCloudClient->addOption('headers', $headers);
 
         try {
             if ($this->output->isVeryVerbose()) {
@@ -427,6 +434,47 @@ class ApiBaseCommand extends CommandBase
         } else {
             $acquiaCloudClient->addOption('json', [$paramName => $paramValue]);
         }
+    }
+
+    /**
+     * Determines if the command has JSON POST parameters that will be sent in the request body.
+     */
+    private function hasJsonPostParams(InputInterface $input): bool
+    {
+        if (!$this->postParams) {
+            return false;
+        }
+
+        foreach ($this->postParams as $paramName => $paramSpec) {
+            $paramValue = $this->getParamFromInput($input, $paramName);
+            if (!is_null($paramValue)) {
+                // Check if this is a binary file upload (multipart) vs JSON.
+                if ($this->isBinaryParam($paramSpec)) {
+                    // Skip binary params, they don't need Content-Type: application/json.
+                    continue;
+                }
+                // Found a non-binary param, need Content-Type: application/json.
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Checks if a parameter specification indicates a binary file upload.
+     */
+    private function isBinaryParam(?array $paramSpec): bool
+    {
+        if (!$paramSpec) {
+            return false;
+        }
+
+        if (!array_key_exists('format', $paramSpec)) {
+            return false;
+        }
+
+        return $paramSpec['format'] === 'binary';
     }
 
     private function askFreeFormQuestion(InputArgument $argument, array $params): mixed
