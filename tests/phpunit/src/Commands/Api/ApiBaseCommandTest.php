@@ -198,17 +198,21 @@ class ApiBaseCommandTest extends CommandTestBase
         $postParamsProperty = $reflectionClass->getProperty('postParams');
 
         // Case 1: Empty post parameters array (should return false immediately)
+        // This specifically tests the early return condition to kill ReturnRemoval mutation.
         $input1 = $this->createMock(\Symfony\Component\Console\Input\InputInterface::class);
-        $input1->method('hasArgument')->willReturn(false);
-        $input1->method('hasParameterOption')->willReturn(false);
+        // These methods should NOT be called if early return works.
+        $input1->expects($this->never())->method('hasArgument');
+        $input1->expects($this->never())->method('getArgument');
+        $input1->expects($this->never())->method('hasParameterOption');
         $postParamsProperty->setValue($command, []);
         $result1 = $hasJsonPostParams->invoke($command, $input1);
         $this->assertFalse($result1, 'Should return false when postParams is empty array');
 
         // Case 2: Parameters exist but all values are null (should return false after foreach loop)
+        // This tests that we reach the end of the foreach and return false naturally.
         $input2 = $this->createMock(\Symfony\Component\Console\Input\InputInterface::class);
-        $input2->method('hasArgument')->willReturn(false);
-        $input2->method('hasParameterOption')->willReturn(false);
+        $input2->method('hasArgument')->willReturnMap([['param1', false], ['param2', false]]);
+        $input2->method('hasParameterOption')->willReturnMap([['--param1', false], ['--param2', false]]);
         $postParamsProperty->setValue($command, ['param1' => ['type' => 'string'], 'param2' => ['type' => 'integer']]);
         $result2 = $hasJsonPostParams->invoke($command, $input2);
         $this->assertFalse($result2, 'Should return false when all param values are null');
@@ -218,6 +222,7 @@ class ApiBaseCommandTest extends CommandTestBase
         $input3->method('hasArgument')->willReturnMap([['param1', true], ['param2', false]]);
         $input3->method('getArgument')->with('param1')->willReturn('test-value');
         $input3->method('hasParameterOption')->willReturn(false);
+        $postParamsProperty->setValue($command, ['param1' => ['type' => 'string'], 'param2' => ['type' => 'integer']]);
         $result3 = $hasJsonPostParams->invoke($command, $input3);
         $this->assertTrue($result3, 'Should return true when a non-binary param has value');
 
