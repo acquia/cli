@@ -111,9 +111,16 @@ class ApiBaseCommand extends CommandBase
         // Acquia PHP SDK cannot set the Accept header itself because it would break
         // API calls returning octet streams (e.g., db backups). It's safe to use
         // here because the API command should always return JSON.
-        $acquiaCloudClient->addOption('headers', [
+        $headers = [
             'Accept' => 'application/hal+json, version=2',
-        ]);
+        ];
+
+        // Add Content-Type header for requests with JSON body parameters.
+        if ($this->hasJsonPostParams($input)) {
+            $headers['Content-Type'] = 'application/json';
+        }
+
+        $acquiaCloudClient->addOption('headers', $headers);
 
         try {
             if ($this->output->isVeryVerbose()) {
@@ -427,6 +434,28 @@ class ApiBaseCommand extends CommandBase
         } else {
             $acquiaCloudClient->addOption('json', [$paramName => $paramValue]);
         }
+    }
+
+    /**
+     * Determines if the command has JSON POST parameters that will be sent in the request body.
+     */
+    private function hasJsonPostParams(InputInterface $input): bool
+    {
+        if (!$this->postParams) {
+            return false;
+        }
+
+        foreach ($this->postParams as $paramName => $paramSpec) {
+            $paramValue = $this->getParamFromInput($input, $paramName);
+            if (!is_null($paramValue)) {
+                // Check if this is a binary file upload (multipart) vs JSON.
+                if (!($paramSpec && array_key_exists('format', $paramSpec) && $paramSpec["format"] === 'binary')) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     private function askFreeFormQuestion(InputArgument $argument, array $params): mixed
