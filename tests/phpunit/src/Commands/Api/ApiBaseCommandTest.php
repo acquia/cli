@@ -181,4 +181,35 @@ class ApiBaseCommandTest extends CommandTestBase
         $result4 = $isBinaryParam->invoke($command, ['type' => 'string', 'format' => 'binary']);
         $this->assertTrue($result4, 'Binary format should return true');
     }
+
+    /**
+     * Tests the hasJsonPostParams method with different scenarios.
+     *
+     * @throws \ReflectionException
+     */
+    public function testHasJsonPostParams(): void
+    {
+        $command = $this->createCommand();
+
+        // Use reflection to access private methods and properties.
+        $reflectionClass = new \ReflectionClass(ApiBaseCommand::class);
+        $hasJsonPostParams = $reflectionClass->getMethod('hasJsonPostParams');
+        $postParamsProperty = $reflectionClass->getProperty('postParams');
+        $postParamsProperty->setAccessible(true);
+
+        // Create a mock input.
+        $input = $this->createMock(\Symfony\Component\Console\Input\InputInterface::class);
+
+        // Case 1: No post parameters (should return false)
+        $postParamsProperty->setValue($command, []);
+        $result1 = $hasJsonPostParams->invoke($command, $input);
+        $this->assertFalse($result1, 'Should return false when no postParams exist');
+
+        // Case 2: Post parameters exist but input values are null (should return false)
+        $postParamsProperty->setValue($command, ['param1' => ['type' => 'string']]);
+        $input->method('hasArgument')->willReturn(false);
+        $input->method('hasParameterOption')->willReturn(false);
+        $result2 = $hasJsonPostParams->invoke($command, $input);
+        $this->assertFalse($result2, 'Should return false when param values are null');
+    }
 }
