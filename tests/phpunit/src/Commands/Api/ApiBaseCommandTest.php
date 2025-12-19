@@ -200,10 +200,10 @@ class ApiBaseCommandTest extends CommandTestBase
         // Case 1: Empty post parameters array (should return false immediately)
         // This specifically tests the early return condition to kill ReturnRemoval mutation.
         $input1 = $this->createMock(\Symfony\Component\Console\Input\InputInterface::class);
-        // These methods should NOT be called if early return works.
-        $input1->expects($this->never())->method('hasArgument');
-        $input1->expects($this->never())->method('getArgument');
-        $input1->expects($this->never())->method('hasParameterOption');
+        // If the early return is removed, these methods will be called and throw exceptions.
+        $input1->method('hasArgument')->willThrowException(new \RuntimeException('Early return failed - hasArgument should not be called'));
+        $input1->method('getArgument')->willThrowException(new \RuntimeException('Early return failed - getArgument should not be called'));
+        $input1->method('hasParameterOption')->willThrowException(new \RuntimeException('Early return failed - hasParameterOption should not be called'));
         $postParamsProperty->setValue($command, []);
         $result1 = $hasJsonPostParams->invoke($command, $input1);
         $this->assertFalse($result1, 'Should return false when postParams is empty array');
