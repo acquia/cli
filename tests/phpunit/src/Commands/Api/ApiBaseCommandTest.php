@@ -184,6 +184,7 @@ class ApiBaseCommandTest extends CommandTestBase
 
     /**
      * Tests the hasJsonPostParams method with different scenarios.
+     * This test specifically targets the ReturnRemoval mutation.
      *
      * @throws \ReflectionException
      */
@@ -197,19 +198,49 @@ class ApiBaseCommandTest extends CommandTestBase
         $postParamsProperty = $reflectionClass->getProperty('postParams');
         $postParamsProperty->setAccessible(true);
 
-        // Create a mock input.
-        $input = $this->createMock(\Symfony\Component\Console\Input\InputInterface::class);
-
-        // Case 1: No post parameters (should return false)
+        // Case 1: Empty post parameters array (should return false immediately)
+        $input1 = $this->createMock(\Symfony\Component\Console\Input\InputInterface::class);
+        $input1->method('hasArgument')->willReturn(false);
+        $input1->method('hasParameterOption')->willReturn(false);
         $postParamsProperty->setValue($command, []);
-        $result1 = $hasJsonPostParams->invoke($command, $input);
-        $this->assertFalse($result1, 'Should return false when no postParams exist');
+        $result1 = $hasJsonPostParams->invoke($command, $input1);
+        $this->assertFalse($result1, 'Should return false when postParams is empty array');
 
-        // Case 2: Post parameters exist but input values are null (should return false)
-        $postParamsProperty->setValue($command, ['param1' => ['type' => 'string']]);
-        $input->method('hasArgument')->willReturn(false);
-        $input->method('hasParameterOption')->willReturn(false);
-        $result2 = $hasJsonPostParams->invoke($command, $input);
-        $this->assertFalse($result2, 'Should return false when param values are null');
+        // Case 2: Parameters exist but all values are null (should return false after foreach loop)
+        $input2 = $this->createMock(\Symfony\Component\Console\Input\InputInterface::class);
+        $input2->method('hasArgument')->willReturn(false);
+        $input2->method('hasParameterOption')->willReturn(false);
+        $postParamsProperty->setValue($command, ['param1' => ['type' => 'string'], 'param2' => ['type' => 'integer']]);
+        $result2 = $hasJsonPostParams->invoke($command, $input2);
+        $this->assertFalse($result2, 'Should return false when all param values are null');
+
+        // Case 3: Parameters exist with non-null value (should return true)
+        $input3 = $this->createMock(\Symfony\Component\Console\Input\InputInterface::class);
+        $input3->method('hasArgument')->willReturnMap([['param1', true], ['param2', false]]);
+        $input3->method('getArgument')->with('param1')->willReturn('test-value');
+        $input3->method('hasParameterOption')->willReturn(false);
+        $result3 = $hasJsonPostParams->invoke($command, $input3);
+        $this->assertTrue($result3, 'Should return true when a non-binary param has value');
+
+        // Case 4: Only binary parameters have values (should return false)
+        $input4 = $this->createMock(\Symfony\Component\Console\Input\InputInterface::class);
+        $input4->method('hasArgument')->with('file_param')->willReturn(true);
+        $input4->method('getArgument')->with('file_param')->willReturn('/path/to/file');
+        $input4->method('hasParameterOption')->willReturn(false);
+        $postParamsProperty->setValue($command, ['file_param' => ['type' => 'string', 'format' => 'binary']]);
+        $result4 = $hasJsonPostParams->invoke($command, $input4);
+        $this->assertFalse($result4, 'Should return false when only binary params have values');
+
+        // Case 5: Mixed params - binary and non-binary, both with values (should return true for non-binary)
+        $input5 = $this->createMock(\Symfony\Component\Console\Input\InputInterface::class);
+        $input5->method('hasArgument')->willReturnMap([['file_param', true], ['json_param', true]]);
+        $input5->method('getArgument')->willReturnMap([['file_param', '/path/to/file'], ['json_param', 'json-value']]);
+        $input5->method('hasParameterOption')->willReturn(false);
+        $postParamsProperty->setValue($command, [
+            'file_param' => ['type' => 'string', 'format' => 'binary'],
+            'json_param' => ['type' => 'string'],
+        ]);
+        $result5 = $hasJsonPostParams->invoke($command, $input5);
+        $this->assertTrue($result5, 'Should return true when mixed params include non-binary with value');
     }
 }
