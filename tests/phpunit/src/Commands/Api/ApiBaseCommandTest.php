@@ -196,7 +196,6 @@ class ApiBaseCommandTest extends CommandTestBase
         $reflectionClass = new \ReflectionClass(ApiBaseCommand::class);
         $hasJsonPostParams = $reflectionClass->getMethod('hasJsonPostParams');
         $postParamsProperty = $reflectionClass->getProperty('postParams');
-        $postParamsProperty->setAccessible(true);
 
         // Case 1: Empty post parameters array (should return false immediately)
         $input1 = $this->createMock(\Symfony\Component\Console\Input\InputInterface::class);
