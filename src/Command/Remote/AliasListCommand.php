@@ -15,7 +15,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 #[RequireAuth]
-#[AsCommand(name: 'remote:aliases:list', description: 'List all aliases for the Cloud Platform environments', aliases: [
+#[AsCommand(name: 'remote:aliases:list', description: 'List all aliases for the Cloud Platform environments (Added in 1.0.0)', aliases: [
     'aliases',
     'sa',
 ])]

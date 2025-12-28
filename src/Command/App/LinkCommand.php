@@ -12,7 +12,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 #[RequireAuth]
-#[AsCommand(name: 'app:link', description: 'Associate your project with a Cloud Platform application', aliases: ['link'])]
+#[AsCommand(name: 'app:link', description: 'Associate your project with a Cloud Platform application (Added in 1.23.1)', aliases: ['link'])]
 final class LinkCommand extends CommandBase
 {
     protected function configure(): void

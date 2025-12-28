@@ -14,7 +14,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 #[RequireAuth]
 #[RequireLocalDb]
-#[AsCommand(name: 'pull:code', description: 'Copy code from a Cloud Platform environment')]
+#[AsCommand(name: 'pull:code', description: 'Copy code from a Cloud Platform environment (Added in 1.1.0)')]
 final class PullCodeCommand extends PullCommandBase
 {
     protected function configure(): void

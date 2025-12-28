@@ -10,7 +10,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-#[AsCommand(name: 'self:info', description: 'Print information about the running version of Acquia CLI')]
+#[AsCommand(name: 'self:info', description: 'Print information about the running version of Acquia CLI (Added in 2.31.0)')]
 
 final class SelfInfoCommand extends CommandBase
 {

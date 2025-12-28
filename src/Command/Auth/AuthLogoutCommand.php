@@ -12,7 +12,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-#[AsCommand(name: 'auth:logout', description: 'Remove Cloud Platform API credentials', aliases: ['logout'])]
+#[AsCommand(name: 'auth:logout', description: 'Remove Cloud Platform API credentials (Added in 1.1.0)', aliases: ['logout'])]
 final class AuthLogoutCommand extends CommandBase
 {
     protected function configure(): void

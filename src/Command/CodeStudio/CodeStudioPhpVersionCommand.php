@@ -13,7 +13,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 #[RequireAuth]
-#[AsCommand(name: 'codestudio:php-version', description: 'Change the PHP version in Code Studio')]
+#[AsCommand(name: 'codestudio:php-version', description: 'Change the PHP version in Code Studio (Added in 2.7.0)')]
 final class CodeStudioPhpVersionCommand extends CommandBase
 {
     use CodeStudioCommandTrait;

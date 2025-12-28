@@ -13,7 +13,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 #[RequireAuth]
-#[AsCommand(name: 'ssh-key:list', description: 'List your local and remote SSH keys')]
+#[AsCommand(name: 'ssh-key:list', description: 'List your local and remote SSH keys (Added in 1.0.0)')]
 final class SshKeyListCommand extends SshKeyCommandBase
 {
     protected function execute(InputInterface $input, OutputInterface $output): int

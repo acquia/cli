@@ -14,7 +14,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 #[RequireAuth]
-#[AsCommand(name: 'ide:wizard:ssh-key:create-upload', description: 'Wizard to perform first time setup tasks within an IDE', aliases: ['ide:wizard'])]
+#[AsCommand(name: 'ide:wizard:ssh-key:create-upload', description: 'Wizard to perform first time setup tasks within an IDE (Added in 1.0.0)', aliases: ['ide:wizard'])]
 final class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase
 {
     protected function configure(): void

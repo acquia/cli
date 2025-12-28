@@ -15,7 +15,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 #[RequireAuth]
-#[AsCommand(name: 'ide:list:mine', description: 'List Cloud IDEs belonging to you')]
+#[AsCommand(name: 'ide:list:mine', description: 'List Cloud IDEs belonging to you (Added in 1.18.0)')]
 final class IdeListMineCommand extends IdeCommandBase
 {
     protected function execute(InputInterface $input, OutputInterface $output): int

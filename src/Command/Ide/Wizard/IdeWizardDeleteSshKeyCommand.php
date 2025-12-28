@@ -14,7 +14,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 #[RequireAuth]
-#[AsCommand(name: 'ide:wizard:ssh-key:delete', description: 'Wizard to delete SSH key for IDE from Cloud')]
+#[AsCommand(name: 'ide:wizard:ssh-key:delete', description: 'Wizard to delete SSH key for IDE from Cloud (Added in 1.0.0)')]
 final class IdeWizardDeleteSshKeyCommand extends IdeWizardCommandBase
 {
     use SshCommandTrait;

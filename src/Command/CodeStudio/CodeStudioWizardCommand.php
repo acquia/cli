@@ -17,7 +17,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-#[AsCommand(name: 'codestudio:wizard', description: 'Create and/or configure a new Code Studio project for a given Cloud Platform application', aliases: ['cs:wizard'])]
+#[AsCommand(name: 'codestudio:wizard', description: 'Create and/or configure a new Code Studio project for a given Cloud Platform application (Added in 1.21.0)', aliases: ['cs:wizard'])]
 final class CodeStudioWizardCommand extends WizardCommandBase
 {
     use CodeStudioCommandTrait;

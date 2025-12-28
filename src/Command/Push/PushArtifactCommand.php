@@ -16,7 +16,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Path;
 
-#[AsCommand(name: 'push:artifact', description: 'Build and push a code artifact to a Cloud Platform environment')]
+#[AsCommand(name: 'push:artifact', description: 'Build and push a code artifact to a Cloud Platform environment (Added in 1.11.0)')]
 final class PushArtifactCommand extends CommandBase
 {
     /**

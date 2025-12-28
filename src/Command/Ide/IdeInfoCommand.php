@@ -13,7 +13,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 #[RequireAuth]
-#[AsCommand(name: 'ide:info', description: 'Print information about a Cloud IDE')]
+#[AsCommand(name: 'ide:info', description: 'Print information about a Cloud IDE (Added in 1.2.0)')]
 final class IdeInfoCommand extends IdeCommandBase
 {
     protected function configure(): void

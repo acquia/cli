@@ -11,7 +11,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-#[AsCommand(name: 'app:unlink', description: 'Remove local association between your project and a Cloud Platform application', aliases: ['unlink'])]
+#[AsCommand(name: 'app:unlink', description: 'Remove local association between your project and a Cloud Platform application (Added in 2.0.0)', aliases: ['unlink'])]
 final class UnlinkCommand extends CommandBase
 {
     protected function execute(InputInterface $input, OutputInterface $output): int

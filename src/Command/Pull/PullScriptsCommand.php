@@ -12,7 +12,7 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-#[AsCommand(name: 'pull:run-scripts', description: 'Execute post pull scripts')]
+#[AsCommand(name: 'pull:run-scripts', description: 'Execute post pull scripts (Added in 1.1.0)')]
 final class PullScriptsCommand extends CommandBase
 {
     protected Checklist $checklist;

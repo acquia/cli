@@ -15,7 +15,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 #[RequireAuth]
 #[RequireLocalDb]
-#[AsCommand(name: 'pull:all', description: 'Copy code, database, and files from a Cloud Platform environment', aliases: [
+#[AsCommand(name: 'pull:all', description: 'Copy code, database, and files from a Cloud Platform environment (Added in 1.1.0)', aliases: [
     'refresh',
     'pull',
 ])]

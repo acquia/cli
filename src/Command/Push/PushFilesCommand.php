@@ -13,7 +13,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 #[RequireAuth]
-#[AsCommand(name: 'push:files', description: 'Copy Drupal public files from your local environment to a Cloud Platform environment')]
+#[AsCommand(name: 'push:files', description: 'Copy Drupal public files from your local environment to a Cloud Platform environment (Added in 1.1.0)')]
 final class PushFilesCommand extends PushCommandBase
 {
     protected function configure(): void
