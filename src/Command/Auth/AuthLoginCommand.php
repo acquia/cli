@@ -12,7 +12,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-#[AsCommand(name: 'auth:login', description: 'Register Cloud Platform API credentials (Added in 1.1.0)', aliases: ['login'])]
+#[AsCommand(name: 'auth:login', description: 'Register Cloud Platform API credentials (Added in 1.1.0).', aliases: ['login'])]
 final class AuthLoginCommand extends CommandBase
 {
     protected function configure(): void

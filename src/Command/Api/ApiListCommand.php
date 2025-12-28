@@ -8,7 +8,7 @@ use Acquia\Cli\Attribute\RequireAuth;
 use Symfony\Component\Console\Attribute\AsCommand;
 
 #[RequireAuth]
-#[AsCommand(name: 'api:list', description: 'List all API commands (Added in 1.0.0)', aliases: ['api'])]
+#[AsCommand(name: 'api:list', description: 'List all API commands (Added in 1.0.0).', aliases: ['api'])]
 final class ApiListCommand extends ApiListCommandBase
 {
     protected string $namespace = 'api';

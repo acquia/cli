@@ -13,7 +13,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 #[RequireAuth]
-#[AsCommand(name: 'app:open', description: 'Opens your browser to view a given Cloud application (Added in 1.23.0)', aliases: [
+#[AsCommand(name: 'app:open', description: 'Opens your browser to view a given Cloud application (Added in 1.23.0).', aliases: [
     'open',
     'o',
 ])]

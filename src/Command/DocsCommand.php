@@ -11,7 +11,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
 
-#[AsCommand(name: 'docs', description: 'Open Acquia product documentation in a web browser (Added in 1.18.0)')]
+#[AsCommand(name: 'docs', description: 'Open Acquia product documentation in a web browser (Added in 1.18.0).')]
 final class DocsCommand extends CommandBase
 {
     protected function configure(): void

@@ -23,7 +23,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 #[RequireAuth]
-#[AsCommand(name: 'app:log:tail', description: 'Tail the logs from your environments (Added in 1.23.1)', aliases: [
+#[AsCommand(name: 'app:log:tail', description: 'Tail the logs from your environments (Added in 1.23.1).', aliases: [
     'tail',
     'log:tail',
 ])]

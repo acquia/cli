@@ -15,7 +15,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 #[RequireAuth]
-#[AsCommand(name: 'env:delete', description: 'Delete a Continuous Delivery Environment (CDE) (Added in 2.0.0)')]
+#[AsCommand(name: 'env:delete', description: 'Delete a Continuous Delivery Environment (CDE) (Added in 2.0.0).')]
 final class EnvDeleteCommand extends CommandBase
 {
     protected function configure(): void

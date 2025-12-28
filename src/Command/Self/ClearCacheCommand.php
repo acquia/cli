@@ -12,7 +12,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Path;
 
-#[AsCommand(name: 'self:clear-caches', description: 'Clears local Acquia CLI caches (Added in 2.0.0)', aliases: [
+#[AsCommand(name: 'self:clear-caches', description: 'Clears local Acquia CLI caches (Added in 2.0.0).', aliases: [
     'cc',
     'cr',
 ])]

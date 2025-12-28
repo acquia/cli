@@ -14,7 +14,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 #[RequireAuth]
-#[AsCommand(name: 'ide:list:app', description: 'List available Cloud IDEs belonging to a given application (Added in 1.0.0)', aliases: ['ide:list'])]
+#[AsCommand(name: 'ide:list:app', description: 'List available Cloud IDEs belonging to a given application (Added in 1.0.0).', aliases: ['ide:list'])]
 final class IdeListCommand extends IdeCommandBase
 {
     protected function configure(): void

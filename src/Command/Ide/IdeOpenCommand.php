@@ -13,7 +13,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 #[RequireAuth]
-#[AsCommand(name: 'ide:open', description: 'Open a Cloud IDE in your browser (Added in 1.0.0)')]
+#[AsCommand(name: 'ide:open', description: 'Open a Cloud IDE in your browser (Added in 1.0.0).')]
 final class IdeOpenCommand extends IdeCommandBase
 {
     protected function configure(): void

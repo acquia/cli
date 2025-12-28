@@ -15,7 +15,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Path;
 
-#[AsCommand(name: 'app:new:local', description: 'Create a new Drupal or Next.js project (Added in 2.0.0)', aliases: ['new'])]
+#[AsCommand(name: 'app:new:local', description: 'Create a new Drupal or Next.js project (Added in 2.0.0).', aliases: ['new'])]
 final class NewCommand extends CommandBase
 {
     /**

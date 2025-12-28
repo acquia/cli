@@ -15,7 +15,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 #[RequireAuth]
-#[AsCommand(name: 'ssh-key:info', description: 'Print information about an SSH key (Added in 1.17.0)')]
+#[AsCommand(name: 'ssh-key:info', description: 'Print information about an SSH key (Added in 1.17.0).')]
 final class SshKeyInfoCommand extends SshKeyCommandBase
 {
     protected function configure(): void

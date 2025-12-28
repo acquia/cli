@@ -22,7 +22,7 @@ use Symfony\Component\Filesystem\Path;
 
 #[RequireAuth]
 #[RequireLocalDb]
-#[AsCommand(name: 'archive:export', description: 'Export an archive of the Drupal application including code, files, and database (Added in 1.12.0)')]
+#[AsCommand(name: 'archive:export', description: 'Export an archive of the Drupal application including code, files, and database (Added in 1.12.0).')]
 final class ArchiveExportCommand extends CommandBase
 {
     protected Checklist $checklist;

@@ -11,7 +11,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-#[AsCommand(name: 'self:telemetry:disable', description: 'Disable anonymous sharing of usage and performance data (Added in 2.0.0)', aliases: ['telemetry:disable'])]
+#[AsCommand(name: 'self:telemetry:disable', description: 'Disable anonymous sharing of usage and performance data (Added in 2.0.0).', aliases: ['telemetry:disable'])]
 final class TelemetryDisableCommand extends CommandBase
 {
     protected function execute(InputInterface $input, OutputInterface $output): int

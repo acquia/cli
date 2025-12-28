@@ -13,7 +13,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 #[RequireAuth]
-#[AsCommand(name: 'app:task-wait', description: 'Wait for a task to complete (Added in 2.0.0)')]
+#[AsCommand(name: 'app:task-wait', description: 'Wait for a task to complete (Added in 2.0.0).')]
 final class TaskWaitCommand extends CommandBase
 {
     protected function configure(): void

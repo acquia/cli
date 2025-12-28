@@ -14,7 +14,7 @@ use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Exception\ValidatorException;
 use Symfony\Component\Validator\Validation;
 
-#[AsCommand(name: 'ide:service-stop', description: 'Stop a service in the Cloud IDE (Added in 1.17.0)')]
+#[AsCommand(name: 'ide:service-stop', description: 'Stop a service in the Cloud IDE (Added in 1.17.0).')]
 final class IdeServiceStopCommand extends IdeCommandBase
 {
     protected function configure(): void

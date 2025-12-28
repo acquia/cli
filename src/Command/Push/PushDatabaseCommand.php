@@ -19,7 +19,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 #[RequireAuth]
 #[RequireLocalDb]
 #[RequireRemoteDb]
-#[AsCommand(name: 'push:database', description: 'Push a database from your local environment to a Cloud Platform environment (Added in 1.1.0)', aliases: ['push:db'])]
+#[AsCommand(name: 'push:database', description: 'Push a database from your local environment to a Cloud Platform environment (Added in 1.1.0).', aliases: ['push:db'])]
 final class PushDatabaseCommand extends PushCommandBase
 {
     protected function configure(): void

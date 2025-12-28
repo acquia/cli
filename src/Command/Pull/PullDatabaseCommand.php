@@ -14,7 +14,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 #[RequireAuth]
 #[RequireLocalDb]
-#[AsCommand(name: 'pull:database', description: 'Import database backup from a Cloud Platform environment (Added in 1.1.0)', aliases: ['pull:db'])]
+#[AsCommand(name: 'pull:database', description: 'Import database backup from a Cloud Platform environment (Added in 1.1.0).', aliases: ['pull:db'])]
 final class PullDatabaseCommand extends PullCommandBase
 {
     protected function configure(): void

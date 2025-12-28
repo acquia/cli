@@ -14,7 +14,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  * A command to proxy Drush commands on an environment using SSH.
  */
 #[RequireAuth]
-#[AsCommand(name: 'remote:drush', description: 'Run a Drush command remotely on a Cloud Platform environment (Added in 1.0.0)', aliases: [
+#[AsCommand(name: 'remote:drush', description: 'Run a Drush command remotely on a Cloud Platform environment (Added in 1.0.0).', aliases: [
     'drush',
     'dr',
 ])]

@@ -16,7 +16,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 #[RequireAuth]
-#[AsCommand(name: 'env:certificate-create', description: 'Install an SSL certificate. (Added in 2.10.0)')]
+#[AsCommand(name: 'env:certificate-create', description: 'Install an SSL certificate. (Added in 2.10.0).')]
 final class EnvCertCreateCommand extends CommandBase
 {
     protected function configure(): void

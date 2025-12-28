@@ -22,7 +22,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Validator\Exception\ValidatorException;
 
-#[AsCommand(name: 'app:new:from:drupal7', description: 'Generate a new Drupal 9+ project from a Drupal 7 application using the default Acquia Migrate Accelerate recommendations. (Added in 2.14.0)', aliases: [
+#[AsCommand(name: 'app:new:from:drupal7', description: 'Generate a new Drupal 9+ project from a Drupal 7 application using the default Acquia Migrate Accelerate recommendations. (Added in 2.14.0).', aliases: [
     // Currently only "from Drupal 7", more to potentially follow.
     'from:d7',
     // A nod to its roots.
