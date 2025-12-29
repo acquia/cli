@@ -11,13 +11,19 @@
         }
     ],
     "minimum-stability": "dev",
+    "repositories": [
+        {
+            "type": "github",
+            "url": "https://github.com/danepowell/self-update"
+        }
+    ],
     "require": {
         "php": "^8.2",
         "ext-json": "*",
         "acquia/drupal-environment-detector": "^1.7.0",
         "bugsnag/bugsnag": "^3.29",
         "composer/semver": "^3.3",
-        "consolidation/self-update": "^3.1.0",
+        "consolidation/self-update": "dev-native-binaries as 3.1.0",
         "dflydev/dot-access-data": "^3",
         "grasmash/expander": "^3.0.1",
         "guzzlehttp/guzzle": "^7.4",
@@ -53,6 +59,7 @@
     },
     "require-dev": {
         "acquia/coding-standards": "^3.0.2",
+        "amphp/parallel": "2.x-dev as 2.3.2",
         "brianium/paratest": "^7",
         "dealerdirect/phpcodesniffer-composer-installer": "^1.0.0",
         "dominikb/composer-license-checker": "^2.4",
@@ -67,6 +74,7 @@
         "phpstan/phpstan": "^1.0",
         "phpstan/phpstan-deprecation-rules": "^1.0",
         "phpunit/phpunit": "^11",
+        "revolt/event-loop": "dev-main as 1.0.7",
         "slevomat/coding-standard": "^8.10",
         "squizlabs/php_codesniffer": "^3.5",
         "twig/twig": "^3.3"

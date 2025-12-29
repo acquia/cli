@@ -373,18 +373,45 @@ class ApiCommandHelper
                 $command->setDescription($schema['summary']);
                 $command->setMethod($method);
                 $command->setResponses($schema['responses']);
-                $command->setHidden(array_key_exists('deprecated', $schema) && $schema['deprecated']);
+                $command->setHidden(
+                    self::isDeprecated($schema) || self::isPreRelease($schema)
+                );
                 if (array_key_exists('servers', $acquiaCloudSpec)) {
                     $command->setServers($acquiaCloudSpec['servers']);
                 }
                 $command->setPath($path);
-                $command->setHelp("For more help, see https://cloudapi-docs.acquia.com/ or https://dev.acquia.com/api-documentation/acquia-cloud-site-factory-api for acsf commands.");
+
+                $helpText = "For more help, see https://cloudapi-docs.acquia.com/ or https://dev.acquia.com/api-documentation/acquia-cloud-site-factory-api for acsf commands.";
+                if (self::isPreRelease($schema)) {
+                    $helpText .= "\n\nThis endpoint is pre-release and therefore unsupported and may be changed or removed without notice.";
+                }
+                if (self::isDeprecated($schema)) {
+                    $helpText .= "\n\nThis endpoint is deprecated and may be removed without notice.";
+                }
+                $command->setHelp($helpText);
+
                 $this->addApiCommandParameters($schema, $acquiaCloudSpec, $command);
                 $apiCommands[] = $command;
             }
         }
 
         return $apiCommands;
+    }
+
+    /**
+     * Helper to check if an endpoint is deprecated.
+     */
+    private static function isDeprecated(array $schema): bool
+    {
+        return array_key_exists('deprecated', $schema) && $schema['deprecated'];
+    }
+
+    /**
+     * Helper to check if an endpoint is pre-release.
+     */
+    private static function isPreRelease(array $schema): bool
+    {
+        return array_key_exists('x-prerelease', $schema) && $schema['x-prerelease'];
     }
 
     /**
