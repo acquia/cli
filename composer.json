@@ -14,10 +14,6 @@
     "repositories": [
         {
             "type": "github",
-            "url": "https://github.com/danepowell/amplitude-php"
-        },
-        {
-            "type": "github",
             "url": "https://github.com/danepowell/self-update"
         }
     ],
@@ -59,7 +55,7 @@
         "typhonius/acquia-logstream": "^0.0.15",
         "typhonius/acquia-php-sdk-v2": "^3.7.3",
         "vlucas/phpdotenv": "^5.5",
-        "zumba/amplitude-php": "dev-php85 as 1.0.8"
+        "zumba/amplitude-php": "^1.0.9"
     },
     "require-dev": {
         "acquia/coding-standards": "^3.0.2",
