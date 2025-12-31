@@ -36,7 +36,7 @@ class ApiCommandTest extends CommandTestBase
         $branch = 'my-feature-branch';
         $this->mockRequest('postEnvironmentsSwitchCode', $environmentId, null, 'Switching code');
         $this->clientProphecy->addOption('json', ['branch' => $branch])->shouldBeCalled();
-        $this->clientProphecy->addOption('headers', ['Accept' => 'application/hal+json, version=2'])
+        $this->clientProphecy->addOption('headers', ['Accept' => 'application/hal+json, version=2', 'Content-Type' => 'application/json'])
             ->shouldBeCalled();
         $this->mockRequest('getNotificationByUuid', 'bfd9a39b-a85e-4de3-8a70-042d1c7e607a');
         $this->command = $this->getApiCommandByName('api:environments:code-switch');
@@ -197,7 +197,7 @@ EOD;
 
     public function testObjectParam(): void
     {
-        $this->clientProphecy->addOption('headers', ['Accept' => 'application/hal+json, version=2'])
+        $this->clientProphecy->addOption('headers', ['Accept' => 'application/hal+json, version=2', 'Content-Type' => 'application/json'])
             ->shouldBeCalled();
         $this->mockRequest('putEnvironmentCloudActions', '24-a47ac10b-58cc-4372-a567-0e02b2c3d470');
         $this->clientProphecy->addOption('json', ['cloud-actions' => (object)['fb4aa87a-8be2-42c6-bdf0-ef9d09a3de70' => true]]);
@@ -398,7 +398,7 @@ EOD;
 
     public function testApiCommandExecutionForHttpPost(): void
     {
-        $this->clientProphecy->addOption('headers', ['Accept' => 'application/hal+json, version=2'])
+        $this->clientProphecy->addOption('headers', ['Accept' => 'application/hal+json, version=2', 'Content-Type' => 'application/json'])
             ->shouldBeCalled();
         $mockRequestArgs = self::getMockRequestBodyFromSpec('/account/ssh-keys');
         $mockResponseBody = self::getMockResponseFromSpec('/account/ssh-keys', 'post', '202');
@@ -421,7 +421,7 @@ EOD;
 
     public function testApiCommandExecutionForHttpPut(): void
     {
-        $this->clientProphecy->addOption('headers', ['Accept' => 'application/hal+json, version=2'])
+        $this->clientProphecy->addOption('headers', ['Accept' => 'application/hal+json, version=2', 'Content-Type' => 'application/json'])
             ->shouldBeCalled();
         $mockRequestOptions = self::getMockRequestBodyFromSpec('/environments/{environmentId}', 'put');
         $mockRequestOptions['max_input_vars'] = 1001;
