@@ -414,7 +414,6 @@ class ApiBaseCommand extends CommandBase
         if (!$hasData && in_array(strtoupper($this->method), ['POST', 'PUT', 'PATCH'])) {
             $acquiaCloudClient->addOption('json', []);
             $acquiaCloudClient->addOption('headers', [
-
                 'Content-Type' => 'application/json',
             ]);
         }
