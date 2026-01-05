@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "e5e43547b456d9842667389da37d146b",
+    "content-hash": "a3cf19b4b2906220a8f7093e2107d837",
     "packages": [
         {
             "name": "acquia/drupal-environment-detector",
@@ -6556,16 +6556,16 @@
         },
         {
             "name": "zumba/amplitude-php",
-            "version": "dev-php85",
+            "version": "1.0.9",
             "source": {
                 "type": "git",
-                "url": "https://github.com/danepowell/amplitude-php.git",
-                "reference": "cfa54624bbec59912d6b1c82fbc265e44eba36dd"
+                "url": "https://github.com/zumba/amplitude-php.git",
+                "reference": "80878a5e2260ded08db712b43c04cfba5e93269c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/danepowell/amplitude-php/zipball/cfa54624bbec59912d6b1c82fbc265e44eba36dd",
-                "reference": "cfa54624bbec59912d6b1c82fbc265e44eba36dd",
+                "url": "https://api.github.com/repos/zumba/amplitude-php/zipball/80878a5e2260ded08db712b43c04cfba5e93269c",
+                "reference": "80878a5e2260ded08db712b43c04cfba5e93269c",
                 "shasum": ""
             },
             "require": {
@@ -6586,6 +6586,7 @@
                     "Zumba\\Amplitude\\Test\\": "./test/"
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -6609,9 +6610,10 @@
                 "tracking"
             ],
             "support": {
-                "source": "https://github.com/danepowell/amplitude-php/tree/php85"
+                "issues": "https://github.com/zumba/amplitude-php/issues",
+                "source": "https://github.com/zumba/amplitude-php/tree/1.0.9"
             },
-            "time": "2025-11-25T21:28:19+00:00"
+            "time": "2025-12-08T19:43:14+00:00"
         }
     ],
     "packages-dev": [
@@ -13907,20 +13909,13 @@
             "version": "3.0.2.0",
             "alias": "2.5.0",
             "alias_normalized": "2.5.0.0"
-        },
-        {
-            "package": "zumba/amplitude-php",
-            "version": "dev-php85",
-            "alias": "1.0.8",
-            "alias_normalized": "1.0.8.0"
         }
     ],
     "minimum-stability": "dev",
     "stability-flags": {
         "amphp/parallel": 20,
         "consolidation/self-update": 20,
-        "revolt/event-loop": 20,
-        "zumba/amplitude-php": 20
+        "revolt/event-loop": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,
