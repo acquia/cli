@@ -111,9 +111,16 @@ class ApiBaseCommand extends CommandBase
         // Acquia PHP SDK cannot set the Accept header itself because it would break
         // API calls returning octet streams (e.g., db backups). It's safe to use
         // here because the API command should always return JSON.
-        $acquiaCloudClient->addOption('headers', [
+        $headers = [
             'Accept' => 'application/hal+json, version=2',
-        ]);
+        ];
+
+        // Add Content-Type header for POST/PUT/PATCH requests.
+        if (in_array(strtoupper($this->method), ['POST', 'PUT', 'PATCH'])) {
+            $headers['Content-Type'] = 'application/json';
+        }
+
+        $acquiaCloudClient->addOption('headers', $headers);
 
         try {
             if ($this->output->isVeryVerbose()) {
@@ -398,13 +405,20 @@ class ApiBaseCommand extends CommandBase
 
     private function addPostParamsToClient(InputInterface $input, Client $acquiaCloudClient): void
     {
+        $hasData = false;
         if ($this->postParams) {
             foreach ($this->postParams as $paramName => $paramSpec) {
                 $paramValue = $this->getParamFromInput($input, $paramName);
                 if (!is_null($paramValue)) {
                     $this->addPostParamToClient($paramName, $paramSpec, $paramValue, $acquiaCloudClient);
+                    $hasData = true;
                 }
             }
+        }
+
+        // For POST/PUT/PATCH requests without data, send an empty JSON body to satisfy Content-Type requirement.
+        if (!$hasData && in_array(strtoupper($this->method ?? ''), ['POST', 'PUT', 'PATCH'])) {
+            $acquiaCloudClient->addOption('json', []);
         }
     }
 
