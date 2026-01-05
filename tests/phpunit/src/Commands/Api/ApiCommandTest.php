@@ -396,6 +396,91 @@ EOD;
         $this->executeCommand(['environmentId' => $alias], []);
     }
 
+    public function testApiCommandExecutionForHttpPostWithoutData(): void
+    {
+        // Test POST request without body data (only path params) - should add empty JSON and Content-Type.
+        $this->clientProphecy->addOption('headers', ['Accept' => 'application/hal+json, version=2'])
+            ->shouldBeCalled();
+
+        // Expect empty JSON body and Content-Type header for POST without data.
+        $this->clientProphecy->addOption('json', [])
+            ->shouldBeCalled();
+        $this->clientProphecy->addOption('headers', ['Content-Type' => 'application/json'])
+            ->shouldBeCalled();
+
+        $mockResponseBody = self::getMockResponseFromSpec('/account/applications/{applicationUuid}/actions/mark-recent', 'post', '200');
+        $this->clientProphecy->request('post', '/account/applications/a47ac10b-58cc-4372-a567-0e02b2c3d470/actions/mark-recent')
+            ->willReturn($mockResponseBody)
+            ->shouldBeCalled();
+
+        $this->command = $this->getApiCommandByName('api:accounts:application-mark-recent');
+        $this->executeCommand(['applicationUuid' => 'a47ac10b-58cc-4372-a567-0e02b2c3d470']);
+
+        // Assert.
+        $output = $this->getDisplay();
+        $this->assertNotNull($output);
+        $this->assertJson($output);
+        $this->assertStringContainsString('The application has been marked as recently viewed.', $output);
+    }
+
+    public function testApiCommandExecutionForHttpPostLowercase(): void
+    {
+        // Test that method comparison is case-insensitive - using 'post' instead of 'POST'.
+        $this->clientProphecy->addOption('headers', ['Accept' => 'application/hal+json, version=2'])
+            ->shouldBeCalled();
+
+        // Should still add empty JSON body and Content-Type header even with lowercase method.
+        $this->clientProphecy->addOption('json', [])
+            ->shouldBeCalled();
+        $this->clientProphecy->addOption('headers', ['Content-Type' => 'application/json'])
+            ->shouldBeCalled();
+
+        $mockResponseBody = self::getMockResponseFromSpec('/account/applications/{applicationUuid}/actions/star', 'post', '200');
+        $this->clientProphecy->request('post', '/account/applications/a47ac10b-58cc-4372-a567-0e02b2c3d470/actions/star')
+            ->willReturn($mockResponseBody)
+            ->shouldBeCalled();
+
+        $this->command = $this->getApiCommandByName('api:accounts:application-star');
+        $this->executeCommand(['applicationUuid' => 'a47ac10b-58cc-4372-a567-0e02b2c3d470']);
+
+        // Assert.
+        $output = $this->getDisplay();
+        $this->assertNotNull($output);
+        $this->assertJson($output);
+    }
+
+    public function testApiCommandExecutionForHttpPostWithDataDoesNotAddEmptyJson(): void
+    {
+        // Test POST request WITH body data - should NOT add empty JSON body.
+        $this->clientProphecy->addOption('headers', ['Accept' => 'application/hal+json, version=2'])
+            ->shouldBeCalled();
+
+        $mockRequestArgs = self::getMockRequestBodyFromSpec('/account/ssh-keys');
+        $mockResponseBody = self::getMockResponseFromSpec('/account/ssh-keys', 'post', '202');
+
+        // Should add actual data, not empty JSON.
+        foreach ($mockRequestArgs as $name => $value) {
+            $this->clientProphecy->addOption('json', [$name => $value])
+                ->shouldBeCalled();
+        }
+
+        // Should NOT call addOption with empty JSON array when data is present.
+        $this->clientProphecy->addOption('json', [])
+            ->shouldNotBeCalled();
+
+        $this->clientProphecy->request('post', '/account/ssh-keys')
+            ->willReturn($mockResponseBody)
+            ->shouldBeCalled();
+
+        $this->command = $this->getApiCommandByName('api:accounts:ssh-key-create');
+        $this->executeCommand($mockRequestArgs);
+
+        // Assert.
+        $output = $this->getDisplay();
+        $this->assertNotNull($output);
+        $this->assertJson($output);
+    }
+
     public function testApiCommandExecutionForHttpPost(): void
     {
         $this->clientProphecy->addOption('headers', ['Accept' => 'application/hal+json, version=2'])
@@ -756,6 +841,62 @@ EOD;
                     $command = $this->getApiCommandByName($commandName);
                     if ($command) {
                         $this->assertTrue($command->isHidden(), "Command $commandName should be hidden because it is pre-release");
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Tests that pre-release commands have appropriate help text.
+     */
+    public function testPrereleaseCommandsHaveCorrectHelpText(): void
+    {
+        // Load the API spec to find pre-release commands.
+        $apiSpec = self::getCloudApiSpec();
+
+        foreach ($apiSpec['paths'] as $path => $endpoint) {
+            foreach ($endpoint as $method => $schema) {
+                if (!array_key_exists('x-cli-name', $schema)) {
+                    continue;
+                }
+
+                // Test pre-release commands have correct help text.
+                if (array_key_exists('x-prerelease', $schema) && $schema['x-prerelease'] === true) {
+                    $commandName = 'api:' . $schema['x-cli-name'];
+                    $command = $this->getApiCommandByName($commandName);
+                    if ($command) {
+                        $helpText = $command->getHelp();
+                        $this->assertStringContainsString('This endpoint is pre-release and therefore unsupported', $helpText);
+                        $this->assertStringContainsString('cloudapi-docs.acquia.com', $helpText);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Tests that deprecated commands have appropriate help text.
+     */
+    public function testDeprecatedCommandsHaveCorrectHelpText(): void
+    {
+        // Load the API spec to find deprecated commands.
+        $apiSpec = self::getCloudApiSpec();
+
+        foreach ($apiSpec['paths'] as $path => $endpoint) {
+            foreach ($endpoint as $method => $schema) {
+                if (!array_key_exists('x-cli-name', $schema)) {
+                    continue;
+                }
+
+                // Test deprecated commands have correct help text.
+                if (array_key_exists('deprecated', $schema) && $schema['deprecated'] === true) {
+                    $commandName = 'api:' . $schema['x-cli-name'];
+                    $command = $this->getApiCommandByName($commandName);
+                    if ($command) {
+                        $helpText = $command->getHelp();
+                        $this->assertStringContainsString('This endpoint is deprecated', $helpText);
+                        $this->assertStringContainsString('cloudapi-docs.acquia.com', $helpText);
                     }
                 }
             }

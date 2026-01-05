@@ -411,10 +411,10 @@ class ApiBaseCommand extends CommandBase
 
         // For POST/PUT/PATCH requests without data, send an empty JSON body with Content-Type header
         // to satisfy API requirements.
-        if (!$hasData && in_array(strtoupper($this->method ?? ''), ['POST', 'PUT', 'PATCH'])) {
+        if (!$hasData && in_array(strtoupper($this->method), ['POST', 'PUT', 'PATCH'])) {
             $acquiaCloudClient->addOption('json', []);
             $acquiaCloudClient->addOption('headers', [
-                'Accept' => 'application/hal+json, version=2',
+
                 'Content-Type' => 'application/json',
             ]);
         }
