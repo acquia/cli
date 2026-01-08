@@ -761,4 +761,127 @@ EOD;
             }
         }
     }
+
+    /**
+     * Tests that setHelp() is called and affects command help text by checking
+     * that help text is different from the default empty string.
+     */
+    public function testCommandHelpIsSetProperly(): void
+    {
+        // Find any command to test that setHelp() is working.
+        $apiSpec = self::getCloudApiSpec();
+
+        $commandTested = false;
+        foreach ($apiSpec['paths'] as $path => $endpoint) {
+            foreach ($endpoint as $method => $schema) {
+                if (!array_key_exists('x-cli-name', $schema)) {
+                    continue;
+                }
+
+                $commandName = 'api:' . $schema['x-cli-name'];
+                $command = $this->getApiCommandByName($commandName);
+                if ($command) {
+                    $helpText = $command->getHelp();
+
+                    // All commands should have the base help text containing cloudapi-docs.acquia.com.
+                    $this->assertStringContainsString(
+                        'cloudapi-docs.acquia.com',
+                        $helpText,
+                        "Command $commandName should have help text set via setHelp()"
+                    );
+
+                    // Ensure help text is not empty (proving setHelp was called)
+                    $this->assertNotEmpty(
+                        $helpText,
+                        "Command $commandName should have non-empty help text"
+                    );
+
+                    $commandTested = true;
+                    // Exit both loops after testing one command.
+                    break 2;
+                }
+            }
+        }
+
+        $this->assertTrue($commandTested, 'At least one command should be tested for help text');
+    }
+
+    /**
+     * Tests that pre-release commands have the base help text AND the pre-release warning appended correctly.
+     */
+    public function testPrereleaseCommandsHelpTextAppending(): void
+    {
+        // Load the API spec to find pre-release commands.
+        $apiSpec = self::getCloudApiSpec();
+
+        foreach ($apiSpec['paths'] as $path => $endpoint) {
+            foreach ($endpoint as $method => $schema) {
+                if (!array_key_exists('x-cli-name', $schema)) {
+                    continue;
+                }
+
+                // Test pre-release commands have correctly appended help text.
+                if (array_key_exists('x-prerelease', $schema) && $schema['x-prerelease'] === true) {
+                    $commandName = 'api:' . $schema['x-cli-name'];
+                    $command = $this->getApiCommandByName($commandName);
+                    if ($command) {
+                        $helpText = $command->getHelp();
+
+                        // Verify the base help text comes first.
+                        $this->assertStringContainsString('For more help, see https://cloudapi-docs.acquia.com/', $helpText);
+
+                        // Verify the pre-release warning is appended (not replaced)
+                        $this->assertStringContainsString('This endpoint is pre-release and therefore unsupported', $helpText);
+
+                        // Verify both parts are present (proving .= not = was used)
+                        $expectedPattern = '/For more help.*This endpoint is pre-release/s';
+                        $this->assertMatchesRegularExpression(
+                            $expectedPattern,
+                            $helpText,
+                            'Pre-release help text should be appended to base help, not replace it'
+                        );
+
+                        // Only need to test one command to prove the logic works.
+                        return;
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Tests that deprecated commands get the deprecated warning added correctly.
+     */
+    public function testDeprecatedCommandsHelpTextLogic(): void
+    {
+        // Load the API spec to find deprecated commands.
+        $apiSpec = self::getCloudApiSpec();
+
+        foreach ($apiSpec['paths'] as $path => $endpoint) {
+            foreach ($endpoint as $method => $schema) {
+                if (!array_key_exists('x-cli-name', $schema)) {
+                    continue;
+                }
+
+                // Test deprecated commands have correct conditional logic.
+                if (array_key_exists('deprecated', $schema) && $schema['deprecated'] === true) {
+                    $commandName = 'api:' . $schema['x-cli-name'];
+                    $command = $this->getApiCommandByName($commandName);
+                    if ($command) {
+                        $helpText = $command->getHelp();
+
+                        // Verify deprecated warning is present when deprecated flag is true.
+                        $this->assertStringContainsString(
+                            'This endpoint is deprecated',
+                            $helpText,
+                            'Deprecated commands should have deprecation warning in help text'
+                        );
+
+                        // Only need to test one command to prove the logic works.
+                        return;
+                    }
+                }
+            }
+        }
+    }
 }
