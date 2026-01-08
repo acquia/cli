@@ -508,6 +508,124 @@ class CommandBaseTest extends CommandTestBase
     }
 
     /**
+     * Test determineSiteInstance method with null siteInstance - covers CLI-1671 fix.
+     * This test actually calls the determineSiteInstance method to ensure proper coverage.
+     * Specifically tests the condition: if (!$siteInstance) throw new AcquiaCliException(...)
+     */
+    public function testDetermineSiteInstanceWithNullSiteInstance(): void
+    {
+        $siteId = '8979a8ac-80dc-4df8-b2f0-6be36554a370';
+        $environmentId = '3e8ecbec-ea7c-4260-8414-ef2938c859bc';
+        $siteInstanceId = $siteId . '.' . $environmentId;
+
+        // Create input mock with siteInstanceId option.
+        $inputMock = $this->prophet->prophesize(\Symfony\Component\Console\Input\InputInterface::class);
+        $inputMock->hasOption('siteInstanceId')->willReturn(true);
+        $inputMock->getOption('siteInstanceId')->willReturn($siteInstanceId);
+
+        // Use the existing mock methods for consistency.
+        $mockEnvironment = $this->getMockCodeBaseEnvironment();
+        $mockEnvironment->_embedded->codebase->id = 'test-codebase-uuid';
+
+        // Use the proper mock site method.
+        $mockSite = $this->getMockSite();
+        // Override the ID to match our test.
+        $mockSite->id = $siteId;
+
+        // Use reflection to call the protected determineSiteInstance method.
+        $reflectionClass = new \ReflectionClass($this->command);
+        $method = $reflectionClass->getMethod('determineSiteInstance');
+
+        // Mock the API calls using the correct endpoints (based on the SDK code).
+        $this->clientProphecy->request('get', "/v3/environments/$environmentId")
+            ->willReturn($mockEnvironment);
+        $this->clientProphecy->request('get', "/sites/$siteId")
+            ->willReturn($mockSite);
+
+        // This is the critical part - getSiteInstance returns null by throwing an exception.
+        // This will trigger the missing coverage line we need to test.
+        $this->clientProphecy->request('get', "/site-instances/$siteId.$environmentId")
+            ->willThrow(new \Exception('Site instance not found'));
+
+        // Expect the specific exception that contains our missing coverage line.
+        $this->expectException(AcquiaCliException::class);
+        $this->expectExceptionMessage("Site instance for site ID $siteId and environment ID $environmentId not found.");
+
+        // Call the method - this will execute the missing coverage line.
+        $method->invoke($this->command, $inputMock->reveal());
+    }
+
+    /**
+     * Test determineSiteInstance method with successful site instance retrieval.
+     * This tests the successful path of the determineSiteInstance method.
+     */
+    public function testDetermineSiteInstanceSuccessfulPath(): void
+    {
+        $siteId = '8979a8ac-80dc-4df8-b2f0-6be36554a370';
+        $environmentId = '3e8ecbec-ea7c-4260-8414-ef2938c859bc';
+        $siteInstanceId = $siteId . '.' . $environmentId;
+
+        // Create input mock with siteInstanceId option.
+        $inputMock = $this->prophet->prophesize(\Symfony\Component\Console\Input\InputInterface::class);
+        $inputMock->getOption('siteInstanceId')->willReturn($siteInstanceId);
+
+        // Use the existing mock methods for consistency.
+        $mockEnvironment = $this->getMockCodeBaseEnvironment();
+        $mockEnvironment->_embedded->codebase->id = 'test-codebase-uuid';
+
+        // Use the proper mock site method.
+        $mockSite = $this->getMockSite();
+        // Override the ID to match our test.
+        $mockSite->id = $siteId;
+
+        $mockSiteInstance = $this->getMockSiteInstanceResponse();
+
+        // Use the proper mock codebase method.
+        $mockCodebase = $this->getMockCodebaseResponse();
+        $mockCodebase->id = 'test-codebase-uuid';
+
+        // Use reflection to call the protected determineSiteInstance method.
+        $reflectionClass = new \ReflectionClass($this->command);
+        $method = $reflectionClass->getMethod('determineSiteInstance');
+
+        // Mock the API calls using the correct endpoints.
+        $this->clientProphecy->request('get', "/v3/environments/$environmentId")
+            ->willReturn($mockEnvironment);
+        $this->clientProphecy->request('get', "/sites/$siteId")
+            ->willReturn($mockSite);
+        $this->clientProphecy->request('get', "/site-instances/$siteId.$environmentId")
+            ->willReturn($mockSiteInstance);
+        $this->clientProphecy->request('get', "/codebases/test-codebase-uuid")
+            ->willReturn($mockCodebase);
+
+        // Call the method - this will test the successful path.
+        $result = $method->invoke($this->command, $inputMock->reveal());
+
+        // Verify that the site instance was returned and properly configured.
+        $this->assertNotNull($result);
+    }
+
+    /**
+     * Test determineSiteInstance method with null siteInstanceId option.
+     */
+    public function testDetermineSiteInstanceWithNullSiteInstanceId(): void
+    {
+        // Create input mock with null siteInstanceId option.
+        $inputMock = $this->prophet->prophesize(\Symfony\Component\Console\Input\InputInterface::class);
+        $inputMock->getOption('siteInstanceId')->willReturn(null);
+
+        // Use reflection to call the protected determineSiteInstance method.
+        $reflectionClass = new \ReflectionClass($this->command);
+        $method = $reflectionClass->getMethod('determineSiteInstance');
+
+        // Call the method - this should return null when siteInstanceId is not provided.
+        $result = $method->invoke($this->command, $inputMock->reveal());
+
+        // Verify that null was returned.
+        $this->assertNull($result);
+    }
+
+    /**
      * Test determineVcsUrl method with no VCS URL found.
      */
     public function testDetermineVcsUrlNoUrlFound(): void
