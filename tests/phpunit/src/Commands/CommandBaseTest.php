@@ -798,4 +798,20 @@ class CommandBaseTest extends CommandTestBase
         $this->assertFalse($method->isPrivate(), 'isAcsfEnv method should not be private as it may be needed by subclasses');
         $this->assertFalse($method->isPublic(), 'isAcsfEnv method should not be public as it is an internal implementation detail');
     }
+
+    /**
+     * Test that the determineSiteInstance method is protected (not private) by verifying reflection access.
+     * This test ensures that the visibility level supports inheritance as intended, allowing subclasses
+     * to override or extend the site instance determination logic if needed.
+     */
+    public function testDetermineSiteInstanceProtectedVisibility(): void
+    {
+        $reflectionClass = new \ReflectionClass($this->command);
+        $method = $reflectionClass->getMethod('determineSiteInstance');
+
+        // Verify the method is protected (accessible to subclasses)
+        $this->assertTrue($method->isProtected(), 'determineSiteInstance method should be protected to allow subclass access');
+        $this->assertFalse($method->isPrivate(), 'determineSiteInstance method should not be private as it may be needed by subclasses');
+        $this->assertFalse($method->isPublic(), 'determineSiteInstance method should not be public as it is an internal implementation detail');
+    }
 }
