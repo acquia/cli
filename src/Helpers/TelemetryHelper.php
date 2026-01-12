@@ -34,12 +34,40 @@ class TelemetryHelper
         $this->initializeBugsnag();
     }
 
+    /**
+     * Checks if the build date is older than the given number of months.
+     *
+     * @param string|null $buildDate The build date string (any strtotime-compatible format).
+     * @param int $months Number of months to compare.
+     * @param int|null $now Optional timestamp to use as 'now' (for testing).
+     * @return bool True if build date is older than given months, false otherwise.
+     */
+    public static function isBuildDateOlderThanMonths(?string $buildDate, int $months, ?int $now = null): bool
+    {
+        if (!$buildDate) {
+            return false;
+        }
+        $buildTimestamp = strtotime($buildDate);
+        if ($buildTimestamp === false) {
+            return false;
+        }
+        $now = $now ?? time();
+        $interval = 60 * 60 * 24 * 30 * $months;
+        return ($now - $buildTimestamp) > $interval;
+    }
+
     public function initializeBugsnag(): void
     {
         if (empty($this->bugSnagKey)) {
             return;
         }
         if (!$this->telemetryEnabled()) {
+            return;
+        }
+        // Check build date: suppress Bugsnag if more than 3 months old.
+        $buildDate = $this->application->getBuildDate();
+        if (self::isBuildDateOlderThanMonths($buildDate, 3)) {
+            // Too old, do not send Bugsnag reports.
             return;
         }
         // It's safe-ish to make this key public.
@@ -151,12 +179,12 @@ class TelemetryHelper
     {
         $data = [
             'ah_app_uuid' => getenv('AH_APPLICATION_UUID'),
-            'ah_env' => $this->normalizeAhEnv(AcquiaDrupalEnvironmentDetector::getAhEnv()),
+            'ah_env' => self::normalizeAhEnv(AcquiaDrupalEnvironmentDetector::getAhEnv()),
             'ah_group' => AcquiaDrupalEnvironmentDetector::getAhGroup(),
             'ah_non_production' => getenv('AH_NON_PRODUCTION'),
             'ah_realm' => getenv('AH_REALM'),
             'CI' => getenv('CI'),
-            'env_provider' => $this->getEnvironmentProvider(),
+            'env_provider' => self::getEnvironmentProvider(),
             'php_version' => PHP_MAJOR_VERSION . '.' . PHP_MINOR_VERSION,
         ];
         try {
