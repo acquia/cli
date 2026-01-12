@@ -29,6 +29,7 @@ class SelfInfoCommandTest extends CommandTestBase
         $this->assertStringContainsString('Property', $output);
         $this->assertStringContainsString('--------', $output);
         $this->assertStringContainsString('Version', $output);
+        $this->assertStringContainsString('Build date', $output);
         $this->assertStringContainsString('Cloud datastore', $output);
         $this->assertStringContainsString('ACLI datastore', $output);
         $this->assertStringContainsString('Telemetry enabled', $output);
