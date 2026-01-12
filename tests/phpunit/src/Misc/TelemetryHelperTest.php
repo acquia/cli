@@ -108,4 +108,36 @@ class TelemetryHelperTest extends TestBase
         $normalized_ah_env = TelemetryHelper::normalizeAhEnv($ah_env);
         $this->assertEquals($expected, $normalized_ah_env);
     }
+
+    public function testIsBuildDateOlderThanMonthsNullDate(): void
+    {
+        $this->assertFalse(TelemetryHelper::isBuildDateOlderThanMonths(null, 3));
+    }
+
+    public function testIsBuildDateOlderThanMonthsInvalidDate(): void
+    {
+        $this->assertFalse(TelemetryHelper::isBuildDateOlderThanMonths('not-a-date', 3));
+    }
+
+    public function testIsBuildDateOlderThanMonthsRecentDate(): void
+    {
+        $now = strtotime('2026-01-12');
+        $buildDate = date('Y-m-d', strtotime('-2 months', $now));
+        $this->assertFalse(TelemetryHelper::isBuildDateOlderThanMonths($buildDate, 3, $now));
+    }
+
+    public function testIsBuildDateOlderThanMonthsOldDate(): void
+    {
+        $now = strtotime('2026-01-12');
+        $buildDate = date('Y-m-d', strtotime('-4 months', $now));
+        $this->assertTrue(TelemetryHelper::isBuildDateOlderThanMonths($buildDate, 3, $now));
+    }
+
+    public function testIsBuildDateOlderThanMonthsEdgeCase(): void
+    {
+        $now = strtotime('2026-01-12');
+        $buildDate = date('Y-m-d', strtotime('-3 months', $now));
+        // Should be false if exactly 3 months ago (not older)
+        $this->assertFalse(TelemetryHelper::isBuildDateOlderThanMonths($buildDate, 3, $now));
+    }
 }

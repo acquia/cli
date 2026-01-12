@@ -34,6 +34,28 @@ class TelemetryHelper
         $this->initializeBugsnag();
     }
 
+    /**
+     * Checks if the build date is older than the given number of months.
+     *
+     * @param string|null $buildDate The build date string (any strtotime-compatible format).
+     * @param int $months Number of months to compare.
+     * @param int|null $now Optional timestamp to use as 'now' (for testing).
+     * @return bool True if build date is older than given months, false otherwise.
+     */
+    public static function isBuildDateOlderThanMonths(?string $buildDate, int $months, ?int $now = null): bool
+    {
+        if (!$buildDate) {
+            return false;
+        }
+        $buildTimestamp = strtotime($buildDate);
+        if ($buildTimestamp === false) {
+            return false;
+        }
+        $now = $now ?? time();
+        $interval = 60 * 60 * 24 * 30 * $months;
+        return ($now - $buildTimestamp) > $interval;
+    }
+
     public function initializeBugsnag(): void
     {
         if (empty($this->bugSnagKey)) {
@@ -44,17 +66,9 @@ class TelemetryHelper
         }
         // Check build date: suppress Bugsnag if more than 3 months old.
         $buildDate = $this->application->getBuildDate();
-        if ($buildDate) {
-            $buildTimestamp = strtotime($buildDate);
-            if ($buildTimestamp !== false) {
-                $now = time();
-                // 90 days.
-                $threeMonths = 60 * 60 * 24 * 90;
-                if ($now - $buildTimestamp > $threeMonths) {
-                    // Too old, do not send Bugsnag reports.
-                    return;
-                }
-            }
+        if (self::isBuildDateOlderThanMonths($buildDate, 3)) {
+            // Too old, do not send Bugsnag reports.
+            return;
         }
         // It's safe-ish to make this key public.
         // @see https://github.com/bugsnag/bugsnag-js/issues/595
