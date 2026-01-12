@@ -15,6 +15,7 @@ use AcquiaCloudApi\Response\SiteInstanceDatabaseResponse;
 use GuzzleHttp\Client;
 use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
+use Psr\Http\Message\ResponseInterface;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Filesystem\Filesystem;
 
@@ -634,6 +635,138 @@ class PullDatabaseCommandTest extends PullCommandTestBase
         // Verify that the codebase database path was taken (both codebaseUuid AND siteId must be set)
         // This assertion would fail if the LogicalAnd mutation changes the condition.
         $this->assertStringNotContainsString('Choose a database', $output);
+
+        self::unsetEnvVars(['AH_CODEBASE_UUID']);
+    }
+
+    public function testPullDatabaseWithInvalidBackupLink404(): void
+    {
+        $codebaseUuid = '11111111-041c-44c7-a486-7972ed2cafc8';
+        self::SetEnvVars(['AH_CODEBASE_UUID' => $codebaseUuid]);
+
+        // Mock the codebase returned from /codebases/{uuid}.
+        $codebase = $this->getMockCodeBaseResponse();
+        $this->clientProphecy->request('get', '/codebases/' . $codebaseUuid)
+            ->willReturn($codebase);
+
+        // Build one codebase environment (so prompt is skipped).
+        $codebaseEnv = $this->getMockCodeBaseEnvironment();
+        $this->clientProphecy->request('get', '/codebases/' . $codebaseUuid . '/environments')
+            ->willReturn([$codebaseEnv])
+            ->shouldBeCalled();
+
+        $codeabaseSites = $this->getMockCodeBaseSites();
+        $this->clientProphecy->request('get', '/codebases/' . $codebaseUuid . '/sites')
+            ->willReturn($codeabaseSites);
+        $siteInstance = $this->getMockSiteInstanceResponse();
+
+        $this->clientProphecy->request('get', '/site-instances/8979a8ac-80dc-4df8-b2f0-6be36554a370.3e8ecbec-ea7c-4260-8414-ef2938c859bc')
+            ->willReturn($siteInstance)
+            ->shouldBeCalled();
+        $siteId = '8979a8ac-80dc-4df8-b2f0-6be36554a370';
+        $site = $this->getMockSite();
+        $this->clientProphecy->request('get', '/sites/' . $siteId)
+            ->willReturn($site)
+            ->shouldBeCalled();
+        $siteInstanceDatabase = $this->getMockSiteInstanceDatabaseResponse();
+        $this->clientProphecy->request('get', '/site-instances/8979a8ac-80dc-4df8-b2f0-6be36554a370.3e8ecbec-ea7c-4260-8414-ef2938c859bc/database')
+            ->willReturn($siteInstanceDatabase)
+            ->shouldBeCalled();
+        $siteInstanceDatabaseBackups = $this->getMockSiteInstanceDatabaseBackupsResponse();
+        $this->clientProphecy->request('get', '/site-instances/8979a8ac-80dc-4df8-b2f0-6be36554a370.3e8ecbec-ea7c-4260-8414-ef2938c859bc/database/backups')
+            ->willReturn($siteInstanceDatabaseBackups->_embedded->items)
+            ->shouldBeCalled();
+
+        // Mock invalid backup link (404 response).
+        $backup = EnvironmentTransformer::transformSiteInstanceDatabaseBackup(new SiteInstanceDatabaseBackupResponse($siteInstanceDatabaseBackups->_embedded->items[0]));
+        $downloadUrl = $backup->links->download->href ?? 'https://example.com/download-backup';
+
+        $headResponse = $this->prophet->prophesize(ResponseInterface::class);
+        $headResponse->getStatusCode()->willReturn(404);
+        $this->httpClientProphecy
+            ->request('HEAD', $downloadUrl, Argument::type('array'))
+            ->willReturn($headResponse->reveal())
+            ->shouldBeCalled();
+
+        // Ensure clientProphecy doesn't expect any addOption calls for codebase UUID scenarios.
+        $this->clientProphecy->addOption(Argument::any(), Argument::any())->shouldNotBeCalled();
+
+        $localMachineHelper = $this->mockLocalMachineHelper();
+        $this->mockExecuteMySqlConnect($localMachineHelper, true);
+
+        $this->expectException(AcquiaCliException::class);
+        $this->expectExceptionMessage('Database backup link is invalid or unavailable. Please try again or contact support.');
+
+        $inputs = self::inputChooseEnvironment();
+        $this->executeCommand([
+            '--no-scripts' => true,
+        ], $inputs);
+
+        self::unsetEnvVars(['AH_CODEBASE_UUID']);
+    }
+
+    public function testPullDatabaseWithInvalidBackupLink500(): void
+    {
+        $codebaseUuid = '11111111-041c-44c7-a486-7972ed2cafc8';
+        self::SetEnvVars(['AH_CODEBASE_UUID' => $codebaseUuid]);
+
+        // Mock the codebase returned from /codebases/{uuid}.
+        $codebase = $this->getMockCodeBaseResponse();
+        $this->clientProphecy->request('get', '/codebases/' . $codebaseUuid)
+            ->willReturn($codebase);
+
+        // Build one codebase environment (so prompt is skipped).
+        $codebaseEnv = $this->getMockCodeBaseEnvironment();
+        $this->clientProphecy->request('get', '/codebases/' . $codebaseUuid . '/environments')
+            ->willReturn([$codebaseEnv])
+            ->shouldBeCalled();
+
+        $codeabaseSites = $this->getMockCodeBaseSites();
+        $this->clientProphecy->request('get', '/codebases/' . $codebaseUuid . '/sites')
+            ->willReturn($codeabaseSites);
+        $siteInstance = $this->getMockSiteInstanceResponse();
+
+        $this->clientProphecy->request('get', '/site-instances/8979a8ac-80dc-4df8-b2f0-6be36554a370.3e8ecbec-ea7c-4260-8414-ef2938c859bc')
+            ->willReturn($siteInstance)
+            ->shouldBeCalled();
+        $siteId = '8979a8ac-80dc-4df8-b2f0-6be36554a370';
+        $site = $this->getMockSite();
+        $this->clientProphecy->request('get', '/sites/' . $siteId)
+            ->willReturn($site)
+            ->shouldBeCalled();
+        $siteInstanceDatabase = $this->getMockSiteInstanceDatabaseResponse();
+        $this->clientProphecy->request('get', '/site-instances/8979a8ac-80dc-4df8-b2f0-6be36554a370.3e8ecbec-ea7c-4260-8414-ef2938c859bc/database')
+            ->willReturn($siteInstanceDatabase)
+            ->shouldBeCalled();
+        $siteInstanceDatabaseBackups = $this->getMockSiteInstanceDatabaseBackupsResponse();
+        $this->clientProphecy->request('get', '/site-instances/8979a8ac-80dc-4df8-b2f0-6be36554a370.3e8ecbec-ea7c-4260-8414-ef2938c859bc/database/backups')
+            ->willReturn($siteInstanceDatabaseBackups->_embedded->items)
+            ->shouldBeCalled();
+
+        // Mock invalid backup link (500 response).
+        $backup = EnvironmentTransformer::transformSiteInstanceDatabaseBackup(new SiteInstanceDatabaseBackupResponse($siteInstanceDatabaseBackups->_embedded->items[0]));
+        $downloadUrl = $backup->links->download->href ?? 'https://example.com/download-backup';
+
+        $headResponse = $this->prophet->prophesize(ResponseInterface::class);
+        $headResponse->getStatusCode()->willReturn(500);
+        $this->httpClientProphecy
+            ->request('HEAD', $downloadUrl, Argument::type('array'))
+            ->willReturn($headResponse->reveal())
+            ->shouldBeCalled();
+
+        // Ensure clientProphecy doesn't expect any addOption calls for codebase UUID scenarios.
+        $this->clientProphecy->addOption(Argument::any(), Argument::any())->shouldNotBeCalled();
+
+        $localMachineHelper = $this->mockLocalMachineHelper();
+        $this->mockExecuteMySqlConnect($localMachineHelper, true);
+
+        $this->expectException(AcquiaCliException::class);
+        $this->expectExceptionMessage('Database backup link is invalid or unavailable. Please try again or contact support.');
+
+        $inputs = self::inputChooseEnvironment();
+        $this->executeCommand([
+            '--no-scripts' => true,
+        ], $inputs);
 
         self::unsetEnvVars(['AH_CODEBASE_UUID']);
     }

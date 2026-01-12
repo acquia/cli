@@ -221,6 +221,48 @@ abstract class PullCommandBase extends CommandBase
         $this->localMachineHelper->getFilesystem()->remove($localFilepath);
     }
 
+    /**
+     * Validates that a backup download URL is accessible.
+     *
+     * @throws \Acquia\Cli\Exception\AcquiaCliException
+     */
+    private function validateBackupLink(string $downloadUrl): void
+    {
+        try {
+            // Try HEAD request first (more efficient, doesn't download the file)
+            $response = $this->httpClient->request('HEAD', $downloadUrl, [
+                'http_errors' => false,
+            ]);
+            $statusCode = $response->getStatusCode();
+            if ($statusCode !== 200) {
+                throw new AcquiaCliException(
+                    'Database backup link is invalid or unavailable. Please try again or contact support.',
+                    ['statusCode' => $statusCode]
+                );
+            }
+        } catch (RequestException $exception) {
+            // If HEAD request fails (e.g., not supported), try GET request as fallback.
+            try {
+                $response = $this->httpClient->request('GET', $downloadUrl, [
+                    'http_errors' => false,
+                    'stream' => true,
+                ]);
+                $statusCode = $response->getStatusCode();
+                if ($statusCode !== 200) {
+                    throw new AcquiaCliException(
+                        'Database backup link is invalid or unavailable. Please try again or contact support.',
+                        ['statusCode' => $statusCode]
+                    );
+                }
+            } catch (Exception $getException) {
+                // If both HEAD and GET fail, throw a generic error.
+                throw new AcquiaCliException(
+                    'Database backup link is invalid or unavailable. Please try again or contact support.'
+                );
+            }
+        }
+    }
+
     private function downloadDatabaseBackup(
         EnvironmentResponse $environment,
         DatabaseResponse $database,
@@ -236,31 +278,14 @@ abstract class PullCommandBase extends CommandBase
         } else {
             $output = $this->output;
         }
-        // These options tell curl to stream the file to disk rather than loading it into memory.
-        $acquiaCloudClient = $this->cloudApiClientService->getClient();
-        $acquiaCloudClient->addOption('sink', $localFilepath);
-        $acquiaCloudClient->addOption('curl.options', [
-            'CURLOPT_FILE' => $localFilepath,
-            'CURLOPT_RETURNTRANSFER' => false,
-        ]);
-        $acquiaCloudClient->addOption(
-            'progress',
-            static function (mixed $totalBytes, mixed $downloadedBytes) use (&$progress, $output): void {
-                self::displayDownloadProgress($totalBytes, $downloadedBytes, $progress, $output);
-            }
-        );
-        // This is really just used to allow us to inject values for $url during testing.
-        // It should be empty during normal operations.
-        $url = $this->getBackupDownloadUrl();
-        $acquiaCloudClient->addOption('on_stats', function (TransferStats $stats) use (&$url): void {
-            $url = $stats->getEffectiveUri();
-        });
-
+        $url = null;
         try {
             $codebaseUuid = self::getCodebaseUuid();
             if ($codebaseUuid) {
                 // Download the backup file directly from the provided URL.
                 $downloadUrl = $backupResponse->links->download->href;
+                // Validate backup link before attempting download.
+                $this->validateBackupLink($downloadUrl);
                 $this->httpClient->request('GET', $downloadUrl, [
                     'progress' => static function (mixed $totalBytes, mixed $downloadedBytes) use (&$progress, $output): void {
                         self::displayDownloadProgress($totalBytes, $downloadedBytes, $progress, $output);
@@ -269,6 +294,25 @@ abstract class PullCommandBase extends CommandBase
                 ]);
                 return $localFilepath;
             }
+            // These options tell curl to stream the file to disk rather than loading it into memory.
+            $acquiaCloudClient = $this->cloudApiClientService->getClient();
+            $acquiaCloudClient->addOption('sink', $localFilepath);
+            $acquiaCloudClient->addOption('curl.options', [
+                'CURLOPT_FILE' => $localFilepath,
+                'CURLOPT_RETURNTRANSFER' => false,
+            ]);
+            $acquiaCloudClient->addOption(
+                'progress',
+                static function (mixed $totalBytes, mixed $downloadedBytes) use (&$progress, $output): void {
+                    self::displayDownloadProgress($totalBytes, $downloadedBytes, $progress, $output);
+                }
+            );
+            // This is really just used to allow us to inject values for $url during testing.
+            // It should be empty during normal operations.
+            $url = $this->getBackupDownloadUrl();
+            $acquiaCloudClient->addOption('on_stats', function (TransferStats $stats) use (&$url): void {
+                $url = $stats->getEffectiveUri();
+            });
             $acquiaCloudClient->stream(
                 "get",
                 "/environments/$environment->uuid/databases/$database->name/backups/$backupResponse->id/actions/download",
