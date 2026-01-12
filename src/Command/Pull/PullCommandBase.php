@@ -224,6 +224,14 @@ abstract class PullCommandBase extends CommandBase
     /**
      * Validates that a backup download URL is accessible.
      *
+     * The method first issues a HEAD request to the given URL to verify that the
+     * resource exists without downloading the content. If the HEAD request fails
+     * (for example, if the server does not support HEAD or returns an error), it
+     * falls back to a GET request as a secondary validation step.
+     *
+     * @param string $downloadUrl
+     *   The backup download URL to validate.
+     *
      * @throws \Acquia\Cli\Exception\AcquiaCliException
      */
     private function validateBackupLink(string $downloadUrl): void
