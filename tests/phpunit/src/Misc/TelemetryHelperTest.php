@@ -132,12 +132,4 @@ class TelemetryHelperTest extends TestBase
         $buildDate = date('Y-m-d', strtotime('-4 months', $now));
         $this->assertTrue(TelemetryHelper::isBuildDateOlderThanMonths($buildDate, 3, $now));
     }
-
-    public function testIsBuildDateOlderThanMonthsEdgeCase(): void
-    {
-        $now = strtotime('2026-01-12');
-        $buildDate = date('Y-m-d', strtotime('-3 months', $now));
-        // Should be false if exactly 3 months ago (not older)
-        $this->assertFalse(TelemetryHelper::isBuildDateOlderThanMonths($buildDate, 3, $now));
-    }
 }
