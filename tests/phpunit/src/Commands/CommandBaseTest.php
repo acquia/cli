@@ -476,6 +476,51 @@ class CommandBaseTest extends CommandTestBase
     }
 
     /**
+     * Test determineSiteInstance method with null siteInstance - covers CLI-1671 fix.
+     * This test calls the determineSiteInstance method to ensure proper coverage.
+     * Specifically tests the condition: if (!$siteInstance) throw new AcquiaCliException(...)
+     */
+    public function testDetermineSiteInstanceWithNullSiteInstance(): void
+    {
+        $siteId = '8979a8ac-80dc-4df8-b2f0-6be36554a370';
+        $environmentId = '3e8ecbec-ea7c-4260-8414-ef2938c859bc';
+        $siteInstanceId = $siteId . '.' . $environmentId;
+
+        // Create input mock with siteInstanceId option.
+        $inputMock = $this->prophet->prophesize(\Symfony\Component\Console\Input\InputInterface::class);
+        $inputMock->hasOption('siteInstanceId')->willReturn(true);
+        $inputMock->getOption('siteInstanceId')->willReturn($siteInstanceId);
+
+        // Use the existing mock methods for consistency.
+        $mockEnvironment = $this->getMockCodeBaseEnvironment();
+        $mockEnvironment->_embedded->codebase->id = 'test-codebase-uuid';
+
+        $mockSite = $this->getMockSite();
+        $mockSite->id = $siteId;
+
+        // Use reflection to call the protected determineSiteInstance method.
+        $reflectionClass = new \ReflectionClass($this->command);
+        $method = $reflectionClass->getMethod('determineSiteInstance');
+
+        // Mock the API calls using the correct endpoints.
+        $this->clientProphecy->request('get', "/v3/environments/$environmentId")
+            ->willReturn($mockEnvironment);
+        $this->clientProphecy->request('get', "/sites/$siteId")
+            ->willReturn($mockSite);
+
+        // This is the critical part - getSiteInstance returns null by throwing an exception.
+        $this->clientProphecy->request('get', "/site-instances/$siteId.$environmentId")
+            ->willThrow(new \Exception('Site instance not found'));
+
+        // Expect the specific exception that tests the CLI-1671 null check fix.
+        $this->expectException(AcquiaCliException::class);
+        $this->expectExceptionMessage("Site instance for site ID $siteId and environment ID $environmentId not found.");
+
+        // Call the method - this will execute the null check line added in CLI-1671.
+        $method->invoke($this->command, $inputMock->reveal());
+    }
+
+    /**
      * Test determineVcsUrl method with no VCS URL found.
      */
     public function testDetermineVcsUrlNoUrlFound(): void
@@ -647,5 +692,21 @@ class CommandBaseTest extends CommandTestBase
         $this->assertTrue($method->isProtected(), 'isAcsfEnv method should be protected to allow subclass access');
         $this->assertFalse($method->isPrivate(), 'isAcsfEnv method should not be private as it may be needed by subclasses');
         $this->assertFalse($method->isPublic(), 'isAcsfEnv method should not be public as it is an internal implementation detail');
+    }
+
+    /**
+     * Test that the determineSiteInstance method is protected (not private) by verifying reflection access.
+     * This test ensures that the visibility level supports inheritance as intended, allowing subclasses
+     * to override or extend the site instance determination logic if needed.
+     */
+    public function testDetermineSiteInstanceProtectedVisibility(): void
+    {
+        $reflectionClass = new \ReflectionClass($this->command);
+        $method = $reflectionClass->getMethod('determineSiteInstance');
+
+        // Verify the method is protected (accessible to subclasses)
+        $this->assertTrue($method->isProtected(), 'determineSiteInstance method should be protected to allow subclass access');
+        $this->assertFalse($method->isPrivate(), 'determineSiteInstance method should not be private as it may be needed by subclasses');
+        $this->assertFalse($method->isPublic(), 'determineSiteInstance method should not be public as it is an internal implementation detail');
     }
 }
