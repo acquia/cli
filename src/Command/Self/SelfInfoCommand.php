@@ -17,7 +17,11 @@ final class SelfInfoCommand extends CommandBase
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $table = $this->createTable($output, 'Acquia CLI information', ['Property', 'Value']);
-        $table->addRow(['Version', $this->getApplication()->getVersion()]);
+        $application = $this->getApplication();
+        $version = ($application && method_exists($application, 'getVersion')) ? $application->getVersion() : null;
+        $table->addRow(['Version', $version ?? 'unknown']);
+        $buildDate = ($application && method_exists($application, 'getBuildDate')) ? $application->getBuildDate() : null;
+        $table->addRow(['Build date', $buildDate ?? 'unknown']);
         $table->addRow(['Cloud datastore', $this->datastoreCloud->filepath]);
         $table->addRow(['ACLI datastore', $this->datastoreAcli->filepath]);
         $table->addRow(['Telemetry enabled', var_export($this->telemetryHelper->telemetryEnabled(), true)]);

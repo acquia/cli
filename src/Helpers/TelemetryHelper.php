@@ -42,6 +42,18 @@ class TelemetryHelper
         if (!$this->telemetryEnabled()) {
             return;
         }
+        // Check build date: suppress Bugsnag if more than 3 months old.
+        $buildDate = $this->application->getBuildDate();
+        if ($buildDate) {
+            $buildTimestamp = strtotime($buildDate);
+            $now = time();
+            // 90 days.
+            $threeMonths = 60 * 60 * 24 * 90;
+            if ($now - $buildTimestamp > $threeMonths) {
+                // Too old, do not send Bugsnag reports.
+                return;
+            }
+        }
         // It's safe-ish to make this key public.
         // @see https://github.com/bugsnag/bugsnag-js/issues/595
         $bugsnag = Client::make($this->bugSnagKey);
@@ -151,12 +163,12 @@ class TelemetryHelper
     {
         $data = [
             'ah_app_uuid' => getenv('AH_APPLICATION_UUID'),
-            'ah_env' => $this->normalizeAhEnv(AcquiaDrupalEnvironmentDetector::getAhEnv()),
+            'ah_env' => self::normalizeAhEnv(AcquiaDrupalEnvironmentDetector::getAhEnv()),
             'ah_group' => AcquiaDrupalEnvironmentDetector::getAhGroup(),
             'ah_non_production' => getenv('AH_NON_PRODUCTION'),
             'ah_realm' => getenv('AH_REALM'),
             'CI' => getenv('CI'),
-            'env_provider' => $this->getEnvironmentProvider(),
+            'env_provider' => self::getEnvironmentProvider(),
             'php_version' => PHP_MAJOR_VERSION . '.' . PHP_MINOR_VERSION,
         ];
         try {

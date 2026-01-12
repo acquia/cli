@@ -81,6 +81,7 @@ if (in_array($input->getFirstArgument(), ['clear-kernel-cache', 'ckc'])) {
 putenv('BUGSNAG_KEY=');
 putenv('AMPLITUDE_KEY=');
 putenv('ACLI_VERSION=dev-unknown');
+putenv('ACLI_BUILD_DATE=1970-01-01T00:00:00Z');
 $dotenv = Dotenv::createUnsafeMutable(__DIR__ . '/..');
 $dotenv->safeLoad();
 

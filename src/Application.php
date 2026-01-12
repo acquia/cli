@@ -17,6 +17,8 @@ class Application extends \Symfony\Component\Console\Application
      */
     protected array $helpMessages = [];
 
+    protected ?string $buildDate = null;
+
     /**
      * @return string[]
      */
@@ -42,5 +44,14 @@ class Application extends \Symfony\Component\Console\Application
             $output->getFormatter()->setStyle('help', $outputStyle);
             $io->block($this->getHelpMessages(), 'help', 'help', ' ', true, false);
         }
+    }
+
+    public function getBuildDate(): ?string
+    {
+        if ($this->buildDate !== null) {
+            return $this->buildDate;
+        }
+        $this->buildDate = getenv('ACLI_BUILD_DATE') ?: null;
+        return $this->buildDate;
     }
 }
