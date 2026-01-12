@@ -721,9 +721,9 @@ class PullDatabaseCommandTest extends PullCommandTestBase
             ->willReturn([$codebaseEnv])
             ->shouldBeCalled();
 
-        $codeabaseSites = $this->getMockCodeBaseSites();
+        $codebaseSites = $this->getMockCodeBaseSites();
         $this->clientProphecy->request('get', '/codebases/' . $codebaseUuid . '/sites')
-            ->willReturn($codeabaseSites);
+            ->willReturn($codebaseSites);
         $siteInstance = $this->getMockSiteInstanceResponse();
 
         $this->clientProphecy->request('get', '/site-instances/8979a8ac-80dc-4df8-b2f0-6be36554a370.3e8ecbec-ea7c-4260-8414-ef2938c859bc')
