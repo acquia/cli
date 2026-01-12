@@ -46,12 +46,14 @@ class TelemetryHelper
         $buildDate = $this->application->getBuildDate();
         if ($buildDate) {
             $buildTimestamp = strtotime($buildDate);
-            $now = time();
-            // 90 days.
-            $threeMonths = 60 * 60 * 24 * 90;
-            if ($now - $buildTimestamp > $threeMonths) {
-                // Too old, do not send Bugsnag reports.
-                return;
+            if ($buildTimestamp !== false) {
+                $now = time();
+                // 90 days.
+                $threeMonths = 60 * 60 * 24 * 90;
+                if ($now - $buildTimestamp > $threeMonths) {
+                    // Too old, do not send Bugsnag reports.
+                    return;
+                }
             }
         }
         // It's safe-ish to make this key public.
