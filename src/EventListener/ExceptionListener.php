@@ -95,6 +95,7 @@ class ExceptionListener
                 case "This resource requires additional authentication.":
                     $this->helpMessages[] = "This is likely because you have Federated Authentication required for your organization.";
                     $this->helpMessages[] = "Run `acli login` to authenticate via API token and then try again.";
+                    $this->helpMessages[] = "Get help for this error at https://docs.acquia.com/acquia-cloud-platform/add-ons/acquia-cli/known-issues#federated-authentication-does-not-work";
                     break;
                 default:
                     $newErrorMessage = 'Cloud Platform API returned an error: ' . $errorMessage;
