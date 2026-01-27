@@ -445,23 +445,29 @@ abstract class PullCommandTestBase extends CommandTestBase
         ]) . '.sql.gz';
         $localFilepath = Path::join(sys_get_temp_dir(), $filename);
 
-        // Cloud API client options are always set first.
-        $this->clientProphecy->addOption('sink', $localFilepath)->shouldBeCalled();
-        $this->clientProphecy->addOption('curl.options', [
-            'CURLOPT_FILE' => $localFilepath,
-            'CURLOPT_RETURNTRANSFER' => false,
-        ])->shouldBeCalled();
-
-        $this->clientProphecy
-            ->addOption('progress', Argument::that(static fn($v) => is_callable($v)))
-            ->shouldBeCalled();
-        $this->clientProphecy
-            ->addOption('on_stats', Argument::that(static fn($v) => is_callable($v)))
-            ->shouldBeCalled();
+        // For codebase UUID scenarios, we use httpClient directly, not acquiaCloudClient.
+        // Ensure clientProphecy doesn't expect any addOption calls for codebase UUID scenarios.
+        $this->clientProphecy->addOption(Argument::any(), Argument::any())->shouldNotBeCalled();
 
         // Mock the HTTP client request for codebase downloads.
         $downloadUrl = $backup->links->download->href ?? 'https://example.com/download-backup';
         $response = $this->prophet->prophesize(ResponseInterface::class);
+        $response->getStatusCode()->willReturn(200);
+
+        // Mock HEAD request for backup link validation (called before download).
+        $headResponse = $this->prophet->prophesize(ResponseInterface::class);
+        $headResponse->getStatusCode()->willReturn(200);
+        $this->httpClientProphecy
+            ->request(
+                'HEAD',
+                $downloadUrl,
+                Argument::that(function (array $opts): bool {
+                    // Validate that http_errors is set to false for validation.
+                    return isset($opts['http_errors']) && $opts['http_errors'] === false;
+                })
+            )
+            ->willReturn($headResponse->reveal())
+            ->shouldBeCalled();
 
         $capturedOpts = null;
         $this->httpClientProphecy
