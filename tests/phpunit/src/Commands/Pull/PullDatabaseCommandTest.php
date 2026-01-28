@@ -342,7 +342,46 @@ class PullDatabaseCommandTest extends PullCommandTestBase
         $this->assertEquals((string) $uri, (string) $this->command->getBackupDownloadUrl());
     }
 
-    protected function setupPullDatabase(bool $mysqlConnectSuccessful, bool $mockIdeFs = false, bool $onDemand = false, bool $mockGetAcsfSites = true, bool $multiDb = false, int $curlCode = 0, bool $existingBackups = true, bool $onDemandSuccess = true): void
+    /**
+     * Test that downloading a backup with an empty file fails with validation error.
+     */
+    public function testPullDatabaseWithEmptyFile(): void
+    {
+        $this->setupPullDatabase(true, false, false, true, false, 0, true, true, 'empty');
+        $inputs = self::inputChooseEnvironment();
+
+        $this->expectException(AcquiaCliException::class);
+        $this->expectExceptionMessage('Database backup download failed or returned an invalid response');
+        $this->executeCommand(['--no-scripts' => true], $inputs);
+    }
+
+    /**
+     * Test that downloading a backup with invalid gzip content fails with validation error.
+     */
+    public function testPullDatabaseWithInvalidGzip(): void
+    {
+        $this->setupPullDatabase(true, false, false, true, false, 0, true, true, 'invalid_gzip');
+        $inputs = self::inputChooseEnvironment();
+
+        $this->expectException(AcquiaCliException::class);
+        $this->expectExceptionMessage('The downloaded file is not a valid gzip archive');
+        $this->executeCommand(['--no-scripts' => true], $inputs);
+    }
+
+    /**
+     * Test that downloading a backup when file is missing fails with validation error.
+     */
+    public function testPullDatabaseWithMissingFile(): void
+    {
+        $this->setupPullDatabase(true, false, false, true, false, 0, true, true, 'missing');
+        $inputs = self::inputChooseEnvironment();
+
+        $this->expectException(AcquiaCliException::class);
+        $this->expectExceptionMessage('Database backup download failed: file was not created');
+        $this->executeCommand(['--no-scripts' => true], $inputs);
+    }
+
+    protected function setupPullDatabase(bool $mysqlConnectSuccessful, bool $mockIdeFs = false, bool $onDemand = false, bool $mockGetAcsfSites = true, bool $multiDb = false, int $curlCode = 0, bool $existingBackups = true, bool $onDemandSuccess = true, string $validationError = ''): void
     {
         $applicationsResponse = $this->mockApplicationsRequest();
         $this->mockApplicationRequest();
@@ -357,7 +396,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase
         if ($multiDb) {
             $databaseResponse2 = $databasesResponse[array_search('profserv2', array_column($databasesResponse, 'name'), true)];
             $databaseBackupsResponse2 = $this->mockDatabaseBackupsResponse($selectedEnvironment, $databaseResponse2->name, 1, $existingBackups);
-            $this->mockDownloadBackup($databaseResponse2, $selectedEnvironment, $databaseBackupsResponse2->_embedded->items[0], $curlCode);
+            $this->mockDownloadBackup($databaseResponse2, $selectedEnvironment, $databaseBackupsResponse2->_embedded->items[0], $curlCode, $validationError);
         }
 
         $sshHelper = $this->mockSshHelper();
@@ -379,7 +418,18 @@ class PullDatabaseCommandTest extends PullCommandTestBase
         }
 
         $databaseBackupsResponse = $this->mockDatabaseBackupsResponse($selectedEnvironment, $databaseResponse->name, 1, $existingBackups);
-        $this->mockDownloadBackup($databaseResponse, $selectedEnvironment, $databaseBackupsResponse->_embedded->items[0], $curlCode);
+        $this->mockDownloadBackup($databaseResponse, $selectedEnvironment, $databaseBackupsResponse->_embedded->items[0], $curlCode, $validationError);
+
+        // If there's a validation error, we don't need to mock the rest of the database operations.
+        if ($validationError) {
+            // Only mock filesystem for errors that need it (not 'missing' which throws before any cleanup).
+            if ($validationError !== 'missing') {
+                $fs = $this->prophet->prophesize(Filesystem::class);
+                $localMachineHelper->getFilesystem()->willReturn($fs)->shouldBeCalled();
+                $fs->remove(Argument::type('string'))->shouldBeCalled();
+            }
+            return;
+        }
 
         $fs = $this->prophet->prophesize(Filesystem::class);
         // Set up file system.

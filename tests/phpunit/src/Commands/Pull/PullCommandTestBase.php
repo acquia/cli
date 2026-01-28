@@ -387,194 +387,7 @@ abstract class PullCommandTestBase extends CommandTestBase
         $this->mockDownloadBackup($databases[0], $environment, $backups[0]);
     }
 
-    public function mockGetBackupWithHttpError(): void
-    {
-        $applications = $this->mockRequest('getApplications');
-        $environments = $this->mockRequest('getApplicationEnvironments', $applications[0]->uuid);
-        $environment = $environments[0];
-        $databases = $this->mockRequest('getEnvironmentsDatabases', $environment->id);
-        $database = $databases[0];
-        $tamper = static function ($backups): void {
-            $backups[0]->completedAt = $backups[0]->completed_at;
-        };
-        $backups = new BackupsResponse(
-            $this->mockRequest('getEnvironmentsDatabaseBackups', [
-                $environment->id,
-                'my_db',
-            ], null, null, $tamper)
-        );
-        $backup = $backups[0];
-
-        $filename = implode('-', [
-            $environment->name,
-            $database->name,
-            'my_dbdev',
-            $backup->completedAt,
-        ]) . '.sql.gz';
-        $localFilepath = Path::join(sys_get_temp_dir(), $filename);
-
-        $this->mockDownloadBackupResponse($environment, $database->name, 1);
-        $this->clientProphecy->addOption('sink', $localFilepath)->shouldBeCalled();
-        $this->clientProphecy->addOption('curl.options', [
-            'CURLOPT_FILE' => $localFilepath,
-            'CURLOPT_RETURNTRANSFER' => false,
-        ])->shouldBeCalled();
-        $this->clientProphecy->addOption('progress', Argument::type('Closure'))->shouldBeCalled();
-        $this->clientProphecy->addOption('on_stats', Argument::type('Closure'))->shouldBeCalled();
-        $this->clientProphecy->getOptions()->willReturn([]);
-
-        // Set codebase UUID and mock codebase API calls.
-        $codebaseUuid = '11111111-041c-44c7-a486-7972ed2cafc8';
-        putenv('AH_CODEBASE_UUID=' . $codebaseUuid);
-
-        $codebase = $this->getMockCodeBaseResponse();
-        $this->clientProphecy->request('get', '/codebases/' . $codebaseUuid)
-            ->willReturn($codebase)
-            ->shouldBeCalled();
-
-        // Mock codebase environments.
-        $codebaseEnv = $this->getMockCodeBaseEnvironment();
-        $this->clientProphecy->request('get', '/codebases/' . $codebaseUuid . '/environments')
-            ->willReturn([$codebaseEnv])
-            ->shouldBeCalled();
-
-        // Mock HTTP response with 404 error.
-        $response = $this->prophet->prophesize(ResponseInterface::class);
-        $response->getStatusCode()->willReturn(404);
-        $downloadUrl = $backup->links->download->href;
-        $this->httpClientProphecy->request('GET', $downloadUrl, Argument::type('array'))
-            ->willReturn($response->reveal())
-            ->shouldBeCalled();
-    }
-
-    public function mockGetBackupWithInvalidGzip(): void
-    {
-        $applications = $this->mockRequest('getApplications');
-        $environments = $this->mockRequest('getApplicationEnvironments', $applications[0]->uuid);
-        $environment = $environments[0];
-        $databases = $this->mockRequest('getEnvironmentsDatabases', $environment->id);
-        $database = $databases[0];
-        $tamper = static function ($backups): void {
-            $backups[0]->completedAt = $backups[0]->completed_at;
-        };
-        $backups = new BackupsResponse(
-            $this->mockRequest('getEnvironmentsDatabaseBackups', [
-                $environment->id,
-                'my_db',
-            ], null, null, $tamper)
-        );
-        $backup = $backups[0];
-
-        $filename = implode('-', [
-            $environment->name,
-            $database->name,
-            'my_dbdev',
-            $backup->completedAt,
-        ]) . '.sql.gz';
-        $localFilepath = Path::join(sys_get_temp_dir(), $filename);
-
-        $this->mockDownloadBackupResponse($environment, $database->name, 1);
-        $this->clientProphecy->addOption('sink', $localFilepath)->shouldBeCalled();
-        $this->clientProphecy->addOption('curl.options', [
-            'CURLOPT_FILE' => $localFilepath,
-            'CURLOPT_RETURNTRANSFER' => false,
-        ])->shouldBeCalled();
-        $this->clientProphecy->addOption('progress', Argument::type('Closure'))->shouldBeCalled();
-        $this->clientProphecy->addOption('on_stats', Argument::type('Closure'))->shouldBeCalled();
-        $this->clientProphecy->getOptions()->willReturn([]);
-
-        // Set codebase UUID and mock codebase API calls.
-        $codebaseUuid = '11111111-041c-44c7-a486-7972ed2cafc8';
-        putenv('AH_CODEBASE_UUID=' . $codebaseUuid);
-
-        $codebase = $this->getMockCodeBaseResponse();
-        $this->clientProphecy->request('get', '/codebases/' . $codebaseUuid)
-            ->willReturn($codebase)
-            ->shouldBeCalled();
-
-        // Mock codebase environments.
-        $codebaseEnv = $this->getMockCodeBaseEnvironment();
-        $this->clientProphecy->request('get', '/codebases/' . $codebaseUuid . '/environments')
-            ->willReturn([$codebaseEnv])
-            ->shouldBeCalled();
-
-        // Create an invalid (non-gzip) file.
-        $content = 'This is plain text, not gzipped';
-        file_put_contents($localFilepath, $content);
-
-        // Mock HTTP response with 200 success.
-        $response = $this->prophet->prophesize(ResponseInterface::class);
-        $response->getStatusCode()->willReturn(200);
-        $downloadUrl = $backup->links->download->href;
-        $this->httpClientProphecy->request('GET', $downloadUrl, Argument::type('array'))
-            ->willReturn($response->reveal())
-            ->shouldBeCalled();
-    }
-
-    public function mockGetBackupWithEmptyFile(): void
-    {
-        $applications = $this->mockRequest('getApplications');
-        $environments = $this->mockRequest('getApplicationEnvironments', $applications[0]->uuid);
-        $environment = $environments[0];
-        $databases = $this->mockRequest('getEnvironmentsDatabases', $environment->id);
-        $database = $databases[0];
-        $tamper = static function ($backups): void {
-            $backups[0]->completedAt = $backups[0]->completed_at;
-        };
-        $backups = new BackupsResponse(
-            $this->mockRequest('getEnvironmentsDatabaseBackups', [
-                $environment->id,
-                'my_db',
-            ], null, null, $tamper)
-        );
-        $backup = $backups[0];
-
-        $filename = implode('-', [
-            $environment->name,
-            $database->name,
-            'my_dbdev',
-            $backup->completedAt,
-        ]) . '.sql.gz';
-        $localFilepath = Path::join(sys_get_temp_dir(), $filename);
-
-        $this->mockDownloadBackupResponse($environment, $database->name, 1);
-        $this->clientProphecy->addOption('sink', $localFilepath)->shouldBeCalled();
-        $this->clientProphecy->addOption('curl.options', [
-            'CURLOPT_FILE' => $localFilepath,
-            'CURLOPT_RETURNTRANSFER' => false,
-        ])->shouldBeCalled();
-        $this->clientProphecy->addOption('progress', Argument::type('Closure'))->shouldBeCalled();
-        $this->clientProphecy->addOption('on_stats', Argument::type('Closure'))->shouldBeCalled();
-        $this->clientProphecy->getOptions()->willReturn([]);
-
-        // Set codebase UUID and mock codebase API calls.
-        $codebaseUuid = '11111111-041c-44c7-a486-7972ed2cafc8';
-        putenv('AH_CODEBASE_UUID=' . $codebaseUuid);
-
-        $codebase = $this->getMockCodeBaseResponse();
-        $this->clientProphecy->request('get', '/codebases/' . $codebaseUuid)
-            ->willReturn($codebase)
-            ->shouldBeCalled();
-
-        // Mock codebase environments.
-        $codebaseEnv = $this->getMockCodeBaseEnvironment();
-        $this->clientProphecy->request('get', '/codebases/' . $codebaseUuid . '/environments')
-            ->willReturn([$codebaseEnv])
-            ->shouldBeCalled();
-
-        // Create an empty file.
-        file_put_contents($localFilepath, '');
-
-        // Mock HTTP response with 200 success.
-        $response = $this->prophet->prophesize(ResponseInterface::class);
-        $response->getStatusCode()->willReturn(200);
-        $downloadUrl = $backup->links->download->href;
-        $this->httpClientProphecy->request('GET', $downloadUrl, Argument::type('array'))
-            ->willReturn($response->reveal())
-            ->shouldBeCalled();
-    }
-
-    protected function mockDownloadBackup(object $database, object $environment, object $backup, int $curlCode = 0): object
+    protected function mockDownloadBackup(object $database, object $environment, object $backup, int $curlCode = 0, string $validationError = ''): object
     {
         if ($curlCode) {
             $this->prophet->prophesize(StreamInterface::class);
@@ -609,10 +422,29 @@ abstract class PullCommandTestBase extends CommandTestBase
         ]) . '.sql.gz';
         $localFilepath = Path::join(sys_get_temp_dir(), $filename);
 
-        // Create a valid gzip file for validation.
-        $content = 'Mock SQL dump content for testing';
-        $gzippedContent = gzencode($content);
-        file_put_contents($localFilepath, $gzippedContent);
+        // Create file based on validation error type.
+        switch ($validationError) {
+            case 'empty':
+                // Create an empty file to test empty file validation.
+                file_put_contents($localFilepath, '');
+                break;
+            case 'invalid_gzip':
+                // Create a non-gzip file to test gzip validation.
+                file_put_contents($localFilepath, 'This is plain text, not gzipped content');
+                break;
+            case 'missing':
+                // Don't create a file to test missing file validation.
+                if (file_exists($localFilepath)) {
+                    unlink($localFilepath);
+                }
+                break;
+            default:
+                // Create a valid gzip file for normal testing.
+                $content = 'Mock SQL dump content for testing';
+                $gzippedContent = gzencode($content);
+                file_put_contents($localFilepath, $gzippedContent);
+                break;
+        }
 
         $this->clientProphecy->addOption('sink', $localFilepath)
             ->shouldBeCalled();
