@@ -33,11 +33,9 @@ use Psr\Http\Message\UriInterface;
 use Psr\Log\LoggerInterface;
 use React\EventLoop\Loop;
 use SelfUpdate\SelfUpdateManager;
-use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\ConsoleOutput;
-use Symfony\Component\Console\Output\ConsoleSectionOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Path;
 
@@ -261,12 +259,13 @@ abstract class PullCommandBase extends CommandBase
             if ($codebaseUuid) {
                 // Download the backup file directly from the provided URL.
                 $downloadUrl = $backupResponse->links->download->href;
-                $this->httpClient->request('GET', $downloadUrl, [
+                $response = $this->httpClient->request('GET', $downloadUrl, [
                     'progress' => static function (mixed $totalBytes, mixed $downloadedBytes) use (&$progress, $output): void {
                         self::displayDownloadProgress($totalBytes, $downloadedBytes, $progress, $output);
                     },
                     'sink' => $localFilepath,
                 ]);
+                $this->validateDownloadResponse($response, $localFilepath);
                 return $localFilepath;
             }
             $acquiaCloudClient->stream(
@@ -274,6 +273,7 @@ abstract class PullCommandBase extends CommandBase
                 "/environments/$environment->uuid/databases/$database->name/backups/$backupResponse->id/actions/download",
                 $acquiaCloudClient->getOptions()
             );
+            $this->validateDownloadedFile($localFilepath);
             return $localFilepath;
         } catch (RequestException $exception) {
             // Deal with broken SSL certificates.
@@ -308,35 +308,99 @@ abstract class PullCommandBase extends CommandBase
         throw new AcquiaCliException('Could not download backup');
     }
 
-    public function setBackupDownloadUrl(UriInterface $url): void
+    /**
+     * Validates the HTTP response from a database backup download request.
+     *
+     * @param \Psr\Http\Message\ResponseInterface $response The HTTP response object
+     * @param string $localFilepath The local file path where the backup was downloaded
+     * @throws \Acquia\Cli\Exception\AcquiaCliException If the response is invalid
+     */
+    private function validateDownloadResponse(object $response, string $localFilepath): void
     {
-        $this->backupDownloadUrl = $url;
-    }
+        $statusCode = $response->getStatusCode();
 
-    private function getBackupDownloadUrl(): ?UriInterface
-    {
-        return $this->backupDownloadUrl ?? null;
-    }
-
-    public static function displayDownloadProgress(mixed $totalBytes, mixed $downloadedBytes, mixed &$progress, OutputInterface $output): void
-    {
-        if ($totalBytes > 0 && is_null($progress)) {
-            $progress = new ProgressBar($output, $totalBytes);
-            $progress->setFormat('        %current%/%max% [%bar%] %percent:3s%%');
-            $progress->setProgressCharacter('💧');
-            $progress->setOverwrite(true);
-            $progress->start();
+        // Check for successful HTTP response.
+        if ($statusCode !== 200) {
+            // Clean up the potentially corrupted file.
+            if (file_exists($localFilepath)) {
+                $this->localMachineHelper->getFilesystem()->remove($localFilepath);
+            }
+            throw new AcquiaCliException(
+                'Database backup download failed with HTTP status {status}. Please try again or contact support.',
+                ['status' => $statusCode]
+            );
         }
 
-        if (!is_null($progress)) {
-            if ($totalBytes === $downloadedBytes && $progress->getProgressPercent() !== 1.0) {
-                $progress->finish();
-                if ($output instanceof ConsoleSectionOutput) {
-                    $output->clear();
-                }
-                return;
-            }
-            $progress->setProgress($downloadedBytes);
+        // Validate the downloaded file.
+        $this->validateDownloadedFile($localFilepath);
+    }
+
+    /**
+     * Validates that the downloaded backup file exists and is not empty.
+     *
+     * @param string $localFilepath The local file path to validate
+     * @throws \Acquia\Cli\Exception\AcquiaCliException If the file is invalid
+     */
+    private function validateDownloadedFile(string $localFilepath): void
+    {
+        // Check if file exists.
+        if (!file_exists($localFilepath)) {
+            throw new AcquiaCliException(
+                'Database backup download failed: file was not created. Please try again or contact support.'
+            );
+        }
+
+        // Check if file is not empty.
+        $fileSize = filesize($localFilepath);
+        if ($fileSize === 0 || $fileSize === false) {
+            // Clean up the empty/invalid file.
+            $this->localMachineHelper->getFilesystem()->remove($localFilepath);
+            throw new AcquiaCliException(
+                'Database backup download failed or returned an invalid response. Please try again or contact support.'
+            );
+        }
+
+        // Optional: Validate gzip file header (backup files are .sql.gz)
+        if (str_ends_with($localFilepath, '.gz')) {
+            $this->validateGzipFile($localFilepath);
+        }
+    }
+
+    /**
+     * Validates that the downloaded file is a valid gzip file.
+     *
+     * @param string $localFilepath The local file path to validate
+     * @throws \Acquia\Cli\Exception\AcquiaCliException If the file is not a valid gzip file
+     */
+    private function validateGzipFile(string $localFilepath): void
+    {
+        // Read the first 2 bytes to check for gzip magic number (0x1f 0x8b)
+        $handle = fopen($localFilepath, 'rb');
+        if ($handle === false) {
+            throw new AcquiaCliException(
+                'Database backup download failed: unable to read downloaded file. Please try again or contact support.'
+            );
+        }
+
+        $header = fread($handle, 2);
+        fclose($handle);
+
+        if ($header === false || strlen($header) !== 2) {
+            $this->localMachineHelper->getFilesystem()->remove($localFilepath);
+            throw new AcquiaCliException(
+                'Database backup download failed: file is too small to be valid. Please try again or contact support.'
+            );
+        }
+
+        // Check for gzip magic number.
+        $byte1 = ord($header[0]);
+        $byte2 = ord($header[1]);
+
+        if ($byte1 !== 0x1f || $byte2 !== 0x8b) {
+            $this->localMachineHelper->getFilesystem()->remove($localFilepath);
+            throw new AcquiaCliException(
+                'Database backup download failed or returned an invalid response. The downloaded file is not a valid gzip archive. Please try again or contact support.'
+            );
         }
     }
 
