@@ -387,7 +387,7 @@ abstract class PullCommandTestBase extends CommandTestBase
         $this->mockDownloadBackup($databases[0], $environment, $backups[0]);
     }
 
-    protected function mockDownloadBackup(object $database, object $environment, object $backup, int $curlCode = 0): object
+    protected function mockDownloadBackup(object $database, object $environment, object $backup, int $curlCode = 0, string $validationError = ''): object
     {
         if ($curlCode) {
             $this->prophet->prophesize(StreamInterface::class);
@@ -421,6 +421,35 @@ abstract class PullCommandTestBase extends CommandTestBase
             $backup->completedAt,
         ]) . '.sql.gz';
         $localFilepath = Path::join(sys_get_temp_dir(), $filename);
+
+        // Create file based on validation error type.
+        switch ($validationError) {
+            case 'empty':
+                // Create an empty file to test empty file validation.
+                file_put_contents($localFilepath, '');
+                break;
+            case 'invalid_gzip':
+                // Create a non-gzip file to test gzip validation.
+                file_put_contents($localFilepath, 'This is plain text, not gzipped content');
+                break;
+            case 'missing':
+                // Don't create a file to test missing file validation.
+                if (file_exists($localFilepath)) {
+                    unlink($localFilepath);
+                }
+                break;
+            case 'too_small':
+                // Create a file with only 1 byte to test file too small validation.
+                file_put_contents($localFilepath, 'X');
+                break;
+            default:
+                // Create a valid gzip file for normal testing.
+                $content = 'Mock SQL dump content for testing';
+                $gzippedContent = gzencode($content);
+                file_put_contents($localFilepath, $gzippedContent);
+                break;
+        }
+
         $this->clientProphecy->addOption('sink', $localFilepath)
             ->shouldBeCalled();
         $this->clientProphecy->addOption('curl.options', [
@@ -435,7 +464,8 @@ abstract class PullCommandTestBase extends CommandTestBase
 
         return $database;
     }
-    protected function mockDownloadCodebaseBackup(object $database, string $url, object $backup, int $curlCode = 0): object
+
+    protected function mockDownloadCodebaseBackup(object $database, string $url, object $backup, int $curlCode = 0, string $validationError = ''): object
     {
         $filename = implode('-', [
             'environment_3e8ecbec-ea7c-4260-8414-ef2938c859bc',
@@ -463,6 +493,13 @@ abstract class PullCommandTestBase extends CommandTestBase
         $downloadUrl = $backup->links->download->href ?? 'https://example.com/download-backup';
         $response = $this->prophet->prophesize(ResponseInterface::class);
 
+        // Set the HTTP status code based on validation error.
+        if ($validationError === 'http_error') {
+            $response->getStatusCode()->willReturn(500);
+        } else {
+            $response->getStatusCode()->willReturn(200);
+        }
+
         $capturedOpts = null;
         $this->httpClientProphecy
             ->request(
@@ -484,7 +521,23 @@ abstract class PullCommandTestBase extends CommandTestBase
                     return true;
                 })
             )
-            ->will(function () use (&$capturedOpts, $response): ResponseInterface {
+            ->will(function () use (&$capturedOpts, $response, $localFilepath, $validationError): ResponseInterface {
+                // Create file based on validation error type.
+                switch ($validationError) {
+                    case 'http_error':
+                        // For HTTP error, create file that will be cleaned up.
+                        $content = 'Mock SQL dump content for testing';
+                        $gzippedContent = gzencode($content);
+                        file_put_contents($localFilepath, $gzippedContent);
+                        break;
+                    default:
+                        // Create a valid gzip file for validation.
+                        $content = 'Mock SQL dump content for testing';
+                        $gzippedContent = gzencode($content);
+                        file_put_contents($localFilepath, $gzippedContent);
+                        break;
+                }
+
                 // Simulate the download to force progress rendering.
                 $progress = $capturedOpts['progress'];
                 $progress(100, 0);
