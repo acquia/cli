@@ -33,9 +33,11 @@ use Psr\Http\Message\UriInterface;
 use Psr\Log\LoggerInterface;
 use React\EventLoop\Loop;
 use SelfUpdate\SelfUpdateManager;
+use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\ConsoleOutput;
+use Symfony\Component\Console\Output\ConsoleSectionOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Path;
 
@@ -429,7 +431,7 @@ abstract class PullCommandBase extends CommandBase
     public static function displayDownloadProgress(mixed $totalBytes, mixed $downloadedBytes, mixed &$progress, OutputInterface $output): void
     {
         if ($totalBytes > 0 && is_null($progress)) {
-            $progress = new \Symfony\Component\Console\Helper\ProgressBar($output, $totalBytes);
+            $progress = new ProgressBar($output, $totalBytes);
             $progress->setFormat('        %current%/%max% [%bar%] %percent:3s%%');
             $progress->setProgressCharacter('💧');
             $progress->setOverwrite(true);
@@ -439,7 +441,7 @@ abstract class PullCommandBase extends CommandBase
         if (!is_null($progress)) {
             if ($totalBytes === $downloadedBytes && $progress->getProgressPercent() !== 1.0) {
                 $progress->finish();
-                if ($output instanceof \Symfony\Component\Console\Output\ConsoleSectionOutput) {
+                if ($output instanceof ConsoleSectionOutput) {
                     $output->clear();
                 }
                 return;
