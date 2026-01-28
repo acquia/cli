@@ -432,6 +432,12 @@ abstract class PullCommandTestBase extends CommandTestBase
             ->willReturn($codebase)
             ->shouldBeCalled();
 
+        // Mock codebase environments.
+        $codebaseEnv = $this->getMockCodeBaseEnvironment();
+        $this->clientProphecy->request('get', '/codebases/' . $codebaseUuid . '/environments')
+            ->willReturn([$codebaseEnv])
+            ->shouldBeCalled();
+
         // Mock HTTP response with 404 error.
         $response = $this->prophet->prophesize(ResponseInterface::class);
         $response->getStatusCode()->willReturn(404);
@@ -484,6 +490,12 @@ abstract class PullCommandTestBase extends CommandTestBase
         $codebase = $this->getMockCodeBaseResponse();
         $this->clientProphecy->request('get', '/codebases/' . $codebaseUuid)
             ->willReturn($codebase)
+            ->shouldBeCalled();
+
+        // Mock codebase environments.
+        $codebaseEnv = $this->getMockCodeBaseEnvironment();
+        $this->clientProphecy->request('get', '/codebases/' . $codebaseUuid . '/environments')
+            ->willReturn([$codebaseEnv])
             ->shouldBeCalled();
 
         // Create an invalid (non-gzip) file.
@@ -542,6 +554,12 @@ abstract class PullCommandTestBase extends CommandTestBase
         $codebase = $this->getMockCodeBaseResponse();
         $this->clientProphecy->request('get', '/codebases/' . $codebaseUuid)
             ->willReturn($codebase)
+            ->shouldBeCalled();
+
+        // Mock codebase environments.
+        $codebaseEnv = $this->getMockCodeBaseEnvironment();
+        $this->clientProphecy->request('get', '/codebases/' . $codebaseUuid . '/environments')
+            ->willReturn([$codebaseEnv])
             ->shouldBeCalled();
 
         // Create an empty file.

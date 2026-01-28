@@ -13,6 +13,7 @@ use Acquia\Cli\Transformer\EnvironmentTransformer;
 use AcquiaCloudApi\Response\SiteInstanceDatabaseBackupResponse;
 use AcquiaCloudApi\Response\SiteInstanceDatabaseResponse;
 use GuzzleHttp\Client;
+use GuzzleHttp\Psr7\Uri;
 use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
 use Symfony\Component\Console\Output\BufferedOutput;
@@ -319,6 +320,26 @@ class PullDatabaseCommandTest extends PullCommandTestBase
         $output = $this->getDisplay();
         $this->assertStringContainsString('The certificate for www.example.com is invalid.', $output);
         $this->assertStringContainsString('Trying alternative host other.example.com', $output);
+    }
+
+    /**
+     * Test that the getBackupDownloadUrl and setBackupDownloadUrl methods work correctly.
+     */
+    public function testBackupDownloadUrlGetterSetter(): void
+    {
+        // Test initial state (null).
+        $this->assertNull($this->command->getBackupDownloadUrl());
+
+        // Test setting with string.
+        $backupUrl = 'https://www.example.com/download-backup';
+        $this->command->setBackupDownloadUrl($backupUrl);
+        $this->assertNotNull($this->command->getBackupDownloadUrl());
+        $this->assertEquals($backupUrl, (string) $this->command->getBackupDownloadUrl());
+
+        // Test setting with UriInterface.
+        $uri = new Uri('https://other.example.com/download-backup');
+        $this->command->setBackupDownloadUrl($uri);
+        $this->assertEquals((string) $uri, (string) $this->command->getBackupDownloadUrl());
     }
 
     protected function setupPullDatabase(bool $mysqlConnectSuccessful, bool $mockIdeFs = false, bool $onDemand = false, bool $mockGetAcsfSites = true, bool $multiDb = false, int $curlCode = 0, bool $existingBackups = true, bool $onDemandSuccess = true): void
