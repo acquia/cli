@@ -421,6 +421,12 @@ abstract class PullCommandTestBase extends CommandTestBase
             $backup->completedAt,
         ]) . '.sql.gz';
         $localFilepath = Path::join(sys_get_temp_dir(), $filename);
+
+        // Create a valid gzip file for validation.
+        $content = 'Mock SQL dump content for testing';
+        $gzippedContent = gzencode($content);
+        file_put_contents($localFilepath, $gzippedContent);
+
         $this->clientProphecy->addOption('sink', $localFilepath)
             ->shouldBeCalled();
         $this->clientProphecy->addOption('curl.options', [
@@ -462,6 +468,7 @@ abstract class PullCommandTestBase extends CommandTestBase
         // Mock the HTTP client request for codebase downloads.
         $downloadUrl = $backup->links->download->href ?? 'https://example.com/download-backup';
         $response = $this->prophet->prophesize(ResponseInterface::class);
+        $response->getStatusCode()->willReturn(200);
 
         $capturedOpts = null;
         $this->httpClientProphecy
@@ -484,7 +491,12 @@ abstract class PullCommandTestBase extends CommandTestBase
                     return true;
                 })
             )
-            ->will(function () use (&$capturedOpts, $response): ResponseInterface {
+            ->will(function () use (&$capturedOpts, $response, $localFilepath): ResponseInterface {
+                // Create a valid gzip file for validation.
+                $content = 'Mock SQL dump content for testing';
+                $gzippedContent = gzencode($content);
+                file_put_contents($localFilepath, $gzippedContent);
+
                 // Simulate the download to force progress rendering.
                 $progress = $capturedOpts['progress'];
                 $progress(100, 0);

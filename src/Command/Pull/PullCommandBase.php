@@ -67,6 +67,28 @@ abstract class PullCommandBase extends CommandBase
     }
 
     /**
+     * Get the backup download URL.
+     * This is primarily used for testing purposes.
+     */
+    public function getBackupDownloadUrl(): ?UriInterface
+    {
+        return $this->backupDownloadUrl ?? null;
+    }
+
+    /**
+     * Set the backup download URL.
+     * This is primarily used for testing purposes.
+     */
+    public function setBackupDownloadUrl(string|UriInterface $url): void
+    {
+        if (is_string($url)) {
+            $this->backupDownloadUrl = new \GuzzleHttp\Psr7\Uri($url);
+        } else {
+            $this->backupDownloadUrl = $url;
+        }
+    }
+
+    /**
      * @see https://github.com/drush-ops/drush/blob/c21a5a24a295cc0513bfdecead6f87f1a2cf91a2/src/Sql/SqlMysql.php#L168
      * @return string[]
      */
@@ -401,6 +423,28 @@ abstract class PullCommandBase extends CommandBase
             throw new AcquiaCliException(
                 'Database backup download failed or returned an invalid response. The downloaded file is not a valid gzip archive. Please try again or contact support.'
             );
+        }
+    }
+
+    public static function displayDownloadProgress(mixed $totalBytes, mixed $downloadedBytes, mixed &$progress, OutputInterface $output): void
+    {
+        if ($totalBytes > 0 && is_null($progress)) {
+            $progress = new \Symfony\Component\Console\Helper\ProgressBar($output, $totalBytes);
+            $progress->setFormat('        %current%/%max% [%bar%] %percent:3s%%');
+            $progress->setProgressCharacter('💧');
+            $progress->setOverwrite(true);
+            $progress->start();
+        }
+
+        if (!is_null($progress)) {
+            if ($totalBytes === $downloadedBytes && $progress->getProgressPercent() !== 1.0) {
+                $progress->finish();
+                if ($output instanceof \Symfony\Component\Console\Output\ConsoleSectionOutput) {
+                    $output->clear();
+                }
+                return;
+            }
+            $progress->setProgress($downloadedBytes);
         }
     }
 
