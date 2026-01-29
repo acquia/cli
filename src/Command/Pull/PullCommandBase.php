@@ -118,19 +118,21 @@ abstract class PullCommandBase extends CommandBase
 
     public static function getBackupPath(object $environment, DatabaseResponse $database, object $backupResponse): string
     {
-        // Databases have a machine name not exposed via the API; we can only
-        // approximately reconstruct it and match the filename you'd get downloading
-        // a backup from Cloud UI.
         if ($database->flags->default) {
             $dbMachineName = $database->name . $environment->name;
         } else {
             $dbMachineName = 'db' . $database->id;
         }
+        if (PHP_OS_FAMILY === 'Windows') {
+            $completedAtFormatted = str_replace(['T', ':'], ['_', '-'], substr($backupResponse->completedAt, 0, 19));
+        } else {
+            $completedAtFormatted = $backupResponse->completedAt;
+        }
         $filename = implode('-', [
             $environment->name,
             $database->name,
             $dbMachineName,
-            $backupResponse->completedAt,
+            $completedAtFormatted,
         ]) . '.sql.gz';
         return Path::join(sys_get_temp_dir(), $filename);
     }

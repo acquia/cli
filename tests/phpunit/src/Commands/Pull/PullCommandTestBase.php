@@ -414,11 +414,16 @@ abstract class PullCommandTestBase extends CommandTestBase
         } else {
             $dbMachineName = 'db' . $database->id;
         }
+        if (PHP_OS_FAMILY === 'Windows') {
+            $completedAtFormatted = str_replace(['T', ':'], ['_', '-'], substr($backup->completedAt, 0, 19));
+        } else {
+            $completedAtFormatted = $backup->completedAt;
+        }
         $filename = implode('-', [
             $environment->name,
             $database->name,
             $dbMachineName,
-            $backup->completedAt,
+            $completedAtFormatted,
         ]) . '.sql.gz';
         $localFilepath = Path::join(sys_get_temp_dir(), $filename);
 
@@ -467,11 +472,16 @@ abstract class PullCommandTestBase extends CommandTestBase
 
     protected function mockDownloadCodebaseBackup(object $database, string $url, object $backup, int $curlCode = 0, string $validationError = ''): object
     {
+        if (PHP_OS_FAMILY === 'Windows') {
+            $completedAtFormatted = str_replace(['T', ':'], ['_', '-'], substr($backup->completedAt ?? '2025-04-01T13:01:06.603Z', 0, 19));
+        } else {
+            $completedAtFormatted = $backup->completedAt ?? '2025-04-01T13:01:06.603Z';
+        }
         $filename = implode('-', [
             'environment_3e8ecbec-ea7c-4260-8414-ef2938c859bc',
             $database->name ?? 'example',
             'dbexample',
-            '2025-04-01T13:01:06.603Z',
+            $completedAtFormatted,
         ]) . '.sql.gz';
         $localFilepath = Path::join(sys_get_temp_dir(), $filename);
 
