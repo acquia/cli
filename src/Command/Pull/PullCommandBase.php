@@ -124,16 +124,18 @@ abstract class PullCommandBase extends CommandBase
             $dbMachineName = 'db' . $database->id;
         }
         if (PHP_OS_FAMILY === 'Windows') {
-            $completedAtFormatted = str_replace(['T', ':'], ['_', '-'], substr($backupResponse->completedAt, 0, 19));
+            // Use short filename to comply with 8.3 format and avoid long path issues.
+            $hash = substr(md5($environment->name . $database->name . $dbMachineName . $backupResponse->completedAt), 0, 8);
+            $filename = $hash . '.sql.gz';
         } else {
             $completedAtFormatted = $backupResponse->completedAt;
+            $filename = implode('-', [
+                $environment->name,
+                $database->name,
+                $dbMachineName,
+                $completedAtFormatted,
+            ]) . '.sql.gz';
         }
-        $filename = implode('-', [
-            $environment->name,
-            $database->name,
-            $dbMachineName,
-            $completedAtFormatted,
-        ]) . '.sql.gz';
         return Path::join(sys_get_temp_dir(), $filename);
     }
 

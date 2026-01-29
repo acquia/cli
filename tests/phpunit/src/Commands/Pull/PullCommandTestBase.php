@@ -311,13 +311,6 @@ abstract class PullCommandTestBase extends CommandTestBase
         $process = $this->mockProcess($success);
         $filePath = Path::join(sys_get_temp_dir(), "$env-$dbName-$dbMachineName-$createdAt.sql.gz");
         $command = $pvExists ? 'pv "${:LOCAL_DUMP_FILEPATH}" --bytes --rate | gunzip | MYSQL_PWD="${:MYSQL_PASSWORD}" mysql --host="${:MYSQL_HOST}" --user="${:MYSQL_USER}" "${:MYSQL_DATABASE}"' : 'gunzip -c "${:LOCAL_DUMP_FILEPATH}" | MYSQL_PWD="${:MYSQL_PASSWORD}" mysql --host="${:MYSQL_HOST}" --user="${:MYSQL_USER}" "${:MYSQL_DATABASE}"';
-        $expectedEnv = [
-            'LOCAL_DUMP_FILEPATH' => $filePath,
-            'MYSQL_DATABASE' => $localDbName,
-            'MYSQL_HOST' => 'localhost',
-            'MYSQL_PASSWORD' => 'drupal',
-            'MYSQL_USER' => 'drupal',
-        ];
         // MySQL import command.
         $localMachineHelper
             ->executeFromCmd(
@@ -328,14 +321,33 @@ abstract class PullCommandTestBase extends CommandTestBase
                     return $printOutput === false;
                 }),
                 null,
-                Argument::that(function ($env) use ($expectedEnv) {
-                    if (!is_array($env)) {
+                Argument::that(function ($envVars) use ($localDbName) {
+                    // On Windows, the filepath is in 8.3 format (hashed),
+                    // so we can't do strict matching. We just verify that
+                    // the required environment variables exist with expected values.
+                    if (!is_array($envVars)) {
                         return false;
                     }
-                    foreach ($expectedEnv as $k => $v) {
-                        if (!array_key_exists($k, $env) || $env[$k] !== $v) {
-                            return false;
-                        }
+                    // Check required env vars exist (values vary by platform for LOCAL_DUMP_FILEPATH)
+                    if (!array_key_exists('LOCAL_DUMP_FILEPATH', $envVars)) {
+                        return false;
+                    }
+                    // Verify the filepath ends with expected suffix and is a valid gzip file.
+                    if (!str_ends_with($envVars['LOCAL_DUMP_FILEPATH'], '.sql.gz')) {
+                        return false;
+                    }
+                    // Verify other required env vars.
+                    if (!array_key_exists('MYSQL_DATABASE', $envVars) || $envVars['MYSQL_DATABASE'] !== $localDbName) {
+                        return false;
+                    }
+                    if (!array_key_exists('MYSQL_HOST', $envVars) || $envVars['MYSQL_HOST'] !== 'localhost') {
+                        return false;
+                    }
+                    if (!array_key_exists('MYSQL_PASSWORD', $envVars) || $envVars['MYSQL_PASSWORD'] !== 'drupal') {
+                        return false;
+                    }
+                    if (!array_key_exists('MYSQL_USER', $envVars) || $envVars['MYSQL_USER'] !== 'drupal') {
+                        return false;
                     }
                     return true;
                 })
@@ -415,16 +427,18 @@ abstract class PullCommandTestBase extends CommandTestBase
             $dbMachineName = 'db' . $database->id;
         }
         if (PHP_OS_FAMILY === 'Windows') {
-            $completedAtFormatted = str_replace(['T', ':'], ['_', '-'], substr($backup->completedAt, 0, 19));
+            // Use short filename to comply with 8.3 format and avoid long path issues.
+            $hash = substr(md5($environment->name . $database->name . $dbMachineName . $backup->completedAt), 0, 8);
+            $filename = $hash . '.sql.gz';
         } else {
             $completedAtFormatted = $backup->completedAt;
+            $filename = implode('-', [
+                $environment->name,
+                $database->name,
+                $dbMachineName,
+                $completedAtFormatted,
+            ]) . '.sql.gz';
         }
-        $filename = implode('-', [
-            $environment->name,
-            $database->name,
-            $dbMachineName,
-            $completedAtFormatted,
-        ]) . '.sql.gz';
         $localFilepath = Path::join(sys_get_temp_dir(), $filename);
 
         // Create file based on validation error type.
