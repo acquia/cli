@@ -486,15 +486,23 @@ abstract class PullCommandTestBase extends CommandTestBase
 
     protected function mockDownloadCodebaseBackup(object $database, string $url, object $backup, int $curlCode = 0, string $validationError = ''): object
     {
+        // Calculate dbMachineName the same way as getBackupPath.
+        $environment = (object) ['name' => 'environment_3e8ecbec-ea7c-4260-8414-ef2938c859bc'];
+        if (isset($database->flags->default) && $database->flags->default) {
+            $dbMachineName = $database->name . $environment->name;
+        } else {
+            $dbMachineName = 'db' . ($database->id ?? 'example');
+        }
+
         if (PHP_OS_FAMILY === 'Windows') {
             $completedAtFormatted = str_replace(['T', ':'], ['_', '-'], substr($backup->completedAt ?? '2025-04-01T13:01:06.603Z', 0, 19));
         } else {
             $completedAtFormatted = $backup->completedAt ?? '2025-04-01T13:01:06.603Z';
         }
         $filename = implode('-', [
-            'environment_3e8ecbec-ea7c-4260-8414-ef2938c859bc',
+            $environment->name,
             $database->name ?? 'example',
-            'dbexample',
+            $dbMachineName,
             $completedAtFormatted,
         ]) . '.sql.gz';
         $localFilepath = Path::join(sys_get_temp_dir(), $filename);
