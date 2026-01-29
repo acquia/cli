@@ -515,14 +515,8 @@ abstract class PullCommandTestBase extends CommandTestBase
 
         // Mock the HTTP client request for codebase downloads.
         $downloadUrl = $backup->links->download->href ?? 'https://example.com/download-backup';
-        $response = $this->prophet->prophesize(ResponseInterface::class);
-
-        // Set the HTTP status code based on validation error.
-        if ($validationError === 'http_error') {
-            $response->getStatusCode()->willReturn(500);
-        } else {
-            $response->getStatusCode()->willReturn(200);
-        }
+        $statusCode = $validationError === 'http_error' ? 500 : 200;
+        $response = new \GuzzleHttp\Psr7\Response($statusCode);
 
         $capturedOpts = null;
         $this->httpClientProphecy
@@ -545,29 +539,35 @@ abstract class PullCommandTestBase extends CommandTestBase
                     return true;
                 })
             )
-            ->will(function () use (&$capturedOpts, $response, $localFilepath, $validationError): ResponseInterface {
+            ->will(function () use (&$capturedOpts, $response, $localFilepath, $validationError): \Psr\Http\Message\ResponseInterface {
                 // Create file based on validation error type.
                 switch ($validationError) {
                     case 'http_error':
                         // For HTTP error, create file that will be cleaned up.
                         $content = 'Mock SQL dump content for testing';
                         $gzippedContent = gzencode($content);
-                        file_put_contents($localFilepath, $gzippedContent);
+                        if ($gzippedContent !== false) {
+                            file_put_contents($localFilepath, $gzippedContent);
+                        }
                         break;
                     default:
                         // Create a valid gzip file for validation.
                         $content = 'Mock SQL dump content for testing';
                         $gzippedContent = gzencode($content);
-                        file_put_contents($localFilepath, $gzippedContent);
+                        if ($gzippedContent !== false) {
+                            file_put_contents($localFilepath, $gzippedContent);
+                        }
                         break;
                 }
 
                 // Simulate the download to force progress rendering.
-                $progress = $capturedOpts['progress'];
-                $progress(100, 0);
-                $progress(100, 50);
-                $progress(100, 100);
-                return $response->reveal();
+                if (isset($capturedOpts['progress'])) {
+                    $progress = $capturedOpts['progress'];
+                    $progress(100, 0);
+                    $progress(100, 50);
+                    $progress(100, 100);
+                }
+                return $response;
             })
             ->shouldBeCalled();
 
