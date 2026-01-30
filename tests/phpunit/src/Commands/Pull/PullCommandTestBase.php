@@ -494,17 +494,21 @@ abstract class PullCommandTestBase extends CommandTestBase
             $dbMachineName = 'db' . ($database->id ?? 'example');
         }
 
+        $completedAtFormatted = $backup->completedAt ?? '2025-04-01T13:01:06.603Z';
+
+        // Use the same filename generation logic as getBackupPath() to ensure consistency.
+        // On Windows, use short filename to comply with 8.3 format and avoid long path issues.
         if (PHP_OS_FAMILY === 'Windows') {
-            $completedAtFormatted = str_replace(['T', ':'], ['_', '-'], substr($backup->completedAt ?? '2025-04-01T13:01:06.603Z', 0, 19));
+            $hash = substr(md5($environment->name . ($database->name ?? 'example') . $dbMachineName . $completedAtFormatted), 0, 8);
+            $filename = $hash . '.sql.gz';
         } else {
-            $completedAtFormatted = $backup->completedAt ?? '2025-04-01T13:01:06.603Z';
+            $filename = implode('-', [
+                $environment->name,
+                $database->name ?? 'example',
+                $dbMachineName,
+                $completedAtFormatted,
+            ]) . '.sql.gz';
         }
-        $filename = implode('-', [
-            $environment->name,
-            $database->name ?? 'example',
-            $dbMachineName,
-            $completedAtFormatted,
-        ]) . '.sql.gz';
         $localFilepath = Path::join(sys_get_temp_dir(), $filename);
 
         // Cloud API client options are always set first.
