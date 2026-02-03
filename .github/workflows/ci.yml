@@ -96,6 +96,18 @@ jobs:
           echo AMPLITUDE_KEY=${{ secrets.AMPLITUDE_KEY }} >> .env
           echo ACLI_VERSION=${{ steps.acli-version.outputs.ACLI_VERSION }} >> .env
           echo ACLI_BUILD_DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ") >> .env
+      - name: 'Extract additional API specs from secrets'
+        run: |
+          # Extract additional acquia-spec if available
+          if [ -n "${{ secrets.ACQUIA_SPEC_ADDITIONAL }}" ]; then
+            echo "${{ secrets.ACQUIA_SPEC_ADDITIONAL }}" > assets/acquia-spec-additional.json
+            echo "ACLI_ADDITIONAL_SPEC_FILE_ACQUIA_SPEC=$(pwd)/assets/acquia-spec-additional.json" >> $GITHUB_ENV
+          fi
+          # Extract additional acsf-spec if available
+          if [ -n "${{ secrets.ACSF_SPEC_ADDITIONAL }}" ]; then
+            echo "${{ secrets.ACSF_SPEC_ADDITIONAL }}" > assets/acsf-spec-additional.json
+            echo "ACLI_ADDITIONAL_SPEC_FILE_ACSF_SPEC=$(pwd)/assets/acsf-spec-additional.json" >> $GITHUB_ENV
+          fi
       - name: Build
         run: |
           composer install --no-dev --optimize-autoloader
