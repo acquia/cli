@@ -1204,4 +1204,41 @@ EOD;
         putenv('ACLI_ADDITIONAL_SPEC_FILE_ACQUIA_SPEC');
         putenv('ACLI_ADDITIONAL_SPEC_JSON_ACQUIA_SPEC');
     }
+
+    /**
+     * Tests that getCloudApiSpec uses cache when spec file does not exist (PHAR scenario).
+     */
+    public function testGetCloudApiSpecPharScenarioCacheHit(): void
+    {
+        // Create a temporary spec file and populate cache for it.
+        $specFilePath = sys_get_temp_dir() . '/phar-scenario-spec-' . uniqid() . '.json';
+        $specContent = json_encode(['test' => 'data']);
+        file_put_contents($specFilePath, $specContent);
+
+        $cacheKey = basename($specFilePath);
+        $cacheDir = Path::join($this->projectDir, 'var/cache');
+        $cache = new \Symfony\Component\Cache\Adapter\PhpArrayAdapter(
+            Path::join($cacheDir, $cacheKey . '.cache'),
+            new \Symfony\Component\Cache\Adapter\NullAdapter()
+        );
+
+        // Simulate cache hit.
+        $cacheItemSpec = $cache->getItem($cacheKey);
+        $cacheItemSpec->set(json_decode($specContent, true));
+        $cache->save($cacheItemSpec);
+
+        $this->fs->remove($specFilePath);
+
+        // The original spec file should not exist, but cache should be hit.
+        $apiCommandHelper = new \Acquia\Cli\Command\Api\ApiCommandHelper($this->logger);
+        $reflection = new \ReflectionClass($apiCommandHelper);
+        $method = $reflection->getMethod('getCloudApiSpec');
+        $method->setAccessible(true);
+
+        // Call getCloudApiSpec with a non-existent file path.
+        $spec = $method->invokeArgs($apiCommandHelper, [$specFilePath]);
+
+        $this->assertEquals(['test' => 'data'], $spec);
+        $this->assertFileDoesNotExist($specFilePath);
+    }
 }
