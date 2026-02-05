@@ -400,6 +400,7 @@ class ApiCommandHelper
             }
         }
 
+        /** @infection-ignore-all LogicalOr: Subsequent isset() checks make this equivalent mutant */
         if (!$additionalSpec || !is_array($additionalSpec)) {
             return $baseSpec;
         }
