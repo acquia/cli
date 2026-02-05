@@ -1395,15 +1395,28 @@ EOD;
         // If LogicalOrAllSubExprNegation mutation is applied, these would cause errors when trying
         // to recursively process them as objects/arrays.
         $this->assertEquals('test-string', $decoded['string_value']);
-        $this->assertIsString($decoded['string_value'], 'String value should remain a string (kills LogicalOrAllSubExprNegation at line 159)');
+        $this->assertIsString($decoded['string_value']);
         $this->assertEquals(123, $decoded['number_value']);
-        $this->assertIsInt($decoded['number_value'], 'Number value should remain an int (kills LogicalOrAllSubExprNegation at line 159)');
+        $this->assertIsInt($decoded['number_value']);
         $this->assertTrue($decoded['boolean_value']);
-        $this->assertIsBool($decoded['boolean_value'], 'Boolean value should remain a bool (kills LogicalOrAllSubExprNegation at line 159)');
+        $this->assertIsBool($decoded['boolean_value']);
         $this->assertEquals('nested-string', $decoded['nested_object']['string_in_object']);
-        $this->assertIsString($decoded['nested_object']['string_in_object'], 'String in nested object should remain a string (kills LogicalOrAllSubExprNegation at line 168)');
+        $this->assertIsString($decoded['nested_object']['string_in_object']);
         $this->assertEquals('array-string', $decoded['nested_array']['string_in_array']);
-        $this->assertIsString($decoded['nested_array']['string_in_array'], 'String in nested array should remain a string (kills LogicalOrAllSubExprNegation at line 168)');
+        $this->assertIsString($decoded['nested_array']['string_in_array']);
+    }
+
+    public function testMungeResponseThrowsExceptionForScalar(): void
+    {
+        $command = $this->getApiCommandByName('api:accounts:ssh-keys-list');
+        $reflection = new \ReflectionClass($command);
+        $method = $reflection->getMethod('mungeResponse');
+
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('mungeResponse() expects an object or array, got string');
+
+        $scalar = 'string-value';
+        $method->invokeArgs($command, [&$scalar]);
     }
 
     /**
@@ -1469,7 +1482,17 @@ EOD;
             sort($commandNames1b);
             $this->assertEquals($commandNames1, $commandNames1b, 'Command names must match exactly (proves ReturnRemoval: return prevented any processing, baseSpec returned unchanged)');
 
-            // Test 2: truthy but non-array additionalSpec - should return early (kills LogicalOr: || to &&)
+            // Test 2: empty array additionalSpec - should return early without exception (kills LogicalOr: || to &&)
+            // Original: ![] || !is_array([]) = true || false = true (returns early)
+            // Mutated:  ![] && !is_array([]) = true && false = false (does NOT return early, hits empty() guard)
+            putenv('ACLI_ADDITIONAL_SPEC_JSON_ACQUIA_SPEC=' . json_encode([]));
+            ClearCacheCommand::clearCaches();
+            // This should NOT throw an exception - empty arrays should return early.
+            $commandsEmpty = $this->getApiCommands();
+            $this->assertNotNull($commandsEmpty);
+            $this->assertIsArray($commandsEmpty, 'Commands should be an array when additionalSpec is empty array (proves LogicalOr: || returns early)');
+
+            // Test 3: truthy but non-array additionalSpec - should return early (kills LogicalOr: || to &&)
             // If || is changed to &&, this would NOT return early and try to process string as array.
             // Original: !$additionalSpec || !is_array($additionalSpec) -> true || true = true (returns early)
             // Mutated:  !$additionalSpec && !is_array($additionalSpec) -> false && true = false (does NOT return early)

@@ -330,7 +330,6 @@ class ApiCommandHelper
         } else {
             // Otherwise, only use cache when it is valid.
             $checksum = md5_file($specFilePath);
-            // @infection-ignore-all
             if (
                 $this->useCloudApiSpecCache()
                 && $this->isApiSpecChecksumCacheValid($cacheItemChecksum, $checksum) && $cacheItemSpec->isHit()
@@ -400,9 +399,11 @@ class ApiCommandHelper
             }
         }
 
-        /** @infection-ignore-all LogicalOr: Subsequent isset() checks make this equivalent mutant */
         if (!$additionalSpec || !is_array($additionalSpec)) {
             return $baseSpec;
+        }
+        if (empty($additionalSpec)) {
+            throw new \InvalidArgumentException('Additional spec must not be empty');
         }
 
         // Merge paths from additional spec into base spec.

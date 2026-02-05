@@ -150,6 +150,10 @@ class ApiBaseCommand extends CommandBase
 
     private function mungeResponse(mixed &$response): void
     {
+        if (!is_object($response) && !is_array($response)) {
+            throw new \InvalidArgumentException('mungeResponse() expects an object or array, got ' . gettype($response));
+        }
+
         if (is_object($response)) {
             if (property_exists($response, '_links')) {
                 unset($response->_links);
