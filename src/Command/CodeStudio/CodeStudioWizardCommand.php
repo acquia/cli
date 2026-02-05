@@ -332,6 +332,7 @@ final class CodeStudioWizardCommand extends WizardCommandBase
             'PHP_version_8.2' => "8.2",
             'PHP_version_8.3' => "8.3",
             'PHP_version_8.4' => "8.4",
+            'PHP_version_8.5' => "8.5",
         ];
         $phpChoice = $this->io->choice('Select a PHP version', array_values($phpVersions), "8.3");
         $phpKey = array_search($phpChoice, $phpVersions, true);
