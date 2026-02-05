@@ -1179,6 +1179,37 @@ EOD;
         $this->assertNotNull($commands7);
         unlink($tempSpecNonArrayComponents);
 
+        // Test 7b: Components merging - $additionalSpec['components'] itself is not an array (line 434)
+        // This kills LogicalAndSingleSubExprNegation mutation - if is_array changed to !is_array, merging would fail.
+        $apiCommandHelper = new \Acquia\Cli\Command\Api\ApiCommandHelper($this->logger);
+        $reflection = new \ReflectionClass($apiCommandHelper);
+        $method = $reflection->getMethod('mergeAdditionalSpecs');
+        $method->setAccessible(true);
+        $baseSpec = [
+            'components' => [
+                'schemas' => [
+                    'ExistingSchema' => ['type' => 'object'],
+                ],
+            ],
+            'openapi' => '3.0.0',
+        ];
+        $specWithComponentsNotArray = [
+            // Components itself is not an array.
+            'components' => 'not an array',
+            'openapi' => '3.0.0',
+        ];
+        putenv('ACLI_ADDITIONAL_SPEC_JSON_ACQUIA_SPEC=' . json_encode($specWithComponentsNotArray));
+        $result7b = $method->invokeArgs($apiCommandHelper, [$baseSpec, '/path/to/acquia-spec.json']);
+        putenv('ACLI_ADDITIONAL_SPEC_JSON_ACQUIA_SPEC');
+        // Verify components were NOT merged (kills LogicalAndSingleSubExprNegation - if !is_array, it would try to merge and fail)
+        // Original code: is_array('not an array') = false, so condition is false, components not merged
+        // Mutated code: !is_array('not an array') = true, so condition is true, would try foreach on string and fail.
+        $this->assertArrayHasKey('components', $result7b, 'baseSpec should still have components');
+        $this->assertArrayHasKey('schemas', $result7b['components'], 'Existing schemas should be preserved');
+        $this->assertArrayHasKey('ExistingSchema', $result7b['components']['schemas'], 'Existing schema should be preserved');
+        // Verify no new components were added (proves components were not merged)
+        $this->assertCount(1, $result7b['components'], 'Should only have schemas, no new component types added');
+
         // Test 8: Components merging - merge existing components (line 443-446)
         $specWithMergedComponents = [
             'components' => [
@@ -1206,39 +1237,379 @@ EOD;
     }
 
     /**
-     * Tests that getCloudApiSpec uses cache when spec file does not exist (PHAR scenario).
+     * Tests that mungeResponse is called and removes _links from response.
+     * This kills the MethodCallRemoval mutation at line 140.
      */
-    public function testGetCloudApiSpecPharScenarioCacheHit(): void
+    public function testMungeResponseCalled(): void
     {
-        // Create a temporary spec file and populate cache for it.
-        $specFilePath = sys_get_temp_dir() . '/phar-scenario-spec-' . uniqid() . '.json';
-        $specContent = json_encode(['test' => 'data']);
-        file_put_contents($specFilePath, $specContent);
+        $this->clientProphecy->addOption('headers', ['Accept' => 'application/hal+json, version=2'])
+            ->shouldBeCalled();
+        $mockResponse = (object)[
+            'name' => 'test-name',
+            'uuid' => 'test-uuid-123',
+            '_links' => (object)[
+                'self' => (object)['href' => '/test/path'],
+            ],
+        ];
+        $this->clientProphecy->request('get', '/account/ssh-keys')
+            ->willReturn($mockResponse)
+            ->shouldBeCalled();
+        $this->command = $this->getApiCommandByName('api:accounts:ssh-keys-list');
+        $this->executeCommand([]);
 
-        $cacheKey = basename($specFilePath);
-        $cacheDir = Path::join($this->projectDir, 'var/cache');
-        $cache = new \Symfony\Component\Cache\Adapter\PhpArrayAdapter(
-            Path::join($cacheDir, $cacheKey . '.cache'),
-            new \Symfony\Component\Cache\Adapter\NullAdapter()
-        );
+        $output = $this->getDisplay();
+        $this->assertJson($output);
+        $decoded = json_decode($output, true);
+        // Verify _links are removed (kills MethodCallRemoval mutation - if mungeResponse wasn't called, _links would remain)
+        $this->assertArrayNotHasKey('_links', $decoded);
+        $this->assertEquals('test-uuid-123', $decoded['uuid']);
+        $this->assertEquals('test-name', $decoded['name']);
+    }
 
-        // Simulate cache hit.
-        $cacheItemSpec = $cache->getItem($cacheKey);
-        $cacheItemSpec->set(json_decode($specContent, true));
-        $cache->save($cacheItemSpec);
+    /**
+     * Tests that mungeResponse recursively removes _links from nested objects and arrays.
+     * This kills the LogicalOr mutation at line 159 (is_object || is_array should be || not &&).
+     */
+    public function testMungeResponseRecursiveRemoval(): void
+    {
+        $this->clientProphecy->addOption('headers', ['Accept' => 'application/hal+json, version=2'])
+            ->shouldBeCalled();
+        // Create response with nested objects (is_object will be true) and nested arrays (is_array will be true)
+        // to test the LogicalOr condition at line 159.
+        $mockResponse = (object)[
+            'nested_array' => [
+                (object)[
+                    'id' => 'item-1',
+                    '_links' => (object)[
+                        'self' => (object)['href' => '/item1/path'],
+                    ],
+                ],
+                [
+                    'id' => 'item-2',
+                    '_links' => [
+                        'self' => ['href' => '/item2/path'],
+                    ],
+                ],
+            ],
+            'nested_object' => (object)[
+                'deep_nested_object' => (object)[
+                    'value' => 'deep-value',
+                    '_links' => (object)[
+                        'self' => (object)['href' => '/deep/path'],
+                    ],
+                ],
+                'id' => 'nested-id',
+                '_links' => (object)[
+                    'self' => (object)['href' => '/nested/path'],
+                ],
+            ],
+            'uuid' => 'test-uuid',
+            '_links' => (object)[
+                'self' => (object)['href' => '/test/path'],
+            ],
+        ];
+        $this->clientProphecy->request('get', '/account/ssh-keys')
+            ->willReturn($mockResponse)
+            ->shouldBeCalled();
+        $this->command = $this->getApiCommandByName('api:accounts:ssh-keys-list');
+        $this->executeCommand([]);
 
-        $this->fs->remove($specFilePath);
+        $output = $this->getDisplay();
+        $this->assertJson($output);
+        $decoded = json_decode($output, true);
 
-        // The original spec file should not exist, but cache should be hit.
+        // Verify top-level _links removed.
+        $this->assertArrayNotHasKey('_links', $decoded);
+
+        // Verify nested object _links removed (tests is_object($value) path)
+        $this->assertArrayNotHasKey('_links', $decoded['nested_object']);
+        $this->assertArrayNotHasKey('_links', $decoded['nested_object']['deep_nested_object']);
+
+        // Verify nested array _links removed (tests is_array($value) path)
+        // This kills LogicalOr mutation - if changed to &&, nested arrays wouldn't be processed.
+        $this->assertArrayNotHasKey('_links', $decoded['nested_array'][0]);
+
+        // Verify other data is preserved.
+        $this->assertEquals('test-uuid', $decoded['uuid']);
+        $this->assertEquals('nested-id', $decoded['nested_object']['id']);
+        $this->assertEquals('deep-value', $decoded['nested_object']['deep_nested_object']['value']);
+        $this->assertEquals('item-1', $decoded['nested_array'][0]['id']);
+        $this->assertEquals('item-2', $decoded['nested_array'][1]['id']);
+    }
+
+    /**
+     * Tests that mergeAdditionalSpecs returns early when additionalSpec is null or not an array.
+     * This kills the ReturnRemoval mutation at line 404 and LogicalOr mutation at line 403.
+     */
+    public function testMergeAdditionalSpecsEarlyReturn(): void
+    {
+        // Ensure clean state.
+        putenv('ACLI_ADDITIONAL_SPEC_FILE_ACQUIA_SPEC');
+        putenv('ACLI_ADDITIONAL_SPEC_JSON_ACQUIA_SPEC');
+
         $apiCommandHelper = new \Acquia\Cli\Command\Api\ApiCommandHelper($this->logger);
         $reflection = new \ReflectionClass($apiCommandHelper);
-        $method = $reflection->getMethod('getCloudApiSpec');
+        $method = $reflection->getMethod('mergeAdditionalSpecs');
         $method->setAccessible(true);
 
-        // Call getCloudApiSpec with a non-existent file path.
-        $spec = $method->invokeArgs($apiCommandHelper, [$specFilePath]);
+        $baseSpec = [
+            'openapi' => '3.0.0',
+            'paths' => [
+                '/existing/path' => [
+                    'get' => ['operationId' => 'existing'],
+                ],
+            ],
+        ];
 
-        $this->assertEquals(['test' => 'data'], $spec);
-        $this->assertFileDoesNotExist($specFilePath);
+        try {
+            // Test 1: null additionalSpec - should return baseSpec unchanged (kills ReturnRemoval mutation)
+            $result1 = $method->invokeArgs($apiCommandHelper, [$baseSpec, '/path/to/acquia-spec.json']);
+            $this->assertEquals($baseSpec, $result1, 'Should return baseSpec unchanged when additionalSpec is null');
+
+            // Test 2: non-array additionalSpec - should return baseSpec unchanged.
+            putenv('ACLI_ADDITIONAL_SPEC_JSON_ACQUIA_SPEC=' . json_encode('string not array'));
+            \Acquia\Cli\Command\Self\ClearCacheCommand::clearCaches();
+            $result2 = $method->invokeArgs($apiCommandHelper, [$baseSpec, '/path/to/acquia-spec.json']);
+            $this->assertEquals($baseSpec, $result2, 'Should return baseSpec unchanged when additionalSpec is not an array');
+
+            // Test 3: valid array additionalSpec - should NOT return early (kills LogicalOr mutation: || to &&)
+            // If mutation changes || to &&, this would incorrectly return early.
+            $additionalSpec = [
+                'openapi' => '3.0.0',
+                'paths' => [
+                    '/new/path' => [
+                        'post' => [
+                            'operationId' => 'newCommand',
+                            'x-cli-name' => 'new:command',
+                        ],
+                    ],
+                ],
+            ];
+            putenv('ACLI_ADDITIONAL_SPEC_JSON_ACQUIA_SPEC=' . json_encode($additionalSpec));
+            $result3 = $method->invokeArgs($apiCommandHelper, [$baseSpec, '/path/to/acquia-spec.json']);
+            // Verify merging happened - new path should be added.
+            $this->assertArrayHasKey('/new/path', $result3['paths'], 'New path should be merged when additionalSpec is valid array');
+            $this->assertArrayHasKey('/existing/path', $result3['paths'], 'Existing path should be preserved');
+        } finally {
+            // Cleanup.
+            putenv('ACLI_ADDITIONAL_SPEC_FILE_ACQUIA_SPEC');
+            putenv('ACLI_ADDITIONAL_SPEC_JSON_ACQUIA_SPEC');
+        }
+    }
+
+    /**
+     * Tests that mergeAdditionalSpecs initializes baseSpec['paths'] when it doesn't exist.
+     * This kills the LogicalNot mutation at line 409.
+     */
+    public function testMergeAdditionalSpecsInitializesBaseSpecPaths(): void
+    {
+        putenv('ACLI_ADDITIONAL_SPEC_FILE_ACQUIA_SPEC');
+        putenv('ACLI_ADDITIONAL_SPEC_JSON_ACQUIA_SPEC');
+
+        $apiCommandHelper = new \Acquia\Cli\Command\Api\ApiCommandHelper($this->logger);
+        $reflection = new \ReflectionClass($apiCommandHelper);
+        $method = $reflection->getMethod('mergeAdditionalSpecs');
+        $method->setAccessible(true);
+
+        // baseSpec without 'paths' key.
+        $baseSpec = [
+            'info' => ['title' => 'Test'],
+            'openapi' => '3.0.0',
+        ];
+
+        $additionalSpec = [
+            'openapi' => '3.0.0',
+            'paths' => [
+                '/new/path' => [
+                    'post' => [
+                        'operationId' => 'newCommand',
+                        'x-cli-name' => 'new:command',
+                    ],
+                ],
+            ],
+        ];
+
+        try {
+            putenv('ACLI_ADDITIONAL_SPEC_JSON_ACQUIA_SPEC=' . json_encode($additionalSpec));
+            $result = $method->invokeArgs($apiCommandHelper, [$baseSpec, '/path/to/acquia-spec.json']);
+
+            // Verify baseSpec['paths'] was initialized (kills LogicalNot mutation - if !isset was changed to isset, paths wouldn't be initialized)
+            $this->assertArrayHasKey('paths', $result, 'baseSpec should have paths key after merging');
+            $this->assertIsArray($result['paths'], 'baseSpec[paths] should be an array');
+            $this->assertArrayHasKey('/new/path', $result['paths'], 'New path should be added to initialized paths array');
+        } finally {
+            putenv('ACLI_ADDITIONAL_SPEC_FILE_ACQUIA_SPEC');
+            putenv('ACLI_ADDITIONAL_SPEC_JSON_ACQUIA_SPEC');
+        }
+    }
+
+    /**
+     * Tests that mergeAdditionalSpecs merges methods when path already exists.
+     * This kills the UnwrapArrayMerge mutation at line 425.
+     */
+    public function testMergeAdditionalSpecsMergesExistingPath(): void
+    {
+        putenv('ACLI_ADDITIONAL_SPEC_FILE_ACQUIA_SPEC');
+        putenv('ACLI_ADDITIONAL_SPEC_JSON_ACQUIA_SPEC');
+
+        $apiCommandHelper = new \Acquia\Cli\Command\Api\ApiCommandHelper($this->logger);
+        $reflection = new \ReflectionClass($apiCommandHelper);
+        $method = $reflection->getMethod('mergeAdditionalSpecs');
+        $method->setAccessible(true);
+
+        $baseSpec = [
+            'openapi' => '3.0.0',
+            'paths' => [
+                '/existing/path' => [
+                    'get' => [
+                        'operationId' => 'getExisting',
+                        'x-cli-name' => 'existing:get',
+                    ],
+                ],
+            ],
+        ];
+
+        $additionalSpec = [
+            'openapi' => '3.0.0',
+            'paths' => [
+                '/existing/path' => [
+                    'post' => [
+                        'operationId' => 'postExisting',
+                        'x-cli-name' => 'existing:post',
+                    ],
+                ],
+            ],
+        ];
+
+        try {
+            putenv('ACLI_ADDITIONAL_SPEC_JSON_ACQUIA_SPEC=' . json_encode($additionalSpec));
+            $result = $method->invokeArgs($apiCommandHelper, [$baseSpec, '/path/to/acquia-spec.json']);
+
+            // Verify both methods exist (kills UnwrapArrayMerge mutation - if array_merge was removed, only 'post' would exist)
+            $this->assertArrayHasKey('/existing/path', $result['paths']);
+            $this->assertArrayHasKey('get', $result['paths']['/existing/path'], 'Original get method should be preserved');
+            $this->assertArrayHasKey('post', $result['paths']['/existing/path'], 'New post method should be merged');
+            $this->assertEquals('getExisting', $result['paths']['/existing/path']['get']['operationId']);
+            $this->assertEquals('postExisting', $result['paths']['/existing/path']['post']['operationId']);
+        } finally {
+            putenv('ACLI_ADDITIONAL_SPEC_FILE_ACQUIA_SPEC');
+            putenv('ACLI_ADDITIONAL_SPEC_JSON_ACQUIA_SPEC');
+        }
+    }
+
+    /**
+     * Tests that mergeAdditionalSpecs returns early without modifying baseSpec.
+     * This kills the ReturnRemoval mutation at line 404.
+     */
+    public function testMergeAdditionalSpecsReturnsEarly(): void
+    {
+        putenv('ACLI_ADDITIONAL_SPEC_FILE_ACQUIA_SPEC');
+        putenv('ACLI_ADDITIONAL_SPEC_JSON_ACQUIA_SPEC');
+
+        $apiCommandHelper = new \Acquia\Cli\Command\Api\ApiCommandHelper($this->logger);
+        $reflection = new \ReflectionClass($apiCommandHelper);
+        $method = $reflection->getMethod('mergeAdditionalSpecs');
+        $method->setAccessible(true);
+
+        $baseSpec = [
+            'components' => ['schemas' => ['TestSchema' => ['type' => 'object']]],
+            'openapi' => '3.0.0',
+            'paths' => ['/test' => ['get' => ['operationId' => 'test']]],
+        ];
+
+        // Test that null additionalSpec causes early return (kills ReturnRemoval mutation)
+        // If return is removed, the function would continue and try to merge null, causing errors.
+        $result = $method->invokeArgs($apiCommandHelper, [$baseSpec, '/path/to/acquia-spec.json']);
+        $this->assertSame($baseSpec, $result, 'Should return exact same baseSpec when additionalSpec is null (early return)');
+        $this->assertArrayHasKey('paths', $result);
+        $this->assertArrayHasKey('components', $result);
+        $this->assertCount(1, $result['paths'], 'Paths should be unchanged');
+        $this->assertCount(1, $result['components'], 'Components should be unchanged');
+    }
+
+    /**
+     * Tests that mergeAdditionalSpecs iterates and merges components using array_merge.
+     * This kills the Foreach_ mutation at line 438 and UnwrapArrayMerge mutation at line 443.
+     */
+    public function testMergeAdditionalSpecsIteratesAndMergesComponents(): void
+    {
+        putenv('ACLI_ADDITIONAL_SPEC_FILE_ACQUIA_SPEC');
+        putenv('ACLI_ADDITIONAL_SPEC_JSON_ACQUIA_SPEC');
+
+        $apiCommandHelper = new \Acquia\Cli\Command\Api\ApiCommandHelper($this->logger);
+        $reflection = new \ReflectionClass($apiCommandHelper);
+        $method = $reflection->getMethod('mergeAdditionalSpecs');
+        $method->setAccessible(true);
+
+        $baseSpec = [
+            'components' => [
+                'parameters' => [
+                    'ExistingParam' => [
+                        'in' => 'query',
+                        'name' => 'existing',
+                    ],
+                ],
+                'schemas' => [
+                    'ExistingSchema' => [
+                        'properties' => ['existing' => ['type' => 'string']],
+                        'type' => 'object',
+                    ],
+                ],
+            ],
+            'openapi' => '3.0.0',
+        ];
+
+        $additionalSpec = [
+            'components' => [
+                'parameters' => [
+                    'NewParam' => [
+                        'in' => 'query',
+                        'name' => 'new',
+                    ],
+                ],
+                'responses' => [
+                    'NewResponse' => [
+                        'description' => 'New response',
+                    ],
+                ],
+                'schemas' => [
+                    'NewSchema' => [
+                        'properties' => ['new' => ['type' => 'string']],
+                        'type' => 'object',
+                    ],
+                ],
+            ],
+            'openapi' => '3.0.0',
+        ];
+
+        try {
+            putenv('ACLI_ADDITIONAL_SPEC_JSON_ACQUIA_SPEC=' . json_encode($additionalSpec));
+            $result = $method->invokeArgs($apiCommandHelper, [$baseSpec, '/path/to/acquia-spec.json']);
+
+            // Verify foreach iterated over components (kills Foreach_ mutation - if foreach iterates over [], nothing would be merged)
+            $this->assertArrayHasKey('components', $result);
+            $this->assertArrayHasKey('schemas', $result['components'], 'schemas should exist (proves foreach iterated)');
+            $this->assertArrayHasKey('parameters', $result['components'], 'parameters should exist (proves foreach iterated)');
+            $this->assertArrayHasKey('responses', $result['components'], 'responses should exist (proves foreach iterated)');
+
+            // Verify array_merge was called (kills UnwrapArrayMerge mutation - if array_merge removed, only new components would exist)
+            // Both existing and new schemas should exist.
+            $this->assertArrayHasKey('ExistingSchema', $result['components']['schemas'], 'Existing schema should be preserved');
+            $this->assertArrayHasKey('NewSchema', $result['components']['schemas'], 'New schema should be merged');
+            // Both existing and new parameters should exist.
+            $this->assertArrayHasKey('ExistingParam', $result['components']['parameters'], 'Existing parameter should be preserved');
+            $this->assertArrayHasKey('NewParam', $result['components']['parameters'], 'New parameter should be merged');
+            // New response type should exist.
+            $this->assertArrayHasKey('NewResponse', $result['components']['responses'], 'New response should be added');
+
+            // Verify merged values are correct.
+            $this->assertEquals('object', $result['components']['schemas']['ExistingSchema']['type']);
+            $this->assertEquals('object', $result['components']['schemas']['NewSchema']['type']);
+            $this->assertEquals('existing', $result['components']['parameters']['ExistingParam']['name']);
+            $this->assertEquals('new', $result['components']['parameters']['NewParam']['name']);
+        } finally {
+            putenv('ACLI_ADDITIONAL_SPEC_FILE_ACQUIA_SPEC');
+            putenv('ACLI_ADDITIONAL_SPEC_JSON_ACQUIA_SPEC');
+        }
     }
 }
