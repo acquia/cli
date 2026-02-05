@@ -399,11 +399,12 @@ class ApiCommandHelper
             }
         }
 
-        if (!$additionalSpec || !is_array($additionalSpec)) {
+        if (!is_array($additionalSpec) || $additionalSpec === []) {
             return $baseSpec;
         }
-        if (empty($additionalSpec)) {
-            throw new \InvalidArgumentException('Additional spec must not be empty');
+        $keyCount = count($additionalSpec);
+        if ($keyCount === 0) {
+            throw new \LogicException('Unexpected empty additionalSpec');
         }
 
         // Merge paths from additional spec into base spec.
