@@ -85,9 +85,6 @@ class ExceptionListener
         }
 
         if ($error instanceof ApiErrorException) {
-            if (($command = $event->getCommand()) && $error->getResponseBody()->error === 'not_found' && $command->getName() === 'api:environments:log-download') {
-                $this->helpMessages[] = "You must create logs (api:environments:log-create) prior to downloading them";
-            }
             switch ($errorMessage) {
                 case "There are no available Cloud IDEs for this application.\n":
                     $this->helpMessages[] = "Delete an existing IDE via <bg=$this->messagesBgColor;fg=$this->messagesFgColor;options=bold>acli ide:delete</> or contact your Account Manager or Acquia Sales to purchase additional IDEs.";
