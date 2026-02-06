@@ -69,6 +69,28 @@ abstract class PullCommandBase extends CommandBase
     }
 
     /**
+     * Get the backup download URL.
+     * This is primarily used for testing purposes.
+     */
+    public function getBackupDownloadUrl(): ?UriInterface
+    {
+        return $this->backupDownloadUrl ?? null;
+    }
+
+    /**
+     * Set the backup download URL.
+     * This is primarily used for testing purposes.
+     */
+    public function setBackupDownloadUrl(string|UriInterface $url): void
+    {
+        if (is_string($url)) {
+            $this->backupDownloadUrl = new \GuzzleHttp\Psr7\Uri($url);
+        } else {
+            $this->backupDownloadUrl = $url;
+        }
+    }
+
+    /**
      * @see https://github.com/drush-ops/drush/blob/c21a5a24a295cc0513bfdecead6f87f1a2cf91a2/src/Sql/SqlMysql.php#L168
      * @return string[]
      */
@@ -96,20 +118,24 @@ abstract class PullCommandBase extends CommandBase
 
     public static function getBackupPath(object $environment, DatabaseResponse $database, object $backupResponse): string
     {
-        // Databases have a machine name not exposed via the API; we can only
-        // approximately reconstruct it and match the filename you'd get downloading
-        // a backup from Cloud UI.
         if ($database->flags->default) {
             $dbMachineName = $database->name . $environment->name;
         } else {
             $dbMachineName = 'db' . $database->id;
         }
-        $filename = implode('-', [
-            $environment->name,
-            $database->name,
-            $dbMachineName,
-            $backupResponse->completedAt,
-        ]) . '.sql.gz';
+        if (PHP_OS_FAMILY === 'Windows') {
+            // Use short filename to comply with 8.3 format and avoid long path issues.
+            $hash = substr(md5($environment->name . $database->name . $dbMachineName . $backupResponse->completedAt), 0, 8);
+            $filename = $hash . '.sql.gz';
+        } else {
+            $completedAtFormatted = $backupResponse->completedAt;
+            $filename = implode('-', [
+                $environment->name,
+                $database->name,
+                $dbMachineName,
+                $completedAtFormatted,
+            ]) . '.sql.gz';
+        }
         return Path::join(sys_get_temp_dir(), $filename);
     }
 
@@ -261,12 +287,13 @@ abstract class PullCommandBase extends CommandBase
             if ($codebaseUuid) {
                 // Download the backup file directly from the provided URL.
                 $downloadUrl = $backupResponse->links->download->href;
-                $this->httpClient->request('GET', $downloadUrl, [
+                $response = $this->httpClient->request('GET', $downloadUrl, [
                     'progress' => static function (mixed $totalBytes, mixed $downloadedBytes) use (&$progress, $output): void {
                         self::displayDownloadProgress($totalBytes, $downloadedBytes, $progress, $output);
                     },
                     'sink' => $localFilepath,
                 ]);
+                $this->validateDownloadResponse($response, $localFilepath);
                 return $localFilepath;
             }
             $acquiaCloudClient->stream(
@@ -274,6 +301,7 @@ abstract class PullCommandBase extends CommandBase
                 "/environments/$environment->uuid/databases/$database->name/backups/$backupResponse->id/actions/download",
                 $acquiaCloudClient->getOptions()
             );
+            $this->validateDownloadedFile($localFilepath);
             return $localFilepath;
         } catch (RequestException $exception) {
             // Deal with broken SSL certificates.
@@ -308,14 +336,100 @@ abstract class PullCommandBase extends CommandBase
         throw new AcquiaCliException('Could not download backup');
     }
 
-    public function setBackupDownloadUrl(UriInterface $url): void
+    /**
+     * Validates the HTTP response from a database backup download request.
+     *
+     * @param \Psr\Http\Message\ResponseInterface $response The HTTP response object
+     * @param string $localFilepath The local file path where the backup was downloaded
+     * @throws \Acquia\Cli\Exception\AcquiaCliException If the response is invalid
+     */
+    private function validateDownloadResponse(object $response, string $localFilepath): void
     {
-        $this->backupDownloadUrl = $url;
+        $statusCode = $response->getStatusCode();
+
+        // Check for successful HTTP response.
+        if ($statusCode !== 200) {
+            // Clean up the potentially corrupted file.
+            if (file_exists($localFilepath)) {
+                $this->localMachineHelper->getFilesystem()->remove($localFilepath);
+            }
+            throw new AcquiaCliException(
+                'Database backup download failed with HTTP status {status}. Please try again or contact support.',
+                ['status' => $statusCode]
+            );
+        }
+
+        // Validate the downloaded file.
+        $this->validateDownloadedFile($localFilepath);
     }
 
-    private function getBackupDownloadUrl(): ?UriInterface
+    /**
+     * Validates that the downloaded backup file exists and is not empty.
+     *
+     * @param string $localFilepath The local file path to validate
+     * @throws \Acquia\Cli\Exception\AcquiaCliException If the file is invalid
+     */
+    private function validateDownloadedFile(string $localFilepath): void
     {
-        return $this->backupDownloadUrl ?? null;
+        // Check if file exists.
+        if (!file_exists($localFilepath)) {
+            throw new AcquiaCliException(
+                'Database backup download failed: file was not created. Please try again or contact support.'
+            );
+        }
+
+        // Check if file is not empty.
+        $fileSize = filesize($localFilepath);
+        if ($fileSize === 0 || $fileSize === false) {
+            // Clean up the empty/invalid file.
+            $this->localMachineHelper->getFilesystem()->remove($localFilepath);
+            throw new AcquiaCliException(
+                'Database backup download failed or returned an invalid response. Please try again or contact support.'
+            );
+        }
+
+        // Optional: Validate gzip file header (backup files are .sql.gz)
+        if (str_ends_with($localFilepath, '.gz')) {
+            $this->validateGzipFile($localFilepath);
+        }
+    }
+
+    /**
+     * Validates that the downloaded file is a valid gzip file.
+     *
+     * @param string $localFilepath The local file path to validate
+     * @throws \Acquia\Cli\Exception\AcquiaCliException If the file is not a valid gzip file
+     */
+    private function validateGzipFile(string $localFilepath): void
+    {
+        // Read the first 2 bytes to check for gzip magic number (0x1f 0x8b)
+        $handle = fopen($localFilepath, 'rb');
+        if ($handle === false) {
+            throw new AcquiaCliException(
+                'Database backup download failed: unable to read downloaded file. Please try again or contact support.'
+            );
+        }
+
+        $header = fread($handle, 2);
+        fclose($handle);
+
+        if ($header === false || strlen($header) !== 2) {
+            $this->localMachineHelper->getFilesystem()->remove($localFilepath);
+            throw new AcquiaCliException(
+                'Database backup download failed: file is too small to be valid. Please try again or contact support.'
+            );
+        }
+
+        // Check for gzip magic number.
+        $byte1 = ord($header[0]);
+        $byte2 = ord($header[1]);
+
+        if ($byte1 !== 0x1f || $byte2 !== 0x8b) {
+            $this->localMachineHelper->getFilesystem()->remove($localFilepath);
+            throw new AcquiaCliException(
+                'Database backup download failed or returned an invalid response. The downloaded file is not a valid gzip archive. Please try again or contact support.'
+            );
+        }
     }
 
     public static function displayDownloadProgress(mixed $totalBytes, mixed $downloadedBytes, mixed &$progress, OutputInterface $output): void
