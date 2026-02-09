@@ -125,6 +125,7 @@ abstract class PullCommandBase extends CommandBase
         }
         if (PHP_OS_FAMILY === 'Windows') {
             // Use short filename to comply with 8.3 format and avoid long path issues.
+            // The hash-based filename still preserves the '.sql.gz' extension.
             $hash = substr(md5($environment->name . $database->name . $dbMachineName . $backupResponse->completedAt), 0, 8);
             $filename = $hash . '.sql.gz';
         } else {
@@ -389,7 +390,7 @@ abstract class PullCommandBase extends CommandBase
         }
 
         // Optional: Validate gzip file header (backup files are .sql.gz)
-        if (str_ends_with($localFilepath, '.gz')) {
+        if (str_ends_with($localFilepath, '.sql.gz')) {
             $this->validateGzipFile($localFilepath);
         }
     }
@@ -427,7 +428,7 @@ abstract class PullCommandBase extends CommandBase
         if ($byte1 !== 0x1f || $byte2 !== 0x8b) {
             $this->localMachineHelper->getFilesystem()->remove($localFilepath);
             throw new AcquiaCliException(
-                'Database backup download failed or returned an invalid response. The downloaded file is not a valid gzip archive. Please try again or contact support.'
+                'The downloaded file is not a valid gzip archive'
             );
         }
     }
