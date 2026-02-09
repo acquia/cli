@@ -16312,6 +16312,169 @@
             }
           }
         }
+      },
+      "post": {
+        "tags": [
+          "Environments"
+        ],
+        "summary": "Creates a log file snapshot.",
+        "description": "Creates a log file snapshot.",
+        "operationId": "postEnvironmentsLog",
+        "x-cli-name": "environments:log-create",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Acquia_Cloud_API_Documentation_environment-id"
+          },
+          {
+            "$ref": "#/components/parameters/Acquia_Cloud_API_Documentation_log-type"
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/hal+json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "from": {
+                    "type": "string",
+                    "description": "An ISO-8601 formatted date retrieve results from. Date ranges are only supported on Acquia Cloud Next."
+                  },
+                  "to": {
+                    "type": "string",
+                    "description": "An ISO-8601 formatted date retrieve results to. Date ranges are only supported on Acquia Cloud Next."
+                  }
+                }
+              },
+              "example": {
+                "from": "2021-01-28T22:45:21.000Z",
+                "to": "2021-01-29T23:55:21.000Z"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/hal+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Acquia_Cloud_API_Documentation_message-with-links"
+                },
+                "examples": {
+                  "Is being created": {
+                    "value": {
+                      "message": "The log file is being created.",
+                      "_links": {
+                        "self": {
+                          "href": "https://cloud.acquia.com/api/environments/123-ea9060c5-1ed8-46ec-87d5-2ce2a0861577/logs/apache-access"
+                        },
+                        "parent": {
+                          "href": "https://cloud.acquia.com/api/environments/123-ea9060c5-1ed8-46ec-87d5-2ce2a0861577/logs"
+                        },
+                        "notification": {
+                          "href": "https://cloud.acquia.com/api/notifications/8b790313-8830-4810-baef-3b41b3786e9d"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/hal+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Acquia_Cloud_API_Documentation_validation-error"
+                },
+                "examples": {
+                  "Invalid range": {
+                    "value": {
+                      "error": "validation_failed",
+                      "message": {
+                        "general": "Log snapshots must cover no more than 24 hours and can only be retrieved up to 30 days in the past."
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/hal+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Acquia_Cloud_API_Documentation_error"
+                },
+                "examples": {
+                  "Insufficient permissions": {
+                    "value": {
+                      "error": "forbidden",
+                      "message": "You do not have permission to download logs for this environment."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/hal+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Acquia_Cloud_API_Documentation_error"
+                },
+                "examples": {
+                  "Not found": {
+                    "value": {
+                      "error": "not_found",
+                      "message": "The environment you are trying to access does not exist, or you do not have permission to access it."
+                    }
+                  },
+                  "Cannot be accessed on non-hosted applications": {
+                    "value": {
+                      "error": "not_found",
+                      "message": "Logs cannot be accessed on non-hosted environments."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/hal+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Acquia_Cloud_API_Documentation_error"
+                },
+                "examples": {
+                  "Date range not supported": {
+                    "value": {
+                      "error": "conflict",
+                      "message": "Date ranges for log file snapshots are not supported on this environment."
+                    }
+                  },
+                  "Log snapshot not supported": {
+                    "value": {
+                      "error": "conflict",
+                      "message": "Log snapshots are not supported on this environment."
+                    }
+                  },
+                  "Log type not supported": {
+                    "value": {
+                      "error": "conflict",
+                      "message": "Log file snapshot for mysql-slow-query is not available on this environment."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/environments/{environmentId}/logstream": {
@@ -46059,7 +46222,7 @@
       "Acquia_Cloud_API_Documentation_resolution": {
         "name": "resolution",
         "in": "query",
-        "description": "Specifies the data granularity of the request. Available resolutions: minute, hour, day, week or month.\n\nLimits:\n- 3 hour limit for “minute” resolution\n- 1 week limit for “hour” resolution\n- 6 month limit for “day” resolution\n- 1 year limit for \"week\" resolution\n- 3 year limit for “month” resolution\n",
+        "description": "Specifies the data granularity of the request. Available resolutions: minute, hour, day, week or month.\n\nLimits:\n- 3 hour limit for \u201cminute\u201d resolution\n- 1 week limit for \u201chour\u201d resolution\n- 6 month limit for \u201cday\u201d resolution\n- 1 year limit for \"week\" resolution\n- 3 year limit for \u201cmonth\u201d resolution\n",
         "required": false,
         "schema": {
           "type": "string",
@@ -50730,7 +50893,7 @@
             "oneOf": [
               {
                 "type": "array",
-                "items": {}
+                "items": []
               },
               {
                 "$ref": "#/components/schemas/Acquia_Cloud_API_Documentation_server-stub"
@@ -60062,7 +60225,7 @@
         "flows": {
           "clientCredentials": {
             "tokenUrl": "https://accounts.acquia.com/api/token",
-            "scopes": {}
+            "scopes": []
           }
         }
       },
@@ -60562,7 +60725,7 @@
         }
       }
     },
-    "examples": {},
+    "examples": [],
     "requestBodies": {
       "Private_Network_Service_API_PrivateNetworkCreateRequest": {
         "description": "Private Network creation request body",
@@ -60663,6 +60826,6 @@
         }
       }
     },
-    "headers": {}
+    "headers": []
   }
 }
