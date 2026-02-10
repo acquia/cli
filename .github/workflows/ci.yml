@@ -98,7 +98,7 @@ jobs:
           echo ACLI_BUILD_DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ") >> .env
       - name: 'Extract additional API specs from secrets'
         run: |
-          echo "${{ secrets.ACQUIA_SPEC_ADDITIONAL }}" | wc -c
+          printf '%s' "${{ secrets.ACQUIA_SPEC_ADDITIONAL }}"  | wc -c
           if [ "${{ secrets.ACQUIA_SPEC_ADDITIONAL }}" -gt 0 ]; then
             printf '%s' "${{ secrets.ACQUIA_SPEC_ADDITIONAL }}" > assets/acquia-spec-additional.json
           fi
