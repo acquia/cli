@@ -449,10 +449,6 @@ abstract class PullCommandTestBase extends CommandTestBase
                     unlink($localFilepath);
                 }
                 break;
-            case 'too_small':
-                // Create a file with only 1 byte to test file too small validation.
-                file_put_contents($localFilepath, 'X');
-                break;
             default:
                 // Create a valid gzip file for normal testing.
                 $content = 'Mock SQL dump content for testing';

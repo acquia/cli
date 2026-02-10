@@ -468,7 +468,12 @@ class PullDatabaseCommandTest extends PullCommandTestBase
 
         // If there's a validation error, we don't need to mock the rest of the database operations.
         if ($validationError) {
-            // Note: 'missing' file validation doesn't need filesystem cleanup since no file is created.
+            // Only mock filesystem for errors that need it (not 'missing' which throws before any cleanup).
+            if ($validationError !== 'missing') {
+                $fs = $this->prophet->prophesize(Filesystem::class);
+                $localMachineHelper->getFilesystem()->willReturn($fs)->shouldBeCalled();
+                $fs->remove(Argument::type('string'))->shouldBeCalled();
+            }
             return;
         }
 
