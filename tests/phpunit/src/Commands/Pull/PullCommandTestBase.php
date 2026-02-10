@@ -542,6 +542,12 @@ abstract class PullCommandTestBase extends CommandTestBase
             ->will(function () use (&$capturedOpts, $response, $localFilepath, $validationError): \Psr\Http\Message\ResponseInterface {
                 // Create file based on validation error type.
                 switch ($validationError) {
+                    case 'missing':
+                        // Don't create a file to test missing file validation.
+                        if (file_exists($localFilepath)) {
+                            unlink($localFilepath);
+                        }
+                        break;
                     case 'http_error':
                         // For HTTP error, create file that will be cleaned up.
                         $content = 'Mock SQL dump content for testing';
