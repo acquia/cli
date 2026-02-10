@@ -754,4 +754,38 @@ class PullDatabaseCommandTest extends PullCommandTestBase
 
         self::unsetEnvVars(['AH_CODEBASE_UUID']);
     }
+
+    /**
+     * Test that kills the PublicVisibility mutant for getBackupDownloadUrl method.
+     * This test ensures the method remains public and accessible from outside the class.
+     */
+    public function testPublicVisibilityMutantKillerForGetBackupDownloadUrl(): void
+    {
+
+        $reflection = new \ReflectionMethod($this->command, 'getBackupDownloadUrl');
+        $this->assertTrue($reflection->isPublic(), 'getBackupDownloadUrl method must remain public');
+
+        $this->assertNull($this->command->getBackupDownloadUrl());
+
+        $testUrl = 'https://example.com/backup.sql.gz';
+        $this->command->setBackupDownloadUrl($testUrl);
+        $this->assertEquals($testUrl, (string) $this->command->getBackupDownloadUrl());
+    }
+
+    /**
+     * Test that kills the MethodCallRemoval mutant for displayDownloadProgress static method call.
+     * This test ensures the static method call cannot be removed without breaking functionality.
+     */
+    public function testMethodCallRemovalMutantKillerForDisplayDownloadProgress(): void
+    {
+        $output = new BufferedOutput();
+        $progress = null;
+
+        PullCommandBase::displayDownloadProgress(100, 50, $progress, $output);
+
+        $displayedOutput = $output->fetch();
+        $this->assertStringContainsString('50/100', $displayedOutput, 'displayDownloadProgress static method call must not be removed');
+        $this->assertStringContainsString('50%', $displayedOutput, 'Progress percentage must be displayed');
+        $this->assertStringContainsString('💧', $displayedOutput, 'Progress indicator must be displayed');
+    }
 }
