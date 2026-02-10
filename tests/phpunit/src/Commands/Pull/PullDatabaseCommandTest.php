@@ -794,7 +794,10 @@ class PullDatabaseCommandTest extends PullCommandTestBase
         // On Windows, the filename is a hash, on other platforms it contains env and db names.
         if (PHP_OS_FAMILY === 'Windows') {
             // On Windows, verify it contains the temp directory and a hash-based filename.
-            $this->assertStringContainsString(sys_get_temp_dir(), $backupPath, 'Backup path must be in temp directory');
+            // Normalize path separators for comparison (Windows can use both / and \)
+            $normalizedBackupPath = str_replace('\\', '/', $backupPath);
+            $normalizedTempDir = str_replace('\\', '/', sys_get_temp_dir());
+            $this->assertStringContainsString($normalizedTempDir, $normalizedBackupPath, 'Backup path must be in temp directory');
             $this->assertMatchesRegularExpression('/[a-f0-9]{8}\.sql\.gz$/', basename($backupPath), 'Windows backup filename must be hash-based');
         } else {
             // On non-Windows, verify it contains environment and database names.
