@@ -443,14 +443,6 @@ abstract class PullCommandTestBase extends CommandTestBase
 
         // Create file based on validation error type.
         switch ($validationError) {
-            case 'empty':
-                // Create an empty file to test empty file validation.
-                file_put_contents($localFilepath, '');
-                break;
-            case 'invalid_gzip':
-                // Create a non-gzip file to test gzip validation.
-                file_put_contents($localFilepath, 'This is plain text, not gzipped content');
-                break;
             case 'missing':
                 // Don't create a file to test missing file validation.
                 if (file_exists($localFilepath)) {

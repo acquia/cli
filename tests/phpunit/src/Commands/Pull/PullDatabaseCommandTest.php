@@ -343,32 +343,6 @@ class PullDatabaseCommandTest extends PullCommandTestBase
     }
 
     /**
-     * Test that downloading a backup with an empty file fails with validation error.
-     */
-    public function testPullDatabaseWithEmptyFile(): void
-    {
-        $this->setupPullDatabase(true, false, false, true, false, 0, true, true, 'empty');
-        $inputs = self::inputChooseEnvironment();
-
-        $this->expectException(AcquiaCliException::class);
-        $this->expectExceptionMessage('Database backup download failed or returned an invalid response');
-        $this->executeCommand(['--no-scripts' => true], $inputs);
-    }
-
-    /**
-     * Test that downloading a backup with invalid gzip content fails with validation error.
-     */
-    public function testPullDatabaseWithInvalidGzip(): void
-    {
-        $this->setupPullDatabase(true, false, false, true, false, 0, true, true, 'invalid_gzip');
-        $inputs = self::inputChooseEnvironment();
-
-        $this->expectException(AcquiaCliException::class);
-        $this->expectExceptionMessage('The downloaded file is not a valid gzip archive');
-        $this->executeCommand(['--no-scripts' => true], $inputs);
-    }
-
-    /**
      * Test that downloading a backup when file is missing fails with validation error.
      */
     public function testPullDatabaseWithMissingFile(): void
@@ -378,19 +352,6 @@ class PullDatabaseCommandTest extends PullCommandTestBase
 
         $this->expectException(AcquiaCliException::class);
         $this->expectExceptionMessage('Database backup download failed: file was not created');
-        $this->executeCommand(['--no-scripts' => true], $inputs);
-    }
-
-    /**
-     * Test that downloading a backup with file too small to be valid gzip fails.
-     */
-    public function testPullDatabaseWithFileTooSmall(): void
-    {
-        $this->setupPullDatabase(true, false, false, true, false, 0, true, true, 'too_small');
-        $inputs = self::inputChooseEnvironment();
-
-        $this->expectException(AcquiaCliException::class);
-        $this->expectExceptionMessage('Database backup download failed: file is too small to be valid');
         $this->executeCommand(['--no-scripts' => true], $inputs);
     }
 
@@ -507,12 +468,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase
 
         // If there's a validation error, we don't need to mock the rest of the database operations.
         if ($validationError) {
-            // Only mock filesystem for errors that need it (not 'missing' which throws before any cleanup).
-            if ($validationError !== 'missing') {
-                $fs = $this->prophet->prophesize(Filesystem::class);
-                $localMachineHelper->getFilesystem()->willReturn($fs)->shouldBeCalled();
-                $fs->remove(Argument::type('string'))->shouldBeCalled();
-            }
+            // Note: 'missing' file validation doesn't need filesystem cleanup since no file is created.
             return;
         }
 

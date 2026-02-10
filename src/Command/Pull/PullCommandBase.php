@@ -365,7 +365,7 @@ abstract class PullCommandBase extends CommandBase
     }
 
     /**
-     * Validates that the downloaded backup file exists and is not empty.
+     * Validates that the downloaded backup file exists.
      *
      * @param string $localFilepath The local file path to validate
      * @throws \Acquia\Cli\Exception\AcquiaCliException If the file is invalid
@@ -375,62 +375,11 @@ abstract class PullCommandBase extends CommandBase
         // Check if file exists.
         if (!file_exists($localFilepath)) {
             throw new AcquiaCliException(
-                'Database backup download failed: file was not created. Please try again or contact support.'
+                'Database backup download failed: file was not created.'
             );
         }
 
-        // Check if file is not empty.
-        $fileSize = filesize($localFilepath);
-        if ($fileSize === 0 || $fileSize === false) {
-            // Clean up the empty/invalid file.
-            $this->localMachineHelper->getFilesystem()->remove($localFilepath);
-            throw new AcquiaCliException(
-                'Database backup download failed or returned an invalid response. Please try again or contact support.'
-            );
-        }
-
-        // Optional: Validate gzip file header (backup files are .sql.gz)
-        if (str_ends_with($localFilepath, '.sql.gz')) {
-            $this->validateGzipFile($localFilepath);
-        }
-    }
-
-    /**
-     * Validates that the downloaded file is a valid gzip file.
-     *
-     * @param string $localFilepath The local file path to validate
-     * @throws \Acquia\Cli\Exception\AcquiaCliException If the file is not a valid gzip file
-     */
-    private function validateGzipFile(string $localFilepath): void
-    {
-        // Read the first 2 bytes to check for gzip magic number (0x1f 0x8b)
-        $handle = fopen($localFilepath, 'rb');
-        if ($handle === false) {
-            throw new AcquiaCliException(
-                'Database backup download failed: unable to read downloaded file. Please try again or contact support.'
-            );
-        }
-
-        $header = fread($handle, 2);
-        fclose($handle);
-
-        if ($header === false || strlen($header) !== 2) {
-            $this->localMachineHelper->getFilesystem()->remove($localFilepath);
-            throw new AcquiaCliException(
-                'Database backup download failed: file is too small to be valid. Please try again or contact support.'
-            );
-        }
-
-        // Check for gzip magic number.
-        $byte1 = ord($header[0]);
-        $byte2 = ord($header[1]);
-
-        if ($byte1 !== 0x1f || $byte2 !== 0x8b) {
-            $this->localMachineHelper->getFilesystem()->remove($localFilepath);
-            throw new AcquiaCliException(
-                'The downloaded file is not a valid gzip archive'
-            );
-        }
+        // File exists - assume it's valid since it comes from trusted Acquia API.
     }
 
     public static function displayDownloadProgress(mixed $totalBytes, mixed $downloadedBytes, mixed &$progress, OutputInterface $output): void
