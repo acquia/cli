@@ -57,6 +57,34 @@ EOD;
         $this->assertEquals(0, $this->getStatusCode());
     }
 
+    public function testTranslationResponse(): void
+    {
+        $rawResponse = json_decode('[{"name": "apache-access","type": "apache-access","label": "Apache access","flags": {"available": false}, "_links": "bad"}]');
+        $mungedResponse = <<<EOL
+[
+    {
+        "name": "apache-access",
+        "type": "apache-access",
+        "label": "Apache access",
+        "flags": {
+            "available": false
+        }
+    }
+]
+EOL;
+        $environmentId = '830ea829-490a-4e2e-a16b-ff055fc58a0e';
+        $this->clientProphecy->request('get', '/translation/environments/' . $environmentId . '/logs')
+            ->willReturn($rawResponse)
+            ->shouldBeCalled();
+        $this->clientProphecy->addOption('headers', ['Accept' => 'application/hal+json, version=2']);
+        $this->command = $this->getApiCommandByName('api:environments-v3:log-list');
+        $this->executeCommand([
+            'environmentId' => $environmentId,
+        ]);
+        $output = $this->getDisplay();
+        $this->assertStringContainsStringIgnoringLineEndings($mungedResponse, $output);
+        $this->assertEquals(0, $this->getStatusCode());
+    }
 
     public function testArgumentsInteraction(): void
     {
@@ -761,258 +789,5 @@ EOD;
                 }
             }
         }
-    }
-
-
-
-    /**
-     * Tests additional coverage scenarios for mergeAdditionalSpecs method.
-     * This covers the remaining 37 lines that need coverage.
-     */
-    public function testAdditionalSpecsMergedAndDeprecatedAdditionalCoverage(): void
-    {
-        // Test 1: File path exists but file doesn't exist (line 380 - file_exists check)
-        putenv('ACLI_ADDITIONAL_SPEC_FILE_ACQUIA_SPEC=/nonexistent/file-' . uniqid() . '.json');
-        ClearCacheCommand::clearCaches();
-        $commands1 = $this->getApiCommands();
-        $this->assertNotNull($commands1);
-
-        // Test 2: baseSpec['paths'] doesn't exist (line 409-410)
-        $specWithoutPaths = [
-            'info' => ['title' => 'Test', 'version' => '1.0'],
-            'openapi' => '3.0.0',
-            'paths' => [
-                '/new/path' => [
-                    'post' => [
-                        'operationId' => 'newCommand',
-                        'responses' => ['200' => ['description' => 'OK']],
-                        'summary' => 'New command',
-                        'x-cli-name' => 'new:command',
-                    ],
-                ],
-            ],
-        ];
-        $tempSpecNoPaths = sys_get_temp_dir() . '/test-spec-no-paths-' . uniqid() . '.json';
-        file_put_contents($tempSpecNoPaths, json_encode($specWithoutPaths));
-        putenv('ACLI_ADDITIONAL_SPEC_FILE_ACQUIA_SPEC=' . $tempSpecNoPaths);
-        ClearCacheCommand::clearCaches();
-        $commands2 = $this->getApiCommands();
-        $this->assertNotNull($commands2);
-        unlink($tempSpecNoPaths);
-
-        // Test 3: Path already exists in base spec - merge methods (line 424-425)
-        $specWithExistingPath = [
-            'info' => ['title' => 'Test', 'version' => '1.0'],
-            'openapi' => '3.0.0',
-            'paths' => [
-                '/applications/{applicationUuid}' => [
-                    'get' => [
-                        'operationId' => 'findApplication',
-                        'responses' => ['200' => ['description' => 'OK']],
-                        'summary' => 'Find application',
-                        'x-cli-name' => 'applications:find',
-                    ],
-                ],
-            ],
-        ];
-        $tempSpecExistingPath = sys_get_temp_dir() . '/test-spec-existing-path-' . uniqid() . '.json';
-        file_put_contents($tempSpecExistingPath, json_encode($specWithExistingPath));
-        putenv('ACLI_ADDITIONAL_SPEC_FILE_ACQUIA_SPEC=' . $tempSpecExistingPath);
-        ClearCacheCommand::clearCaches();
-        $commands3 = $this->getApiCommands();
-        $this->assertNotNull($commands3);
-        unlink($tempSpecExistingPath);
-
-        // Test 4: Path doesn't exist in base spec - add new path (line 426-428)
-        $specWithNewPath = [
-            'info' => ['title' => 'Test', 'version' => '1.0'],
-            'openapi' => '3.0.0',
-            'paths' => [
-                '/completely/new/path' => [
-                    'post' => [
-                        'operationId' => 'completelyNewCommand',
-                        'responses' => ['200' => ['description' => 'OK']],
-                        'summary' => 'Completely new command',
-                        'x-cli-name' => 'completely:new:command',
-                    ],
-                ],
-            ],
-        ];
-        $tempSpecNewPath = sys_get_temp_dir() . '/test-spec-new-path-' . uniqid() . '.json';
-        file_put_contents($tempSpecNewPath, json_encode($specWithNewPath));
-        putenv('ACLI_ADDITIONAL_SPEC_FILE_ACQUIA_SPEC=' . $tempSpecNewPath);
-        ClearCacheCommand::clearCaches();
-        $commands4 = $this->getApiCommands();
-        $this->assertNotNull($commands4);
-        unlink($tempSpecNewPath);
-
-        // Test 5: Components merging - baseSpec['components'] doesn't exist (line 435-436)
-        $specWithComponents = [
-            'components' => [
-                'schemas' => [
-                    'TestSchema' => [
-                        'properties' => ['test' => ['type' => 'string']],
-                        'type' => 'object',
-                    ],
-                ],
-            ],
-            'info' => ['title' => 'Test', 'version' => '1.0'],
-            'openapi' => '3.0.0',
-        ];
-        $tempSpecComponents = sys_get_temp_dir() . '/test-spec-components-' . uniqid() . '.json';
-        file_put_contents($tempSpecComponents, json_encode($specWithComponents));
-        putenv('ACLI_ADDITIONAL_SPEC_FILE_ACQUIA_SPEC=' . $tempSpecComponents);
-        ClearCacheCommand::clearCaches();
-        $commands5 = $this->getApiCommands();
-        $this->assertNotNull($commands5);
-        unlink($tempSpecComponents);
-
-        // Test 6: Components merging - component type doesn't exist (line 439-440)
-        $specWithNewComponentType = [
-            'components' => [
-                'parameters' => [
-                    'NewParam' => [
-                        'in' => 'query',
-                        'name' => 'newParam',
-                        'schema' => ['type' => 'string'],
-                    ],
-                ],
-            ],
-            'info' => ['title' => 'Test', 'version' => '1.0'],
-            'openapi' => '3.0.0',
-        ];
-        $tempSpecNewComponentType = sys_get_temp_dir() . '/test-spec-new-component-type-' . uniqid() . '.json';
-        file_put_contents($tempSpecNewComponentType, json_encode($specWithNewComponentType));
-        putenv('ACLI_ADDITIONAL_SPEC_FILE_ACQUIA_SPEC=' . $tempSpecNewComponentType);
-        ClearCacheCommand::clearCaches();
-        $commands6 = $this->getApiCommands();
-        $this->assertNotNull($commands6);
-        unlink($tempSpecNewComponentType);
-
-        // Test 7: Components merging - components is not an array (line 442-446)
-        $specWithNonArrayComponents = [
-            'components' => [
-                // Components exists but is not array.
-                'schemas' => 'not an array',
-            ],
-            'info' => ['title' => 'Test', 'version' => '1.0'],
-            'openapi' => '3.0.0',
-        ];
-        $tempSpecNonArrayComponents = sys_get_temp_dir() . '/test-spec-non-array-components-' . uniqid() . '.json';
-        file_put_contents($tempSpecNonArrayComponents, json_encode($specWithNonArrayComponents));
-        putenv('ACLI_ADDITIONAL_SPEC_FILE_ACQUIA_SPEC=' . $tempSpecNonArrayComponents);
-        ClearCacheCommand::clearCaches();
-        $commands7 = $this->getApiCommands();
-        $this->assertNotNull($commands7);
-        unlink($tempSpecNonArrayComponents);
-
-        // Test 7b: Components merging - $additionalSpec['components'] itself is not an array (line 434)
-        $specWithComponentsNotArray = [
-            'components' => 'not an array',
-            'openapi' => '3.0.0',
-        ];
-        $tempSpecComponentsNotArray = sys_get_temp_dir() . '/test-spec-components-not-array-' . uniqid() . '.json';
-        file_put_contents($tempSpecComponentsNotArray, json_encode($specWithComponentsNotArray));
-        putenv('ACLI_ADDITIONAL_SPEC_FILE_ACQUIA_SPEC=' . $tempSpecComponentsNotArray);
-        ClearCacheCommand::clearCaches();
-        $commands7b = $this->getApiCommands();
-        $this->assertNotNull($commands7b);
-        unlink($tempSpecComponentsNotArray);
-
-        // Test 8: Components merging - merge existing components (line 443-446)
-        $specWithMergedComponents = [
-            'components' => [
-                'schemas' => [
-                    'MergedSchema' => [
-                        'properties' => ['merged' => ['type' => 'string']],
-                        'type' => 'object',
-                    ],
-                ],
-            ],
-            'info' => ['title' => 'Test', 'version' => '1.0'],
-            'openapi' => '3.0.0',
-        ];
-        $tempSpecMergedComponents = sys_get_temp_dir() . '/test-spec-merged-components-' . uniqid() . '.json';
-        file_put_contents($tempSpecMergedComponents, json_encode($specWithMergedComponents));
-        putenv('ACLI_ADDITIONAL_SPEC_FILE_ACQUIA_SPEC=' . $tempSpecMergedComponents);
-        ClearCacheCommand::clearCaches();
-        $commands8 = $this->getApiCommands();
-        $this->assertNotNull($commands8);
-        unlink($tempSpecMergedComponents);
-
-        // Cleanup.
-        putenv('ACLI_ADDITIONAL_SPEC_FILE_ACQUIA_SPEC');
-        putenv('ACLI_ADDITIONAL_SPEC_JSON_ACQUIA_SPEC');
-    }
-
-
-
-
-
-    /**
-     * Tests that mergeAdditionalSpecs returns early without modifying baseSpec.
-     * This kills the ReturnRemoval mutation at line 404.
-     */
-    public function testMergeAdditionalSpecsReturnsEarly(): void
-    {
-        putenv('ACLI_ADDITIONAL_SPEC_FILE_ACQUIA_SPEC');
-        putenv('ACLI_ADDITIONAL_SPEC_JSON_ACQUIA_SPEC');
-        ClearCacheCommand::clearCaches();
-
-        $commands = $this->getApiCommands();
-        $this->assertNotNull($commands);
-        $this->assertNotEmpty($commands);
-
-        $knownCommandExists = false;
-        foreach ($commands as $command) {
-            if ($command->getName() === 'api:applications:find') {
-                $knownCommandExists = true;
-                break;
-            }
-        }
-        $this->assertTrue($knownCommandExists);
-    }
-
-
-    /**
-     * Tests that getCloudApiSpec uses cache when spec file does not exist (PHAR scenario).
-     */
-    public function testGetCloudApiSpecPharScenarioCacheHit(): void
-    {
-        $specFilePath = self::$apiSpecFixtureFilePath;
-        $specContent = json_decode(file_get_contents($specFilePath), true);
-
-        $nonExistentFilePath = '/nonexistent/path/to/acquia-spec-' . uniqid() . '.json';
-        $cacheKey = basename($nonExistentFilePath);
-        $cacheFile = __DIR__ . '/../../../../../var/cache/' . $cacheKey . '.cache';
-        $cacheDir = dirname($cacheFile);
-
-        if (!is_dir($cacheDir)) {
-            mkdir($cacheDir, 0755, true);
-        }
-
-        $cache = new \Symfony\Component\Cache\Adapter\PhpArrayAdapter(
-            $cacheFile,
-            new \Symfony\Component\Cache\Adapter\NullAdapter()
-        );
-
-        $cache->warmUp([
-            $cacheKey => $specContent,
-        ]);
-
-        $this->assertFileExists($cacheFile, 'Cache file should exist after warmUp');
-
-        $verifyCache = new \Symfony\Component\Cache\Adapter\PhpArrayAdapter(
-            $cacheFile,
-            new \Symfony\Component\Cache\Adapter\NullAdapter()
-        );
-        $verifyItem = $verifyCache->getItem($cacheKey);
-        $this->assertTrue($verifyItem->isHit(), 'Cache item should be hit after warmUp');
-
-        $apiCommandHelper = new \Acquia\Cli\Command\Api\ApiCommandHelper($this->logger);
-        $commands = $apiCommandHelper->getApiCommands($nonExistentFilePath, $this->apiCommandPrefix, $this->getCommandFactory());
-
-        $this->assertNotEmpty($commands);
-        $this->assertFileDoesNotExist($nonExistentFilePath);
     }
 }

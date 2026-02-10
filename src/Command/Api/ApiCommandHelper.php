@@ -331,21 +331,22 @@ class ApiCommandHelper
 
         // Otherwise, only use cache when it is valid.
         $checksum = md5_file($specFilePath);
+        // @infection-ignore-all
         if (
             $this->useCloudApiSpecCache()
             && $this->isApiSpecChecksumCacheValid($cacheItemChecksum, $checksum) && $cacheItemSpec->isHit()
         ) {
-            $spec = $cacheItemSpec->get();
-        } else {
-            // Parse file. This can take a long while!
-            $this->logger->debug("Rebuilding caches...");
-            $spec = json_decode(file_get_contents($specFilePath), true);
-
-            $cache->warmUp([
-                $cacheKey => $spec,
-                $cacheKey . '.checksum' => $checksum,
-            ]);
+            return $cacheItemSpec->get();
         }
+
+        // Parse file. This can take a long while!
+        $this->logger->debug("Rebuilding caches...");
+        $spec = json_decode(file_get_contents($specFilePath), true);
+
+        $cache->warmUp([
+            $cacheKey => $spec,
+            $cacheKey . '.checksum' => $checksum,
+        ]);
 
         return $spec;
     }

@@ -7,7 +7,7 @@
       "backgroundColor": "#FFFFFF",
       "altText": "Acquia Cloud"
     },
-    "description": "Acquia Cloud API\n\n# Compatibility\n\n## Stability\n\nThe response for all resource endpoints includes an `X-CloudAPI-Stability` header that indicates what changes, if any, Acquia will make to the resource and how changes will be communicated.\n\nThere are three levels of stability:\n\n* `prototype`: A prototype resource is experimental and major changes are likely. A prototype resource may not reach production.\n    * Compatible and emergency changes may be made with no advance notice\n    * Disruptive changes may be made with one week notice\n    * Deprecated resources will remain available for at least one month after deprecation\n* `development`: A resource that is unlikely to change, but is still being worked on, will be marked as in development. These resources are very likely to reach production.\n    * Compatible and emergency changes may be made with no advance notice\n    * Disruptive changes may be made with one month notice\n    * Deprecated resources will remain available for at least six months after deprecation\n* `production`: A production resource will not introduce breaking changes within a version, and any breaking changes between versions will be communicated ahead of time.\n\n## Deprecation\n\nOver time, endpoints may become obsolete and will be removed in the future. These endpoints will be marked with an `X-CloudAPI-Deprecated` header indicating the version in which they were deprecated and the reason for the deprecation. Deprecated endpoints may be removed in the next version of the resource.\n\n## Versioning\n\nAll resource endpoints are versioned within the API. Endpoints that have reached production will not introduce breaking changes between versions. Non-production endpoints will not version for changes.\n\nA specific version of an endpoint can be requested via the `Accept` header:\n\n    Accept: application/hal+json, version=2\n\nIf the version is not specified, the latest version of the endpoint will be used.\n\nStarting with version 3, we will support the current version of an endpoint and the previous version. Version 1 of the API is [provided elsewhere](https://cloudapi.acquia.com/).\n\n## Errors\n\nSome endpoints will return a 503 status when dependent services are unavailable:\n\n    application/hal+json\n    {\n        \"error\": \"system\",\n        \"message\": \"This action is currently unavailable. Please try again later.\"\n    }\n\n## Authentication\n\nAll Acquia Cloud API calls require authentication to work properly.\n\nLearn more: <a href='https://docs.acquia.com/acquia-cloud/develop/api/auth/' target='_blank'>https://docs.acquia.com/acquia-cloud/develop/api/auth/</a>\n\n### Example implementation\n\nAn example PHP script for making authenticated API requests can be found <a href='https://docs.acquia.com/resources/useful-references' target='_blank'>here</a>. This script uses the <a href='https://oauth2-client.thephpleague.com/' target='_blank'>League/oauth2-client</a> library, installed via Composer.\n",
+    "description": "Acquia Cloud API\n\n# Compatibility\n\n## Stability\n\nThe response for all resource endpoints includes an `X-CloudAPI-Stability` header that indicates what changes, if any, Acquia will make to the resource and how changes will be communicated.\n\nThere are three levels of stability:\n\n* `prototype`: A prototype resource is experimental and major changes are likely. A prototype resource may not reach production.\n    * Compatible and emergency changes may be made with no advance notice\n    * Disruptive changes may be made with one week notice\n    * Deprecated resources will remain available for at least one month after deprecation\n* `development`: A resource that is unlikely to change, but is still being worked on, will be marked as in development. These resources are very likely to reach production.\n    * Compatible and emergency changes may be made with no advance notice\n    * Disruptive changes may be made with one month notice\n    * Deprecated resources will remain available for at least six months after deprecation\n* `production`: A production resource will not introduce breaking changes within a version, and any breaking changes between versions will be communicated ahead of time.\n\n## Deprecation\n\nOver time, endpoints may become obsolete and will be removed in the future. These endpoints will be marked with an `X-CloudAPI-Deprecated` header indicating the version in which they were deprecated and the reason for the deprecation. Deprecated endpoints may be removed in the next version of the resource.\n\n## Versioning\n\nAll resource endpoints are versioned within the API. Endpoints that have reached production will not introduce breaking changes between versions. Non-production endpoints will not version for changes.\n\nA specific version of an endpoint can be requested via the `Accept` header:\n\n    Accept: application/hal+json, version=2\n\nIf the version is not specified, the latest version of the endpoint will be used.\n\nStarting with version 3, we will support the current version of an endpoint and the previous version. Version 1 of the API is [provided elsewhere](https://cloudapi.acquia.com/).\n\n## Errors\n\nSome endpoints will return a 503 status when dependent services are unavailable:\n\n    application/hal+json\n    {\n        \"error\": \"system\",\n        \"message\": \"This action is currently unavailable. Please try again later.\"\n    }\n\n## Authentication\n\nAll Acquia Cloud API calls require authentication to work properly.\n\nLearn more: <a href='https://docs.acquia.com/acquia-cloud/develop/api/auth/' target='_blank'>https://docs.acquia.com/acquia-cloud/develop/api/auth/</a>\n\n### Example implementation\n\nAn example PHP script for making authenticated API requests can be found <a href='https://docs.acquia.com/_downloads/9d4e27bf51dfa0d208e97e0ffcb119c9/api-v2-auth.php' target='_blank'>here</a>. This script uses the <a href='https://oauth2-client.thephpleague.com/' target='_blank'>League/oauth2-client</a> library, installed via Composer.\n",
     "version": "2.0.0",
     "contact": {
       "name": "Customer Experience Engineering (CXE)",
@@ -38239,7 +38239,6 @@
       },
       "post": {
         "operationId": "api_subscriptions_subscriptionIdcodebases_post",
-        "x-prerelease": true,
         "tags": [
           "Codebases"
         ],
@@ -39332,6 +39331,199 @@
             "MEO_Environment_Service_JWT": []
           }
         ]
+      },
+      "post": {
+        "operationId": "api_site-instances_siteId._environmentIddatabase_post",
+        "x-cli-name": "site-instances:database:copy",
+        "x-prerelease": true,
+        "tags": [],
+        "responses": {
+          "202": {
+            "description": "Copied database from one environment to another.",
+            "content": {
+              "application/hal+json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Database copy for site id 3e8ecbec-ea7c-4260-8414-ef2938c859bc from e8a2c3c1-baf3-4d9a-9b56-87d8f61ab9f7 to d9a0fe17-cb18-4c21-b8ea-9e3a0b7b4c18 started."
+                    },
+                    "_links": {
+                      "type": "object",
+                      "properties": {
+                        "self": {
+                          "type": "object",
+                          "properties": {
+                            "href": {
+                              "type": "string",
+                              "format": "string",
+                              "example": "https://cloud.acquia.com/api/site/3e8ecbec-ea7c-4260-8414-ef2938c859bc/databases"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation Error in request body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "validation_failed"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid request body."
+                    },
+                    "code": {
+                      "type": "integer",
+                      "example": 400
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authorization required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "system"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Full authentication is required to access this resource."
+                    },
+                    "code": {
+                      "type": "integer",
+                      "example": 401
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access Denied",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "forbidden"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Access Denied."
+                    },
+                    "code": {
+                      "type": "integer",
+                      "example": 403
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "not_found"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Not Found."
+                    },
+                    "code": {
+                      "type": "integer",
+                      "example": 404
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable entity"
+          }
+        },
+        "summary": "Copy a database from one environment to another.",
+        "description": "Copy a database from one environment to another.",
+        "parameters": [
+          {
+            "name": "environmentId",
+            "in": "path",
+            "description": "Environment unique identifier",
+            "required": true,
+            "deprecated": false,
+            "allowEmptyValue": false,
+            "schema": {
+              "type": "string"
+            },
+            "style": "simple",
+            "explode": false,
+            "allowReserved": false
+          },
+          {
+            "name": "siteId",
+            "in": "path",
+            "description": "Site unique identifier",
+            "required": true,
+            "deprecated": false,
+            "allowEmptyValue": false,
+            "schema": {
+              "type": "string"
+            },
+            "style": "simple",
+            "explode": false,
+            "allowReserved": false
+          }
+        ],
+        "requestBody": {
+          "description": "Database copy request with source and destination environment ids.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "source_environment_id": {
+                    "type": "string",
+                    "example": "e8a2c3c1-baf3-4d9a-9b56-87d8f61ab9f7"
+                  }
+                }
+              }
+            }
+          },
+          "required": false
+        },
+        "deprecated": false,
+        "security": [
+          {
+            "MEO_Environment_Service_JWT": []
+          }
+        ]
       }
     },
     "/site-instances/{siteId}.{environmentId}/database/backups": {
@@ -39624,6 +39816,182 @@
               "minimum": 0
             },
             "style": "form",
+            "explode": false,
+            "allowReserved": false
+          }
+        ],
+        "deprecated": false,
+        "security": [
+          {
+            "MEO_Environment_Service_JWT": []
+          }
+        ]
+      },
+      "post": {
+        "operationId": "api_site-instances_siteId._environmentIddatabasebackups_post",
+        "x-cli-name": "site-instances:database:backups:create",
+        "x-prerelease": true,
+        "tags": [],
+        "responses": {
+          "201": {
+            "description": "Created backup for the site instance Db.",
+            "content": {
+              "application/hal+json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Database backup started."
+                    },
+                    "_links": {
+                      "type": "object",
+                      "properties": {
+                        "self": {
+                          "type": "object",
+                          "properties": {
+                            "href": {
+                              "type": "string",
+                              "format": "string",
+                              "example": "https://cloud.acquia.com/api/site-instances/d9a0fe17-cb18-4c21-b8ea-9e3a0b7b4c18.e8a2c3c1-baf3-4d9a-9b56-87d8f61ab9f7/database/backups"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation Error in request body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "validation_failed"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid request body."
+                    },
+                    "code": {
+                      "type": "integer",
+                      "example": 400
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authorization required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "system"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Full authentication is required to access this resource."
+                    },
+                    "code": {
+                      "type": "integer",
+                      "example": 401
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access Denied",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "forbidden"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Access Denied."
+                    },
+                    "code": {
+                      "type": "integer",
+                      "example": 403
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Database not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "not_found"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "not found"
+                    },
+                    "code": {
+                      "type": "integer",
+                      "example": 404
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable entity"
+          }
+        },
+        "summary": "Create a new backup for the site instance Db.",
+        "description": "Create a new backup for the site instance Db.",
+        "parameters": [
+          {
+            "name": "siteId",
+            "in": "path",
+            "description": "Site unique identifier",
+            "required": true,
+            "deprecated": false,
+            "allowEmptyValue": false,
+            "schema": {
+              "type": "string"
+            },
+            "style": "simple",
+            "explode": false,
+            "allowReserved": false
+          },
+          {
+            "name": "environmentId",
+            "in": "path",
+            "description": "Environment unique identifier",
+            "required": true,
+            "deprecated": false,
+            "allowEmptyValue": false,
+            "schema": {
+              "type": "string"
+            },
+            "style": "simple",
             "explode": false,
             "allowReserved": false
           }
@@ -42412,7 +42780,7 @@
               }
             }
           },
-          "required": true
+          "required": false
         },
         "deprecated": false,
         "security": [
@@ -42984,7 +43352,7 @@
               }
             }
           },
-          "required": true
+          "required": false
         },
         "deprecated": false,
         "security": [
@@ -43498,6 +43866,370 @@
             }
           },
           "required": true
+        },
+        "deprecated": false,
+        "security": [
+          {
+            "MEO_Environment_Service_JWT": []
+          }
+        ]
+      }
+    },
+    "/site-instances/{siteId}.{environmentId}/files": {
+      "post": {
+        "operationId": "api_site-instances_siteId._environmentIdfiles_post",
+        "x-cli-name": "site-instances:files:copy",
+        "x-prerelease": true,
+        "tags": [],
+        "responses": {
+          "202": {
+            "description": "Copy files from one environment to another",
+            "content": {
+              "application/hal+json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Files copy for site id 3fa85f64-5717-4562-b3fc-2c9699999999 from 3fa85f64-5717-4562-b3fc-2c963f66afa6 to 4fa85f64-5717-4562-b3fc-2c963f66afa3 started."
+                    },
+                    "_links": {
+                      "type": "object",
+                      "properties": {
+                        "self": {
+                          "type": "object",
+                          "properties": {
+                            "href": {
+                              "type": "string",
+                              "format": "string",
+                              "example": "https://cloud.acquia.com/api/site/3fa85f64-5717-4562-b3fc-2c9699999999/files"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation Error in request body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "validation_failed"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid request body."
+                    },
+                    "code": {
+                      "type": "integer",
+                      "example": 400
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authorization required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "system"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Full authentication is required to access this resource."
+                    },
+                    "code": {
+                      "type": "integer",
+                      "example": 401
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access Denied",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "forbidden"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Access Denied."
+                    },
+                    "code": {
+                      "type": "integer",
+                      "example": 403
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "not_found"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Not Found."
+                    },
+                    "code": {
+                      "type": "integer",
+                      "example": 404
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable entity"
+          }
+        },
+        "summary": "Copy files from one environment to another.",
+        "description": "Copy files from one environment to another.",
+        "parameters": [
+          {
+            "name": "environmentId",
+            "in": "path",
+            "description": "Environment unique identifier",
+            "required": true,
+            "deprecated": false,
+            "allowEmptyValue": false,
+            "schema": {
+              "type": "string"
+            },
+            "style": "simple",
+            "explode": false,
+            "allowReserved": false
+          },
+          {
+            "name": "siteId",
+            "in": "path",
+            "description": "Site unique identifier",
+            "required": true,
+            "deprecated": false,
+            "allowEmptyValue": false,
+            "schema": {
+              "type": "string"
+            },
+            "style": "simple",
+            "explode": false,
+            "allowReserved": false
+          }
+        ],
+        "requestBody": {
+          "description": "The new SiteInstance resource",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "source_environment_id": {
+                    "type": "string",
+                    "example": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+                  }
+                }
+              }
+            }
+          },
+          "required": false
+        },
+        "deprecated": false,
+        "security": [
+          {
+            "MEO_Environment_Service_JWT": []
+          }
+        ]
+      }
+    },
+    "/v3/environments/{environmentId}/actions/clear-caches": {
+      "post": {
+        "operationId": "postV3EnvironmentsClearCaches",
+        "x-cli-name": "environments-v3:clear-caches",
+        "x-prerelease": true,
+        "tags": [],
+        "responses": {
+          "202": {
+            "description": "Domains cache flush started.",
+            "content": {
+              "application/hal+json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "_links": {
+                      "type": "object",
+                      "properties": {
+                        "self": {
+                          "type": "object",
+                          "properties": {
+                            "href": {
+                              "type": "string",
+                              "format": "uri",
+                              "example": "https://cloud.acquia.com/api/environments/3e8ecbec-ea7c-4260-8414-ef2938c859bc/actions/clear-caches"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Varnish domain cache clear started."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input"
+          },
+          "401": {
+            "description": "Authorization required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "system"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Full authentication is required to access this resource."
+                    },
+                    "code": {
+                      "type": "integer",
+                      "example": 401
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access Denied",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "forbidden"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Access Denied."
+                    },
+                    "code": {
+                      "type": "integer",
+                      "example": 403
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Domain not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "not_found"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "The domain provided does not exist."
+                    },
+                    "code": {
+                      "type": "integer",
+                      "example": 404
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Clear caches for an environment with a list of domains.",
+        "description": "Clear caches for an environment with a list of domains.",
+        "parameters": [
+          {
+            "name": "environmentId",
+            "in": "path",
+            "description": "Environment unique identifier",
+            "required": true,
+            "deprecated": false,
+            "allowEmptyValue": false,
+            "schema": {
+              "type": "string"
+            },
+            "style": "simple",
+            "explode": false,
+            "allowReserved": false
+          }
+        ],
+        "requestBody": {
+          "description": "List of domains.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "domains": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "example": "example.com"
+                    }
+                  }
+                },
+                "required": [
+                  "domains"
+                ]
+              },
+              "example": {
+                "domains": [
+                  "example.com",
+                  "another-domain.com"
+                ]
+              }
+            }
+          },
+          "required": false
         },
         "deprecated": false,
         "security": [
@@ -46222,7 +46954,7 @@
       "Acquia_Cloud_API_Documentation_resolution": {
         "name": "resolution",
         "in": "query",
-        "description": "Specifies the data granularity of the request. Available resolutions: minute, hour, day, week or month.\n\nLimits:\n- 3 hour limit for \u201cminute\u201d resolution\n- 1 week limit for \u201chour\u201d resolution\n- 6 month limit for \u201cday\u201d resolution\n- 1 year limit for \"week\" resolution\n- 3 year limit for \u201cmonth\u201d resolution\n",
+        "description": "Specifies the data granularity of the request. Available resolutions: minute, hour, day, week or month.\n\nLimits:\n- 3 hour limit for “minute” resolution\n- 1 week limit for “hour” resolution\n- 6 month limit for “day” resolution\n- 1 year limit for \"week\" resolution\n- 3 year limit for “month” resolution\n",
         "required": false,
         "schema": {
           "type": "string",
@@ -50893,7 +51625,7 @@
             "oneOf": [
               {
                 "type": "array",
-                "items": []
+                "items": {}
               },
               {
                 "$ref": "#/components/schemas/Acquia_Cloud_API_Documentation_server-stub"
@@ -60225,7 +60957,7 @@
         "flows": {
           "clientCredentials": {
             "tokenUrl": "https://accounts.acquia.com/api/token",
-            "scopes": []
+            "scopes": {}
           }
         }
       },
@@ -60725,7 +61457,7 @@
         }
       }
     },
-    "examples": [],
+    "examples": {},
     "requestBodies": {
       "Private_Network_Service_API_PrivateNetworkCreateRequest": {
         "description": "Private Network creation request body",
@@ -60826,6 +61558,6 @@
         }
       }
     },
-    "headers": []
+    "headers": {}
   }
 }

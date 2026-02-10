@@ -130,19 +130,30 @@ class ApiBaseCommand extends CommandBase
             $exitCode = 1;
         }
 
-        // Extract notification UUID if task-wait is enabled.
-        $notificationUuid = null;
-        if (!$exitCode && $this->getParamFromInput($input, 'task-wait')) {
-            $notificationUuid = CommandBase::getNotificationUuidFromResponse($response);
+        if (substr($this->path, 0, 12) === '/translation') {
+            $this->mungeResponse($response);
         }
 
-        if ($exitCode || !$notificationUuid) {
+        if ($exitCode || !$this->getParamFromInput($input, 'task-wait')) {
             $contents = json_encode($response, JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT);
             $this->output->writeln($contents);
             return $exitCode;
         }
+        $notificationUuid = CommandBase::getNotificationUuidFromResponse($response);
         $success = $this->waitForNotificationToComplete($this->cloudApiClientService->getClient(), $notificationUuid, "Waiting for task $notificationUuid to complete");
         return $success ? Command::SUCCESS : Command::FAILURE;
+    }
+
+    private function mungeResponse(mixed $response): void
+    {
+        if (is_object($response) && property_exists($response, '_links')) {
+            unset($response->_links);
+        }
+        foreach ($response as $value) {
+            if (property_exists($value, '_links')) {
+                unset($value->_links);
+            }
+        }
     }
 
     public function setMethod(string $method): void
