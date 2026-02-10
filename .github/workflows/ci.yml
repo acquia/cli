@@ -129,6 +129,7 @@ jobs:
           composer box-install
           # Warm the symfony cache so it gets bundled with phar.
           ./bin/acli
+          ./bin/acli api:environments-v3:log-create --help
           composer box-compile
       - name: Store artifact in Actions
         uses: actions/upload-artifact@v6
