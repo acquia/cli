@@ -99,13 +99,10 @@ jobs:
       - name: 'Extract additional API specs from secrets'
         run: |
           # Extract additional acquia-spec if available
-          if [ -n "${{ secrets.ACQUIA_SPEC_ADDITIONAL }}" ]; then
-            echo "${{ secrets.ACQUIA_SPEC_ADDITIONAL }}" > $(pwd)/assets/acquia-spec-additional.json
-            echo $(pwd)/assets/acquia-spec-additional.json
-            ls -la $(pwd)/assets/*
-            cat $(pwd)/assets/acquia-spec-additional.json | jq .info.title
-            echo "ACLI_ADDITIONAL_SPEC_FILE_ACQUIA_SPEC=$(pwd)/assets/acquia-spec-additional.json" >> $GITHUB_ENV
-          fi
+          echo "${{ secrets.ACQUIA_SPEC_ADDITIONAL }}" > $(pwd)/assets/acquia-spec-additional.json
+          echo $(pwd)/assets/acquia-spec-additional.json
+          ls -la $(pwd)/assets/*
+          cat $(pwd)/assets/acquia-spec-additional.json | jq .info.title
       - name: Build
         run: |
           composer install --no-dev --optimize-autoloader
