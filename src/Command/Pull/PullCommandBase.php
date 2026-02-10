@@ -355,7 +355,7 @@ abstract class PullCommandBase extends CommandBase
                 $this->localMachineHelper->getFilesystem()->remove($localFilepath);
             }
             throw new AcquiaCliException(
-                'Database backup download failed with HTTP status {status}. Please try again or contact support.',
+                'Database backup download failed with HTTP status {status}',
                 ['status' => $statusCode]
             );
         }
