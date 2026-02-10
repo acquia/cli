@@ -130,14 +130,11 @@ class ApiBaseCommand extends CommandBase
             $exitCode = 1;
         }
 
-        // Extract notification UUID before removing _links if task-wait is enabled.
+        // Extract notification UUID if task-wait is enabled.
         $notificationUuid = null;
         if (!$exitCode && $this->getParamFromInput($input, 'task-wait')) {
             $notificationUuid = CommandBase::getNotificationUuidFromResponse($response);
         }
-
-        // Remove _links from response for all commands.
-        $this->mungeResponse($response);
 
         if ($exitCode || !$notificationUuid) {
             $contents = json_encode($response, JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT);
@@ -146,34 +143,6 @@ class ApiBaseCommand extends CommandBase
         }
         $success = $this->waitForNotificationToComplete($this->cloudApiClientService->getClient(), $notificationUuid, "Waiting for task $notificationUuid to complete");
         return $success ? Command::SUCCESS : Command::FAILURE;
-    }
-
-    private function mungeResponse(mixed &$response): void
-    {
-        if (!is_object($response) && !is_array($response)) {
-            throw new \InvalidArgumentException('mungeResponse() expects an object or array, got ' . gettype($response));
-        }
-
-        if (is_object($response)) {
-            if (property_exists($response, '_links')) {
-                unset($response->_links);
-            }
-            // Recursively remove _links from nested objects.
-            foreach ($response as $key => $value) {
-                if (is_object($value) || is_array($value)) {
-                    $this->mungeResponse($value);
-                }
-            }
-        } elseif (is_array($response)) {
-            if (array_key_exists('_links', $response)) {
-                unset($response['_links']);
-            }
-            foreach ($response as $key => $value) {
-                if (is_object($value) || is_array($value)) {
-                    $this->mungeResponse($response[$key]);
-                }
-            }
-        }
     }
 
     public function setMethod(string $method): void

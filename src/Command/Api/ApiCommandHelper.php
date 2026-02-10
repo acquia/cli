@@ -326,132 +326,28 @@ class ApiCommandHelper
 
         // When running the phar, the original file may not exist. In that case, always use the cache.
         if (!file_exists($specFilePath) && $cacheItemSpec->isHit()) {
+            return $cacheItemSpec->get();
+        }
+
+        // Otherwise, only use cache when it is valid.
+        $checksum = md5_file($specFilePath);
+        if (
+            $this->useCloudApiSpecCache()
+            && $this->isApiSpecChecksumCacheValid($cacheItemChecksum, $checksum) && $cacheItemSpec->isHit()
+        ) {
             $spec = $cacheItemSpec->get();
         } else {
-            // Otherwise, only use cache when it is valid.
-            $checksum = md5_file($specFilePath);
-            if (
-                $this->useCloudApiSpecCache()
-                && $this->isApiSpecChecksumCacheValid($cacheItemChecksum, $checksum) && $cacheItemSpec->isHit()
-            ) {
-                $spec = $cacheItemSpec->get();
-            } else {
-                // Parse file. This can take a long while!
-                $this->logger->debug("Rebuilding caches...");
-                $spec = json_decode(file_get_contents($specFilePath), true);
+            // Parse file. This can take a long while!
+            $this->logger->debug("Rebuilding caches...");
+            $spec = json_decode(file_get_contents($specFilePath), true);
 
-                $cache->warmUp([
-                    $cacheKey => $spec,
-                    $cacheKey . '.checksum' => $checksum,
-                ]);
-            }
+            $cache->warmUp([
+                $cacheKey => $spec,
+                $cacheKey . '.checksum' => $checksum,
+            ]);
         }
-
-        // Merge additional specs from environment variables or files.
-        $spec = $this->mergeAdditionalSpecs($spec, $specFilePath);
 
         return $spec;
-    }
-
-    /**
-     * Merge additional API specs from environment variables or files.
-     *
-     * Additional specs can be provided via:
-     * - Environment variable ACLI_ADDITIONAL_SPEC_FILE_<SPECNAME> pointing to a JSON file
-     * - Environment variable ACLI_ADDITIONAL_SPEC_JSON_<SPECNAME> containing JSON directly
-     *
-     * @param array<mixed> $baseSpec The base API spec
-     * @param string $baseSpecFilePath Path to the base spec file (used for determining env var name)
-     * @return array<mixed> The merged spec
-     */
-    private function mergeAdditionalSpecs(array $baseSpec, string $baseSpecFilePath): array
-    {
-        $specName = basename($baseSpecFilePath, '.json');
-        // Normalize spec name: acquia-spec -> ACQUIA_SPEC, acsf-spec -> ACSF_SPEC.
-        $specNameNormalized = strtoupper(str_replace('-', '_', $specName));
-        $envVarFile = 'ACLI_ADDITIONAL_SPEC_FILE_' . $specNameNormalized;
-        $envVarJson = 'ACLI_ADDITIONAL_SPEC_JSON_' . $specNameNormalized;
-
-        $additionalSpec = null;
-
-        // Try to load from file path in environment variable.
-        $envFileValue = getenv($envVarFile);
-        if ($envFileValue && file_exists($envFileValue)) {
-            $this->logger->debug("Loading additional spec from file: $envFileValue");
-            $additionalSpecContent = file_get_contents($envFileValue);
-            $additionalSpec = json_decode($additionalSpecContent, true);
-            if (json_last_error() !== JSON_ERROR_NONE) {
-                $this->logger->warning("Failed to parse additional spec from file: " . json_last_error_msg());
-                $additionalSpec = null;
-            }
-        }
-
-        // Try to load from JSON in environment variable.
-        if (!$additionalSpec) {
-            $envJsonValue = getenv($envVarJson);
-            if ($envJsonValue) {
-                $this->logger->debug("Loading additional spec from environment variable: $envVarJson");
-                $additionalSpec = json_decode($envJsonValue, true);
-                if (json_last_error() !== JSON_ERROR_NONE) {
-                    $this->logger->warning("Failed to parse additional spec from env var: " . json_last_error_msg());
-                    $additionalSpec = null;
-                }
-            }
-        }
-
-        if (!is_array($additionalSpec) || $additionalSpec === []) {
-            return $baseSpec;
-        }
-        $keyCount = count($additionalSpec);
-        if ($keyCount === 0) {
-            throw new \LogicException('Unexpected empty additionalSpec');
-        }
-
-        // Merge paths from additional spec into base spec.
-        if (isset($additionalSpec['paths']) && is_array($additionalSpec['paths'])) {
-            if (!isset($baseSpec['paths'])) {
-                $baseSpec['paths'] = [];
-            }
-            foreach ($additionalSpec['paths'] as $path => $endpoint) {
-                if (!is_array($endpoint)) {
-                    continue;
-                }
-                // Mark all commands from additional specs as deprecated.
-                foreach ($endpoint as $method => $schema) {
-                    if (is_array($schema)) {
-                        $schema['deprecated'] = true;
-                        $endpoint[$method] = $schema;
-                    }
-                }
-                // If path already exists, merge methods; otherwise add new path.
-                if (isset($baseSpec['paths'][$path])) {
-                    $baseSpec['paths'][$path] = array_merge($baseSpec['paths'][$path], $endpoint);
-                } else {
-                    $baseSpec['paths'][$path] = $endpoint;
-                }
-            }
-            $this->logger->debug("Merged " . count($additionalSpec['paths']) . " additional paths into spec (marked as deprecated)");
-        }
-
-        // Merge components if present.
-        if (isset($additionalSpec['components']) && is_array($additionalSpec['components'])) {
-            if (!isset($baseSpec['components'])) {
-                $baseSpec['components'] = [];
-            }
-            foreach ($additionalSpec['components'] as $componentType => $components) {
-                if (!isset($baseSpec['components'][$componentType])) {
-                    $baseSpec['components'][$componentType] = [];
-                }
-                if (is_array($components)) {
-                    $baseSpec['components'][$componentType] = array_merge(
-                        $baseSpec['components'][$componentType],
-                        $components
-                    );
-                }
-            }
-        }
-
-        return $baseSpec;
     }
 
     /**
