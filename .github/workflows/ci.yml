@@ -99,7 +99,9 @@ jobs:
       - name: 'Extract additional API specs from secrets'
         run: |
           # Extract additional acquia-spec if available
+          echo "${{ secrets.ACQUIA_SPEC_ADDITIONAL }}"  | jq .info.title
           echo "${{ secrets.ACQUIA_SPEC_ADDITIONAL }}" > $(pwd)/assets/acquia-spec-additional.json
+          
           echo $(pwd)/assets/acquia-spec-additional.json
           ls -la $(pwd)/assets/*
           cat $(pwd)/assets/acquia-spec-additional.json | jq .info.title
