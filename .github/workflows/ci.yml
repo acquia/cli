@@ -98,20 +98,10 @@ jobs:
           echo ACLI_BUILD_DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ") >> .env
       - name: 'Extract additional API specs from secrets'
         run: |
-
-          if [ -z "${{ secrets.ACQUIA_SPEC_ADDITIONAL }}" ]; then
-            echo "❌ ACQUIA_SPEC_ADDITIONAL is EMPTY or UNAVAILABLE"
-          else
-            echo "✅ ACQUIA_SPEC_ADDITIONAL is PRESENT"
-            echo "Length: ${#ACQUIA_SPEC_ADDITIONAL}"
-          fi
           # Extract additional acquia-spec if available
-          printf '%s' "${{ secrets.ACQUIA_SPEC_ADDITIONAL }}" | jq .info.title
-          printf '%s' "${{ secrets.ACQUIA_SPEC_ADDITIONAL }}" > $(pwd)/assets/acquia-spec-additional.json
-          
-          echo $(pwd)/assets/acquia-spec-additional.json
-          ls -la $(pwd)/assets/*
-          cat $(pwd)/assets/acquia-spec-additional.json | jq .info.title
+          if [ -n "${{ secrets.ACQUIA_SPEC_ADDITIONAL }}" ]; then
+            echo "${{ secrets.ACQUIA_SPEC_ADDITIONAL }}" > assets/acquia-spec-additional.json
+          fi
       - name: Build
         run: |
           composer install --no-dev --optimize-autoloader
