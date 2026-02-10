@@ -97,9 +97,11 @@ jobs:
           echo ACLI_VERSION=${{ steps.acli-version.outputs.ACLI_VERSION }} >> .env
           echo ACLI_BUILD_DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ") >> .env
       - name: 'Extract additional API specs from secrets'
+        env:
+          ACQUIA_SPEC_ADDITIONAL: ${{ secrets.ACQUIA_SPEC_ADDITIONAL }}
         run: |
-          printf '%s' "${{ secrets.ACQUIA_SPEC_ADDITIONAL }}" > assets/acquia-spec-additional.json
-          
+          echo '$ACQUIA_SPEC_ADDITIONAL' > assets/acquia-spec-additional.json
+
       - name: Build
         run: |
           composer install --no-dev --optimize-autoloader
