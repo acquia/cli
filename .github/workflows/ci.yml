@@ -99,6 +99,7 @@ jobs:
       - name: 'Extract additional API specs from secrets'
         run: |
           printf '%s' "${{ secrets.ACQUIA_SPEC_ADDITIONAL }}" > assets/acquia-spec-additional.json
+          
       - name: Build
         run: |
           composer install --no-dev --optimize-autoloader
