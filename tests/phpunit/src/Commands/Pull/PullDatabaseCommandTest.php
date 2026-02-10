@@ -823,4 +823,77 @@ class PullDatabaseCommandTest extends PullCommandTestBase
 
         $this->executeCommand(['--no-scripts' => true], $inputs);
     }
+
+    /**
+     * Test that kills the MethodCallRemoval mutant for validateDownloadedFile method call in validateDownloadResponse.
+     * This test ensures the validateDownloadedFile method call cannot be removed from the codebase download path.
+     */
+    public function testMethodCallRemovalMutantKillerForValidateDownloadedFileInCodebasePath(): void
+    {
+        $codebaseUuid = '11111111-041c-44c7-a486-7972ed2cafc8';
+        self::SetEnvVars(['AH_CODEBASE_UUID' => $codebaseUuid]);
+
+        try {
+            // Mock the codebase returned from /codebases/{uuid}.
+            $codebase = $this->getMockCodeBaseResponse();
+            $this->clientProphecy->request('get', '/codebases/' . $codebaseUuid)
+                ->willReturn($codebase);
+
+            // Build one codebase environment (so prompt is skipped).
+            $codebaseEnv = $this->getMockCodeBaseEnvironment();
+            $this->clientProphecy->request('get', '/codebases/' . $codebaseUuid . '/environments')
+                ->willReturn([$codebaseEnv])
+                ->shouldBeCalled();
+
+            $codebaseSites = $this->getMockCodeBaseSites();
+            $this->clientProphecy->request('get', '/codebases/' . $codebaseUuid . '/sites')
+                ->willReturn($codebaseSites);
+            $siteInstance = $this->getMockSiteInstanceResponse();
+
+            $this->clientProphecy->request('get', '/site-instances/8979a8ac-80dc-4df8-b2f0-6be36554a370.3e8ecbec-ea7c-4260-8414-ef2938c859bc')
+                ->willReturn($siteInstance)
+                ->shouldBeCalled();
+            $siteId = '8979a8ac-80dc-4df8-b2f0-6be36554a370';
+            $site = $this->getMockSite();
+            $this->clientProphecy->request('get', '/sites/' . $siteId)
+                ->willReturn($site)
+                ->shouldBeCalled();
+            $siteInstanceDatabase = $this->getMockSiteInstanceDatabaseResponse();
+            $this->clientProphecy->request('get', '/site-instances/8979a8ac-80dc-4df8-b2f0-6be36554a370.3e8ecbec-ea7c-4260-8414-ef2938c859bc/database')
+                ->willReturn($siteInstanceDatabase)
+                ->shouldBeCalled();
+            $createSiteInstanceDatabaseBackup = $this->getMockSiteInstanceDatabaseBackupsResponse('post', '201');
+            $this->clientProphecy->request('post', '/site-instances/8979a8ac-80dc-4df8-b2f0-6be36554a370.3e8ecbec-ea7c-4260-8414-ef2938c859bc/database/backups')
+                ->willReturn($createSiteInstanceDatabaseBackup);
+            $siteInstanceDatabaseBackups = $this->getMockSiteInstanceDatabaseBackupsResponse();
+            $this->clientProphecy->request('get', '/site-instances/8979a8ac-80dc-4df8-b2f0-6be36554a370.3e8ecbec-ea7c-4260-8414-ef2938c859bc/database/backups')
+                ->willReturn($siteInstanceDatabaseBackups->_embedded->items)
+                ->shouldBeCalled();
+
+            $url = "https://environment-service-php.acquia.com/api/environments/d3f7270e-c45f-4801-9308-5e8afe84a323/";
+            $this->mockDownloadCodebaseBackup(
+                EnvironmentTransformer::transformSiteInstanceDatabase(new SiteInstanceDatabaseResponse($siteInstanceDatabase)),
+                $url,
+                EnvironmentTransformer::transformSiteInstanceDatabaseBackup(new SiteInstanceDatabaseBackupResponse($siteInstanceDatabaseBackups->_embedded->items[0])),
+                0,
+                // This will trigger validateDownloadedFile through validateDownloadResponse.
+                'missing'
+            );
+
+            $localMachineHelper = $this->mockLocalMachineHelper();
+            $this->mockExecuteMySqlConnect($localMachineHelper, true);
+            $inputs = self::inputChooseEnvironment();
+
+            // If validateDownloadedFile method call is removed from validateDownloadResponse, this exception won't be thrown.
+            $this->expectException(AcquiaCliException::class);
+            $this->expectExceptionMessage('Database backup download failed: file was not created');
+
+            $this->executeCommand([
+                '--no-scripts' => true,
+                '--on-demand' => false,
+            ], $inputs);
+        } finally {
+            self::unsetEnvVars(['AH_CODEBASE_UUID']);
+        }
+    }
 }
