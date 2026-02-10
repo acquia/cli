@@ -328,19 +328,22 @@ class PullDatabaseCommandTest extends PullCommandTestBase
      */
     public function testBackupDownloadUrlGetterSetter(): void
     {
+        $getMethod = new \ReflectionMethod($this->command, 'getBackupDownloadUrl');
+        $setMethod = new \ReflectionMethod($this->command, 'setBackupDownloadUrl');
+
         // Test initial state (null).
-        $this->assertNull($this->command->getBackupDownloadUrl());
+        $this->assertNull($getMethod->invoke($this->command));
 
         // Test setting with string.
         $backupUrl = 'https://www.example.com/download-backup';
-        $this->command->setBackupDownloadUrl($backupUrl);
-        $this->assertNotNull($this->command->getBackupDownloadUrl());
-        $this->assertEquals($backupUrl, (string) $this->command->getBackupDownloadUrl());
+        $setMethod->invoke($this->command, $backupUrl);
+        $this->assertNotNull($getMethod->invoke($this->command));
+        $this->assertEquals($backupUrl, (string) $getMethod->invoke($this->command));
 
         // Test setting with UriInterface.
         $uri = new Uri('https://other.example.com/download-backup');
-        $this->command->setBackupDownloadUrl($uri);
-        $this->assertEquals((string) $uri, (string) $this->command->getBackupDownloadUrl());
+        $setMethod->invoke($this->command, $uri);
+        $this->assertEquals((string) $uri, (string) $getMethod->invoke($this->command));
     }
 
     /**
@@ -509,15 +512,19 @@ class PullDatabaseCommandTest extends PullCommandTestBase
     {
         $output = new BufferedOutput();
         $progress = null;
-        PullCommandBase::displayDownloadProgress(100, 0, $progress, $output);
+        $method = new \ReflectionMethod(PullCommandBase::class, 'displayDownloadProgress');
+        $args = [100, 0, &$progress, $output];
+        $method->invokeArgs(null, $args);
         $this->assertStringContainsString('0/100 [💧---------------------------]   0%', $output->fetch());
 
         // Need to sleep to prevent the default redraw frequency from skipping display.
         sleep(1);
-        PullCommandBase::displayDownloadProgress(100, 50, $progress, $output);
+        $args = [100, 50, &$progress, $output];
+        $method->invokeArgs(null, $args);
         $this->assertStringContainsString('50/100 [==============💧-------------]  50%', $output->fetch());
 
-        PullCommandBase::displayDownloadProgress(100, 100, $progress, $output);
+        $args = [100, 100, &$progress, $output];
+        $method->invokeArgs(null, $args);
         $this->assertStringContainsString('100/100 [============================] 100%', $output->fetch());
     }
 
@@ -757,14 +764,11 @@ class PullDatabaseCommandTest extends PullCommandTestBase
     }
 
     /**
-     * Test that kills the PublicVisibility mutant for getBackupPath static method.
-     * This test ensures the static method remains public and accessible from outside the class.
+     * Test that getBackupPath returns a valid backup file path.
      */
-    public function testPublicVisibilityMutantKillerForGetBackupPath(): void
+    public function testGetBackupPath(): void
     {
-        // Ensure the method is public and accessible from outside the class.
         $reflection = new \ReflectionMethod(PullCommandBase::class, 'getBackupPath');
-        $this->assertTrue($reflection->isPublic(), 'getBackupPath method must remain public');
 
         // Create mock objects for testing the static method call.
         $environment = (object) ['name' => 'test-env'];
@@ -785,8 +789,8 @@ class PullDatabaseCommandTest extends PullCommandTestBase
 
         $backupResponse = (object) ['completedAt' => '2023-01-01T12:00:00.000Z'];
 
-        // This call must work - if the method becomes protected, this will fail.
-        $backupPath = PullCommandBase::getBackupPath($environment, $database, $backupResponse);
+        // Use reflection to invoke the protected static method.
+        $backupPath = $reflection->invoke(null, $environment, $database, $backupResponse);
 
         $this->assertIsString($backupPath, 'getBackupPath must return a string');
         $this->assertStringContainsString('.sql.gz', $backupPath, 'Backup path must have .sql.gz extension');

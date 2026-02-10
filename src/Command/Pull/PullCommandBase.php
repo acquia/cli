@@ -29,6 +29,7 @@ use Closure;
 use Exception;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\TransferStats;
+use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\UriInterface;
 use Psr\Log\LoggerInterface;
 use React\EventLoop\Loop;
@@ -70,18 +71,16 @@ abstract class PullCommandBase extends CommandBase
 
     /**
      * Get the backup download URL.
-     * This is primarily used for testing purposes.
      */
-    public function getBackupDownloadUrl(): ?UriInterface
+    protected function getBackupDownloadUrl(): ?UriInterface
     {
         return $this->backupDownloadUrl ?? null;
     }
 
     /**
      * Set the backup download URL.
-     * This is primarily used for testing purposes.
      */
-    public function setBackupDownloadUrl(string|UriInterface $url): void
+    protected function setBackupDownloadUrl(string|UriInterface $url): void
     {
         if (is_string($url)) {
             $this->backupDownloadUrl = new \GuzzleHttp\Psr7\Uri($url);
@@ -116,7 +115,7 @@ abstract class PullCommandBase extends CommandBase
         return $tables;
     }
 
-    public static function getBackupPath(object $environment, DatabaseResponse $database, object $backupResponse): string
+    protected static function getBackupPath(object $environment, DatabaseResponse $database, object $backupResponse): string
     {
         if ($database->flags->default) {
             $dbMachineName = $database->name . $environment->name;
@@ -340,16 +339,15 @@ abstract class PullCommandBase extends CommandBase
     /**
      * Validates the HTTP response from a database backup download request.
      *
-     * @param \Psr\Http\Message\ResponseInterface $response The HTTP response object
      * @param string $localFilepath The local file path where the backup was downloaded
      * @throws \Acquia\Cli\Exception\AcquiaCliException If the response is invalid
      */
-    private function validateDownloadResponse(object $response, string $localFilepath): void
+    private function validateDownloadResponse(ResponseInterface $response, string $localFilepath): void
     {
         $statusCode = $response->getStatusCode();
 
-        // Check for successful HTTP response.
-        if ($statusCode !== 200) {
+        // Check for successful HTTP response (any 2xx status).
+        if ($statusCode < 200 || $statusCode >= 300) {
             // Clean up the potentially corrupted file.
             if (file_exists($localFilepath)) {
                 $this->localMachineHelper->getFilesystem()->remove($localFilepath);
@@ -375,14 +373,14 @@ abstract class PullCommandBase extends CommandBase
         // Check if file exists.
         if (!file_exists($localFilepath)) {
             throw new AcquiaCliException(
-                'Database backup download failed: file was not created.'
+                'Database backup download failed: file was not created'
             );
         }
 
         // File exists - assume it's valid since it comes from trusted Acquia API.
     }
 
-    public static function displayDownloadProgress(mixed $totalBytes, mixed $downloadedBytes, mixed &$progress, OutputInterface $output): void
+    protected static function displayDownloadProgress(mixed $totalBytes, mixed $downloadedBytes, mixed &$progress, OutputInterface $output): void
     {
         if ($totalBytes > 0 && is_null($progress)) {
             $progress = new ProgressBar($output, $totalBytes);
