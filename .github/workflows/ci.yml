@@ -99,12 +99,56 @@ jobs:
       - name: 'Extract additional API specs from secrets'
         run: |
           if [ -n '${{ secrets.ACQUIA_SPEC_ADDITIONAL }}' ]; then
-            echo '${{ secrets.ACQUIA_SPEC_ADDITIONAL }}' | jq .info.title 
-            echo '${{ secrets.ACQUIA_SPEC_ADDITIONAL }}' | jq . > $(pwd)/assets/acquia-spec-additional.json
-            ls -la $(pwd)/assets/*
-            cat $(pwd)/assets/acquia-spec-additional.json | jq .info.title          
+            echo '${{ secrets.ACQUIA_SPEC_ADDITIONAL }}' | jq . > assets/acquia-spec-additional.json
           fi
-
+      - name: 'Merge additional specs into base spec'
+        run: |
+          if [ -f assets/acquia-spec-additional.json ]; then
+            # Merge paths: combine paths, and if a path exists in both, merge methods within that path
+            jq -s '
+              .[0] as $base |
+              .[1] as $additional |
+              $base |
+              .paths = (
+                ($base.paths // {}) as $base_paths |
+                ($additional.paths // {}) as $additional_paths |
+                ($base_paths | to_entries) + ($additional_paths | to_entries) |
+                group_by(.key) |
+                map({
+                  key: .[0].key,
+                  value: (
+                    .[0].value as $first |
+                    reduce .[1:] as $item ($first; . + $item.value)
+                  )
+                }) |
+                from_entries
+              ) |
+              # Merge components: merge each component type (parameters, schemas, etc.)
+              if $additional.components then
+                .components = (
+                  ($base.components // {}) as $base_components |
+                  ($additional.components // {}) as $additional_components |
+                  ($base_components | to_entries) + ($additional_components | to_entries) |
+                  group_by(.key) |
+                  map({
+                    key: .[0].key,
+                    value: (
+                      .[0].value as $first |
+                      reduce .[1:] as $item ($first; . + $item.value)
+                    )
+                  }) |
+                  from_entries
+                )
+              else
+                .
+              end
+            ' assets/acquia-spec.json assets/acquia-spec-additional.json > assets/acquia-spec-merged.json
+            # Replace base spec with merged spec
+            mv assets/acquia-spec-merged.json assets/acquia-spec.json
+            echo "Merged additional spec into base spec"
+          else
+            echo "No additional spec file found, using base spec only"
+          fi
       - name: Build
         run: |
           composer install --no-dev --optimize-autoloader
