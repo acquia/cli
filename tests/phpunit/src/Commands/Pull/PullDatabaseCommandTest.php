@@ -781,6 +781,11 @@ class PullDatabaseCommandTest extends PullCommandTestBase
         $output = new BufferedOutput();
         $progress = null;
 
+        PullCommandBase::displayDownloadProgress(100, 0, $progress, $output);
+        $this->assertStringContainsString('0/100', $output->fetch(), 'Initial progress display must work');
+
+        sleep(1);
+
         PullCommandBase::displayDownloadProgress(100, 50, $progress, $output);
 
         $displayedOutput = $output->fetch();
