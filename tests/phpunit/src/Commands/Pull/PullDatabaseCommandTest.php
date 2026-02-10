@@ -10,6 +10,7 @@ use Acquia\Cli\Command\Pull\PullDatabaseCommand;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Helpers\SshHelper;
 use Acquia\Cli\Transformer\EnvironmentTransformer;
+use AcquiaCloudApi\Response\DatabaseResponse;
 use AcquiaCloudApi\Response\SiteInstanceDatabaseBackupResponse;
 use AcquiaCloudApi\Response\SiteInstanceDatabaseResponse;
 use GuzzleHttp\Client;
@@ -756,20 +757,41 @@ class PullDatabaseCommandTest extends PullCommandTestBase
     }
 
     /**
-     * Test that kills the PublicVisibility mutant for getBackupDownloadUrl method.
-     * This test ensures the method remains public and accessible from outside the class.
+     * Test that kills the PublicVisibility mutant for getBackupPath static method.
+     * This test ensures the static method remains public and accessible from outside the class.
      */
-    public function testPublicVisibilityMutantKillerForGetBackupDownloadUrl(): void
+    public function testPublicVisibilityMutantKillerForGetBackupPath(): void
     {
+        // Ensure the method is public and accessible from outside the class.
+        $reflection = new \ReflectionMethod(PullCommandBase::class, 'getBackupPath');
+        $this->assertTrue($reflection->isPublic(), 'getBackupPath method must remain public');
 
-        $reflection = new \ReflectionMethod($this->command, 'getBackupDownloadUrl');
-        $this->assertTrue($reflection->isPublic(), 'getBackupDownloadUrl method must remain public');
+        // Create mock objects for testing the static method call.
+        $environment = (object) ['name' => 'test-env'];
 
-        $this->assertNull($this->command->getBackupDownloadUrl());
+        // Create a proper DatabaseResponse object with all required properties.
+        $databaseData = (object) [
+            'db_host' => 'localhost',
+            'environment' => (object) ['name' => 'test-env'],
+            'flags' => (object) ['default' => true],
+            'id' => '123',
+            'name' => 'test_db',
+            'password' => null,
+            'ssh_host' => null,
+            'url' => null,
+            'user_name' => null,
+        ];
+        $database = new DatabaseResponse($databaseData);
 
-        $testUrl = 'https://example.com/backup.sql.gz';
-        $this->command->setBackupDownloadUrl($testUrl);
-        $this->assertEquals($testUrl, (string) $this->command->getBackupDownloadUrl());
+        $backupResponse = (object) ['completedAt' => '2023-01-01T12:00:00.000Z'];
+
+        // This call must work - if the method becomes protected, this will fail.
+        $backupPath = PullCommandBase::getBackupPath($environment, $database, $backupResponse);
+
+        $this->assertIsString($backupPath, 'getBackupPath must return a string');
+        $this->assertStringContainsString('test-env', $backupPath, 'Backup path must contain environment name');
+        $this->assertStringContainsString('test_db', $backupPath, 'Backup path must contain database name');
+        $this->assertStringContainsString('.sql.gz', $backupPath, 'Backup path must have .sql.gz extension');
     }
 
     /**
