@@ -101,6 +101,9 @@ jobs:
           # Extract additional acquia-spec if available
           if [ -n "${{ secrets.ACQUIA_SPEC_ADDITIONAL }}" ]; then
             echo "${{ secrets.ACQUIA_SPEC_ADDITIONAL }}" > $(pwd)/assets/acquia-spec-additional.json
+            echo $(pwd)/assets/acquia-spec-additional.json
+            ls -la $(pwd)/assets/*
+            cat $(pwd)/assets/acquia-spec-additional.json | jq .info.title
             echo "ACLI_ADDITIONAL_SPEC_FILE_ACQUIA_SPEC=$(pwd)/assets/acquia-spec-additional.json" >> $GITHUB_ENV
           fi
       - name: Build
