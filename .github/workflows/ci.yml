@@ -97,10 +97,12 @@ jobs:
           echo ACLI_VERSION=${{ steps.acli-version.outputs.ACLI_VERSION }} >> .env
           echo ACLI_BUILD_DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ") >> .env
       - name: 'Extract additional API specs from secrets'
+        env:
+          ACQUIA_SPEC_ADDITIONAL: ${{ secrets.ACQUIA_SPEC_ADDITIONAL }}
         run: |
           # Extract additional acquia-spec if available
-          if [ -n "${{ secrets.ACQUIA_SPEC_ADDITIONAL }}" ]; then
-            echo "${{ secrets.ACQUIA_SPEC_ADDITIONAL }}" > assets/acquia-spec-additional.json
+          if [ -n "$ACQUIA_SPEC_ADDITIONAL" ]; then
+            printf '%s' "$ACQUIA_SPEC_ADDITIONAL" > assets/acquia-spec-additional.json
           fi
       - name: Build
         run: |
