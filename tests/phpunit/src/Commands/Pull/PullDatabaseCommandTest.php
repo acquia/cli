@@ -789,30 +789,35 @@ class PullDatabaseCommandTest extends PullCommandTestBase
         $backupPath = PullCommandBase::getBackupPath($environment, $database, $backupResponse);
 
         $this->assertIsString($backupPath, 'getBackupPath must return a string');
-        $this->assertStringContainsString('test-env', $backupPath, 'Backup path must contain environment name');
-        $this->assertStringContainsString('test_db', $backupPath, 'Backup path must contain database name');
         $this->assertStringContainsString('.sql.gz', $backupPath, 'Backup path must have .sql.gz extension');
+
+        // On Windows, the filename is a hash, on other platforms it contains env and db names.
+        if (PHP_OS_FAMILY === 'Windows') {
+            // On Windows, verify it contains the temp directory and a hash-based filename.
+            $this->assertStringContainsString(sys_get_temp_dir(), $backupPath, 'Backup path must be in temp directory');
+            $this->assertMatchesRegularExpression('/[a-f0-9]{8}\.sql\.gz$/', basename($backupPath), 'Windows backup filename must be hash-based');
+        } else {
+            // On non-Windows, verify it contains environment and database names.
+            $this->assertStringContainsString('test-env', $backupPath, 'Backup path must contain environment name');
+            $this->assertStringContainsString('test_db', $backupPath, 'Backup path must contain database name');
+        }
     }
 
+
     /**
-     * Test that kills the MethodCallRemoval mutant for displayDownloadProgress static method call.
-     * This test ensures the static method call cannot be removed without breaking functionality.
+     * Test that kills the MethodCallRemoval mutant for validateDownloadedFile method call.
+     * This test ensures the validateDownloadedFile method call cannot be removed without breaking functionality.
      */
-    public function testMethodCallRemovalMutantKillerForDisplayDownloadProgress(): void
+    public function testMethodCallRemovalMutantKillerForValidateDownloadedFile(): void
     {
-        $output = new BufferedOutput();
-        $progress = null;
+        // Create a scenario where validateDownloadedFile would throw an exception for a missing file.
+        $this->setupPullDatabase(true, false, false, true, false, 0, true, true, 'missing');
+        $inputs = self::inputChooseEnvironment();
 
-        PullCommandBase::displayDownloadProgress(100, 0, $progress, $output);
-        $this->assertStringContainsString('0/100', $output->fetch(), 'Initial progress display must work');
+        // If validateDownloadedFile method call is removed, this exception won't be thrown.
+        $this->expectException(AcquiaCliException::class);
+        $this->expectExceptionMessage('Database backup download failed: file was not created');
 
-        sleep(1);
-
-        PullCommandBase::displayDownloadProgress(100, 50, $progress, $output);
-
-        $displayedOutput = $output->fetch();
-        $this->assertStringContainsString('50/100', $displayedOutput, 'displayDownloadProgress static method call must not be removed');
-        $this->assertStringContainsString('50%', $displayedOutput, 'Progress percentage must be displayed');
-        $this->assertStringContainsString('💧', $displayedOutput, 'Progress indicator must be displayed');
+        $this->executeCommand(['--no-scripts' => true], $inputs);
     }
 }
