@@ -145,6 +145,7 @@ class ExceptionListenerTest extends TestBase
                     'message' => 'fdsa',
                 ]),
                 [
+                    'You must create logs (api:environments:log-create) prior to downloading them',
                     'You can learn more about Cloud Platform API at https://docs.acquia.com/cloud-platform/develop/api/',
                 ],
             ],
