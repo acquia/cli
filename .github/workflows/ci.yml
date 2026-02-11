@@ -96,6 +96,33 @@ jobs:
           echo AMPLITUDE_KEY=${{ secrets.AMPLITUDE_KEY }} >> .env
           echo ACLI_VERSION=${{ steps.acli-version.outputs.ACLI_VERSION }} >> .env
           echo ACLI_BUILD_DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ") >> .env
+      - name: 'Extract additional API specs from secrets'
+        run: |
+          if [ -n '${{ secrets.ACQUIA_SPEC_ADDITIONAL }}' ]; then
+            echo '${{ secrets.ACQUIA_SPEC_ADDITIONAL }}' | jq . > assets/acquia-spec-additional.json
+          fi
+      - name: 'Merge additional specs into base spec'
+        run: |
+          if [ -f assets/acquia-spec-additional.json ]; then
+            # Merge paths: combine paths, and if a path exists in both, merge HTTP methods within that path
+            # Merge components: combine all component types
+            jq -s '
+              .[0] as $base |
+              .[1] as $add |
+              $base |
+              .paths = (
+                ($base.paths // {}) as $bp |
+                ($add.paths // {}) as $ap |
+                reduce ($ap | keys_unsorted[]) as $k ($bp; .[$k] = (.[$k] // {}) + ($ap[$k] // {}))
+              ) |
+              .components = (($base.components // {}) * ($add.components // {}))
+            ' assets/acquia-spec.json assets/acquia-spec-additional.json > assets/acquia-spec-merged.json
+            # Replace base spec with merged spec
+            mv assets/acquia-spec-merged.json assets/acquia-spec.json
+            echo "Merged additional spec into base spec"
+          else
+            echo "No additional spec file found, using base spec only"
+          fi
       - name: Build
         run: |
           composer install --no-dev --optimize-autoloader
