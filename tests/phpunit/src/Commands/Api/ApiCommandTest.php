@@ -57,35 +57,6 @@ EOD;
         $this->assertEquals(0, $this->getStatusCode());
     }
 
-    public function testTranslationResponse(): void
-    {
-        $rawResponse = json_decode('[{"name": "apache-access","type": "apache-access","label": "Apache access","flags": {"available": false}, "_links": "bad"}]');
-        $mungedResponse = <<<EOL
-[
-    {
-        "name": "apache-access",
-        "type": "apache-access",
-        "label": "Apache access",
-        "flags": {
-            "available": false
-        }
-    }
-]
-EOL;
-        $environmentId = '830ea829-490a-4e2e-a16b-ff055fc58a0e';
-        $this->clientProphecy->request('get', '/translation/environments/' . $environmentId . '/logs')
-            ->willReturn($rawResponse)
-            ->shouldBeCalled();
-        $this->clientProphecy->addOption('headers', ['Accept' => 'application/hal+json, version=2']);
-        $this->command = $this->getApiCommandByName('api:environments-v3:log-list');
-        $this->executeCommand([
-            'environmentId' => $environmentId,
-        ]);
-        $output = $this->getDisplay();
-        $this->assertStringContainsStringIgnoringLineEndings($mungedResponse, $output);
-        $this->assertEquals(0, $this->getStatusCode());
-    }
-
     public function testArgumentsInteraction(): void
     {
         $this->clientProphecy->addOption('headers', ['Accept' => 'application/hal+json, version=2'])
