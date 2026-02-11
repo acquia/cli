@@ -991,5 +991,8 @@ class PullDatabaseCommandTest extends PullCommandTestBase
 
         $getBackupPath = new \ReflectionMethod(PullCommandBase::class, 'getBackupPath');
         $this->assertTrue($getBackupPath->isProtected(), 'getBackupPath must be protected');
+
+        $displayDownloadProgress = new \ReflectionMethod(PullCommandBase::class, 'displayDownloadProgress');
+        $this->assertTrue($displayDownloadProgress->isProtected(), 'displayDownloadProgress must be protected');
     }
 }
