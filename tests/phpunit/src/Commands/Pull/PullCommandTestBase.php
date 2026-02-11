@@ -473,7 +473,7 @@ abstract class PullCommandTestBase extends CommandTestBase
         return $database;
     }
 
-    protected function mockDownloadCodebaseBackup(object $database, string $url, object $backup, int $curlCode = 0, string $validationError = ''): object
+    protected function mockDownloadCodebaseBackup(object $database, string $url, object $backup, int $curlCode = 0, string $validationError = '', int $httpStatusCode = 0): object
     {
         // Calculate dbMachineName the same way as getBackupPath.
         $environment = (object) ['name' => 'environment_3e8ecbec-ea7c-4260-8414-ef2938c859bc'];
@@ -516,7 +516,12 @@ abstract class PullCommandTestBase extends CommandTestBase
 
         // Mock the HTTP client request for codebase downloads.
         $downloadUrl = $backup->links->download->href ?? 'https://example.com/download-backup';
-        $statusCode = $validationError === 'http_error' ? 500 : 200;
+        // Allow explicit HTTP status code override; otherwise infer from validationError.
+        if ($httpStatusCode !== 0) {
+            $statusCode = $httpStatusCode;
+        } else {
+            $statusCode = $validationError === 'http_error' ? 500 : 200;
+        }
         $response = new \GuzzleHttp\Psr7\Response($statusCode);
 
         $capturedOpts = null;

@@ -899,4 +899,97 @@ class PullDatabaseCommandTest extends PullCommandTestBase
             self::unsetEnvVars(['AH_CODEBASE_UUID']);
         }
     }
+
+    /**
+     * Test that HTTP status code 300 is treated as an error (kills GreaterThanOrEqualTo mutant).
+     *
+     * The source code uses `$statusCode >= 300`, and the mutant changes it to `$statusCode > 300`.
+     * A test with status code 300 will pass with `>= 300` (correctly treating it as an error)
+     * but fail with `> 300` (incorrectly treating it as success).
+     */
+    public function testPullDatabasesWithCodebaseUuidHttpStatus300(): void
+    {
+        $codebaseUuid = '11111111-041c-44c7-a486-7972ed2cafc8';
+        self::SetEnvVars(['AH_CODEBASE_UUID' => $codebaseUuid]);
+
+        // Mock the codebase returned from /codebases/{uuid}.
+        $codebase = $this->getMockCodeBaseResponse();
+        $this->clientProphecy->request('get', '/codebases/' . $codebaseUuid)
+            ->willReturn($codebase);
+
+        // Build one codebase environment (so prompt is skipped).
+        $codebaseEnv = $this->getMockCodeBaseEnvironment();
+        $this->clientProphecy->request('get', '/codebases/' . $codebaseUuid . '/environments')
+            ->willReturn([$codebaseEnv])
+            ->shouldBeCalled();
+
+        $codebaseSites = $this->getMockCodeBaseSites();
+        $this->clientProphecy->request('get', '/codebases/' . $codebaseUuid . '/sites')
+            ->willReturn($codebaseSites);
+        $siteInstance = $this->getMockSiteInstanceResponse();
+
+        $this->clientProphecy->request('get', '/site-instances/8979a8ac-80dc-4df8-b2f0-6be36554a370.3e8ecbec-ea7c-4260-8414-ef2938c859bc')
+            ->willReturn($siteInstance)
+            ->shouldBeCalled();
+        $siteId = '8979a8ac-80dc-4df8-b2f0-6be36554a370';
+        $site = $this->getMockSite();
+        $this->clientProphecy->request('get', '/sites/' . $siteId)
+            ->willReturn($site)
+            ->shouldBeCalled();
+        $siteInstanceDatabase = $this->getMockSiteInstanceDatabaseResponse();
+        $this->clientProphecy->request('get', '/site-instances/8979a8ac-80dc-4df8-b2f0-6be36554a370.3e8ecbec-ea7c-4260-8414-ef2938c859bc/database')
+            ->willReturn($siteInstanceDatabase)
+            ->shouldBeCalled();
+        $createSiteInstanceDatabaseBackup = $this->getMockSiteInstanceDatabaseBackupsResponse('post', '201');
+        $this->clientProphecy->request('post', '/site-instances/8979a8ac-80dc-4df8-b2f0-6be36554a370.3e8ecbec-ea7c-4260-8414-ef2938c859bc/database/backups')
+            ->willReturn($createSiteInstanceDatabaseBackup);
+        $siteInstanceDatabaseBackups = $this->getMockSiteInstanceDatabaseBackupsResponse();
+        $this->clientProphecy->request('get', '/site-instances/8979a8ac-80dc-4df8-b2f0-6be36554a370.3e8ecbec-ea7c-4260-8414-ef2938c859bc/database/backups')
+            ->willReturn($siteInstanceDatabaseBackups->_embedded->items)
+            ->shouldBeCalled();
+
+        $url = "https://environment-service-php.acquia.com/api/environments/d3f7270e-c45f-4801-9308-5e8afe84a323/";
+        $this->mockDownloadCodebaseBackup(
+            EnvironmentTransformer::transformSiteInstanceDatabase(new SiteInstanceDatabaseResponse($siteInstanceDatabase)),
+            $url,
+            EnvironmentTransformer::transformSiteInstanceDatabaseBackup(new SiteInstanceDatabaseBackupResponse($siteInstanceDatabaseBackups->_embedded->items[0])),
+            0,
+            '',
+            300
+        );
+
+        $localMachineHelper = $this->mockLocalMachineHelper();
+        $this->mockExecuteMySqlConnect($localMachineHelper, true);
+        $fs = $this->prophet->prophesize(Filesystem::class);
+        $localMachineHelper->getFilesystem()->willReturn($fs)->shouldBeCalled();
+        $fs->remove(Argument::type('string'))->shouldBeCalled();
+        $inputs = self::inputChooseEnvironment();
+
+        try {
+            $this->expectException(AcquiaCliException::class);
+            $this->expectExceptionMessage('Database backup download failed with HTTP status 300');
+            $this->executeCommand([
+                '--no-scripts' => true,
+                '--on-demand' => false,
+            ], $inputs);
+        } finally {
+            self::unsetEnvVars(['AH_CODEBASE_UUID']);
+        }
+    }
+
+    /**
+     * Test that getBackupDownloadUrl, setBackupDownloadUrl, and getBackupPath are protected.
+     * This kills the ProtectedVisibility mutant that changes protected to public.
+     */
+    public function testMethodVisibilityIsProtected(): void
+    {
+        $getBackupDownloadUrl = new \ReflectionMethod(PullCommandBase::class, 'getBackupDownloadUrl');
+        $this->assertTrue($getBackupDownloadUrl->isProtected(), 'getBackupDownloadUrl must be protected');
+
+        $setBackupDownloadUrl = new \ReflectionMethod(PullCommandBase::class, 'setBackupDownloadUrl');
+        $this->assertTrue($setBackupDownloadUrl->isProtected(), 'setBackupDownloadUrl must be protected');
+
+        $getBackupPath = new \ReflectionMethod(PullCommandBase::class, 'getBackupPath');
+        $this->assertTrue($getBackupPath->isProtected(), 'getBackupPath must be protected');
+    }
 }
