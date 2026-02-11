@@ -57,7 +57,6 @@ EOD;
         $this->assertEquals(0, $this->getStatusCode());
     }
 
-
     public function testArgumentsInteraction(): void
     {
         $this->clientProphecy->addOption('headers', ['Accept' => 'application/hal+json, version=2'])
