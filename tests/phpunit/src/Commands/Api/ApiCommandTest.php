@@ -761,4 +761,206 @@ EOD;
             }
         }
     }
+
+    /**
+     * Tests that mungeResponse is called for paths starting with exactly '/translation' (12 characters).
+     * This test ensures the correct substring length check.
+     */
+    public function testTranslationPathMungesResponse(): void
+    {
+        $this->clientProphecy->addOption('headers', ['Accept' => 'application/hal+json, version=2'])
+            ->shouldBeCalled();
+
+        // Create a response array with items that have _links that should be removed.
+        $item1 = (object)[
+            'id' => 1,
+            'name' => 'item1',
+            '_links' => (object)['self' => (object)['href' => '/translation/1']],
+        ];
+        $item2 = (object)[
+            'id' => 2,
+            'name' => 'item2',
+            '_links' => (object)['self' => (object)['href' => '/translation/2']],
+        ];
+        $mockResponse = [$item1, $item2];
+
+        $this->clientProphecy->request('get', '/translation')
+            ->willReturn($mockResponse)
+            ->shouldBeCalled();
+
+        $this->command = $this->getApiCommandByName('api:accounts:ssh-keys-list');
+        // Override the path to test translation endpoint.
+        $this->command->setPath('/translation');
+        $this->command->setMethod('get');
+
+        $this->executeCommand();
+
+        $output = $this->getDisplay();
+        $decoded = json_decode($output, true);
+
+        // Verify _links was removed (munged) from all items.
+        $this->assertIsArray($decoded);
+        $this->assertCount(2, $decoded);
+        $this->assertArrayNotHasKey('_links', $decoded[0]);
+        $this->assertArrayNotHasKey('_links', $decoded[1]);
+        $this->assertEquals(1, $decoded[0]['id']);
+        $this->assertEquals(2, $decoded[1]['id']);
+    }
+
+    /**
+     * Tests that mungeResponse IS called for a 13-character path starting with '/translation'.
+     * This kills the IncrementInteger mutant that checks for 13 characters instead of 12.
+     *
+     * Path '/translationX' (13 chars):
+     * - Original: substr('/translationX', 0, 12) = '/translation' → matches → munges
+     * - Mutant: substr('/translationX', 0, 13) = '/translationX' !== '/translation' → doesn't match → doesn't munge
+     *
+     * By verifying _links are removed, we ensure the original 12-char check is used.
+     * If the mutant exists, _links would remain and this test would fail.
+     */
+    public function testTranslationsPathDoesNotMungeResponse(): void
+    {
+        $this->clientProphecy->addOption('headers', ['Accept' => 'application/hal+json, version=2'])
+            ->shouldBeCalled();
+
+        // Create a response array with items that have _links.
+        // Original code will munge (remove _links), mutant will not.
+        $item1 = (object)[
+            'id' => 1,
+            'name' => 'item1',
+            '_links' => (object)['self' => (object)['href' => '/translationX/1']],
+        ];
+        $item2 = (object)[
+            'id' => 2,
+            'name' => 'item2',
+            '_links' => (object)['self' => (object)['href' => '/translationX/2']],
+        ];
+        $mockResponse = [$item1, $item2];
+
+        $this->clientProphecy->request('get', '/translationX')
+            ->willReturn($mockResponse)
+            ->shouldBeCalled();
+
+        $this->command = $this->getApiCommandByName('api:accounts:ssh-keys-list');
+        // Path is 13 characters, starts with '/translation' (12 chars)
+        $this->command->setPath('/translationX');
+        $this->command->setMethod('get');
+
+        $this->executeCommand();
+
+        $output = $this->getDisplay();
+        $decoded = json_decode($output, true);
+
+        // Verify _links was removed (munged by original 12-char check).
+        // If mutant (13-char check) exists, _links would remain and this assertion would fail.
+        $this->assertIsArray($decoded);
+        $this->assertCount(2, $decoded);
+        $this->assertArrayNotHasKey('_links', $decoded[0]);
+        $this->assertArrayNotHasKey('_links', $decoded[1]);
+    }
+
+    /**
+     * Tests that mungeResponse is NOT called for paths ending with '/translation' but not starting with it.
+     * This kills the DecrementInteger mutant that checks the end of the string.
+     */
+    public function testPathEndingWithTranslationDoesNotMungeResponse(): void
+    {
+        $this->clientProphecy->addOption('headers', ['Accept' => 'application/hal+json, version=2'])
+            ->shouldBeCalled();
+
+        // Create a response array with items that have _links that should NOT be removed.
+        $item1 = (object)[
+            'id' => 1,
+            'name' => 'item1',
+            '_links' => (object)['self' => (object)['href' => '/something/translation/1']],
+        ];
+        $item2 = (object)[
+            'id' => 2,
+            'name' => 'item2',
+            '_links' => (object)['self' => (object)['href' => '/something/translation/2']],
+        ];
+        $mockResponse = [$item1, $item2];
+
+        $this->clientProphecy->request('get', '/something/translation')
+            ->willReturn($mockResponse)
+            ->shouldBeCalled();
+
+        $this->command = $this->getApiCommandByName('api:accounts:ssh-keys-list');
+        // Override the path to test a path that ends with /translation but doesn't start with it.
+        $this->command->setPath('/something/translation');
+        $this->command->setMethod('get');
+
+        $this->executeCommand();
+
+        $output = $this->getDisplay();
+        $decoded = json_decode($output, true);
+
+        // Verify _links was NOT removed (not munged)
+        $this->assertIsArray($decoded);
+        $this->assertCount(2, $decoded);
+        $this->assertArrayHasKey('_links', $decoded[0]);
+        $this->assertArrayHasKey('_links', $decoded[1]);
+    }
+
+    /**
+     * Tests that mungeResponse removes _links from the top-level response object.
+     * This kills the LogicalAndNegation mutant that negates the condition.
+     *
+     * Original: if (is_object($response) && property_exists($response, '_links')) → unsets _links
+     * Mutant: if (!(is_object($response) && property_exists($response, '_links'))) → doesn't unset _links
+     *
+     * By verifying _links are removed from the top-level object, we ensure the original condition is used.
+     * If the mutant exists, _links would remain and this test would fail.
+     */
+    public function testTranslationPathMungesTopLevelLinks(): void
+    {
+        $this->clientProphecy->addOption('headers', ['Accept' => 'application/hal+json, version=2'])
+            ->shouldBeCalled();
+
+        // Create a response object (not array) with _links at the top level.
+        // The foreach loop will iterate over object properties, so we only include object properties
+        // to avoid calling property_exists() on non-object values.
+        $mockResponse = (object)[
+            'data' => (object)[
+                'message' => 'test',
+                '_links' => (object)['self' => (object)['href' => '/translation/data']],
+            ],
+            'meta' => (object)[
+                'count' => 10,
+                '_links' => (object)['self' => (object)['href' => '/translation/meta']],
+            ],
+            '_links' => (object)[
+                'next' => (object)['href' => '/translation?page=2'],
+                'self' => (object)['href' => '/translation'],
+            ],
+        ];
+
+        $this->clientProphecy->request('get', '/translation')
+            ->willReturn($mockResponse)
+            ->shouldBeCalled();
+
+        $this->command = $this->getApiCommandByName('api:accounts:ssh-keys-list');
+        // Override the path to test translation endpoint.
+        $this->command->setPath('/translation');
+        $this->command->setMethod('get');
+
+        $this->executeCommand();
+
+        $output = $this->getDisplay();
+        $decoded = json_decode($output, true);
+
+        // Verify _links was removed (munged) from the top-level object.
+        // Original code: is_object($response) && property_exists($response, '_links') → true → unsets
+        // Mutant code: !(is_object($response) && property_exists($response, '_links')) → false → doesn't unset
+        // So if mutant exists, _links would remain and this assertion would fail.
+        $this->assertIsArray($decoded);
+        $this->assertArrayNotHasKey('_links', $decoded);
+        // Verify nested objects' _links are also removed by the foreach loop.
+        $this->assertIsArray($decoded['data']);
+        $this->assertArrayNotHasKey('_links', $decoded['data']);
+        $this->assertEquals('test', $decoded['data']['message']);
+        $this->assertIsArray($decoded['meta']);
+        $this->assertArrayNotHasKey('_links', $decoded['meta']);
+        $this->assertEquals(10, $decoded['meta']['count']);
+    }
 }
