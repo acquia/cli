@@ -10,9 +10,11 @@ use Acquia\Cli\Command\Pull\PullDatabaseCommand;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Helpers\SshHelper;
 use Acquia\Cli\Transformer\EnvironmentTransformer;
+use AcquiaCloudApi\Response\DatabaseResponse;
 use AcquiaCloudApi\Response\SiteInstanceDatabaseBackupResponse;
 use AcquiaCloudApi\Response\SiteInstanceDatabaseResponse;
 use GuzzleHttp\Client;
+use GuzzleHttp\Psr7\Uri;
 use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
 use Symfony\Component\Console\Output\BufferedOutput;
@@ -321,7 +323,115 @@ class PullDatabaseCommandTest extends PullCommandTestBase
         $this->assertStringContainsString('Trying alternative host other.example.com', $output);
     }
 
-    protected function setupPullDatabase(bool $mysqlConnectSuccessful, bool $mockIdeFs = false, bool $onDemand = false, bool $mockGetAcsfSites = true, bool $multiDb = false, int $curlCode = 0, bool $existingBackups = true, bool $onDemandSuccess = true): void
+    /**
+     * Test that the getBackupDownloadUrl and setBackupDownloadUrl methods work correctly.
+     */
+    public function testBackupDownloadUrlGetterSetter(): void
+    {
+        $getMethod = new \ReflectionMethod($this->command, 'getBackupDownloadUrl');
+        $setMethod = new \ReflectionMethod($this->command, 'setBackupDownloadUrl');
+
+        // Test initial state (null).
+        $this->assertNull($getMethod->invoke($this->command));
+
+        // Test setting with string.
+        $backupUrl = 'https://www.example.com/download-backup';
+        $setMethod->invoke($this->command, $backupUrl);
+        $this->assertNotNull($getMethod->invoke($this->command));
+        $this->assertEquals($backupUrl, (string) $getMethod->invoke($this->command));
+
+        // Test setting with UriInterface.
+        $uri = new Uri('https://other.example.com/download-backup');
+        $setMethod->invoke($this->command, $uri);
+        $this->assertEquals((string) $uri, (string) $getMethod->invoke($this->command));
+    }
+
+    /**
+     * Test that downloading a backup when file is missing fails with validation error.
+     */
+    public function testPullDatabaseWithMissingFile(): void
+    {
+        $this->setupPullDatabase(true, false, false, true, false, 0, true, true, 'missing');
+        $inputs = self::inputChooseEnvironment();
+
+        $this->expectException(AcquiaCliException::class);
+        $this->expectExceptionMessage('Database backup download failed: file was not created');
+        $this->executeCommand(['--no-scripts' => true], $inputs);
+    }
+
+    /**
+     * Test that downloading a backup with HTTP error status fails with validation error (codebase path).
+     */
+    public function testPullDatabasesWithCodebaseUuidHttpError(): void
+    {
+        $codebaseUuid = '11111111-041c-44c7-a486-7972ed2cafc8';
+        self::SetEnvVars(['AH_CODEBASE_UUID' => $codebaseUuid]);
+
+        // Mock the codebase returned from /codebases/{uuid}.
+        $codebase = $this->getMockCodeBaseResponse();
+        $this->clientProphecy->request('get', '/codebases/' . $codebaseUuid)
+            ->willReturn($codebase);
+
+        // Build one codebase environment (so prompt is skipped).
+        $codebaseEnv = $this->getMockCodeBaseEnvironment();
+        $this->clientProphecy->request('get', '/codebases/' . $codebaseUuid . '/environments')
+            ->willReturn([$codebaseEnv])
+            ->shouldBeCalled();
+
+        $codebaseSites = $this->getMockCodeBaseSites();
+        $this->clientProphecy->request('get', '/codebases/' . $codebaseUuid . '/sites')
+            ->willReturn($codebaseSites);
+        $siteInstance = $this->getMockSiteInstanceResponse();
+
+        $this->clientProphecy->request('get', '/site-instances/8979a8ac-80dc-4df8-b2f0-6be36554a370.3e8ecbec-ea7c-4260-8414-ef2938c859bc')
+            ->willReturn($siteInstance)
+            ->shouldBeCalled();
+        $siteId = '8979a8ac-80dc-4df8-b2f0-6be36554a370';
+        $site = $this->getMockSite();
+        $this->clientProphecy->request('get', '/sites/' . $siteId)
+            ->willReturn($site)
+            ->shouldBeCalled();
+        $siteInstanceDatabase = $this->getMockSiteInstanceDatabaseResponse();
+        $this->clientProphecy->request('get', '/site-instances/8979a8ac-80dc-4df8-b2f0-6be36554a370.3e8ecbec-ea7c-4260-8414-ef2938c859bc/database')
+            ->willReturn($siteInstanceDatabase)
+            ->shouldBeCalled();
+        $createSiteInstanceDatabaseBackup = $this->getMockSiteInstanceDatabaseBackupsResponse('post', '201');
+        $this->clientProphecy->request('post', '/site-instances/8979a8ac-80dc-4df8-b2f0-6be36554a370.3e8ecbec-ea7c-4260-8414-ef2938c859bc/database/backups')
+            ->willReturn($createSiteInstanceDatabaseBackup);
+        $siteInstanceDatabaseBackups = $this->getMockSiteInstanceDatabaseBackupsResponse();
+        $this->clientProphecy->request('get', '/site-instances/8979a8ac-80dc-4df8-b2f0-6be36554a370.3e8ecbec-ea7c-4260-8414-ef2938c859bc/database/backups')
+            ->willReturn($siteInstanceDatabaseBackups->_embedded->items)
+            ->shouldBeCalled();
+
+        $url = "https://environment-service-php.acquia.com/api/environments/d3f7270e-c45f-4801-9308-5e8afe84a323/";
+        $this->mockDownloadCodebaseBackup(
+            EnvironmentTransformer::transformSiteInstanceDatabase(new SiteInstanceDatabaseResponse($siteInstanceDatabase)),
+            $url,
+            EnvironmentTransformer::transformSiteInstanceDatabaseBackup(new SiteInstanceDatabaseBackupResponse($siteInstanceDatabaseBackups->_embedded->items[0])),
+            0,
+            'http_error'
+        );
+
+        $localMachineHelper = $this->mockLocalMachineHelper();
+        $this->mockExecuteMySqlConnect($localMachineHelper, true);
+        $fs = $this->prophet->prophesize(Filesystem::class);
+        $localMachineHelper->getFilesystem()->willReturn($fs)->shouldBeCalled();
+        $fs->remove(Argument::type('string'))->shouldBeCalled();
+        $inputs = self::inputChooseEnvironment();
+
+        try {
+            $this->expectException(AcquiaCliException::class);
+            $this->expectExceptionMessage('Database backup download failed with HTTP status 500');
+            $this->executeCommand([
+                '--no-scripts' => true,
+                '--on-demand' => false,
+            ], $inputs);
+        } finally {
+            self::unsetEnvVars(['AH_CODEBASE_UUID']);
+        }
+    }
+
+    protected function setupPullDatabase(bool $mysqlConnectSuccessful, bool $mockIdeFs = false, bool $onDemand = false, bool $mockGetAcsfSites = true, bool $multiDb = false, int $curlCode = 0, bool $existingBackups = true, bool $onDemandSuccess = true, string $validationError = ''): void
     {
         $applicationsResponse = $this->mockApplicationsRequest();
         $this->mockApplicationRequest();
@@ -336,7 +446,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase
         if ($multiDb) {
             $databaseResponse2 = $databasesResponse[array_search('profserv2', array_column($databasesResponse, 'name'), true)];
             $databaseBackupsResponse2 = $this->mockDatabaseBackupsResponse($selectedEnvironment, $databaseResponse2->name, 1, $existingBackups);
-            $this->mockDownloadBackup($databaseResponse2, $selectedEnvironment, $databaseBackupsResponse2->_embedded->items[0], $curlCode);
+            $this->mockDownloadBackup($databaseResponse2, $selectedEnvironment, $databaseBackupsResponse2->_embedded->items[0], $curlCode, $validationError);
         }
 
         $sshHelper = $this->mockSshHelper();
@@ -358,7 +468,18 @@ class PullDatabaseCommandTest extends PullCommandTestBase
         }
 
         $databaseBackupsResponse = $this->mockDatabaseBackupsResponse($selectedEnvironment, $databaseResponse->name, 1, $existingBackups);
-        $this->mockDownloadBackup($databaseResponse, $selectedEnvironment, $databaseBackupsResponse->_embedded->items[0], $curlCode);
+        $this->mockDownloadBackup($databaseResponse, $selectedEnvironment, $databaseBackupsResponse->_embedded->items[0], $curlCode, $validationError);
+
+        // If there's a validation error, we don't need to mock the rest of the database operations.
+        if ($validationError) {
+            // Only mock filesystem for errors that need it (not 'missing' which throws before any cleanup).
+            if ($validationError !== 'missing') {
+                $fs = $this->prophet->prophesize(Filesystem::class);
+                $localMachineHelper->getFilesystem()->willReturn($fs)->shouldBeCalled();
+                $fs->remove(Argument::type('string'))->shouldBeCalled();
+            }
+            return;
+        }
 
         $fs = $this->prophet->prophesize(Filesystem::class);
         // Set up file system.
@@ -391,15 +512,19 @@ class PullDatabaseCommandTest extends PullCommandTestBase
     {
         $output = new BufferedOutput();
         $progress = null;
-        PullCommandBase::displayDownloadProgress(100, 0, $progress, $output);
+        $method = new \ReflectionMethod(PullCommandBase::class, 'displayDownloadProgress');
+        $args = [100, 0, &$progress, $output];
+        $method->invokeArgs(null, $args);
         $this->assertStringContainsString('0/100 [💧---------------------------]   0%', $output->fetch());
 
         // Need to sleep to prevent the default redraw frequency from skipping display.
         sleep(1);
-        PullCommandBase::displayDownloadProgress(100, 50, $progress, $output);
+        $args = [100, 50, &$progress, $output];
+        $method->invokeArgs(null, $args);
         $this->assertStringContainsString('50/100 [==============💧-------------]  50%', $output->fetch());
 
-        PullCommandBase::displayDownloadProgress(100, 100, $progress, $output);
+        $args = [100, 100, &$progress, $output];
+        $method->invokeArgs(null, $args);
         $this->assertStringContainsString('100/100 [============================] 100%', $output->fetch());
     }
 
@@ -636,5 +761,238 @@ class PullDatabaseCommandTest extends PullCommandTestBase
         $this->assertStringNotContainsString('Choose a database', $output);
 
         self::unsetEnvVars(['AH_CODEBASE_UUID']);
+    }
+
+    /**
+     * Test that getBackupPath returns a valid backup file path.
+     */
+    public function testGetBackupPath(): void
+    {
+        $reflection = new \ReflectionMethod(PullCommandBase::class, 'getBackupPath');
+
+        // Create mock objects for testing the static method call.
+        $environment = (object) ['name' => 'test-env'];
+
+        // Create a proper DatabaseResponse object with all required properties.
+        $databaseData = (object) [
+            'db_host' => 'localhost',
+            'environment' => (object) ['name' => 'test-env'],
+            'flags' => (object) ['default' => true],
+            'id' => '123',
+            'name' => 'test_db',
+            'password' => null,
+            'ssh_host' => null,
+            'url' => null,
+            'user_name' => null,
+        ];
+        $database = new DatabaseResponse($databaseData);
+
+        $backupResponse = (object) ['completedAt' => '2023-01-01T12:00:00.000Z'];
+
+        // Use reflection to invoke the protected static method.
+        $backupPath = $reflection->invoke(null, $environment, $database, $backupResponse);
+
+        $this->assertIsString($backupPath, 'getBackupPath must return a string');
+        $this->assertStringContainsString('.sql.gz', $backupPath, 'Backup path must have .sql.gz extension');
+
+        // On Windows, the filename is a hash, on other platforms it contains env and db names.
+        if (PHP_OS_FAMILY === 'Windows') {
+            // On Windows, verify it contains the temp directory and a hash-based filename.
+            // Normalize path separators for comparison (Windows can use both / and \)
+            $normalizedBackupPath = str_replace('\\', '/', $backupPath);
+            $normalizedTempDir = str_replace('\\', '/', sys_get_temp_dir());
+            $this->assertStringContainsString($normalizedTempDir, $normalizedBackupPath, 'Backup path must be in temp directory');
+            $this->assertMatchesRegularExpression('/[a-f0-9]{8}\.sql\.gz$/', basename($backupPath), 'Windows backup filename must be hash-based');
+        } else {
+            // On non-Windows, verify it contains environment and database names.
+            $this->assertStringContainsString('test-env', $backupPath, 'Backup path must contain environment name');
+            $this->assertStringContainsString('test_db', $backupPath, 'Backup path must contain database name');
+        }
+    }
+
+
+    /**
+     * Test that kills the MethodCallRemoval mutant for validateDownloadedFile method call.
+     * This test ensures the validateDownloadedFile method call cannot be removed without breaking functionality.
+     */
+    public function testMethodCallRemovalMutantKillerForValidateDownloadedFile(): void
+    {
+        // Use the existing 'missing' validation error which specifically tests validateDownloadedFile
+        // This error type simulates a successful download where the file doesn't exist when validated.
+        $this->setupPullDatabase(true, false, false, true, false, 0, true, true, 'missing');
+        $inputs = self::inputChooseEnvironment();
+
+        // This exception is thrown by validateDownloadedFile when file is missing
+        // If the mutant removes the validateDownloadedFile call, this exception won't be thrown.
+        $this->expectException(AcquiaCliException::class);
+        $this->expectExceptionMessage('Database backup download failed: file was not created');
+
+        $this->executeCommand(['--no-scripts' => true], $inputs);
+    }
+
+    /**
+     * Test that downloading a backup with missing file fails with validation error (codebase path).
+     * This kills the MethodCallRemoval mutant for validateDownloadedFile inside validateDownloadResponse.
+     */
+    public function testPullDatabasesWithCodebaseUuidMissingFile(): void
+    {
+        $codebaseUuid = '11111111-041c-44c7-a486-7972ed2cafc8';
+        self::SetEnvVars(['AH_CODEBASE_UUID' => $codebaseUuid]);
+
+        // Mock the codebase returned from /codebases/{uuid}.
+        $codebase = $this->getMockCodeBaseResponse();
+        $this->clientProphecy->request('get', '/codebases/' . $codebaseUuid)
+            ->willReturn($codebase);
+
+        // Build one codebase environment (so prompt is skipped).
+        $codebaseEnv = $this->getMockCodeBaseEnvironment();
+        $this->clientProphecy->request('get', '/codebases/' . $codebaseUuid . '/environments')
+            ->willReturn([$codebaseEnv])
+            ->shouldBeCalled();
+
+        $codebaseSites = $this->getMockCodeBaseSites();
+        $this->clientProphecy->request('get', '/codebases/' . $codebaseUuid . '/sites')
+            ->willReturn($codebaseSites);
+        $siteInstance = $this->getMockSiteInstanceResponse();
+
+        $this->clientProphecy->request('get', '/site-instances/8979a8ac-80dc-4df8-b2f0-6be36554a370.3e8ecbec-ea7c-4260-8414-ef2938c859bc')
+            ->willReturn($siteInstance)
+            ->shouldBeCalled();
+        $siteId = '8979a8ac-80dc-4df8-b2f0-6be36554a370';
+        $site = $this->getMockSite();
+        $this->clientProphecy->request('get', '/sites/' . $siteId)
+            ->willReturn($site)
+            ->shouldBeCalled();
+        $siteInstanceDatabase = $this->getMockSiteInstanceDatabaseResponse();
+        $this->clientProphecy->request('get', '/site-instances/8979a8ac-80dc-4df8-b2f0-6be36554a370.3e8ecbec-ea7c-4260-8414-ef2938c859bc/database')
+            ->willReturn($siteInstanceDatabase)
+            ->shouldBeCalled();
+        $createSiteInstanceDatabaseBackup = $this->getMockSiteInstanceDatabaseBackupsResponse('post', '201');
+        $this->clientProphecy->request('post', '/site-instances/8979a8ac-80dc-4df8-b2f0-6be36554a370.3e8ecbec-ea7c-4260-8414-ef2938c859bc/database/backups')
+            ->willReturn($createSiteInstanceDatabaseBackup);
+        $siteInstanceDatabaseBackups = $this->getMockSiteInstanceDatabaseBackupsResponse();
+        $this->clientProphecy->request('get', '/site-instances/8979a8ac-80dc-4df8-b2f0-6be36554a370.3e8ecbec-ea7c-4260-8414-ef2938c859bc/database/backups')
+            ->willReturn($siteInstanceDatabaseBackups->_embedded->items)
+            ->shouldBeCalled();
+
+        $url = "https://environment-service-php.acquia.com/api/environments/d3f7270e-c45f-4801-9308-5e8afe84a323/";
+        $this->mockDownloadCodebaseBackup(
+            EnvironmentTransformer::transformSiteInstanceDatabase(new SiteInstanceDatabaseResponse($siteInstanceDatabase)),
+            $url,
+            EnvironmentTransformer::transformSiteInstanceDatabaseBackup(new SiteInstanceDatabaseBackupResponse($siteInstanceDatabaseBackups->_embedded->items[0])),
+            0,
+            'missing'
+        );
+
+        $localMachineHelper = $this->mockLocalMachineHelper();
+        $this->mockExecuteMySqlConnect($localMachineHelper, true);
+        $inputs = self::inputChooseEnvironment();
+
+        try {
+            $this->expectException(AcquiaCliException::class);
+            $this->expectExceptionMessage('Database backup download failed: file was not created');
+            $this->executeCommand([
+                '--no-scripts' => true,
+                '--on-demand' => false,
+            ], $inputs);
+        } finally {
+            self::unsetEnvVars(['AH_CODEBASE_UUID']);
+        }
+    }
+
+    /**
+     * Test that HTTP status code 300 is treated as an error (kills GreaterThanOrEqualTo mutant).
+     *
+     * The source code uses `$statusCode >= 300`, and the mutant changes it to `$statusCode > 300`.
+     * A test with status code 300 will pass with `>= 300` (correctly treating it as an error)
+     * but fail with `> 300` (incorrectly treating it as success).
+     */
+    public function testPullDatabasesWithCodebaseUuidHttpStatus300(): void
+    {
+        $codebaseUuid = '11111111-041c-44c7-a486-7972ed2cafc8';
+        self::SetEnvVars(['AH_CODEBASE_UUID' => $codebaseUuid]);
+
+        // Mock the codebase returned from /codebases/{uuid}.
+        $codebase = $this->getMockCodeBaseResponse();
+        $this->clientProphecy->request('get', '/codebases/' . $codebaseUuid)
+            ->willReturn($codebase);
+
+        // Build one codebase environment (so prompt is skipped).
+        $codebaseEnv = $this->getMockCodeBaseEnvironment();
+        $this->clientProphecy->request('get', '/codebases/' . $codebaseUuid . '/environments')
+            ->willReturn([$codebaseEnv])
+            ->shouldBeCalled();
+
+        $codebaseSites = $this->getMockCodeBaseSites();
+        $this->clientProphecy->request('get', '/codebases/' . $codebaseUuid . '/sites')
+            ->willReturn($codebaseSites);
+        $siteInstance = $this->getMockSiteInstanceResponse();
+
+        $this->clientProphecy->request('get', '/site-instances/8979a8ac-80dc-4df8-b2f0-6be36554a370.3e8ecbec-ea7c-4260-8414-ef2938c859bc')
+            ->willReturn($siteInstance)
+            ->shouldBeCalled();
+        $siteId = '8979a8ac-80dc-4df8-b2f0-6be36554a370';
+        $site = $this->getMockSite();
+        $this->clientProphecy->request('get', '/sites/' . $siteId)
+            ->willReturn($site)
+            ->shouldBeCalled();
+        $siteInstanceDatabase = $this->getMockSiteInstanceDatabaseResponse();
+        $this->clientProphecy->request('get', '/site-instances/8979a8ac-80dc-4df8-b2f0-6be36554a370.3e8ecbec-ea7c-4260-8414-ef2938c859bc/database')
+            ->willReturn($siteInstanceDatabase)
+            ->shouldBeCalled();
+        $createSiteInstanceDatabaseBackup = $this->getMockSiteInstanceDatabaseBackupsResponse('post', '201');
+        $this->clientProphecy->request('post', '/site-instances/8979a8ac-80dc-4df8-b2f0-6be36554a370.3e8ecbec-ea7c-4260-8414-ef2938c859bc/database/backups')
+            ->willReturn($createSiteInstanceDatabaseBackup);
+        $siteInstanceDatabaseBackups = $this->getMockSiteInstanceDatabaseBackupsResponse();
+        $this->clientProphecy->request('get', '/site-instances/8979a8ac-80dc-4df8-b2f0-6be36554a370.3e8ecbec-ea7c-4260-8414-ef2938c859bc/database/backups')
+            ->willReturn($siteInstanceDatabaseBackups->_embedded->items)
+            ->shouldBeCalled();
+
+        $url = "https://environment-service-php.acquia.com/api/environments/d3f7270e-c45f-4801-9308-5e8afe84a323/";
+        $this->mockDownloadCodebaseBackup(
+            EnvironmentTransformer::transformSiteInstanceDatabase(new SiteInstanceDatabaseResponse($siteInstanceDatabase)),
+            $url,
+            EnvironmentTransformer::transformSiteInstanceDatabaseBackup(new SiteInstanceDatabaseBackupResponse($siteInstanceDatabaseBackups->_embedded->items[0])),
+            0,
+            '',
+            300
+        );
+
+        $localMachineHelper = $this->mockLocalMachineHelper();
+        $this->mockExecuteMySqlConnect($localMachineHelper, true);
+        $fs = $this->prophet->prophesize(Filesystem::class);
+        $localMachineHelper->getFilesystem()->willReturn($fs)->shouldBeCalled();
+        $fs->remove(Argument::type('string'))->shouldBeCalled();
+        $inputs = self::inputChooseEnvironment();
+
+        try {
+            $this->expectException(AcquiaCliException::class);
+            $this->expectExceptionMessage('Database backup download failed with HTTP status 300');
+            $this->executeCommand([
+                '--no-scripts' => true,
+                '--on-demand' => false,
+            ], $inputs);
+        } finally {
+            self::unsetEnvVars(['AH_CODEBASE_UUID']);
+        }
+    }
+
+    /**
+     * Test that getBackupDownloadUrl, setBackupDownloadUrl, and getBackupPath are protected.
+     * This kills the ProtectedVisibility mutant that changes protected to public.
+     */
+    public function testMethodVisibilityIsProtected(): void
+    {
+        $getBackupDownloadUrl = new \ReflectionMethod(PullCommandBase::class, 'getBackupDownloadUrl');
+        $this->assertTrue($getBackupDownloadUrl->isProtected(), 'getBackupDownloadUrl must be protected');
+
+        $setBackupDownloadUrl = new \ReflectionMethod(PullCommandBase::class, 'setBackupDownloadUrl');
+        $this->assertTrue($setBackupDownloadUrl->isProtected(), 'setBackupDownloadUrl must be protected');
+
+        $getBackupPath = new \ReflectionMethod(PullCommandBase::class, 'getBackupPath');
+        $this->assertTrue($getBackupPath->isProtected(), 'getBackupPath must be protected');
+
+        $displayDownloadProgress = new \ReflectionMethod(PullCommandBase::class, 'displayDownloadProgress');
+        $this->assertTrue($displayDownloadProgress->isProtected(), 'displayDownloadProgress must be protected');
     }
 }

@@ -29,6 +29,7 @@ use Closure;
 use Exception;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\TransferStats;
+use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\UriInterface;
 use Psr\Log\LoggerInterface;
 use React\EventLoop\Loop;
@@ -69,6 +70,26 @@ abstract class PullCommandBase extends CommandBase
     }
 
     /**
+     * Get the backup download URL.
+     */
+    protected function getBackupDownloadUrl(): ?UriInterface
+    {
+        return $this->backupDownloadUrl ?? null;
+    }
+
+    /**
+     * Set the backup download URL.
+     */
+    protected function setBackupDownloadUrl(string|UriInterface $url): void
+    {
+        if (is_string($url)) {
+            $this->backupDownloadUrl = new \GuzzleHttp\Psr7\Uri($url);
+        } else {
+            $this->backupDownloadUrl = $url;
+        }
+    }
+
+    /**
      * @see https://github.com/drush-ops/drush/blob/c21a5a24a295cc0513bfdecead6f87f1a2cf91a2/src/Sql/SqlMysql.php#L168
      * @return string[]
      */
@@ -94,22 +115,27 @@ abstract class PullCommandBase extends CommandBase
         return $tables;
     }
 
-    public static function getBackupPath(object $environment, DatabaseResponse $database, object $backupResponse): string
+    protected static function getBackupPath(object $environment, DatabaseResponse $database, object $backupResponse): string
     {
-        // Databases have a machine name not exposed via the API; we can only
-        // approximately reconstruct it and match the filename you'd get downloading
-        // a backup from Cloud UI.
         if ($database->flags->default) {
             $dbMachineName = $database->name . $environment->name;
         } else {
             $dbMachineName = 'db' . $database->id;
         }
-        $filename = implode('-', [
-            $environment->name,
-            $database->name,
-            $dbMachineName,
-            $backupResponse->completedAt,
-        ]) . '.sql.gz';
+        if (PHP_OS_FAMILY === 'Windows') {
+            // Use short filename to comply with 8.3 format and avoid long path issues.
+            // The hash-based filename still preserves the '.sql.gz' extension.
+            $hash = substr(md5($environment->name . $database->name . $dbMachineName . $backupResponse->completedAt), 0, 8);
+            $filename = $hash . '.sql.gz';
+        } else {
+            $completedAtFormatted = $backupResponse->completedAt;
+            $filename = implode('-', [
+                $environment->name,
+                $database->name,
+                $dbMachineName,
+                $completedAtFormatted,
+            ]) . '.sql.gz';
+        }
         return Path::join(sys_get_temp_dir(), $filename);
     }
 
@@ -261,12 +287,13 @@ abstract class PullCommandBase extends CommandBase
             if ($codebaseUuid) {
                 // Download the backup file directly from the provided URL.
                 $downloadUrl = $backupResponse->links->download->href;
-                $this->httpClient->request('GET', $downloadUrl, [
+                $response = $this->httpClient->request('GET', $downloadUrl, [
                     'progress' => static function (mixed $totalBytes, mixed $downloadedBytes) use (&$progress, $output): void {
                         self::displayDownloadProgress($totalBytes, $downloadedBytes, $progress, $output);
                     },
                     'sink' => $localFilepath,
                 ]);
+                $this->validateDownloadResponse($response, $localFilepath);
                 return $localFilepath;
             }
             $acquiaCloudClient->stream(
@@ -274,6 +301,7 @@ abstract class PullCommandBase extends CommandBase
                 "/environments/$environment->uuid/databases/$database->name/backups/$backupResponse->id/actions/download",
                 $acquiaCloudClient->getOptions()
             );
+            $this->validateDownloadedFile($localFilepath);
             return $localFilepath;
         } catch (RequestException $exception) {
             // Deal with broken SSL certificates.
@@ -308,17 +336,51 @@ abstract class PullCommandBase extends CommandBase
         throw new AcquiaCliException('Could not download backup');
     }
 
-    public function setBackupDownloadUrl(UriInterface $url): void
+    /**
+     * Validates the HTTP response from a database backup download request.
+     *
+     * @param string $localFilepath The local file path where the backup was downloaded
+     * @throws \Acquia\Cli\Exception\AcquiaCliException If the response is invalid
+     */
+    private function validateDownloadResponse(ResponseInterface $response, string $localFilepath): void
     {
-        $this->backupDownloadUrl = $url;
+        $statusCode = $response->getStatusCode();
+
+        // Check for successful HTTP response (any 2xx status).
+        if ($statusCode < 200 || $statusCode >= 300) {
+            // Clean up the potentially corrupted file.
+            if (file_exists($localFilepath)) {
+                $this->localMachineHelper->getFilesystem()->remove($localFilepath);
+            }
+            throw new AcquiaCliException(
+                'Database backup download failed with HTTP status {status}',
+                ['status' => $statusCode]
+            );
+        }
+
+        // Validate the downloaded file.
+        $this->validateDownloadedFile($localFilepath);
     }
 
-    private function getBackupDownloadUrl(): ?UriInterface
+    /**
+     * Validates that the downloaded backup file exists.
+     *
+     * @param string $localFilepath The local file path to validate
+     * @throws \Acquia\Cli\Exception\AcquiaCliException If the file is invalid
+     */
+    private function validateDownloadedFile(string $localFilepath): void
     {
-        return $this->backupDownloadUrl ?? null;
+        // Check if file exists.
+        if (!file_exists($localFilepath)) {
+            throw new AcquiaCliException(
+                'Database backup download failed: file was not created'
+            );
+        }
+
+        // File exists - assume it's valid since it comes from trusted Acquia API.
     }
 
-    public static function displayDownloadProgress(mixed $totalBytes, mixed $downloadedBytes, mixed &$progress, OutputInterface $output): void
+    protected static function displayDownloadProgress(mixed $totalBytes, mixed $downloadedBytes, mixed &$progress, OutputInterface $output): void
     {
         if ($totalBytes > 0 && is_null($progress)) {
             $progress = new ProgressBar($output, $totalBytes);
