@@ -186,7 +186,7 @@ final class CodeStudioWizardCommand extends WizardCommandBase
         $this->checklist->addItem("Creating access token named <comment>$projectAccessTokenName</comment>");
         $projectAccessToken = $this->gitLabClient->projects()
             ->createProjectAccessToken($project['id'], [
-                'expires_at' => new DateTime('+365 days'),
+                'expires_at' => new DateTime('+365 days', new DateTimeZone('UTC')),
                 'name' => $projectAccessTokenName,
                 'scopes' => ['api', 'write_repository'],
             ]);
