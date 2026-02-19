@@ -124,6 +124,26 @@ class CodeStudioWizardCommandTest extends WizardTestBase
                     self::ARG_SECRET => self::$secret,
                 ],
             ],
+            // Application: Drupal_project, PHP 8.5.
+            [
+                [self::getMockedGitLabProject(self::$gitLabProjectId)],
+                [
+                    // Project type: Drupal_project.
+                    0,
+                    // MySQL version: 8.0.
+                    1,
+                    // PHP version: 8.5.
+                    3,
+                    // Do you want to continue?
+                    'y',
+                    // One time push?
+                    'y',
+                ],
+                [
+                    self::ARG_KEY => self::$key,
+                    self::ARG_SECRET => self::$secret,
+                ],
+            ],
             // Application: Node_project, Basic, Node 20.
             [
                 [self::getMockedGitLabProject(self::$gitLabProjectId)],

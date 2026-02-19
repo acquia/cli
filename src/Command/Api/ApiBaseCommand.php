@@ -133,7 +133,6 @@ class ApiBaseCommand extends CommandBase
         if (substr($this->path, 0, 12) === '/translation') {
             $this->mungeResponse($response);
         }
-
         if ($exitCode || !$this->getParamFromInput($input, 'task-wait')) {
             $contents = json_encode($response, JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT);
             $this->output->writeln($contents);
