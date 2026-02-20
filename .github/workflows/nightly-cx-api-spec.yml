@@ -1,0 +1,60 @@
+name: Nightly Sync cx-api-spec
+
+on:
+  schedule:
+    - cron: '0 3 * * *' # Runs nightly at 3am UTC
+  workflow_dispatch:
+
+jobs:
+  sync-cx-api-spec:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - name: Checkout cli repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Checkout cx-api-spec repo
+        uses: actions/checkout@v4
+        with:
+          repository: acquia/cx-api-spec
+          path: var/cx-api-spec
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*'
+
+      - name: Install dependencies and build spec
+        run: |
+          cd var/cx-api-spec
+          npm install
+          make install
+          make spec
+
+      - name: Copy acquia-spec.json to cli repo
+        run: |
+          cp var/cx-api-spec/dist/spec/acquia-spec-prerelease.json assets/acquia-spec.json
+          git -C var/cx-api-spec rev-parse HEAD > assets/acquia-spec.version
+
+      - name: Check for changes
+        id: diff
+        run: |
+          git diff --quiet assets/acquia-spec.json || echo "changed=true" >> $GITHUB_ENV
+
+      - name: Create PR if changes detected and no PR exists
+        if: env.changed == 'true'
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git checkout -b nightly/cx-api-spec-update
+          git add assets/acquia-spec.json
+          git commit -m "chore: nightly sync acquia-spec.json from cx-api-spec"
+          git push --set-upstream origin nightly/cx-api-spec-update
+          gh pr list --search "acquia-spec.json" --state open --json number | grep -q "number" || \
+          gh pr create --title "chore: nightly sync acquia-spec.json from cx-api-spec" --body "Automated update from cx-api-spec." --base main --head nightly/cx-api-spec-update
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
