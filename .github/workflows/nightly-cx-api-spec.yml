@@ -16,11 +16,12 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Checkout cx-api-spec repo
+      - name: Checkout cx-api-spec repo with custom user
         uses: actions/checkout@v4
         with:
           repository: acquia/cx-api-spec
           path: var/cx-api-spec
+          token: ${{ secrets.CX_API_SPEC_PAT }}
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -57,4 +58,3 @@ jobs:
           gh pr create --title "chore: nightly sync acquia-spec.json from cx-api-spec" --body "Automated update from cx-api-spec." --base main --head nightly/cx-api-spec-update
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
