@@ -130,7 +130,7 @@ class ApiBaseCommand extends CommandBase
             $exitCode = 1;
         }
 
-        if (substr($this->path, 0, 12) === '/translation') {
+        if (substr($this->path, 0, 12) === '/translation' || $this->isMeoCommand()) {
             $this->mungeResponse($response);
         }
         if ($exitCode || !$this->getParamFromInput($input, 'task-wait')) {
@@ -501,5 +501,23 @@ class ApiBaseCommand extends CommandBase
             return $array;
         }
         return $this->doCastParamType('array', $originalValue);
+    }
+
+    /**
+     * Check if this command is one of the MEO commands that should have _links removed.
+     */
+    private function isMeoCommand(): bool
+    {
+        $commandName = $this->getName();
+        $meoCommands = [
+            'api:codebases:sites-list',
+            'api:environments:sites-list',
+            'api:site-instances:find',
+            'api:site-instances:database',
+            'api:site-instances:database:backups',
+            'api:site-instances:domains',
+            'api:site-instances:domain:add',
+        ];
+        return in_array($commandName, $meoCommands, true);
     }
 }
