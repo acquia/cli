@@ -148,11 +148,14 @@ class ApiBaseCommand extends CommandBase
         if (is_object($response) && property_exists($response, '_links')) {
             unset($response->_links);
         }
-        foreach ($response as $value) {
-            if (property_exists($value, '_links')) {
+        foreach ($response as &$value) {
+            if (is_object($value) && property_exists($value, '_links')) {
                 unset($value->_links);
+            } elseif (is_array($value) && array_key_exists('_links', $value)) {
+                unset($value['_links']);
             }
         }
+        unset($value);
     }
 
     public function setMethod(string $method): void
