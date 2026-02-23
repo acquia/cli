@@ -963,4 +963,110 @@ EOD;
         $this->assertArrayNotHasKey('_links', $decoded['meta']);
         $this->assertEquals(10, $decoded['meta']['count']);
     }
+
+    /**
+     * Mutation test: MEO commands must remove _links from the response.
+     * Kills mutants that make isMeoCommand() return false or skip mungeResponse().
+     *
+     * When isMeoCommand() returns true, mungeResponse() is called and _links are removed.
+     * If a mutant makes isMeoCommand() return false, _links would remain and this assertion fails.
+     */
+    public function testMeoCommandRemovesLinksFromResponse(): void
+    {
+        $this->clientProphecy->addOption('headers', ['Accept' => 'application/hal+json, version=2'])
+            ->shouldBeCalled();
+
+        $item1 = (object)[
+            'id' => 1,
+            'name' => 'site1',
+            '_links' => (object)['self' => (object)['href' => '/api/site/1']],
+        ];
+        $mockResponse = [$item1];
+
+        $this->command = $this->getApiCommandByName('api:codebases:sites-list');
+        $this->clientProphecy->request(
+            $this->command->getMethod(),
+            '/codebases/test-codebase-uuid/sites'
+        )
+            ->willReturn($mockResponse)
+            ->shouldBeCalled();
+
+        $this->executeCommand(['codebaseId' => 'test-codebase-uuid']);
+
+        $output = $this->getDisplay();
+        $decoded = json_decode($output, true);
+
+        $this->assertIsArray($decoded);
+        $this->assertArrayNotHasKey('_links', $decoded[0], 'MEO command must remove _links from response');
+        $this->assertEquals(1, $decoded[0]['id']);
+        $this->assertEquals('site1', $decoded[0]['name']);
+    }
+
+    /**
+     * Mutation test: non-MEO commands must NOT remove _links.
+     * Ensures the MEO branch is not taken for other commands.
+     */
+    public function testNonMeoCommandPreservesLinksInResponse(): void
+    {
+        $this->clientProphecy->addOption('headers', ['Accept' => 'application/hal+json, version=2'])
+            ->shouldBeCalled();
+
+        $item1 = (object)[
+            'id' => 1,
+            'name' => 'key1',
+            '_links' => (object)['self' => (object)['href' => '/api/ssh-key/1']],
+        ];
+        $mockResponse = [$item1];
+
+        $this->command = $this->getApiCommandByName('api:accounts:ssh-keys-list');
+        $this->clientProphecy->request($this->command->getMethod(), $this->command->getPath())
+            ->willReturn($mockResponse)
+            ->shouldBeCalled();
+
+        $this->executeCommand();
+
+        $output = $this->getDisplay();
+        $decoded = json_decode($output, true);
+
+        $this->assertIsArray($decoded);
+        $this->assertCount(1, $decoded);
+        $this->assertArrayHasKey('_links', $decoded[0], 'Non-MEO command must preserve _links');
+    }
+
+    /**
+     * Mutation test: mungeResponse must remove top-level _links on an object.
+     * Kills mutants that skip the top-level unset in mungeResponse().
+     *
+     * Uses api:codebases:sites-list (MEO command with no environmentId) to avoid
+     * environment alias validation that would require extra API mocks.
+     */
+    public function testMeoCommandRemovesTopLevelLinksFromObjectResponse(): void
+    {
+        $this->clientProphecy->addOption('headers', ['Accept' => 'application/hal+json, version=2'])
+            ->shouldBeCalled();
+
+        $mockResponse = (object)[
+            'id' => 'site-123',
+            'name' => 'My Site',
+            '_links' => (object)['self' => (object)['href' => '/api/sites/123']],
+        ];
+
+        $this->command = $this->getApiCommandByName('api:codebases:sites-list');
+        $this->clientProphecy->request(
+            'get',
+            '/codebases/test-codebase-uuid/sites'
+        )
+            ->willReturn($mockResponse)
+            ->shouldBeCalled();
+
+        $this->executeCommand(['codebaseId' => 'test-codebase-uuid']);
+
+        $output = $this->getDisplay();
+        $decoded = json_decode($output, true);
+
+        $this->assertIsArray($decoded);
+        $this->assertArrayNotHasKey('_links', $decoded, 'MEO command must remove top-level _links');
+        $this->assertEquals('site-123', $decoded['id']);
+        $this->assertEquals('My Site', $decoded['name']);
+    }
 }
