@@ -143,7 +143,7 @@ class ApiBaseCommand extends CommandBase
         return $success ? Command::SUCCESS : Command::FAILURE;
     }
 
-    private function mungeResponse(mixed $response): void
+    private function mungeResponse(mixed &$response): void
     {
         if (is_object($response) && property_exists($response, '_links')) {
             unset($response->_links);

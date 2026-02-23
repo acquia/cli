@@ -1069,4 +1069,55 @@ EOD;
         $this->assertEquals('site-123', $decoded['id']);
         $this->assertEquals('My Site', $decoded['name']);
     }
+
+    /**
+     * Mutation test: mungeResponse must remove _links from array items (not just objects).
+     * Kills LogicalAnd mutant (line 152): is_object($value) && property_exists → || would call
+     * property_exists() on arrays and throw TypeError.
+     * Kills LogicalAndSingleSubExprNegation mutant (line 154): array_key_exists → !array_key_exists
+     * would skip removal when _links exists, leaving it in the output.
+     *
+     * Some MEO endpoints return top-level array responses (array of arrays). When foreach iterates,
+     * $value is an array - we must use array_key_exists for arrays, not property_exists.
+     */
+    public function testMeoCommandRemovesLinksFromArrayItemsInResponse(): void
+    {
+        $this->clientProphecy->addOption('headers', ['Accept' => 'application/hal+json, version=2'])
+            ->shouldBeCalled();
+
+        // Response: top-level array of arrays (each with _links). When foreach iterates,
+        // $value is each inner array - must use array_key_exists, not property_exists.
+        $mockResponse = [
+            [
+                'id' => 1,
+                'name' => 'site1',
+                '_links' => ['self' => ['href' => '/api/site/1']],
+            ],
+            [
+                'id' => 2,
+                'name' => 'site2',
+                '_links' => ['self' => ['href' => '/api/site/2']],
+            ],
+        ];
+
+        $this->command = $this->getApiCommandByName('api:codebases:sites-list');
+        $this->clientProphecy->request(
+            $this->command->getMethod(),
+            '/codebases/test-codebase-uuid/sites'
+        )
+            ->willReturn($mockResponse)
+            ->shouldBeCalled();
+
+        $this->executeCommand(['codebaseId' => 'test-codebase-uuid']);
+
+        $output = $this->getDisplay();
+        $decoded = json_decode($output, true);
+
+        $this->assertIsArray($decoded);
+        $this->assertCount(2, $decoded);
+        $this->assertArrayNotHasKey('_links', $decoded[0], 'MEO command must remove _links from array items');
+        $this->assertArrayNotHasKey('_links', $decoded[1], 'MEO command must remove _links from array items');
+        $this->assertEquals(1, $decoded[0]['id']);
+        $this->assertEquals('site2', $decoded[1]['name']);
+    }
 }
