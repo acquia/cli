@@ -155,7 +155,6 @@ class ApiBaseCommand extends CommandBase
                 unset($value['_links']);
             }
         }
-        unset($value);
     }
 
     public function setMethod(string $method): void
