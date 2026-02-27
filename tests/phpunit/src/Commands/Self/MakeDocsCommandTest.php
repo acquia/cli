@@ -36,28 +36,7 @@ class MakeDocsCommandTest extends CommandTestBase
     }
 
     /**
-     * Kill FalseValue mutation ($command['hidden'] ?? false -> ?? true).
-     * Commands without a 'hidden' key must be treated as visible (not hidden).
-     */
-    public function testIsCommandHiddenInDocsTreatsMissingHiddenAsVisible(): void
-    {
-        $command = ['name' => 'list', 'usage' => ['list']];
-        $this->assertFalse(
-            MakeDocsCommand::isCommandHiddenInDocs($command),
-            'Missing "hidden" key must be treated as visible (false); mutation ?? true would exclude these'
-        );
-    }
-
-    /**
-     * Commands with 'hidden' => true must be excluded from docs.
-     */
-    public function testIsCommandHiddenInDocsReturnsTrueWhenHidden(): void
-    {
-        $this->assertTrue(MakeDocsCommand::isCommandHiddenInDocs(['name' => 'x', 'hidden' => true]));
-    }
-
-    /**
-     * Kill Coalesce mutation (false ?? $command['hidden']): hidden commands must be excluded.
+     * Hidden commands must be excluded from dump (not in index, no file).
      * When 'hidden' is true the command must be skipped (not in index, no file).
      */
     public function testMakeDocsCommandDumpExcludesHiddenCommands(): void

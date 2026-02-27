@@ -43,7 +43,7 @@ final class MakeDocsCommand extends CommandBase
         $commands = json_decode($buffer->fetch(), true);
         $index = [];
         foreach ($commands['commands'] as $command) {
-            if (self::isCommandHiddenInDocs($command)) {
+            if (array_key_exists('hidden', $command) && $command['hidden']) {
                 continue;
             }
             $filename = $command['name'] . '.json';
@@ -58,16 +58,5 @@ final class MakeDocsCommand extends CommandBase
         }
         file_put_contents("$docs_dir/index.json", json_encode($index));
         return Command::SUCCESS;
-    }
-
-    /**
-     * Whether the command should be excluded from docs (hidden).
-     * Missing 'hidden' key is treated as visible (included).
-     *
-     * @param array<string, mixed> $command
-     */
-    public static function isCommandHiddenInDocs(array $command): bool
-    {
-        return $command['hidden'] ?? false;
     }
 }
