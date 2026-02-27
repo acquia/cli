@@ -43,7 +43,6 @@ class ApiCommandHelperTest extends CommandTestBase
     {
         $helper = new ApiCommandHelper($this->logger);
         $ref = new ReflectionMethod(ApiCommandHelper::class, 'generateApiListCommands');
-        $ref->setAccessible(true);
         return $ref->invoke($helper, $apiCommands, $commandPrefix, $this->getCommandFactory());
     }
 
