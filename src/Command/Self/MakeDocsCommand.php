@@ -43,7 +43,7 @@ final class MakeDocsCommand extends CommandBase
         $commands = json_decode($buffer->fetch(), true);
         $index = [];
         foreach ($commands['commands'] as $command) {
-            if ($command['definition']['hidden'] ?? false) {
+            if (array_key_exists('hidden', $command) && $command['hidden']) {
                 continue;
             }
             $filename = $command['name'] . '.json';
