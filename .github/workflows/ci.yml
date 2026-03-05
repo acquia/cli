@@ -131,7 +131,7 @@ jobs:
           ./bin/acli
           composer box-compile
       - name: Store artifact in Actions
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: acli.phar
           path: var/acli.phar
@@ -165,7 +165,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - name: Download acli.phar artifact
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: acli.phar
       - name: "Download SPC and phpmicro"
@@ -181,7 +181,7 @@ jobs:
           chmod +x acli
           tar -czvf native-acli-${{ matrix.platform }}.tar.gz acli
       - name: "Upload Artifact"
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           path: acli
           name: native-acli-${{ matrix.platform }}
