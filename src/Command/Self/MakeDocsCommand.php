@@ -18,7 +18,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 final class MakeDocsCommand extends CommandBase
 {
     /** Commands excluded from public docs (IDE-only; hidden when not in AH IDE per AcquiaDrupalEnvironmentDetector::isAhIdeEnv()). */
-    private const DOCS_EXCLUDED_COMMANDS = [
+    private const DOCS_INCLUDED_COMMANDS = [
         'ide:php-version',
         'ide:service-restart',
         'ide:service-start',
@@ -55,7 +55,7 @@ final class MakeDocsCommand extends CommandBase
         $commands = json_decode($buffer->fetch(), true);
         $index = [];
         foreach ($commands['commands'] as $command) {
-            if (array_key_exists('hidden', $command) && $command['hidden'] && !in_array($command['name'], self::DOCS_EXCLUDED_COMMANDS, true)) {
+            if (array_key_exists('hidden', $command) && $command['hidden'] && !in_array($command['name'], self::DOCS_INCLUDED_COMMANDS, true)) {
                 continue;
             }
             $filename = $command['name'] . '.json';
