@@ -21,6 +21,7 @@ final class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase
     {
         $this
             ->setHidden(!CommandBase::isAcquiaCloudIde());
+        $this->appendHelp(CommandBase::getIdeHelperText());
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
