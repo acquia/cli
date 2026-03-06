@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Acquia\Cli\Command\Ide;
 
+use Acquia\Cli\Command\CommandBase;
 use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -25,6 +26,7 @@ final class IdeServiceRestartCommand extends IdeCommandBase
             ->addUsage('apache')
             ->addUsage('mysql')
             ->setHidden(!AcquiaDrupalEnvironmentDetector::isAhIdeEnv());
+        $this->appendHelp(CommandBase::getIdeHelperText());
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int

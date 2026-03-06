@@ -26,6 +26,7 @@ final class IdeShareCommand extends CommandBase
         $this
             ->addOption('regenerate', '', InputOption::VALUE_NONE, 'regenerate the share code')
             ->setHidden(!AcquiaDrupalEnvironmentDetector::isAhIdeEnv());
+        $this->appendHelp(CommandBase::getIdeHelperText());
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int

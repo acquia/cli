@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Acquia\Cli\Command\Ide;
 
+use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -22,6 +23,7 @@ final class IdePhpVersionCommand extends IdeCommandBase
         $this
             ->addArgument('version', InputArgument::REQUIRED, 'The PHP version')
             ->setHidden(!AcquiaDrupalEnvironmentDetector::isAhIdeEnv());
+        $this->appendHelp(CommandBase::getIdeHelperText());
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int

@@ -532,10 +532,11 @@ class ApiCommandHelper
                 continue;
             }
             $namespace = $commandNameParts[1];
-            if (!array_key_exists($namespace, $apiListCommands)) {
+            $name = $commandPrefix . ':' . $namespace;
+            $hasVisibleCommand = $this->namespaceHasHidddenCommand($apiCommands, $namespace);
+            if (!array_key_exists($name, $apiListCommands) && $hasVisibleCommand) {
                 /** @var \Acquia\Cli\Command\Acsf\AcsfListCommand|\Acquia\Cli\Command\Api\ApiListCommand $command */
                 $command = $commandFactory->createListCommand();
-                $name = $commandPrefix . ':' . $namespace;
                 $command->setName($name);
                 $command->setNamespace($name);
                 $command->setAliases([]);
@@ -544,6 +545,18 @@ class ApiCommandHelper
             }
         }
         return $apiListCommands;
+    }
+
+    /**
+     * Whether any command in the given namespace is visible (not hidden).
+     */
+    private function namespaceHasHidddenCommand(array $apiCommands, string $namespace): bool
+    {
+        // If namespace is in array sites-instance,sites,environment-v3 then only return true if the command is not hidden and the command name starts with the namespace.
+        if (in_array($namespace, ['sites-instance', 'sites', 'environment-v3'])) {
+            return false;
+        }
+        return true;
     }
 
     /**

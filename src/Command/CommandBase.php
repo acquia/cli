@@ -152,6 +152,14 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
         $this->setHelp($helpText);
     }
 
+    /**
+     * Helper text for IDE-only commands.
+     */
+    public static function getIdeHelperText(): string
+    {
+        return 'This command will only work in an IDE terminal.';
+    }
+
     protected static function getUuidRegexConstraint(): Regex
     {
         return new Regex([
