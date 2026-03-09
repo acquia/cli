@@ -60,4 +60,13 @@ class IdeWizardCreateSshKeyCommandTest extends IdeWizardTestBase
     {
         $this->runTestPromptWaitForSshReturnsFalse();
     }
+
+    /**
+     * @group brokenProphecy
+     */
+    public function testIdeWizardCreateSshKeyCommandHelpContainsIdeHelperText(): void
+    {
+        $help = $this->command->getHelp();
+        $this->assertStringContainsString('This command will only work in an IDE terminal.', $help);
+    }
 }

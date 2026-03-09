@@ -94,6 +94,12 @@ class IdePhpVersionCommandTest extends CommandTestBase
         ]);
     }
 
+    public function testIdePhpVersionCommandHelpContainsIdeHelperText(): void
+    {
+        $help = $this->command->getHelp();
+        $this->assertStringContainsString('This command will only work in an IDE terminal.', $help);
+    }
+
     protected function mockRestartPhp(ObjectProphecy|LocalMachineHelper $localMachineHelper): ObjectProphecy
     {
         $process = $this->prophet->prophesize(Process::class);

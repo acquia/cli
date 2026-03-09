@@ -82,4 +82,10 @@ class IdeXdebugToggleCommandTest extends CommandTestBase
         $this->assertStringContainsString(';zend_extension=xdebug.so', file_get_contents($this->xdebugFilePath));
         $this->assertStringContainsString("Xdebug PHP extension disabled", $this->getDisplay());
     }
+
+    public function testIdeXdebugToggleCommandHelpContainsIdeHelperText(): void
+    {
+        $help = $this->command->getHelp();
+        $this->assertStringContainsString('This command will only work in an IDE terminal.', $help);
+    }
 }

@@ -45,4 +45,10 @@ class IdeServiceStopCommandTest extends CommandTestBase
         $this->expectExceptionMessage('Specify a valid service name');
         $this->executeCommand(['service' => 'rambulator'], []);
     }
+
+    public function testIdeServiceStopCommandHelpContainsIdeHelperText(): void
+    {
+        $help = $this->command->getHelp();
+        $this->assertStringContainsString('This command will only work in an IDE terminal.', $help);
+    }
 }
