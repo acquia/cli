@@ -76,12 +76,12 @@ class ApiCommandHelperTest extends CommandTestBase
         $apiCommands = [
             $this->createMockApiCommand('api:accounts:list', false),
             $this->createMockApiCommand('api:accounts:create', false),
-            // Excluded namespaces (sites-instance, sites, environment-v3) must not get a list command.
-            $this->createMockApiCommand('api:sites-instance:list', false),
+            // Excluded namespaces (site-instance, sites, environments-v3) must not get a list command.
+            $this->createMockApiCommand('api:site-instance:list', false),
         ];
         $listCommands = $this->generateApiListCommands($apiCommands);
         $this->assertCount(1, $listCommands);
         $this->assertArrayHasKey('api:accounts', $listCommands);
-        $this->assertArrayNotHasKey('api:sites-instance', $listCommands);
+        $this->assertArrayNotHasKey('api:site-instance', $listCommands);
     }
 }

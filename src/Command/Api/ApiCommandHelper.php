@@ -553,7 +553,7 @@ class ApiCommandHelper
     private function namespaceHasHidddenCommand(array $apiCommands, string $namespace): bool
     {
         // If namespace is in array sites-instance,sites,environment-v3 then only return true if the command is not hidden and the command name starts with the namespace.
-        if (in_array($namespace, ['sites-instance', 'sites', 'environment-v3'])) {
+        if (in_array($namespace, ['site-instances', 'site-instance', 'sites', 'environment-v3', 'environments-v3'])) {
             return false;
         }
         return true;
