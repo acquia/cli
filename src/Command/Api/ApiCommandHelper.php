@@ -533,7 +533,7 @@ class ApiCommandHelper
             }
             $namespace = $commandNameParts[1];
             $name = $commandPrefix . ':' . $namespace;
-            $hasVisibleCommand = $this->namespaceHasHidddenCommand($apiCommands, $namespace);
+            $hasVisibleCommand = $this->namespaceHasVisibleCommand($apiCommands, $namespace);
             if (!array_key_exists($name, $apiListCommands) && $hasVisibleCommand) {
                 /** @var \Acquia\Cli\Command\Acsf\AcsfListCommand|\Acquia\Cli\Command\Api\ApiListCommand $command */
                 $command = $commandFactory->createListCommand();
@@ -548,15 +548,39 @@ class ApiCommandHelper
     }
 
     /**
-     * Whether any command in the given namespace is visible (not hidden).
+     * Whether any API command in the given namespace is visible (not hidden).
+     *
+     * List commands (api:{namespace}) are only registered when at least one sub-command
+     * under that namespace exists and is visible. If every sub-command is hidden
+     * (deprecated/pre-release), the namespace list is omitted.
+     *
+     * @param ApiBaseCommand[] $apiCommands
      */
-    private function namespaceHasHidddenCommand(array $apiCommands, string $namespace): bool
+    private function namespaceHasVisibleCommand(array $apiCommands, string $namespace): bool
     {
-        // If namespace is in array sites-instance,sites,environment-v3 then only return true if the command is not hidden and the command name starts with the namespace.
-        if (in_array($namespace, ['site-instances', 'site-instance', 'sites', 'environment-v3', 'environments-v3'])) {
+        $commandsInNamespace = [];
+        foreach ($apiCommands as $apiCommand) {
+            $commandNameParts = explode(':', $apiCommand->getName());
+            if (count($commandNameParts) < 3) {
+                continue;
+            }
+            if ($commandNameParts[1] !== $namespace) {
+                continue;
+            }
+            $commandsInNamespace[] = $apiCommand;
+        }
+
+        if ($commandsInNamespace === []) {
             return false;
         }
-        return true;
+
+        foreach ($commandsInNamespace as $command) {
+            if (!$command->isHidden()) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

@@ -76,12 +76,37 @@ class ApiCommandHelperTest extends CommandTestBase
         $apiCommands = [
             $this->createMockApiCommand('api:accounts:list', false),
             $this->createMockApiCommand('api:accounts:create', false),
-            // Excluded namespaces (site-instance, sites, environments-v3) must not get a list command.
-            $this->createMockApiCommand('api:site-instance:list', false),
         ];
         $listCommands = $this->generateApiListCommands($apiCommands);
         $this->assertCount(1, $listCommands);
         $this->assertArrayHasKey('api:accounts', $listCommands);
-        $this->assertArrayNotHasKey('api:site-instance', $listCommands);
+    }
+
+    /**
+     * namespaceHasVisibleCommand must scan the full command list (continue on mismatch).
+     * If continue were replaced with break, a visible command after another namespace would be missed.
+     */
+    public function testNamespaceVisibleCommandAfterOtherNamespaceStillGetsListCommand(): void
+    {
+        $apiCommands = [
+            $this->createMockApiCommand('api:mix:first', true),
+            $this->createMockApiCommand('api:other:list', false),
+            $this->createMockApiCommand('api:mix:second', false),
+        ];
+        $listCommands = $this->generateApiListCommands($apiCommands);
+        $this->assertArrayHasKey('api:mix', $listCommands, 'mix has a visible command after other namespace; break would skip it.');
+    }
+
+    /**
+     * When every sub-command under a namespace is hidden, omit the namespace list command.
+     */
+    public function testNamespaceWithAllHiddenCommandsDoesNotGetListCommand(): void
+    {
+        $apiCommands = [
+            $this->createMockApiCommand('api:baz:list', true),
+            $this->createMockApiCommand('api:baz:create', true),
+        ];
+        $listCommands = $this->generateApiListCommands($apiCommands);
+        $this->assertArrayNotHasKey('api:baz', $listCommands);
     }
 }
