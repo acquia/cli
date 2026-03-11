@@ -532,10 +532,11 @@ class ApiCommandHelper
                 continue;
             }
             $namespace = $commandNameParts[1];
-            if (!array_key_exists($namespace, $apiListCommands)) {
+            $name = $commandPrefix . ':' . $namespace;
+            $hasVisibleCommand = $this->namespaceHasVisibleCommand($apiCommands, $namespace);
+            if (!array_key_exists($name, $apiListCommands) && $hasVisibleCommand) {
                 /** @var \Acquia\Cli\Command\Acsf\AcsfListCommand|\Acquia\Cli\Command\Api\ApiListCommand $command */
                 $command = $commandFactory->createListCommand();
-                $name = $commandPrefix . ':' . $namespace;
                 $command->setName($name);
                 $command->setNamespace($name);
                 $command->setAliases([]);
@@ -544,6 +545,42 @@ class ApiCommandHelper
             }
         }
         return $apiListCommands;
+    }
+
+    /**
+     * Whether any API command in the given namespace is visible (not hidden).
+     *
+     * List commands (api:{namespace}) are only registered when at least one sub-command
+     * under that namespace exists and is visible. If every sub-command is hidden
+     * (deprecated/pre-release), the namespace list is omitted.
+     *
+     * @param ApiBaseCommand[] $apiCommands
+     */
+    private function namespaceHasVisibleCommand(array $apiCommands, string $namespace): bool
+    {
+        $commandsInNamespace = [];
+        foreach ($apiCommands as $apiCommand) {
+            $commandNameParts = explode(':', $apiCommand->getName());
+            if (count($commandNameParts) < 3) {
+                continue;
+            }
+            if ($commandNameParts[1] !== $namespace) {
+                continue;
+            }
+            $commandsInNamespace[] = $apiCommand;
+        }
+
+        if ($commandsInNamespace === []) {
+            return false;
+        }
+
+        foreach ($commandsInNamespace as $command) {
+            if (!$command->isHidden()) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

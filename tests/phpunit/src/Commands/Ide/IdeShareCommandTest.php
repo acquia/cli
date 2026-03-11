@@ -56,4 +56,10 @@ class IdeShareCommandTest extends CommandTestBase
         $this->assertStringContainsString('Your IDE Share URL: ', $output);
         $this->assertStringNotContainsString($this->shareCode, $output);
     }
+
+    public function testIdeShareCommandHelpContainsIdeHelperText(): void
+    {
+        $help = $this->command->getHelp();
+        $this->assertStringContainsString('This command will only work in an IDE terminal.', $help);
+    }
 }

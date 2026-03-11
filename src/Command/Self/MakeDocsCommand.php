@@ -17,6 +17,18 @@ use Symfony\Component\Console\Output\OutputInterface;
 #[AsCommand(name: 'self:make-docs', description: 'Generate documentation for all ACLI commands', hidden: true)]
 final class MakeDocsCommand extends CommandBase
 {
+    /** Commands excluded from public docs (IDE-only; hidden when not in AH IDE per AcquiaDrupalEnvironmentDetector::isAhIdeEnv()). */
+    private const DOCS_INCLUDED_COMMANDS = [
+        'ide:php-version',
+        'ide:service-restart',
+        'ide:service-start',
+        'ide:service-stop',
+        'ide:share',
+        'ide:wizard:ssh-key:create-upload',
+        'ide:wizard:ssh-key:delete',
+        'ide:xdebug-toggle',
+    ];
+
     protected function configure(): void
     {
         $this->addOption('format', 'f', InputOption::VALUE_OPTIONAL, 'The format to describe the docs in.', 'rst');
@@ -43,7 +55,7 @@ final class MakeDocsCommand extends CommandBase
         $commands = json_decode($buffer->fetch(), true);
         $index = [];
         foreach ($commands['commands'] as $command) {
-            if ($command['definition']['hidden'] ?? false) {
+            if (array_key_exists('hidden', $command) && $command['hidden'] && !in_array($command['name'], self::DOCS_INCLUDED_COMMANDS, true)) {
                 continue;
             }
             $filename = $command['name'] . '.json';
