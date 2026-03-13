@@ -86,12 +86,6 @@ class ApiCommandHelper
 
         // Parameters to be used in the request body.
         if (array_key_exists('requestBody', $schema)) {
-            // Resolve $ref in requestBody if present.
-            if (array_key_exists('$ref', $schema['requestBody'])) {
-                $parts = explode('/', $schema['requestBody']['$ref']);
-                $paramKey = end($parts);
-                $schema['requestBody'] = $acquiaCloudSpec['components']['requestBodies'][$paramKey];
-            }
             [
                 $bodyInputDefinition,
                 $requestBodyParamUsageSuffix,
