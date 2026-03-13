@@ -86,6 +86,12 @@ class ApiCommandHelper
 
         // Parameters to be used in the request body.
         if (array_key_exists('requestBody', $schema)) {
+            // Resolve $ref in requestBody if present.
+            if (array_key_exists('$ref', $schema['requestBody'])) {
+                $parts = explode('/', $schema['requestBody']['$ref']);
+                $paramKey = end($parts);
+                $schema['requestBody'] = $acquiaCloudSpec['components']['requestBodies'][$paramKey];
+            }
             [
                 $bodyInputDefinition,
                 $requestBodyParamUsageSuffix,
@@ -93,7 +99,7 @@ class ApiCommandHelper
             $requestBodySchema = $this->getRequestBodyFromParameterSchema($schema, $acquiaCloudSpec);
             /** @var \Symfony\Component\Console\Input\InputOption|InputArgument $parameterDefinition */
             foreach ($bodyInputDefinition as $parameterDefinition) {
-                $parameterSpecification = $this->getPropertySpecFromRequestBodyParam($requestBodySchema, $parameterDefinition);
+                $parameterSpecification = $this->getPropertySpecFromRequestBodyParam($requestBodySchema, $parameterDefinition, $acquiaCloudSpec);
                 $command->addPostParameter($parameterDefinition->getName(), $parameterSpecification);
             }
             $usage .= $requestBodyParamUsageSuffix;
@@ -125,6 +131,12 @@ class ApiCommandHelper
             $requestBodySchema['properties'] = [];
         }
         foreach ($requestBodySchema['properties'] as $propKey => $paramDefinition) {
+            // Resolve $ref inside individual property definitions.
+            if (array_key_exists('$ref', $paramDefinition)) {
+                $parts = explode('/', $paramDefinition['$ref']);
+                $paramKey = end($parts);
+                $paramDefinition = $this->getParameterSchemaFromSpec($paramKey, $acquiaCloudSpec);
+            }
             $isRequired = array_key_exists('required', $requestBodySchema) && in_array($propKey, $requestBodySchema['required'], true);
             $propKey = self::renameParameter($propKey);
 
@@ -168,9 +180,17 @@ class ApiCommandHelper
     private function addPostArgumentUsageToExample(mixed $requestBody, mixed $propKey, mixed $paramDefinition, string $type, string $usage, array $acquiaCloudSpec): string
     {
         $requestBodyContent = $this->getRequestBodyContent($requestBody, $acquiaCloudSpec);
-
+        // Example may live directly on the content-type object (inline requestBody),
+        // or nested inside schema (e.g. $ref-resolved requestBodies).
         if (array_key_exists('example', $requestBodyContent)) {
             $example = $requestBodyContent['example'];
+        } elseif (array_key_exists('schema', $requestBodyContent) && array_key_exists('example', $requestBodyContent['schema'])) {
+            $example = $requestBodyContent['schema']['example'];
+        } else {
+            return $usage;
+        }
+
+        if ($example) {
             $prefix = $type === 'argument' ? '' : "--$propKey=";
             if (array_key_exists($propKey, $example)) {
                 if (!array_key_exists('type', $paramDefinition)) {
@@ -482,10 +502,20 @@ class ApiCommandHelper
         return $requestBodySchema;
     }
 
-    private function getPropertySpecFromRequestBodyParam(array $requestBodySchema, mixed $parameterDefinition): mixed
+    private function getPropertySpecFromRequestBodyParam(array $requestBodySchema, mixed $parameterDefinition, array $acquiaCloudSpec = []): mixed
     {
         $name = self::restoreRenamedParameter($parameterDefinition->getName());
-        return $requestBodySchema['properties'][$name] ?? null;
+        $spec = $requestBodySchema['properties'][$name] ?? [];
+
+        // Resolve $ref in the property spec so downstream code (e.g. castParamType) always
+        // receives a fully resolved spec with a 'type' key rather than a bare $ref object.
+        if (array_key_exists('$ref', $spec)) {
+            $parts = explode('/', $spec['$ref']);
+            $paramKey = end($parts);
+            $spec = $this->getParameterSchemaFromSpec($paramKey, $acquiaCloudSpec);
+        }
+
+        return $spec;
     }
 
     /**
