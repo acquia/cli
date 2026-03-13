@@ -192,21 +192,23 @@ class ApiCommandHelper
                 }
                 switch ($paramDefinition['type']) {
                     case 'object':
-                        $usage .= $prefix . '"' . json_encode($example[$propKey], JSON_THROW_ON_ERROR) . '"" ';
+                        // Wrap JSON in single quotes so inner double quotes remain shell-safe.
+                        $usage .= $prefix . "'" . json_encode($example[$propKey], JSON_THROW_ON_ERROR) . "' ";
                         break;
 
                     case 'array':
                         $isMultidimensional = count($example[$propKey]) !== count($example[$propKey], COUNT_RECURSIVE);
                         if (!$isMultidimensional) {
                             foreach ($example[$propKey] as $value) {
-                                $usage .= $prefix . "\"$value\" ";
+                                $usage .= $prefix . "'$value' ";
                             }
                         } else {
                             // @todo Pretty sure prevents the user from using the arguments.
                             // Probably a bug. How can we allow users to specify a multidimensional array as an
                             // argument?
                             $value = json_encode($example[$propKey], JSON_THROW_ON_ERROR);
-                            $usage .= $prefix . "\"$value\" ";
+                            // Wrap JSON in single quotes so inner double quotes remain shell-safe.
+                            $usage .= $prefix . "'$value' ";
                         }
                         break;
 
@@ -218,7 +220,7 @@ class ApiCommandHelper
                         } else {
                             $value = $example[$propKey];
                         }
-                        $usage .= $prefix . "\"$value\" ";
+                        $usage .= $prefix . "'$value' ";
                         break;
                 }
             }
