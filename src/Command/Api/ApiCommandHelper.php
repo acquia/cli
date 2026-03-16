@@ -190,14 +190,6 @@ class ApiCommandHelper
                 if (!array_key_exists('type', $paramDefinition)) {
                     return $usage;
                 }
-                /**
-                 * @infection-ignore-all
-                 *
-                 * This is being ignored for now due to CLI-1745. We use single quotes in json_encode()
-                 * to preserve inner double quotes, which causes mutation tests to fail. Fixing this
-                 * could introduce regressions, so a dedicated ticket is needed to
-                 * properly address and validate the changes without breaking existing functionality.
-                 */
                 switch ($paramDefinition['type']) {
                     case 'object':
                         // Wrap JSON in single quotes so inner double quotes remain shell-safe.
