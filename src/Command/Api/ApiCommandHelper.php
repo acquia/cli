@@ -147,7 +147,7 @@ class ApiCommandHelper
                     array_key_exists('type', $paramDefinition) && $paramDefinition['type'] === 'array' ? InputArgument::IS_ARRAY | InputArgument::REQUIRED : InputArgument::REQUIRED,
                     $description
                 );
-                $usage = $this->addPostArgumentUsageToExample($schema['requestBody'], $propKey, $paramDefinition, 'argument', $usage, $acquiaCloudSpec);
+                $usage = $this->addPostArgumentUsageToExample($schema['requestBody'], $propKey, $paramDefinition, 'argument', $usage ? $usage . ' ' : '', $acquiaCloudSpec);
             } else {
                 $inputDefinition[] = new InputOption(
                     $propKey,
@@ -155,7 +155,7 @@ class ApiCommandHelper
                     array_key_exists('type', $paramDefinition) && $paramDefinition['type'] === 'array' ? InputOption::VALUE_IS_ARRAY | InputOption::VALUE_REQUIRED : InputOption::VALUE_REQUIRED,
                     array_key_exists('description', $paramDefinition) ? $paramDefinition['description'] : $propKey
                 );
-                $usage = $this->addPostArgumentUsageToExample($schema["requestBody"], $propKey, $paramDefinition, 'option', $usage, $acquiaCloudSpec);
+                $usage = $this->addPostArgumentUsageToExample($schema["requestBody"], $propKey, $paramDefinition, 'option', $usage ? $usage . ' ' : '', $acquiaCloudSpec);
                 // @todo Add validator for $param['enum'] values?
             }
         }
@@ -190,17 +190,18 @@ class ApiCommandHelper
                 if (!array_key_exists('type', $paramDefinition)) {
                     return $usage;
                 }
+                $parts = [];
                 switch ($paramDefinition['type']) {
                     case 'object':
                         // Wrap JSON in single quotes so inner double quotes remain shell-safe.
-                        $usage .= $prefix . "'" . json_encode($example[$propKey], JSON_THROW_ON_ERROR) . "' ";
+                        $parts[] = sprintf("%s'%s'", $prefix, json_encode($example[$propKey], JSON_THROW_ON_ERROR));
                         break;
 
                     case 'array':
                         $isMultidimensional = count($example[$propKey]) !== count($example[$propKey], COUNT_RECURSIVE);
                         if (!$isMultidimensional) {
                             foreach ($example[$propKey] as $value) {
-                                $usage .= $prefix . "'$value' ";
+                                $parts[] = sprintf("%s'%s'", $prefix, $value);
                             }
                         } else {
                             // @todo Pretty sure prevents the user from using the arguments.
@@ -208,7 +209,7 @@ class ApiCommandHelper
                             // argument?
                             $value = json_encode($example[$propKey], JSON_THROW_ON_ERROR);
                             // Wrap JSON in single quotes so inner double quotes remain shell-safe.
-                            $usage .= $prefix . "'$value' ";
+                            $parts[] = sprintf("%s'%s'", $prefix, $value);
                         }
                         break;
 
@@ -220,8 +221,11 @@ class ApiCommandHelper
                         } else {
                             $value = $example[$propKey];
                         }
-                        $usage .= $prefix . "'$value' ";
+                        $parts[] = sprintf("%s'%s'", $prefix, $value);
                         break;
+                }
+                if ($parts !== []) {
+                    return $usage . implode(' ', $parts);
                 }
             }
         }

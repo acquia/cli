@@ -109,4 +109,41 @@ class ApiCommandHelperTest extends CommandTestBase
         $listCommands = $this->generateApiListCommands($apiCommands);
         $this->assertArrayNotHasKey('api:baz', $listCommands);
     }
+
+    /**
+     * Calls private or protected method of ApiCommandHelper class via reflection.
+     *
+     * @throws \ReflectionException
+     */
+    private function invokeApiCommandHelperMethod(string $methodName, array $args = []): mixed
+    {
+        $commandHelper = new ApiCommandHelper($this->logger);
+        $refClass = new ReflectionMethod($commandHelper::class, $methodName);
+        return $refClass->invokeArgs($commandHelper, $args);
+    }
+
+    /**
+     * Test that addPostArgumentUsageToExample correctly formats a flat array with a single item.
+     */
+    public function testAddPostArgumentUsageToExampleFlatArraySingleItem(): void
+    {
+        $result = $this->invokeApiCommandHelperMethod(
+            'addPostArgumentUsageToExample',
+            [
+                [
+                    'content' => [
+                        'application/json' => [
+                            'example' => ['tags' => ['drupal']],
+                        ],
+                    ],
+                ],
+                'tags',
+                ['type' => 'array'],
+                'option',
+                '',
+                [],
+            ]
+        );
+        $this->assertSame("--tags='drupal'", $result);
+    }
 }
