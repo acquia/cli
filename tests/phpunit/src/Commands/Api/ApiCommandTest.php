@@ -543,12 +543,49 @@ EOD;
             [
                 'api:accounts:ssh-key-create',
                 'post',
-                'api:accounts:ssh-key-create "mykey" "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQChwPHzTTDKDpSbpa2+d22LcbQmsw92eLsUK3Fmei1fiGDkd34NsYCN8m7lsi3NbvdMS83CtPQPWiCveYPzFs1/hHc4PYj8opD2CNnr5iWVVbyaulCYHCgVv4aB/ojcexg8q483A4xJeF15TiCr/gu34rK6ucTvC/tn/rCwJBudczvEwt0klqYwv8Cl/ytaQboSuem5KgSjO3lMrb6CWtfSNhE43ZOw+UBFBqxIninN868vGMkIv9VY34Pwj54rPn/ItQd6Ef4B0KHHaGmzK0vfP+AK7FxNMoHnj3iYT33KZNqtDozdn5tYyH/bThPebEtgqUn+/w5l6wZIC/8zzvls/127ngHk+jNa0PlNyS2TxhPUK4NaPHIEnnrlp07JEYC4ImcBjaYCWAdcTcUkcJjwZQkN4bGmyO9cjICH98SdLD/HxqzTHeaYDbAX/Hu9HfaBb5dXLWsjw3Xc6hoVnUUZbMQyfgb0KgxDLh92eNGxJkpZiL0VDNOWCxDWsNpzwhLNkLqCvI6lyxiLaUzvJAk6dPaRhExmCbU1lDO2eR0FdSwC1TEhJOT9eDIK1r2hztZKs2oa5FNFfB/IFHVWasVFC9N2h/r/egB5zsRxC9MqBLRBq95NBxaRSFng6ML5WZSw41Qi4C/JWVm89rdj2WqScDHYyAdwyyppWU4T5c9Fmw== example@example.com"',
+                ['api:accounts:ssh-key-create \'mykey\' \'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQChwPHzTTDKDpSbpa2+d22LcbQmsw92eLsUK3Fmei1fiGDkd34NsYCN8m7lsi3NbvdMS83CtPQPWiCveYPzFs1/hHc4PYj8opD2CNnr5iWVVbyaulCYHCgVv4aB/ojcexg8q483A4xJeF15TiCr/gu34rK6ucTvC/tn/rCwJBudczvEwt0klqYwv8Cl/ytaQboSuem5KgSjO3lMrb6CWtfSNhE43ZOw+UBFBqxIninN868vGMkIv9VY34Pwj54rPn/ItQd6Ef4B0KHHaGmzK0vfP+AK7FxNMoHnj3iYT33KZNqtDozdn5tYyH/bThPebEtgqUn+/w5l6wZIC/8zzvls/127ngHk+jNa0PlNyS2TxhPUK4NaPHIEnnrlp07JEYC4ImcBjaYCWAdcTcUkcJjwZQkN4bGmyO9cjICH98SdLD/HxqzTHeaYDbAX/Hu9HfaBb5dXLWsjw3Xc6hoVnUUZbMQyfgb0KgxDLh92eNGxJkpZiL0VDNOWCxDWsNpzwhLNkLqCvI6lyxiLaUzvJAk6dPaRhExmCbU1lDO2eR0FdSwC1TEhJOT9eDIK1r2hztZKs2oa5FNFfB/IFHVWasVFC9N2h/r/egB5zsRxC9MqBLRBq95NBxaRSFng6ML5WZSw41Qi4C/JWVm89rdj2WqScDHYyAdwyyppWU4T5c9Fmw== example@example.com\''],
             ],
             [
                 'api:environments:file-copy',
                 'post',
-                '12-d314739e-296f-11e9-b210-d663bd873d93 --source="14-0c7e79ab-1c4a-424e-8446-76ae8be7e851"',
+                [
+                    'api:environments:file-copy 12-d314739e-296f-11e9-b210-d663bd873d93 --source=\'14-0c7e79ab-1c4a-424e-8446-76ae8be7e851\'',
+                    'api:environments:file-copy myapp.dev --source=\'14-0c7e79ab-1c4a-424e-8446-76ae8be7e851\'',
+                ],
+            ],
+            [
+                'api:private-networks:create',
+                'post',
+                ['api:private-networks:create \'123e4567-e89b-12d3-a456-426614174000\' \'us-east-1\' \'customer-private-network\' --description=\'Private network for customer\' --label=\'anyLabel\' --isolation=\'{"dedicated_compute":false,"dedicated_network":false}\' --ingress=\'{"drupal_ssh":{"ingress_acls":["test-acls"]}}\' \'{"cidr":"114.7.55.1\/16","private_egress_access":{"drupal":true},"vpns":[{"name":"vpn1","gateway_ip":"10.10.10.10","routes":["127.0.0.1\/32","127.0.0.2\/32"],"tunnel1":{"shared_key":"sharedKey1","internal_cidr":"192.1.1.0\/24","ike_versions":"1","startup_action":"start","dpd_timeout_action":"stop"},"tunnel2":{"shared_key":"sharedKey2","internal_cidr":"192.1.1.0\/14","ike_versions":"1","startup_action":"start","dpd_timeout_action":"stop"}}],"vpc_peers":[{"name":"vpcPeer1","aws_account":"123456789012","vpc_id":"vpc-1234567890abcdef0","vpc_cidr":"120.24.16.1\/24"}]}\''],
+            ],
+            [
+                'api:private-networks:update-isolation',
+                'put',
+                ['api:private-networks:update-isolation --dedicated_compute=\'1\' --dedicated_network=\'1\''],
+            ],
+            [
+                'api:environments:livedev-disable',
+                'post',
+                [
+                    'api:environments:livedev-disable 12-d314739e-296f-11e9-b210-d663bd873d93 --discard=\'1\'',
+                    'api:environments:livedev-disable myapp.dev --discard=\'1\'',
+                ],
+            ],
+            [
+                'api:environments:code-deploy',
+                'post',
+                [
+                    'api:environments:code-deploy 12-d314739e-296f-11e9-b210-d663bd873d93 \'14-0c7e79ab-1c4a-424e-8446-76ae8be7e851\' --message=\'Optional commit message\'',
+                    'api:environments:code-deploy myapp.dev \'14-0c7e79ab-1c4a-424e-8446-76ae8be7e851\' --message=\'Optional commit message\'',
+                ],
+            ],
+            [
+                'api:environments:code-switch',
+                'post',
+                [
+                    'api:environments:code-switch 12-d314739e-296f-11e9-b210-d663bd873d93 \'my-feature-branch\'',
+                    'api:environments:code-switch myapp.dev \'my-feature-branch\'',
+                ],
             ],
         ];
     }
@@ -559,11 +596,19 @@ EOD;
      * @param $method
      * @param $usage
      */
-    public function testApiCommandDefinitionRequestBody(string $commandName, string $method, string $usage): void
+    public function testApiCommandDefinitionRequestBody(string $commandName, string $method, array $usage): void
     {
         $this->command = $this->getApiCommandByName($commandName);
         $resource = self::getResourceFromSpec($this->command->getPath(), $method);
-        foreach ($resource['requestBody']['content']['application/hal+json']['example'] as $propKey => $value) {
+        if (array_key_exists('$ref', $resource['requestBody'])) {
+            $cloudApiSpec = self::getCloudApiSpec();
+            $parts = explode('/', $resource['requestBody']['$ref']);
+            $paramKey = end($parts);
+            $resource['requestBody'] = $cloudApiSpec['components']['requestBodies'][$paramKey];
+        }
+        $example = $resource['requestBody']['content']['application/hal+json']['example'] ?? $resource['requestBody']['content']['application/json']['schema']['example'] ?? $resource['requestBody']['content']['application/json']['example'] ?? null;
+        self::assertNotEmpty($example);
+        foreach ($example as $propKey => $value) {
             $this->assertTrue(
                 $this->command->getDefinition()
                     ->hasArgument($propKey) || $this->command->getDefinition()
@@ -571,7 +616,7 @@ EOD;
                 "Command {$this->command->getName()} does not have expected argument or option $propKey"
             );
         }
-        $this->assertStringContainsString($usage, $this->command->getUsages()[0]);
+        $this->assertSame($usage, $this->command->getUsages());
     }
 
     public function testGetApplicationUuidFromBltYml(): void

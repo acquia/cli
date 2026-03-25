@@ -245,7 +245,7 @@ class ApiBaseCommand extends CommandBase
             if (in_array('integer', $types, true) && ctype_digit($value)) {
                 return $this->doCastParamType('integer', $value);
             }
-        } elseif ($paramSpec['type'] === 'array') {
+        } elseif ($this->getParamType($paramSpec) === 'array') {
             if (is_array($value) && count($value) === 1) {
                 return $this->castParamToArray($paramSpec, $value[0]);
             }
