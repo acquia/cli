@@ -8,7 +8,6 @@ use Acquia\Cli\Attribute\RequireAuth;
 use AcquiaCloudApi\Endpoints\Applications;
 use AcquiaCloudApi\Endpoints\Codebases;
 use AcquiaCloudApi\Endpoints\Ides;
-use PhpParser\Node\Name;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\Table;
