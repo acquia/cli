@@ -37,7 +37,7 @@ final class IdeListMineCommand extends IdeCommandBase
                     $appUrlParts = explode('/', $ide->links->application->href);
                     $appUuid = end($appUrlParts);
                     $application = $applicationResource->get($appUuid);
-                    $name = $application->subscription->name;
+                    $name = $application->name;
                     $url = str_replace('/api', '/a', $ide->links->application->href);
                 } elseif (isset($ide->links->codebase)) {
                     $sub = "Codebase";
