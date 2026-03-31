@@ -1,5 +1,4 @@
 grumphp:
-    process_timeout: 300
     tasks:
         phpcs: ~
     fixer:
