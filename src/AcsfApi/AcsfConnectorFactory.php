@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Acquia\Cli\AcsfApi;
 
 use Acquia\Cli\ConnectorFactoryInterface;
+use AcquiaCloudApi\Connector\ConnectorInterface;
 
 class AcsfConnectorFactory implements ConnectorFactoryInterface
 {
@@ -15,7 +16,7 @@ class AcsfConnectorFactory implements ConnectorFactoryInterface
     {
     }
 
-    public function createConnector(): AcsfConnector
+    public function createConnector(): ConnectorInterface
     {
         return new AcsfConnector($this->config, $this->baseUri);
     }
