@@ -119,10 +119,39 @@ class PathRewriteConnectorTest extends TestCase
     public static function createRequestProvider(): array
     {
         return [
-            // Rewrite.
-            ['GET', '/applications/abcd-ef01/environments', '/translation/codebases/1234-5678-uuid/environments'],
-            // No rewrite.
-            ['GET', '/other/path', '/other/path'],
+            'account path is not rewritten' => [
+                'GET',
+                '/account',
+                '/account',
+            ],
+            // Bare UUID (no trailing segment) is also rewritten.
+            'bare application UUID is rewritten' => [
+                'GET',
+                '/applications/abcd-ef01',
+                '/translation/codebases/1234-5678-uuid',
+            ],
+            // Deep sub-path: entire trailing part is preserved by $1.
+            'deep sub-path is rewritten' => ['GET',
+                '/applications/abcd-ef01/environments/env-1/tags',
+                '/translation/codebases/1234-5678-uuid/environments/env-1/tags',
+            ],
+            // Single trailing segment is rewritten via capture group ($1).
+            'environments path is rewritten' => [
+                'GET',
+                '/applications/abcd-ef01/environments',
+                '/translation/codebases/1234-5678-uuid/environments',
+            ],
+            'permissions path is rewritten' => [
+                'GET',
+                '/applications/abcd-ef01/permissions',
+                '/translation/codebases/1234-5678-uuid/permissions',
+            ],
+            // Paths that do not start with /applications/{uuid} are left unchanged.
+            'unrelated path is not rewritten' => [
+                'GET',
+                '/other/path',
+                '/other/path',
+            ],
         ];
     }
 
@@ -135,10 +164,34 @@ class PathRewriteConnectorTest extends TestCase
     public static function sendRequestProvider(): array
     {
         return [
-            // Rewrite.
-            ['POST', '/applications/abcd-ef01/permissions', '/translation/codebases/1234-5678-uuid/permissions', ['foo' => 'bar']],
-            // No rewrite.
-            ['GET', '/other/path', '/other/path', []],
+            // Bare UUID (no trailing segment) is also rewritten.
+            'bare application UUID is rewritten' => [
+                'GET',
+                '/applications/abcd-ef01',
+                '/translation/codebases/1234-5678-uuid',
+                [],
+            ],
+            // Deep sub-path: entire trailing part is preserved by $1.
+            'deep sub-path is rewritten' => [
+                'POST',
+                '/applications/abcd-ef01/environments/env-1/tags',
+                '/translation/codebases/1234-5678-uuid/environments/env-1/tags',
+                [],
+            ],
+            // Single trailing segment is rewritten via capture group ($1).
+            'permissions path is rewritten' => [
+                'POST',
+                '/applications/abcd-ef01/permissions',
+                '/translation/codebases/1234-5678-uuid/permissions',
+                ['foo' => 'bar'],
+            ],
+            // Paths that do not start with /applications/{uuid} are left unchanged.
+            'unrelated path is not rewritten' => [
+                'GET',
+                '/other/path',
+                '/other/path',
+                [],
+            ],
         ];
     }
 

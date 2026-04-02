@@ -77,7 +77,7 @@ final class PathRewriteConnector implements ConnectorInterface
     }
 
     /**
-     * Rewrites the API path if it matches any rewrite rule.
+     * Rewrites the API path using preg_replace if it matches any rewrite rule.
      *
      * @param string $path The original API path.
      * @return string The rewritten path, or the original if no rule matches.
@@ -86,8 +86,7 @@ final class PathRewriteConnector implements ConnectorInterface
     {
         foreach ($this->getPathsToRewrite() as $pattern => $replacement) {
             if (preg_match($pattern, $path) === 1) {
-                // Replace the entire path with the replacement if the pattern matches.
-                return $replacement;
+                return (string) preg_replace($pattern, $replacement, $path);
             }
         }
 
@@ -98,15 +97,23 @@ final class PathRewriteConnector implements ConnectorInterface
     /**
      * Returns an array of regex patterns and their corresponding replacement paths for rewriting API request paths.
      *
-     * @return array<string, string> An array of regex patterns and their corresponding replacement paths.
-     *   The replacement paths may include the codebase UUID obtained from the AH_CODEBASE_UUID environment variable.
+     * Two rules cover all cases:
+     *  - Paths with a trailing segment: /applications/{uuid}/foo/bar → /translation/codebases/{codebaseUuid}/foo/bar
+     *  - Bare application UUID paths:   /applications/{uuid}        → /translation/codebases/{codebaseUuid}
+     *
+     * The first rule uses a capture group ($1) so any trailing path is preserved automatically,
+     * avoiding the need to enumerate every possible sub-path.
+     *
+     * @return array<string, string> Regex pattern => preg_replace replacement string.
      */
     private function getPathsToRewrite(): array
     {
         $codebaseUuid = $this->getCodeBaseUuid();
         return [
-            '#^/applications/[0-9a-f\-]+/environments$#i' => "/translation/codebases/$codebaseUuid/environments",
-            '#^/applications/[0-9a-f\-]+/permissions$#i' => "/translation/codebases/$codebaseUuid/permissions",
+            // Matches bare /applications/{uuid} with no trailing segment.
+            '#^/applications/[0-9a-f\-]+$#i' => '/translation/codebases/' . $codebaseUuid,
+            // Matches /applications/{uuid}/{anything} and preserves the trailing segment via $1.
+            '#^/applications/[0-9a-f\-]+/(.+)$#i' => '/translation/codebases/' . $codebaseUuid . '/$1',
         ];
     }
 
