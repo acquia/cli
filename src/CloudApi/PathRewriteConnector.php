@@ -99,7 +99,7 @@ final class PathRewriteConnector implements ConnectorInterface
      * Returns an array of regex patterns and their corresponding replacement paths for rewriting API request paths.
      *
      * @return array<string, string> An array of regex patterns and their corresponding replacement paths.
-     *   The replacement paths may use the codebaseUuid property.
+     *   The replacement paths may include the codebase UUID obtained from the AH_CODEBASE_UUID environment variable.
      */
     private function getPathsToRewrite(): array
     {

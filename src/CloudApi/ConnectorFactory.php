@@ -23,10 +23,9 @@ class ConnectorFactory implements ConnectorFactoryInterface
         $connector = $this->buildConnector();
 
         // If the AH_CODEBASE_UUID environment variable is set, that means
-        // it's a MEO subscription and for MEO we need to rewrite the path to
-        // include the codebase UUID. This is because MEO's uses different
-        // endpoints, and the codebase UUID is used to determine which endpoint
-        // to use.
+        // it's a MEO subscription. For MEO, we need to rewrite the API request
+        // path so that MEO-specific endpoints are used and the correct
+        // endpoint can be selected based on the codebase.
         if (getenv('AH_CODEBASE_UUID')) {
             return new PathRewriteConnector($connector);
         }

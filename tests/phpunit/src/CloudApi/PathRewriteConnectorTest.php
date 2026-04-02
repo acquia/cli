@@ -10,106 +10,95 @@ use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
+/**
+ * @covers \Acquia\Cli\CloudApi\PathRewriteConnector
+ *
+ * Unit tests for the PathRewriteConnector decorator. Ensures all path rewriting logic,
+ * delegation, and error handling are correct.
+ */
 class PathRewriteConnectorTest extends TestCase
 {
+    /**
+     * Mocked inner connector to verify delegation and path rewriting.
+     */
     private ConnectorInterface $inner;
+
+    /**
+     * The PathRewriteConnector under test.
+     */
     private ConnectorInterface $connector;
 
+    /**
+     * Stores the original value of AH_CODEBASE_UUID to restore after each test.
+     */
+    private string|bool $originalEnv;
+
+    /**
+     * Sets up a fresh PathRewriteConnector and mocks before each test.
+     * Ensures AH_CODEBASE_UUID is set for tests that require it.
+     */
     protected function setUp(): void
     {
         parent::setUp();
+        $this->originalEnv = getenv('AH_CODEBASE_UUID');
+        putenv('AH_CODEBASE_UUID=1234-5678-uuid');
         $this->inner = $this->createMock(ConnectorInterface::class);
         $this->connector = new PathRewriteConnector($this->inner);
     }
 
     /**
-     * @runInSeparateProcess
+     * @dataProvider createRequestProvider
+     * @param string $verb The HTTP verb to test.
+     * @param string $inputPath The input path to test.
+     * @param string $expectedPath The expected path after rewriting.
      */
-    public function testCreateRequestRewritesMatchingPath(): void
+    public function testCreateRequestPathRewriting(string $verb, string $inputPath, string $expectedPath): void
     {
-        putenv('AH_CODEBASE_UUID=1234-5678-uuid');
-        $expectedPath = '/translation/codebases/1234-5678-uuid/environments';
-        $request = $this->createMock(RequestInterface::class);
+        $mock = $this->createMock(RequestInterface::class);
         $this->inner->expects($this->once())
             ->method('createRequest')
-            ->with('GET', $expectedPath)
-            ->willReturn($request);
-        $result = $this->connector->createRequest('GET', '/applications/abcd-ef01/environments');
-        $this->assertSame($request, $result);
+            ->with($verb, $expectedPath)
+            ->willReturn($mock);
+        $result = $this->connector->createRequest($verb, $inputPath);
+        $this->assertSame($mock, $result);
     }
 
-    /**
-     * @runInSeparateProcess
-     */
-    public function testCreateRequestDoesNotRewriteUnmatchedPath(): void
-    {
-        putenv('AH_CODEBASE_UUID=1234-5678-uuid');
-        $request = $this->createMock(RequestInterface::class);
-        $this->inner->expects($this->once())
-            ->method('createRequest')
-            ->with('GET', '/other/path')
-            ->willReturn($request);
-        $result = $this->connector->createRequest('GET', '/other/path');
-        $this->assertSame($request, $result);
-    }
+
 
     /**
-     * @runInSeparateProcess
+     * @dataProvider sendRequestProvider
+     * @param string $verb The HTTP verb to test.
+     * @param string $inputPath The input path to test.
+     * @param string $expectedPath The expected path after rewriting.
+     * @param array $options The options to pass to sendRequest.
      */
-    public function testSendRequestRewritesMatchingPath(): void
+    public function testSendRequestPathRewriting(string $verb, string $inputPath, string $expectedPath, array $options): void
     {
-        putenv('AH_CODEBASE_UUID=1234-5678-uuid');
-        $expectedPath = '/translation/codebases/1234-5678-uuid/permissions';
-        $response = $this->createMock(ResponseInterface::class);
+        $mock = $this->createMock(ResponseInterface::class);
         $this->inner->expects($this->once())
             ->method('sendRequest')
-            ->with('POST', $expectedPath, ['foo' => 'bar'])
-            ->willReturn($response);
-        $result = $this->connector->sendRequest('POST', '/applications/abcd-ef01/permissions', ['foo' => 'bar']);
-        $this->assertSame($response, $result);
+            ->with($verb, $expectedPath, $options)
+            ->willReturn($mock);
+        $result = $this->connector->sendRequest($verb, $inputPath, $options);
+        $this->assertSame($mock, $result);
     }
 
     /**
-     * @runInSeparateProcess
+     * @dataProvider delegationProvider
+     * @param string $method The method to test delegation for.
+     * @param mixed $expected The expected return value from the inner connector.
      */
-    public function testSendRequestDoesNotRewriteUnmatchedPath(): void
+    public function testDelegation(string $method, string $expected): void
     {
-        putenv('AH_CODEBASE_UUID=1234-5678-uuid');
-        $response = $this->createMock(ResponseInterface::class);
         $this->inner->expects($this->once())
-            ->method('sendRequest')
-            ->with('GET', '/other/path', [])
-            ->willReturn($response);
-        $result = $this->connector->sendRequest('GET', '/other/path', []);
-        $this->assertSame($response, $result);
+            ->method($method)
+            ->willReturn($expected);
+        $this->assertTrue(method_exists($this->connector, $method));
+        $this->assertSame($expected, $this->connector->{$method}());
     }
 
     /**
-     * @runInSeparateProcess
-     */
-    public function testGetBaseUriDelegates(): void
-    {
-        putenv('AH_CODEBASE_UUID=1234-5678-uuid');
-        $this->inner->expects($this->once())
-            ->method('getBaseUri')
-            ->willReturn('https://api.example.com');
-        $this->assertSame('https://api.example.com', $this->connector->getBaseUri());
-    }
-
-    /**
-     * @runInSeparateProcess
-     */
-    public function testGetUrlAccessTokenDelegates(): void
-    {
-        putenv('AH_CODEBASE_UUID=1234-5678-uuid');
-        $this->inner->expects($this->once())
-            ->method('getUrlAccessToken')
-            ->willReturn('token123');
-        $this->assertSame('token123', $this->connector->getUrlAccessToken());
-    }
-
-    /**
-     * @runInSeparateProcess
+     * Ensures an exception is thrown if AH_CODEBASE_UUID is not set when required.
      */
     public function testThrowsIfCodebaseUuidNotSet(): void
     {
@@ -119,5 +108,64 @@ class PathRewriteConnectorTest extends TestCase
         $this->expectExceptionMessage('Environment variable AH_CODEBASE_UUID is not set.');
         // This will trigger getCodeBaseUuid()
         $connector->createRequest('GET', '/applications/abcd-ef01/environments');
+    }
+
+    /**
+     * Data provider for createRequest tests. Ensures that paths are rewritten
+     * correctly based on the presence of the code base environment variable.
+     *
+     * @return array<int, array{0: string, 1: string, 2: string}>
+     */
+    public static function createRequestProvider(): array
+    {
+        return [
+            // Rewrite.
+            ['GET', '/applications/abcd-ef01/environments', '/translation/codebases/1234-5678-uuid/environments'],
+            // No rewrite.
+            ['GET', '/other/path', '/other/path'],
+        ];
+    }
+
+    /**
+     * Data provider for sendRequest tests. Ensures that both path rewriting
+     * and options are handled correctly.
+     *
+     * @return array<int, array{0: string, 1: string, 2: string, 3: array<string, mixed>}>
+     */
+    public static function sendRequestProvider(): array
+    {
+        return [
+            // Rewrite.
+            ['POST', '/applications/abcd-ef01/permissions', '/translation/codebases/1234-5678-uuid/permissions', ['foo' => 'bar']],
+            // No rewrite.
+            ['GET', '/other/path', '/other/path', []],
+        ];
+    }
+
+    /**
+     * Data provider for delegation tests. Ensures that methods not related to
+     * path rewriting are properly delegated to the inner connector.
+     *
+     * @return array<int, array{0: string, 1: mixed}>
+     */
+    public static function delegationProvider(): array
+    {
+        return [
+            ['getBaseUri', 'https://api.example.com'],
+            ['getUrlAccessToken', 'token123'],
+        ];
+    }
+
+    /**
+     * Restores the original AH_CODEBASE_UUID environment variable after each test.
+     */
+    protected function tearDown(): void
+    {
+        if ($this->originalEnv === false) {
+            putenv('AH_CODEBASE_UUID');
+        } else {
+            putenv('AH_CODEBASE_UUID=' . $this->originalEnv);
+        }
+        parent::tearDown();
     }
 }
