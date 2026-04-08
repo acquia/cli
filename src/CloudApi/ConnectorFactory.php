@@ -6,6 +6,7 @@ namespace Acquia\Cli\CloudApi;
 
 use Acquia\Cli\ConnectorFactoryInterface;
 use AcquiaCloudApi\Connector\Connector;
+use AcquiaCloudApi\Connector\ConnectorInterface;
 use League\OAuth2\Client\Token\AccessToken;
 
 class ConnectorFactory implements ConnectorFactoryInterface
@@ -17,10 +18,22 @@ class ConnectorFactory implements ConnectorFactoryInterface
     {
     }
 
-    /**
-     * @return \Acquia\Cli\CloudApi\AccessTokenConnector|\AcquiaCloudApi\Connector\Connector
-     */
-    public function createConnector(): Connector|AccessTokenConnector
+    public function createConnector(): ConnectorInterface
+    {
+        $connector = $this->buildConnector();
+
+        // If the AH_CODEBASE_UUID environment variable is set, that means
+        // it's a MEO subscription. For MEO, we need to rewrite the API request
+        // path so that MEO-specific endpoints are used and the correct
+        // endpoint can be selected based on the codebase.
+        if (getenv('AH_CODEBASE_UUID')) {
+            return new PathRewriteConnector($connector);
+        }
+
+        return $connector;
+    }
+
+    private function buildConnector(): ConnectorInterface
     {
         // A defined key & secret takes priority.
         if ($this->config['key'] && $this->config['secret']) {
