@@ -532,6 +532,6 @@ class ApiBaseCommand extends CommandBase
      */
     private function isRewrittenMeoPath(): bool
     {
-        return getenv('AH_CODEBASE_UUID') && str_starts_with($this->path, '/applications/');
+        return self::getCodebaseUuid() && str_starts_with($this->path, '/applications/');
     }
 }
