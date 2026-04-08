@@ -19,10 +19,23 @@ use Symfony\Component\Yaml\Yaml;
  */
 class ApiCommandTest extends CommandTestBase
 {
+    private string|false $originalCodebaseUuid;
+
     public function setUp(): void
     {
         parent::setUp();
         putenv('ACQUIA_CLI_USE_CLOUD_API_SPEC_CACHE=1');
+        $this->originalCodebaseUuid = getenv('AH_CODEBASE_UUID');
+    }
+
+    protected function tearDown(): void
+    {
+        if ($this->originalCodebaseUuid === false) {
+            putenv('AH_CODEBASE_UUID');
+        } else {
+            putenv('AH_CODEBASE_UUID=' . $this->originalCodebaseUuid);
+        }
+        parent::tearDown();
     }
 
     protected function createCommand(): CommandBase
@@ -1205,8 +1218,6 @@ EOD;
         $this->assertArrayNotHasKey('_links', $decoded, 'Rewritten MEO path must remove _links from response');
         $this->assertEquals('shared-1234567891011-121', $decoded['id']);
         $this->assertEquals('example-0', $decoded['label']);
-
-        putenv('AH_CODEBASE_UUID');
     }
 
     /**
