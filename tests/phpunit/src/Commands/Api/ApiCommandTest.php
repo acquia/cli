@@ -543,12 +543,49 @@ EOD;
             [
                 'api:accounts:ssh-key-create',
                 'post',
-                'api:accounts:ssh-key-create "mykey" "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQChwPHzTTDKDpSbpa2+d22LcbQmsw92eLsUK3Fmei1fiGDkd34NsYCN8m7lsi3NbvdMS83CtPQPWiCveYPzFs1/hHc4PYj8opD2CNnr5iWVVbyaulCYHCgVv4aB/ojcexg8q483A4xJeF15TiCr/gu34rK6ucTvC/tn/rCwJBudczvEwt0klqYwv8Cl/ytaQboSuem5KgSjO3lMrb6CWtfSNhE43ZOw+UBFBqxIninN868vGMkIv9VY34Pwj54rPn/ItQd6Ef4B0KHHaGmzK0vfP+AK7FxNMoHnj3iYT33KZNqtDozdn5tYyH/bThPebEtgqUn+/w5l6wZIC/8zzvls/127ngHk+jNa0PlNyS2TxhPUK4NaPHIEnnrlp07JEYC4ImcBjaYCWAdcTcUkcJjwZQkN4bGmyO9cjICH98SdLD/HxqzTHeaYDbAX/Hu9HfaBb5dXLWsjw3Xc6hoVnUUZbMQyfgb0KgxDLh92eNGxJkpZiL0VDNOWCxDWsNpzwhLNkLqCvI6lyxiLaUzvJAk6dPaRhExmCbU1lDO2eR0FdSwC1TEhJOT9eDIK1r2hztZKs2oa5FNFfB/IFHVWasVFC9N2h/r/egB5zsRxC9MqBLRBq95NBxaRSFng6ML5WZSw41Qi4C/JWVm89rdj2WqScDHYyAdwyyppWU4T5c9Fmw== example@example.com"',
+                ['api:accounts:ssh-key-create \'mykey\' \'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQChwPHzTTDKDpSbpa2+d22LcbQmsw92eLsUK3Fmei1fiGDkd34NsYCN8m7lsi3NbvdMS83CtPQPWiCveYPzFs1/hHc4PYj8opD2CNnr5iWVVbyaulCYHCgVv4aB/ojcexg8q483A4xJeF15TiCr/gu34rK6ucTvC/tn/rCwJBudczvEwt0klqYwv8Cl/ytaQboSuem5KgSjO3lMrb6CWtfSNhE43ZOw+UBFBqxIninN868vGMkIv9VY34Pwj54rPn/ItQd6Ef4B0KHHaGmzK0vfP+AK7FxNMoHnj3iYT33KZNqtDozdn5tYyH/bThPebEtgqUn+/w5l6wZIC/8zzvls/127ngHk+jNa0PlNyS2TxhPUK4NaPHIEnnrlp07JEYC4ImcBjaYCWAdcTcUkcJjwZQkN4bGmyO9cjICH98SdLD/HxqzTHeaYDbAX/Hu9HfaBb5dXLWsjw3Xc6hoVnUUZbMQyfgb0KgxDLh92eNGxJkpZiL0VDNOWCxDWsNpzwhLNkLqCvI6lyxiLaUzvJAk6dPaRhExmCbU1lDO2eR0FdSwC1TEhJOT9eDIK1r2hztZKs2oa5FNFfB/IFHVWasVFC9N2h/r/egB5zsRxC9MqBLRBq95NBxaRSFng6ML5WZSw41Qi4C/JWVm89rdj2WqScDHYyAdwyyppWU4T5c9Fmw== example@example.com\''],
             ],
             [
                 'api:environments:file-copy',
                 'post',
-                '12-d314739e-296f-11e9-b210-d663bd873d93 --source="14-0c7e79ab-1c4a-424e-8446-76ae8be7e851"',
+                [
+                    'api:environments:file-copy 12-d314739e-296f-11e9-b210-d663bd873d93 --source=\'14-0c7e79ab-1c4a-424e-8446-76ae8be7e851\'',
+                    'api:environments:file-copy myapp.dev --source=\'14-0c7e79ab-1c4a-424e-8446-76ae8be7e851\'',
+                ],
+            ],
+            [
+                'api:private-networks:create',
+                'post',
+                ['api:private-networks:create \'123e4567-e89b-12d3-a456-426614174000\' \'us-east-1\' \'customer-private-network\' --description=\'Private network for customer\' --label=\'anyLabel\' --isolation=\'{"dedicated_compute":false,"dedicated_network":false}\' --ingress=\'{"drupal_ssh":{"ingress_acls":["test-acls"]}}\' \'{"cidr":"114.7.55.1\/16","private_egress_access":{"drupal":true},"vpns":[{"name":"vpn1","gateway_ip":"10.10.10.10","routes":["127.0.0.1\/32","127.0.0.2\/32"],"tunnel1":{"shared_key":"sharedKey1","internal_cidr":"192.1.1.0\/24","ike_versions":"1","startup_action":"start","dpd_timeout_action":"stop"},"tunnel2":{"shared_key":"sharedKey2","internal_cidr":"192.1.1.0\/14","ike_versions":"1","startup_action":"start","dpd_timeout_action":"stop"}}],"vpc_peers":[{"name":"vpcPeer1","aws_account":"123456789012","vpc_id":"vpc-1234567890abcdef0","vpc_cidr":"120.24.16.1\/24"}]}\''],
+            ],
+            [
+                'api:private-networks:update-isolation',
+                'put',
+                ['api:private-networks:update-isolation --dedicated_compute=\'1\' --dedicated_network=\'1\''],
+            ],
+            [
+                'api:environments:livedev-disable',
+                'post',
+                [
+                    'api:environments:livedev-disable 12-d314739e-296f-11e9-b210-d663bd873d93 --discard=\'1\'',
+                    'api:environments:livedev-disable myapp.dev --discard=\'1\'',
+                ],
+            ],
+            [
+                'api:environments:code-deploy',
+                'post',
+                [
+                    'api:environments:code-deploy 12-d314739e-296f-11e9-b210-d663bd873d93 \'14-0c7e79ab-1c4a-424e-8446-76ae8be7e851\' --message=\'Optional commit message\'',
+                    'api:environments:code-deploy myapp.dev \'14-0c7e79ab-1c4a-424e-8446-76ae8be7e851\' --message=\'Optional commit message\'',
+                ],
+            ],
+            [
+                'api:environments:code-switch',
+                'post',
+                [
+                    'api:environments:code-switch 12-d314739e-296f-11e9-b210-d663bd873d93 \'my-feature-branch\'',
+                    'api:environments:code-switch myapp.dev \'my-feature-branch\'',
+                ],
             ],
         ];
     }
@@ -559,11 +596,19 @@ EOD;
      * @param $method
      * @param $usage
      */
-    public function testApiCommandDefinitionRequestBody(string $commandName, string $method, string $usage): void
+    public function testApiCommandDefinitionRequestBody(string $commandName, string $method, array $usage): void
     {
         $this->command = $this->getApiCommandByName($commandName);
         $resource = self::getResourceFromSpec($this->command->getPath(), $method);
-        foreach ($resource['requestBody']['content']['application/hal+json']['example'] as $propKey => $value) {
+        if (array_key_exists('$ref', $resource['requestBody'])) {
+            $cloudApiSpec = self::getCloudApiSpec();
+            $parts = explode('/', $resource['requestBody']['$ref']);
+            $paramKey = end($parts);
+            $resource['requestBody'] = $cloudApiSpec['components']['requestBodies'][$paramKey];
+        }
+        $example = $resource['requestBody']['content']['application/hal+json']['example'] ?? $resource['requestBody']['content']['application/json']['schema']['example'] ?? $resource['requestBody']['content']['application/json']['example'] ?? null;
+        self::assertNotEmpty($example);
+        foreach ($example as $propKey => $value) {
             $this->assertTrue(
                 $this->command->getDefinition()
                     ->hasArgument($propKey) || $this->command->getDefinition()
@@ -571,7 +616,7 @@ EOD;
                 "Command {$this->command->getName()} does not have expected argument or option $propKey"
             );
         }
-        $this->assertStringContainsString($usage, $this->command->getUsages()[0]);
+        $this->assertSame($usage, $this->command->getUsages());
     }
 
     public function testGetApplicationUuidFromBltYml(): void
@@ -962,5 +1007,162 @@ EOD;
         $this->assertIsArray($decoded['meta']);
         $this->assertArrayNotHasKey('_links', $decoded['meta']);
         $this->assertEquals(10, $decoded['meta']['count']);
+    }
+
+    /**
+     * Mutation test: MEO commands must remove _links from the response.
+     * Kills mutants that make isMeoCommand() return false or skip mungeResponse().
+     *
+     * When isMeoCommand() returns true, mungeResponse() is called and _links are removed.
+     * If a mutant makes isMeoCommand() return false, _links would remain and this assertion fails.
+     */
+    public function testMeoCommandRemovesLinksFromResponse(): void
+    {
+        $this->clientProphecy->addOption('headers', ['Accept' => 'application/hal+json, version=2'])
+            ->shouldBeCalled();
+
+        $item1 = (object)[
+            'id' => 1,
+            'name' => 'site1',
+            '_links' => (object)['self' => (object)['href' => '/api/site/1']],
+        ];
+        $mockResponse = [$item1];
+
+        $this->command = $this->getApiCommandByName('api:codebases:sites-list');
+        $this->clientProphecy->request(
+            $this->command->getMethod(),
+            '/codebases/test-codebase-uuid/sites'
+        )
+            ->willReturn($mockResponse)
+            ->shouldBeCalled();
+
+        $this->executeCommand(['codebaseId' => 'test-codebase-uuid']);
+
+        $output = $this->getDisplay();
+        $decoded = json_decode($output, true);
+
+        $this->assertIsArray($decoded);
+        $this->assertArrayNotHasKey('_links', $decoded[0], 'MEO command must remove _links from response');
+        $this->assertEquals(1, $decoded[0]['id']);
+        $this->assertEquals('site1', $decoded[0]['name']);
+    }
+
+    /**
+     * Mutation test: non-MEO commands must NOT remove _links.
+     * Ensures the MEO branch is not taken for other commands.
+     */
+    public function testNonMeoCommandPreservesLinksInResponse(): void
+    {
+        $this->clientProphecy->addOption('headers', ['Accept' => 'application/hal+json, version=2'])
+            ->shouldBeCalled();
+
+        $item1 = (object)[
+            'id' => 1,
+            'name' => 'key1',
+            '_links' => (object)['self' => (object)['href' => '/api/ssh-key/1']],
+        ];
+        $mockResponse = [$item1];
+
+        $this->command = $this->getApiCommandByName('api:accounts:ssh-keys-list');
+        $this->clientProphecy->request($this->command->getMethod(), $this->command->getPath())
+            ->willReturn($mockResponse)
+            ->shouldBeCalled();
+
+        $this->executeCommand();
+
+        $output = $this->getDisplay();
+        $decoded = json_decode($output, true);
+
+        $this->assertIsArray($decoded);
+        $this->assertCount(1, $decoded);
+        $this->assertArrayHasKey('_links', $decoded[0], 'Non-MEO command must preserve _links');
+    }
+
+    /**
+     * Mutation test: mungeResponse must remove top-level _links on an object.
+     * Kills mutants that skip the top-level unset in mungeResponse().
+     *
+     * Uses api:codebases:sites-list (MEO command with no environmentId) to avoid
+     * environment alias validation that would require extra API mocks.
+     */
+    public function testMeoCommandRemovesTopLevelLinksFromObjectResponse(): void
+    {
+        $this->clientProphecy->addOption('headers', ['Accept' => 'application/hal+json, version=2'])
+            ->shouldBeCalled();
+
+        $mockResponse = (object)[
+            'id' => 'site-123',
+            'name' => 'My Site',
+            '_links' => (object)['self' => (object)['href' => '/api/sites/123']],
+        ];
+
+        $this->command = $this->getApiCommandByName('api:codebases:sites-list');
+        $this->clientProphecy->request(
+            'get',
+            '/codebases/test-codebase-uuid/sites'
+        )
+            ->willReturn($mockResponse)
+            ->shouldBeCalled();
+
+        $this->executeCommand(['codebaseId' => 'test-codebase-uuid']);
+
+        $output = $this->getDisplay();
+        $decoded = json_decode($output, true);
+
+        $this->assertIsArray($decoded);
+        $this->assertArrayNotHasKey('_links', $decoded, 'MEO command must remove top-level _links');
+        $this->assertEquals('site-123', $decoded['id']);
+        $this->assertEquals('My Site', $decoded['name']);
+    }
+
+    /**
+     * Mutation test: mungeResponse must remove _links from array items (not just objects).
+     * Kills LogicalAnd mutant (line 152): is_object($value) && property_exists → || would call
+     * property_exists() on arrays and throw TypeError.
+     * Kills LogicalAndSingleSubExprNegation mutant (line 154): array_key_exists → !array_key_exists
+     * would skip removal when _links exists, leaving it in the output.
+     *
+     * Some MEO endpoints return top-level array responses (array of arrays). When foreach iterates,
+     * $value is an array - we must use array_key_exists for arrays, not property_exists.
+     */
+    public function testMeoCommandRemovesLinksFromArrayItemsInResponse(): void
+    {
+        $this->clientProphecy->addOption('headers', ['Accept' => 'application/hal+json, version=2'])
+            ->shouldBeCalled();
+
+        // Response: top-level array of arrays (each with _links). When foreach iterates,
+        // $value is each inner array - must use array_key_exists, not property_exists.
+        $mockResponse = [
+            [
+                'id' => 1,
+                'name' => 'site1',
+                '_links' => ['self' => ['href' => '/api/site/1']],
+            ],
+            [
+                'id' => 2,
+                'name' => 'site2',
+                '_links' => ['self' => ['href' => '/api/site/2']],
+            ],
+        ];
+
+        $this->command = $this->getApiCommandByName('api:codebases:sites-list');
+        $this->clientProphecy->request(
+            $this->command->getMethod(),
+            '/codebases/test-codebase-uuid/sites'
+        )
+            ->willReturn($mockResponse)
+            ->shouldBeCalled();
+
+        $this->executeCommand(['codebaseId' => 'test-codebase-uuid']);
+
+        $output = $this->getDisplay();
+        $decoded = json_decode($output, true);
+
+        $this->assertIsArray($decoded);
+        $this->assertCount(2, $decoded);
+        $this->assertArrayNotHasKey('_links', $decoded[0], 'MEO command must remove _links from array items');
+        $this->assertArrayNotHasKey('_links', $decoded[1], 'MEO command must remove _links from array items');
+        $this->assertEquals(1, $decoded[0]['id']);
+        $this->assertEquals('site2', $decoded[1]['name']);
     }
 }

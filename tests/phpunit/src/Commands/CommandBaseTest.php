@@ -7,7 +7,16 @@ namespace Acquia\Cli\Tests\Commands;
 use Acquia\Cli\Command\App\LinkCommand;
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Command\Ide\IdeListCommand;
+use Acquia\Cli\Command\Ide\IdePhpVersionCommand;
+use Acquia\Cli\Command\Ide\IdeServiceRestartCommand;
+use Acquia\Cli\Command\Ide\IdeServiceStartCommand;
+use Acquia\Cli\Command\Ide\IdeServiceStopCommand;
+use Acquia\Cli\Command\Ide\IdeShareCommand;
+use Acquia\Cli\Command\Ide\IdeXdebugToggleCommand;
+use Acquia\Cli\Command\Ide\Wizard\IdeWizardCreateSshKeyCommand;
+use Acquia\Cli\Command\Ide\Wizard\IdeWizardDeleteSshKeyCommand;
 use Acquia\Cli\Exception\AcquiaCliException;
+use Acquia\Cli\Tests\Commands\Ide\IdeHelper;
 use Acquia\Cli\Tests\CommandTestBase;
 use Symfony\Component\Validator\Exception\ValidatorException;
 
@@ -46,6 +55,45 @@ class CommandBaseTest extends CommandTestBase
         $this->createDataStores();
         $this->command = $this->injectCommand(IdeListCommand::class);
         $this->executeCommand();
+    }
+
+    /**
+     * Test getIdeHelperText returns the expected IDE helper string.
+     * Calling from test (outside class) ensures the method remains public.
+     */
+    public function testGetIdeHelperText(): void
+    {
+        $this->assertSame('This command will only work in an IDE terminal.', CommandBase::getIdeHelperText());
+    }
+
+    /**
+     * Test that all IDE-only commands append the IDE helper text to their help.
+     * Covers configure() appendHelp(CommandBase::getIdeHelperText()) in each command.
+     */
+    public function testIdeCommandsHelpContainsIdeHelperText(): void
+    {
+        $ideHelperText = 'This command will only work in an IDE terminal.';
+        $commandClasses = [
+            IdePhpVersionCommand::class,
+            IdeServiceRestartCommand::class,
+            IdeServiceStartCommand::class,
+            IdeServiceStopCommand::class,
+            IdeShareCommand::class,
+            IdeXdebugToggleCommand::class,
+            IdeWizardCreateSshKeyCommand::class,
+            IdeWizardDeleteSshKeyCommand::class,
+        ];
+
+        IdeHelper::setCloudIdeEnvVars();
+        try {
+            foreach ($commandClasses as $commandClass) {
+                $command = $this->injectCommand($commandClass);
+                $help = $command->getHelp();
+                $this->assertStringContainsString($ideHelperText, $help, $commandClass . ' help should contain IDE helper text.');
+            }
+        } finally {
+            IdeHelper::unsetCloudIdeEnvVars();
+        }
     }
 
     /**

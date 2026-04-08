@@ -130,7 +130,7 @@ class ApiBaseCommand extends CommandBase
             $exitCode = 1;
         }
 
-        if (substr($this->path, 0, 12) === '/translation') {
+        if (substr($this->path, 0, 12) === '/translation' || $this->isMeoCommand()) {
             $this->mungeResponse($response);
         }
         if ($exitCode || !$this->getParamFromInput($input, 'task-wait')) {
@@ -143,14 +143,16 @@ class ApiBaseCommand extends CommandBase
         return $success ? Command::SUCCESS : Command::FAILURE;
     }
 
-    private function mungeResponse(mixed $response): void
+    private function mungeResponse(mixed &$response): void
     {
         if (is_object($response) && property_exists($response, '_links')) {
             unset($response->_links);
         }
-        foreach ($response as $value) {
-            if (property_exists($value, '_links')) {
+        foreach ($response as &$value) {
+            if (is_object($value) && property_exists($value, '_links')) {
                 unset($value->_links);
+            } elseif (is_array($value) && array_key_exists('_links', $value)) {
+                unset($value['_links']);
             }
         }
     }
@@ -243,7 +245,7 @@ class ApiBaseCommand extends CommandBase
             if (in_array('integer', $types, true) && ctype_digit($value)) {
                 return $this->doCastParamType('integer', $value);
             }
-        } elseif ($paramSpec['type'] === 'array') {
+        } elseif ($this->getParamType($paramSpec) === 'array') {
             if (is_array($value) && count($value) === 1) {
                 return $this->castParamToArray($paramSpec, $value[0]);
             }
@@ -501,5 +503,23 @@ class ApiBaseCommand extends CommandBase
             return $array;
         }
         return $this->doCastParamType('array', $originalValue);
+    }
+
+    /**
+     * Check if this command is one of the MEO commands that should have _links removed.
+     */
+    private function isMeoCommand(): bool
+    {
+        $commandName = $this->getName();
+        $meoCommands = [
+            'api:codebases:sites-list',
+            'api:environments:sites-list',
+            'api:site-instances:find',
+            'api:site-instances:database',
+            'api:site-instances:database:backups',
+            'api:site-instances:domains',
+            'api:site-instances:domain:add',
+        ];
+        return in_array($commandName, $meoCommands, true);
     }
 }

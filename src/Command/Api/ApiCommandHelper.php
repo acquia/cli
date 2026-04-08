@@ -93,7 +93,7 @@ class ApiCommandHelper
             $requestBodySchema = $this->getRequestBodyFromParameterSchema($schema, $acquiaCloudSpec);
             /** @var \Symfony\Component\Console\Input\InputOption|InputArgument $parameterDefinition */
             foreach ($bodyInputDefinition as $parameterDefinition) {
-                $parameterSpecification = $this->getPropertySpecFromRequestBodyParam($requestBodySchema, $parameterDefinition);
+                $parameterSpecification = $this->getPropertySpecFromRequestBodyParam($requestBodySchema, $parameterDefinition, $acquiaCloudSpec);
                 $command->addPostParameter($parameterDefinition->getName(), $parameterSpecification);
             }
             $usage .= $requestBodyParamUsageSuffix;
@@ -125,6 +125,12 @@ class ApiCommandHelper
             $requestBodySchema['properties'] = [];
         }
         foreach ($requestBodySchema['properties'] as $propKey => $paramDefinition) {
+            // Resolve $ref inside individual property definitions.
+            if (array_key_exists('$ref', $paramDefinition)) {
+                $parts = explode('/', $paramDefinition['$ref']);
+                $paramKey = end($parts);
+                $paramDefinition = $this->getParameterSchemaFromSpec($paramKey, $acquiaCloudSpec);
+            }
             $isRequired = array_key_exists('required', $requestBodySchema) && in_array($propKey, $requestBodySchema['required'], true);
             $propKey = self::renameParameter($propKey);
 
@@ -141,7 +147,7 @@ class ApiCommandHelper
                     array_key_exists('type', $paramDefinition) && $paramDefinition['type'] === 'array' ? InputArgument::IS_ARRAY | InputArgument::REQUIRED : InputArgument::REQUIRED,
                     $description
                 );
-                $usage = $this->addPostArgumentUsageToExample($schema['requestBody'], $propKey, $paramDefinition, 'argument', $usage, $acquiaCloudSpec);
+                $usage = $this->addPostArgumentUsageToExample($schema['requestBody'], $propKey, $paramDefinition, 'argument', $usage ? $usage . ' ' : '', $acquiaCloudSpec);
             } else {
                 $inputDefinition[] = new InputOption(
                     $propKey,
@@ -149,7 +155,7 @@ class ApiCommandHelper
                     array_key_exists('type', $paramDefinition) && $paramDefinition['type'] === 'array' ? InputOption::VALUE_IS_ARRAY | InputOption::VALUE_REQUIRED : InputOption::VALUE_REQUIRED,
                     array_key_exists('description', $paramDefinition) ? $paramDefinition['description'] : $propKey
                 );
-                $usage = $this->addPostArgumentUsageToExample($schema["requestBody"], $propKey, $paramDefinition, 'option', $usage, $acquiaCloudSpec);
+                $usage = $this->addPostArgumentUsageToExample($schema["requestBody"], $propKey, $paramDefinition, 'option', $usage ? $usage . ' ' : '', $acquiaCloudSpec);
                 // @todo Add validator for $param['enum'] values?
             }
         }
@@ -168,31 +174,42 @@ class ApiCommandHelper
     private function addPostArgumentUsageToExample(mixed $requestBody, mixed $propKey, mixed $paramDefinition, string $type, string $usage, array $acquiaCloudSpec): string
     {
         $requestBodyContent = $this->getRequestBodyContent($requestBody, $acquiaCloudSpec);
-
+        // Example may live directly on the content-type object (inline requestBody),
+        // or nested inside schema (e.g. $ref-resolved requestBodies).
         if (array_key_exists('example', $requestBodyContent)) {
             $example = $requestBodyContent['example'];
+        } elseif (array_key_exists('schema', $requestBodyContent) && array_key_exists('example', $requestBodyContent['schema'])) {
+            $example = $requestBodyContent['schema']['example'];
+        } else {
+            return $usage;
+        }
+
+        if ($example) {
             $prefix = $type === 'argument' ? '' : "--$propKey=";
             if (array_key_exists($propKey, $example)) {
                 if (!array_key_exists('type', $paramDefinition)) {
                     return $usage;
                 }
+                $parts = [];
                 switch ($paramDefinition['type']) {
                     case 'object':
-                        $usage .= $prefix . '"' . json_encode($example[$propKey], JSON_THROW_ON_ERROR) . '"" ';
+                        // Wrap JSON in single quotes so inner double quotes remain shell-safe.
+                        $parts[] = sprintf("%s'%s'", $prefix, json_encode($example[$propKey], JSON_THROW_ON_ERROR));
                         break;
 
                     case 'array':
                         $isMultidimensional = count($example[$propKey]) !== count($example[$propKey], COUNT_RECURSIVE);
                         if (!$isMultidimensional) {
                             foreach ($example[$propKey] as $value) {
-                                $usage .= $prefix . "\"$value\" ";
+                                $parts[] = sprintf("%s'%s'", $prefix, $value);
                             }
                         } else {
                             // @todo Pretty sure prevents the user from using the arguments.
                             // Probably a bug. How can we allow users to specify a multidimensional array as an
                             // argument?
                             $value = json_encode($example[$propKey], JSON_THROW_ON_ERROR);
-                            $usage .= $prefix . "\"$value\" ";
+                            // Wrap JSON in single quotes so inner double quotes remain shell-safe.
+                            $parts[] = sprintf("%s'%s'", $prefix, $value);
                         }
                         break;
 
@@ -204,8 +221,11 @@ class ApiCommandHelper
                         } else {
                             $value = $example[$propKey];
                         }
-                        $usage .= $prefix . "\"$value\" ";
+                        $parts[] = sprintf("%s'%s'", $prefix, $value);
                         break;
+                }
+                if ($parts !== []) {
+                    return $usage . implode(' ', $parts);
                 }
             }
         }
@@ -482,10 +502,20 @@ class ApiCommandHelper
         return $requestBodySchema;
     }
 
-    private function getPropertySpecFromRequestBodyParam(array $requestBodySchema, mixed $parameterDefinition): mixed
+    private function getPropertySpecFromRequestBodyParam(array $requestBodySchema, mixed $parameterDefinition, array $acquiaCloudSpec = []): mixed
     {
         $name = self::restoreRenamedParameter($parameterDefinition->getName());
-        return $requestBodySchema['properties'][$name] ?? null;
+        $spec = $requestBodySchema['properties'][$name] ?? [];
+
+        // Resolve $ref in the property spec so downstream code (e.g. castParamType) always
+        // receives a fully resolved spec with a 'type' key rather than a bare $ref object.
+        if (array_key_exists('$ref', $spec)) {
+            $parts = explode('/', $spec['$ref']);
+            $paramKey = end($parts);
+            $spec = $this->getParameterSchemaFromSpec($paramKey, $acquiaCloudSpec);
+        }
+
+        return $spec;
     }
 
     /**
@@ -532,10 +562,11 @@ class ApiCommandHelper
                 continue;
             }
             $namespace = $commandNameParts[1];
-            if (!array_key_exists($namespace, $apiListCommands)) {
+            $name = $commandPrefix . ':' . $namespace;
+            $hasVisibleCommand = $this->namespaceHasVisibleCommand($apiCommands, $namespace);
+            if (!array_key_exists($name, $apiListCommands) && $hasVisibleCommand) {
                 /** @var \Acquia\Cli\Command\Acsf\AcsfListCommand|\Acquia\Cli\Command\Api\ApiListCommand $command */
                 $command = $commandFactory->createListCommand();
-                $name = $commandPrefix . ':' . $namespace;
                 $command->setName($name);
                 $command->setNamespace($name);
                 $command->setAliases([]);
@@ -544,6 +575,42 @@ class ApiCommandHelper
             }
         }
         return $apiListCommands;
+    }
+
+    /**
+     * Whether any API command in the given namespace is visible (not hidden).
+     *
+     * List commands (api:{namespace}) are only registered when at least one sub-command
+     * under that namespace exists and is visible. If every sub-command is hidden
+     * (deprecated/pre-release), the namespace list is omitted.
+     *
+     * @param ApiBaseCommand[] $apiCommands
+     */
+    private function namespaceHasVisibleCommand(array $apiCommands, string $namespace): bool
+    {
+        $commandsInNamespace = [];
+        foreach ($apiCommands as $apiCommand) {
+            $commandNameParts = explode(':', $apiCommand->getName());
+            if (count($commandNameParts) < 3) {
+                continue;
+            }
+            if ($commandNameParts[1] !== $namespace) {
+                continue;
+            }
+            $commandsInNamespace[] = $apiCommand;
+        }
+
+        if ($commandsInNamespace === []) {
+            return false;
+        }
+
+        foreach ($commandsInNamespace as $command) {
+            if (!$command->isHidden()) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
