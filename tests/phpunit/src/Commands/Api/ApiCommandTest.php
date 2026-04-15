@@ -19,10 +19,23 @@ use Symfony\Component\Yaml\Yaml;
  */
 class ApiCommandTest extends CommandTestBase
 {
+    private string|false $originalCodebaseUuid;
+
     public function setUp(): void
     {
         parent::setUp();
         putenv('ACQUIA_CLI_USE_CLOUD_API_SPEC_CACHE=1');
+        $this->originalCodebaseUuid = getenv('AH_CODEBASE_UUID');
+    }
+
+    protected function tearDown(): void
+    {
+        if ($this->originalCodebaseUuid === false) {
+            putenv('AH_CODEBASE_UUID');
+        } else {
+            putenv('AH_CODEBASE_UUID=' . $this->originalCodebaseUuid);
+        }
+        parent::tearDown();
     }
 
     protected function createCommand(): CommandBase
@@ -1164,5 +1177,84 @@ EOD;
         $this->assertArrayNotHasKey('_links', $decoded[1], 'MEO command must remove _links from array items');
         $this->assertEquals(1, $decoded[0]['id']);
         $this->assertEquals('site2', $decoded[1]['name']);
+    }
+
+    /**
+     * When AH_CODEBASE_UUID is set, PathRewriteConnector rewrites /applications/{uuid}/...
+     * paths. Response _links must be stripped to avoid exposing translation API paths.
+     */
+    public function testRewrittenMeoPathRemovesLinksFromResponse(): void
+    {
+        putenv('AH_CODEBASE_UUID=test-codebase-uuid');
+
+        $this->clientProphecy->addOption('headers', ['Accept' => 'application/hal+json, version=2'])
+            ->shouldBeCalled();
+
+        $mockResponse = (object) [
+            'id' => 'shared-1234567891011-121',
+            'label' => 'example-0',
+            '_links' => (object) [
+                'self' => (object) ['href' => '/api/config-sets/shared-1234567891011-121'],
+            ],
+        ];
+
+        $this->command = $this->getApiCommandByName('api:applications:search:configuration-set-find');
+        $this->clientProphecy->request(
+            $this->command->getMethod(),
+            '/applications/da1c0a8e-ff69-45db-88fc-acd6d2affbb7/search/config-sets/test-config-set-id'
+        )
+            ->willReturn($mockResponse)
+            ->shouldBeCalled();
+
+        $this->executeCommand([
+            'applicationUuid' => 'da1c0a8e-ff69-45db-88fc-acd6d2affbb7',
+            'configurationSetId' => 'test-config-set-id',
+        ]);
+
+        $output = $this->getDisplay();
+        $decoded = json_decode($output, true);
+
+        $this->assertIsArray($decoded);
+        $this->assertArrayNotHasKey('_links', $decoded, 'Rewritten MEO path must remove _links from response');
+        $this->assertEquals('shared-1234567891011-121', $decoded['id']);
+        $this->assertEquals('example-0', $decoded['label']);
+    }
+
+    /**
+     * When AH_CODEBASE_UUID is NOT set, /applications/ commands must preserve _links.
+     */
+    public function testNonMeoApplicationCommandPreservesLinks(): void
+    {
+        putenv('AH_CODEBASE_UUID');
+
+        $this->clientProphecy->addOption('headers', ['Accept' => 'application/hal+json, version=2'])
+            ->shouldBeCalled();
+
+        $mockResponse = (object) [
+            'id' => 'shared-1234567891011-121',
+            'label' => 'example-0',
+            '_links' => (object) [
+                'self' => (object) ['href' => '/api/config-sets/shared-1234567891011-121'],
+            ],
+        ];
+
+        $this->command = $this->getApiCommandByName('api:applications:search:configuration-set-find');
+        $this->clientProphecy->request(
+            $this->command->getMethod(),
+            '/applications/da1c0a8e-ff69-45db-88fc-acd6d2affbb7/search/config-sets/test-config-set-id'
+        )
+            ->willReturn($mockResponse)
+            ->shouldBeCalled();
+
+        $this->executeCommand([
+            'applicationUuid' => 'da1c0a8e-ff69-45db-88fc-acd6d2affbb7',
+            'configurationSetId' => 'test-config-set-id',
+        ]);
+
+        $output = $this->getDisplay();
+        $decoded = json_decode($output, true);
+
+        $this->assertIsArray($decoded);
+        $this->assertArrayHasKey('_links', $decoded, 'Non-MEO application command must preserve _links');
     }
 }

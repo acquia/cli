@@ -130,7 +130,7 @@ class ApiBaseCommand extends CommandBase
             $exitCode = 1;
         }
 
-        if (substr($this->path, 0, 12) === '/translation' || $this->isMeoCommand()) {
+        if (substr($this->path, 0, 12) === '/translation' || $this->isMeoCommand() || $this->isRewrittenMeoPath()) {
             $this->mungeResponse($response);
         }
         if ($exitCode || !$this->getParamFromInput($input, 'task-wait')) {
@@ -521,5 +521,17 @@ class ApiBaseCommand extends CommandBase
             'api:site-instances:domain:add',
         ];
         return in_array($commandName, $meoCommands, true);
+    }
+
+    /**
+     * Check if the command path will be rewritten by PathRewriteConnector for MEO.
+     *
+     * When AH_CODEBASE_UUID is set, PathRewriteConnector rewrites /applications/{uuid}/...
+     * to /translation/codebases/{codebaseUuid}/..., so response _links may contain
+     * translation API paths that should not be exposed to customers.
+     */
+    private function isRewrittenMeoPath(): bool
+    {
+        return self::getCodebaseUuid() && str_starts_with($this->path, '/applications/');
     }
 }
