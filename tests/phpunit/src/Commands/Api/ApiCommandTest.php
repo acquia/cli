@@ -421,7 +421,7 @@ EOD;
 
     public function testMeoEnvironmentSearchIndexCreate(): void
     {
-        $environmentId = 'cbffc507-a720-40b3-9545-c0e2cb46d281';
+        $environmentId = '24-a47ac10b-58cc-4372-a567-0e02b2c3d470';
         $this->clientProphecy->addOption('headers', ['Accept' => 'application/hal+json, version=2'])
             ->shouldBeCalled();
         $mockRequestArgs = self::getMockRequestBodyFromSpec('/translation/environments/{environmentId}/search/indexes');
