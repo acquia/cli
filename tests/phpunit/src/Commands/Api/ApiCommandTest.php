@@ -424,13 +424,13 @@ EOD;
         $environmentId = 'cbffc507-a720-40b3-9545-c0e2cb46d281';
         $this->clientProphecy->addOption('headers', ['Accept' => 'application/hal+json, version=2'])
             ->shouldBeCalled();
-        $mockRequestArgs = self::getMockRequestBodyFromSpec('/v3/environments/{environmentId}/search/indexes');
-        $mockResponseBody = self::getMockResponseFromSpec('/v3/environments/{environmentId}/search/indexes', 'post', '202');
+        $mockRequestArgs = self::getMockRequestBodyFromSpec('/translation/environments/{environmentId}/search/indexes');
+        $mockResponseBody = self::getMockResponseFromSpec('/translation/environments/{environmentId}/search/indexes', 'post', '202');
         foreach ($mockRequestArgs as $name => $value) {
             $this->clientProphecy->addOption('json', [$name => $value])
                 ->shouldBeCalled();
         }
-        $this->clientProphecy->request('post', '/v3/environments/' . $environmentId . '/search/indexes')
+        $this->clientProphecy->request('post', '/translation/environments/' . $environmentId . '/search/indexes')
             ->willReturn($mockResponseBody)
             ->shouldBeCalled();
         $this->command = $this->getApiCommandByName('api:environments-v3:search:index-create');

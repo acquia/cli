@@ -44239,11 +44239,10 @@
         ]
       }
     },
-    "/v3/environments/{environmentId}/search/indexes": {
+    "/translation/environments/{environmentId}/search/indexes": {
       "post": {
-        "operationId": "postV3EnvironmentSearchIndexes",
+        "operationId": "postTranslationEnvironmentSearchIndexes",
         "x-cli-name": "environments-v3:search:index-create",
-        "x-prerelease": true,
         "tags": [
           "Environments"
         ],
@@ -44272,46 +44271,46 @@
               "schema": {
                 "type": "object",
                 "required": [
-                  "indexName",
-                  "configsetUuid"
+                  "config_set_id",
+                  "database_role"
                 ],
                 "properties": {
-                  "indexName": {
-                    "type": "string",
-                    "description": "The machine name to be assigned to the new Solr core."
-                  },
-                  "configsetUuid": {
+                  "config_set_id": {
                     "type": "string",
                     "description": "The identifier of the Solr configuration set to be used."
+                  },
+                  "database_role": {
+                    "type": "string",
+                    "description": "The database role for the new Solr core."
                   }
                 }
               },
               "example": {
-                "indexName": "example",
-                "configsetUuid": "DHJX-211844.9bb9b2f2c26be19cadf4057b95ad5ad6"
+                "config_set_id": "DHJX-211844.9bb9b2f2c26be19cadf4057b95ad5ad6",
+                "database_role": "example"
               }
             },
             "application/x-www-form-urlencoded": {
               "schema": {
                 "type": "object",
                 "required": [
-                  "indexName",
-                  "configsetUuid"
+                  "config_set_id",
+                  "database_role"
                 ],
                 "properties": {
-                  "indexName": {
-                    "type": "string",
-                    "description": "The machine name to be assigned to the new Solr core."
-                  },
-                  "configsetUuid": {
+                  "config_set_id": {
                     "type": "string",
                     "description": "The identifier of the Solr configuration set to be used."
+                  },
+                  "database_role": {
+                    "type": "string",
+                    "description": "The database role for the new Solr core."
                   }
                 }
               },
               "example": {
-                "indexName": "example",
-                "configsetUuid": "DHJX-211844.9bb9b2f2c26be19cadf4057b95ad5ad6"
+                "config_set_id": "DHJX-211844.9bb9b2f2c26be19cadf4057b95ad5ad6",
+                "database_role": "example"
               }
             }
           }
