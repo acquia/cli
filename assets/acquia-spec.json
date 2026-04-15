@@ -44239,6 +44239,192 @@
         ]
       }
     },
+    "/v3/environments/{environmentId}/search/indexes": {
+      "post": {
+        "operationId": "postV3EnvironmentSearchIndexes",
+        "x-cli-name": "environments-v3:search:index-create",
+        "x-prerelease": true,
+        "tags": [
+          "Environments"
+        ],
+        "summary": "Provisions a new Solr core (search index) within a specific environment.",
+        "description": "Provisions a new Solr core (search index) within a specific environment. This command is used to initialize search capabilities for a site instance after a Solr configuration set has been identified.",
+        "parameters": [
+          {
+            "name": "environmentId",
+            "in": "path",
+            "description": "The UUID of the environment where the index will be created.",
+            "required": true,
+            "deprecated": false,
+            "allowEmptyValue": false,
+            "schema": {
+              "type": "string"
+            },
+            "style": "simple",
+            "explode": false,
+            "allowReserved": false
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/hal+json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "indexName",
+                  "configsetUuid"
+                ],
+                "properties": {
+                  "indexName": {
+                    "type": "string",
+                    "description": "The machine name to be assigned to the new Solr core."
+                  },
+                  "configsetUuid": {
+                    "type": "string",
+                    "description": "The UUID of the Solr configuration set to be used (retrieved via codebase:solr-configset-list)."
+                  }
+                }
+              },
+              "example": {
+                "indexName": "example",
+                "configsetUuid": "ABCDE-1234.12345ab6c7e8f90g12i1jk234l56mn78"
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "indexName",
+                  "configsetUuid"
+                ],
+                "properties": {
+                  "indexName": {
+                    "type": "string",
+                    "description": "The machine name to be assigned to the new Solr core."
+                  },
+                  "configsetUuid": {
+                    "type": "string",
+                    "description": "The UUID of the Solr configuration set to be used (retrieved via codebase:solr-configset-list)."
+                  }
+                }
+              },
+              "example": {
+                "indexName": "example",
+                "configsetUuid": "ABCDE-1234.12345ab6c7e8f90g12i1jk234l56mn78"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "OK",
+            "content": {
+              "application/hal+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Acquia_Cloud_API_Documentation_message-with-links"
+                },
+                "example": {
+                  "message": "The search index for example is being created.",
+                  "_links": {
+                    "self": {
+                      "href": "https://cloud.acquia.com/api/environments/3e8ecbec-ea7c-4260-8414-ef2938c859bc/search/indexes/ABCDE-1234.test.example"
+                    },
+                    "parent": {
+                      "href": "https://cloud.acquia.com/api/environments/3e8ecbec-ea7c-4260-8414-ef2938c859bc/search/indexes/"
+                    },
+                    "notification": {
+                      "href": "https://cloud.acquia.com/api/notifications/5494cbe6-fe98-4cfa-877b-05bab3be3bf8"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input"
+          },
+          "401": {
+            "description": "Authorization required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "system"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Full authentication is required to access this resource."
+                    },
+                    "code": {
+                      "type": "integer",
+                      "example": 401
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access Denied",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "forbidden"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Access Denied."
+                    },
+                    "code": {
+                      "type": "integer",
+                      "example": 403
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "not_found"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "The environment you are trying to access does not exist, or you do not have permission to access it."
+                    },
+                    "code": {
+                      "type": "integer",
+                      "example": 404
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "deprecated": false,
+        "security": [
+          {
+            "MEO_Environment_Service_JWT": []
+          }
+        ]
+      }
+    },
     "/private-networks": {
       "post": {
         "summary": "Create a new Private Network",
