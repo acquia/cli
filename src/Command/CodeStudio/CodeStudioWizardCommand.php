@@ -378,10 +378,9 @@ final class CodeStudioWizardCommand extends WizardCommandBase
     private function promptForNodeVersions(): string
     {
         $nodeVersions = [
-            'NODE_version_20' => "20",
             'NODE_version_22' => "22",
         ];
-        $nodeChoice = $this->io->choice('Select a NODE version', array_values($nodeVersions), "20");
+        $nodeChoice = $this->io->choice('Select a NODE version', array_values($nodeVersions), "22");
         $nodeKey = array_search($nodeChoice, $nodeVersions, true);
         return $nodeVersions[$nodeKey];
     }
