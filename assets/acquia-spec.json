@@ -44282,13 +44282,13 @@
                   },
                   "configsetUuid": {
                     "type": "string",
-                    "description": "The UUID of the Solr configuration set to be used (retrieved via codebase:solr-configset-list)."
+                    "description": "The identifier of the Solr configuration set to be used."
                   }
                 }
               },
               "example": {
                 "indexName": "example",
-                "configsetUuid": "ABCDE-1234.12345ab6c7e8f90g12i1jk234l56mn78"
+                "configsetUuid": "DHJX-211844.9bb9b2f2c26be19cadf4057b95ad5ad6"
               }
             },
             "application/x-www-form-urlencoded": {
@@ -44305,20 +44305,20 @@
                   },
                   "configsetUuid": {
                     "type": "string",
-                    "description": "The UUID of the Solr configuration set to be used (retrieved via codebase:solr-configset-list)."
+                    "description": "The identifier of the Solr configuration set to be used."
                   }
                 }
               },
               "example": {
                 "indexName": "example",
-                "configsetUuid": "ABCDE-1234.12345ab6c7e8f90g12i1jk234l56mn78"
+                "configsetUuid": "DHJX-211844.9bb9b2f2c26be19cadf4057b95ad5ad6"
               }
             }
           }
         },
         "responses": {
           "202": {
-            "description": "OK",
+            "description": "Accepted",
             "content": {
               "application/hal+json": {
                 "schema": {
