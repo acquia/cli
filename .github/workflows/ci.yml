@@ -101,6 +101,13 @@ jobs:
           if [ -n '${{ secrets.ACQUIA_SPEC_ADDITIONAL }}' ]; then
             echo '${{ secrets.ACQUIA_SPEC_ADDITIONAL }}' | jq . > assets/acquia-spec-additional.json
           fi
+      - name: 'Debug: Print additional spec'
+        run: |
+          if [ -f assets/acquia-spec-additional.json ]; then
+            cat assets/acquia-spec-additional.json
+          else
+            echo "No additional spec file found"
+          fi
       - name: 'Merge additional specs into base spec'
         run: |
           if [ -f assets/acquia-spec-additional.json ]; then
