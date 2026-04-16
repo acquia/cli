@@ -419,6 +419,34 @@ EOD;
         $this->assertStringContainsString('Adding SSH key.', $output);
     }
 
+    public function testMeoEnvironmentSearchIndexCreate(): void
+    {
+        $environmentId = '24-a47ac10b-58cc-4372-a567-0e02b2c3d470';
+        $this->clientProphecy->addOption('headers', ['Accept' => 'application/hal+json, version=2'])
+            ->shouldBeCalled();
+        $mockRequestArgs = self::getMockRequestBodyFromSpec('/translation/environments/{environmentId}/search/indexes');
+        $mockResponseBody = self::getMockResponseFromSpec('/translation/environments/{environmentId}/search/indexes', 'post', '202');
+        foreach ($mockRequestArgs as $name => $value) {
+            $this->clientProphecy->addOption('json', [$name => $value])
+                ->shouldBeCalled();
+        }
+        $this->clientProphecy->request('post', '/translation/environments/' . $environmentId . '/search/indexes')
+            ->willReturn($mockResponseBody)
+            ->shouldBeCalled();
+        $this->command = $this->getApiCommandByName('api:environments-v3:search:index-create');
+        $this->executeCommand(array_merge(
+            ['environmentId' => $environmentId],
+            $mockRequestArgs,
+        ));
+
+        // Assert.
+        $output = $this->getDisplay();
+        $this->assertNotNull($output);
+        $this->assertJson($output);
+        $this->assertStringContainsString('The search index for example is being created.', $output);
+        $this->assertEquals(0, $this->getStatusCode());
+    }
+
     public function testApiCommandExecutionForHttpPut(): void
     {
         $this->clientProphecy->addOption('headers', ['Accept' => 'application/hal+json, version=2'])
