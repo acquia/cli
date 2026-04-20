@@ -661,12 +661,8 @@ abstract class TestBase extends TestCase
     protected function getMockSiteInstanceDatabaseResponse(string $method = 'get', string $httpCode = '200'): object
     {
         return (object) array(
-            'database_host' => 'localhost',
             'database_name' => 'example',
-            'database_password' => 'example@123',
-            'database_port' => 3306,
             'database_role' => 'example',
-            'database_user_name' => 'example',
             '_links' =>
                 (object) array(
                     'self' =>
@@ -676,6 +672,25 @@ abstract class TestBase extends TestCase
                 ),
         );
     }
+
+    protected function getMockSiteInstanceDatabaseConnectionResponse(): object
+    {
+        return (object) array(
+            'db_host' => 'localhost',
+            'name' => 'example',
+            'password' => 'example@123',
+            'ssh_host' => '',
+            'user_name' => 'example',
+            '_links' =>
+                (object) array(
+                    'self' =>
+                        (object) array(
+                            'href' => 'https://environment-service-php.acquia.com/api/site-instances/3e8ecbec-ea7c-4260-8414-ef2938c859bc.d3f7270e-c45f-4801-9308-5e8afe84a323/database/connection',
+                        ),
+                ),
+        );
+    }
+
     protected function getMockSiteInstanceDatabaseBackupsResponse(string $method = 'get', string $httpCode = '200'): object
     {
         if ($method === 'post') {

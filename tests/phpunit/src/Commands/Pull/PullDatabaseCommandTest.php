@@ -11,6 +11,7 @@ use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Helpers\SshHelper;
 use Acquia\Cli\Transformer\EnvironmentTransformer;
 use AcquiaCloudApi\Response\SiteInstanceDatabaseBackupResponse;
+use AcquiaCloudApi\Response\SiteInstanceDatabaseConnectionResponse;
 use AcquiaCloudApi\Response\SiteInstanceDatabaseResponse;
 use GuzzleHttp\Client;
 use Prophecy\Argument;
@@ -463,6 +464,10 @@ class PullDatabaseCommandTest extends PullCommandTestBase
         $this->clientProphecy->request('get', '/site-instances/8979a8ac-80dc-4df8-b2f0-6be36554a370.3e8ecbec-ea7c-4260-8414-ef2938c859bc/database')
             ->willReturn($siteInstanceDatabase)
             ->shouldBeCalled();
+        $siteInstanceDatabaseConnection = $this->getMockSiteInstanceDatabaseConnectionResponse();
+        $this->clientProphecy->request('get', '/site-instances/8979a8ac-80dc-4df8-b2f0-6be36554a370.3e8ecbec-ea7c-4260-8414-ef2938c859bc/database/connection')
+            ->willReturn($siteInstanceDatabaseConnection)
+            ->shouldBeCalled();
         $createSiteInstanceDatabaseBackup = $this->getMockSiteInstanceDatabaseBackupsResponse('post', '201');
         $this->clientProphecy->request('post', '/site-instances/8979a8ac-80dc-4df8-b2f0-6be36554a370.3e8ecbec-ea7c-4260-8414-ef2938c859bc/database/backups')
             ->willReturn($createSiteInstanceDatabaseBackup);
@@ -472,7 +477,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase
             ->shouldBeCalled();
 
         $url = "https://environment-service-php.acquia.com/api/environments/d3f7270e-c45f-4801-9308-5e8afe84a323/";
-        $this->mockDownloadCodebaseBackup(EnvironmentTransformer::transformSiteInstanceDatabase(new SiteInstanceDatabaseResponse($siteInstanceDatabase)), $url, EnvironmentTransformer::transformSiteInstanceDatabaseBackup(new SiteInstanceDatabaseBackupResponse($siteInstanceDatabaseBackups->_embedded->items[0])));
+        $this->mockDownloadCodebaseBackup(EnvironmentTransformer::transformSiteInstanceDatabase(new SiteInstanceDatabaseResponse($siteInstanceDatabase), new SiteInstanceDatabaseConnectionResponse($siteInstanceDatabaseConnection)), $url, EnvironmentTransformer::transformSiteInstanceDatabaseBackup(new SiteInstanceDatabaseBackupResponse($siteInstanceDatabaseBackups->_embedded->items[0])));
 
         $localMachineHelper = $this->mockLocalMachineHelper();
         $this->mockExecuteMySqlConnect($localMachineHelper, true);
@@ -587,6 +592,10 @@ class PullDatabaseCommandTest extends PullCommandTestBase
         $this->clientProphecy->request('get', '/site-instances/8979a8ac-80dc-4df8-b2f0-6be36554a370.3e8ecbec-ea7c-4260-8414-ef2938c859bc/database')
             ->willReturn($siteInstanceDatabase)
             ->shouldBeCalled();
+        $siteInstanceDatabaseConnection = $this->getMockSiteInstanceDatabaseConnectionResponse();
+        $this->clientProphecy->request('get', '/site-instances/8979a8ac-80dc-4df8-b2f0-6be36554a370.3e8ecbec-ea7c-4260-8414-ef2938c859bc/database/connection')
+            ->willReturn($siteInstanceDatabaseConnection)
+            ->shouldBeCalled();
         $createSiteInstanceDatabaseBackup = $this->getMockSiteInstanceDatabaseBackupsResponse('post', '201');
         $this->clientProphecy->request('post', '/site-instances/8979a8ac-80dc-4df8-b2f0-6be36554a370.3e8ecbec-ea7c-4260-8414-ef2938c859bc/database/backups')
             ->willReturn($createSiteInstanceDatabaseBackup)
@@ -598,7 +607,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase
             ->shouldBeCalled();
 
         $url = "https://environment-service-php.acquia.com/api/environments/d3f7270e-c45f-4801-9308-5e8afe84a323/";
-        $this->mockDownloadCodebaseBackup(EnvironmentTransformer::transformSiteInstanceDatabase(new SiteInstanceDatabaseResponse($siteInstanceDatabase)), $url, EnvironmentTransformer::transformSiteInstanceDatabaseBackup(new SiteInstanceDatabaseBackupResponse($siteInstanceDatabaseBackups->_embedded->items[0])));
+        $this->mockDownloadCodebaseBackup(EnvironmentTransformer::transformSiteInstanceDatabase(new SiteInstanceDatabaseResponse($siteInstanceDatabase), new SiteInstanceDatabaseConnectionResponse($siteInstanceDatabaseConnection)), $url, EnvironmentTransformer::transformSiteInstanceDatabaseBackup(new SiteInstanceDatabaseBackupResponse($siteInstanceDatabaseBackups->_embedded->items[0])));
 
         $localMachineHelper = $this->mockLocalMachineHelper();
         $this->mockExecuteMySqlConnect($localMachineHelper, true);
