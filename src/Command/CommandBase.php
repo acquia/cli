@@ -591,11 +591,13 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
         $codebaseUuid = self::getCodebaseUuid();
         if ($codebaseUuid && $this->siteId) {
             $siteInstanceDb = $this->getSiteInstanceDatabase($this->siteId, $chosenEnvironment->uuid);
-            $siteInstanceDbConnection = $this->getSiteInstanceDatabaseConnection($this->siteId, $chosenEnvironment->uuid);
-            if ($siteInstanceDb && $siteInstanceDbConnection) {
-                $siteInstanceDatabaseResponse = EnvironmentTransformer::transformSiteInstanceDatabase($siteInstanceDb, $siteInstanceDbConnection);
-                if ($siteInstanceDatabaseResponse) {
-                    return [$siteInstanceDatabaseResponse];
+            if ($siteInstanceDb) {
+                $siteInstanceDbConnection = $this->getSiteInstanceDatabaseConnection($this->siteId, $chosenEnvironment->uuid);
+                if ($siteInstanceDbConnection) {
+                    $siteInstanceDatabaseResponse = EnvironmentTransformer::transformSiteInstanceDatabase($siteInstanceDb, $siteInstanceDbConnection);
+                    if ($siteInstanceDatabaseResponse) {
+                        return [$siteInstanceDatabaseResponse];
+                    }
                 }
             }
         }

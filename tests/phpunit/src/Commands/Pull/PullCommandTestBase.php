@@ -41,6 +41,7 @@ abstract class PullCommandTestBase extends CommandTestBase
             'ACLI_DB_USER',
             'ACLI_DB_PASSWORD',
             'ACLI_DB_NAME',
+            'AH_CODEBASE_UUID',
         ]);
         parent::setUp();
     }
