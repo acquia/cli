@@ -74,8 +74,8 @@ class EnvironmentTransformer
     }
 
     /**
-     * Transform a SiteInstanceDatabaseResponse and SiteInstanceDatabaseConnectionResponse
-     * object to a DatabaseResponse object.
+     * Transform SiteInstanceDatabaseResponse and SiteInstanceDatabaseConnectionResponse
+     * objects to a DatabaseResponse object.
      */
     public static function transformSiteInstanceDatabase(SiteInstanceDatabaseResponse $siteInstanceDb, SiteInstanceDatabaseConnectionResponse $siteInstanceDbConnection): DatabaseResponse
     {

@@ -655,7 +655,8 @@ class PullDatabaseCommandTest extends PullCommandTestBase
     {
         // Mock the client to throw an exception.
         $this->clientProphecy->request('get', Argument::containingString('/site-instances/'))
-            ->willThrow(new \Exception('API Connection Error'));
+            ->willThrow(new \Exception('API Connection Error'))
+            ->shouldBeCalled();
 
         // Use reflection to call the private method (PHP 8.1+ doesn't need setAccessible).
         $reflection = new \ReflectionClass($this->command);
@@ -676,7 +677,8 @@ class PullDatabaseCommandTest extends PullCommandTestBase
     {
         // Mock the client to throw an exception.
         $this->clientProphecy->request('get', Argument::containingString('/site-instances/'))
-            ->willThrow(new \Exception('API Error'));
+            ->willThrow(new \Exception('API Error'))
+            ->shouldBeCalled();
 
         // Use reflection to call the private method (PHP 8.1+ doesn't need setAccessible).
         $reflection = new \ReflectionClass($this->command);
