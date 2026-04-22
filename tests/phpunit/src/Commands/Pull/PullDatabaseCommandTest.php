@@ -740,4 +740,80 @@ class PullDatabaseCommandTest extends PullCommandTestBase
 
         self::unsetEnvVars(['AH_CODEBASE_UUID']);
     }
+
+    /**
+     * Test that when getSiteInstanceDatabase throws an exception and returns null,
+     * the code falls back to the regular ACSF database endpoint.
+     *
+     * This ensures code coverage for the first nested if check:
+     * if ($siteInstanceDb) {
+     *     // This block should NOT execute when $siteInstanceDb is null
+     * }
+     * // Falls back to regular database endpoint
+     */
+    public function testGetSiteInstanceDatabaseExceptionHandling(): void
+    {
+        $codebaseUuid = '11111111-041c-44c7-a486-7972ed2cafc8';
+        self::SetEnvVars(['AH_CODEBASE_UUID' =>  $codebaseUuid]);
+
+        // Mock codebase.
+        $codebase =  $this->getMockCodeBaseResponse();
+        $this->clientProphecy->request('get', '/codebases/' . $codebaseUuid)
+            ->willReturn($codebase);
+
+        // Mock codebase environment.
+        $codebaseEnv = $this->getMockCodeBaseEnvironment();
+        $this->clientProphecy->request('get', '/codebases/' . $codebaseUuid . '/environments')
+            ->willReturn([$codebaseEnv])
+            ->shouldBeCalled();
+
+        // Mock codebase sites.
+        $codeabaseSites = $this->getMockCodeBaseSites();
+        $this->clientProphecy->request('get', '/codebases/' . $codebaseUuid . '/sites')
+            ->willReturn($codeabaseSites);
+
+        // CRITICAL: Make getSiteInstanceDatabase throw an exception
+        // This tests the first nested if ($siteInstanceDb) when it's null.
+        $this->clientProphecy->request('get', '/site-instances/8979a8ac-80dc-4df8-b2f0-6be36554a370.3e8ecbec-ea7c-4260-8414-ef2938c859bc/database')
+            ->willThrow(new \Exception('Site instance database not found'));
+
+        // Mock the fallback call to /environments/{uuid}/databases.
+        $mockDatabase = (object)[
+            'db_host' => 'fsdb-test.acquia.com',
+            'environment' => (object)['id' => '3e8ecbec-ea7c-4260-8414-ef2938c859bc', 'name' => 'dev'],
+            'flags' => (object)['default' => true],
+            'id' => 'testdb123',
+            'name' => 'testdb',
+            'password' => 'password',
+            'ssh_host' => 'web-test.acquia.com',
+            'url' => 'mysqli://testuser:password@127.0.0.1:3306/testdb',
+            'user_name' => 'testuser',
+            '_links' => (object)['self' => (object)['href' => 'https://cloud.acquia.com/api/environments/3e8ecbec-ea7c-4260-8414-ef2938c859bc/databases/testdb']],
+        ];
+        $databaseResponse = new \AcquiaCloudApi\Response\DatabaseResponse($mockDatabase);
+
+        $this->clientProphecy->request('get', '/environments/3e8ecbec-ea7c-4260-8414-ef2938c859bc/databases')
+            ->willReturn([$databaseResponse]);
+
+        // Mock backups to create an on-demand backup scenario.
+        $this->clientProphecy->request('get', '/environments/3e8ecbec-ea7c-4260-8414-ef2938c859bc/databases/testdb/backups')
+            ->willReturn([]);
+
+        // Mock local machine for MySQL operations.
+        $localMachineHelper = $this->mockLocalMachineHelper();
+        $this->mockExecuteMySqlConnect($localMachineHelper, false);
+
+        $inputs = self::inputChooseEnvironment();
+
+        // Expect exception when MySQL connection fails.
+        $this->expectException(AcquiaCliException::class);
+        $this->expectExceptionMessage('Unable to connect');
+
+        $this->executeCommand([
+            '--no-scripts' => true,
+            'site' => 'jxr5000596dev',
+        ], $inputs);
+
+        self::unsetEnvVars(['AH_CODEBASE_UUID']);
+    }
 }
