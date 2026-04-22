@@ -657,10 +657,30 @@ class PullDatabaseCommandTest extends PullCommandTestBase
         $this->clientProphecy->request('get', Argument::containingString('/site-instances/'))
             ->willThrow(new \Exception('API Connection Error'));
 
-        // Use reflection to call the private method.
+        // Use reflection to call the private method (PHP 8.1+ doesn't need setAccessible).
         $reflection = new \ReflectionClass($this->command);
         $method = $reflection->getMethod('getSiteInstanceDatabaseConnection');
-        $method->setAccessible(true);
+
+        // Call the method - it should catch the exception and return null.
+        $result = $method->invoke($this->command, 'test-site-uuid', 'test-env-uuid');
+
+        // Assert null is returned when exception is caught.
+        $this->assertNull($result);
+    }
+
+    /**
+     * Test catch block in getSiteInstanceDatabase method.
+     * Covers the logger->debug() line when an exception is caught.
+     */
+    public function testGetSiteInstanceDatabaseCatchBlock(): void
+    {
+        // Mock the client to throw an exception.
+        $this->clientProphecy->request('get', Argument::containingString('/site-instances/'))
+            ->willThrow(new \Exception('API Error'));
+
+        // Use reflection to call the private method (PHP 8.1+ doesn't need setAccessible).
+        $reflection = new \ReflectionClass($this->command);
+        $method = $reflection->getMethod('getSiteInstanceDatabase');
 
         // Call the method - it should catch the exception and return null.
         $result = $method->invoke($this->command, 'test-site-uuid', 'test-env-uuid');
