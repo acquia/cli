@@ -643,4 +643,82 @@ class PullDatabaseCommandTest extends PullCommandTestBase
 
         self::unsetEnvVars(['AH_CODEBASE_UUID']);
     }
+
+    public function testPullDatabasesCodebaseBackupMissingDownloadUrl(): void
+    {
+        $codebaseUuid = '11111111-041c-44c7-a486-7972ed2cafc8';
+        self::SetEnvVars(['AH_CODEBASE_UUID' => $codebaseUuid]);
+
+        $codebase = $this->getMockCodeBaseResponse();
+        $this->clientProphecy->request('get', '/codebases/' . $codebaseUuid)
+            ->willReturn($codebase);
+
+        $codebaseEnv = $this->getMockCodeBaseEnvironment();
+        $this->clientProphecy->request('get', '/codebases/' . $codebaseUuid . '/environments')
+            ->willReturn([$codebaseEnv])
+            ->shouldBeCalled();
+
+        $codeabaseSites = $this->getMockCodeBaseSites();
+        $this->clientProphecy->request('get', '/codebases/' . $codebaseUuid . '/sites')
+            ->willReturn($codeabaseSites);
+        $siteInstance = $this->getMockSiteInstanceResponse();
+
+        $this->clientProphecy->request('get', '/site-instances/8979a8ac-80dc-4df8-b2f0-6be36554a370.3e8ecbec-ea7c-4260-8414-ef2938c859bc')
+            ->willReturn($siteInstance)
+            ->shouldBeCalled();
+        $siteId = '8979a8ac-80dc-4df8-b2f0-6be36554a370';
+        $site = $this->getMockSite();
+        $this->clientProphecy->request('get', '/sites/' . $siteId)
+            ->willReturn($site)
+            ->shouldBeCalled();
+        $siteInstanceDatabase = $this->getMockSiteInstanceDatabaseResponse();
+        $this->clientProphecy->request('get', '/site-instances/8979a8ac-80dc-4df8-b2f0-6be36554a370.3e8ecbec-ea7c-4260-8414-ef2938c859bc/database')
+            ->willReturn($siteInstanceDatabase)
+            ->shouldBeCalled();
+        $createSiteInstanceDatabaseBackup = $this->getMockSiteInstanceDatabaseBackupsResponse('post', '201');
+        $this->clientProphecy->request('post', '/site-instances/8979a8ac-80dc-4df8-b2f0-6be36554a370.3e8ecbec-ea7c-4260-8414-ef2938c859bc/database/backups')
+            ->willReturn($createSiteInstanceDatabaseBackup)
+            ->shouldBeCalled();
+
+        // Return a backup response WITHOUT the download link.
+        $backupWithoutDownload = (object) [
+            'created_at' => '2025-04-01T13:01:06.603Z',
+            'database_id' => 'b0c9dff7-56b6-4c0d-bad0-0e6593f66cd3',
+            'id' => 'e0c9dff7-56b6-4c0d-bad0-0e6593f66cd3',
+            '_links' => (object) [
+                'self' => (object) [
+                    'href' => 'https://environment-service-php.acquia.com/api/site-instances/3e8ecbec-ea7c-4260-8414-ef2938c859bc.d3f7270e-c45f-4801-9308-5e8afe84a323/database/backups/a0c9dff7-56b6-4c0d-bad0-0e6593f66cd3',
+                ],
+            ],
+        ];
+        $this->clientProphecy->request('get', '/site-instances/8979a8ac-80dc-4df8-b2f0-6be36554a370.3e8ecbec-ea7c-4260-8414-ef2938c859bc/database/backups')
+            ->willReturn([$backupWithoutDownload])
+            ->shouldBeCalled();
+
+        // Mock the client options that are set before the download URL check.
+        $this->clientProphecy->addOption('sink', Argument::type('string'))->shouldBeCalled();
+        $this->clientProphecy->addOption('curl.options', Argument::type('array'))->shouldBeCalled();
+        $this->clientProphecy->addOption('progress', Argument::that(static fn($v) => is_callable($v)))->shouldBeCalled();
+        $this->clientProphecy->addOption('on_stats', Argument::that(static fn($v) => is_callable($v)))->shouldBeCalled();
+
+        $localMachineHelper = $this->mockLocalMachineHelper();
+        $this->mockExecuteMySqlConnect($localMachineHelper, true);
+
+        // No HTTP download should be attempted.
+        $this->httpClientProphecy->request('GET', Argument::any(), Argument::any())->shouldNotBeCalled();
+
+        $inputs = self::inputChooseEnvironment();
+
+        try {
+            $this->executeCommand([
+                '--no-scripts' => true,
+                '--on-demand' => true,
+            ], $inputs);
+            $this->fail('Expected AcquiaCliException was not thrown');
+        } catch (AcquiaCliException $e) {
+            $this->assertStringContainsString('Cloud API failed to provide a valid backup download URL', $e->getMessage());
+        }
+
+        self::unsetEnvVars(['AH_CODEBASE_UUID']);
+    }
 }
