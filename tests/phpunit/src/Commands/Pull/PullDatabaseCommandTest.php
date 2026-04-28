@@ -219,12 +219,18 @@ class PullDatabaseCommandTest extends PullCommandTestBase
         $this->setupPullDatabase(true, true, true, true, false, 0, true, false);
         $inputs = self::inputChooseEnvironment();
 
-        $this->expectException(AcquiaCliException::class);
-        $this->expectExceptionMessage('Cloud API failed to create a backup');
-        $this->executeCommand([
-            '--no-scripts' => true,
-            '--on-demand' => true,
-        ], $inputs);
+        try {
+            $this->executeCommand([
+                '--no-scripts' => true,
+                '--on-demand' => true,
+            ], $inputs);
+            $this->fail('Expected AcquiaCliException was not thrown');
+        } catch (AcquiaCliException $e) {
+            $this->assertEquals('Cloud API failed to create a backup', $e->getRawMessage());
+        }
+
+        $output = $this->getDisplay();
+        $this->assertStringNotContainsString('Database backup is ready!', $output);
     }
 
     public function testPullDatabasesNoExistingBackup(): void

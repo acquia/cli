@@ -31,7 +31,6 @@ use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\TransferStats;
 use Psr\Http\Message\UriInterface;
 use Psr\Log\LoggerInterface;
-use React\EventLoop\Loop;
 use SelfUpdate\SelfUpdateManager;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\ArrayInput;
@@ -259,7 +258,9 @@ abstract class PullCommandBase extends CommandBase
         try {
             $codebaseUuid = self::getCodebaseUuid();
             if ($codebaseUuid) {
-                // Download the backup file directly from the provided URL.
+                if (!isset($backupResponse->links->download->href)) {
+                    throw new AcquiaCliException('Cloud API failed to provide a valid backup download URL. The backup may have failed on the server.');
+                }
                 $downloadUrl = $backupResponse->links->download->href;
                 $this->httpClient->request('GET', $downloadUrl, [
                     'progress' => static function (mixed $totalBytes, mixed $downloadedBytes) use (&$progress, $output): void {
@@ -395,15 +396,13 @@ abstract class PullCommandBase extends CommandBase
     protected function waitForBackup(string $notificationUuid, Client $acquiaCloudClient): void
     {
         $spinnerMessage = 'Waiting for database backup to complete...';
-        $successCallback = function (): void {
-            $this->output->writeln('');
-            $this->output->writeln('<info>Database backup is ready!</info>');
-        };
-        $success = $this->waitForNotificationToComplete($acquiaCloudClient, $notificationUuid, $spinnerMessage, $successCallback);
-        Loop::run();
+        $success = $this->waitForNotificationToComplete($acquiaCloudClient, $notificationUuid, $spinnerMessage, static function (): void {
+        });
         if (!$success) {
             throw new AcquiaCliException('Cloud API failed to create a backup');
         }
+        $this->output->writeln('');
+        $this->output->writeln('<info>Database backup is ready!</info>');
     }
 
     private function connectToLocalDatabase(string $dbHost, string $dbUser, string $dbName, string $dbPassword, ?callable $outputCallback = null): void
