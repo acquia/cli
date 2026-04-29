@@ -8,6 +8,8 @@ use Acquia\Cli\Transformer\EnvironmentTransformer;
 use AcquiaCloudApi\Response\BackupResponse;
 use AcquiaCloudApi\Response\DatabaseResponse;
 use AcquiaCloudApi\Response\EnvironmentResponse;
+use AcquiaCloudApi\Response\SiteInstanceDatabaseConnectionResponse;
+use AcquiaCloudApi\Response\SiteInstanceDatabaseResponse;
 use PHPUnit\Framework\TestCase;
 
 class EnvironmentTransformerTest extends TestCase
@@ -184,15 +186,22 @@ class EnvironmentTransformerTest extends TestCase
 
     public function testTransformSiteInstanceDatabase(): void
     {
-        $siteInstanceDb = (object)[
-            'databaseHost' => 'test.example.com',
-            'databaseName' => 'test_db',
-            'databasePassword' => 'test_password',
-            'databaseRole' => 'primary',
-            'databaseUserName' => 'test_user',
-        ];
+        $siteInstanceDb = new SiteInstanceDatabaseResponse((object)[
+            'database_name' => 'test_db',
+            'database_role' => 'primary',
+            '_links' => (object)[],
+        ]);
 
-        $databaseResponse = EnvironmentTransformer::transformSiteInstanceDatabase($siteInstanceDb);
+        $siteInstanceDbConnection = new SiteInstanceDatabaseConnectionResponse((object)[
+            'db_host' => 'test.example.com',
+            'name' => 'test_db',
+            'password' => 'test_password',
+            'ssh_host' => '',
+            'user_name' => 'test_user',
+            '_links' => (object)[],
+        ]);
+
+        $databaseResponse = EnvironmentTransformer::transformSiteInstanceDatabase($siteInstanceDb, $siteInstanceDbConnection);
 
         $this->assertInstanceOf(DatabaseResponse::class, $databaseResponse);
         $this->assertEquals('test_db', $databaseResponse->id);
@@ -201,7 +210,7 @@ class EnvironmentTransformerTest extends TestCase
         $this->assertEquals('test_password', $databaseResponse->password);
         $this->assertNull($databaseResponse->url);
         $this->assertEquals('test.example.com', $databaseResponse->db_host);
-        $this->assertNull($databaseResponse->ssh_host);
+        $this->assertEquals('', $databaseResponse->ssh_host);
         $this->assertIsObject($databaseResponse->flags);
         $this->assertEquals('primary', $databaseResponse->flags->role);
         $this->assertFalse($databaseResponse->flags->default);

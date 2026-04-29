@@ -7,6 +7,8 @@ namespace Acquia\Cli\Transformer;
 use AcquiaCloudApi\Response\BackupResponse;
 use AcquiaCloudApi\Response\DatabaseResponse;
 use AcquiaCloudApi\Response\EnvironmentResponse;
+use AcquiaCloudApi\Response\SiteInstanceDatabaseConnectionResponse;
+use AcquiaCloudApi\Response\SiteInstanceDatabaseResponse;
 use stdClass;
 
 class EnvironmentTransformer
@@ -72,18 +74,19 @@ class EnvironmentTransformer
     }
 
     /**
-     * Transform a SiteInstanceDatabaseResponse object to a DatabaseResponse object.
+     * Transform SiteInstanceDatabaseResponse and SiteInstanceDatabaseConnectionResponse
+     * objects to a DatabaseResponse object.
      */
-    public static function transformSiteInstanceDatabase(mixed $siteInstanceDb): DatabaseResponse
+    public static function transformSiteInstanceDatabase(SiteInstanceDatabaseResponse $siteInstanceDb, SiteInstanceDatabaseConnectionResponse $siteInstanceDbConnection): DatabaseResponse
     {
         $db = new \stdClass();
         $db->id = $siteInstanceDb->databaseName;
         $db->name = $siteInstanceDb->databaseName;
-        $db->user_name = $siteInstanceDb->databaseUserName;
-        $db->password = $siteInstanceDb->databasePassword;
+        $db->user_name = $siteInstanceDbConnection->databaseUserName;
+        $db->password = $siteInstanceDbConnection->databasePassword;
         $db->url = null;
-        $db->db_host = $siteInstanceDb->databaseHost;
-        $db->ssh_host = null;
+        $db->db_host = $siteInstanceDbConnection->databaseHost;
+        $db->ssh_host = $siteInstanceDbConnection->sshHost;
         $db->flags = (object) ['role' => $siteInstanceDb->databaseRole, 'default' => false];
         $db->environment = new stdClass();
         return new DatabaseResponse($db);
