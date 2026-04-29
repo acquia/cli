@@ -440,10 +440,10 @@ class PullDatabaseCommandTest extends PullCommandTestBase
     public function testPullDatabasesWithCodebaseUuid(): void
     {
         $codebaseUuid = '11111111-041c-44c7-a486-7972ed2cafc8';
-        self::SetEnvVars(['AH_CODEBASE_UUID' =>  $codebaseUuid]);
+        self::SetEnvVars(['AH_CODEBASE_UUID' => $codebaseUuid]);
 
         // Mock the codebase returned from /codebases/{uuid}.
-        $codebase =  $this->getMockCodeBaseResponse();
+        $codebase = $this->getMockCodeBaseResponse();
         $this->clientProphecy->request('get', '/codebases/' . $codebaseUuid)
             ->willReturn($codebase);
 
@@ -568,10 +568,10 @@ class PullDatabaseCommandTest extends PullCommandTestBase
     public function testPullDatabasesWithCodebaseUuidOnDemand(): void
     {
         $codebaseUuid = '11111111-041c-44c7-a486-7972ed2cafc8';
-        self::SetEnvVars(['AH_CODEBASE_UUID' =>  $codebaseUuid]);
+        self::SetEnvVars(['AH_CODEBASE_UUID' => $codebaseUuid]);
 
         // Mock the codebase returned from /codebases/{uuid}.
-        $codebase =  $this->getMockCodeBaseResponse();
+        $codebase = $this->getMockCodeBaseResponse();
         $this->clientProphecy->request('get', '/codebases/' . $codebaseUuid)
             ->willReturn($codebase);
 
@@ -606,7 +606,6 @@ class PullDatabaseCommandTest extends PullCommandTestBase
         $this->clientProphecy->request('post', '/site-instances/8979a8ac-80dc-4df8-b2f0-6be36554a370.3e8ecbec-ea7c-4260-8414-ef2938c859bc/database/backups')
             ->willReturn($createSiteInstanceDatabaseBackup)
             ->shouldBeCalled();
-        ;
         $siteInstanceDatabaseBackups = $this->getMockSiteInstanceDatabaseBackupsResponse();
         $this->clientProphecy->request('get', '/site-instances/8979a8ac-80dc-4df8-b2f0-6be36554a370.3e8ecbec-ea7c-4260-8414-ef2938c859bc/database/backups')
             ->willReturn($siteInstanceDatabaseBackups->_embedded->items)
@@ -653,6 +652,10 @@ class PullDatabaseCommandTest extends PullCommandTestBase
         self::unsetEnvVars(['AH_CODEBASE_UUID']);
     }
 
+    /**
+     * Tests that a codebase backup response without a download link
+     * throws AcquiaCliException before attempting any HTTP download.
+     */
     public function testPullDatabasesCodebaseBackupMissingDownloadUrl(): void
     {
         $codebaseUuid = '11111111-041c-44c7-a486-7972ed2cafc8';
@@ -690,12 +693,12 @@ class PullDatabaseCommandTest extends PullCommandTestBase
             ->shouldBeCalled();
 
         // Return a backup response WITHOUT the download link.
-        $backupWithoutDownload = (object) [
+        $backupWithoutDownload = (object)[
             'created_at' => '2025-04-01T13:01:06.603Z',
             'database_id' => 'b0c9dff7-56b6-4c0d-bad0-0e6593f66cd3',
             'id' => 'e0c9dff7-56b6-4c0d-bad0-0e6593f66cd3',
-            '_links' => (object) [
-                'self' => (object) [
+            '_links' => (object)[
+                'self' => (object)[
                     'href' => 'https://environment-service-php.acquia.com/api/site-instances/3e8ecbec-ea7c-4260-8414-ef2938c859bc.d3f7270e-c45f-4801-9308-5e8afe84a323/database/backups/a0c9dff7-56b6-4c0d-bad0-0e6593f66cd3',
                 ],
             ],
@@ -730,7 +733,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase
 
         self::unsetEnvVars(['AH_CODEBASE_UUID']);
     }
-  
+
     /**
      * Test catch block in getSiteInstanceDatabaseConnection method.
      * Covers the logger->debug() line when an exception is caught.
@@ -774,3 +777,4 @@ class PullDatabaseCommandTest extends PullCommandTestBase
         // Assert null is returned when exception is caught.
         $this->assertNull($result);
     }
+}
