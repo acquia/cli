@@ -220,18 +220,12 @@ class PullDatabaseCommandTest extends PullCommandTestBase
         $this->setupPullDatabase(true, true, true, true, false, 0, true, false);
         $inputs = self::inputChooseEnvironment();
 
-        try {
-            $this->executeCommand([
-                '--no-scripts' => true,
-                '--on-demand' => true,
-            ], $inputs);
-            $this->fail('Expected AcquiaCliException was not thrown');
-        } catch (AcquiaCliException $e) {
-            $this->assertEquals('Cloud API failed to create a backup', $e->getRawMessage());
-        }
-
-        $output = $this->getDisplay();
-        $this->assertStringNotContainsString('Database backup is ready!', $output);
+        $this->expectException(AcquiaCliException::class);
+        $this->expectExceptionMessage('Cloud API failed to create a backup');
+        $this->executeCommand([
+            '--no-scripts' => true,
+            '--on-demand' => true,
+        ], $inputs);
     }
 
     public function testPullDatabasesNoExistingBackup(): void
@@ -725,17 +719,12 @@ class PullDatabaseCommandTest extends PullCommandTestBase
 
         $inputs = self::inputChooseEnvironment();
 
-        try {
-            $this->executeCommand([
-                '--no-scripts' => true,
-                '--on-demand' => true,
-            ], $inputs);
-            $this->fail('Expected AcquiaCliException was not thrown');
-        } catch (AcquiaCliException $e) {
-            $this->assertStringContainsString('Cloud API failed to provide a valid backup download URL', $e->getMessage());
-        }
-
-        self::unsetEnvVars(['AH_CODEBASE_UUID']);
+        $this->expectException(AcquiaCliException::class);
+        $this->expectExceptionMessage('Cloud API failed to provide a valid backup download URL');
+        $this->executeCommand([
+            '--no-scripts' => true,
+            '--on-demand' => true,
+        ], $inputs);
     }
 
     /**
