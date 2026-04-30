@@ -11,6 +11,7 @@ use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Helpers\SshHelper;
 use Acquia\Cli\Transformer\EnvironmentTransformer;
 use AcquiaCloudApi\Response\SiteInstanceDatabaseBackupResponse;
+use AcquiaCloudApi\Response\SiteInstanceDatabaseConnectionResponse;
 use AcquiaCloudApi\Response\SiteInstanceDatabaseResponse;
 use GuzzleHttp\Client;
 use Prophecy\Argument;
@@ -433,10 +434,10 @@ class PullDatabaseCommandTest extends PullCommandTestBase
     public function testPullDatabasesWithCodebaseUuid(): void
     {
         $codebaseUuid = '11111111-041c-44c7-a486-7972ed2cafc8';
-        self::SetEnvVars(['AH_CODEBASE_UUID' =>  $codebaseUuid]);
+        self::SetEnvVars(['AH_CODEBASE_UUID' => $codebaseUuid]);
 
         // Mock the codebase returned from /codebases/{uuid}.
-        $codebase =  $this->getMockCodeBaseResponse();
+        $codebase = $this->getMockCodeBaseResponse();
         $this->clientProphecy->request('get', '/codebases/' . $codebaseUuid)
             ->willReturn($codebase);
 
@@ -463,6 +464,10 @@ class PullDatabaseCommandTest extends PullCommandTestBase
         $this->clientProphecy->request('get', '/site-instances/8979a8ac-80dc-4df8-b2f0-6be36554a370.3e8ecbec-ea7c-4260-8414-ef2938c859bc/database')
             ->willReturn($siteInstanceDatabase)
             ->shouldBeCalled();
+        $siteInstanceDatabaseConnection = $this->getMockSiteInstanceDatabaseConnectionResponse();
+        $this->clientProphecy->request('get', '/site-instances/8979a8ac-80dc-4df8-b2f0-6be36554a370.3e8ecbec-ea7c-4260-8414-ef2938c859bc/database/connection')
+            ->willReturn($siteInstanceDatabaseConnection)
+            ->shouldBeCalled();
         $createSiteInstanceDatabaseBackup = $this->getMockSiteInstanceDatabaseBackupsResponse('post', '201');
         $this->clientProphecy->request('post', '/site-instances/8979a8ac-80dc-4df8-b2f0-6be36554a370.3e8ecbec-ea7c-4260-8414-ef2938c859bc/database/backups')
             ->willReturn($createSiteInstanceDatabaseBackup);
@@ -472,7 +477,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase
             ->shouldBeCalled();
 
         $url = "https://environment-service-php.acquia.com/api/environments/d3f7270e-c45f-4801-9308-5e8afe84a323/";
-        $this->mockDownloadCodebaseBackup(EnvironmentTransformer::transformSiteInstanceDatabase(new SiteInstanceDatabaseResponse($siteInstanceDatabase)), $url, EnvironmentTransformer::transformSiteInstanceDatabaseBackup(new SiteInstanceDatabaseBackupResponse($siteInstanceDatabaseBackups->_embedded->items[0])));
+        $this->mockDownloadCodebaseBackup(EnvironmentTransformer::transformSiteInstanceDatabase(new SiteInstanceDatabaseResponse($siteInstanceDatabase), new SiteInstanceDatabaseConnectionResponse($siteInstanceDatabaseConnection)), $url, EnvironmentTransformer::transformSiteInstanceDatabaseBackup(new SiteInstanceDatabaseBackupResponse($siteInstanceDatabaseBackups->_embedded->items[0])));
 
         $localMachineHelper = $this->mockLocalMachineHelper();
         $this->mockExecuteMySqlConnect($localMachineHelper, true);
@@ -557,10 +562,10 @@ class PullDatabaseCommandTest extends PullCommandTestBase
     public function testPullDatabasesWithCodebaseUuidOnDemand(): void
     {
         $codebaseUuid = '11111111-041c-44c7-a486-7972ed2cafc8';
-        self::SetEnvVars(['AH_CODEBASE_UUID' =>  $codebaseUuid]);
+        self::SetEnvVars(['AH_CODEBASE_UUID' => $codebaseUuid]);
 
         // Mock the codebase returned from /codebases/{uuid}.
-        $codebase =  $this->getMockCodeBaseResponse();
+        $codebase = $this->getMockCodeBaseResponse();
         $this->clientProphecy->request('get', '/codebases/' . $codebaseUuid)
             ->willReturn($codebase);
 
@@ -587,18 +592,21 @@ class PullDatabaseCommandTest extends PullCommandTestBase
         $this->clientProphecy->request('get', '/site-instances/8979a8ac-80dc-4df8-b2f0-6be36554a370.3e8ecbec-ea7c-4260-8414-ef2938c859bc/database')
             ->willReturn($siteInstanceDatabase)
             ->shouldBeCalled();
+        $siteInstanceDatabaseConnection = $this->getMockSiteInstanceDatabaseConnectionResponse();
+        $this->clientProphecy->request('get', '/site-instances/8979a8ac-80dc-4df8-b2f0-6be36554a370.3e8ecbec-ea7c-4260-8414-ef2938c859bc/database/connection')
+            ->willReturn($siteInstanceDatabaseConnection)
+            ->shouldBeCalled();
         $createSiteInstanceDatabaseBackup = $this->getMockSiteInstanceDatabaseBackupsResponse('post', '201');
         $this->clientProphecy->request('post', '/site-instances/8979a8ac-80dc-4df8-b2f0-6be36554a370.3e8ecbec-ea7c-4260-8414-ef2938c859bc/database/backups')
             ->willReturn($createSiteInstanceDatabaseBackup)
             ->shouldBeCalled();
-        ;
         $siteInstanceDatabaseBackups = $this->getMockSiteInstanceDatabaseBackupsResponse();
         $this->clientProphecy->request('get', '/site-instances/8979a8ac-80dc-4df8-b2f0-6be36554a370.3e8ecbec-ea7c-4260-8414-ef2938c859bc/database/backups')
             ->willReturn($siteInstanceDatabaseBackups->_embedded->items)
             ->shouldBeCalled();
 
         $url = "https://environment-service-php.acquia.com/api/environments/d3f7270e-c45f-4801-9308-5e8afe84a323/";
-        $this->mockDownloadCodebaseBackup(EnvironmentTransformer::transformSiteInstanceDatabase(new SiteInstanceDatabaseResponse($siteInstanceDatabase)), $url, EnvironmentTransformer::transformSiteInstanceDatabaseBackup(new SiteInstanceDatabaseBackupResponse($siteInstanceDatabaseBackups->_embedded->items[0])));
+        $this->mockDownloadCodebaseBackup(EnvironmentTransformer::transformSiteInstanceDatabase(new SiteInstanceDatabaseResponse($siteInstanceDatabase), new SiteInstanceDatabaseConnectionResponse($siteInstanceDatabaseConnection)), $url, EnvironmentTransformer::transformSiteInstanceDatabaseBackup(new SiteInstanceDatabaseBackupResponse($siteInstanceDatabaseBackups->_embedded->items[0])));
 
         $localMachineHelper = $this->mockLocalMachineHelper();
         $this->mockExecuteMySqlConnect($localMachineHelper, true);
@@ -636,5 +644,130 @@ class PullDatabaseCommandTest extends PullCommandTestBase
         $this->assertStringNotContainsString('Choose a database', $output);
 
         self::unsetEnvVars(['AH_CODEBASE_UUID']);
+    }
+
+    /**
+     * Tests that a codebase backup response without a download link
+     * throws AcquiaCliException before attempting any HTTP download.
+     */
+    public function testPullDatabasesCodebaseBackupMissingDownloadUrl(): void
+    {
+        $codebaseUuid = '11111111-041c-44c7-a486-7972ed2cafc8';
+        self::SetEnvVars(['AH_CODEBASE_UUID' => $codebaseUuid]);
+
+        $codebase = $this->getMockCodeBaseResponse();
+        $this->clientProphecy->request('get', '/codebases/' . $codebaseUuid)
+            ->willReturn($codebase);
+
+        $codebaseEnv = $this->getMockCodeBaseEnvironment();
+        $this->clientProphecy->request('get', '/codebases/' . $codebaseUuid . '/environments')
+            ->willReturn([$codebaseEnv])
+            ->shouldBeCalled();
+
+        $codeabaseSites = $this->getMockCodeBaseSites();
+        $this->clientProphecy->request('get', '/codebases/' . $codebaseUuid . '/sites')
+            ->willReturn($codeabaseSites);
+        $siteInstance = $this->getMockSiteInstanceResponse();
+
+        $this->clientProphecy->request('get', '/site-instances/8979a8ac-80dc-4df8-b2f0-6be36554a370.3e8ecbec-ea7c-4260-8414-ef2938c859bc')
+            ->willReturn($siteInstance)
+            ->shouldBeCalled();
+        $siteId = '8979a8ac-80dc-4df8-b2f0-6be36554a370';
+        $site = $this->getMockSite();
+        $this->clientProphecy->request('get', '/sites/' . $siteId)
+            ->willReturn($site)
+            ->shouldBeCalled();
+        $siteInstanceDatabase = $this->getMockSiteInstanceDatabaseResponse();
+        $this->clientProphecy->request('get', '/site-instances/8979a8ac-80dc-4df8-b2f0-6be36554a370.3e8ecbec-ea7c-4260-8414-ef2938c859bc/database')
+            ->willReturn($siteInstanceDatabase)
+            ->shouldBeCalled();
+        $siteInstanceDatabaseConnection = $this->getMockSiteInstanceDatabaseConnectionResponse();
+        $this->clientProphecy->request('get', '/site-instances/8979a8ac-80dc-4df8-b2f0-6be36554a370.3e8ecbec-ea7c-4260-8414-ef2938c859bc/database/connection')
+            ->willReturn($siteInstanceDatabaseConnection)
+            ->shouldBeCalled();
+        $createSiteInstanceDatabaseBackup = $this->getMockSiteInstanceDatabaseBackupsResponse('post', '201');
+        $this->clientProphecy->request('post', '/site-instances/8979a8ac-80dc-4df8-b2f0-6be36554a370.3e8ecbec-ea7c-4260-8414-ef2938c859bc/database/backups')
+            ->willReturn($createSiteInstanceDatabaseBackup)
+            ->shouldBeCalled();
+
+        // Return a backup response WITHOUT the download link.
+        $backupWithoutDownload = (object)[
+            'created_at' => '2025-04-01T13:01:06.603Z',
+            'database_id' => 'b0c9dff7-56b6-4c0d-bad0-0e6593f66cd3',
+            'id' => 'e0c9dff7-56b6-4c0d-bad0-0e6593f66cd3',
+            '_links' => (object)[
+                'self' => (object)[
+                    'href' => 'https://environment-service-php.acquia.com/api/site-instances/3e8ecbec-ea7c-4260-8414-ef2938c859bc.d3f7270e-c45f-4801-9308-5e8afe84a323/database/backups/a0c9dff7-56b6-4c0d-bad0-0e6593f66cd3',
+                ],
+            ],
+        ];
+        $this->clientProphecy->request('get', '/site-instances/8979a8ac-80dc-4df8-b2f0-6be36554a370.3e8ecbec-ea7c-4260-8414-ef2938c859bc/database/backups')
+            ->willReturn([$backupWithoutDownload])
+            ->shouldBeCalled();
+
+        // Mock the client options that are set before the download URL check.
+        $this->clientProphecy->addOption('sink', Argument::type('string'))->shouldBeCalled();
+        $this->clientProphecy->addOption('curl.options', Argument::type('array'))->shouldBeCalled();
+        $this->clientProphecy->addOption('progress', Argument::that(static fn($v) => is_callable($v)))->shouldBeCalled();
+        $this->clientProphecy->addOption('on_stats', Argument::that(static fn($v) => is_callable($v)))->shouldBeCalled();
+
+        $localMachineHelper = $this->mockLocalMachineHelper();
+        $this->mockExecuteMySqlConnect($localMachineHelper, true);
+
+        // No HTTP download should be attempted.
+        $this->httpClientProphecy->request('GET', Argument::any(), Argument::any())->shouldNotBeCalled();
+
+        $inputs = self::inputChooseEnvironment();
+
+        $this->expectException(AcquiaCliException::class);
+        $this->expectExceptionMessage('Cloud API failed to provide a valid backup download URL');
+        $this->executeCommand([
+            '--no-scripts' => true,
+            '--on-demand' => true,
+        ], $inputs);
+    }
+
+    /**
+     * Test catch block in getSiteInstanceDatabaseConnection method.
+     * Covers the logger->debug() line when an exception is caught.
+     */
+    public function testGetSiteInstanceDatabaseConnectionCatchBlock(): void
+    {
+        // Mock the client to throw an exception.
+        $this->clientProphecy->request('get', Argument::containingString('/site-instances/'))
+            ->willThrow(new \Exception('API Connection Error'))
+            ->shouldBeCalled();
+
+        // Use reflection to call the private method (PHP 8.1+ doesn't need setAccessible).
+        $reflection = new \ReflectionClass($this->command);
+        $method = $reflection->getMethod('getSiteInstanceDatabaseConnection');
+
+        // Call the method - it should catch the exception and return null.
+        $result = $method->invoke($this->command, 'test-site-uuid', 'test-env-uuid');
+
+        // Assert null is returned when exception is caught.
+        $this->assertNull($result);
+    }
+
+    /**
+     * Test catch block in getSiteInstanceDatabase method.
+     * Covers the logger->debug() line when an exception is caught.
+     */
+    public function testGetSiteInstanceDatabaseCatchBlock(): void
+    {
+        // Mock the client to throw an exception.
+        $this->clientProphecy->request('get', Argument::containingString('/site-instances/'))
+            ->willThrow(new \Exception('API Error'))
+            ->shouldBeCalled();
+
+        // Use reflection to call the private method (PHP 8.1+ doesn't need setAccessible).
+        $reflection = new \ReflectionClass($this->command);
+        $method = $reflection->getMethod('getSiteInstanceDatabase');
+
+        // Call the method - it should catch the exception and return null.
+        $result = $method->invoke($this->command, 'test-site-uuid', 'test-env-uuid');
+
+        // Assert null is returned when exception is caught.
+        $this->assertNull($result);
     }
 }

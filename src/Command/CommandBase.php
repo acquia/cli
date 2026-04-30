@@ -46,6 +46,7 @@ use AcquiaCloudApi\Response\DatabasesResponse;
 use AcquiaCloudApi\Response\EnvironmentResponse;
 use AcquiaCloudApi\Response\EnvironmentsResponse;
 use AcquiaCloudApi\Response\NotificationResponse;
+use AcquiaCloudApi\Response\SiteInstanceDatabaseConnectionResponse;
 use AcquiaCloudApi\Response\SiteInstanceDatabaseResponse;
 use AcquiaCloudApi\Response\SiteInstanceResponse;
 use AcquiaCloudApi\Response\SiteResponse;
@@ -589,9 +590,13 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
     {
         $codebaseUuid = self::getCodebaseUuid();
         if ($codebaseUuid && $this->siteId) {
-            $database = EnvironmentTransformer::transformSiteInstanceDatabase($this->getSiteInstanceDatabase($this->siteId, $chosenEnvironment->uuid));
-            if ($database) {
-                return [$database];
+            $siteInstanceDb = $this->getSiteInstanceDatabase($this->siteId, $chosenEnvironment->uuid);
+            if ($siteInstanceDb) {
+                $siteInstanceDbConnection = $this->getSiteInstanceDatabaseConnection($this->siteId, $chosenEnvironment->uuid);
+                if ($siteInstanceDbConnection) {
+                    $siteInstanceDatabaseResponse = EnvironmentTransformer::transformSiteInstanceDatabase($siteInstanceDb, $siteInstanceDbConnection);
+                    return [$siteInstanceDatabaseResponse];
+                }
             }
         }
         $databasesRequest = new Databases($acquiaCloudClient);
@@ -1480,9 +1485,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
     }
     /**
      * Get the database for a site instance in a given environment.
-     *
-     * @param object|null $site (site object from getSitesByCodebase)
-     * @return DatabaseResponse|null
      */
     private function getSiteInstanceDatabase(string $siteUuid, string $environmentUuid): ?SiteInstanceDatabaseResponse
     {
@@ -1493,6 +1495,21 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
             return $siteInstanceDatabase;
         } catch (\Exception $e) {
             $this->logger->debug('Could not get site instance database: ' . $e->getMessage());
+        }
+        return null;
+    }
+
+    /**
+     * Get the database connection details for a site instance in a given environment.
+     */
+    private function getSiteInstanceDatabaseConnection(string $siteUuid, string $environmentUuid): ?SiteInstanceDatabaseConnectionResponse
+    {
+        try {
+            $acquiaCloudClient = $this->cloudApiClientService->getClient();
+            $siteInstancesResource = new SiteInstances($acquiaCloudClient);
+            return $siteInstancesResource->getDatabaseConnection($siteUuid, $environmentUuid);
+        } catch (\Exception $e) {
+            $this->logger->debug('Could not get site instance database connection: ' . $e->getMessage());
         }
         return null;
     }

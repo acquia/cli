@@ -144,7 +144,7 @@ class CodeStudioWizardCommandTest extends WizardTestBase
                     self::ARG_SECRET => self::$secret,
                 ],
             ],
-            // Application: Node_project, Basic, Node 20.
+            // Application: Node_project, Basic, Node 22.
             [
                 [self::getMockedGitLabProject(self::$gitLabProjectId)],
                 [
@@ -152,7 +152,7 @@ class CodeStudioWizardCommandTest extends WizardTestBase
                     1,
                     // Hosting type: Basic.
                     0,
-                    // Node version: 20.
+                    // Node version: 22.
                     0,
                     // Do you want to continue?
                     'y',
@@ -173,7 +173,7 @@ class CodeStudioWizardCommandTest extends WizardTestBase
                     // Hosting type: Advanced.
                     1,
                     // Node version: 22.
-                    1,
+                    0,
                     // Do you want to continue?
                     'y',
                     // One time push?

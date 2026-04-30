@@ -136,7 +136,7 @@ jobs:
           name: acli.phar
           path: var/acli.phar
       - name: Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         if: startsWith(github.ref, 'refs/tags/')
         with:
           files: var/acli.phar
@@ -186,7 +186,7 @@ jobs:
           path: acli
           name: native-acli-${{ matrix.platform }}
       -  name: Release
-         uses: softprops/action-gh-release@v2
+         uses: softprops/action-gh-release@v3
          if: startsWith(github.ref, 'refs/tags/')
          with:
            files: native-acli-${{ matrix.platform }}.tar.gz
