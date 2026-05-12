@@ -372,6 +372,26 @@ class ApiCommandHelper
     }
 
     /**
+     * Extracts the CLI command name declared in an operation schema.
+     * Override in subclasses to support alternative extension keys
+     * (e.g. ARB-550's x-acquia-exposure.channels.cli.command for v3).
+     */
+    protected function getCliCommandName(array $schema): ?string
+    {
+        return $schema['x-cli-name'] ?? null;
+    }
+
+    /**
+     * Transforms a spec path before it's attached to the generated command.
+     * Default is identity. Override in subclasses that need gateway-level
+     * path prefixing not declared in the spec (e.g. v3's `/v3/` prefix).
+     */
+    protected function normalizePath(string $path): string
+    {
+        return $path;
+    }
+
+    /**
      * @return ApiBaseCommand[]
      */
     private function generateApiCommandsFromSpec(array $acquiaCloudSpec, string $commandPrefix, CommandFactoryInterface $commandFactory): array
@@ -379,15 +399,16 @@ class ApiCommandHelper
         $apiCommands = [];
         foreach ($acquiaCloudSpec['paths'] as $path => $endpoint) {
             foreach ($endpoint as $method => $schema) {
-                if (!array_key_exists('x-cli-name', $schema)) {
+                $cliName = $this->getCliCommandName($schema);
+                if ($cliName === null) {
                     continue;
                 }
 
-                if (in_array($schema['x-cli-name'], $this->getSkippedApiCommands(), true)) {
+                if (in_array($cliName, $this->getSkippedApiCommands(), true)) {
                     continue;
                 }
 
-                $commandName = $commandPrefix . ':' . $schema['x-cli-name'];
+                $commandName = $commandPrefix . ':' . $cliName;
                 $command = $commandFactory->createCommand();
                 $command->setName($commandName);
                 $command->setDescription($schema['summary']);
@@ -399,7 +420,7 @@ class ApiCommandHelper
                 if (array_key_exists('servers', $acquiaCloudSpec)) {
                     $command->setServers($acquiaCloudSpec['servers']);
                 }
-                $command->setPath($path);
+                $command->setPath($this->normalizePath($path));
 
                 $helpText = "For more help, see https://cloudapi-docs.acquia.com/ or https://dev.acquia.com/api-documentation/acquia-cloud-site-factory-api for acsf commands.";
                 if (self::isPreRelease($schema)) {

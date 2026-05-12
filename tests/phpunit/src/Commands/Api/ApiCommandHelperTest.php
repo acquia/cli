@@ -123,6 +123,31 @@ class ApiCommandHelperTest extends CommandTestBase
     }
 
     /**
+     * Default v2 behavior: getCliCommandName reads the legacy x-cli-name key.
+     */
+    public function testGetCliCommandNameReturnsLegacyXCliNameValue(): void
+    {
+        $result = $this->invokeApiCommandHelperMethod(
+            'getCliCommandName',
+            [['x-cli-name' => 'applications:list']],
+        );
+        $this->assertSame('applications:list', $result);
+    }
+
+    /**
+     * Default v2 behavior: getCliCommandName returns null when x-cli-name is absent,
+     * so generateApiCommandsFromSpec skips the operation.
+     */
+    public function testGetCliCommandNameReturnsNullWhenLegacyKeyMissing(): void
+    {
+        $result = $this->invokeApiCommandHelperMethod(
+            'getCliCommandName',
+            [['summary' => 'No CLI name declared']],
+        );
+        $this->assertNull($result);
+    }
+
+    /**
      * Test that addPostArgumentUsageToExample correctly formats a flat array with a single item.
      */
     public function testAddPostArgumentUsageToExampleFlatArraySingleItem(): void
