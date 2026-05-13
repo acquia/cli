@@ -87,6 +87,20 @@ class CloudCredentials implements ApiCredentialsInterface
         return null;
     }
 
+    /**
+     * Base URI for Cloud API v3 (MEO) commands registered under `api:v3:*`.
+     * When the dedicated v3 gateway URL exists, set `ACLI_CLOUD_API_V3_BASE_URI`
+     * to route v3 traffic to it. Until then we fall back to `getBaseUri()` so
+     * v3 commands continue to hit the same host as v2.
+     */
+    public function getV3BaseUri(): ?string
+    {
+        if ($uri = getenv('ACLI_CLOUD_API_V3_BASE_URI')) {
+            return $uri;
+        }
+        return $this->getBaseUri();
+    }
+
     public function getAccountsUri(): ?string
     {
         if ($uri = getenv('ACLI_CLOUD_API_ACCOUNTS_URI')) {

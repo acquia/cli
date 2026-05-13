@@ -19,6 +19,7 @@ namespace Acquia\Cli;
 use Acquia\Cli\Command\Acsf\AcsfCommandFactory;
 use Acquia\Cli\Command\Api\ApiCommandFactory;
 use Acquia\Cli\Command\Api\ApiCommandHelper;
+use Acquia\Cli\Command\Api\ApiV3CommandFactory;
 use Acquia\Cli\Command\Api\ApiV3CommandHelper;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Helpers\LocalMachineHelper;
@@ -104,7 +105,7 @@ $acquiaV3Spec = __DIR__ . '/../assets/acquia-v3-spec.json';
 if (file_exists($acquiaV3Spec)) {
     /** @var ApiV3CommandHelper $v3Helper */
     $v3Helper = $container->get(ApiV3CommandHelper::class);
-    $application->addCommands($v3Helper->getApiCommands($acquiaV3Spec, 'api:v3', $container->get(ApiCommandFactory::class)));
+    $application->addCommands($v3Helper->getApiCommands($acquiaV3Spec, 'api:v3', $container->get(ApiV3CommandFactory::class)));
 }
 try {
   /** @var SelfUpdateManager $selfUpdateManager*/
