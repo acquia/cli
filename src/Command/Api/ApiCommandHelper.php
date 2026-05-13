@@ -376,7 +376,7 @@ class ApiCommandHelper
      * Override in subclasses to support alternative extension keys
      * (e.g. ARB-550's x-acquia-exposure.channels.cli.command for v3).
      */
-    protected function getCliCommandName(array $schema): ?string
+    private function getCliCommandName(array $schema): ?string
     {
         return $schema['x-cli-name'] ?? null;
     }
@@ -386,7 +386,7 @@ class ApiCommandHelper
      * Default is identity. Override in subclasses that need gateway-level
      * path prefixing not declared in the spec (e.g. v3's `/v3/` prefix).
      */
-    protected function normalizePath(string $path): string
+    private function normalizePath(string $path): string
     {
         return $path;
     }
