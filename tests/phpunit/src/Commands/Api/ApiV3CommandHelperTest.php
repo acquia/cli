@@ -116,10 +116,14 @@ class ApiV3CommandHelperTest extends CommandTestBase
         );
     }
 
-    public function testNormalizePathPrependsV3ForSiteInstancePaths(): void
+    /**
+     * Site-instance paths live at `/api/site-instances/...` on the live
+     * gateway, NOT behind `/v3/`. The helper must leave them untouched.
+     */
+    public function testNormalizePathLeavesSiteInstancePathsUntouched(): void
     {
         $this->assertSame(
-            '/v3/site-instances/{siteId}.{environmentId}',
+            '/site-instances/{siteId}.{environmentId}',
             $this->invokeNormalizePath('/site-instances/{siteId}.{environmentId}')
         );
     }

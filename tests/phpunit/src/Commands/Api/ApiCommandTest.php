@@ -31,6 +31,46 @@ class ApiCommandTest extends CommandTestBase
         return $this->injectCommand(ApiBaseCommand::class);
     }
 
+    /**
+     * A body-less POST (no requestBody in the spec) must send an empty JSON
+     * object so the Cloud Platform API receives both a Content-Type header and
+     * a body, preventing HTTP 415 / HTTP 400 errors.
+     */
+    public function testBodylessPostSendsEmptyJsonBody(): void
+    {
+        $agreementUuid = 'da1c0a8e-ff69-45db-88fc-acd6d2affbb7';
+        $this->mockRequest('postAcceptAgreement', $agreementUuid);
+        $this->clientProphecy->addOption('headers', ['Accept' => 'application/hal+json, version=2'])
+            ->shouldBeCalled();
+        $this->clientProphecy->addOption('json', new \stdClass())
+            ->shouldBeCalled();
+        $this->command = $this->getApiCommandByName('api:agreements:accept');
+        $this->executeCommand(['agreementUuid' => $agreementUuid]);
+        $this->assertEquals(0, $this->getStatusCode());
+    }
+
+    /**
+     * A POST with a request body must NOT send the empty-body fallback;
+     * the real payload's json option handles Content-Type automatically.
+     */
+    public function testPostWithBodyDoesNotSendEmptyFallback(): void
+    {
+        $environmentId = '24-a47ac10b-58cc-4372-a567-0e02b2c3d470';
+        $branch = 'my-feature-branch';
+        $this->mockRequest('postEnvironmentsSwitchCode', $environmentId, null, 'Switching code');
+        $this->clientProphecy->addOption('json', ['branch' => $branch])->shouldBeCalled();
+        $this->clientProphecy->addOption('headers', ['Accept' => 'application/hal+json, version=2'])
+            ->shouldBeCalled();
+        $this->clientProphecy->addOption('json', new \stdClass())
+            ->shouldNotBeCalled();
+        $this->command = $this->getApiCommandByName('api:environments:code-switch');
+        $this->executeCommand([
+            'branch' => $branch,
+            'environmentId' => $environmentId,
+        ]);
+        $this->assertEquals(0, $this->getStatusCode());
+    }
+
     public function testTaskWait(): void
     {
         $environmentId = '24-a47ac10b-58cc-4372-a567-0e02b2c3d470';

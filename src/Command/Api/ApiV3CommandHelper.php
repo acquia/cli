@@ -13,12 +13,13 @@ class ApiV3CommandHelper extends ApiCommandHelper
 {
     /**
      * Path prefixes whose services sit behind the `/v3/` gateway route.
-     * Site-service paths (`/sites/...`) are deliberately absent — they live
-     * at `/api/sites/...` on the live gateway, not `/api/v3/sites/...`.
+     * Site-service paths (`/sites/...`) and site-instance paths
+     * (`/site-instances/...`) are deliberately absent — they live at
+     * `/api/sites/...` and `/api/site-instances/...` on the live gateway,
+     * not `/api/v3/...`.
      */
     private const V3_PATH_PREFIXES = [
         '/environments/',
-        '/site-instances/',
         '/deployments/',
     ];
 
