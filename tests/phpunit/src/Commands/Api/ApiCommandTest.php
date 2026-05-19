@@ -12,6 +12,7 @@ use Acquia\Cli\Tests\CommandTestBase;
 use AcquiaCloudApi\Exception\ApiErrorException;
 use Symfony\Component\Console\Exception\MissingInputException;
 use Symfony\Component\Filesystem\Path;
+use Symfony\Component\Validator\Exception\ValidatorException;
 use Symfony\Component\Yaml\Yaml;
 
 /**
@@ -108,7 +109,7 @@ EOD;
                 'AH_SOMETHING',
                 'AH_SOMETHING',
             ]);
-        } catch (MissingInputException) {
+        } catch (MissingInputException | ValidatorException) {
         }
         $output = $this->getDisplay();
         $this->assertStringContainsString('It must match the pattern', $output);
@@ -121,7 +122,7 @@ EOD;
             $this->executeCommand([], [
                 'test',
             ]);
-        } catch (MissingInputException) {
+        } catch (MissingInputException | ValidatorException) {
         }
         $output = $this->getDisplay();
         $this->assertStringContainsString('This is not a valid UUID', $output);
