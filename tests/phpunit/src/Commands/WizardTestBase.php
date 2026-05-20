@@ -47,6 +47,7 @@ abstract class WizardTestBase extends CommandTestBase
     {
         return [
             'ACQUIA_APPLICATION_UUID' => self::$applicationUuid,
+            'AH_CODEBASE_UUID' => '',
         ];
     }
 

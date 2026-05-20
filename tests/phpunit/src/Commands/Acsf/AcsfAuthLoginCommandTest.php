@@ -9,7 +9,6 @@ use Acquia\Cli\Command\Auth\AuthAcsfLoginCommand;
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Config\CloudDataConfig;
 use Acquia\Cli\DataStore\CloudDataStore;
-use Symfony\Component\Console\Exception\MissingInputException;
 use Symfony\Component\Validator\Exception\ValidatorException;
 
 /**
@@ -208,7 +207,7 @@ class AcsfAuthLoginCommandTest extends AcsfCommandTestBase
         $this->createMockCloudConfigFile(AcsfCommandTestBase::getAcsfCredentialsFileContents());
         $this->createDataStores();
         $this->command = $this->createCommand();
-        $this->expectException(MissingInputException::class);
+        $this->expectException(ValidatorException::class);
         $this->executeCommand([], $input);
     }
 

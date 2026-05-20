@@ -6,6 +6,7 @@ namespace Acquia\Cli\Tests\Commands\Pull;
 
 use Acquia\Cli\Helpers\LocalMachineHelper;
 use Acquia\Cli\Helpers\SshHelper;
+use Acquia\Cli\Tests\Commands\Ide\IdeHelper;
 use Acquia\Cli\Tests\Commands\Ide\IdeRequiredTestTrait;
 use Acquia\Cli\Tests\CommandTestBase;
 use AcquiaCloudApi\Response\BackupsResponse;
@@ -44,6 +45,13 @@ abstract class PullCommandTestBase extends CommandTestBase
             'AH_CODEBASE_UUID',
         ]);
         parent::setUp();
+    }
+
+    protected function tearDown(): void
+    {
+        self::unsetEnvVars(['AH_CODEBASE_UUID']);
+        IdeHelper::unsetCloudIdeEnvVars();
+        parent::tearDown();
     }
 
     protected function mockExecuteDrushExists(
