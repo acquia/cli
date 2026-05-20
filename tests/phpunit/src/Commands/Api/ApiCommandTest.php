@@ -109,7 +109,7 @@ EOD;
                 'AH_SOMETHING',
                 'AH_SOMETHING',
             ]);
-        } catch (MissingInputException | ValidatorException) {
+        } catch (ValidatorException) {
         }
         $output = $this->getDisplay();
         $this->assertStringContainsString('It must match the pattern', $output);
@@ -122,7 +122,7 @@ EOD;
             $this->executeCommand([], [
                 'test',
             ]);
-        } catch (MissingInputException | ValidatorException) {
+        } catch (ValidatorException) {
         }
         $output = $this->getDisplay();
         $this->assertStringContainsString('This is not a valid UUID', $output);
