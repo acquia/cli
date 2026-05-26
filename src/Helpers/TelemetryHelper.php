@@ -167,6 +167,9 @@ class TelemetryHelper
         if (AcquiaDrupalEnvironmentDetector::isAhIdeEnv($ah_env)) {
             return 'ide';
         }
+        if (AcquiaDrupalEnvironmentDetector::isAhMeoEnv()) {
+            return 'meo';
+        }
         return $ah_env;
     }
 

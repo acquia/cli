@@ -697,7 +697,17 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
             $chosenEnvironment = $this->getCloudEnvironment($environmentId);
         } else {
             $chosenEnvironment = $this->determineCodebaseEnvironment($input, $output);
-            if (!$chosenEnvironment) {
+            if ($chosenEnvironment) {
+                // In MEO codebase context, populate $this->siteId so that
+                // determineCloudDatabases() can use the MEO database API.
+                if (empty($this->siteId)) {
+                    $siteInstanceId = $this->determineSiteInstanceFromCodebaseUuid($chosenEnvironment, $input, $output);
+                    if ($siteInstanceId) {
+                        [$siteId] = explode('.', $siteInstanceId);
+                        $this->siteId = $siteId;
+                    }
+                }
+            } else {
                 $cloudApplicationUuid = $this->determineCloudApplication();
                 $cloudApplication = $this->getCloudApplication($cloudApplicationUuid);
                 $output->writeln(sprintf('Using Cloud Application <options=bold>%s</>', $cloudApplication->name));
@@ -2025,8 +2035,8 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
     protected function executeAllScripts(Closure $outputCallback, Checklist $checklist): void
     {
         $this->runComposerScripts($outputCallback, $checklist);
-        $this->runDrushCacheClear($outputCallback, $checklist);
         $this->runDrushSqlSanitize($outputCallback, $checklist);
+        $this->runDrushCacheClear($outputCallback, $checklist);
     }
 
     /**

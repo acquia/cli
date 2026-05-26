@@ -31,6 +31,12 @@ final class PullDatabaseCommand extends PullCommandBase
                 'Do not run any additional scripts after the database is pulled. E.g., drush cache-rebuild, drush sql-sanitize, etc.'
             )
             ->addOption(
+                'no-cache-clear',
+                null,
+                InputOption::VALUE_NONE,
+                'Do not clear Drupal caches after the database is pulled. Useful when update hooks must run before cache clearing is possible.'
+            )
+            ->addOption(
                 'on-demand',
                 null,
                 InputOption::VALUE_NONE,
@@ -59,6 +65,7 @@ final class PullDatabaseCommand extends PullCommandBase
         $onDemand = $input->hasOption('on-demand') && $input->getOption('on-demand');
         $noImport = $input->hasOption('no-import') && $input->getOption('no-import');
         $multipleDbs = $input->hasOption('multiple-dbs') && $input->getOption('multiple-dbs');
+        $noCacheClear = $input->hasOption('no-cache-clear') && $input->getOption('no-cache-clear');
         // $noImport implies $noScripts.
         $noScripts = $noImport || $noScripts;
         $this->setDirAndRequireProjectCwd($input);
@@ -66,8 +73,10 @@ final class PullDatabaseCommand extends PullCommandBase
         $sourceEnvironment = $this->determineEnvironment($input, $output, true);
         $this->pullDatabase($input, $output, $sourceEnvironment, $onDemand, $noImport, $multipleDbs);
         if (!$noScripts) {
-            $this->runDrushCacheClear($this->getOutputCallback($output, $this->checklist), $this->checklist);
             $this->runDrushSqlSanitize($this->getOutputCallback($output, $this->checklist), $this->checklist);
+            if (!$noCacheClear) {
+                $this->runDrushCacheClear($this->getOutputCallback($output, $this->checklist), $this->checklist);
+            }
         }
 
         return Command::SUCCESS;

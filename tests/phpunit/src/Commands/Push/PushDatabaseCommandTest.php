@@ -133,6 +133,58 @@ class PushDatabaseCommandTest extends CommandTestBase
         $this->executeCommand([], self::inputChooseEnvironment());
     }
 
+    /**
+     * Test push:db with a MEO database where $database->url is null.
+     */
+    public function testPushDatabaseMeoNullUrl(): void
+    {
+        $environment = $this->mockGetEnvironment();
+        // Simulate MEO database with null URL.
+        $tamper = static function ($databases): void {
+            $databases[0]->url = null;
+            $databases[0]->name = 'meodb';
+        };
+        $this->mockRequest('getEnvironmentsDatabases', $environment->id, null, null, $tamper);
+
+        $process = $this->mockProcess();
+        $localMachineHelper = $this->mockLocalMachineHelper();
+        $localMachineHelper->checkRequiredBinariesExist(['ssh'])->shouldBeCalled();
+
+        $this->mockExecutePvExists($localMachineHelper);
+        $this->mockCreateMySqlDumpOnLocal($localMachineHelper);
+
+        // Rsync upload.
+        $localMachineHelper->checkRequiredBinariesExist(['rsync'])->shouldBeCalled();
+        $localMachineHelper->execute(Argument::that(function ($cmd) {
+            return is_array($cmd) && $cmd[0] === 'rsync';
+        }), Argument::cetera())
+            ->willReturn($process->reveal())
+            ->shouldBeCalled();
+
+        // SSH import should use 'meodb' (from $database->name) as the MySQL
+        // database name instead of parsing it from the null URL.
+        $localMachineHelper->execute(Argument::that(function ($cmd) {
+            // The last element is the SSH command string containing the mysql import.
+            $sshCmd = end($cmd);
+            return is_string($sshCmd) && str_contains($sshCmd, 'meodb');
+        }), Argument::cetera())
+            ->willReturn($process->reveal())
+            ->shouldBeCalled();
+
+        $this->command->sshHelper = new SshHelper($this->output, $localMachineHelper->reveal(), $this->logger);
+
+        $this->executeCommand([], [
+            ...self::inputChooseEnvironment(),
+            // Choose a database.
+            0,
+            // Overwrite confirmation.
+            'y',
+        ]);
+
+        $output = $this->getDisplay();
+        $this->assertStringContainsString('Overwrite the meodb database', $output);
+    }
+
     protected function mockUploadDatabaseDump(
         ObjectProphecy $localMachineHelper,
         ObjectProphecy $process,

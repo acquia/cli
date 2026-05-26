@@ -88,6 +88,35 @@ class PullDatabaseCommandTest extends PullCommandTestBase
         $this->assertStringContainsString('Using a database backup that is 1', $output);
     }
 
+    public function testPullDatabaseNoCacheClear(): void
+    {
+        $localMachineHelper = $this->mockLocalMachineHelper();
+        $this->mockExecuteMySqlConnect($localMachineHelper, true);
+        $environment = $this->mockGetEnvironment();
+        $sshHelper = $this->mockSshHelper();
+        $this->mockListSites($sshHelper);
+        $this->mockGetBackup($environment);
+        $this->mockExecuteMySqlListTables($localMachineHelper, 'drupal');
+        $fs = $this->prophet->prophesize(Filesystem::class);
+        $this->mockExecuteMySqlDropDb($localMachineHelper, true, $fs);
+        $this->mockExecuteMySqlImport($localMachineHelper, true, true, 'my_db', 'my_dbdev', 'drupal');
+        $fs->remove(Argument::type('string'))->shouldBeCalled();
+        $localMachineHelper->getFilesystem()->willReturn($fs)->shouldBeCalled();
+        $this->mockExecuteDrushExists($localMachineHelper);
+        $this->mockExecuteDrushStatus($localMachineHelper, $this->projectDir);
+        $process = $this->mockProcess();
+        // sql:sanitize should still run, but cache:rebuild should NOT.
+        $this->mockExecuteDrushSqlSanitize($localMachineHelper, $process);
+
+        $this->executeCommand([
+            '--no-cache-clear' => true,
+        ], self::inputChooseEnvironment());
+
+        $output = $this->getDisplay();
+
+        $this->assertStringContainsString('Select a Cloud Platform application:', $output);
+    }
+
     public function testPullProdDatabase(): void
     {
         $localMachineHelper = $this->mockLocalMachineHelper();
