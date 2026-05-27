@@ -517,6 +517,14 @@ abstract class PullCommandBase extends CommandBase
         }
 
         // Check for IDE context and auto-determine site instance.
+        // If siteId was already set (e.g., by determineEnvironment() in MEO codebase
+        // context), reuse it rather than calling determineSiteInstanceFromCodebaseUuid() again.
+        if (!empty($this->siteId)) {
+            $site = $this->getSite($this->siteId);
+            $this->site = $site->name;
+            return $this->site;
+        }
+
         $siteInstanceId = $this->determineSiteInstanceFromCodebaseUuid($environment, $input, $this->output);
         if ($siteInstanceId) {
             // Extract site from siteInstanceId for this method's return.

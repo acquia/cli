@@ -185,6 +185,101 @@ class PushDatabaseCommandTest extends CommandTestBase
         $this->assertStringContainsString('Overwrite the meodb database', $output);
     }
 
+    /**
+     * Test push:db uses $database->ssh_host as SSH URL fallback when
+     * $environment->sshUrl is empty (MEO environments).
+     */
+    public function testPushDatabaseFallbackSshUrl(): void
+    {
+        $applications = $this->mockRequest('getApplications');
+        $application = $this->mockRequest('getApplicationByUuid', $applications[self::$INPUT_DEFAULT_CHOICE]->uuid);
+        $sshHost = 'meoenv.ssh.acquia-sites.com';
+        $tamper = function ($responses) use ($sshHost): void {
+            foreach ($responses as $response) {
+                $response->ssh_url = '';
+                $response->domains = ['example.com'];
+            }
+        };
+        $environments = $this->mockRequest('getApplicationEnvironments', $application->uuid, null, null, $tamper);
+        $this->createMockGitConfigFile();
+
+        $env = $environments[self::$INPUT_DEFAULT_CHOICE];
+        $dbTamper = static function ($dbs) use ($sshHost): void {
+            $dbs[0]->ssh_host = $sshHost;
+        };
+        $this->mockRequest('getEnvironmentsDatabases', $env->id, null, null, $dbTamper);
+
+        $process = $this->mockProcess();
+        $localMachineHelper = $this->mockLocalMachineHelper();
+        $localMachineHelper->checkRequiredBinariesExist(['ssh'])->shouldBeCalled();
+        $this->mockExecutePvExists($localMachineHelper);
+        $this->mockCreateMySqlDumpOnLocal($localMachineHelper);
+
+        // Rsync upload should target the fallback SSH URL (envName@sshHost).
+        $localMachineHelper->checkRequiredBinariesExist(['rsync'])->shouldBeCalled();
+        $localMachineHelper->execute(Argument::that(function ($cmd) use ($sshHost) {
+            return is_array($cmd) && $cmd[0] === 'rsync' && str_contains((string) $cmd[4], $sshHost);
+        }), Argument::cetera())
+            ->willReturn($process->reveal())
+            ->shouldBeCalled();
+
+        // SSH import should use the fallback SSH URL.
+        $localMachineHelper->execute(Argument::that(function ($cmd) use ($sshHost) {
+            return is_array($cmd) && $cmd[0] === 'ssh' && str_contains((string) $cmd[1], $sshHost);
+        }), Argument::cetera())
+            ->willReturn($process->reveal())
+            ->shouldBeCalled();
+
+        $this->command->sshHelper = new SshHelper($this->output, $localMachineHelper->reveal(), $this->logger);
+
+        $this->executeCommand([], [
+            ...self::inputChooseEnvironment(),
+            // Choose a database.
+            0,
+            // Overwrite confirmation.
+            'y',
+        ]);
+
+        // Verify the overwrite confirmation was displayed, confirming we passed
+        // determineSshUrl() successfully using the ssh_host fallback.
+        $this->assertStringContainsString('Overwrite the', $this->getDisplay());
+    }
+
+    /**
+     * Test push:db throws an exception when both $environment->sshUrl and
+     * $database->ssh_host are absent.
+     */
+    public function testPushDatabaseMissingSshUrl(): void
+    {
+        $applications = $this->mockRequest('getApplications');
+        $application = $this->mockRequest('getApplicationByUuid', $applications[self::$INPUT_DEFAULT_CHOICE]->uuid);
+        $tamper = function ($responses): void {
+            foreach ($responses as $response) {
+                $response->ssh_url = '';
+                $response->domains = ['example.com'];
+            }
+        };
+        $environments = $this->mockRequest('getApplicationEnvironments', $application->uuid, null, null, $tamper);
+        $this->createMockGitConfigFile();
+
+        $env = $environments[self::$INPUT_DEFAULT_CHOICE];
+        // Clear ssh_host on the database — both SSH sources are absent.
+        $dbTamper = static function ($dbs): void {
+            $dbs[0]->ssh_host = '';
+        };
+        $this->mockRequest('getEnvironmentsDatabases', $env->id, null, null, $dbTamper);
+
+        $this->expectException(AcquiaCliException::class);
+        $this->expectExceptionMessage('Cannot determine environment SSH URL');
+
+        $this->executeCommand([], [
+            ...self::inputChooseEnvironment(),
+            // Choose a database.
+            0,
+        ]);
+    }
+
+
     protected function mockUploadDatabaseDump(
         ObjectProphecy $localMachineHelper,
         ObjectProphecy $process,

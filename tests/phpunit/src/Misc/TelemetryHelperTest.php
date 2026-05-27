@@ -110,7 +110,7 @@ class TelemetryHelperTest extends TestBase
     }
 
     /**
-     * Test normalizeAhEnv() returns 'meo' when AH_CODEBASE_UUID is set.
+     * Test normalizeAhEnv() returns 'meo' when AH_ENVIRONMENT_TYPE is 'meo'.
      *
      * @group serial
      */
