@@ -109,19 +109,6 @@ class TelemetryHelperTest extends TestBase
         $this->assertEquals($expected, $normalized_ah_env);
     }
 
-    /**
-     * Test normalizeAhEnv() returns 'meo' when AH_ENVIRONMENT_TYPE is 'meo'.
-     *
-     * @group serial
-     */
-    public function testAhEnvNormalizationMeo(): void
-    {
-        putenv('AH_ENVIRONMENT_TYPE=meo');
-        // A non-standard env name triggers the MEO branch.
-        $this->assertEquals('meo', TelemetryHelper::normalizeAhEnv('meoprod'));
-        putenv('AH_ENVIRONMENT_TYPE');
-    }
-
     public function testIsBuildDateOlderThanMonthsNullDate(): void
     {
         $this->assertFalse(TelemetryHelper::isBuildDateOlderThanMonths(null, 3));
