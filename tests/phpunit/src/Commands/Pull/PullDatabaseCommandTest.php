@@ -448,8 +448,13 @@ class PullDatabaseCommandTest extends PullCommandTestBase
             ->shouldBeCalled();
 
         $codeabaseSites = $this->getMockCodeBaseSites();
+        // shouldBeCalledTimes(1) kills the ReturnRemoval mutation on
+        // PullCommandBase::determineSite() line 525: if early-return is removed,
+        // determineSiteInstanceFromCodebaseUuid() is called a second time, causing
+        // a second call to this endpoint that violates the times(1) expectation.
         $this->clientProphecy->request('get', '/codebases/' . $codebaseUuid . '/sites')
-            ->willReturn($codeabaseSites);
+            ->willReturn($codeabaseSites)
+            ->shouldBeCalledTimes(1);
         $siteInstance = $this->getMockSiteInstanceResponse();
 
         $this->clientProphecy->request('get', '/site-instances/8979a8ac-80dc-4df8-b2f0-6be36554a370.3e8ecbec-ea7c-4260-8414-ef2938c859bc')

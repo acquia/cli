@@ -215,17 +215,20 @@ class PushDatabaseCommandTest extends CommandTestBase
         $this->mockExecutePvExists($localMachineHelper);
         $this->mockCreateMySqlDumpOnLocal($localMachineHelper);
 
-        // Rsync upload should target the fallback SSH URL (envName@sshHost).
+        // Rsync upload and SSH import must use the exact fallback URL "dev@sshHost".
+        // Assertions on the full URL (not just sshHost substring) kill all four
+        // concat-operand mutations on PushDatabaseCommand::determineSshUrl() line 86.
+        $expectedSshUrl = 'dev@' . $sshHost;
         $localMachineHelper->checkRequiredBinariesExist(['rsync'])->shouldBeCalled();
-        $localMachineHelper->execute(Argument::that(function ($cmd) use ($sshHost) {
-            return is_array($cmd) && $cmd[0] === 'rsync' && str_contains((string) $cmd[4], $sshHost);
+        $localMachineHelper->execute(Argument::that(function ($cmd) use ($expectedSshUrl) {
+            return is_array($cmd) && $cmd[0] === 'rsync' && str_starts_with((string) $cmd[4], $expectedSshUrl . ':');
         }), Argument::cetera())
             ->willReturn($process->reveal())
             ->shouldBeCalled();
 
-        // SSH import should use the fallback SSH URL.
-        $localMachineHelper->execute(Argument::that(function ($cmd) use ($sshHost) {
-            return is_array($cmd) && $cmd[0] === 'ssh' && str_contains((string) $cmd[1], $sshHost);
+        // SSH import should use the exact fallback SSH URL.
+        $localMachineHelper->execute(Argument::that(function ($cmd) use ($expectedSshUrl) {
+            return is_array($cmd) && $cmd[0] === 'ssh' && $cmd[1] === $expectedSshUrl;
         }), Argument::cetera())
             ->willReturn($process->reveal())
             ->shouldBeCalled();
@@ -279,6 +282,87 @@ class PushDatabaseCommandTest extends CommandTestBase
         ]);
     }
 
+
+    /**
+     * Test push:db through the MEO codebase UUID path.
+     *
+     * Critical: intentionally does NOT mock /environments/{id}/databases.
+     * If mutation 1 negates `if ($siteInstanceId)` in CommandBase::determineEnvironment(),
+     * $this->siteId will not be set and determineCloudDatabases() will fall through
+     * to the standard Cloud API path, causing an unexpected /environments/.../databases
+     * call that fails the test.
+     */
+    public function testPushDatabaseWithCodebaseUuid(): void
+    {
+        $codebaseUuid = '11111111-041c-44c7-a486-7972ed2cafc8';
+        self::SetEnvVars(['AH_CODEBASE_UUID' => $codebaseUuid]);
+
+        $codebase = $this->getMockCodebaseResponse();
+        $this->clientProphecy->request('get', '/codebases/' . $codebaseUuid)
+            ->willReturn($codebase);
+
+        $codebaseEnv = $this->getMockCodeBaseEnvironment();
+        $this->clientProphecy->request('get', '/codebases/' . $codebaseUuid . '/environments')
+            ->willReturn([$codebaseEnv])
+            ->shouldBeCalled();
+
+        $codebaseSites = $this->getMockCodeBaseSites();
+        $this->clientProphecy->request('get', '/codebases/' . $codebaseUuid . '/sites')
+            ->willReturn($codebaseSites)
+            ->shouldBeCalled();
+
+        $siteInstance = $this->getMockSiteInstanceResponse();
+        $this->clientProphecy->request('get', '/site-instances/8979a8ac-80dc-4df8-b2f0-6be36554a370.3e8ecbec-ea7c-4260-8414-ef2938c859bc')
+            ->willReturn($siteInstance)
+            ->shouldBeCalled();
+
+        $siteInstanceDatabase = $this->getMockSiteInstanceDatabaseResponse();
+        $this->clientProphecy->request('get', '/site-instances/8979a8ac-80dc-4df8-b2f0-6be36554a370.3e8ecbec-ea7c-4260-8414-ef2938c859bc/database')
+            ->willReturn($siteInstanceDatabase)
+            ->shouldBeCalled();
+
+        $siteInstanceDatabaseConnection = $this->getMockSiteInstanceDatabaseConnectionResponse();
+        $this->clientProphecy->request('get', '/site-instances/8979a8ac-80dc-4df8-b2f0-6be36554a370.3e8ecbec-ea7c-4260-8414-ef2938c859bc/database/connection')
+            ->willReturn($siteInstanceDatabaseConnection)
+            ->shouldBeCalled();
+
+        // /environments/{id}/databases is intentionally NOT mocked here.
+        // Mutation 1: if ($siteInstanceId) → if (!$siteInstanceId) would leave siteId unset,
+        // causing determineCloudDatabases() to call the standard path and fail.
+        $process = $this->mockProcess();
+        $localMachineHelper = $this->mockLocalMachineHelper();
+        $localMachineHelper->checkRequiredBinariesExist(['ssh'])->shouldBeCalled();
+        $this->mockExecutePvExists($localMachineHelper);
+        $this->mockCreateMySqlDumpOnLocal($localMachineHelper);
+
+        // sshUrl comes from the codebase environment's ssh_url (non-empty).
+        $sshUrl = 'site.dev@sitedev.ssh.hosted.acquia-sites.com';
+        $localMachineHelper->checkRequiredBinariesExist(['rsync'])->shouldBeCalled();
+        $localMachineHelper->execute(Argument::that(function ($cmd) use ($sshUrl) {
+            return is_array($cmd) && $cmd[0] === 'rsync' && str_starts_with((string) $cmd[4], $sshUrl . ':');
+        }), Argument::cetera())
+            ->willReturn($process->reveal())
+            ->shouldBeCalled();
+
+        $localMachineHelper->execute(Argument::that(function ($cmd) use ($sshUrl) {
+            return is_array($cmd) && $cmd[0] === 'ssh' && $cmd[1] === $sshUrl;
+        }), Argument::cetera())
+            ->willReturn($process->reveal())
+            ->shouldBeCalled();
+
+        $this->command->sshHelper = new SshHelper($this->output, $localMachineHelper->reveal(), $this->logger);
+
+        $this->executeCommand([], [
+            // Overwrite the example database confirmation.
+            'y',
+        ]);
+
+        $output = $this->getDisplay();
+        $this->assertStringContainsString('Detected Codebase UUID:', $output);
+        $this->assertStringContainsString('Overwrite the', $output);
+
+        self::unsetEnvVars(['AH_CODEBASE_UUID']);
+    }
 
     protected function mockUploadDatabaseDump(
         ObjectProphecy $localMachineHelper,
