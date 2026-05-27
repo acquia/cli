@@ -194,7 +194,7 @@ class PushDatabaseCommandTest extends CommandTestBase
         $applications = $this->mockRequest('getApplications');
         $application = $this->mockRequest('getApplicationByUuid', $applications[self::$INPUT_DEFAULT_CHOICE]->uuid);
         $sshHost = 'meoenv.ssh.acquia-sites.com';
-        $tamper = function ($responses) use ($sshHost): void {
+        $tamper = function ($responses): void {
             foreach ($responses as $response) {
                 $response->ssh_url = '';
                 $response->domains = ['example.com'];
