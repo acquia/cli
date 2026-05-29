@@ -63,10 +63,10 @@ class CodeStudioPipelinesMigrateCommandTest extends CommandTestBase
                 [self::getMockedGitLabProject(self::$gitLabProjectId)],
                 // Inputs.
                 [
-                    // @todo
+                    // Would you like to search by git config?
                     '0',
-                    // Do you want to continue?
-                    'y',
+                    // Select a Cloud Platform application:
+                    '0',
                 ],
                 // Args.
                 [
@@ -79,14 +79,16 @@ class CodeStudioPipelinesMigrateCommandTest extends CommandTestBase
                 [],
                 // Inputs.
                 [
-                    // Choose application.
+                    // Would you like to search by git config?
                     '0',
+                    // Select a Cloud Platform application:
+                    '0',
+                    // Would you like to link the Cloud application to this repository?
+                    'y',
                     // Would you like to create a new Code Studio project?
                     'y',
                     // Choose which group this new project should belong to:
                     '0',
-                    // Do you want to continue?
-                    'y',
                 ],
                 // Args.
                 [
