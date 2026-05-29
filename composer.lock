@@ -4709,16 +4709,16 @@
         },
         {
             "name": "symfony/http-foundation",
-            "version": "v7.4.8",
+            "version": "v7.4.13",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/http-foundation.git",
-                "reference": "9381209597ec66c25be154cbf2289076e64d1eab"
+                "reference": "bc354f47c62301e990b7874fa662326368508e2c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/http-foundation/zipball/9381209597ec66c25be154cbf2289076e64d1eab",
-                "reference": "9381209597ec66c25be154cbf2289076e64d1eab",
+                "url": "https://api.github.com/repos/symfony/http-foundation/zipball/bc354f47c62301e990b7874fa662326368508e2c",
+                "reference": "bc354f47c62301e990b7874fa662326368508e2c",
                 "shasum": ""
             },
             "require": {
@@ -4787,7 +4787,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-03-24T13:12:05+00:00"
+            "time": "2026-05-27T08:32:57+00:00"
         },
         {
             "name": "symfony/http-kernel",
@@ -13864,16 +13864,16 @@
         },
         {
             "name": "twig/twig",
-            "version": "v3.26.0",
+            "version": "v3.27.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/twigphp/Twig.git",
-                "reference": "1fcae487b180d78e6351f4e0afa91f9eab96a2bc"
+                "reference": "04ae1bfe9463c816cf72ca0abe7eae2c77a9a9ed"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/twigphp/Twig/zipball/1fcae487b180d78e6351f4e0afa91f9eab96a2bc",
-                "reference": "1fcae487b180d78e6351f4e0afa91f9eab96a2bc",
+                "url": "https://api.github.com/repos/twigphp/Twig/zipball/04ae1bfe9463c816cf72ca0abe7eae2c77a9a9ed",
+                "reference": "04ae1bfe9463c816cf72ca0abe7eae2c77a9a9ed",
                 "shasum": ""
             },
             "require": {
@@ -13940,7 +13940,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-05-20T07:31:59+00:00"
+            "time": "2026-05-27T13:06:01+00:00"
         },
         {
             "name": "webmozart/assert",
