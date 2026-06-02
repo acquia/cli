@@ -697,17 +697,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
             $chosenEnvironment = $this->getCloudEnvironment($environmentId);
         } else {
             $chosenEnvironment = $this->determineCodebaseEnvironment($input, $output);
-            if ($chosenEnvironment) {
-                // In MEO codebase context, populate $this->siteId so that
-                // determineCloudDatabases() can use the MEO database API.
-                if (empty($this->siteId)) {
-                    $siteInstanceId = $this->determineSiteInstanceFromCodebaseUuid($chosenEnvironment, $input, $output);
-                    if ($siteInstanceId) {
-                        [$siteId] = explode('.', $siteInstanceId);
-                        $this->siteId = $siteId;
-                    }
-                }
-            } else {
+            if (!$chosenEnvironment) {
                 $cloudApplicationUuid = $this->determineCloudApplication();
                 $cloudApplication = $this->getCloudApplication($cloudApplicationUuid);
                 $output->writeln(sprintf('Using Cloud Application <options=bold>%s</>', $cloudApplication->name));

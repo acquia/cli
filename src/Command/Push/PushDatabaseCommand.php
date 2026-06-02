@@ -45,9 +45,6 @@ final class PushDatabaseCommand extends PushCommandBase
         if ($database->user_name === null) {
             throw new AcquiaCliException('Database connection details missing');
         }
-
-        $sshUrl = $this->determineSshUrl($destinationEnvironment, $database);
-
         $answer = $this->io->confirm("Overwrite the <bg=cyan;options=bold>$database->name</> database on <bg=cyan;options=bold>$destinationEnvironment->name</> with a copy of the database from the current machine?");
         if (!$answer) {
             return Command::SUCCESS;
@@ -61,35 +58,17 @@ final class PushDatabaseCommand extends PushCommandBase
         $this->checklist->completePreviousItem();
 
         $this->checklist->addItem('Uploading database dump to remote machine');
-        $remoteDumpFilepath = $this->uploadDatabaseDump($sshUrl, $destinationEnvironment, $localDumpFilepath, $outputCallback);
+        $remoteDumpFilepath = $this->uploadDatabaseDump($destinationEnvironment, $localDumpFilepath, $outputCallback);
         $this->checklist->completePreviousItem();
 
         $this->checklist->addItem('Importing database dump into MySQL on remote machine');
-        $this->importDatabaseDumpOnRemote($sshUrl, $destinationEnvironment, $remoteDumpFilepath, $database);
+        $this->importDatabaseDumpOnRemote($destinationEnvironment, $remoteDumpFilepath, $database);
         $this->checklist->completePreviousItem();
 
         return Command::SUCCESS;
     }
 
-    /**
-     * Determine the SSH URL, falling back to the database ssh_host for MEO
-     * environments where the environment sshUrl may be absent.
-     *
-     * @throws \Acquia\Cli\Exception\AcquiaCliException
-     */
-    private function determineSshUrl(EnvironmentResponse $environment, DatabaseResponse $database): string
-    {
-        if (!empty($environment->sshUrl)) {
-            return $environment->sshUrl;
-        }
-        if (!empty($database->ssh_host)) {
-            return $environment->name . '@' . $database->ssh_host;
-        }
-        throw new AcquiaCliException('Cannot determine environment SSH URL. Check that you have SSH permissions on this environment.');
-    }
-
     private function uploadDatabaseDump(
-        string $sshUrl,
         EnvironmentResponse $environment,
         string $localFilepath,
         callable $outputCallback
@@ -103,7 +82,7 @@ final class PushDatabaseCommand extends PushCommandBase
             '-tDvPhe',
             'ssh -o StrictHostKeyChecking=no',
             $localFilepath,
-            $sshUrl . ':' . $remoteFilepath,
+            $environment->sshUrl . ':' . $remoteFilepath,
         ];
         $process = $this->localMachineHelper->execute($command, $outputCallback, null, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
         if (!$process->isSuccessful()) {
@@ -116,11 +95,11 @@ final class PushDatabaseCommand extends PushCommandBase
         return $remoteFilepath;
     }
 
-    private function importDatabaseDumpOnRemote(string $sshUrl, EnvironmentResponse $environment, string $remoteDumpFilepath, DatabaseResponse $database): void
+    private function importDatabaseDumpOnRemote(EnvironmentResponse $environment, string $remoteDumpFilepath, DatabaseResponse $database): void
     {
         $this->logger->debug("Importing $remoteDumpFilepath to MySQL on remote machine");
         $command = "pv $remoteDumpFilepath --bytes --rate | gunzip | MYSQL_PWD=$database->password mysql --host={$this->getHostFromDatabaseResponse($environment, $database)} --user=$database->user_name {$this->getNameFromDatabaseResponse($database)}";
-        $process = $this->sshHelper->executeCommand($sshUrl, [$command], ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
+        $process = $this->sshHelper->executeCommand($environment->sshUrl, [$command], ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
         if (!$process->isSuccessful()) {
             throw new AcquiaCliException('Unable to import database on remote machine. {message}', ['message' => $process->getErrorOutput()]);
         }
@@ -128,12 +107,7 @@ final class PushDatabaseCommand extends PushCommandBase
 
     private function getNameFromDatabaseResponse(DatabaseResponse $database): string
     {
-        if ($database->url !== null) {
-            $dbUrlParts = explode('/', $database->url);
-            return end($dbUrlParts);
-        }
-        // MEO databases from the SiteInstance API have no URL; the name
-        // field already holds the MySQL database name.
-        return $database->name;
+        $dbUrlParts = explode('/', $database->url);
+        return end($dbUrlParts);
     }
 }
