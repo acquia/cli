@@ -49,7 +49,7 @@ jobs:
         if: matrix.os == 'ubuntu-24.04'
         run: cat composer.lock | jq '.packages[] | select(.abandoned)' | grep -q ^ && echo 'Abandoned Composer packages found' && exit 1 || exit 0
       - name: Check for insecure dependencies
-        run: composer audit
+        run: composer audit --locked
       - name: Composer install
         run: composer install --prefer-dist --no-interaction --optimize-autoloader
       - name: Check dependency licenses
