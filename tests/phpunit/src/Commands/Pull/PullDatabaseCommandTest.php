@@ -71,8 +71,8 @@ class PullDatabaseCommandTest extends PullCommandTestBase
         $this->mockExecuteDrushExists($localMachineHelper);
         $this->mockExecuteDrushStatus($localMachineHelper, $this->projectDir);
         $process = $this->mockProcess();
-        $this->mockExecuteDrushCacheRebuild($localMachineHelper, $process);
         $this->mockExecuteDrushSqlSanitize($localMachineHelper, $process);
+        $this->mockExecuteDrushCacheRebuild($localMachineHelper, $process);
 
         $this->executeCommand([
             '--no-scripts' => false,
@@ -769,5 +769,34 @@ class PullDatabaseCommandTest extends PullCommandTestBase
 
         // Assert null is returned when exception is caught.
         $this->assertNull($result);
+    }
+
+    public function testPullDatabaseNoCacheClear(): void
+    {
+        $localMachineHelper = $this->mockLocalMachineHelper();
+        $this->output->setVerbosity(BufferedOutput::VERBOSITY_NORMAL);
+        $this->mockExecuteMySqlConnect($localMachineHelper, true);
+        $environment = $this->mockGetEnvironment();
+        $sshHelper = $this->mockSshHelper();
+        $this->mockListSites($sshHelper);
+        $this->mockGetBackup($environment);
+        $this->mockExecuteMySqlListTables($localMachineHelper, 'drupal');
+        $fs = $this->prophet->prophesize(Filesystem::class);
+        $this->mockExecuteMySqlDropDb($localMachineHelper, true, $fs);
+        $this->mockExecuteMySqlImport($localMachineHelper, true, true, 'my_db', 'my_dbdev', 'drupal');
+        $fs->remove(Argument::type('string'))->shouldBeCalled();
+        $localMachineHelper->getFilesystem()->willReturn($fs)->shouldBeCalled();
+        $this->mockExecuteDrushExists($localMachineHelper);
+        $this->mockExecuteDrushStatus($localMachineHelper, $this->projectDir);
+        $process = $this->mockProcess();
+        // sql:sanitize must still run; cache:rebuild must NOT (no mock means any call would fail).
+        $this->mockExecuteDrushSqlSanitize($localMachineHelper, $process);
+
+        $this->executeCommand([
+            '--no-cache-clear' => true,
+        ], self::inputChooseEnvironment());
+
+        $output = $this->getDisplay();
+        $this->assertStringContainsString('Choose a database [my_db (default)]:', $output);
     }
 }

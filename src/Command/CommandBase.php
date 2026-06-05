@@ -2025,8 +2025,8 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
     protected function executeAllScripts(Closure $outputCallback, Checklist $checklist): void
     {
         $this->runComposerScripts($outputCallback, $checklist);
-        $this->runDrushCacheClear($outputCallback, $checklist);
         $this->runDrushSqlSanitize($outputCallback, $checklist);
+        $this->runDrushCacheClear($outputCallback, $checklist);
     }
 
     /**
