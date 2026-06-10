@@ -72,12 +72,12 @@ final class PullDatabaseCommand extends PullCommandBase
 
         $sourceEnvironment = $this->determineEnvironment($input, $output, true);
         $this->pullDatabase($input, $output, $sourceEnvironment, $onDemand, $noImport, $multipleDbs);
+        $outputCallback = $this->getOutputCallback($output, $this->checklist);
         if (!$noScripts) {
-            $outputCallback = $this->getOutputCallback($output, $this->checklist);
             $this->runDrushSqlSanitize($outputCallback, $this->checklist);
-            if (!$noCacheClear) {
-                $this->runDrushCacheClear($outputCallback, $this->checklist);
-            }
+        }
+        if (!$noScripts && !$noCacheClear) {
+            $this->runDrushCacheClear($outputCallback, $this->checklist);
         }
 
         return Command::SUCCESS;
