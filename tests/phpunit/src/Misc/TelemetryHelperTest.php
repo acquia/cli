@@ -128,6 +128,11 @@ class TelemetryHelperTest extends TestBase
                 ['filename' => 'id_rsa', 'password' => 'foo'],
                 ['filename' => 'id_rsa', 'password' => 'REDACTED'],
             ],
+            // Sensitive keys nested in array values should be redacted.
+            [
+                ['params' => ['password' => 'foo', 'filename' => 'id_rsa']],
+                ['params' => ['password' => 'REDACTED', 'filename' => 'id_rsa']],
+            ],
         ];
     }
 

@@ -429,7 +429,7 @@ class LocalMachineHelper
             $cmd = array_values(array_filter(explode(' ', $browser), static function (string $part): bool {
                 return $part !== '';
             }));
-            if ($cmd[0] === 'start') {
+            if ($cmd[0] === 'start' && OsInfo::isWindows()) {
                 // On Windows, `start` is a cmd.exe built-in rather than an
                 // executable, and it treats the first quoted argument as a
                 // window title, so pass an empty title before the URI.

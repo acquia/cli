@@ -1698,7 +1698,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
         }
         // Only hit the GitHub API once per day per installed version.
         return self::getUpdateCheckCache()->get(
-            'latest-version.' . str_replace(['{', '}', '(', ')', '/', '\\', '@', ':'], '_', $version),
+            'latest-version.' . preg_replace('/[^A-Za-z0-9_.]/', '_', $version),
             function (CacheItem $item): bool|string {
                 $item->expiresAfter(new DateInterval('P1D'));
                 try {

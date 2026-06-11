@@ -77,6 +77,8 @@ class TelemetryHelper
         foreach ($data as $name => $value) {
             if ($value !== null && in_array($name, $sensitiveNames, true)) {
                 $data[$name] = 'REDACTED';
+            } elseif (is_array($value)) {
+                $data[$name] = self::redactSensitiveData($value);
             }
         }
         return $data;
