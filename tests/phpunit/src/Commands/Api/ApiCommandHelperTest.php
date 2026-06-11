@@ -234,25 +234,32 @@ class ApiCommandHelperTest extends CommandTestBase
      */
     public function testGetApiCommandFactoriesMatchEagerCommands(): void
     {
-        $helper = new ApiCommandHelper($this->logger);
-        // getApiCommands() returns a flat list that may repeat a name; Symfony
-        // dedupes on registration, as does the keyed factory map, so compare the
-        // unique name sets.
-        $eagerNames = array_unique(array_map(static fn ($c) => $c->getName(), $helper->getApiCommands(self::$apiSpecFixtureFilePath, 'api', $this->getCommandFactory())));
-        sort($eagerNames);
+        // Build the registration manifest from source rather than the cache, so
+        // the manifest-building logic is actually exercised under test.
+        putenv('ACQUIA_CLI_USE_CLOUD_API_SPEC_CACHE=0');
+        try {
+            $helper = new ApiCommandHelper($this->logger);
+            // getApiCommands() returns a flat list that may repeat a name;
+            // Symfony dedupes on registration, as does the keyed factory map, so
+            // compare the unique name sets.
+            $eagerNames = array_unique(array_map(static fn ($c) => $c->getName(), $helper->getApiCommands(self::$apiSpecFixtureFilePath, 'api', $this->getCommandFactory())));
+            sort($eagerNames);
 
-        $factories = $helper->getApiCommandFactories(self::$apiSpecFixtureFilePath, 'api', $this->getCommandFactory());
-        $lazyNames = array_keys($factories);
-        sort($lazyNames);
+            $factories = $helper->getApiCommandFactories(self::$apiSpecFixtureFilePath, 'api', $this->getCommandFactory());
+            $lazyNames = array_keys($factories);
+            sort($lazyNames);
 
-        $this->assertSame(array_values($eagerNames), $lazyNames);
-        // Every entry must be a closure that is only invoked on demand.
-        foreach ($factories as $factory) {
-            $this->assertInstanceOf(\Closure::class, $factory);
+            $this->assertSame(array_values($eagerNames), $lazyNames);
+            // Every entry must be a closure that is only invoked on demand.
+            foreach ($factories as $factory) {
+                $this->assertInstanceOf(\Closure::class, $factory);
+            }
+            // Skipped commands are never registered; namespace list commands are.
+            $this->assertArrayNotHasKey('api:ssh-key:list', $factories);
+            $this->assertArrayHasKey('api:accounts', $factories);
+        } finally {
+            putenv('ACQUIA_CLI_USE_CLOUD_API_SPEC_CACHE');
         }
-        // Skipped commands are never registered; namespace list commands are.
-        $this->assertArrayNotHasKey('api:ssh-key:list', $factories);
-        $this->assertArrayHasKey('api:accounts', $factories);
     }
 
     /**
@@ -261,33 +268,38 @@ class ApiCommandHelperTest extends CommandTestBase
      */
     public function testGetApiCommandFactoriesBuildConfiguredCommandOnDemand(): void
     {
-        $helper = new ApiCommandHelper($this->logger);
-        $name = 'api:accounts:find';
-        $eager = $helper->getApiCommands(self::$apiSpecFixtureFilePath, 'api', $this->getCommandFactory());
-        $eagerCommand = null;
-        foreach ($eager as $candidate) {
-            if ($candidate->getName() === $name) {
-                $eagerCommand = $candidate;
-                break;
+        putenv('ACQUIA_CLI_USE_CLOUD_API_SPEC_CACHE=0');
+        try {
+            $helper = new ApiCommandHelper($this->logger);
+            $name = 'api:accounts:find';
+            $eager = $helper->getApiCommands(self::$apiSpecFixtureFilePath, 'api', $this->getCommandFactory());
+            $eagerCommand = null;
+            foreach ($eager as $candidate) {
+                if ($candidate->getName() === $name) {
+                    $eagerCommand = $candidate;
+                    break;
+                }
             }
+            $this->assertNotNull($eagerCommand);
+
+            $factories = $helper->getApiCommandFactories(self::$apiSpecFixtureFilePath, 'api', $this->getCommandFactory());
+            $this->assertArrayHasKey($name, $factories);
+            $lazyCommand = $factories[$name]();
+
+            $this->assertSame($eagerCommand->getName(), $lazyCommand->getName());
+            $this->assertSame($eagerCommand->getDescription(), $lazyCommand->getDescription());
+            $this->assertNotEmpty($lazyCommand->getDescription());
+            $this->assertSame(
+                array_keys($eagerCommand->getDefinition()->getOptions()),
+                array_keys($lazyCommand->getDefinition()->getOptions())
+            );
+            $this->assertSame(
+                array_keys($eagerCommand->getDefinition()->getArguments()),
+                array_keys($lazyCommand->getDefinition()->getArguments())
+            );
+        } finally {
+            putenv('ACQUIA_CLI_USE_CLOUD_API_SPEC_CACHE');
         }
-        $this->assertNotNull($eagerCommand);
-
-        $factories = $helper->getApiCommandFactories(self::$apiSpecFixtureFilePath, 'api', $this->getCommandFactory());
-        $this->assertArrayHasKey($name, $factories);
-        $lazyCommand = $factories[$name]();
-
-        $this->assertSame($eagerCommand->getName(), $lazyCommand->getName());
-        $this->assertSame($eagerCommand->getDescription(), $lazyCommand->getDescription());
-        $this->assertNotEmpty($lazyCommand->getDescription());
-        $this->assertSame(
-            array_keys($eagerCommand->getDefinition()->getOptions()),
-            array_keys($lazyCommand->getDefinition()->getOptions())
-        );
-        $this->assertSame(
-            array_keys($eagerCommand->getDefinition()->getArguments()),
-            array_keys($lazyCommand->getDefinition()->getArguments())
-        );
     }
 
     /**
@@ -319,6 +331,33 @@ class ApiCommandHelperTest extends CommandTestBase
     private function readProtected(object $object, string $property): mixed
     {
         return (new \ReflectionProperty($object, $property))->getValue($object);
+    }
+
+    /**
+     * The manifest builder must skip (continue past), not break out of, both
+     * methods that lack an x-cli-name and methods whose command is skipped, so
+     * that a later valid method on the same path is still registered.
+     */
+    public function testBuildApiSpecManifestContinuesPastIgnoredMethods(): void
+    {
+        $spec = [
+            'paths' => [
+                // 'get' has no x-cli-name and must be skipped without dropping 'post'.
+                '/a' => [
+                    'get' => ['responses' => []],
+                    'post' => ['x-cli-name' => 'a:create', 'summary' => 's', 'responses' => []],
+                ],
+                // 'get' is an explicitly skipped command and must not drop 'post'.
+                '/b' => [
+                    'get' => ['x-cli-name' => 'ide:create', 'summary' => 's', 'responses' => []],
+                    'post' => ['x-cli-name' => 'b:create', 'summary' => 's', 'responses' => []],
+                ],
+            ],
+        ];
+        $manifest = $this->invokeApiCommandHelperMethod('buildApiSpecManifest', [$spec]);
+        $this->assertArrayHasKey('a:create', $manifest);
+        $this->assertArrayHasKey('b:create', $manifest);
+        $this->assertArrayNotHasKey('ide:create', $manifest);
     }
 
     /**
