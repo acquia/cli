@@ -102,6 +102,51 @@ class ApiCommandHelperTest extends CommandTestBase
     }
 
     /**
+     * A fully hidden namespace that sorts before visible namespaces must be
+     * skipped with `continue`, not `break`, so the later visible namespaces are
+     * still listed. Also asserts that every visible namespace is returned, not
+     * just the first.
+     */
+    public function testHiddenNamespaceBeforeVisibleNamespacesListsAllVisible(): void
+    {
+        $apiCommands = [
+            $this->createMockApiCommand('api:hidden:only', true),
+            $this->createMockApiCommand('api:alpha:create', false),
+            $this->createMockApiCommand('api:beta:create', false),
+        ];
+        $listCommands = $this->generateApiListCommands($apiCommands);
+        $this->assertArrayNotHasKey('api:hidden', $listCommands);
+        // `break` instead of `continue` would stop at the hidden namespace and
+        // never reach alpha/beta.
+        $this->assertArrayHasKey('api:alpha', $listCommands);
+        // Returning only the first element would drop beta.
+        $this->assertArrayHasKey('api:beta', $listCommands);
+        $this->assertCount(2, $listCommands);
+    }
+
+    /**
+     * The generated list command must have its name, namespace, (empty) aliases,
+     * and description set.
+     */
+    public function testGeneratedListCommandHasExpectedProperties(): void
+    {
+        $apiCommands = [
+            $this->createMockApiCommand('api:widgets:create', false),
+        ];
+        $listCommands = $this->generateApiListCommands($apiCommands);
+        $command = $listCommands['api:widgets'];
+        $this->assertSame('api:widgets', $command->getName());
+        $this->assertSame('List all API commands for the widgets resource', $command->getDescription());
+        // createListCommand() returns an ApiListCommand whose AsCommand attribute
+        // declares aliases ['api']; the helper must clear them.
+        $this->assertSame([], $command->getAliases());
+        $namespaceProperty = (new ReflectionMethod($command, 'setNamespace'))
+            ->getDeclaringClass()
+            ->getProperty('namespace');
+        $this->assertSame('api:widgets', $namespaceProperty->getValue($command));
+    }
+
+    /**
      * When every sub-command under a namespace is hidden, omit the namespace list command.
      */
     public function testNamespaceWithAllHiddenCommandsDoesNotGetListCommand(): void

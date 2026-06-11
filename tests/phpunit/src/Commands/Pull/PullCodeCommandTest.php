@@ -12,6 +12,7 @@ use GuzzleHttp\Client;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
+use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Finder\Finder;
 
@@ -72,6 +73,36 @@ class PullCodeCommandTest extends PullCommandTestBase
             '--dir' => $dir,
             '--no-scripts' => true,
         ], $inputs);
+    }
+
+    public function testCloneRepoQuietForwardsNoOutput(): void
+    {
+        // At normal verbosity the git clone must run with output forwarding
+        // disabled (printOutput=false). This pins the `>` verbosity comparison
+        // so it cannot be loosened to `>=`.
+        $this->acliRepoRoot = '';
+        $this->command = $this->createCommand();
+        $environment = $this->mockGetEnvironment();
+        $localMachineHelper = $this->mockReadIdePhpVersion();
+        $process = $this->mockProcess();
+        $dir = Path::join($this->vfsRoot->url(), 'empty-dir-quiet');
+        mkdir($dir);
+        $localMachineHelper->checkRequiredBinariesExist(["git"])
+            ->shouldBeCalled();
+        $this->mockExecuteGitClone($localMachineHelper, $environment, $process, $dir, false);
+        $this->mockExecuteGitCheckout($localMachineHelper, $environment->vcs->path, $dir, $process);
+        $localMachineHelper->getFinder()->willReturn(new Finder());
+
+        $inputs = [
+            'y',
+            self::$INPUT_DEFAULT_CHOICE,
+            'n',
+            self::$INPUT_DEFAULT_CHOICE,
+        ];
+        $this->executeCommand([
+            '--dir' => $dir,
+            '--no-scripts' => true,
+        ], $inputs, OutputInterface::VERBOSITY_NORMAL);
     }
 
     public function testPullCode(): void
@@ -291,7 +322,8 @@ class PullCodeCommandTest extends PullCommandTestBase
         ObjectProphecy $localMachineHelper,
         object $environmentsResponse,
         ObjectProphecy $process,
-        mixed $dir
+        mixed $dir,
+        bool $printOutput = true
     ): void {
         $command = [
             'git',
@@ -299,7 +331,7 @@ class PullCodeCommandTest extends PullCommandTestBase
             $environmentsResponse->vcs->url,
             $dir,
         ];
-        $localMachineHelper->execute($command, Argument::type('callable'), null, true, null, ['GIT_SSH_COMMAND' => 'ssh -o StrictHostKeyChecking=accept-new'])
+        $localMachineHelper->execute($command, Argument::type('callable'), null, $printOutput, null, ['GIT_SSH_COMMAND' => 'ssh -o StrictHostKeyChecking=accept-new'])
             ->willReturn($process->reveal())
             ->shouldBeCalled();
     }

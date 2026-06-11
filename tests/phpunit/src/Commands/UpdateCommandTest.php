@@ -41,6 +41,17 @@ class UpdateCommandTest extends CommandTestBase
         self::assertStringContainsString("Acquia CLI $this->endVersion is available", $this->getDisplay());
     }
 
+    public function testNoUpdateMessageWhenUpToDate(): void
+    {
+        CommandBase::getUpdateCheckCache()->clear();
+        $this->application->setVersion($this->startVersion);
+        // The default mock reports the CLI as up to date; no upgrade message
+        // should be shown (and checkForNewVersion() must return false, not true).
+        $this->executeCommand();
+        self::assertEquals(0, $this->getStatusCode());
+        self::assertStringNotContainsString('is available', $this->getDisplay());
+    }
+
     public function testBadResponseFailsSilently(): void
     {
         $this->application->setVersion($this->startVersion);

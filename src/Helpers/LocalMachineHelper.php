@@ -136,6 +136,9 @@ class LocalMachineHelper
      */
     private function isTtyStream(mixed $fileDescriptor): bool
     {
+        if (!function_exists('posix_isatty')) {
+            return false;
+        }
         set_error_handler(static function (): bool {
             // Swallow the warning; posix_isatty() returns FALSE in this
             // case, correctly reporting the stream as not a TTY.
