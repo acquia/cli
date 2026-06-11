@@ -11,6 +11,8 @@ use Acquia\Cli\Command\Self\TelemetryCommand;
 use Acquia\Cli\Helpers\DataStoreContract;
 use Acquia\Cli\Tests\CommandTestBase;
 use AcquiaCloudApi\Connector\Connector;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use Prophecy\Argument;
 use ReflectionClass;
 use Symfony\Component\Filesystem\Path;
@@ -37,9 +39,7 @@ class TelemetryCommandTest extends CommandTestBase
         return $this->injectCommand(TelemetryCommand::class);
     }
 
-    /**
-     * @group brokenProphecy
-     */
+    #[Group('brokenProphecy')]
     public function testTelemetryCommand(): void
     {
         $this->mockRequest('getAccount');
@@ -68,9 +68,9 @@ class TelemetryCommandTest extends CommandTestBase
     /**
      * Tests telemetry prompt.
      *
-     * @dataProvider providerTestTelemetryPrompt
      * @param $message
      */
+    #[DataProvider('providerTestTelemetryPrompt')]
     public function testTelemetryPrompt(array $inputs, mixed $message): void
     {
         $this->createMockCloudConfigFile([DataStoreContract::SEND_TELEMETRY => null]);

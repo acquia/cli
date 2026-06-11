@@ -8,6 +8,8 @@ use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Command\Env\EnvCreateCommand;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Tests\CommandTestBase;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use Prophecy\Argument;
 
 /**
@@ -102,10 +104,8 @@ class EnvCreateCommandTest extends CommandTestBase
         ];
     }
 
-    /**
-     * @dataProvider providerTestCreateCde
-     * @group brokenProphecy
-     */
+    #[DataProvider('providerTestCreateCde')]
+    #[Group('brokenProphecy')]
     public function testCreateCde(mixed $args, mixed $input): void
     {
         $domain = $this->setupCdeTest(self::$validLabel);
@@ -124,9 +124,7 @@ class EnvCreateCommandTest extends CommandTestBase
         $this->assertStringContainsString("Your CDE URL: $domain", $output);
     }
 
-    /**
-     * @group brokenProphecy
-     */
+    #[Group('brokenProphecy')]
     public function testCreateCdeNonUniqueLabel(): void
     {
         $label = 'Dev';
@@ -143,9 +141,7 @@ class EnvCreateCommandTest extends CommandTestBase
         );
     }
 
-    /**
-     * @group brokenProphecy
-     */
+    #[Group('brokenProphecy')]
     public function testCreateCdeInvalidTag(): void
     {
         $this->setupCdeTest(self::$validLabel);
@@ -161,9 +157,7 @@ class EnvCreateCommandTest extends CommandTestBase
         );
     }
 
-    /**
-     * @group brokenProphecy
-     */
+    #[Group('brokenProphecy')]
     public function testCreateCdeApiFailure(): void
     {
         $this->setupCdeTest(self::$validLabel, false);

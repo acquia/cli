@@ -8,6 +8,8 @@ use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Command\Env\EnvDeleteCommand;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Tests\CommandTestBase;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 
 /**
  * @property \Acquia\Cli\Command\Env\EnvDeleteCommand $command
@@ -32,10 +34,8 @@ class EnvDeleteCommandTest extends CommandTestBase
         ];
     }
 
-    /**
-     * @dataProvider providerTestDeleteCde
-     * @group brokenProphecy
-     */
+    #[DataProvider('providerTestDeleteCde')]
+    #[Group('brokenProphecy')]
     public function testDeleteCde(mixed $environmentId): void
     {
         $applicationsResponse = $this->mockApplicationsRequest();
@@ -90,9 +90,7 @@ class EnvDeleteCommandTest extends CommandTestBase
         $this->assertStringContainsString("The $cde->label environment is being deleted", $output);
     }
 
-    /**
-     * @group brokenProphecy
-     */
+    #[Group('brokenProphecy')]
     public function testNoExistingCDEEnvironment(): void
     {
         $applicationsResponse = $this->mockApplicationsRequest();
@@ -113,9 +111,7 @@ class EnvDeleteCommandTest extends CommandTestBase
         );
     }
 
-    /**
-     * @group brokenProphecy
-     */
+    #[Group('brokenProphecy')]
     public function testNoEnvironmentArgumentPassed(): void
     {
         $applications = $this->mockRequest('getApplications');

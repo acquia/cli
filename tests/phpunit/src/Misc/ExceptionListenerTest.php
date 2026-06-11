@@ -10,6 +10,7 @@ use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Tests\TestBase;
 use AcquiaCloudApi\Exception\ApiErrorException;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Event\ConsoleErrorEvent;
 use Symfony\Component\Console\Exception\RuntimeException;
@@ -21,9 +22,7 @@ class ExceptionListenerTest extends TestBase
 
     private static string $appAliasHelp = 'The <bg=blue;options=bold>applicationUuid</> argument must be a valid UUID or unique application alias accessible to your Cloud Platform user.' . PHP_EOL . PHP_EOL . 'An alias consists of an application name optionally prefixed with a hosting realm, e.g. <bg=blue;fg=white;options=bold>myapp</> or <bg=blue;fg=white;options=bold>prod.myapp</>.' . PHP_EOL . PHP_EOL . 'Run <bg=blue;options=bold>acli remote:aliases:list</> to see a list of all available aliases.';
 
-    /**
-     * @dataProvider providerTestHelp
-     */
+    #[DataProvider('providerTestHelp')]
     public function testHelp(Throwable $error, string|array $helpText): void
     {
         $exceptionListener = new ExceptionListener();

@@ -7,6 +7,8 @@ namespace Acquia\Cli\Tests\Misc;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Helpers\LocalMachineHelper;
 use Acquia\Cli\Tests\TestBase;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Process\Process;
 
@@ -14,10 +16,9 @@ use Symfony\Component\Process\Process;
  * This test class must run serially because its tests have unavoidable side effects
  * on the environment (e.g., modifying environment variables like DISPLAY) and the filesystem
  * (e.g., setting up and tearing down fixtures). Running these tests in parallel could cause
- * interference and unpredictable failures. Do not remove the @group serial annotation.
- *
- * @group serial
+ * interference and unpredictable failures. Do not remove the serial group attribute.
  */
+#[Group('serial')]
 class LocalMachineHelperTest extends TestBase
 {
     public function testStartBrowser(): void
@@ -83,9 +84,7 @@ class LocalMachineHelperTest extends TestBase
         ];
     }
 
-    /**
-     * @dataProvider providerTestExecuteFromCmd()
-     */
+    #[DataProvider('providerTestExecuteFromCmd')]
     public function testExecuteFromCmd(bool $interactive, bool|null $isTty, bool|null $printOutput): void
     {
         $localMachineHelper = $this->localMachineHelper;

@@ -8,6 +8,7 @@ use Acquia\Cli\Command\App\LinkCommand;
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Tests\CommandTestBase;
+use PHPUnit\Framework\Attributes\Group;
 
 /**
  * @property \Acquia\Cli\Command\App\LinkCommand $command
@@ -52,9 +53,7 @@ class LinkCommandTest extends CommandTestBase
         $this->assertEquals(1, $this->getStatusCode());
     }
 
-    /**
-     * @group brokenProphecy
-     */
+    #[Group('brokenProphecy')]
     public function testLinkCommandInvalidDir(): void
     {
         $this->mockRequest('getApplications');

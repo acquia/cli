@@ -7,6 +7,7 @@ namespace Acquia\Cli\Tests\Commands\Ide;
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Command\Ide\IdeInfoCommand;
 use Acquia\Cli\Tests\CommandTestBase;
+use PHPUnit\Framework\Attributes\Group;
 
 /**
  * @property \Acquia\Cli\Command\Ide\IdeListCommand $command
@@ -18,9 +19,7 @@ class IdeInfoCommandTest extends CommandTestBase
         return $this->injectCommand(IdeInfoCommand::class);
     }
 
-    /**
-     * @group brokenProphecy
-     */
+    #[Group('brokenProphecy')]
     public function testIdeInfoCommand(): void
     {
         $applications = $this->mockRequest('getApplications');

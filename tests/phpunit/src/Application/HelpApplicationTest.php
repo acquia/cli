@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Acquia\Cli\Tests\Application;
 
 use Acquia\Cli\Tests\ApplicationTestBase;
+use PHPUnit\Framework\Attributes\Group;
 
 /**
  * Test the 'help' command.
@@ -15,9 +16,7 @@ use Acquia\Cli\Tests\ApplicationTestBase;
  */
 class HelpApplicationTest extends ApplicationTestBase
 {
-    /**
-     * @group serial
-     */
+    #[Group('serial')]
     public function testApplicationAliasHelp(): void
     {
         $this->setInput([
@@ -35,9 +34,7 @@ class HelpApplicationTest extends ApplicationTestBase
   app:link abcd1234-1111-2222-3333-0e02b2c3d470', $buffer);
     }
 
-    /**
-     * @group serial
-     */
+    #[Group('serial')]
     public function testEnvironmentAliasHelp(): void
     {
         $this->setInput([

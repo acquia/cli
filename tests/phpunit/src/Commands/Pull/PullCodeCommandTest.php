@@ -9,6 +9,7 @@ use Acquia\Cli\Command\Ide\IdePhpVersionCommand;
 use Acquia\Cli\Command\Pull\PullCodeCommand;
 use Acquia\Cli\Tests\Commands\Ide\IdeHelper;
 use GuzzleHttp\Client;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
 use Symfony\Component\Filesystem\Path;
@@ -233,9 +234,7 @@ class PullCodeCommandTest extends PullCommandTestBase
         ];
     }
 
-    /**
-     * @dataProvider providerTestMatchPhpVersion
-     */
+    #[DataProvider('providerTestMatchPhpVersion')]
     public function testMatchPhpVersion(string $phpVersion): void
     {
         IdeHelper::setCloudIdeEnvVars();

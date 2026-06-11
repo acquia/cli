@@ -6,6 +6,7 @@ namespace Acquia\Cli\Tests\Misc;
 
 use Acquia\Cli\Output\Checklist;
 use Acquia\Cli\Tests\TestBase;
+use PHPUnit\Framework\Attributes\Group;
 use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -23,9 +24,7 @@ class ChecklistTest extends TestBase
         $this->output = new ConsoleOutput();
     }
 
-    /**
-     * @group serial
-     */
+    #[Group('serial')]
     public function testSpinner(): void
     {
         putenv('PHPUNIT_RUNNING=1');

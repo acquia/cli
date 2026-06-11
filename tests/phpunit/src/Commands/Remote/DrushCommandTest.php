@@ -7,6 +7,7 @@ namespace Acquia\Cli\Tests\Commands\Remote;
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Command\Remote\DrushCommand;
 use Acquia\Cli\Helpers\SshHelper;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Prophecy\Argument;
 
 /**
@@ -38,9 +39,7 @@ class DrushCommandTest extends SshCommandTestBase
         ];
     }
 
-    /**
-     * @dataProvider providerTestRemoteDrushCommand
-     */
+    #[DataProvider('providerTestRemoteDrushCommand')]
     public function testRemoteDrushCommand(array $args): void
     {
         $this->mockGetEnvironment();

@@ -7,6 +7,7 @@ namespace Acquia\Cli\Tests\Commands\Ide;
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Command\Ide\IdeServiceStopCommand;
 use Acquia\Cli\Tests\CommandTestBase;
+use PHPUnit\Framework\Attributes\Group;
 use Symfony\Component\Validator\Exception\ValidatorException;
 
 /**
@@ -33,9 +34,7 @@ class IdeServiceStopCommandTest extends CommandTestBase
         $this->assertStringContainsString('Stopping php', $output);
     }
 
-    /**
-     * @group brokenProphecy
-     */
+    #[Group('brokenProphecy')]
     public function testIdeServiceStopCommandInvalid(): void
     {
         $localMachineHelper = $this->mockLocalMachineHelper();

@@ -14,6 +14,7 @@ use AcquiaCloudApi\Response\SiteInstanceDatabaseBackupResponse;
 use AcquiaCloudApi\Response\SiteInstanceDatabaseConnectionResponse;
 use AcquiaCloudApi\Response\SiteInstanceDatabaseResponse;
 use GuzzleHttp\Client;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
 use Symfony\Component\Console\Output\BufferedOutput;
@@ -308,9 +309,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase
         ], self::inputChooseEnvironment());
     }
 
-    /**
-     * @dataProvider providerTestPullDatabaseWithInvalidSslCertificate
-     */
+    #[DataProvider('providerTestPullDatabaseWithInvalidSslCertificate')]
     public function testPullDatabaseWithInvalidSslCertificate(int $errorCode): void
     {
         $this->setupPullDatabase(true, false, false, true, false, $errorCode);

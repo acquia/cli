@@ -10,6 +10,7 @@ use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Helpers\LocalMachineHelper;
 use Acquia\Cli\Helpers\SshHelper;
 use Acquia\Cli\Tests\CommandTestBase;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -49,9 +50,7 @@ class PushDatabaseCommandTest extends CommandTestBase
         parent::setUp();
     }
 
-    /**
-     * @dataProvider providerTestPushDatabase
-     */
+    #[DataProvider('providerTestPushDatabase')]
     public function testPushDatabase(int $verbosity, bool $printOutput, bool $pv): void
     {
         $applications = $this->mockRequest('getApplications');

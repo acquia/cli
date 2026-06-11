@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Acquia\Cli\Tests\Application;
 
 use Acquia\Cli\Tests\ApplicationTestBase;
+use PHPUnit\Framework\Attributes\Group;
 
 /**
  * Tests exceptions rewritten by the Symfony Event Dispatcher.
@@ -17,9 +18,7 @@ use Acquia\Cli\Tests\ApplicationTestBase;
  */
 class ExceptionApplicationTest extends ApplicationTestBase
 {
-    /**
-     * @group serial
-     */
+    #[Group('serial')]
     public function testInvalidApiCredentials(): void
     {
         $this->setInput([

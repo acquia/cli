@@ -7,6 +7,7 @@ namespace Acquia\Cli\Tests\Commands\Ssh;
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Command\Ssh\SshKeyCreateCommand;
 use Acquia\Cli\Tests\CommandTestBase;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Prophecy\Argument;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Path;
@@ -99,9 +100,7 @@ class SshKeyCreateCommandTest extends CommandTestBase
         ];
     }
 
-    /**
-     * @dataProvider providerTestCreate
-     */
+    #[DataProvider('providerTestCreate')]
     public function testCreate(mixed $sshAddSuccess, mixed $args, mixed $inputs): void
     {
         $sshKeyFilepath = Path::join($this->sshDir, '/' . self::$filename);

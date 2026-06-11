@@ -9,6 +9,7 @@ use Acquia\Cli\Command\Auth\AuthAcsfLogoutCommand;
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Config\CloudDataConfig;
 use Acquia\Cli\DataStore\CloudDataStore;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * @property AcsfAuthLogoutCommandTest $command
@@ -49,9 +50,7 @@ class AcsfAuthLogoutCommandTest extends AcsfCommandTestBase
         ];
     }
 
-    /**
-     * @dataProvider providerTestAuthLogoutCommand
-     */
+    #[DataProvider('providerTestAuthLogoutCommand')]
     public function testAcsfAuthLogoutCommand(bool $machineIsAuthenticated, array $inputs, array $config = []): void
     {
         if (!$machineIsAuthenticated) {

@@ -7,6 +7,7 @@ namespace Acquia\Cli\Tests\Commands\Push;
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Command\Push\PushArtifactCommand;
 use Acquia\Cli\Tests\Commands\Pull\PullCommandTestBase;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -51,9 +52,7 @@ EOF;
         ];
     }
 
-    /**
-     * @dataProvider providerTestPushArtifact
-     */
+    #[DataProvider('providerTestPushArtifact')]
     public function testPushArtifact(int $verbosity, bool $printOutput): void
     {
         $applications = $this->mockRequest('getApplications');

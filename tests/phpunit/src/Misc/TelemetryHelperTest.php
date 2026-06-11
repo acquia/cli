@@ -6,6 +6,8 @@ namespace Acquia\Cli\Tests\Misc;
 
 use Acquia\Cli\Helpers\TelemetryHelper;
 use Acquia\Cli\Tests\TestBase;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 
 class TelemetryHelperTest extends TestBase
 {
@@ -52,10 +54,8 @@ class TelemetryHelperTest extends TestBase
         return $providersArray;
     }
 
-    /**
-     * @group serial
-     * @dataProvider providerTestEnvironmentProvider()
-     */
+    #[DataProvider('providerTestEnvironmentProvider')]
+    #[Group('serial')]
     public function testEnvironmentProvider(string $provider, array $envVars): void
     {
         $this->unsetGitHubEnvVars();
@@ -66,9 +66,8 @@ class TelemetryHelperTest extends TestBase
     /**
      * Test the getEnvironmentProvider method when no environment provider is
      * detected.
-     *
-     * @group serial
      */
+    #[Group('serial')]
     public function testGetEnvironmentProviderWithoutAnyEnvSet(): void
     {
         $this->unsetGitHubEnvVars();
@@ -96,13 +95,13 @@ class TelemetryHelperTest extends TestBase
     }
 
     /**
-     * @dataProvider providerTestAhEnvNormalization
      * @param string $ah_env
      *   The Acquia hosting environment.
      * @param string $expected
      *   The expected normalized environment.
-     * @group serial
      */
+    #[DataProvider('providerTestAhEnvNormalization')]
+    #[Group('serial')]
     public function testAhEnvNormalization(string $ah_env, string $expected): void
     {
         $normalized_ah_env = TelemetryHelper::normalizeAhEnv($ah_env);
@@ -133,10 +132,10 @@ class TelemetryHelperTest extends TestBase
     }
 
     /**
-     * @dataProvider providerTestRedactSensitiveData
      * @param array<mixed> $data
      * @param array<mixed> $expected
      */
+    #[DataProvider('providerTestRedactSensitiveData')]
     public function testRedactSensitiveData(array $data, array $expected): void
     {
         $this->assertSame($expected, TelemetryHelper::redactSensitiveData($data));
@@ -155,9 +154,7 @@ class TelemetryHelperTest extends TestBase
         ];
     }
 
-    /**
-     * @dataProvider providerTestRedactSensitiveContext
-     */
+    #[DataProvider('providerTestRedactSensitiveContext')]
     public function testRedactSensitiveContext(string $context, string $expected): void
     {
         $this->assertSame($expected, TelemetryHelper::redactSensitiveContext($context));

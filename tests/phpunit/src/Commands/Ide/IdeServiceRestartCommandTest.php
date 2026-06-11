@@ -7,6 +7,7 @@ namespace Acquia\Cli\Tests\Commands\Ide;
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Command\Ide\IdeServiceRestartCommand;
 use Acquia\Cli\Tests\CommandTestBase;
+use PHPUnit\Framework\Attributes\Group;
 use Symfony\Component\Validator\Exception\ValidatorException;
 
 /**
@@ -33,9 +34,7 @@ class IdeServiceRestartCommandTest extends CommandTestBase
         $this->assertStringContainsString('Restarted php', $output);
     }
 
-    /**
-     * @group brokenProphecy
-     */
+    #[Group('brokenProphecy')]
     public function testIdeServiceRestartCommandInvalid(): void
     {
         $localMachineHelper = $this->mockLocalMachineHelper();

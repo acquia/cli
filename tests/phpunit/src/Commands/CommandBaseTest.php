@@ -18,6 +18,8 @@ use Acquia\Cli\Command\Ide\Wizard\IdeWizardDeleteSshKeyCommand;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Tests\Commands\Ide\IdeHelper;
 use Acquia\Cli\Tests\CommandTestBase;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use Symfony\Component\Validator\Exception\ValidatorException;
 
 /**
@@ -107,10 +109,8 @@ class CommandBaseTest extends CommandTestBase
         ];
     }
 
-    /**
-     * @dataProvider providerTestCloudAppUuidArg
-     * @group brokenProphecy
-     */
+    #[DataProvider('providerTestCloudAppUuidArg')]
+    #[Group('brokenProphecy')]
     public function testCloudAppUuidArg(string $uuid): void
     {
         $this->mockApplicationRequest();
@@ -134,9 +134,7 @@ class CommandBaseTest extends CommandTestBase
         ];
     }
 
-    /**
-     * @dataProvider providerTestInvalidCloudAppUuidArg
-     */
+    #[DataProvider('providerTestInvalidCloudAppUuidArg')]
     public function testInvalidCloudAppUuidArg(string $uuid, string $message): void
     {
         $this->expectException(ValidatorException::class);
@@ -165,9 +163,7 @@ class CommandBaseTest extends CommandTestBase
         ];
     }
 
-    /**
-     * @dataProvider providerTestInvalidCloudEnvironmentAlias
-     */
+    #[DataProvider('providerTestInvalidCloudEnvironmentAlias')]
     public function testInvalidCloudEnvironmentAlias(string $alias, string $message): void
     {
         $this->expectException(ValidatorException::class);

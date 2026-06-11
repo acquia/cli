@@ -8,6 +8,7 @@ use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Command\Ide\IdeListCommand;
 use Acquia\Cli\Command\Self\ClearCacheCommand;
 use Acquia\Cli\Tests\CommandTestBase;
+use PHPUnit\Framework\Attributes\Group;
 
 /**
  * @property \Acquia\Cli\Command\App\UnlinkCommand $command
@@ -19,9 +20,7 @@ class ClearCacheCommandTest extends CommandTestBase
         return $this->injectCommand(ClearCacheCommand::class);
     }
 
-    /**
-     * @group serial
-     */
+    #[Group('serial')]
     public function testAliasesAreCached(): void
     {
         ClearCacheCommand::clearCaches();
