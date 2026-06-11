@@ -9,7 +9,11 @@ use Acquia\Cli\Command\Api\ApiListCommand;
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Tests\CommandTestBase;
 use ReflectionMethod;
+use Symfony\Component\Cache\Adapter\PhpArrayAdapter;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Logger\ConsoleLogger;
+use Symfony\Component\Console\Output\BufferedOutput;
+use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * Tests for ApiCommandHelper::generateApiListCommands (via reflection).
@@ -108,6 +112,59 @@ class ApiCommandHelperTest extends CommandTestBase
         ];
         $listCommands = $this->generateApiListCommands($apiCommands);
         $this->assertArrayNotHasKey('api:baz', $listCommands);
+    }
+
+    /**
+     * The parsed spec must be served from the fallback cache when the warmed
+     * PHP cache file is absent, instead of being re-parsed on every invocation.
+     */
+    public function testGetCloudApiSpecUsesFallbackCacheWhenWarmedCacheFileIsMissing(): void
+    {
+        $specFilePath = tempnam(sys_get_temp_dir(), 'acli_spec_test_');
+        file_put_contents($specFilePath, json_encode([
+            'components' => [],
+            'paths' => [],
+        ], JSON_THROW_ON_ERROR));
+        $warmedCacheFilePath = dirname(__DIR__, 5) . '/var/cache/' . basename($specFilePath) . '.cache';
+        putenv('ACQUIA_CLI_USE_CLOUD_API_SPEC_CACHE=1');
+
+        try {
+            $output = new BufferedOutput(OutputInterface::VERBOSITY_DEBUG);
+            $helper = new ApiCommandHelper(new ConsoleLogger($output));
+            $method = new ReflectionMethod(ApiCommandHelper::class, 'getCloudApiSpec');
+
+            // First call parses the spec file and warms the caches.
+            $firstSpec = $method->invoke($helper, $specFilePath);
+            $this->assertStringContainsString('Rebuilding caches', $output->fetch());
+
+            // Even with the warmed cache file gone, the fallback cache must
+            // serve the parsed spec rather than re-parsing the spec file.
+            unlink($warmedCacheFilePath);
+            $this->resetPhpArrayAdapterStaticCache();
+            $secondSpec = $method->invoke($helper, $specFilePath);
+            $this->assertSame($firstSpec, $secondSpec);
+            $this->assertStringNotContainsString('Rebuilding caches', $output->fetch());
+        } finally {
+            putenv('ACQUIA_CLI_USE_CLOUD_API_SPEC_CACHE');
+            if (file_exists($specFilePath)) {
+                unlink($specFilePath);
+            }
+            if (file_exists($warmedCacheFilePath)) {
+                unlink($warmedCacheFilePath);
+            }
+        }
+    }
+
+    /**
+     * Forget warmed cache files in PhpArrayAdapter's static in-process cache.
+     *
+     * Simulates a fresh CLI invocation, in which a deleted warmed cache file
+     * would no longer be readable.
+     */
+    private function resetPhpArrayAdapterStaticCache(): void
+    {
+        $property = new \ReflectionProperty(PhpArrayAdapter::class, 'valuesCache');
+        $property->setValue(null, []);
     }
 
     /**

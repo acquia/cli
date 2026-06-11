@@ -6,7 +6,7 @@ namespace Acquia\Cli\Command\Api;
 
 use Acquia\Cli\CommandFactoryInterface;
 use Acquia\Cli\Exception\AcquiaCliException;
-use Symfony\Component\Cache\Adapter\NullAdapter;
+use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\Cache\Adapter\PhpArrayAdapter;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputDefinition;
@@ -340,7 +340,9 @@ class ApiCommandHelper
     private function getCloudApiSpec(string $specFilePath): array
     {
         $cacheKey = basename($specFilePath);
-        $cache = new PhpArrayAdapter(__DIR__ . '/../../../var/cache/' . $cacheKey . '.cache', new NullAdapter());
+        // Fall back to a filesystem cache so the parsed spec is still cached
+        // between invocations when the warmed PHP cache file is absent.
+        $cache = new PhpArrayAdapter(__DIR__ . '/../../../var/cache/' . $cacheKey . '.cache', new FilesystemAdapter());
         $cacheItemChecksum = $cache->getItem($cacheKey . '.checksum');
         $cacheItemSpec = $cache->getItem($cacheKey);
 
@@ -363,6 +365,13 @@ class ApiCommandHelper
         $this->logger->debug("Rebuilding caches...");
         $spec = json_decode(file_get_contents($specFilePath), true);
 
+        // Populate the fallback cache so the parse result survives even if
+        // the warmed PHP cache file is later deleted.
+        $cacheItemSpec->set($spec);
+        $cache->save($cacheItemSpec);
+        $cacheItemChecksum->set($checksum);
+        $cache->save($cacheItemChecksum);
+
         $cache->warmUp([
             $cacheKey => $spec,
             $cacheKey . '.checksum' => $checksum,
@@ -377,13 +386,14 @@ class ApiCommandHelper
     private function generateApiCommandsFromSpec(array $acquiaCloudSpec, string $commandPrefix, CommandFactoryInterface $commandFactory): array
     {
         $apiCommands = [];
+        $skippedApiCommands = $this->getSkippedApiCommands();
         foreach ($acquiaCloudSpec['paths'] as $path => $endpoint) {
             foreach ($endpoint as $method => $schema) {
                 if (!array_key_exists('x-cli-name', $schema)) {
                     continue;
                 }
 
-                if (in_array($schema['x-cli-name'], $this->getSkippedApiCommands(), true)) {
+                if (in_array($schema['x-cli-name'], $skippedApiCommands, true)) {
                     continue;
                 }
 
@@ -555,62 +565,41 @@ class ApiCommandHelper
      */
     private function generateApiListCommands(array $apiCommands, string $commandPrefix, CommandFactoryInterface $commandFactory): array
     {
-        $apiListCommands = [];
+        // List commands (api:{namespace}) are only registered when at least one
+        // sub-command under that namespace exists and is visible. If every
+        // sub-command is hidden (deprecated/pre-release), the namespace list is
+        // omitted. Index namespace visibility in a single pass to avoid
+        // re-scanning the full command list for every command.
+        $namespaceHasVisibleCommand = [];
         foreach ($apiCommands as $apiCommand) {
             $commandNameParts = explode(':', $apiCommand->getName());
             if (count($commandNameParts) < 3) {
                 continue;
             }
             $namespace = $commandNameParts[1];
-            $name = $commandPrefix . ':' . $namespace;
-            $hasVisibleCommand = $this->namespaceHasVisibleCommand($apiCommands, $namespace);
-            if (!array_key_exists($name, $apiListCommands) && $hasVisibleCommand) {
-                /** @var \Acquia\Cli\Command\Acsf\AcsfListCommand|\Acquia\Cli\Command\Api\ApiListCommand $command */
-                $command = $commandFactory->createListCommand();
-                $command->setName($name);
-                $command->setNamespace($name);
-                $command->setAliases([]);
-                $command->setDescription("List all API commands for the $namespace resource");
-                $apiListCommands[$name] = $command;
+            if (!array_key_exists($namespace, $namespaceHasVisibleCommand)) {
+                $namespaceHasVisibleCommand[$namespace] = false;
             }
+            if (!$apiCommand->isHidden()) {
+                $namespaceHasVisibleCommand[$namespace] = true;
+            }
+        }
+
+        $apiListCommands = [];
+        foreach ($namespaceHasVisibleCommand as $namespace => $hasVisibleCommand) {
+            if (!$hasVisibleCommand) {
+                continue;
+            }
+            $name = $commandPrefix . ':' . $namespace;
+            /** @var \Acquia\Cli\Command\Acsf\AcsfListCommand|\Acquia\Cli\Command\Api\ApiListCommand $command */
+            $command = $commandFactory->createListCommand();
+            $command->setName($name);
+            $command->setNamespace($name);
+            $command->setAliases([]);
+            $command->setDescription("List all API commands for the $namespace resource");
+            $apiListCommands[$name] = $command;
         }
         return $apiListCommands;
-    }
-
-    /**
-     * Whether any API command in the given namespace is visible (not hidden).
-     *
-     * List commands (api:{namespace}) are only registered when at least one sub-command
-     * under that namespace exists and is visible. If every sub-command is hidden
-     * (deprecated/pre-release), the namespace list is omitted.
-     *
-     * @param ApiBaseCommand[] $apiCommands
-     */
-    private function namespaceHasVisibleCommand(array $apiCommands, string $namespace): bool
-    {
-        $commandsInNamespace = [];
-        foreach ($apiCommands as $apiCommand) {
-            $commandNameParts = explode(':', $apiCommand->getName());
-            if (count($commandNameParts) < 3) {
-                continue;
-            }
-            if ($commandNameParts[1] !== $namespace) {
-                continue;
-            }
-            $commandsInNamespace[] = $apiCommand;
-        }
-
-        if ($commandsInNamespace === []) {
-            return false;
-        }
-
-        foreach ($commandsInNamespace as $command) {
-            if (!$command->isHidden()) {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     /**
