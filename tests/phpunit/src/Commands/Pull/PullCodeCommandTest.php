@@ -300,7 +300,7 @@ class PullCodeCommandTest extends PullCommandTestBase
             $environmentsResponse->vcs->url,
             $dir,
         ];
-        $localMachineHelper->execute($command, Argument::type('callable'), null, true, null, ['GIT_SSH_COMMAND' => 'ssh -o StrictHostKeyChecking=no'])
+        $localMachineHelper->execute($command, Argument::type('callable'), null, true, null, ['GIT_SSH_COMMAND' => 'ssh -o StrictHostKeyChecking=accept-new'])
             ->willReturn($process->reveal())
             ->shouldBeCalled();
     }

@@ -395,8 +395,9 @@ class PullDatabaseCommandTest extends PullCommandTestBase
         PullCommandBase::displayDownloadProgress(100, 0, $progress, $output);
         $this->assertStringContainsString('0/100 [💧---------------------------]   0%', $output->fetch());
 
-        // Need to sleep to prevent the default redraw frequency from skipping display.
-        sleep(1);
+        // Disable time-based redraw throttling so subsequent progress updates
+        // are always displayed, deterministically.
+        $progress->minSecondsBetweenRedraws(0);
         PullCommandBase::displayDownloadProgress(100, 50, $progress, $output);
         $this->assertStringContainsString('50/100 [==============💧-------------]  50%', $output->fetch());
 

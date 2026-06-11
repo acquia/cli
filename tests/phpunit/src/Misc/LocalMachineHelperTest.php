@@ -29,6 +29,48 @@ class LocalMachineHelperTest extends TestBase
         putenv('DISPLAY');
     }
 
+    public function testStartBrowserDoesNotShellInterpretUri(): void
+    {
+        putenv('DISPLAY=1');
+        $markerFile = tempnam(sys_get_temp_dir(), 'acli_injection_');
+        unlink($markerFile);
+        $uri = 'https://google.com/$(touch ' . $markerFile . ')';
+        $opened = $this->localMachineHelper->startBrowser($uri, 'echo');
+        $this->assertTrue($opened, 'Failed to open browser');
+        $this->assertFileDoesNotExist($markerFile, 'The URI must be passed as a single argument and never be shell-interpreted');
+        putenv('DISPLAY');
+    }
+
+    public function testStartBrowserWithMultiWordBrowserCommand(): void
+    {
+        putenv('DISPLAY=1');
+        $opened = $this->localMachineHelper->startBrowser('https://google.com', 'echo -n');
+        $this->assertTrue($opened, 'Failed to open browser with a multi-word browser command');
+        putenv('DISPLAY');
+    }
+
+    public function testIsTtyStreamHandlesUnusableStreamWithoutErrorSuppression(): void
+    {
+        $errors = [];
+        set_error_handler(static function (int $errno, string $errstr) use (&$errors): bool {
+            $errors[] = $errstr;
+            return true;
+        });
+        try {
+            $reflection = new \ReflectionClass($this->localMachineHelper);
+            $method = $reflection->getMethod('isTtyStream');
+            // posix_isatty() emits a warning for streams that cannot be
+            // mapped to a file descriptor, such as in-memory streams.
+            $stream = fopen('php://memory', 'rb');
+            $result = $method->invoke($this->localMachineHelper, $stream);
+            fclose($stream);
+        } finally {
+            restore_error_handler();
+        }
+        $this->assertFalse($result, 'An unusable stream must be reported as not a TTY');
+        $this->assertSame([], $errors, 'No PHP warning may leak out of isTtyStream()');
+    }
+
     /**
      * @return bool[][]
      */

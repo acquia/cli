@@ -107,12 +107,13 @@ class AliasesDownloadCommandTest extends CommandTestBase
         $this->clientProphecy->stream('get', '/account/drush-aliases/download')
             ->willReturn($stream);
 
+        $drushArchiveFilepath = $this->command->getDrushArchiveTempFilepath();
         $destinationDir = Path::join($this->acliRepoRoot, 'drush');
         $sitesDir = Path::join($destinationDir, 'sites');
         mkdir($sitesDir, 0777, true);
         chmod($sitesDir, 000);
         $this->expectException(AcquiaCliException::class);
-        $this->expectExceptionMessage("Could not extract aliases to $destinationDir");
+        $this->expectExceptionMessage("Failed to extract aliases archive at $drushArchiveFilepath:");
         $this->executeCommand([
             '--all' => true,
             '--destination-dir' => $destinationDir,

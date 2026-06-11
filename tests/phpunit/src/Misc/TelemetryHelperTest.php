@@ -109,6 +109,60 @@ class TelemetryHelperTest extends TestBase
         $this->assertEquals($expected, $normalized_ah_env);
     }
 
+    /**
+     * @return array<mixed>
+     */
+    public static function providerTestRedactSensitiveData(): array
+    {
+        return [
+            [['key' => 'mykey'], ['key' => 'REDACTED']],
+            [['secret' => 'mysecret'], ['secret' => 'REDACTED']],
+            [['password' => 'mypassword'], ['password' => 'REDACTED']],
+            [['token' => 'mytoken'], ['token' => 'REDACTED']],
+            [['api-key' => 'mykey'], ['api-key' => 'REDACTED']],
+            [['api-secret' => 'mysecret'], ['api-secret' => 'REDACTED']],
+            // Unset (null) values should not be redacted, lest it appear
+            // that a value was actually passed.
+            [['key' => null], ['key' => null]],
+            // Non-sensitive values should be left untouched.
+            [
+                ['filename' => 'id_rsa', 'password' => 'foo'],
+                ['filename' => 'id_rsa', 'password' => 'REDACTED'],
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider providerTestRedactSensitiveData
+     * @param array<mixed> $data
+     * @param array<mixed> $expected
+     */
+    public function testRedactSensitiveData(array $data, array $expected): void
+    {
+        $this->assertSame($expected, TelemetryHelper::redactSensitiveData($data));
+    }
+
+    /**
+     * @return array<mixed>
+     */
+    public static function providerTestRedactSensitiveContext(): array
+    {
+        return [
+            ['ssh-key:create --password=foo', 'ssh-key:create --passwordREDACTED'],
+            ['auth:login --key=foo --secret=bar', 'auth:login --keyREDACTED'],
+            ['auth:login --secret=bar', 'auth:login --secretREDACTED'],
+            ['app:link myapp', 'app:link myapp'],
+        ];
+    }
+
+    /**
+     * @dataProvider providerTestRedactSensitiveContext
+     */
+    public function testRedactSensitiveContext(string $context, string $expected): void
+    {
+        $this->assertSame($expected, TelemetryHelper::redactSensitiveContext($context));
+    }
+
     public function testIsBuildDateOlderThanMonthsNullDate(): void
     {
         $this->assertFalse(TelemetryHelper::isBuildDateOlderThanMonths(null, 3));

@@ -108,7 +108,7 @@ class SshHelper implements LoggerAwareInterface
             'ssh',
             $url,
             '-t',
-            '-o StrictHostKeyChecking=no',
+            '-o StrictHostKeyChecking=accept-new',
             '-o AddressFamily inet',
             '-o LogLevel=ERROR',
         ];

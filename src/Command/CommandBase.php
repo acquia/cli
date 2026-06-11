@@ -99,8 +99,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
 
     protected FormatterHelper $formatter;
 
-    private ApplicationResponse $cloudApplication;
-
     protected string $siteId = "";
 
     protected string $dir;
@@ -301,7 +299,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
             $exitCode === 0 && in_array($input->getFirstArgument(), [
                 'self-update',
                 'update',
-            ])
+            ], true)
         ) {
             // Exit immediately to avoid loading additional classes breaking updates.
             // @see https://github.com/acquia/cli/issues/218
@@ -309,9 +307,9 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
         }
         $eventProperties = [
             'app_version' => $this->getApplication()->getVersion(),
-            'arguments' => $input->getArguments(),
+            'arguments' => TelemetryHelper::redactSensitiveData($input->getArguments()),
             'exit_code' => $exitCode,
-            'options' => $input->getOptions(),
+            'options' => TelemetryHelper::redactSensitiveData($input->getOptions()),
             'os_name' => OsInfo::os(),
             'os_version' => OsInfo::version(),
             'platform' => OsInfo::family(),
@@ -558,7 +556,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
             // -h output numbers in a human-readable format.
             // -e specify the remote shell to use.
             '-avPhze',
-            'ssh -o StrictHostKeyChecking=no',
+            'ssh -o StrictHostKeyChecking=accept-new',
             $sourceDir . '/',
             $destinationDir,
         ];

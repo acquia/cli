@@ -5,11 +5,16 @@ declare(strict_types=1);
 namespace Acquia\Cli\Tests\Commands\Self;
 
 use Acquia\Cli\Command\App\LinkCommand;
+use Acquia\Cli\Command\Auth\AuthLoginCommand;
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Command\Self\TelemetryCommand;
 use Acquia\Cli\Helpers\DataStoreContract;
 use Acquia\Cli\Tests\CommandTestBase;
+use AcquiaCloudApi\Connector\Connector;
+use Prophecy\Argument;
+use ReflectionClass;
 use Symfony\Component\Filesystem\Path;
+use Zumba\Amplitude\Amplitude;
 
 /**
  * @property \Acquia\Cli\Command\Self\TelemetryCommand $command
@@ -88,6 +93,39 @@ class TelemetryCommandTest extends CommandTestBase
         $this->executeCommand();
 
         $this->assertEquals(0, $this->getStatusCode());
+    }
+
+    /**
+     * Tests that sensitive option values are redacted from telemetry events.
+     */
+    public function testTelemetryEventRedactsSensitiveOptions(): void
+    {
+        $amplitude = Amplitude::getInstance();
+        $amplitude->setOptOut(false);
+        $amplitude->resetQueue();
+
+        $this->mockRequest('getAccount');
+        $this->clientServiceProphecy->setConnector(Argument::type(Connector::class))
+            ->shouldBeCalled();
+        $this->clientServiceProphecy->isMachineAuthenticated()
+            ->willReturn(false);
+        $this->removeMockCloudConfigFile();
+        $this->createDataStores();
+        $this->command = $this->injectCommand(AuthLoginCommand::class);
+
+        $this->executeCommand([
+            '--key' => self::$key,
+            '--secret' => self::$secret,
+        ]);
+
+        $this->assertTrue($amplitude->hasQueuedEvents());
+        $queueProperty = (new ReflectionClass($amplitude))->getProperty('queue');
+        $queuedEvents = $queueProperty->getValue($amplitude);
+        $event = json_encode(end($queuedEvents), JSON_THROW_ON_ERROR);
+        $this->assertStringContainsString('REDACTED', $event);
+        $this->assertStringNotContainsString(self::$key, $event);
+        $this->assertStringNotContainsString(self::$secret, $event);
+        $amplitude->resetQueue();
     }
 
     public function testMigrateLegacyTelemetryPreference(): void

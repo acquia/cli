@@ -143,7 +143,7 @@ class PushDatabaseCommandTest extends CommandTestBase
         $command = [
             'rsync',
             '-tDvPhe',
-            'ssh -o StrictHostKeyChecking=no',
+            'ssh -o StrictHostKeyChecking=accept-new',
             sys_get_temp_dir() . '/acli-mysql-dump-drupal.sql.gz',
             'profserv2.01dev@profserv201dev.ssh.enterprise-g1.acquia-sites.com:/mnt/tmp/profserv2.01dev/acli-mysql-dump-drupal.sql.gz',
         ];
@@ -180,7 +180,7 @@ class PushDatabaseCommandTest extends CommandTestBase
             0 => 'ssh',
             1 => 'profserv2.01dev@profserv201dev.ssh.enterprise-g1.acquia-sites.com',
             2 => '-t',
-            3 => '-o StrictHostKeyChecking=no',
+            3 => '-o StrictHostKeyChecking=accept-new',
             4 => '-o AddressFamily inet',
             5 => '-o LogLevel=ERROR',
             6 => 'cat',
@@ -197,7 +197,7 @@ class PushDatabaseCommandTest extends CommandTestBase
             0 => 'ssh',
             1 => 'profserv2.01dev@profserv201dev.ssh.enterprise-g1.acquia-sites.com',
             2 => '-t',
-            3 => '-o StrictHostKeyChecking=no',
+            3 => '-o StrictHostKeyChecking=accept-new',
             4 => '-o AddressFamily inet',
             5 => '-o LogLevel=ERROR',
             6 => 'pv /mnt/tmp/profserv2.01dev/acli-mysql-dump-drupal.sql.gz --bytes --rate | gunzip | MYSQL_PWD=password mysql --host=fsdb-74.enterprise-g1.hosting.acquia.com.enterprise-g1.hosting.acquia.com --user=s164 profserv2db14390',

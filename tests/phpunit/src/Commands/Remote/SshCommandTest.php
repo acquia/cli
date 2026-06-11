@@ -34,7 +34,7 @@ class SshCommandTest extends SshCommandTestBase
             'ssh',
             'site.dev@sitedev.ssh.hosted.acquia-sites.com',
             '-t',
-            '-o StrictHostKeyChecking=no',
+            '-o StrictHostKeyChecking=accept-new',
             '-o AddressFamily inet',
             '-o LogLevel=ERROR',
             'cd /var/www/html/devcloud2.dev; exec $SHELL -l',

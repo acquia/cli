@@ -130,6 +130,51 @@ class SshKeyCreateCommandTest extends CommandTestBase
     }
 
     /**
+     * Test that restrictive permissions are enforced on the private key and
+     * SSH directory after key generation, even if ssh-keygen (or whatever
+     * created the files) left them too permissive.
+     */
+    public function testCreateEnforcesSecureKeyFilePermissions(): void
+    {
+        $privateKeyFilepath = Path::join($this->sshDir, self::$filename);
+        $publicKeyFilepath = $privateKeyFilepath . '.pub';
+        $this->fs->remove($privateKeyFilepath);
+        $this->fs->remove($publicKeyFilepath);
+        $this->fs->chmod($this->sshDir, 0775);
+        $localMachineHelper = $this->mockLocalMachineHelper();
+        $localMachineHelper->getLocalFilepath('~/.passphrase')
+            ->willReturn('~/.passphrase');
+
+        // Key is already in the agent, so addSshKeyToAgent is not called.
+        $this->mockSshAgentList($localMachineHelper, true);
+        $localMachineHelper->readFile(Argument::containingString(self::$filename))
+            ->willReturn('thekey!');
+
+        // Mock ssh-keygen, simulating key files created with loose permissions.
+        $process = $this->prophet->prophesize(Process::class);
+        $process->isSuccessful()->willReturn(true);
+        $localMachineHelper->checkRequiredBinariesExist(['ssh-keygen'])
+            ->shouldBeCalled();
+        $localMachineHelper->execute(Argument::withEntry(0, 'ssh-keygen'), null, null, false)
+            ->will(function () use ($process, $privateKeyFilepath, $publicKeyFilepath) {
+                file_put_contents($privateKeyFilepath, 'the private key');
+                chmod($privateKeyFilepath, 0644);
+                file_put_contents($publicKeyFilepath, 'thekey!');
+                return $process->reveal();
+            })
+            ->shouldBeCalled();
+
+        $this->executeCommand([
+            '--filename' => self::$filename,
+            '--password' => 'acli123',
+        ], []);
+
+        clearstatcache();
+        $this->assertSame(0600, fileperms($privateKeyFilepath) & 0777, 'The private key must be chmod 0600 after creation.');
+        $this->assertSame(0700, fileperms($this->sshDir) & 0777, 'The SSH directory must be chmod 0700 after key creation.');
+    }
+
+    /**
      * Test that passwords with spaces are properly escaped in shell commands.
      */
     public function testCreateWithPasswordContainingSpaces(): void
