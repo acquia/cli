@@ -8,6 +8,7 @@ use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Command\Ssh\SshKeyCreateCommand;
 use Acquia\Cli\Tests\CommandTestBase;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\RequiresOperatingSystem;
 use Prophecy\Argument;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Path;
@@ -132,7 +133,10 @@ class SshKeyCreateCommandTest extends CommandTestBase
      * Test that restrictive permissions are enforced on the private key and
      * SSH directory after key generation, even if ssh-keygen (or whatever
      * created the files) left them too permissive.
+     *
+     * Unix file mode bits do not apply on Windows, where chmod() is a no-op.
      */
+    #[RequiresOperatingSystem('linux|darwin')]
     public function testCreateEnforcesSecureKeyFilePermissions(): void
     {
         $privateKeyFilepath = Path::join($this->sshDir, self::$filename);

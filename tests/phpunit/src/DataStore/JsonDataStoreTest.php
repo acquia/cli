@@ -5,13 +5,17 @@ declare(strict_types=1);
 namespace Acquia\Cli\Tests\DataStore;
 
 use Acquia\Cli\DataStore\JsonDataStore;
+use PHPUnit\Framework\Attributes\RequiresOperatingSystem;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * Uses a real temp directory rather than vfsStream because vfsStream does not
  * faithfully emulate chmod() on all PHP versions.
+ *
+ * Unix file mode bits do not apply on Windows, where chmod() is a no-op.
  */
+#[RequiresOperatingSystem('linux|darwin')]
 class JsonDataStoreTest extends TestCase
 {
     private string $tempDir;
