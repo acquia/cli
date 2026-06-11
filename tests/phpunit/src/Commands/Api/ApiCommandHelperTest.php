@@ -183,10 +183,13 @@ class ApiCommandHelperTest extends CommandTestBase
             $this->assertStringContainsString('Rebuilding caches', $output->fetch());
 
             // Even with the warmed cache file gone, the fallback cache must
-            // serve the parsed spec rather than re-parsing the spec file.
+            // serve the parsed spec rather than re-parsing the spec file. Use a
+            // fresh helper so the per-process memoization does not short-circuit
+            // the fallback-cache lookup under test.
             unlink($warmedCacheFilePath);
             $this->resetPhpArrayAdapterStaticCache();
-            $secondSpec = $method->invoke($helper, $specFilePath);
+            $freshHelper = new ApiCommandHelper(new ConsoleLogger($output));
+            $secondSpec = $method->invoke($freshHelper, $specFilePath);
             $this->assertSame($firstSpec, $secondSpec);
             $this->assertStringNotContainsString('Rebuilding caches', $output->fetch());
         } finally {
@@ -222,6 +225,100 @@ class ApiCommandHelperTest extends CommandTestBase
         $commandHelper = new ApiCommandHelper($this->logger);
         $refClass = new ReflectionMethod($commandHelper::class, $methodName);
         return $refClass->invokeArgs($commandHelper, $args);
+    }
+
+    /**
+     * The lazy factory map must register exactly the same set of commands as the
+     * eager getApiCommands(), so switching to lazy registration changes nothing
+     * a user can observe.
+     */
+    public function testGetApiCommandFactoriesMatchEagerCommands(): void
+    {
+        $helper = new ApiCommandHelper($this->logger);
+        // getApiCommands() returns a flat list that may repeat a name; Symfony
+        // dedupes on registration, as does the keyed factory map, so compare the
+        // unique name sets.
+        $eagerNames = array_unique(array_map(static fn ($c) => $c->getName(), $helper->getApiCommands(self::$apiSpecFixtureFilePath, 'api', $this->getCommandFactory())));
+        sort($eagerNames);
+
+        $factories = $helper->getApiCommandFactories(self::$apiSpecFixtureFilePath, 'api', $this->getCommandFactory());
+        $lazyNames = array_keys($factories);
+        sort($lazyNames);
+
+        $this->assertSame(array_values($eagerNames), $lazyNames);
+        // Every entry must be a closure that is only invoked on demand.
+        foreach ($factories as $factory) {
+            $this->assertInstanceOf(\Closure::class, $factory);
+        }
+        // Skipped commands are never registered; namespace list commands are.
+        $this->assertArrayNotHasKey('api:ssh-key:list', $factories);
+        $this->assertArrayHasKey('api:accounts', $factories);
+    }
+
+    /**
+     * Invoking a factory must lazily build a command identical to the one the
+     * eager path produces (name, description, and input definition).
+     */
+    public function testGetApiCommandFactoriesBuildConfiguredCommandOnDemand(): void
+    {
+        $helper = new ApiCommandHelper($this->logger);
+        $name = 'api:accounts:find';
+        $eager = $helper->getApiCommands(self::$apiSpecFixtureFilePath, 'api', $this->getCommandFactory());
+        $eagerCommand = null;
+        foreach ($eager as $candidate) {
+            if ($candidate->getName() === $name) {
+                $eagerCommand = $candidate;
+                break;
+            }
+        }
+        $this->assertNotNull($eagerCommand);
+
+        $factories = $helper->getApiCommandFactories(self::$apiSpecFixtureFilePath, 'api', $this->getCommandFactory());
+        $this->assertArrayHasKey($name, $factories);
+        $lazyCommand = $factories[$name]();
+
+        $this->assertSame($eagerCommand->getName(), $lazyCommand->getName());
+        $this->assertSame($eagerCommand->getDescription(), $lazyCommand->getDescription());
+        $this->assertNotEmpty($lazyCommand->getDescription());
+        $this->assertSame(
+            array_keys($eagerCommand->getDefinition()->getOptions()),
+            array_keys($lazyCommand->getDefinition()->getOptions())
+        );
+        $this->assertSame(
+            array_keys($eagerCommand->getDefinition()->getArguments()),
+            array_keys($lazyCommand->getDefinition()->getArguments())
+        );
+    }
+
+    /**
+     * A built command must carry its responses, servers, and the right help
+     * text for normal, pre-release, and deprecated endpoints.
+     */
+    public function testBuildApiCommandConfiguresResponsesServersAndHelp(): void
+    {
+        $normal = $this->getApiCommandByName('api:accounts:find');
+        $this->assertNotNull($normal);
+        $this->assertNotEmpty($this->readProtected($normal, 'responses'));
+        $this->assertNotEmpty($this->readProtected($normal, 'servers'));
+        $this->assertStringContainsString('For more help', $normal->getHelp());
+        $this->assertStringNotContainsString('pre-release', $normal->getHelp());
+        $this->assertStringNotContainsString('deprecated and may be removed', $normal->getHelp());
+
+        $preRelease = $this->getApiCommandByName('api:codebases:applications:list');
+        $this->assertNotNull($preRelease);
+        // The notice must be appended to (not replace) the base help text.
+        $this->assertStringContainsString('For more help', $preRelease->getHelp());
+        $this->assertStringContainsString('pre-release', $preRelease->getHelp());
+
+        $deprecated = $this->getApiCommandByName('api:applications:hosting-settings-list');
+        $this->assertNotNull($deprecated);
+        $this->assertStringContainsString('For more help', $deprecated->getHelp());
+        $this->assertStringContainsString('deprecated and may be removed', $deprecated->getHelp());
+    }
+
+    private function readProtected(object $object, string $property): mixed
+    {
+        return (new \ReflectionProperty($object, $property))->getValue($object);
     }
 
     /**
