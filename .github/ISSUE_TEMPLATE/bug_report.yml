@@ -1,0 +1,66 @@
+name: Bug report
+description: Report a problem with Acquia CLI.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug! Please fill out the fields below to help us reproduce and fix the issue.
+
+        If you have a question or need help from Acquia, visit the [Acquia Support Portal](https://acquia.my.site.com/s/) or the [discussions section](https://github.com/acquia/cli/discussions) instead.
+  - type: input
+    id: acli-version
+    attributes:
+      label: Acquia CLI version
+      description: Output of `acli --version`.
+      placeholder: Acquia CLI 2.x.x
+    validations:
+      required: true
+  - type: input
+    id: php-version
+    attributes:
+      label: PHP version
+      description: Output of `php --version`.
+      placeholder: PHP 8.3.x
+    validations:
+      required: true
+  - type: input
+    id: os
+    attributes:
+      label: Operating system
+      description: Your OS and version, and whether you're running in a special environment (Acquia Cloud IDE, WSL, Docker, etc.).
+      placeholder: macOS 15.5, Ubuntu 24.04, Windows 11 (WSL2), Acquia Cloud IDE
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: The exact commands you ran and any relevant configuration.
+      placeholder: |
+        1. Run `acli ...`
+        2. ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: What you expected to happen.
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+      description: What actually happened, including any error messages.
+    validations:
+      required: true
+  - type: textarea
+    id: verbose-output
+    attributes:
+      label: Verbose output
+      description: Re-run the failing command with maximum verbosity (`acli <command> -vvv`) and paste the output. Remove any sensitive information such as API keys or tokens.
+      render: shell
+    validations:
+      required: false
