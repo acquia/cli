@@ -95,6 +95,10 @@ final class PushDatabaseCommand extends PushCommandBase
         return $remoteFilepath;
     }
 
+    /**
+     * Import database dump on remote server.
+     * Manually escapes single quotes for bash command safety.
+     */
     private function importDatabaseDumpOnRemote(EnvironmentResponse $environment, string $remoteDumpFilepath, DatabaseResponse $database): void
     {
         $this->logger->debug("Importing $remoteDumpFilepath to MySQL on remote machine");
