@@ -130,10 +130,28 @@ class PathRewriteConnectorTest extends TestCase
                 '/applications/abcd-ef01',
                 '/translation/codebases/1234-5678-uuid',
             ],
+            // Bare /environments/{uuid} is rewritten, preserving the UUID.
+            'bare environment UUID is rewritten' => [
+                'GET',
+                '/environments/b08e4684-d3ec-49ed-a5bd-921038a4a6c1',
+                '/translation/environments/b08e4684-d3ec-49ed-a5bd-921038a4a6c1',
+            ],
+            // Deep environment sub-path preserves both UUID and trailing segments.
+            'deep environment sub-path is rewritten' => [
+                'GET',
+                '/environments/b08e4684-d3ec-49ed-a5bd-921038a4a6c1/databases/mydb/backups',
+                '/translation/environments/b08e4684-d3ec-49ed-a5bd-921038a4a6c1/databases/mydb/backups',
+            ],
             // Deep sub-path: entire trailing part is preserved by $1.
             'deep sub-path is rewritten' => ['GET',
                 '/applications/abcd-ef01/environments/env-1/tags',
                 '/translation/codebases/1234-5678-uuid/environments/env-1/tags',
+            ],
+            // /environments/{uuid}/databases is rewritten (Prod MEO fallback path).
+            'environment databases path is rewritten' => [
+                'GET',
+                '/environments/b08e4684-d3ec-49ed-a5bd-921038a4a6c1/databases',
+                '/translation/environments/b08e4684-d3ec-49ed-a5bd-921038a4a6c1/databases',
             ],
             // Single trailing segment is rewritten via capture group ($1).
             'environments path is rewritten' => [
@@ -176,6 +194,13 @@ class PathRewriteConnectorTest extends TestCase
                 'POST',
                 '/applications/abcd-ef01/environments/env-1/tags',
                 '/translation/codebases/1234-5678-uuid/environments/env-1/tags',
+                [],
+            ],
+            // /environments/{uuid}/databases is rewritten via the environment rule.
+            'environment databases path is rewritten' => [
+                'GET',
+                '/environments/b08e4684-d3ec-49ed-a5bd-921038a4a6c1/databases',
+                '/translation/environments/b08e4684-d3ec-49ed-a5bd-921038a4a6c1/databases',
                 [],
             ],
             // Single trailing segment is rewritten via capture group ($1).

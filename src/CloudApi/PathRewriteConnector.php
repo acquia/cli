@@ -97,12 +97,11 @@ final class PathRewriteConnector implements ConnectorInterface
     /**
      * Returns an array of regex patterns and their corresponding replacement paths for rewriting API request paths.
      *
-     * Two rules cover all cases:
-     *  - Paths with a trailing segment: /applications/{uuid}/foo/bar → /translation/codebases/{codebaseUuid}/foo/bar
-     *  - Bare application UUID paths:   /applications/{uuid}        → /translation/codebases/{codebaseUuid}
-     *
-     * The first rule uses a capture group ($1) so any trailing path is preserved automatically,
-     * avoiding the need to enumerate every possible sub-path.
+     * Four rules cover all cases:
+     *  - /applications/{uuid}/foo/bar → /translation/codebases/{codebaseUuid}/foo/bar
+     *  - /applications/{uuid}        → /translation/codebases/{codebaseUuid}
+     *  - /environments/{uuid}/foo    → /translation/environments/{uuid}/foo
+     *  - /environments/{uuid}        → /translation/environments/{uuid}
      *
      * @return array<string, string> Regex pattern => preg_replace replacement string.
      */
@@ -114,6 +113,10 @@ final class PathRewriteConnector implements ConnectorInterface
             '#^/applications/[0-9a-f\-]+$#i' => '/translation/codebases/' . $codebaseUuid,
             // Matches /applications/{uuid}/{anything} and preserves the trailing segment via $1.
             '#^/applications/[0-9a-f\-]+/(.+)$#i' => '/translation/codebases/' . $codebaseUuid . '/$1',
+            // Matches bare /environments/{uuid} with no trailing segment; preserves the UUID via $1.
+            '#^/environments/([0-9a-f\-]+)$#i' => '/translation/environments/$1',
+            // Matches /environments/{uuid}/{anything}; preserves both the UUID and trailing path.
+            '#^/environments/([0-9a-f\-]+)/(.+)$#i' => '/translation/environments/$1/$2',
         ];
     }
 
