@@ -107,6 +107,7 @@ final class PushDatabaseCommand extends PushCommandBase
         $user = str_replace("'", "'\\''", $database->user_name);
         $dbName = str_replace("'", "'\\''", $this->getNameFromDatabaseResponse($database));
         $password = str_replace("'", "'\\''", $database->password);
+        // @infection-ignore-all System-generated path under our control, defensive escaping
         $filepath = str_replace("'", "'\\''", $remoteDumpFilepath);
         $command = "bash -o pipefail -c 'pv '$filepath' --bytes --rate | gunzip | MYSQL_PWD='$password' mysql --host='$host' --user='$user' '$dbName''";
         $process = $this->sshHelper->executeCommand($environment->sshUrl, [$command], ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));

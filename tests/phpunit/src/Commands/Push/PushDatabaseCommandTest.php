@@ -223,10 +223,12 @@ class PushDatabaseCommandTest extends CommandTestBase
         $environments = $this->mockRequest('getApplicationEnvironments', $application->uuid, null, null, $tamper);
         $this->createMockGitConfigFile();
 
-        // Mock database with special characters in password and username.
+        // Mock database with special characters in password, username, hostname, and database name.
         $databases = $this->mockAcsfDatabasesResponse($environments[self::$INPUT_DEFAULT_CHOICE]);
         $databases[0]->password = "pass'word";
         $databases[0]->user_name = "user'name";
+        $databases[0]->db_host = "db'host";
+        $databases[0]->url = "mysqli://s164:password@127.0.0.1:3306/db'name";
 
         $process = $this->mockProcess();
         $localMachineHelper = $this->mockLocalMachineHelper();
@@ -270,7 +272,7 @@ class PushDatabaseCommandTest extends CommandTestBase
             3 => '-o StrictHostKeyChecking=no',
             4 => '-o AddressFamily inet',
             5 => '-o LogLevel=ERROR',
-            6 => "bash -o pipefail -c 'pv '/mnt/tmp/profserv2.01dev/acli-mysql-dump-drupal.sql.gz' --bytes --rate | gunzip | MYSQL_PWD='pass'\\''word' mysql --host='fsdb-74.enterprise-g1.hosting.acquia.com.enterprise-g1.hosting.acquia.com' --user='user'\\''name' 'profserv2db14390''",
+            6 => "bash -o pipefail -c 'pv '/mnt/tmp/profserv2.01dev/acli-mysql-dump-drupal.sql.gz' --bytes --rate | gunzip | MYSQL_PWD='pass'\\''word' mysql --host='db'\\''host.enterprise-g1.hosting.acquia.com' --user='user'\\''name' 'db'\\''name''",
         ];
         $localMachineHelper->execute($cmd, Argument::type('callable'), null, $printOutput, null, null)
             ->willReturn($process->reveal())
