@@ -10,6 +10,7 @@ use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Helpers\LocalMachineHelper;
 use Acquia\Cli\Helpers\SshHelper;
 use Acquia\Cli\Tests\CommandTestBase;
+use AcquiaCloudApi\Response\DatabaseResponse;
 use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -223,37 +224,36 @@ class PushDatabaseCommandTest extends CommandTestBase
         $environments = $this->mockRequest('getApplicationEnvironments', $application->uuid, null, null, $tamper);
         $this->createMockGitConfigFile();
 
-        // Mock database with special characters in password.
-        $tamperDatabase = function ($databases): void {
-            // Password with single quote.
-            $databases[0]->password = "pass'word";
-            // Username with single quote.
-            $databases[0]->user_name = "user'name";
-        };
-        $this->mockRequest('getEnvironmentsDatabases', $environments[self::$INPUT_DEFAULT_CHOICE]->id, null, null, $tamperDatabase);
+        // Create database response with special characters in password and username.
+        $environment = $environments[self::$INPUT_DEFAULT_CHOICE];
+        $databaseResponseJson = json_decode(file_get_contents(Path::join($this->realFixtureDir, '/acsf_db_response.json')), false, 512, JSON_THROW_ON_ERROR);
+        $databasesResponse = array_map(
+            static function (mixed $databaseResponse) {
+                return new DatabaseResponse($databaseResponse);
+            },
+            $databaseResponseJson
+        );
+        // Modify first database to have special characters.
+        $databasesResponse[0]->password = "pass'word";
+        $databasesResponse[0]->user_name = "user'name";
+
+        $this->clientProphecy->request(
+            'get',
+            "/environments/$environment->id/databases"
+        )
+            ->willReturn($databasesResponse)
+            ->shouldBeCalled();
 
         $process = $this->mockProcess();
         $localMachineHelper = $this->mockLocalMachineHelper();
         $localMachineHelper->checkRequiredBinariesExist(['ssh'])
             ->shouldBeCalled();
+        $this->mockGetAcsfSitesLMH($localMachineHelper);
 
         $this->mockExecutePvExists($localMachineHelper, true);
         $this->mockCreateMySqlDumpOnLocal($localMachineHelper, false, true);
         $this->mockUploadDatabaseDump($localMachineHelper, $process, false);
-
-        // Verify the command has properly escaped single quotes using '\'' pattern.
-        $cmd = [
-            0 => 'ssh',
-            1 => 'profserv2.01dev@profserv201dev.ssh.enterprise-g1.acquia-sites.com',
-            2 => '-t',
-            3 => '-o StrictHostKeyChecking=no',
-            4 => '-o AddressFamily inet',
-            5 => '-o LogLevel=ERROR',
-            6 => "bash -o pipefail -c 'pv '/mnt/tmp/profserv2.01dev/acli-mysql-dump-drupal.sql.gz' --bytes --rate | gunzip | MYSQL_PWD='pass'\\''word' mysql --host='fsdb-74.enterprise-g1.hosting.acquia.com.enterprise-g1.hosting.acquia.com' --user='user'\\''name' 'profserv2db14390''",
-        ];
-        $localMachineHelper->execute($cmd, Argument::type('callable'), null, false, null, null)
-            ->willReturn($process->reveal())
-            ->shouldBeCalled();
+        $this->mockImportDatabaseDumpOnRemoteWithSpecialChars($localMachineHelper, $process, false);
 
         $this->command->sshHelper = new SshHelper($this->output, $localMachineHelper->reveal(), $this->logger);
 
@@ -266,11 +266,30 @@ class PushDatabaseCommandTest extends CommandTestBase
             'n',
             // Choose a Cloud Platform environment.
             0,
+            // Choose a database.
+            0,
             // Overwrite the database?
             'y',
         ];
 
         $this->executeCommand([], $inputs);
         $this->prophet->checkPredictions();
+    }
+
+    private function mockImportDatabaseDumpOnRemoteWithSpecialChars(ObjectProphecy|LocalMachineHelper $localMachineHelper, Process|ObjectProphecy $process, bool $printOutput = true): void
+    {
+        // Verify the command has properly escaped single quotes using '\'' pattern.
+        $cmd = [
+            0 => 'ssh',
+            1 => 'profserv2.01dev@profserv201dev.ssh.enterprise-g1.acquia-sites.com',
+            2 => '-t',
+            3 => '-o StrictHostKeyChecking=no',
+            4 => '-o AddressFamily inet',
+            5 => '-o LogLevel=ERROR',
+            6 => "bash -o pipefail -c 'pv '/mnt/tmp/profserv2.01dev/acli-mysql-dump-drupal.sql.gz' --bytes --rate | gunzip | MYSQL_PWD='pass'\\''word' mysql --host='fsdb-74.enterprise-g1.hosting.acquia.com.enterprise-g1.hosting.acquia.com' --user='user'\\''name' 'profserv2db14390''",
+        ];
+        $localMachineHelper->execute($cmd, Argument::type('callable'), null, $printOutput, null, null)
+            ->willReturn($process->reveal())
+            ->shouldBeCalled();
     }
 }
