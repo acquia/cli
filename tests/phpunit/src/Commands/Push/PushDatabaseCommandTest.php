@@ -251,9 +251,9 @@ class PushDatabaseCommandTest extends CommandTestBase
         $this->mockGetAcsfSitesLMH($localMachineHelper);
 
         $this->mockExecutePvExists($localMachineHelper, true);
-        $this->mockCreateMySqlDumpOnLocal($localMachineHelper, false, true);
-        $this->mockUploadDatabaseDump($localMachineHelper, $process, false);
-        $this->mockImportDatabaseDumpOnRemoteWithSpecialChars($localMachineHelper, $process, false);
+        $this->mockCreateMySqlDumpOnLocal($localMachineHelper, true, true);
+        $this->mockUploadDatabaseDump($localMachineHelper, $process, true);
+        $this->mockImportDatabaseDumpOnRemoteWithSpecialChars($localMachineHelper, $process, true);
 
         $this->command->sshHelper = new SshHelper($this->output, $localMachineHelper->reveal(), $this->logger);
 
@@ -272,7 +272,7 @@ class PushDatabaseCommandTest extends CommandTestBase
             'y',
         ];
 
-        $this->executeCommand([], $inputs);
+        $this->executeCommand([], $inputs, OutputInterface::VERBOSITY_VERY_VERBOSE);
         $this->prophet->checkPredictions();
     }
 
