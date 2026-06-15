@@ -98,7 +98,7 @@ final class PushDatabaseCommand extends PushCommandBase
     private function importDatabaseDumpOnRemote(EnvironmentResponse $environment, string $remoteDumpFilepath, DatabaseResponse $database): void
     {
         $this->logger->debug("Importing $remoteDumpFilepath to MySQL on remote machine");
-        $command = "set -o pipefail && pv $remoteDumpFilepath --bytes --rate | gunzip | MYSQL_PWD=$database->password mysql --host={$this->getHostFromDatabaseResponse($environment, $database)} --user=$database->user_name {$this->getNameFromDatabaseResponse($database)}";
+        $command = "bash -o pipefail -c 'pv $remoteDumpFilepath --bytes --rate | gunzip | MYSQL_PWD=$database->password mysql --host={$this->getHostFromDatabaseResponse($environment, $database)} --user=$database->user_name {$this->getNameFromDatabaseResponse($database)}'";
         $process = $this->sshHelper->executeCommand($environment->sshUrl, [$command], ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
         if (!$process->isSuccessful()) {
             throw new AcquiaCliException('Unable to import database on remote machine. {message}', ['message' => $process->getErrorOutput()]);
