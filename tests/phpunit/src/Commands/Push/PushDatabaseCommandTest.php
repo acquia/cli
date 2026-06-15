@@ -10,7 +10,6 @@ use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Helpers\LocalMachineHelper;
 use Acquia\Cli\Helpers\SshHelper;
 use Acquia\Cli\Tests\CommandTestBase;
-use AcquiaCloudApi\Response\DatabaseResponse;
 use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -224,25 +223,10 @@ class PushDatabaseCommandTest extends CommandTestBase
         $environments = $this->mockRequest('getApplicationEnvironments', $application->uuid, null, null, $tamper);
         $this->createMockGitConfigFile();
 
-        // Create database response with special characters in password and username.
-        $environment = $environments[self::$INPUT_DEFAULT_CHOICE];
-        $databaseResponseJson = json_decode(file_get_contents(Path::join($this->realFixtureDir, '/acsf_db_response.json')), false, 512, JSON_THROW_ON_ERROR);
-        $databasesResponse = array_map(
-            static function (mixed $databaseResponse) {
-                return new DatabaseResponse($databaseResponse);
-            },
-            $databaseResponseJson
-        );
-        // Modify first database to have special characters.
-        $databasesResponse[0]->password = "pass'word";
-        $databasesResponse[0]->user_name = "user'name";
-
-        $this->clientProphecy->request(
-            'get',
-            "/environments/$environment->id/databases"
-        )
-            ->willReturn($databasesResponse)
-            ->shouldBeCalled();
+        // Mock database with special characters in password and username.
+        $databases = $this->mockAcsfDatabasesResponse($environments[self::$INPUT_DEFAULT_CHOICE]);
+        $databases[0]->password = "pass'word";
+        $databases[0]->user_name = "user'name";
 
         $process = $this->mockProcess();
         $localMachineHelper = $this->mockLocalMachineHelper();
