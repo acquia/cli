@@ -103,7 +103,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase
         $this->mockExecuteDrushUpdateDb($localMachineHelper, $this->mockProcess(false));
 
         $this->expectException(AcquiaCliException::class);
-        $this->expectExceptionMessage('Unable to apply database updates via Drush');
+        $this->expectExceptionMessage('Unable to apply database updates via Drush. error');
         (new \ReflectionMethod($this->command, 'runDrushDatabaseUpdates'))
             ->invoke($this->command, fn() => null, new Checklist($this->output));
     }
