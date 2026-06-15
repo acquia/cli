@@ -100,6 +100,22 @@ abstract class PullCommandTestBase extends CommandTestBase
             ->shouldBeCalled();
     }
 
+    protected function mockExecuteDrushUpdateDb(
+        ObjectProphecy $localMachineHelper,
+        ObjectProphecy $process
+    ): void {
+        $localMachineHelper
+            ->execute([
+                'drush',
+                'updatedb',
+                '--yes',
+                '--no-interaction',
+                '--verbose',
+            ], Argument::type('callable'), $this->projectDir, false)
+            ->willReturn($process->reveal())
+            ->shouldBeCalled();
+    }
+
     protected function mockExecuteDrushSqlSanitize(
         ObjectProphecy $localMachineHelper,
         ObjectProphecy $process
