@@ -87,6 +87,11 @@ class PullDatabaseCommandTest extends PullCommandTestBase
         $this->assertStringContainsString('[0] Dev, dev (vcs: master)', $output);
         $this->assertStringContainsString('Choose a database [my_db (default)]:', $output);
         $this->assertStringContainsString('Using a database backup that is 1', $output);
+
+        $checklistReflection = new \ReflectionProperty($this->command, 'checklist');
+        $checklist = $checklistReflection->getValue($this->command);
+        $checklistMessages = array_column($checklist->getItems(), 'message');
+        $this->assertContains('Applying pending database updates via Drush', $checklistMessages);
     }
 
     public function testPullProdDatabase(): void

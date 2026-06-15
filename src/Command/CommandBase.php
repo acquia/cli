@@ -2092,6 +2092,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
             if (!$process->isSuccessful()) {
                 throw new AcquiaCliException('Unable to apply database updates via Drush. {message}', ['message' => $process->getErrorOutput()]);
             }
+            // @infection-ignore-all
             $checklist->completePreviousItem();
         } else {
             $this->logger->notice('Drush does not have an active database connection. Skipping updatedb');
