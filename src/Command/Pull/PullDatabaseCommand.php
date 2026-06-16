@@ -68,8 +68,8 @@ final class PullDatabaseCommand extends PullCommandBase
         $outputCallback = $this->getOutputCallback($output, $this->checklist);
         if (!$noScripts) {
             $this->runDrushDatabaseUpdates($outputCallback, $this->checklist);
-            $this->runDrushSqlSanitize($outputCallback, $this->checklist);
             $this->runDrushCacheClear($outputCallback, $this->checklist);
+            $this->runDrushSqlSanitize($outputCallback, $this->checklist);
         }
 
         return Command::SUCCESS;

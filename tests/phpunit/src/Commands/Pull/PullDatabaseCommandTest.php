@@ -73,8 +73,8 @@ class PullDatabaseCommandTest extends PullCommandTestBase
         $this->mockExecuteDrushStatus($localMachineHelper, $this->projectDir);
         $process = $this->mockProcess();
         $this->mockExecuteDrushUpdateDb($localMachineHelper, $process);
-        $this->mockExecuteDrushSqlSanitize($localMachineHelper, $process);
         $this->mockExecuteDrushCacheRebuild($localMachineHelper, $process);
+        $this->mockExecuteDrushSqlSanitize($localMachineHelper, $process);
 
         $this->executeCommand([
             '--no-scripts' => false,
