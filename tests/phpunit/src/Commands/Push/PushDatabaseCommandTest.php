@@ -268,7 +268,7 @@ class PushDatabaseCommandTest extends CommandTestBase
             0 => 'ssh',
             1 => 'profserv2.01dev@profserv201dev.ssh.enterprise-g1.acquia-sites.com',
             2 => '-t',
-            3 => '-o StrictHostKeyChecking=no',
+            3 => '-o StrictHostKeyChecking=accept-new',
             4 => '-o AddressFamily inet',
             5 => '-o LogLevel=ERROR',
             6 => "bash -o pipefail -c 'pv '/mnt/tmp/profserv2.01dev/acli-mysql-dump-drupal.sql.gz' --bytes --rate | gunzip | MYSQL_PWD='pass'\\''word' mysql --host='db'\\''host.enterprise-g1.hosting.acquia.com' --user='user'\\''name' 'db'\\''name''",
