@@ -9,6 +9,7 @@ use Acquia\Cli\Command\Pull\PullCommandBase;
 use Acquia\Cli\Command\Pull\PullDatabaseCommand;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Helpers\SshHelper;
+use Acquia\Cli\Output\Checklist;
 use Acquia\Cli\Transformer\EnvironmentTransformer;
 use AcquiaCloudApi\Response\SiteInstanceDatabaseBackupResponse;
 use AcquiaCloudApi\Response\SiteInstanceDatabaseConnectionResponse;
@@ -72,6 +73,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase
         $this->mockExecuteDrushExists($localMachineHelper);
         $this->mockExecuteDrushStatus($localMachineHelper, $this->projectDir);
         $process = $this->mockProcess();
+        $this->mockExecuteDrushUpdateDb($localMachineHelper, $process);
         $this->mockExecuteDrushCacheRebuild($localMachineHelper, $process);
         $this->mockExecuteDrushSqlSanitize($localMachineHelper, $process);
 
@@ -87,6 +89,35 @@ class PullDatabaseCommandTest extends PullCommandTestBase
         $this->assertStringContainsString('[0] Dev, dev (vcs: master)', $output);
         $this->assertStringContainsString('Choose a database [my_db (default)]:', $output);
         $this->assertStringContainsString('Using a database backup that is 1', $output);
+
+        $checklistReflection = new \ReflectionProperty($this->command, 'checklist');
+        $checklist = $checklistReflection->getValue($this->command);
+        $checklistMessages = array_column($checklist->getItems(), 'message');
+        $this->assertContains('Applying pending database updates via Drush', $checklistMessages);
+    }
+
+    public function testRunDrushDatabaseUpdatesFails(): void
+    {
+        $localMachineHelper = $this->mockLocalMachineHelper();
+        (new \ReflectionProperty($this->command, 'drushHasActiveDatabaseConnection'))->setValue($this->command, true);
+        (new \ReflectionProperty($this->command, 'dir'))->setValue($this->command, $this->projectDir);
+        $this->mockExecuteDrushUpdateDb($localMachineHelper, $this->mockProcess(false));
+
+        $this->expectException(AcquiaCliException::class);
+        $this->expectExceptionMessage('Unable to apply database updates via Drush. error');
+        (new \ReflectionMethod($this->command, 'runDrushDatabaseUpdates'))
+            ->invoke($this->command, fn() => null, new Checklist($this->output));
+    }
+
+    public function testRunDrushDatabaseUpdatesNoDbConnection(): void
+    {
+        $this->output->setVerbosity(BufferedOutput::VERBOSITY_VERBOSE);
+        (new \ReflectionProperty($this->command, 'drushHasActiveDatabaseConnection'))->setValue($this->command, false);
+
+        (new \ReflectionMethod($this->command, 'runDrushDatabaseUpdates'))
+            ->invoke($this->command, fn() => null, new Checklist($this->output));
+
+        $this->assertStringContainsString('Skipping updatedb', $this->output->fetch());
     }
 
     public function testPullProdDatabase(): void
