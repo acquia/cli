@@ -12,18 +12,6 @@ namespace Acquia\Cli\Command\Api;
 class ApiV3CommandHelper extends ApiCommandHelper
 {
     /**
-     * Path prefixes whose services sit behind the `/v3/` gateway route.
-     * Site-service paths (`/sites/...`) and site-instance paths
-     * (`/site-instances/...`) are deliberately absent — they live at
-     * `/api/sites/...` and `/api/site-instances/...` on the live gateway,
-     * not `/api/v3/...`.
-     */
-    private const V3_PATH_PREFIXES = [
-        '/environments/',
-        '/deployments/',
-    ];
-
-    /**
      * Per ARB-550, v3 specs declare CLI command names under
      * `x-acquia-exposure.channels.cli.command`. v3 reads ONLY that key;
      * legacy `x-cli-name` is v2's concern and handled by ApiCommandHelper.
@@ -34,22 +22,5 @@ class ApiV3CommandHelper extends ApiCommandHelper
     protected function getCliCommandName(array $schema): ?string
     {
         return $schema['x-acquia-exposure']['channels']['cli']['command'] ?? null;
-    }
-
-    /**
-     * Prepends `/v3` to paths whose service is routed through the v3 gateway
-     * prefix on the live Cloud Platform API. The upstream spec declares logical
-     * paths without the version prefix (per ARB-437, the prefix is a
-     * gateway-level concern); ACLI talks to the public gateway directly, so
-     * the prefix must be supplied here.
-     */
-    protected function normalizePath(string $path): string
-    {
-        foreach (self::V3_PATH_PREFIXES as $prefix) {
-            if (str_starts_with($path, $prefix)) {
-                return '/v3' . $path;
-            }
-        }
-        return $path;
     }
 }

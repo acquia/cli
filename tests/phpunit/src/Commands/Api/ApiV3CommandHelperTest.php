@@ -106,21 +106,26 @@ class ApiV3CommandHelperTest extends CommandTestBase
     }
 
     /**
-     * Env-service paths must be routed through `/v3/` on the live gateway.
+     * The v3 gateway base URI already includes `/v3`, so paths from the spec
+     * are passed through unchanged for all service types.
      */
-    public function testNormalizePathPrependsV3ForEnvironmentPaths(): void
+    public function testNormalizePathPassesThroughEnvironmentPaths(): void
     {
         $this->assertSame(
-            '/v3/environments/{environmentId}',
+            '/environments/{environmentId}',
             $this->invokeNormalizePath('/environments/{environmentId}')
         );
     }
 
-    /**
-     * Site-instance paths live at `/api/site-instances/...` on the live
-     * gateway, NOT behind `/v3/`. The helper must leave them untouched.
-     */
-    public function testNormalizePathLeavesSiteInstancePathsUntouched(): void
+    public function testNormalizePathPassesThroughDeploymentPaths(): void
+    {
+        $this->assertSame(
+            '/deployments/{deploymentId}',
+            $this->invokeNormalizePath('/deployments/{deploymentId}')
+        );
+    }
+
+    public function testNormalizePathPassesThroughSiteInstancePaths(): void
     {
         $this->assertSame(
             '/site-instances/{siteId}.{environmentId}',
@@ -128,19 +133,7 @@ class ApiV3CommandHelperTest extends CommandTestBase
         );
     }
 
-    public function testNormalizePathPrependsV3ForDeploymentPaths(): void
-    {
-        $this->assertSame(
-            '/v3/deployments/{deploymentId}',
-            $this->invokeNormalizePath('/deployments/{deploymentId}')
-        );
-    }
-
-    /**
-     * Site-service paths live at `/api/sites/...` on the live gateway,
-     * NOT behind `/v3/`. The helper must leave them untouched.
-     */
-    public function testNormalizePathLeavesSiteServicePathsUntouched(): void
+    public function testNormalizePathPassesThroughSiteServicePaths(): void
     {
         $this->assertSame(
             '/sites/{siteId}/actions/duplicate',

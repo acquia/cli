@@ -581,15 +581,16 @@ class ApiCommandHelper
      */
     private function generateApiListCommands(array $apiCommands, string $commandPrefix, CommandFactoryInterface $commandFactory): array
     {
+        $prefixDepth = count(explode(':', $commandPrefix));
         $apiListCommands = [];
         foreach ($apiCommands as $apiCommand) {
             $commandNameParts = explode(':', $apiCommand->getName());
-            if (count($commandNameParts) < 3) {
+            if (count($commandNameParts) < $prefixDepth + 2) {
                 continue;
             }
-            $namespace = $commandNameParts[1];
+            $namespace = $commandNameParts[$prefixDepth];
             $name = $commandPrefix . ':' . $namespace;
-            $hasVisibleCommand = $this->namespaceHasVisibleCommand($apiCommands, $namespace);
+            $hasVisibleCommand = $this->namespaceHasVisibleCommand($apiCommands, $namespace, $commandPrefix);
             if (!array_key_exists($name, $apiListCommands) && $hasVisibleCommand) {
                 /** @var \Acquia\Cli\Command\Acsf\AcsfListCommand|\Acquia\Cli\Command\Api\ApiListCommand $command */
                 $command = $commandFactory->createListCommand();
@@ -612,15 +613,16 @@ class ApiCommandHelper
      *
      * @param ApiBaseCommand[] $apiCommands
      */
-    private function namespaceHasVisibleCommand(array $apiCommands, string $namespace): bool
+    private function namespaceHasVisibleCommand(array $apiCommands, string $namespace, string $commandPrefix): bool
     {
+        $prefixDepth = count(explode(':', $commandPrefix));
         $commandsInNamespace = [];
         foreach ($apiCommands as $apiCommand) {
             $commandNameParts = explode(':', $apiCommand->getName());
-            if (count($commandNameParts) < 3) {
+            if (count($commandNameParts) < $prefixDepth + 2) {
                 continue;
             }
-            if ($commandNameParts[1] !== $namespace) {
+            if ($commandNameParts[$prefixDepth] !== $namespace) {
                 continue;
             }
             $commandsInNamespace[] = $apiCommand;

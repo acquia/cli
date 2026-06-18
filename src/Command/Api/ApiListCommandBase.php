@@ -26,7 +26,7 @@ class ApiListCommandBase extends CommandBase
         $command = $this->getApplication()->find('list');
         $arguments = [
             'command' => 'list',
-            'namespace' => 'api',
+            'namespace' => $this->namespace,
         ];
         $listInput = new ArrayInput($arguments);
 
