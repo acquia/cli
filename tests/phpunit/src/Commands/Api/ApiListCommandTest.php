@@ -53,4 +53,12 @@ class ApiListCommandTest extends CommandTestBase
         $this->assertStringContainsString(' api:accounts', $output);
         $this->assertStringNotContainsString(' api:accounts:ssh-keys-list', $output);
     }
+
+    public function testListCommandSubNamespace(): void
+    {
+        $this->command = $this->injectCommand(ListCommand::class);
+        $this->executeCommand(['namespace' => 'api:accounts']);
+        $output = $this->getDisplay();
+        $this->assertStringContainsString('api:accounts:ssh-keys-list', $output);
+    }
 }
