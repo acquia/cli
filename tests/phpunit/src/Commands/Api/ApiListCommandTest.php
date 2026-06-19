@@ -78,7 +78,13 @@ class ApiListCommandTest extends CommandTestBase
     {
         $this->command = $this->injectCommand(ListCommand::class);
         // 'apifoo' starts with 'api' but not 'api:' — the edge case the ':' suffix guards.
-        $this->executeCommand(['namespace' => 'apifoo']);
+        try {
+            $this->executeCommand(['namespace' => 'apifoo']);
+        } catch (\Symfony\Component\Console\Exception\NamespaceNotFoundException) {
+            // Expected — 'apifoo' is not a registered namespace.
+            // The hiding logic (ListCommand:55-69) runs before the describe call throws,
+            // so we still check the hidden state below.
+        }
         $apiSubCommand = $this->application->find('api:accounts:ssh-keys-list');
         $this->assertTrue($apiSubCommand->isHidden(), 'api:* sub-commands must be hidden when the requested namespace is unrelated to api');
     }
