@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Acquia\Cli\Tests\Commands\Api;
 
 use Acquia\Cli\Command\Api\ApiBaseCommand;
+use Acquia\Cli\Command\Api\ApiCommandHelper;
 use Acquia\Cli\Command\Api\ApiListCommand;
 use Acquia\Cli\Command\Api\ApiV3CommandHelper;
 use Acquia\Cli\Command\CommandBase;
