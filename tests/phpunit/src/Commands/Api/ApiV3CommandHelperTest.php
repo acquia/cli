@@ -141,6 +141,52 @@ class ApiV3CommandHelperTest extends CommandTestBase
         );
     }
 
+    /**
+     * Kills the ProtectedVisibility mutation on ApiCommandHelper::getCliCommandName.
+     *
+     * Coverage of line 382 only happens when getApiCommands() is called on a BASE-CLASS
+     * instance (child dispatch skips that line). Making the method private breaks
+     * late-static binding: $this->getCliCommandName() inside generateApiCommandsFromSpec
+     * would call the private parent version even when $this is ApiV3CommandHelper,
+     * returning null for every ARB-spec operation → 0 commands generated.
+     */
+    public function testGetCliCommandNamePolymorphicDispatch(): void
+    {
+        $spec = [
+            'info' => ['title' => 'Test', 'version' => '1.0'],
+            'openapi' => '3.1.0',
+            'paths' => [
+                '/sites' => [
+                    'get' => [
+                        'operationId' => 'getSites',
+                        'parameters' => [],
+                        'responses' => ['200' => ['description' => 'OK', 'content' => []]],
+                        'summary' => 'List sites',
+                        'x-acquia-exposure' => ['channels' => ['cli' => ['command' => 'sites:list']]],
+                    ],
+                ],
+            ],
+        ];
+        $specFile = tempnam(sys_get_temp_dir(), 'v3spec') . '.json';
+        file_put_contents($specFile, json_encode($spec));
+
+        // Base class reads x-cli-name only → 0 op-commands (covers line 382).
+        $baseHelper = new ApiCommandHelper($this->logger);
+        $baseCommands = $baseHelper->getApiCommands($specFile, 'api', $this->getCommandFactory());
+        $baseOpCommands = array_filter($baseCommands, static fn ($c) => $c instanceof ApiBaseCommand);
+        $this->assertCount(0, $baseOpCommands, 'Base helper must not read x-acquia-exposure.');
+
+        // V3 class reads x-acquia-exposure via protected override → 1 op-command.
+        // If getCliCommandName were private in parent, private dispatch would apply
+        // and this would also return 0 → test fails → mutation killed.
+        $v3Helper = new ApiV3CommandHelper($this->logger);
+        $v3Commands = $v3Helper->getApiCommands($specFile, 'api:v3', $this->getCommandFactory());
+        $v3OpCommands = array_filter($v3Commands, static fn ($c) => $c instanceof ApiBaseCommand);
+        $this->assertNotEmpty($v3OpCommands, 'V3 helper must dispatch to the protected override for x-acquia-exposure.');
+
+        unlink($specFile);
+    }
+
     // End-to-end: drive the real v3 bundle through the real helper.
     private const V3_PREFIX = 'api:v3';
 

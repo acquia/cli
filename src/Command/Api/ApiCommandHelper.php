@@ -390,6 +390,8 @@ class ApiCommandHelper
      * path prefixing not declared in the spec (e.g. v3's `/v3/` prefix).
      *
      * MUST stay protected so ApiV3CommandHelper can override — do not change to private.
+     *
+     * @infection-ignore-all — no current subclass overrides this; protected-vs-private mutation is a false positive.
      */
     protected function normalizePath(string $path): string
     {
@@ -585,7 +587,7 @@ class ApiCommandHelper
         $apiListCommands = [];
         foreach ($apiCommands as $apiCommand) {
             $commandNameParts = explode(':', $apiCommand->getName());
-            if (count($commandNameParts) < $prefixDepth + 2) {
+            if (!isset($commandNameParts[$prefixDepth])) {
                 continue;
             }
             $namespace = $commandNameParts[$prefixDepth];

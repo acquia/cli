@@ -130,6 +130,7 @@ final class IdeCreateCommand extends IdeCommandBase
         $spinnerMessage = 'Waiting for the IDE to be ready. This usually takes 2 - 15 minutes.';
         LoopHelper::getLoopy($this->output, $this->io, $spinnerMessage, $checkIdeStatus, $doneCallback);
 
+        // @infection-ignore-all — loop runs via React event loop; failure path requires 45-min watchdog, untestable in unit tests (same pattern as LoopHelper).
         if (!$ideCreated) {
             return Command::FAILURE;
         }

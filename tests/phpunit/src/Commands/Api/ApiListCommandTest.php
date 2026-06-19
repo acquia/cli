@@ -43,6 +43,9 @@ class ApiListCommandTest extends CommandTestBase
         $output = $this->getDisplay();
         $this->assertStringContainsString('api:accounts:', $output);
         $this->assertStringContainsString('api:accounts:ssh-keys-list', $output);
+        // Without the namespace argument the list would show every namespace; this
+        // assertion proves the namespace key is actually passed to the list command.
+        $this->assertStringNotContainsString('api:applications:', $output);
     }
 
     public function testListCommand(): void
@@ -60,5 +63,23 @@ class ApiListCommandTest extends CommandTestBase
         $this->executeCommand(['namespace' => 'api:accounts']);
         $output = $this->getDisplay();
         $this->assertStringContainsString('api:accounts:ssh-keys-list', $output);
+    }
+
+    /**
+     * Kills the ConcatOperandRemoval mutation on ListCommand:57.
+     *
+     * The condition uses `$prefix . ':'` to distinguish 'api' from 'apifoo'.
+     * Output-based assertions can't catch this (the namespace filter removes
+     * non-matching commands either way), so we inspect hidden state directly.
+     * With the mutation str_starts_with($requestedNs, 'api') is true for 'apifoo',
+     * so the hide-loop is skipped and api:* sub-commands remain visible.
+     */
+    public function testListCommandHidesApiSubCommandsForUnrelatedNamespace(): void
+    {
+        $this->command = $this->injectCommand(ListCommand::class);
+        // 'apifoo' starts with 'api' but not 'api:' — the edge case the ':' suffix guards.
+        $this->executeCommand(['namespace' => 'apifoo']);
+        $apiSubCommand = $this->application->find('api:accounts:ssh-keys-list');
+        $this->assertTrue($apiSubCommand->isHidden(), 'api:* sub-commands must be hidden when the requested namespace is unrelated to api');
     }
 }
