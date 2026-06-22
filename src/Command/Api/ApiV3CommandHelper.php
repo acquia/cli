@@ -5,19 +5,15 @@ declare(strict_types=1);
 namespace Acquia\Cli\Command\Api;
 
 /**
- * Command helper for Cloud API v3 (OpenAPI 3.1+) specs sourced from
- * acquia/api-specs. Overrides extension-field lookups and gateway-prefix
- * handling that diverge from the legacy v2 convention.
+ * Command helper for Cloud API v3 (OpenAPI 3.1+) specs. Overrides
+ * extension-field lookups that diverge from the legacy v2 convention.
  */
 class ApiV3CommandHelper extends ApiCommandHelper
 {
     /**
-     * Per ARB-550, v3 specs declare CLI command names under
+     * v3 specs declare CLI command names under
      * `x-acquia-exposure.channels.cli.command`. v3 reads ONLY that key;
      * legacy `x-cli-name` is v2's concern and handled by ApiCommandHelper.
-     * If the upstream spec still ships `x-cli-name`, the composer bundling
-     * step rewrites it to `x-acquia-exposure` so this method receives the
-     * ARB-compliant shape.
      */
     protected function getCliCommandName(array $schema): ?string
     {

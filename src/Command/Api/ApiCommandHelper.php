@@ -373,8 +373,7 @@ class ApiCommandHelper
 
     /**
      * Extracts the CLI command name declared in an operation schema.
-     * Override in subclasses to support alternative extension keys
-     * (e.g. ARB-550's x-acquia-exposure.channels.cli.command for v3).
+     * Override in subclasses to support alternative extension keys.
      *
      * @phpcs:disable SlevomatCodingStandard.Classes.MethodSpacing,SlevomatCodingStandard.Classes.ClassMemberSpacing
      * MUST stay protected so ApiV3CommandHelper can override — do not change to private.
@@ -382,20 +381,6 @@ class ApiCommandHelper
     protected function getCliCommandName(array $schema): ?string
     {
         return $schema['x-cli-name'] ?? null;
-    }
-
-    /**
-     * Transforms a spec path before it's attached to the generated command.
-     * Default is identity. Override in subclasses that need gateway-level
-     * path prefixing not declared in the spec (e.g. v3's `/v3/` prefix).
-     *
-     * MUST stay protected so ApiV3CommandHelper can override — do not change to private.
-     *
-     * @infection-ignore-all — no current subclass overrides this; protected-vs-private mutation is a false positive.
-     */
-    protected function normalizePath(string $path): string
-    {
-        return $path;
     }
 
     /**
@@ -427,7 +412,7 @@ class ApiCommandHelper
                 if (array_key_exists('servers', $acquiaCloudSpec)) {
                     $command->setServers($acquiaCloudSpec['servers']);
                 }
-                $command->setPath($this->normalizePath($path));
+                $command->setPath($path);
 
                 $helpText = "For more help, see https://cloudapi-docs.acquia.com/ or https://dev.acquia.com/api-documentation/acquia-cloud-site-factory-api for acsf commands.";
                 if (self::isPreRelease($schema)) {

@@ -14,11 +14,9 @@ use ReflectionMethod;
 use Symfony\Component\Filesystem\Path;
 
 /**
- * Tests for ApiV3CommandHelper::getCliCommandName — covers the ARB-550
- * extension-key migration window (x-acquia-exposure.channels.cli.command
- * replacing the legacy x-cli-name).
- *
- * @see https://github.com/acquia/architecture-decisions/blob/master/openspec/specs/api-specification/spec.md
+ * Tests for ApiV3CommandHelper::getCliCommandName — covers the v3
+ * extension-key convention (x-acquia-exposure.channels.cli.command)
+ * and its relationship with the legacy x-cli-name key.
  */
 class ApiV3CommandHelperTest extends CommandTestBase
 {
@@ -35,7 +33,7 @@ class ApiV3CommandHelperTest extends CommandTestBase
     }
 
     /**
-     * Migrated service: ARB-550 key is present. Helper reads it.
+     * v3 key is present. Helper reads it.
      */
     public function testReadsArbKeyWhenPresent(): void
     {
@@ -52,8 +50,7 @@ class ApiV3CommandHelperTest extends CommandTestBase
     /**
      * v2's legacy `x-cli-name` is NOT ApiV3CommandHelper's concern; that key
      * is handled by ApiCommandHelper (v2). v3 ignores it and returns null so
-     * the operation is skipped in the v3 namespace. The composer bundling
-     * pipeline is responsible for emitting ARB-550-shaped specs to v3.
+     * the operation is skipped in the v3 namespace.
      */
     public function testIgnoresLegacyXCliNameKey(): void
     {
@@ -62,7 +59,7 @@ class ApiV3CommandHelperTest extends CommandTestBase
     }
 
     /**
-     * Both keys present: ARB-550 key is read, legacy is ignored entirely.
+     * Both keys present: v3 key is read, legacy is ignored entirely.
      */
     public function testUsesArbKeyEvenWhenLegacyAlsoPresent(): void
     {
@@ -82,12 +79,12 @@ class ApiV3CommandHelperTest extends CommandTestBase
      */
     public function testReturnsNullWhenArbKeyMissing(): void
     {
-        $schema = ['summary' => 'No ARB exposure declared'];
+        $schema = ['summary' => 'No v3 exposure declared'];
         $this->assertNull($this->invokeGetCliCommandName($schema));
     }
 
     /**
-     * Partial nested structure: ARB-key path is incomplete. Still null;
+     * Partial nested structure: v3 key path is incomplete. Still null;
      * we never consult legacy `x-cli-name`.
      */
     public function testReturnsNullWhenArbKeyStructureIsIncomplete(): void
@@ -99,48 +96,6 @@ class ApiV3CommandHelperTest extends CommandTestBase
         $this->assertNull($this->invokeGetCliCommandName($schema));
     }
 
-    private function invokeNormalizePath(string $path): string
-    {
-        $helper = new ApiV3CommandHelper($this->logger);
-        $ref = new ReflectionMethod(ApiV3CommandHelper::class, 'normalizePath');
-        return $ref->invoke($helper, $path);
-    }
-
-    /**
-     * The v3 gateway base URI already includes `/v3`, so paths from the spec
-     * are passed through unchanged for all service types.
-     */
-    public function testNormalizePathPassesThroughEnvironmentPaths(): void
-    {
-        $this->assertSame(
-            '/environments/{environmentId}',
-            $this->invokeNormalizePath('/environments/{environmentId}')
-        );
-    }
-
-    public function testNormalizePathPassesThroughDeploymentPaths(): void
-    {
-        $this->assertSame(
-            '/deployments/{deploymentId}',
-            $this->invokeNormalizePath('/deployments/{deploymentId}')
-        );
-    }
-
-    public function testNormalizePathPassesThroughSiteInstancePaths(): void
-    {
-        $this->assertSame(
-            '/site-instances/{siteId}.{environmentId}',
-            $this->invokeNormalizePath('/site-instances/{siteId}.{environmentId}')
-        );
-    }
-
-    public function testNormalizePathPassesThroughSiteServicePaths(): void
-    {
-        $this->assertSame(
-            '/sites/{siteId}/actions/duplicate',
-            $this->invokeNormalizePath('/sites/{siteId}/actions/duplicate')
-        );
-    }
 
     /**
      * Kills the ProtectedVisibility mutation on ApiCommandHelper::getCliCommandName.
@@ -149,7 +104,7 @@ class ApiV3CommandHelperTest extends CommandTestBase
      * instance (child dispatch skips that line). Making the method private breaks
      * late-static binding: $this->getCliCommandName() inside generateApiCommandsFromSpec
      * would call the private parent version even when $this is ApiV3CommandHelper,
-     * returning null for every ARB-spec operation → 0 commands generated.
+     * returning null for every v3 operation → 0 commands generated.
      */
     public function testGetCliCommandNamePolymorphicDispatch(): void
     {
@@ -247,7 +202,7 @@ class ApiV3CommandHelperTest extends CommandTestBase
 
     /**
      * The generator must produce one command per operation that declares a CLI name
-     * (either legacy x-cli-name or ARB-550 x-acquia-exposure.channels.cli.command),
+     * (either legacy x-cli-name or x-acquia-exposure.channels.cli.command),
      * plus autogenerated ApiList wrappers for each sub-namespace.
      */
     public function testCommandCountMatchesOperationCountInSpec(): void
