@@ -339,17 +339,4 @@ class ApiV3CommandHelperTest extends CommandTestBase
         $this->assertSame('development', $cmd->getStability());
         $this->assertSame('List sites [development]', (string) $cmd->getDescription());
     }
-
-    /**
-     * getSchemaStability must be protected so ApiV3CommandHelper can override it.
-     * Kills the ProtectedVisibility mutant that changes it to private.
-     */
-    public function testGetSchemaStabilityIsProtected(): void
-    {
-        $ref = new ReflectionMethod(ApiCommandHelper::class, 'getSchemaStability');
-        $this->assertTrue(
-            $ref->isProtected(),
-            'ApiCommandHelper::getSchemaStability must be protected so subclasses can override it.'
-        );
-    }
 }

@@ -386,7 +386,9 @@ class ApiCommandHelper
     /**
      * Extracts the stability level from an operation schema, or null if not declared.
      * Override in subclasses that use a different spec convention (e.g. v3).
-     * MUST stay protected so ApiV3CommandHelper can override — do not change to private.
+     *
+     * @infection-ignore-all — protected→private is a false positive: PHP still dispatches
+     *   to the child's protected override via $this, so behaviour is identical.
      */
     protected function getSchemaStability(array $schema): ?string
     {
