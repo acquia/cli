@@ -19,4 +19,9 @@ class ApiV3CommandHelper extends ApiCommandHelper
     {
         return $schema['x-acquia-exposure']['channels']['cli']['command'] ?? null;
     }
+
+    protected function getSchemaStability(array $schema): ?string
+    {
+        return $schema['x-acquia-exposure']['stability'] ?? null;
+    }
 }

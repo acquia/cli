@@ -384,6 +384,16 @@ class ApiCommandHelper
     }
 
     /**
+     * Extracts the stability level from an operation schema, or null if not declared.
+     * Override in subclasses that use a different spec convention (e.g. v3).
+     * MUST stay protected so ApiV3CommandHelper can override — do not change to private.
+     */
+    protected function getSchemaStability(array $schema): ?string
+    {
+        return null;
+    }
+
+    /**
      * @return ApiBaseCommand[]
      */
     private function generateApiCommandsFromSpec(array $acquiaCloudSpec, string $commandPrefix, CommandFactoryInterface $commandFactory): array
@@ -403,7 +413,13 @@ class ApiCommandHelper
                 $commandName = $commandPrefix . ':' . $cliName;
                 $command = $commandFactory->createCommand();
                 $command->setName($commandName);
-                $command->setDescription($schema['summary']);
+                $stability = $this->getSchemaStability($schema);
+                $command->setStability($stability);
+                $description = $schema['summary'];
+                if ($stability !== null && $stability !== 'production') {
+                    $description .= ' [' . $stability . ']';
+                }
+                $command->setDescription($description);
                 $command->setMethod($method);
                 $command->setResponses($schema['responses']);
                 $command->setHidden(

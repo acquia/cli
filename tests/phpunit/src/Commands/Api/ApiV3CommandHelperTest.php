@@ -274,4 +274,69 @@ class ApiV3CommandHelperTest extends CommandTestBase
             $this->assertNotEmpty($command->getPath(), "Command '$name' has empty path.");
         }
     }
+
+    /**
+     * Non-production commands get a [stability] tag appended to their description.
+     * Production commands must NOT get a tag.
+     */
+    public function testStabilityTagAppearedInDescription(): void
+    {
+        $commands = $this->loadRealV3Commands();
+        foreach ($commands as $command) {
+            if (!$command instanceof ApiBaseCommand) {
+                continue;
+            }
+            $stability = $command->getStability();
+            $desc = (string) $command->getDescription();
+            if ($stability !== null && $stability !== 'production') {
+                $this->assertStringContainsString(
+                    '[' . $stability . ']',
+                    $desc,
+                    "Command '{$command->getName()}' (stability=$stability) missing tag in description."
+                );
+            } else {
+                $this->assertStringNotContainsString(
+                    '[',
+                    $desc,
+                    "Command '{$command->getName()}' (production) must not have a stability tag."
+                );
+            }
+        }
+    }
+
+    /**
+     * Stability warning is printed at runtime for non-production commands.
+     */
+    public function testStabilityWarningPrintedAtRuntime(): void
+    {
+        $spec = [
+            'info' => ['title' => 'Test', 'version' => '1.0'],
+            'openapi' => '3.1.0',
+            'paths' => [
+                '/sites' => [
+                    'get' => [
+                        'operationId' => 'getSites',
+                        'parameters' => [],
+                        'responses' => ['200' => ['description' => 'OK', 'content' => []]],
+                        'summary' => 'List sites',
+                        'x-acquia-exposure' => [
+                            'channels' => ['cli' => ['command' => 'sites:list', 'enabled' => true]],
+                            'stability' => 'development',
+                        ],
+                    ],
+                ],
+            ],
+        ];
+        $specFile = tempnam(sys_get_temp_dir(), 'v3spec') . '.json';
+        file_put_contents($specFile, json_encode($spec));
+        $helper = new ApiV3CommandHelper($this->logger);
+        $commands = $helper->getApiCommands($specFile, 'api:v3', $this->getV3CommandFactory());
+        unlink($specFile);
+
+        $opCommands = array_values(array_filter($commands, static fn ($c) => $c instanceof ApiBaseCommand));
+        $this->assertCount(1, $opCommands);
+        $cmd = $opCommands[0];
+        $this->assertSame('development', $cmd->getStability());
+        $this->assertStringContainsString('[development]', (string) $cmd->getDescription());
+    }
 }
