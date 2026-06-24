@@ -1206,4 +1206,66 @@ EOD;
         $this->assertEquals(1, $decoded[0]['id']);
         $this->assertEquals('site2', $decoded[1]['name']);
     }
+
+    /**
+     * A command with non-production stability must print a warning at runtime.
+     * Kills mutants that remove the stability check or change the condition.
+     */
+    public function testStabilityWarningPrintedForNonProductionCommand(): void
+    {
+        $this->clientProphecy->addOption('headers', ['Accept' => 'application/hal+json, version=2'])
+            ->shouldBeCalled();
+        $mockBody = self::getMockResponseFromSpec('/account/ssh-keys', 'get', '200');
+        $this->clientProphecy->request('get', '/account/ssh-keys')
+            ->willReturn($mockBody->{'_embedded'}->items)
+            ->shouldBeCalled();
+        $this->command = $this->getApiCommandByName('api:accounts:ssh-keys-list');
+        $this->command->setStability('development');
+        $this->executeCommand([]);
+        $this->assertStringContainsString(
+            'This command is in development and may change without notice.',
+            $this->getDisplay()
+        );
+    }
+
+    /**
+     * A production command must NOT print a stability warning.
+     * Kills mutants that fire the warning unconditionally.
+     */
+    public function testNoStabilityWarningForProductionCommand(): void
+    {
+        $this->clientProphecy->addOption('headers', ['Accept' => 'application/hal+json, version=2'])
+            ->shouldBeCalled();
+        $mockBody = self::getMockResponseFromSpec('/account/ssh-keys', 'get', '200');
+        $this->clientProphecy->request('get', '/account/ssh-keys')
+            ->willReturn($mockBody->{'_embedded'}->items)
+            ->shouldBeCalled();
+        $this->command = $this->getApiCommandByName('api:accounts:ssh-keys-list');
+        $this->command->setStability('production');
+        $this->executeCommand([]);
+        $this->assertStringNotContainsString(
+            'may change without notice',
+            $this->getDisplay()
+        );
+    }
+
+    /**
+     * Null stability (v2 commands) must not trigger any warning.
+     */
+    public function testNoStabilityWarningWhenStabilityIsNull(): void
+    {
+        $this->clientProphecy->addOption('headers', ['Accept' => 'application/hal+json, version=2'])
+            ->shouldBeCalled();
+        $mockBody = self::getMockResponseFromSpec('/account/ssh-keys', 'get', '200');
+        $this->clientProphecy->request('get', '/account/ssh-keys')
+            ->willReturn($mockBody->{'_embedded'}->items)
+            ->shouldBeCalled();
+        $this->command = $this->getApiCommandByName('api:accounts:ssh-keys-list');
+        // Stability is null by default — no setStability() call.
+        $this->executeCommand([]);
+        $this->assertStringNotContainsString(
+            'may change without notice',
+            $this->getDisplay()
+        );
+    }
 }
