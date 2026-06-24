@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace Acquia\Cli\Tests\Commands\Api;
 
+use Acquia\Cli\CloudApi\V3ClientService;
 use Acquia\Cli\Command\Api\ApiBaseCommand;
 use Acquia\Cli\Command\Api\ApiCommandHelper;
 use Acquia\Cli\Command\Api\ApiListCommand;
+use Acquia\Cli\Command\Api\ApiV3CommandFactory;
 use Acquia\Cli\Command\Api\ApiV3CommandHelper;
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Tests\CommandTestBase;
@@ -146,6 +148,24 @@ class ApiV3CommandHelperTest extends CommandTestBase
     // End-to-end: drive the real v3 bundle through the real helper.
     private const V3_PREFIX = 'api:v3';
 
+    private function getV3CommandFactory(): ApiV3CommandFactory
+    {
+        $v3ClientService = $this->prophet->prophesize(V3ClientService::class)->reveal();
+        return new ApiV3CommandFactory(
+            $this->localMachineHelper,
+            $this->datastoreCloud,
+            $this->datastoreAcli,
+            $this->cloudCredentials,
+            $this->telemetryHelper,
+            $this->projectDir,
+            $v3ClientService,
+            $this->sshHelper,
+            $this->sshDir,
+            $this->logger,
+            $this->selfUpdateManager,
+        );
+    }
+
     /**
      * @return ApiBaseCommand[]
      */
@@ -154,7 +174,7 @@ class ApiV3CommandHelperTest extends CommandTestBase
         $specPath = Path::canonicalize(__DIR__ . '/../../../../../assets/acquia-v3-spec.json');
         $this->assertFileExists($specPath, 'v3 bundle missing; run `composer update-acquia-v3-spec`.');
         $helper = new ApiV3CommandHelper($this->logger);
-        return $helper->getApiCommands($specPath, self::V3_PREFIX, $this->getCommandFactory());
+        return $helper->getApiCommands($specPath, self::V3_PREFIX, $this->getV3CommandFactory());
     }
 
     /**
