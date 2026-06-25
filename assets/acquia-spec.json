@@ -40102,7 +40102,7 @@
       ],
       "post": {
         "summary": "Create a new Private Network",
-        "description": "Creates a new Private Network with optional subresource configuration.\n\nThis comprehensive endpoint allows you to create a private network and optionally configure\nits subresources (connections, VPNs, VPC peers, ingress, and isolation) during the initial creation.\n\n**Subresource Creation:**\n- **Connections**: Configure CIDR block and egress access settings\n- **VPNs**: Create one or more VPN connections with tunnel configurations\n- **VPC Peers**: Create one or more VPC peering connections\n- **Ingress**: Configure ingress access rules and privacy settings\n- **Isolation**: Configure compute and network isolation flags\n\nAll subresources are optional. If not specified during creation, they can be configured later\nusing their respective endpoints.\n",
+        "description": "Creates a new Private Network with optional subresource configuration.\n\nThis comprehensive endpoint allows you to create a private network and optionally configure \nits subresources (connections, VPNs, VPC peers, ingress, and isolation) during the initial creation.\n\n**Subresource Creation:**\n- **Connections**: Configure CIDR block and egress access settings\n- **VPNs**: Create one or more VPN connections with tunnel configurations\n- **VPC Peers**: Create one or more VPC peering connections\n- **Ingress**: Configure ingress access rules and privacy settings\n- **Isolation**: Configure compute and network isolation flags\n\nAll subresources are optional. If not specified during creation, they can be configured later\nusing their respective endpoints.\n",
         "tags": [
           "Private Networks"
         ],
