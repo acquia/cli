@@ -145,6 +145,99 @@ class ApiV3CommandHelperTest extends CommandTestBase
         unlink($specFile);
     }
 
+    // Audience filtering tests.
+
+    /**
+     * @param array<mixed> $operationOverrides
+     * @return array<mixed>
+     */
+    private function makeMinimalSpec(array $operationOverrides): array
+    {
+        return [
+            'info' => ['title' => 'Test', 'version' => '1.0'],
+            'openapi' => '3.1.0',
+            'paths' => [
+                '/sites' => [
+                    'get' => array_merge([
+                        'operationId' => 'getSites',
+                        'parameters' => [],
+                        'responses' => ['200' => ['description' => 'OK', 'content' => []]],
+                        'summary' => 'List sites',
+                        'x-acquia-exposure' => ['channels' => ['cli' => ['command' => 'sites:list']]],
+                    ], $operationOverrides),
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * @param array<mixed> $spec
+     * @return ApiBaseCommand[]
+     */
+    private function loadCommandsFromSpec(array $spec): array
+    {
+        $specFile = tempnam(sys_get_temp_dir(), 'v3spec') . '.json';
+        file_put_contents($specFile, json_encode($spec));
+        $helper = new ApiV3CommandHelper($this->logger);
+        $commands = $helper->getApiCommands($specFile, 'api:v3', $this->getV3CommandFactory());
+        unlink($specFile);
+        return array_values(array_filter($commands, static fn($c) => $c instanceof ApiBaseCommand));
+    }
+
+    public function testPublicAudienceIsIncluded(): void
+    {
+        $spec = $this->makeMinimalSpec([
+            'x-acquia-exposure' => [
+                'audience' => ['public'],
+                'channels' => ['cli' => ['command' => 'sites:list']],
+            ],
+        ]);
+        $this->assertCount(1, $this->loadCommandsFromSpec($spec));
+    }
+
+    public function testInternalAudienceIsSkipped(): void
+    {
+        $spec = $this->makeMinimalSpec([
+            'x-acquia-exposure' => [
+                'audience' => ['internal'],
+                'channels' => ['cli' => ['command' => 'sites:list']],
+            ],
+        ]);
+        $this->assertCount(0, $this->loadCommandsFromSpec($spec));
+    }
+
+    public function testCustomerAudienceIsSkipped(): void
+    {
+        $spec = $this->makeMinimalSpec([
+            'x-acquia-exposure' => [
+                'audience' => ['customer'],
+                'channels' => ['cli' => ['command' => 'sites:list']],
+            ],
+        ]);
+        $this->assertCount(0, $this->loadCommandsFromSpec($spec));
+    }
+
+    public function testMixedAudienceIncludingPublicIsIncluded(): void
+    {
+        $spec = $this->makeMinimalSpec([
+            'x-acquia-exposure' => [
+                'audience' => ['public', 'internal'],
+                'channels' => ['cli' => ['command' => 'sites:list']],
+            ],
+        ]);
+        $this->assertCount(1, $this->loadCommandsFromSpec($spec));
+    }
+
+    public function testMissingAudienceIsIncluded(): void
+    {
+        $spec = $this->makeMinimalSpec([
+            'x-acquia-exposure' => [
+                'channels' => ['cli' => ['command' => 'sites:list']],
+            ],
+        ]);
+        $this->assertCount(1, $this->loadCommandsFromSpec($spec));
+    }
+
     // End-to-end: drive the real v3 bundle through the real helper.
     private const V3_PREFIX = 'api:v3';
 

@@ -396,6 +396,18 @@ class ApiCommandHelper
     }
 
     /**
+     * Whether this operation should be excluded from the generated command set.
+     * Override in subclasses to add audience or channel-based filtering.
+     *
+     * @infection-ignore-all — protected→private is a false positive: PHP still dispatches
+     *   to the child's protected override via $this, so behaviour is identical.
+     */
+    protected function shouldSkipOperation(array $schema): bool
+    {
+        return false;
+    }
+
+    /**
      * @return ApiBaseCommand[]
      */
     private function generateApiCommandsFromSpec(array $acquiaCloudSpec, string $commandPrefix, CommandFactoryInterface $commandFactory): array
@@ -405,6 +417,10 @@ class ApiCommandHelper
             foreach ($endpoint as $method => $schema) {
                 $cliName = $this->getCliCommandName($schema);
                 if ($cliName === null) {
+                    continue;
+                }
+
+                if ($this->shouldSkipOperation($schema)) {
                     continue;
                 }
 

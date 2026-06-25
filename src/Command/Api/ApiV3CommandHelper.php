@@ -24,4 +24,17 @@ class ApiV3CommandHelper extends ApiCommandHelper
     {
         return $schema['x-acquia-exposure']['stability'] ?? null;
     }
+
+    /**
+     * Skip operations whose audience list is declared but does not include "public".
+     * Operations with no audience declared are included (assumed public by default).
+     */
+    protected function shouldSkipOperation(array $schema): bool
+    {
+        $audience = $schema['x-acquia-exposure']['audience'] ?? null;
+        if ($audience === null) {
+            return false;
+        }
+        return !in_array('public', $audience, true);
+    }
 }
