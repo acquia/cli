@@ -238,6 +238,37 @@ class ApiV3CommandHelperTest extends CommandTestBase
         $this->assertCount(1, $this->loadCommandsFromSpec($spec));
     }
 
+    /**
+     * Kills the Continue_ mutation (continue→break) in the getSkippedApiCommands() check.
+     *
+     * The skipped command must share a path with a subsequent valid command so that
+     * `break` (exits the inner method-loop) drops the valid command while `continue`
+     * (skips only this method) keeps it.
+     */
+    public function testSkippedCommandDoesNotBreakSubsequentMethodsOnSamePath(): void
+    {
+        $opBase = [
+            'parameters' => [],
+            'responses' => ['200' => ['description' => 'OK', 'content' => []]],
+            'summary' => 'Test',
+        ];
+        $spec = [
+            'info' => ['title' => 'Test', 'version' => '1.0'],
+            'openapi' => '3.1.0',
+            'paths' => [
+                '/sites' => [
+                    // 'ide:create' is in getSkippedApiCommands() — must be skipped.
+                    'get' => $opBase + ['x-acquia-exposure' => ['channels' => ['cli' => ['command' => 'ide:create']]]],
+                    // 'sites:list' is valid — must still be generated despite the skip above.
+                    'post' => $opBase + ['x-acquia-exposure' => ['channels' => ['cli' => ['command' => 'sites:list']]]],
+                ],
+            ],
+        ];
+        $commands = $this->loadCommandsFromSpec($spec);
+        $this->assertCount(1, $commands);
+        $this->assertSame('api:v3:sites:list', $commands[0]->getName());
+    }
+
     // End-to-end: drive the real v3 bundle through the real helper.
     private const V3_PREFIX = 'api:v3';
 
