@@ -123,12 +123,9 @@
         "update-acquia-v3-spec": [
             "rm -rf var/api-specs",
             "git clone --depth 1 https://github.com/acquia/api-specs.git var/api-specs",
-            "npm ci --prefix var/api-specs/plugins --ignore-scripts",
-            "cd var/api-specs && npx --yes @redocly/cli@latest bundle specs/site-service-php/openapi.yaml -o dist/site-service-php.yaml",
-            "cd var/api-specs && npx --yes @redocly/cli@latest bundle specs/environment-service-php/openapi.yaml -o dist/environment-service-php.yaml",
-            "cd var/api-specs && npx --yes @redocly/cli@latest join dist/site-service-php.yaml dist/environment-service-php.yaml -o dist/joined.yaml --prefix-tags-with-info-prop title --prefix-components-with-info-prop title",
-            "cd var/api-specs && npx --yes @redocly/cli@latest bundle dist/joined.yaml --dereferenced --ext json -o ../../assets/acquia-v3-spec.json",
-            "jq 'walk(if type == \"object\" and has(\"x-cli-name\") then .[\"x-acquia-exposure\"] = {channels: {cli: {command: .[\"x-cli-name\"]}}} | del(.[\"x-cli-name\"]) else . end)' assets/acquia-v3-spec.json > assets/acquia-v3-spec.json.tmp && mv assets/acquia-v3-spec.json.tmp assets/acquia-v3-spec.json",
+            "npm install --prefix var/api-specs @redocly/cli@latest --no-save --ignore-scripts",
+            "cd var/api-specs && PATH=$(pwd)/node_modules/.bin:$PATH make bundle",
+            "cd var/api-specs && npx --yes @redocly/cli@latest bundle --config redocly.bundle.yaml dist/openapi.yaml --dereferenced --ext json -o ../../assets/acquia-v3-spec.json",
             "rm -rf var/api-specs"
         ],
         "update-acsf-api-spec": [
