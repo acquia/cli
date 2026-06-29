@@ -123,6 +123,8 @@ jobs:
           else
             echo "No additional spec file found, using base spec only"
           fi
+      - name: 'Build v3 API spec'
+        run: composer update-acquia-v3-spec
       - name: Build
         run: |
           composer install --no-dev --optimize-autoloader

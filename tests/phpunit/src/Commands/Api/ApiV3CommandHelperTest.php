@@ -238,6 +238,37 @@ class ApiV3CommandHelperTest extends CommandTestBase
         $this->assertCount(1, $this->loadCommandsFromSpec($spec));
     }
 
+    // channels.cli.enabled filtering tests.
+    public function testCliEnabledFalseIsSkipped(): void
+    {
+        $spec = $this->makeMinimalSpec([
+            'x-acquia-exposure' => [
+                'channels' => ['cli' => ['command' => 'sites:list', 'enabled' => false]],
+            ],
+        ]);
+        $this->assertCount(0, $this->loadCommandsFromSpec($spec));
+    }
+
+    public function testCliEnabledTrueIsIncluded(): void
+    {
+        $spec = $this->makeMinimalSpec([
+            'x-acquia-exposure' => [
+                'channels' => ['cli' => ['command' => 'sites:list', 'enabled' => true]],
+            ],
+        ]);
+        $this->assertCount(1, $this->loadCommandsFromSpec($spec));
+    }
+
+    public function testCliEnabledMissingDefaultsToIncluded(): void
+    {
+        $spec = $this->makeMinimalSpec([
+            'x-acquia-exposure' => [
+                'channels' => ['cli' => ['command' => 'sites:list']],
+            ],
+        ]);
+        $this->assertCount(1, $this->loadCommandsFromSpec($spec));
+    }
+
     /**
      * Kills the Continue_ mutation (continue→break) in the getSkippedApiCommands() check.
      *
