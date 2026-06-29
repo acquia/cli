@@ -26,11 +26,16 @@ class ApiV3CommandHelper extends ApiCommandHelper
     }
 
     /**
-     * Skip operations whose audience list is declared but does not include "public".
-     * Operations with no audience declared are included (assumed public by default).
+     * Skip operations that are explicitly disabled for the CLI channel, or whose
+     * audience list is declared but does not include "public".
+     * Missing enabled/audience fields default to included.
      */
     protected function shouldSkipOperation(array $schema): bool
     {
+        $cli = $schema['x-acquia-exposure']['channels']['cli'] ?? null;
+        if ($cli !== null && ($cli['enabled'] ?? true) === false) {
+            return true;
+        }
         $audience = $schema['x-acquia-exposure']['audience'] ?? null;
         if ($audience === null) {
             return false;
