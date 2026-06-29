@@ -87,6 +87,21 @@ class CloudCredentials implements ApiCredentialsInterface
         return null;
     }
 
+    /**
+     * Base URI for Cloud API v3 (MEO) commands registered under `api:v3:*`.
+     * Set `ACLI_CLOUD_API_V3_BASE_URI` to point to a specific environment:
+     *   Dev:     https://gateway.dev.api.acquia.io/v3
+     *   Stage:   https://staging.api.acquia.com/v3  (tentative)
+     *   Prod:    TBD — hardcode here once confirmed
+     */
+    public function getV3BaseUri(): ?string
+    {
+        if ($uri = getenv('ACLI_CLOUD_API_V3_BASE_URI')) {
+            return $uri;
+        }
+        return null;
+    }
+
     public function getAccountsUri(): ?string
     {
         if ($uri = getenv('ACLI_CLOUD_API_ACCOUNTS_URI')) {

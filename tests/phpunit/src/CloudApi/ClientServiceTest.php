@@ -7,6 +7,7 @@ namespace Acquia\Cli\Tests\CloudApi;
 use Acquia\Cli\CloudApi\ClientService;
 use Acquia\Cli\CloudApi\CloudCredentials;
 use Acquia\Cli\CloudApi\ConnectorFactory;
+use Acquia\Cli\CloudApi\V3ClientService;
 use Acquia\Cli\DataStore\CloudDataStore;
 use Acquia\Cli\Tests\TestBase;
 
@@ -67,5 +68,18 @@ class ClientServiceTest extends TestBase
         ]), $this->application, new CloudCredentials($cloudDatastore->reveal()));
         $this->assertEquals($isAuthenticated, $clientService->isMachineAuthenticated());
         self::unsetEnvVars($envVars);
+    }
+
+    public function testV3ClientServiceConstructs(): void
+    {
+        $cloudDatastore = $this->prophet->prophesize(CloudDataStore::class);
+        $credentials = new CloudCredentials($cloudDatastore->reveal());
+        $connectorFactory = new ConnectorFactory([
+            'accessToken' => null,
+            'key' => null,
+            'secret' => null,
+        ]);
+        $v3Service = new V3ClientService($connectorFactory, $this->application, $credentials);
+        $this->assertFalse($v3Service->isMachineAuthenticated());
     }
 }
