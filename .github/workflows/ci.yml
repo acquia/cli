@@ -124,7 +124,9 @@ jobs:
             echo "No additional spec file found, using base spec only"
           fi
       - name: 'Build v3 API spec'
-        run: composer update-acquia-v3-spec
+        run: |
+          git config --global url."https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/".insteadOf "https://github.com/"
+          composer update-acquia-v3-spec
       - name: Build
         run: |
           composer install --no-dev --optimize-autoloader
