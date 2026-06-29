@@ -122,7 +122,7 @@
         ],
         "update-acquia-v3-spec": [
             "rm -rf var/api-specs",
-            "git clone --depth 1 https://github.com/acquia/api-specs.git var/api-specs",
+            "git clone --depth 1 git@github.com:acquia/api-specs.git var/api-specs",
             "npm install --prefix var/api-specs @redocly/cli@latest --no-save --ignore-scripts",
             "cd var/api-specs && PATH=$(pwd)/node_modules/.bin:$PATH make bundle",
             "cd var/api-specs && npx --yes @redocly/cli@latest bundle --config redocly.bundle.yaml dist/openapi.yaml --dereferenced --ext json -o ../../assets/acquia-v3-spec.json",
