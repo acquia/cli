@@ -102,6 +102,26 @@ services:
         accessTokenExpiry: '@=service("cloud.credentials").getCloudAccessTokenExpiry()'
       $baseUri: '@=service("cloud.credentials").getBaseUri()'
       $accountsUri: '@=service("cloud.credentials").getAccountsUri()'
+
+  # v3 (MEO) connector factory — same credentials as v2, different base URI
+  # (resolved via CloudCredentials::getV3BaseUri() → ACLI_CLOUD_API_V3_BASE_URI,
+  # falling back to the v2 URI so v3 commands keep working today).
+  cloud.v3.connector_factory:
+    class: Acquia\Cli\CloudApi\ConnectorFactory
+    arguments:
+      $config:
+        key: '@=service("cloud.credentials").getCloudKey()'
+        secret: '@=service("cloud.credentials").getCloudSecret()'
+        accessToken: '@=service("cloud.credentials").getCloudAccessToken()'
+        accessTokenExpiry: '@=service("cloud.credentials").getCloudAccessTokenExpiry()'
+      $baseUri: '@=service("cloud.credentials").getV3BaseUri()'
+      $accountsUri: '@=service("cloud.credentials").getAccountsUri()'
+
+  Acquia\Cli\CloudApi\V3ClientService:
+    arguments:
+      $connectorFactory: '@cloud.v3.connector_factory'
+      $application: '@Acquia\Cli\Application'
+      $credentials: '@cloud.credentials'
   AcquiaCloudApi\Connector\ConnectorInterface:
     alias: Acquia\Cli\CloudApi\ConnectorFactory
   AcquiaCloudApi\Connector\Connector:
