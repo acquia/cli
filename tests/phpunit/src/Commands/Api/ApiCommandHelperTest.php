@@ -216,6 +216,33 @@ class ApiCommandHelperTest extends CommandTestBase
     }
 
     /**
+     * Two-segment prefix (api:v3) must produce api:v3:{namespace} list commands,
+     * not api:v3:v3 (the bug caused by hardcoding $commandNameParts[1]).
+     */
+    public function testTwoSegmentPrefixProducesCorrectNamespaceListCommands(): void
+    {
+        $apiCommands = [
+            $this->createMockApiCommand('api:v3:environments:find', false),
+            $this->createMockApiCommand('api:v3:environments:list', false),
+        ];
+        $listCommands = $this->generateApiListCommands($apiCommands, 'api:v3');
+        $this->assertArrayHasKey('api:v3:environments', $listCommands);
+        $this->assertArrayNotHasKey('api:v3:v3', $listCommands, 'Prefix-depth bug: commandNameParts[1] was used instead of prefixDepth index.');
+    }
+
+    /**
+     * Commands with fewer parts than prefix+2 must be skipped with two-segment prefix.
+     */
+    public function testTwoSegmentPrefixSkipsShallowCommands(): void
+    {
+        $apiCommands = [
+            $this->createMockApiCommand('api:v3:environments', false),
+        ];
+        $listCommands = $this->generateApiListCommands($apiCommands, 'api:v3');
+        $this->assertEmpty($listCommands);
+    }
+
+    /**
      * Calls private or protected method of ApiCommandHelper class via reflection.
      *
      * @throws \ReflectionException
@@ -357,6 +384,31 @@ class ApiCommandHelperTest extends CommandTestBase
         $this->assertArrayHasKey('a:create', $manifest);
         $this->assertArrayHasKey('b:create', $manifest);
         $this->assertArrayNotHasKey('ide:create', $manifest);
+    }
+
+    /**
+     * Default v2 behavior: getCliCommandName reads the legacy x-cli-name key.
+     */
+    public function testGetCliCommandNameReturnsLegacyXCliNameValue(): void
+    {
+        $result = $this->invokeApiCommandHelperMethod(
+            'getCliCommandName',
+            [['x-cli-name' => 'applications:list']],
+        );
+        $this->assertSame('applications:list', $result);
+    }
+
+    /**
+     * Default v2 behavior: getCliCommandName returns null when x-cli-name is absent,
+     * so generateApiCommandsFromSpec skips the operation.
+     */
+    public function testGetCliCommandNameReturnsNullWhenLegacyKeyMissing(): void
+    {
+        $result = $this->invokeApiCommandHelperMethod(
+            'getCliCommandName',
+            [['summary' => 'No CLI name declared']],
+        );
+        $this->assertNull($result);
     }
 
     /**
