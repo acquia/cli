@@ -54,6 +54,7 @@ use AcquiaCloudApi\Response\SubscriptionResponse;
 use AcquiaLogstream\LogstreamManager;
 use ArrayObject;
 use Closure;
+use DateInterval;
 use Exception;
 use JsonException;
 use loophp\phposinfo\OsInfo;
@@ -64,6 +65,8 @@ use ReflectionClass;
 use Safe\Exceptions\FilesystemException;
 use SelfUpdate\SelfUpdateManager;
 use stdClass;
+use Symfony\Component\Cache\Adapter\FilesystemAdapter;
+use Symfony\Component\Cache\CacheItem;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\FormatterHelper;
 use Symfony\Component\Console\Helper\ProgressBar;
@@ -98,8 +101,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
     protected SymfonyStyle $io;
 
     protected FormatterHelper $formatter;
-
-    private ApplicationResponse $cloudApplication;
 
     protected string $siteId = "";
 
@@ -301,7 +302,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
             $exitCode === 0 && in_array($input->getFirstArgument(), [
                 'self-update',
                 'update',
-            ])
+            ], true)
         ) {
             // Exit immediately to avoid loading additional classes breaking updates.
             // @see https://github.com/acquia/cli/issues/218
@@ -309,9 +310,9 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
         }
         $eventProperties = [
             'app_version' => $this->getApplication()->getVersion(),
-            'arguments' => $input->getArguments(),
+            'arguments' => TelemetryHelper::redactSensitiveData($input->getArguments()),
             'exit_code' => $exitCode,
-            'options' => $input->getOptions(),
+            'options' => TelemetryHelper::redactSensitiveData($input->getOptions()),
             'os_name' => OsInfo::os(),
             'os_version' => OsInfo::version(),
             'platform' => OsInfo::family(),
@@ -558,7 +559,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
             // -h output numbers in a human-readable format.
             // -e specify the remote shell to use.
             '-avPhze',
-            'ssh -o StrictHostKeyChecking=no',
+            'ssh -o StrictHostKeyChecking=accept-new',
             $sourceDir . '/',
             $destinationDir,
         ];
@@ -1598,6 +1599,14 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
     }
 
     /**
+     * Return the cache used to throttle update checks.
+     */
+    public static function getUpdateCheckCache(): FilesystemAdapter
+    {
+        return new FilesystemAdapter('acli_update_check');
+    }
+
+    /**
      * @throws \Acquia\Cli\Exception\AcquiaCliException
      */
     private function doGetApplicationFromAlias(string $applicationAlias): mixed
@@ -1683,17 +1692,25 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
         if (AcquiaDrupalEnvironmentDetector::isAhIdeEnv()) {
             return false;
         }
-        if ($this->getApplication()->getVersion() === 'dev-unknown') {
+        $version = $this->getApplication()->getVersion();
+        if ($version === 'dev-unknown') {
             return false;
         }
-        try {
-            if (!$this->selfUpdateManager->isUpToDate()) {
-                return $this->selfUpdateManager->getLatestReleaseFromGithub()['tag_name'];
+        // Only hit the GitHub API once per day per installed version.
+        return self::getUpdateCheckCache()->get(
+            'latest-version.' . preg_replace('/[^A-Za-z0-9_.]/', '_', $version),
+            function (CacheItem $item): bool|string {
+                $item->expiresAfter(new DateInterval('P1D'));
+                try {
+                    if (!$this->selfUpdateManager->isUpToDate()) {
+                        return $this->selfUpdateManager->getLatestReleaseFromGithub()['tag_name'];
+                    }
+                } catch (Exception) {
+                    $this->logger->debug("Could not determine if Acquia CLI has a new version available.");
+                }
+                return false;
             }
-        } catch (Exception) {
-            $this->logger->debug("Could not determine if Acquia CLI has a new version available.");
-        }
-        return false;
+        );
     }
 
     /**

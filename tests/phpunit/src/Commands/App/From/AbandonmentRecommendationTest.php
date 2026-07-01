@@ -6,11 +6,10 @@ namespace Acquia\Cli\Tests\Commands\App\From;
 
 use Acquia\Cli\Command\App\From\Recommendation\AbandonmentRecommendation;
 use Acquia\Cli\Command\App\From\Recommendation\DefinedRecommendation;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @coversDefaultClass \Acquia\Cli\Command\App\From\Recommendation\AbandonmentRecommendation
- */
+#[CoversClass(AbandonmentRecommendation::class)]
 class AbandonmentRecommendationTest extends TestCase
 {
     private AbandonmentRecommendation $sut;
@@ -31,63 +30,42 @@ class AbandonmentRecommendationTest extends TestCase
         // phpcs:enable
     }
 
-    /**
-     * @covers ::getPackageName
-     */
     public function testPackageName(): void
     {
         $this->expectException(\LogicException::class);
         $this->sut->getPackageName();
     }
 
-    /**
-     * @covers ::getVersionConstraint
-     */
     public function testVersionConstraint(): void
     {
         $this->expectException(\LogicException::class);
         $this->sut->getVersionConstraint();
     }
 
-    /**
-     * @covers ::hasModulesToInstall
-     */
     public function testHasModulesToInstall(): void
     {
         $this->expectException(\LogicException::class);
         $this->sut->hasModulesToInstall();
     }
 
-    /**
-     * @covers ::getModulesToInstall
-     */
     public function testGetModulesToInstall(): void
     {
         $this->expectException(\LogicException::class);
         $this->sut->getModulesToInstall();
     }
 
-    /**
-     * @covers ::hasPatches
-     */
     public function testHasPatches(): void
     {
         $this->expectException(\LogicException::class);
         $this->sut->hasPatches();
     }
 
-    /**
-     * @covers ::isVetted
-     */
     public function testIsVetted(): void
     {
         $this->expectException(\LogicException::class);
         $this->sut->isVetted();
     }
 
-    /**
-     * @covers ::getPatches
-     */
     public function testGetPatches(): void
     {
         $this->expectException(\LogicException::class);

@@ -7,6 +7,7 @@ namespace Acquia\Cli\Tests\Commands\Ide;
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Command\Ide\IdeOpenCommand;
 use Acquia\Cli\Tests\CommandTestBase;
+use PHPUnit\Framework\Attributes\Group;
 
 /**
  * @property IdeOpenCommand $command
@@ -18,9 +19,7 @@ class IdeOpenCommandTest extends CommandTestBase
         return $this->injectCommand(IdeOpenCommand::class);
     }
 
-    /**
-     * @group brokenProphecy
-     */
+    #[Group('brokenProphecy')]
     public function testIdeOpenCommand(): void
     {
         $applications = $this->mockRequest('getApplications');

@@ -1,0 +1,29 @@
+name: Feature request
+description: Suggest a new feature or improvement for Acquia CLI.
+labels: [enhancement]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for suggesting an improvement! If you'd like to discuss an idea with other Acquia CLI users first, consider the [discussions section](https://github.com/acquia/cli/discussions).
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem statement
+      description: What problem are you trying to solve? What is currently difficult or impossible to do?
+    validations:
+      required: true
+  - type: textarea
+    id: proposed-solution
+    attributes:
+      label: Proposed solution
+      description: How would you like Acquia CLI to solve this? Include example commands or output if helpful.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Any workarounds or alternative solutions you've considered.
+    validations:
+      required: false

@@ -144,7 +144,7 @@ class PushFilesCommandTest extends CommandTestBase
         $command = [
             'rsync',
             '-avPhze',
-            'ssh -o StrictHostKeyChecking=no',
+            'ssh -o StrictHostKeyChecking=accept-new',
             $this->projectDir . '/docroot/sites/default/files/',
             $environment->ssh_url . ':/mnt/files/' . $sitegroup . '.' . $environment->name . '/sites/default/files',
         ];
@@ -163,7 +163,7 @@ class PushFilesCommandTest extends CommandTestBase
         $command = [
             'rsync',
             '-avPhze',
-            'ssh -o StrictHostKeyChecking=no',
+            'ssh -o StrictHostKeyChecking=accept-new',
             $this->projectDir . '/docroot/sites/' . $site . '/files/',
             'profserv2.01dev@profserv201dev.ssh.enterprise-g1.acquia-sites.com:/mnt/files/profserv2.01dev/sites/g/files/' . $site . '/files',
         ];

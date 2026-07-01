@@ -10,6 +10,7 @@ use Acquia\Cli\Command\App\From\Recommendation\NoRecommendation;
 use Acquia\Cli\Command\App\From\Recommendation\RecommendationInterface;
 use Acquia\Cli\Command\App\From\Recommendation\UniversalRecommendation;
 use Acquia\Cli\Command\App\From\SourceSite\ExtensionInterface;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Prophecy\PhpUnit\ProphecyTrait;
 
@@ -17,9 +18,7 @@ class DefinedRecommendationTest extends TestCase
 {
     use ProphecyTrait;
 
-    /**
-     * @dataProvider getTestConfigurations
-     */
+    #[DataProvider('getTestConfigurations')]
     public function test(mixed $configuration, RecommendationInterface $expected): void
     {
         $actual = DefinedRecommendation::createFromDefinition($configuration);

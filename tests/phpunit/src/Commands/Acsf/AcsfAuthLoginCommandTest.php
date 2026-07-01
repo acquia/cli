@@ -9,6 +9,8 @@ use Acquia\Cli\Command\Auth\AuthAcsfLoginCommand;
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Config\CloudDataConfig;
 use Acquia\Cli\DataStore\CloudDataStore;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\RequiresOperatingSystem;
 use Symfony\Component\Validator\Exception\ValidatorException;
 
 /**
@@ -120,10 +122,8 @@ class AcsfAuthLoginCommandTest extends AcsfCommandTestBase
         ];
     }
 
-    /**
-     * @dataProvider providerTestAuthLoginCommand
-     * @requires OS linux|darwin
-     */
+    #[DataProvider('providerTestAuthLoginCommand')]
+    #[RequiresOperatingSystem('linux|darwin')]
     public function testAcsfAuthLoginCommand(bool $machineIsAuthenticated, array $inputs, array $args, string $outputToAssert, array $config = []): void
     {
         if (!$machineIsAuthenticated) {
@@ -167,9 +167,9 @@ class AcsfAuthLoginCommandTest extends AcsfCommandTestBase
     }
 
     /**
-     * @dataProvider providerTestAcsfAuthLoginInvalid
      * @throws \Exception
      */
+    #[DataProvider('providerTestAcsfAuthLoginInvalid')]
     public function testAcsfAuthLoginInvalid(array $args, string $message): void
     {
         $this->clientServiceProphecy->isMachineAuthenticated()
@@ -198,9 +198,9 @@ class AcsfAuthLoginCommandTest extends AcsfCommandTestBase
     }
 
     /**
-     * @dataProvider providerTestAcsfAuthLoginInvalidInput
      * @throws \JsonException
      */
+    #[DataProvider('providerTestAcsfAuthLoginInvalidInput')]
     public function testAcsfAuthLoginInvalidInput(array $input): void
     {
         $this->removeMockCloudConfigFile();

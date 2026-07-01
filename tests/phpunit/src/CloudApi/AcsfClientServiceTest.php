@@ -11,6 +11,7 @@ use Acquia\Cli\DataStore\CloudDataStore;
 use Acquia\Cli\Tests\TestBase;
 use AcquiaCloudApi\Exception\ApiErrorException;
 use GuzzleHttp\Psr7\Response;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 class AcsfClientServiceTest extends TestBase
 {
@@ -43,9 +44,7 @@ class AcsfClientServiceTest extends TestBase
         ];
     }
 
-    /**
-     * @dataProvider providerTestIsMachineAuthenticated
-     */
+    #[DataProvider('providerTestIsMachineAuthenticated')]
     public function testIsMachineAuthenticated(array $envVars, bool $isAuthenticated): void
     {
         self::setEnvVars($envVars);

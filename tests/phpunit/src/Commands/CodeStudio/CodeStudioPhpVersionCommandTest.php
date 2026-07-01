@@ -9,6 +9,8 @@ use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Tests\CommandTestBase;
 use Gitlab\Client;
 use Gitlab\Exception\RuntimeException;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use Prophecy\Argument;
 use Symfony\Component\Validator\Exception\ValidatorException;
 
@@ -45,9 +47,8 @@ class CodeStudioPhpVersionCommandTest extends CommandTestBase
 
     /**
      * Test for the wrong PHP version passed as argument.
-     *
-     * @dataProvider providerTestPhpVersionFailure
      */
+    #[DataProvider('providerTestPhpVersionFailure')]
     public function testPhpVersionFailure(mixed $phpVersion): void
     {
         $this->expectException(ValidatorException::class);
@@ -120,9 +121,7 @@ class CodeStudioPhpVersionCommandTest extends CommandTestBase
         $this->assertStringContainsString('Unable to update the PHP version to 8.1', $output);
     }
 
-    /**
-     * @group brokenProphecy
-     */
+    #[Group('brokenProphecy')]
     public function testPhpVersionAdd(): void
     {
         $this->mockApplicationRequest();
@@ -196,9 +195,7 @@ class CodeStudioPhpVersionCommandTest extends CommandTestBase
         $this->assertStringContainsString('Unable to update the PHP version to 8.1', $output);
     }
 
-    /**
-     * @group brokenProphecy
-     */
+    #[Group('brokenProphecy')]
     public function testPhpVersionUpdate(): void
     {
         $this->mockApplicationRequest();

@@ -8,6 +8,7 @@ use Acquia\Cli\Command\App\From\Configuration;
 use DomainException;
 use Exception;
 use JsonException;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Prophecy\PhpUnit\ProphecyTrait;
 
@@ -20,8 +21,8 @@ class ConfigurationTest extends TestCase
     /**
      * @param string $configuration
      *   A JSON string from which to create a configuration object.
-     * @dataProvider getTestConfigurations
      */
+    #[DataProvider('getTestConfigurations')]
     public function test(string $configuration, Exception $expected_exception): void
     {
         $test_stream = fopen('php://memory', 'rw');

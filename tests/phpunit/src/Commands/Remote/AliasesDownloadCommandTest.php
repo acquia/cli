@@ -11,6 +11,8 @@ use Acquia\Cli\Tests\CommandTestBase;
 use GuzzleHttp\Psr7\Utils;
 use Phar;
 use PharData;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\RequiresOperatingSystem;
 use Symfony\Component\Filesystem\Path;
 
 /**
@@ -47,8 +49,8 @@ class AliasesDownloadCommandTest extends CommandTestBase
 
     /**
      * @param bool $all Download aliases for all applications.
-     * @dataProvider providerTestRemoteAliasesDownloadCommand
      */
+    #[DataProvider('providerTestRemoteAliasesDownloadCommand')]
     public function testRemoteAliasesDownloadCommand(array $inputs, array $args, ?string $destinationDir = null, bool $all = false): void
     {
         $aliasVersion = $inputs[0];
@@ -91,9 +93,7 @@ class AliasesDownloadCommandTest extends CommandTestBase
         $this->assertStringContainsString('Cloud Platform Drush aliases installed into ' . $destinationDir, $output);
     }
 
-    /**
-     * @requires OS linux|darwin
-     */
+    #[RequiresOperatingSystem('linux|darwin')]
     public function testRemoteAliasesDownloadFailed(): void
     {
         $drushAliasesFixture = Path::canonicalize(__DIR__ . '/../../../../fixtures/drush-aliases');
@@ -107,12 +107,13 @@ class AliasesDownloadCommandTest extends CommandTestBase
         $this->clientProphecy->stream('get', '/account/drush-aliases/download')
             ->willReturn($stream);
 
+        $drushArchiveFilepath = $this->command->getDrushArchiveTempFilepath();
         $destinationDir = Path::join($this->acliRepoRoot, 'drush');
         $sitesDir = Path::join($destinationDir, 'sites');
         mkdir($sitesDir, 0777, true);
         chmod($sitesDir, 000);
         $this->expectException(AcquiaCliException::class);
-        $this->expectExceptionMessage("Could not extract aliases to $destinationDir");
+        $this->expectExceptionMessage("Failed to extract aliases archive at $drushArchiveFilepath:");
         $this->executeCommand([
             '--all' => true,
             '--destination-dir' => $destinationDir,

@@ -14,7 +14,10 @@
     "mutators": {
         "@default": true,
         "global-ignoreSourceCodeByRegex": [
-            "\\$this->logger.*"
+            "\\$this->logger.*",
+            // Cache TTLs only affect expiry timing, which is not observable in a
+            // unit test without manipulating the clock.
+            ".*->expiresAfter\\(.*"
         ]
     },
     "timeout": 30,

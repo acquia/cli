@@ -15,6 +15,7 @@ use AcquiaCloudApi\Response\SiteInstanceDatabaseBackupResponse;
 use AcquiaCloudApi\Response\SiteInstanceDatabaseConnectionResponse;
 use AcquiaCloudApi\Response\SiteInstanceDatabaseResponse;
 use GuzzleHttp\Client;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
 use Symfony\Component\Console\Output\BufferedOutput;
@@ -339,9 +340,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase
         ], self::inputChooseEnvironment());
     }
 
-    /**
-     * @dataProvider providerTestPullDatabaseWithInvalidSslCertificate
-     */
+    #[DataProvider('providerTestPullDatabaseWithInvalidSslCertificate')]
     public function testPullDatabaseWithInvalidSslCertificate(int $errorCode): void
     {
         $this->setupPullDatabase(true, false, false, true, false, $errorCode);
@@ -426,8 +425,9 @@ class PullDatabaseCommandTest extends PullCommandTestBase
         PullCommandBase::displayDownloadProgress(100, 0, $progress, $output);
         $this->assertStringContainsString('0/100 [💧---------------------------]   0%', $output->fetch());
 
-        // Need to sleep to prevent the default redraw frequency from skipping display.
-        sleep(1);
+        // Disable time-based redraw throttling so subsequent progress updates
+        // are always displayed, deterministically.
+        $progress->minSecondsBetweenRedraws(0);
         PullCommandBase::displayDownloadProgress(100, 50, $progress, $output);
         $this->assertStringContainsString('50/100 [==============💧-------------]  50%', $output->fetch());
 

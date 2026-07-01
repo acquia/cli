@@ -7,6 +7,7 @@ namespace Acquia\Cli\Tests\Commands\Ide;
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Command\Ide\IdeXdebugToggleCommand;
 use Acquia\Cli\Tests\CommandTestBase;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Component\Process\Process;
 
 /**
@@ -55,9 +56,7 @@ class IdeXdebugToggleCommandTest extends CommandTestBase
         ];
     }
 
-    /**
-     * @dataProvider providerTestXdebugCommandEnable
-     */
+    #[DataProvider('providerTestXdebugCommandEnable')]
     public function testXdebugCommandEnable(mixed $phpVersion): void
     {
         $this->setUpXdebug($phpVersion);
@@ -69,9 +68,7 @@ class IdeXdebugToggleCommandTest extends CommandTestBase
         $this->assertStringContainsString("Xdebug PHP extension enabled", $this->getDisplay());
     }
 
-    /**
-     * @dataProvider providerTestXdebugCommandEnable
-     */
+    #[DataProvider('providerTestXdebugCommandEnable')]
     public function testXdebugCommandDisable(mixed $phpVersion): void
     {
         $this->setUpXdebug($phpVersion);
