@@ -156,6 +156,41 @@ class ApiCommandHelperTest extends CommandTestBase
     }
 
     /**
+     * Per-path servers take priority over top-level servers when both are present.
+     */
+    public function testPerPathServersTakePriorityOverTopLevelServers(): void
+    {
+        $spec = [
+            'paths' => [
+                '/test/endpoint' => [
+                    'get' => [
+                        'responses' => ['200' => ['description' => 'OK']],
+                        'summary' => 'Test endpoint',
+                        'x-cli-name' => 'test:endpoint-get',
+                    ],
+                    'servers' => [
+                        ['url' => 'https://per-path.example.com', 'description' => 'Per-path server'],
+                    ],
+                ],
+            ],
+            'servers' => [
+                ['url' => 'https://top-level.example.com', 'description' => 'Top-level server'],
+            ],
+        ];
+
+        $helper = new ApiCommandHelper($this->logger);
+        $ref = new ReflectionMethod(ApiCommandHelper::class, 'generateApiCommandsFromSpec');
+        $commands = $ref->invoke($helper, $spec, 'api', $this->getCommandFactory());
+
+        $this->assertCount(1, $commands);
+        $prop = new ReflectionProperty($commands[0], 'servers');
+        $this->assertSame(
+            [['url' => 'https://per-path.example.com', 'description' => 'Per-path server']],
+            $prop->getValue($commands[0])
+        );
+    }
+
+    /**
      * Top-level servers are used as fallback when a path has no per-path servers (old spec format).
      */
     public function testTopLevelServersFallbackWhenNoPerPathServers(): void
