@@ -396,8 +396,9 @@ class ApiCommandHelper
                 $command->setHidden(
                     self::isDeprecated($schema) || self::isPreRelease($schema)
                 );
-                if (array_key_exists('servers', $acquiaCloudSpec)) {
-                    $command->setServers($acquiaCloudSpec['servers']);
+                $servers = $endpoint['servers'] ?? $acquiaCloudSpec['servers'] ?? [];
+                if ($servers !== []) {
+                    $command->setServers($servers);
                 }
                 $command->setPath($path);
 

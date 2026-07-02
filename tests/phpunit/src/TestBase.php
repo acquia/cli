@@ -319,6 +319,9 @@ abstract class TestBase extends TestCase
         $acquiaCloudSpec = self::getCloudApiSpec();
         foreach ($acquiaCloudSpec['paths'] as $path => $methodEndpoint) {
             foreach ($methodEndpoint as $method => $endpoint) {
+                if (!is_array($endpoint) || !array_key_exists('operationId', $endpoint)) {
+                    continue;
+                }
                 if ($endpoint['operationId'] === $operationId) {
                     foreach ($endpoint['responses'] as $code => $response) {
                         if ($code >= 200 && $code < 300) {
