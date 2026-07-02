@@ -9,6 +9,7 @@ use Acquia\Cli\Command\Api\ApiListCommand;
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Tests\CommandTestBase;
 use ReflectionMethod;
+use ReflectionProperty;
 use Symfony\Component\Console\Command\Command;
 
 /**
@@ -120,6 +121,101 @@ class ApiCommandHelperTest extends CommandTestBase
         $commandHelper = new ApiCommandHelper($this->logger);
         $refClass = new ReflectionMethod($commandHelper::class, $methodName);
         return $refClass->invokeArgs($commandHelper, $args);
+    }
+
+    /**
+     * Per-path servers are used when there are no top-level servers (new cx-api-spec format).
+     */
+    public function testPerPathServersUsedWhenNoTopLevelServers(): void
+    {
+        $spec = [
+            'paths' => [
+                '/test/endpoint' => [
+                    'get' => [
+                        'responses' => ['200' => ['description' => 'OK']],
+                        'summary' => 'Test endpoint',
+                        'x-cli-name' => 'test:endpoint-get',
+                    ],
+                    'servers' => [
+                        ['url' => 'https://cloud.acquia.com/api', 'description' => 'Cloud API'],
+                    ],
+                ],
+            ],
+        ];
+
+        $helper = new ApiCommandHelper($this->logger);
+        $ref = new ReflectionMethod(ApiCommandHelper::class, 'generateApiCommandsFromSpec');
+        $commands = $ref->invoke($helper, $spec, 'api', $this->getCommandFactory());
+
+        $this->assertCount(1, $commands);
+        $prop = new ReflectionProperty($commands[0], 'servers');
+        $this->assertSame(
+            [['url' => 'https://cloud.acquia.com/api', 'description' => 'Cloud API']],
+            $prop->getValue($commands[0])
+        );
+    }
+
+    /**
+     * Top-level servers are used as fallback when a path has no per-path servers (old spec format).
+     */
+    public function testTopLevelServersFallbackWhenNoPerPathServers(): void
+    {
+        $spec = [
+            'paths' => [
+                '/test/endpoint' => [
+                    'get' => [
+                        'responses' => ['200' => ['description' => 'OK']],
+                        'summary' => 'Test endpoint',
+                        'x-cli-name' => 'test:endpoint-get',
+                    ],
+                ],
+            ],
+            'servers' => [
+                ['url' => 'https://cloud.acquia.com/api', 'description' => 'Cloud API'],
+            ],
+        ];
+
+        $helper = new ApiCommandHelper($this->logger);
+        $ref = new ReflectionMethod(ApiCommandHelper::class, 'generateApiCommandsFromSpec');
+        $commands = $ref->invoke($helper, $spec, 'api', $this->getCommandFactory());
+
+        $this->assertCount(1, $commands);
+        $prop = new ReflectionProperty($commands[0], 'servers');
+        $this->assertSame(
+            [['url' => 'https://cloud.acquia.com/api', 'description' => 'Cloud API']],
+            $prop->getValue($commands[0])
+        );
+    }
+
+    /**
+     * setServers must NOT be called when neither top-level nor per-path servers exist.
+     * Kills mutations that remove the `if ($servers !== [])` guard (MethodCallRemoval,
+     * NotIdentical→Identical, etc.) — those would call setServers([]) and initialize the property.
+     */
+    public function testServersNotSetWhenNoServersDefinedAnywhere(): void
+    {
+        $spec = [
+            'paths' => [
+                '/test/endpoint' => [
+                    'get' => [
+                        'responses' => ['200' => ['description' => 'OK']],
+                        'summary' => 'Test endpoint',
+                        'x-cli-name' => 'test:endpoint-get',
+                    ],
+                ],
+            ],
+        ];
+
+        $helper = new ApiCommandHelper($this->logger);
+        $ref = new ReflectionMethod(ApiCommandHelper::class, 'generateApiCommandsFromSpec');
+        $commands = $ref->invoke($helper, $spec, 'api', $this->getCommandFactory());
+
+        $this->assertCount(1, $commands);
+        $prop = new ReflectionProperty($commands[0], 'servers');
+        $this->assertFalse(
+            $prop->isInitialized($commands[0]),
+            'servers property must remain uninitialized when no servers are defined'
+        );
     }
 
     /**

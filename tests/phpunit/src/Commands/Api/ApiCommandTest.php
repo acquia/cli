@@ -31,6 +31,32 @@ class ApiCommandTest extends CommandTestBase
         return $this->injectCommand(ApiBaseCommand::class);
     }
 
+    public function testTrustedProxiesCommandExecutesHttpGet(): void
+    {
+        $environmentId = '24-a47ac10b-58cc-4372-a567-0e02b2c3d470';
+        $this->clientProphecy->addOption('headers', ['Accept' => 'application/hal+json, version=2'])
+            ->shouldBeCalled();
+        $mockBody = self::getMockResponseFromSpec(
+            '/environments/{environmentId}/trusted-proxies',
+            'get',
+            '200'
+        );
+        $this->clientProphecy->request('get', '/environments/' . $environmentId . '/trusted-proxies')
+            ->willReturn($mockBody)
+            ->shouldBeCalled();
+
+        $this->command = $this->getApiCommandByName('api:environments:trusted-proxies');
+        $this->executeCommand(['environmentId' => $environmentId]);
+
+        $output = $this->getDisplay();
+        $this->assertJson($output);
+        $decoded = json_decode($output, true);
+        $this->assertArrayHasKey('is_enabled', $decoded);
+        $this->assertTrue($decoded['is_enabled']);
+        $this->assertArrayHasKey('addresses', $decoded);
+        $this->assertEquals(0, $this->getStatusCode());
+    }
+
     public function testTaskWait(): void
     {
         $environmentId = '24-a47ac10b-58cc-4372-a567-0e02b2c3d470';
