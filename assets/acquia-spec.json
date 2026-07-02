@@ -7,23 +7,13 @@
       "backgroundColor": "#FFFFFF",
       "altText": "Acquia Cloud"
     },
-    "description": "Acquia Cloud API\n\n# Compatibility\n\n## Stability\n\nThe response for all resource endpoints includes an `X-CloudAPI-Stability` header that indicates what changes, if any, Acquia will make to the resource and how changes will be communicated.\n\nThere are three levels of stability:\n\n* `prototype`: A prototype resource is experimental and major changes are likely. A prototype resource may not reach production.\n    * Compatible and emergency changes may be made with no advance notice\n    * Disruptive changes may be made with one week notice\n    * Deprecated resources will remain available for at least one month after deprecation\n* `development`: A resource that is unlikely to change, but is still being worked on, will be marked as in development. These resources are very likely to reach production.\n    * Compatible and emergency changes may be made with no advance notice\n    * Disruptive changes may be made with one month notice\n    * Deprecated resources will remain available for at least six months after deprecation\n* `production`: A production resource will not introduce breaking changes within a version, and any breaking changes between versions will be communicated ahead of time.\n\n## Deprecation\n\nOver time, endpoints may become obsolete and will be removed in the future. These endpoints will be marked with an `X-CloudAPI-Deprecated` header indicating the version in which they were deprecated and the reason for the deprecation. Deprecated endpoints may be removed in the next version of the resource.\n\n## Versioning\n\nAll resource endpoints are versioned within the API. Endpoints that have reached production will not introduce breaking changes between versions. Non-production endpoints will not version for changes.\n\nA specific version of an endpoint can be requested via the `Accept` header:\n\n    Accept: application/hal+json, version=2\n\nIf the version is not specified, the latest version of the endpoint will be used.\n\nStarting with version 3, we will support the current version of an endpoint and the previous version. Version 1 of the API is [provided elsewhere](https://cloudapi.acquia.com/).\n\n## Errors\n\nSome endpoints will return a 503 status when dependent services are unavailable:\n\n    application/hal+json\n    {\n        \"error\": \"system\",\n        \"message\": \"This action is currently unavailable. Please try again later.\"\n    }\n\n## Authentication\n\nAll Acquia Cloud API calls require authentication to work properly.\n\nLearn more: <a href='https://docs.acquia.com/acquia-cloud/develop/api/auth/' target='_blank'>https://docs.acquia.com/acquia-cloud/develop/api/auth/</a>\n\n### Example implementation\n\nAn example PHP script for making authenticated API requests can be found <a href='https://docs.acquia.com/_downloads/9d4e27bf51dfa0d208e97e0ffcb119c9/api-v2-auth.php' target='_blank'>here</a>. This script uses the <a href='https://oauth2-client.thephpleague.com/' target='_blank'>League/oauth2-client</a> library, installed via Composer.\n",
+    "description": "Acquia Cloud API\n\n# Compatibility\n\n## Stability\n\nThe response for all resource endpoints includes an `X-CloudAPI-Stability` header that indicates what changes, if any, Acquia will make to the resource and how changes will be communicated.\n\nThere are three levels of stability:\n\n* `prototype`: A prototype resource is experimental and major changes are likely. A prototype resource may not reach production.\n    * Compatible and emergency changes may be made with no advance notice\n    * Disruptive changes may be made with one week notice\n    * Deprecated resources will remain available for at least one month after deprecation\n* `development`: A resource that is unlikely to change, but is still being worked on, will be marked as in development. These resources are very likely to reach production.\n    * Compatible and emergency changes may be made with no advance notice\n    * Disruptive changes may be made with one month notice\n    * Deprecated resources will remain available for at least six months after deprecation\n* `production`: A production resource will not introduce breaking changes within a version, and any breaking changes between versions will be communicated ahead of time.\n\n## Deprecation\n\nOver time, endpoints may become obsolete and will be removed in the future. These endpoints will be marked with an `X-CloudAPI-Deprecated` header indicating the version in which they were deprecated and the reason for the deprecation. Deprecated endpoints may be removed in the next version of the resource.\n\n## Versioning\n\nAll resource endpoints are versioned within the API. Endpoints that have reached production will not introduce breaking changes between versions. Non-production endpoints will not version for changes.\n\nA specific version of an endpoint can be requested via the `Accept` header:\n\n    Accept: application/hal+json, version=2\n\nIf the version is not specified, the latest version of the endpoint will be used.\n\nStarting with version 3, we will support the current version of an endpoint and the previous version. Version 1 of the API is [provided elsewhere](https://cloudapi.acquia.com/).\n\n## Errors\n\nSome endpoints will return a 503 status when dependent services are unavailable:\n\n    application/hal+json\n    {\n        \"error\": \"system\",\n        \"message\": \"This action is currently unavailable. Please try again later.\"\n    }\n\n## Authentication\n\nAll Acquia Cloud API calls require authentication to work properly.\n\nLearn more: <a href='https://docs.acquia.com/acquia-cloud/develop/api/auth/' target='_blank'>https://docs.acquia.com/acquia-cloud/develop/api/auth/</a>\n\n### Example implementation\n\nAn example PHP script for making authenticated API requests can be found <a href='https://docs.acquia.com/resources/useful-references' target='_blank'>here</a>. This script uses the <a href='https://oauth2-client.thephpleague.com/' target='_blank'>League/oauth2-client</a> library, installed via Composer.\n",
     "version": "2.0.0",
     "contact": {
       "name": "Customer Experience Engineering (CXE)",
       "url": "https://www.acquia.com"
     }
   },
-  "servers": [
-    {
-      "url": "https://cloud.acquia.com/api",
-      "description": "Cloud API"
-    },
-    {
-      "url": "/",
-      "description": ""
-    }
-  ],
   "tags": [
     {
       "name": "Current system health",
@@ -105,6 +95,12 @@
   ],
   "paths": {
     "/": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Current system health"
@@ -162,6 +158,12 @@
       }
     },
     "/account": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Account"
@@ -185,7 +187,7 @@
                   "first_name": "Jane",
                   "last_name": "Doe",
                   "last_login_at": "2017-03-28T13:07:54-0500",
-                  "created_at": "2016-07-17T20:35:25.000Z",
+                  "created_at": "2016-07-17T20:35:25+00:00",
                   "mail": "jane.doe@example.com",
                   "phone": {
                     "office": null,
@@ -273,6 +275,12 @@
       }
     },
     "/account/applications/{applicationUuid}/has-permission": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Account"
@@ -362,6 +370,12 @@
       }
     },
     "/account/applications/{applicationUuid}/is-admin": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Account"
@@ -442,6 +456,12 @@
       }
     },
     "/account/applications/{applicationUuid}/is-owner": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Account"
@@ -504,6 +524,12 @@
       }
     },
     "/account/applications/{applicationUuid}/actions/mark-recent": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "post": {
         "tags": [
           "Account"
@@ -580,6 +606,12 @@
       }
     },
     "/account/applications/{applicationUuid}/actions/star": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "post": {
         "tags": [
           "Account"
@@ -662,6 +694,12 @@
       }
     },
     "/account/applications/{applicationUuid}/actions/unstar": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "post": {
         "tags": [
           "Account"
@@ -744,6 +782,12 @@
       }
     },
     "/account/drush-aliases/download": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Account"
@@ -826,6 +870,12 @@
       }
     },
     "/account/ides": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Account"
@@ -920,6 +970,12 @@
       }
     },
     "/account/invites": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Account"
@@ -1004,7 +1060,7 @@
                         },
                         "uuid": "eb947b2c-2fe0-11e9-b210-d663bd873d93",
                         "email": "invitee@example.com",
-                        "created_at": "2012-05-15T12:00:00.000Z",
+                        "created_at": "2012-05-15T12:00:00Z",
                         "token": "dd9ea69fdcb6bee08b31a858b85535ec",
                         "flags": {
                           "declined": false
@@ -1033,7 +1089,7 @@
                         },
                         "uuid": "0540f4ba-2fe1-11e9-b210-d663bd873d93",
                         "email": "invitee@example.com",
-                        "created_at": "2012-05-15T12:00:00.000Z",
+                        "created_at": "2012-05-15T12:00:00Z",
                         "token": "dd9ea69fdcb6bee08b31a858b85535ec",
                         "flags": {
                           "declined": false
@@ -1075,6 +1131,12 @@
       }
     },
     "/account/messages": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Account"
@@ -1166,8 +1228,8 @@
                           "active": true
                         },
                         "weight": -1,
-                        "start_at": "2019-07-07T13:45:00.000Z",
-                        "expire_at": "2019-07-15T13:45:00.000Z",
+                        "start_at": "2019-07-07T09:45:00-04:00",
+                        "expire_at": "2019-07-15T09:45:00-04:00",
                         "_links": {
                           "self": {
                             "href": "https://cloud.acquia.com/api/messages/17ff551f-a037-4c0a-a0cb-ad6616ab3aa2"
@@ -1197,8 +1259,8 @@
                           "active": true
                         },
                         "weight": -1,
-                        "start_at": "2019-07-07T13:45:00.000Z",
-                        "expire_at": "2019-07-15T13:45:00.000Z",
+                        "start_at": "2019-07-07T09:45:00-04:00",
+                        "expire_at": "2019-07-15T09:45:00-04:00",
                         "_links": {
                           "self": {
                             "href": "https://cloud.acquia.com/api/messages/17ff551f-a037-4c0a-a0cb-ad6616ab3aa2"
@@ -1239,6 +1301,12 @@
       }
     },
     "/account/organizations/{organizationUuid}/is-admin": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Account"
@@ -1319,6 +1387,12 @@
       }
     },
     "/account/organizations/{organizationUuid}/is-owner": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Account"
@@ -1381,6 +1455,12 @@
       }
     },
     "/account/password": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "post": {
         "tags": [
           "Account"
@@ -1433,6 +1513,12 @@
       }
     },
     "/account/ssh-keys": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Account"
@@ -1502,7 +1588,7 @@
                         "uuid": "02905393-65d7-4bef-873b-24593f73d273",
                         "label": "PC Home",
                         "fingerprint": "5d:23:fb:45:70:df:ef:ad:ca:bf:81:93:cd:50:26:28",
-                        "created_at": "2017-05-09T20:30:35.000Z",
+                        "created_at": "2017-05-09T20:30:35+00:00",
                         "public_key": "ssh-rsa AAAAB3NzaC1yc2EADHrfHY17SbrmAAABIwAAAQEAklOUpkTIpNLTGK9Tjom/BWDSUGPl+nafzlZ5ew18JH4JW9jbhUFrviQzM7xlELEVf4h9lFX5HDTYW7hdI4yQVkbPppSwg0cda3Pbv7kOdJ/MTyBlWXFCR+HAo3FXRitBqxiX1nKhXpHAZsMciLq8V6RjsNAQwdsdMFvSlVK/7XAt3FaoJoAsncM1Q9x5+3V0Ww68/eIFmb1zuUFljQJKprrX88XypNDvjYNby6vw/Pb0rwert/EnmZ+AW4OZPnTPI89ZPmVMLuayrD2cE86Z/il8b+gw3r3+1nKatmIkjn2so1d01QraTlMqVSsbxNrRFi9wrf+M7Q== example@example.com",
                         "_links": {
                           "self": {
@@ -1514,7 +1600,7 @@
                         "uuid": "d40833b3-6ea4-4339-9e2c-4b78e700258b",
                         "label": "Laptop Work",
                         "fingerprint": "5b:18:fb:50:55:df:cf:d5:bf:ea:81:23:ef:55:22:29",
-                        "created_at": "2017-05-09T20:30:35.000Z",
+                        "created_at": "2017-05-09T20:30:35+00:00",
                         "public_key": "ssh-rsa 1yc2EAAAABIwbrmTIpNLTGK9Tjom/BWDSUGPl+nafzlHDAAAQEAklOUpkDHrfHY17STYW7hdI4yZ5ew18JH4JW9jbhUFrviQzM7xlELEVf4pSwg0cda3PbAAAAB3NzaCv7kOdJ/MTyBlWXFCRh9lFX5QVkbPp+HAo3FXRitBqxiX1nKhXpHAZsMciLq8V6RjsNAQwdsdMFvSlVK/7XAt3FaoJoAsncM1Q9x5+3V0Ww68/eIFmb1zuUFljQJKprrX88XypNDvjYNby6vw/Pb0rwert/EnmZ+AW4OZPnTPI89ZPmVMLuayrD2cE86Z/il8b+gw3r3+1nKatmIkjn2so1d01QraTlMqVSsbxNrRFi9wrf+M7Q== example@example.com",
                         "_links": {
                           "self": {
@@ -1526,7 +1612,7 @@
                         "uuid": "c40ee264-0023-4f60-815b-d20b44740746",
                         "label": "PC Work",
                         "fingerprint": "7c:s3:ab:30:40:da:cf:c5:bf:ca:31:33:ed:58:23:21",
-                        "created_at": "2017-05-09T20:30:35.000Z",
+                        "created_at": "2017-05-09T20:30:35+00:00",
                         "public_key": "ssh-rsa A1yc2EAAAlOUpkDHrfHY17SbrmTIAAAB3NzaCom/BWDSUGPl+nafzlHDTYW7hdI4yQVkbPppSwg0cda3ABIwAAAQEAkPZ5ew18JH4JW9jbhUFrviQzM7xlELEVf4h9lFX5bv7kOdJ/MTyBlWXFCR+HAo3FXRitBqxiX1nKhXpHAZsMciLq8V6RjsNAQwdsdMFvSlVK/7XAt3FaoJoAsncM1Q9x5+3V0Ww68/eIFmb1zuUFljQJKprrX88XypNDvjYNby6vw/Pb0rwert/EnmZ+AW4OZPnTPI89ZPmVMLuayrD2cE86Z/il8b+gw3r3+1nKatmIkjn2so1d01QraTlMqVSsbxNrRFi9wrf+M7Q== example@example.com",
                         "_links": {
                           "self": {
@@ -1711,6 +1797,12 @@
       }
     },
     "/account/ssh-keys/{sshKeyUuid}": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Account"
@@ -1741,7 +1833,7 @@
                   "uuid": "b2a53dfb-f4e2-4543-814d-7a9aa3793746",
                   "label": "PC Home",
                   "fingerprint": "8d:13:fb:50:50:da:cf:c5:bf:ca:31:33:ed:51:27:24",
-                  "created_at": "2017-05-09T20:30:35.000Z",
+                  "created_at": "2017-05-09T20:30:35+00:00",
                   "public_key": "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQChwPHzTTDKDpSbpa2+d22LcbQmsw92eLsUK3Fmei1fiGDkd34NsYCN8m7lsi3NbvdMS83CtPQPWiCveYPzFs1/hHc4PYj8opD2CNnr5iWVVbyaulCYHCgVv4aB/ojcexg8q483A4xJeF15TiCr/gu34rK6ucTvC/tn/rCwJBudczvEwt0klqYwv8Cl/ytaQboSuem5KgSjO3lMrb6CWtfSNhE43ZOw+UBFBqxIninN868vGMkIv9VY34Pwj54rPn/ItQd6Ef4B0KHHaGmzK0vfP+AK7FxNMoHnj3iYT33KZNqtDozdn5tYyH/bThPebEtgqUn+/w5l6wZIC/8zzvls/127ngHk+jNa0PlNyS2TxhPUK4NaPHIEnnrlp07JEYC4ImcBjaYCWAdcTcUkcJjwZQkN4bGmyO9cjICH98SdLD/HxqzTHeaYDbAX/Hu9HfaBb5dXLWsjw3Xc6hoVnUUZbMQyfgb0KgxDLh92eNGxJkpZiL0VDNOWCxDWsNpzwhLNkLqCvI6lyxiLaUzvJAk6dPaRhExmCbU1lDO2eR0FdSwC1TEhJOT9eDIK1r2hztZKs2oa5FNFfB/IFHVWasVFC9N2h/r/egB5zsRxC9MqBLRBq95NBxaRSFng6ML5WZSw41Qi4C/JWVm89rdj2WqScDHYyAdwyyppWU4T5c9Fmw== example@example.com",
                   "_links": {
                     "self": {
@@ -1856,6 +1948,12 @@
       }
     },
     "/account/subscriptions/{subscriptionUuid}/is-admin": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Account"
@@ -1936,6 +2034,12 @@
       }
     },
     "/account/subscriptions/{subscriptionUuid}/is-owner": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Account"
@@ -1998,6 +2102,12 @@
       }
     },
     "/account/teams/{teamUuid}/has-permission": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Account"
@@ -2087,6 +2197,12 @@
       }
     },
     "/account/teams/{teamUuid}/is-admin": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Account"
@@ -2167,6 +2283,12 @@
       }
     },
     "/account/teams/{teamUuid}/is-owner": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Account"
@@ -2229,6 +2351,12 @@
       }
     },
     "/account/tokens": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Account"
@@ -2402,6 +2530,12 @@
       }
     },
     "/account/tokens/{tokenUuid}": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Account"
@@ -2555,6 +2689,12 @@
       }
     },
     "/agreements": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Agreements"
@@ -2589,8 +2729,8 @@
                         "title": "Agreement Title",
                         "body": "<p>Agreement body and text.</p>",
                         "status": "accepted",
-                        "created_at": "2017-01-23T12:00:00.000Z",
-                        "updated_at": "2017-01-27T12:00:00.000Z",
+                        "created_at": "2017-01-23T12:00:00Z",
+                        "updated_at": "2017-01-27T12:00:00Z",
                         "actioned_by": {
                           "uuid": "5aa902c5-f1c1-6c94-edfa-86bc58d0dce3",
                           "first_name": "James",
@@ -2616,8 +2756,8 @@
                         "title": "Another Agreement",
                         "body": "<p>This is the body and text of another agreement.</p>",
                         "status": "declined",
-                        "created_at": "2017-02-23T12:00:00.000Z",
-                        "updated_at": "2017-02-27T12:00:00.000Z",
+                        "created_at": "2017-02-23T12:00:00Z",
+                        "updated_at": "2017-02-27T12:00:00Z",
                         "actioned_by": {
                           "uuid": "550e8400-e29b-41d4-a716-446655440000",
                           "first_name": "Jane",
@@ -2643,7 +2783,7 @@
                         "title": "A Third Agreement",
                         "body": "<p>This is the body and text of one more agreement.</p>",
                         "status": "pending",
-                        "created_at": "2017-02-23T12:00:00.000Z",
+                        "created_at": "2017-02-23T12:00:00Z",
                         "updated_at": null,
                         "actioned_by": null,
                         "reference": {
@@ -2681,6 +2821,12 @@
       }
     },
     "/agreements/{agreementUuid}": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Agreements"
@@ -2713,8 +2859,8 @@
                   "title": "Agreement Title",
                   "body": "<p>Agreement body and text.</p>",
                   "status": "accepted",
-                  "created_at": "2017-01-23T12:00:00.000Z",
-                  "updated_at": "2017-01-27T12:00:00.000Z",
+                  "created_at": "2017-01-23T12:00:00Z",
+                  "updated_at": "2017-01-27T12:00:00Z",
                   "actioned_by": {
                     "uuid": "5aa902c5-f1c1-6c94-edfa-86bc58d0dce3",
                     "first_name": "James",
@@ -2767,6 +2913,12 @@
       }
     },
     "/agreements/{agreementUuid}/actions/accept": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "post": {
         "tags": [
           "Agreements"
@@ -2835,6 +2987,12 @@
       }
     },
     "/agreements/{agreementUuid}/actions/decline": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "post": {
         "tags": [
           "Agreements"
@@ -2903,6 +3061,12 @@
       }
     },
     "/agreements/{agreementUuid}/invitees": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Agreements"
@@ -2981,6 +3145,12 @@
       }
     },
     "/applications": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Applications"
@@ -3179,6 +3349,12 @@
       }
     },
     "/applications/{applicationUuid}": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Applications"
@@ -3491,6 +3667,12 @@
       }
     },
     "/applications/{applicationUuid}/artifacts": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Applications"
@@ -3557,7 +3739,7 @@
                         "id": 1,
                         "name": "master@e5a80b9e0a2bdb1df32c6cdfce54deb70cc20ad2",
                         "state": "ready",
-                        "created_at": "2012-05-15T12:00:00.000Z",
+                        "created_at": "2012-05-15T12:00:00Z",
                         "_links": {
                           "self": {
                             "href": "https://cloud.acquia.com/api/applications/a47ac10b-58cc-4372-a567-0e02b2c3d470/artifacts/1"
@@ -3568,7 +3750,7 @@
                         "id": 2,
                         "name": "master@a265389db6a6918cf4e51edbe5f06d7e1578175c",
                         "state": "pending-upload",
-                        "created_at": "2012-05-15T12:00:00.000Z",
+                        "created_at": "2012-05-15T12:00:00Z",
                         "_links": {
                           "self": {
                             "href": "https://cloud.acquia.com/api/applications/a47ac10b-58cc-4372-a567-0e02b2c3d470/artifacts/2"
@@ -3579,7 +3761,7 @@
                         "id": 3,
                         "name": "master@e7157f36e5fb82317ffee2fc2d70302cdad0c60c",
                         "state": "deleted",
-                        "created_at": "2012-05-15T12:00:00.000Z",
+                        "created_at": "2012-05-15T12:00:00Z",
                         "_links": {
                           "self": {
                             "href": "https://cloud.acquia.com/api/applications/a47ac10b-58cc-4372-a567-0e02b2c3d470/artifacts/3"
@@ -3620,6 +3802,12 @@
       }
     },
     "/applications/{applicationUuid}/artifacts/{artifactId}": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Applications"
@@ -3648,7 +3836,7 @@
                   "id": 1,
                   "name": "master@e5a80b9e0a2bdb1df32c6cdfce54deb70cc20ad2",
                   "state": "ready",
-                  "created_at": "2012-05-15T12:00:00.000Z",
+                  "created_at": "2012-05-15T12:00:00Z",
                   "_links": {
                     "self": {
                       "href": "https://cloud.acquia.com/api/applications/a47ac10b-58cc-4372-a567-0e02b2c3d470/artifacts/1"
@@ -3701,6 +3889,12 @@
       }
     },
     "/applications/{applicationUuid}/code": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Applications"
@@ -3797,6 +3991,12 @@
       }
     },
     "/applications/{applicationUuid}/code-studio": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Applications"
@@ -4060,6 +4260,12 @@
       }
     },
     "/applications/{applicationUuid}/databases": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Applications"
@@ -4375,6 +4581,12 @@
       }
     },
     "/applications/{applicationUuid}/databases/{name}": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "delete": {
         "tags": [
           "Applications"
@@ -4523,6 +4735,12 @@
       }
     },
     "/applications/{applicationUuid}/databases/{name}/actions/erase": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "post": {
         "tags": [
           "Applications"
@@ -4669,6 +4887,12 @@
       }
     },
     "/applications/{applicationUuid}/email/domains": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Applications"
@@ -4805,6 +5029,12 @@
       }
     },
     "/applications/{applicationUuid}/email/domains/{domainRegistrationUuid}/actions/associate": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "post": {
         "tags": [
           "Applications"
@@ -4925,6 +5155,12 @@
       }
     },
     "/applications/{applicationUuid}/email/domains/{domainRegistrationUuid}/actions/disassociate": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "post": {
         "tags": [
           "Applications"
@@ -5051,6 +5287,12 @@
       }
     },
     "/applications/{applicationUuid}/ides": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Applications"
@@ -5107,8 +5349,8 @@
                             "uuid": "10be1d3e-f2b4-4d34-855d-321df3938ffd",
                             "first_name": "First",
                             "last_name": "Last",
-                            "last_login_at": "2019-01-31T15:53:11.000Z",
-                            "created_at": "2016-08-14T21:38:59.000Z",
+                            "last_login_at": "2019-01-31T10:53:11-05:00",
+                            "created_at": "2016-08-14T17:38:59-04:00",
                             "email": "user.name@example.com",
                             "picture_url": "https://accounts.acquia.com/path/to/image.png",
                             "username": "user.name"
@@ -5138,8 +5380,8 @@
                             "uuid": "10be1d3e-f2b4-4d34-855d-321df3938ffd",
                             "first_name": "First",
                             "last_name": "Last",
-                            "last_login_at": "2019-01-31T15:53:11.000Z",
-                            "created_at": "2016-08-14T21:38:59.000Z",
+                            "last_login_at": "2019-01-31T10:53:11-05:00",
+                            "created_at": "2016-08-14T17:38:59-04:00",
                             "email": "user.name@example.com",
                             "picture_url": "https://accounts.acquia.com/path/to/image.png",
                             "username": "user.name"
@@ -5304,6 +5546,12 @@
       }
     },
     "/applications/{applicationUuid}/messages": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Applications"
@@ -5384,8 +5632,8 @@
                           "active": true
                         },
                         "weight": -1,
-                        "start_at": "2015-11-05T05:30:00.000Z",
-                        "expire_at": "2015-12-05T18:30:00.000Z",
+                        "start_at": "2015-11-05T00:30:00-05:00",
+                        "expire_at": "2015-12-05T13:30:00-05:00",
                         "_links": {
                           "self": {
                             "href": "https://cloud.acquia.com/api/messages/77fedb64-b8c0-4712-90e3-f39b4716e623"
@@ -5415,8 +5663,8 @@
                           "active": true
                         },
                         "weight": 0,
-                        "start_at": "2015-11-07T22:30:00.000Z",
-                        "expire_at": "2016-11-07T22:30:00.000Z",
+                        "start_at": "2015-11-07T17:30:00-05:00",
+                        "expire_at": "2016-11-07T17:30:00-05:00",
                         "_links": {
                           "self": {
                             "href": "https://cloud.acquia.com/api/messages/c5328e00-282a-4bec-a3c8-4322d97545b2"
@@ -5457,6 +5705,12 @@
       }
     },
     "/applications/{applicationUuid}/notifications": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Applications"
@@ -5528,8 +5782,8 @@
                         "event": "ApplicationAddedToRecents",
                         "label": "Application added to recents list",
                         "description": "\"Canary QA 11 - ACE\" was added to your recent applications list.",
-                        "created_at": "2019-07-29T20:47:13.000Z",
-                        "completed_at": "2019-07-29T20:47:13.000Z",
+                        "created_at": "2019-07-29T20:47:13+00:00",
+                        "completed_at": "2019-07-29T20:47:13+00:00",
                         "status": "completed",
                         "progress": 100,
                         "context": {
@@ -5585,6 +5839,12 @@
       }
     },
     "/applications/{applicationUuid}/permissions": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Applications"
@@ -6081,6 +6341,12 @@
       }
     },
     "/applications/{applicationUuid}/search": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Applications"
@@ -6163,6 +6429,12 @@
       }
     },
     "/applications/{applicationUuid}/search/config-sets": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Applications"
@@ -6472,6 +6744,12 @@
       }
     },
     "/applications/{applicationUuid}/search/config-sets/{configurationSetId}": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Applications"
@@ -6677,6 +6955,12 @@
       }
     },
     "/applications/{applicationUuid}/settings": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Applications"
@@ -6750,6 +7034,12 @@
       }
     },
     "/applications/{applicationUuid}/settings/hosting": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Applications"
@@ -6833,6 +7123,12 @@
       }
     },
     "/applications/{applicationUuid}/settings/keys": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Applications"
@@ -6921,6 +7217,12 @@
       }
     },
     "/applications/{applicationUuid}/settings/ra": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Applications"
@@ -7040,8 +7342,8 @@
               "example": {
                 "update_mode": "update",
                 "update_type": "core_contrib",
-                "pause_until": "2021-10-10T13:00:00.000Z",
-                "deploy_at": "2020-10-13T13:00:00.000Z",
+                "pause_until": "2021-10-10 13:00:00",
+                "deploy_at": "2020-10-13 13:00:00",
                 "deploy_environment": "test",
                 "source_environment": "prod",
                 "copy_files": false,
@@ -7057,8 +7359,8 @@
               "example": {
                 "update_mode": "update",
                 "update_type": "core_contrib",
-                "pause_until": "2021-10-10T13:00:00.000Z",
-                "deploy_at": "2020-10-13T13:00:00.000Z",
+                "pause_until": "2021-10-10 13:00:00",
+                "deploy_at": "2020-10-13 13:00:00",
                 "deploy_environment": "test",
                 "source_environment": "prod",
                 "copy_files": false,
@@ -7224,6 +7526,12 @@
       }
     },
     "/applications/{applicationUuid}/settings/security": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Applications"
@@ -7476,6 +7784,12 @@
       }
     },
     "/applications/{applicationUuid}/tags": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Applications"
@@ -7702,6 +8016,12 @@
       }
     },
     "/applications/{applicationUuid}/tags/{tagName}": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "delete": {
         "tags": [
           "Applications"
@@ -7770,6 +8090,12 @@
       }
     },
     "/applications/{applicationUuid}/tasks": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Applications"
@@ -7833,8 +8159,8 @@
                           "uuid": "d15b1bfe-1bf3-47d4-8f3a-fd29a5daea7a",
                           "first_name": "Example",
                           "last_name": "User",
-                          "last_login_at": "2019-05-23T20:12:12.000Z",
-                          "created_at": "2015-08-14T21:37:21.000Z",
+                          "last_login_at": "2019-05-23T16:12:12-04:00",
+                          "created_at": "2015-08-14T17:37:21-04:00",
                           "mail": "example.user@example.com",
                           "picture_url": "https://accounts.acquia.com/images/users/d15b1bfe-1bf3-47d4-8f3a-fd29a5daea7a/style/avatar",
                           "username": "example.user"
@@ -7844,9 +8170,9 @@
                         "name": "ApplicationAddedToTeam",
                         "title": "Application added to team.",
                         "description": "Application Example Application has been added to team Example Team",
-                        "created_at": "2019-04-16T17:24:55.000Z",
-                        "started_at": "2019-04-16T17:24:55.000Z",
-                        "completed_at": "2019-04-16T17:24:55.000Z",
+                        "created_at": "2019-04-16T13:24:55-04:00",
+                        "started_at": "2019-04-16T13:24:55-04:00",
+                        "completed_at": "2019-04-16T13:24:55-04:00",
                         "status": "completed",
                         "type": "task",
                         "metadata": {
@@ -7897,8 +8223,8 @@
                           "uuid": "66597696-118c-4e18-b7e8-d027df8d5faa",
                           "first_name": "Example",
                           "last_name": "User",
-                          "last_login_at": "2019-05-30T22:08:36.000Z",
-                          "created_at": "2015-08-13T23:37:00.000Z",
+                          "last_login_at": "2019-05-30T18:08:36-04:00",
+                          "created_at": "2015-08-13T19:37:00-04:00",
                           "mail": "example.user.2@example.com",
                           "picture_url": "https://accounts.acquia.com/images/users/66597696-118c-4e18-b7e8-d027df8d5faa/style/avatar",
                           "username": "example.user.2"
@@ -7908,9 +8234,9 @@
                         "name": "FilesCopied",
                         "title": "Files copied",
                         "description": "Files copied from &quot;prod&quot; to &quot;dev&quot;.",
-                        "created_at": "2019-01-25T09:24:32.000Z",
-                        "started_at": "2019-01-25T09:24:32.000Z",
-                        "completed_at": "2019-01-25T09:24:46.000Z",
+                        "created_at": "2019-01-25T04:24:32-05:00",
+                        "started_at": "2019-01-25T04:24:32-05:00",
+                        "completed_at": "2019-01-25T04:24:46-05:00",
                         "status": "completed",
                         "type": "task",
                         "metadata": {
@@ -7992,6 +8318,12 @@
       }
     },
     "/applications/{applicationUuid}/teams": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Applications"
@@ -8101,6 +8433,12 @@
       }
     },
     "/applications/{applicationUuid}/metrics/usage": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Applications"
@@ -8198,6 +8536,12 @@
       }
     },
     "/applications/{applicationUuid}/metrics/usage/data": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Applications"
@@ -8250,15 +8594,15 @@
                         "metric": "views",
                         "datapoints": [
                           [
-                            "2019-03-13T00:00:00.000Z",
+                            "2019-03-13T00:00:00+00:00",
                             "9"
                           ],
                           [
-                            "2019-03-14T00:00:00.000Z",
+                            "2019-03-14T00:00:00+00:00",
                             "1"
                           ]
                         ],
-                        "last_data_at": "2019-03-14T00:00:00.000Z",
+                        "last_data_at": "2019-03-14T00:00:00+00:00",
                         "metadata": {
                           "subscription": {
                             "uuids": [
@@ -8291,15 +8635,15 @@
                         "metric": "visits",
                         "datapoints": [
                           [
-                            "2019-03-13T00:00:00.000Z",
+                            "2019-03-13T00:00:00+00:00",
                             "3"
                           ],
                           [
-                            "2019-03-14T00:00:00.000Z",
+                            "2019-03-14T00:00:00+00:00",
                             "1"
                           ]
                         ],
-                        "last_data_at": "2019-03-14T00:00:00.000Z",
+                        "last_data_at": "2019-03-14T00:00:00+00:00",
                         "metadata": {
                           "subscription": {
                             "uuids": [
@@ -8374,6 +8718,12 @@
       }
     },
     "/applications/{applicationUuid}/metrics/usage/data-by-environment": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Applications"
@@ -8499,15 +8849,15 @@
                         "metric": "views",
                         "datapoints": [
                           [
-                            "2019-03-13T00:00:00.000Z",
+                            "2019-03-13T00:00:00+00:00",
                             "9"
                           ],
                           [
-                            "2019-03-14T00:00:00.000Z",
+                            "2019-03-14T00:00:00+00:00",
                             "1"
                           ]
                         ],
-                        "last_data_at": "2019-03-14T00:00:00.000Z",
+                        "last_data_at": "2019-03-14T00:00:00+00:00",
                         "metadata": {
                           "subscription": {
                             "uuids": [
@@ -8538,15 +8888,15 @@
                         "metric": "visits",
                         "datapoints": [
                           [
-                            "2019-03-13T00:00:00.000Z",
+                            "2019-03-13T00:00:00+00:00",
                             "3"
                           ],
                           [
-                            "2019-03-14T00:00:00.000Z",
+                            "2019-03-14T00:00:00+00:00",
                             "1"
                           ]
                         ],
-                        "last_data_at": "2019-03-14T00:00:00.000Z",
+                        "last_data_at": "2019-03-14T00:00:00+00:00",
                         "metadata": {
                           "subscription": {
                             "uuids": [
@@ -8679,6 +9029,12 @@
       }
     },
     "/applications/{applicationUuid}/metrics/usage/{usageMetric}": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Applications"
@@ -8715,15 +9071,15 @@
                   "metric": "views",
                   "datapoints": [
                     [
-                      "2019-03-13T00:00:00.000Z",
+                      "2019-03-13T00:00:00+00:00",
                       "9"
                     ],
                     [
-                      "2019-03-14T00:00:00.000Z",
+                      "2019-03-14T00:00:00+00:00",
                       "1"
                     ]
                   ],
-                  "last_data_at": "2019-03-14T00:00:00.000Z",
+                  "last_data_at": "2019-03-14T00:00:00+00:00",
                   "metadata": {
                     "subscription": {
                       "uuids": [
@@ -8795,6 +9151,12 @@
       }
     },
     "/applications/{applicationUuid}/metrics/usage/views-by-environment": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Applications"
@@ -8890,15 +9252,15 @@
                         "metric": "views",
                         "datapoints": [
                           [
-                            "2019-03-13T00:00:00.000Z",
+                            "2019-03-13T00:00:00+00:00",
                             "9"
                           ],
                           [
-                            "2019-03-14T00:00:00.000Z",
+                            "2019-03-14T00:00:00+00:00",
                             "1"
                           ]
                         ],
-                        "last_data_at": "2019-03-14T00:00:00.000Z",
+                        "last_data_at": "2019-03-14T00:00:00+00:00",
                         "metadata": {
                           "subscription": {
                             "uuids": [
@@ -9001,6 +9363,12 @@
       }
     },
     "/applications/{applicationUuid}/metrics/usage/visits-by-environment": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Applications"
@@ -9096,15 +9464,15 @@
                         "metric": "visits",
                         "datapoints": [
                           [
-                            "2019-03-13T00:00:00.000Z",
+                            "2019-03-13T00:00:00+00:00",
                             "3"
                           ],
                           [
-                            "2019-03-14T00:00:00.000Z",
+                            "2019-03-14T00:00:00+00:00",
                             "1"
                           ]
                         ],
-                        "last_data_at": "2019-03-14T00:00:00.000Z",
+                        "last_data_at": "2019-03-14T00:00:00+00:00",
                         "metadata": {
                           "subscription": {
                             "uuids": [
@@ -9207,6 +9575,12 @@
       }
     },
     "/distributions": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Distributions"
@@ -9300,6 +9674,12 @@
       }
     },
     "/distributions/{name}": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Distributions"
@@ -9387,6 +9767,12 @@
       }
     },
     "/applications/{applicationUuid}/environments": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Applications"
@@ -9904,6 +10290,12 @@
       }
     },
     "/applications/{applicationUuid}/features": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Applications"
@@ -9962,6 +10354,12 @@
       }
     },
     "/environments/{environmentId}": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Environments"
@@ -10573,6 +10971,12 @@
       }
     },
     "/environments/{environmentId}/actions/clear-caches": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "post": {
         "tags": [
           "Environments"
@@ -10697,6 +11101,12 @@
       }
     },
     "/environments/{environmentId}/actions/change-label": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "post": {
         "tags": [
           "Environments"
@@ -10847,6 +11257,12 @@
       }
     },
     "/environments/{environmentId}/artifacts/actions/switch": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "post": {
         "tags": [
           "Environments"
@@ -11026,6 +11442,12 @@
       }
     },
     "/environments/{environmentId}/operating-systems": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Environments"
@@ -11096,6 +11518,12 @@
       }
     },
     "/environments/{environmentId}/available-runtimes": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Environments"
@@ -11169,6 +11597,12 @@
       }
     },
     "/environments/{environmentId}/cdn": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Environments"
@@ -11441,6 +11875,12 @@
       }
     },
     "/environments/{environmentId}/cloud-actions": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Environments"
@@ -11702,6 +12142,12 @@
       }
     },
     "/environments/{environmentId}/cloud-actions/actions/disable": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "post": {
         "tags": [
           "Environments"
@@ -11786,6 +12232,12 @@
       }
     },
     "/environments/{environmentId}/cloud-actions/actions/enable": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "post": {
         "tags": [
           "Environments"
@@ -11870,6 +12322,12 @@
       }
     },
     "/environments/{environmentId}/cloud-actions/actions/reset": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "post": {
         "tags": [
           "Environments"
@@ -11954,6 +12412,12 @@
       }
     },
     "/environments/{environmentId}/code": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "post": {
         "tags": [
           "Environments"
@@ -12124,6 +12588,12 @@
       }
     },
     "/environments/{environmentId}/code/actions/switch": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "post": {
         "tags": [
           "Environments"
@@ -12289,6 +12759,12 @@
       }
     },
     "/environments/{environmentId}/code/actions/import": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "post": {
         "tags": [
           "Environments"
@@ -12458,6 +12934,12 @@
       }
     },
     "/environments/{environmentId}/crons": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Environments"
@@ -12736,6 +13218,12 @@
       }
     },
     "/environments/{environmentId}/crons/{cronId}": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Environments"
@@ -13084,6 +13572,12 @@
       }
     },
     "/environments/{environmentId}/crons/{cronId}/actions/enable": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "post": {
         "tags": [
           "Environments"
@@ -13200,6 +13694,12 @@
       }
     },
     "/environments/{environmentId}/crons/{cronId}/actions/disable": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "post": {
         "tags": [
           "Environments"
@@ -13316,6 +13816,12 @@
       }
     },
     "/environments/{environmentId}/databases": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Environments"
@@ -13663,6 +14169,12 @@
       }
     },
     "/environments/{environmentId}/databases/{databaseName}": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Environments"
@@ -13760,6 +14272,12 @@
       }
     },
     "/environments/{environmentId}/databases/{databaseName}/php-config": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Environments"
@@ -13838,6 +14356,12 @@
       }
     },
     "/environments/{environmentId}/databases/{databaseName}/backups": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Environments"
@@ -13920,8 +14444,8 @@
                           "name": "db_name"
                         },
                         "type": "daily",
-                        "started_at": "2012-05-15T12:00:00.000Z",
-                        "completed_at": "2012-05-15T12:00:00.000Z",
+                        "started_at": "2012-05-15T12:00:00Z",
+                        "completed_at": "2012-05-15T12:00:00Z",
                         "flags": {
                           "deleted": false
                         },
@@ -13948,8 +14472,8 @@
                           "name": "db_name"
                         },
                         "type": "daily",
-                        "started_at": "2012-03-28T12:00:00.000Z",
-                        "completed_at": "2012-03-28T12:00:01.000Z",
+                        "started_at": "2012-03-28T12:00:00Z",
+                        "completed_at": "2012-03-28T12:00:01Z",
                         "flags": {
                           "deleted": false
                         },
@@ -13976,8 +14500,8 @@
                           "name": "db_name"
                         },
                         "type": "daily",
-                        "started_at": "2017-01-08T04:00:00.000Z",
-                        "completed_at": "2017-01-08T04:00:01.000Z",
+                        "started_at": "2017-01-08T04:00:00Z",
+                        "completed_at": "2017-01-08T04:00:01Z",
                         "flags": {
                           "deleted": false
                         },
@@ -14004,8 +14528,8 @@
                           "name": "db_name"
                         },
                         "type": "daily",
-                        "started_at": "2017-01-08T05:00:02.000Z",
-                        "completed_at": "2017-01-08T05:00:03.000Z",
+                        "started_at": "2017-01-08T05:00:02Z",
+                        "completed_at": "2017-01-08T05:00:03Z",
                         "flags": {
                           "deleted": false
                         },
@@ -14185,6 +14709,12 @@
       }
     },
     "/environments/{environmentId}/databases/{databaseName}/backups/{backupId}": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Environments"
@@ -14219,8 +14749,8 @@
                     "name": "db_name"
                   },
                   "type": "daily",
-                  "started_at": "2012-05-15T12:00:00.000Z",
-                  "completed_at": "2012-05-15T12:00:00.000Z",
+                  "started_at": "2012-05-15T12:00:00Z",
+                  "completed_at": "2012-05-15T12:00:00Z",
                   "flags": {
                     "deleted": false
                   },
@@ -14431,120 +14961,13 @@
         }
       }
     },
-    "/environments/{environmentId}/databases/{databaseName}/backups/{backupId}/actions/download": {
-      "get": {
-        "tags": [
-          "Environments"
-        ],
-        "summary": "Downloads the database backup file.",
-        "description": "Downloads the database backup file.",
-        "operationId": "getEnvironmentsDatabaseDownloadBackup",
-        "x-cli-name": "environments:database-backup-download",
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/Acquia_Cloud_API_Documentation_environment-id"
-          },
-          {
-            "$ref": "#/components/parameters/Acquia_Cloud_API_Documentation_database-name"
-          },
-          {
-            "$ref": "#/components/parameters/Acquia_Cloud_API_Documentation_backup-id"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/octet-stream": {
-                "schema": {
-                  "$ref": "#/components/schemas/Acquia_Cloud_API_Documentation_file"
-                }
-              },
-              "application/hal+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Acquia_Cloud_API_Documentation_file-download"
-                },
-                "example": {
-                  "url": "http://example.com/backup.gz",
-                  "expires_at": "2020-06-16T15:15:05.000Z",
-                  "_links": {
-                    "self": {
-                      "href": "https://cloud.acquia.com/api/environments/12-482e4650-1b74-44db-8d4e-e86a3b1ed908/databases/sitedatabase/backups/4423492/actions/download"
-                    },
-                    "parent": {
-                      "href": "https://cloud.acquia.com/api/environments/12-482e4650-1b74-44db-8d4e-e86a3b1ed908/databases/sitedatabase/backups/4423492/actions"
-                    },
-                    "notification": {
-                      "href": "https://cloud.acquia.com/api/notifications/8a1c8503-0dae-4b08-a917-d2f01f4971ca"
-                    }
-                  }
-                }
-              },
-              "text/html": {
-                "schema": {
-                  "$ref": "#/components/schemas/Acquia_Cloud_API_Documentation_file-download"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/hal+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Acquia_Cloud_API_Documentation_error"
-                },
-                "examples": {
-                  "Insufficient permissions": {
-                    "value": {
-                      "error": "forbidden",
-                      "message": "You do not have permission to download this backup."
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not Found",
-            "content": {
-              "application/hal+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Acquia_Cloud_API_Documentation_error"
-                },
-                "examples": {
-                  "Environment not found": {
-                    "value": {
-                      "error": "not_found",
-                      "message": "The environment you are trying to access does not exist, or you do not have permission to access it."
-                    }
-                  },
-                  "Database not found": {
-                    "value": {
-                      "error": "not_found",
-                      "message": "The database backup you are trying to access does not exist, or you do not have permission to access it."
-                    }
-                  },
-                  "Do not exist on non-hosted applications": {
-                    "value": {
-                      "error": "not_found",
-                      "message": "Databases backups do not exist on non-hosted applications."
-                    }
-                  },
-                  "Do not exist on Node.js applications": {
-                    "value": {
-                      "error": "not_available",
-                      "message": "Databases backups do not exist on Node.js applications"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/environments/{environmentId}/databases/{databaseName}/backups/{backupId}/actions/restore": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "post": {
         "tags": [
           "Environments"
@@ -14686,6 +15109,12 @@
       }
     },
     "/environments/{environmentId}/dns": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Environments"
@@ -14798,6 +15227,12 @@
       }
     },
     "/environments/{environmentId}/domains": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Environments"
@@ -15115,6 +15550,12 @@
       }
     },
     "/environments/{environmentId}/domains/actions/clear-varnish": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "post": {
         "tags": [
           "Environments"
@@ -15240,6 +15681,12 @@
       }
     },
     "/environments/{environmentId}/domains/{domain}": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Environments"
@@ -15422,6 +15869,12 @@
       }
     },
     "/environments/{environmentId}/domains/{domain}/actions/clear-varnish": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "post": {
         "tags": [
           "Environments"
@@ -15522,6 +15975,12 @@
       }
     },
     "/environments/{environmentId}/domains/{domain}/actions/clear-caches": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "post": {
         "tags": [
           "Environments"
@@ -15621,6 +16080,12 @@
       }
     },
     "/environments/{environmentId}/domains/{domain}/status": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Environments"
@@ -15703,6 +16168,12 @@
       }
     },
     "/environments/{environmentId}/eips": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Environments"
@@ -15726,12 +16197,21 @@
                 },
                 "example": {
                   "total": 1,
+                  "count": 1,
                   "_links": {
                     "self": {
                       "href": "https://cloud.acquia.com/api/environments/24-a47ac10b-58cc-4372-a567-0e02b2c3d470/eips"
                     },
                     "parent": {
                       "href": "https://cloud.acquia.com/api/environments/24-a47ac10b-58cc-4372-a567-0e02b2c3d470"
+                    },
+                    "limit": {
+                      "href": "https://cloud.acquia.com/api/environments/24-a47ac10b-58cc-4372-a567-0e02b2c3d470/eips{?limit}",
+                      "templated": true
+                    },
+                    "offset": {
+                      "href": "https://cloud.acquia.com/api/environments/24-a47ac10b-58cc-4372-a567-0e02b2c3d470/eips{?offset}",
+                      "templated": true
                     }
                   },
                   "_embedded": {
@@ -15745,6 +16225,11 @@
                           "active": true,
                           "legacy": false,
                           "deprecated": false
+                        },
+                        "_links": {
+                          "self": {
+                            "href": "https://cloud.acquia.com/api/environments/24-a47ac10b-58cc-4372-a567-0e02b2c3d470/eips/f668295f-cbba-472d-8b75-c76ab89e553a"
+                          }
                         }
                       }
                     ]
@@ -15775,6 +16260,12 @@
       }
     },
     "/environments/{environmentId}/email": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Email"
@@ -15837,6 +16328,12 @@
       }
     },
     "/environments/{environmentId}/files": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "post": {
         "tags": [
           "Environments"
@@ -16021,6 +16518,12 @@
       }
     },
     "/environments/{environmentId}/logs": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Environments"
@@ -16218,6 +16721,12 @@
       }
     },
     "/environments/{environmentId}/logs/{logType}": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Environments"
@@ -16251,7 +16760,7 @@
                   "File download": {
                     "value": {
                       "url": "http://appsiteenv.host.site-example.com/AH_DOWNLOAD?d=/mnt/gfs/appsiteenv/logs/log_type_log_appsiteenv_1574901901.sql&t=157492&env=fecac803549db0072661378f0f",
-                      "expires_at": "2019-11-30T23:21:02.000Z"
+                      "expires_at": "2019-11-30T23:21:02+00:00"
                     }
                   }
                 }
@@ -16347,8 +16856,8 @@
                 }
               },
               "example": {
-                "from": "2021-01-28T22:45:21.000Z",
-                "to": "2021-01-29T23:55:21.000Z"
+                "from": "2021-01-28T22:45:21+00:00",
+                "to": "2021-01-29T23:55:21+00:00"
               }
             }
           }
@@ -16478,6 +16987,12 @@
       }
     },
     "/environments/{environmentId}/logstream": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Environments"
@@ -16557,6 +17072,12 @@
       }
     },
     "/environments/{environmentId}/livedev/actions/disable": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "post": {
         "tags": [
           "Environments"
@@ -16733,6 +17254,12 @@
       }
     },
     "/environments/{environmentId}/livedev/actions/enable": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "post": {
         "tags": [
           "Environments"
@@ -16888,6 +17415,12 @@
       }
     },
     "/environments/{environmentId}/log-forwarding-destinations": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Environments"
@@ -16941,7 +17474,7 @@
                         "credentials": {
                           "certificate": {
                             "certificate": "-----BEGIN CERTIFICATE-----...-----END CERTIFICATE-----",
-                            "expires_at": "2018-07-16T16:15:33.000Z"
+                            "expires_at": "2018-07-16T16:15:33+00:00"
                           },
                           "key": null,
                           "token": "204d892b449026f6e4ded264c8891c400df8fc8905f07beb5f70d706f6d4d5e5"
@@ -16981,7 +17514,7 @@
                         "credentials": {
                           "certificate": {
                             "certificate": "-----BEGIN CERTIFICATE-----...-----END CERTIFICATE-----",
-                            "expires_at": "2018-07-16T16:15:33.000Z"
+                            "expires_at": "2018-07-16T16:15:33+00:00"
                           },
                           "key": "1d0789d519c0b943cf38f401d30ffbdcd2e0c4cfb7c32ebc0c872bce62aadd4d",
                           "token": "204d892b449026f6e4ded264c8891c400df8fc8905f07beb5f70d706f6d4d5e5"
@@ -17402,6 +17935,12 @@
       }
     },
     "/environments/{environmentId}/log-forwarding-destinations/{logForwardingDestinationUuid}": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Environments"
@@ -17434,7 +17973,7 @@
                   "credentials": {
                     "certificate": {
                       "certificate": "-----BEGIN CERTIFICATE-----...-----END CERTIFICATE-----",
-                      "expires_at": "2018-07-16T16:15:33.000Z"
+                      "expires_at": "2018-07-16T16:15:33+00:00"
                     },
                     "key": "1d0789d519c0b943cf38f401d30ffbdcd2e0c4cfb7c32ebc0c872bce62aadd4d",
                     "token": "204d892b449026f6e4ded264c8891c400df8fc8905f07beb5f70d706f6d4d5e5"
@@ -17993,6 +18532,12 @@
       }
     },
     "/environments/{environmentId}/log-forwarding-destinations/{logForwardingDestinationUuid}/actions/disable": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "post": {
         "tags": [
           "Environments"
@@ -18112,6 +18657,12 @@
       }
     },
     "/environments/{environmentId}/log-forwarding-destinations/{logForwardingDestinationUuid}/actions/enable": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "post": {
         "tags": [
           "Environments"
@@ -18263,6 +18814,12 @@
       }
     },
     "/environments/{environmentId}/metrics": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Environments"
@@ -18345,6 +18902,12 @@
       }
     },
     "/environments/{environmentId}/metrics/stackmetrics": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Environments"
@@ -18427,6 +18990,12 @@
       }
     },
     "/environments/{environmentId}/metrics/stackmetrics/data": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Environments"
@@ -18490,7 +19059,7 @@
                             "1447876980"
                           ]
                         ],
-                        "last_data_at": "2019-06-19T00:00:00.000Z",
+                        "last_data_at": "2019-06-19T00:00:00+00:00",
                         "metadata": {
                           "host": "fsdb-1.prod.hosting.acquia.com"
                         }
@@ -18511,7 +19080,7 @@
                             "1447876980"
                           ]
                         ],
-                        "last_data_at": "2019-06-19T00:00:00.000Z",
+                        "last_data_at": "2019-06-19T00:00:00+00:00",
                         "metadata": {
                           "host": "fsdb-2.prod.hosting.acquia.com"
                         }
@@ -18532,7 +19101,7 @@
                             "1447876980"
                           ]
                         ],
-                        "last_data_at": "2019-06-19T00:00:00.000Z",
+                        "last_data_at": "2019-06-19T00:00:00+00:00",
                         "metadata": {
                           "host": "web-1.prod.hosting.acquia.com"
                         }
@@ -18553,7 +19122,7 @@
                             "1447876980"
                           ]
                         ],
-                        "last_data_at": "2019-06-19T00:00:00.000Z",
+                        "last_data_at": "2019-06-19T00:00:00+00:00",
                         "metadata": {
                           "host": "web-2.prod.hosting.acquia.com"
                         }
@@ -18604,6 +19173,12 @@
       }
     },
     "/environments/{environmentId}/metrics/usage": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Environments"
@@ -18692,6 +19267,12 @@
       }
     },
     "/environments/{environmentId}/metrics/usage/data": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Environments"
@@ -18744,15 +19325,15 @@
                         "metric": "views",
                         "datapoints": [
                           [
-                            "2019-03-13T00:00:00.000Z",
+                            "2019-03-13T00:00:00+00:00",
                             "9"
                           ],
                           [
-                            "2019-03-14T00:00:00.000Z",
+                            "2019-03-14T00:00:00+00:00",
                             "1"
                           ]
                         ],
-                        "last_data_at": "2019-03-14T00:00:00.000Z",
+                        "last_data_at": "2019-03-14T00:00:00+00:00",
                         "metadata": {
                           "subscription": {
                             "uuids": [
@@ -18783,15 +19364,15 @@
                         "metric": "visits",
                         "datapoints": [
                           [
-                            "2019-03-13T00:00:00.000Z",
+                            "2019-03-13T00:00:00+00:00",
                             "3"
                           ],
                           [
-                            "2019-03-14T00:00:00.000Z",
+                            "2019-03-14T00:00:00+00:00",
                             "1"
                           ]
                         ],
-                        "last_data_at": "2019-03-14T00:00:00.000Z",
+                        "last_data_at": "2019-03-14T00:00:00+00:00",
                         "metadata": {
                           "subscription": {
                             "uuids": [
@@ -18864,6 +19445,12 @@
       }
     },
     "/environments/{environmentId}/metrics/usage/{usageMetric}": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Environments"
@@ -18900,15 +19487,15 @@
                   "metric": "views",
                   "datapoints": [
                     [
-                      "2019-03-13T00:00:00.000Z",
+                      "2019-03-13T00:00:00+00:00",
                       "9"
                     ],
                     [
-                      "2019-03-14T00:00:00.000Z",
+                      "2019-03-14T00:00:00+00:00",
                       "1"
                     ]
                   ],
-                  "last_data_at": "2019-03-14T00:00:00.000Z",
+                  "last_data_at": "2019-03-14T00:00:00+00:00",
                   "metadata": {
                     "subscription": {
                       "uuids": [
@@ -18984,6 +19571,12 @@
       }
     },
     "/environments/{environmentId}/mod-proxy": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Environments"
@@ -19064,6 +19657,12 @@
       }
     },
     "/environments/{environmentId}/mod-proxy/actions/disable": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "post": {
         "tags": [
           "Environments"
@@ -19159,6 +19758,12 @@
       }
     },
     "/environments/{environmentId}/mod-proxy/actions/enable": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "post": {
         "tags": [
           "Environments"
@@ -19254,6 +19859,12 @@
       }
     },
     "/environments/{environmentId}/production-mode/actions/disable": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "post": {
         "tags": [
           "Environments"
@@ -19380,6 +19991,12 @@
       }
     },
     "/environments/{environmentId}/production-mode/actions/enable": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "post": {
         "tags": [
           "Environments"
@@ -19506,6 +20123,12 @@
       }
     },
     "/environments/{environmentId}/search": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Environments"
@@ -19588,6 +20211,12 @@
       }
     },
     "/environments/{environmentId}/search/indexes": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Environments"
@@ -19925,6 +20554,12 @@
       }
     },
     "/environments/{environmentId}/search/indexes/{indexId}": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Environments"
@@ -20273,6 +20908,12 @@
       }
     },
     "/environments/{environmentId}/servers": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Environments"
@@ -20458,6 +21099,12 @@
       }
     },
     "/environments/{environmentId}/servers/{serverId}": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Environments"
@@ -20751,6 +21398,12 @@
       }
     },
     "/environments/{environmentId}/servers/{serverId}/actions/reboot": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "post": {
         "tags": [
           "Environments"
@@ -20902,6 +21555,12 @@
       }
     },
     "/environments/{environmentId}/servers/{serverId}/actions/relaunch": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "post": {
         "tags": [
           "Environments"
@@ -21053,6 +21712,12 @@
       }
     },
     "/environments/{environmentId}/servers/{serverId}/actions/suspend": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "post": {
         "tags": [
           "Environments"
@@ -21204,6 +21869,12 @@
       }
     },
     "/environments/{environmentId}/servers/{serverId}/actions/upgrade": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "post": {
         "tags": [
           "Environments"
@@ -21363,6 +22034,12 @@
       }
     },
     "/environments/{environmentId}/settings": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Environments"
@@ -21422,6 +22099,12 @@
       }
     },
     "/environments/{environmentId}/settings/apm": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Application Performance Monitoring Services"
@@ -21680,6 +22363,12 @@
       }
     },
     "/environments/{environmentId}/ssl": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Environments"
@@ -21771,6 +22460,12 @@
       }
     },
     "/environments/{environmentId}/ssl/certificates": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Environments"
@@ -22087,6 +22782,12 @@
       }
     },
     "/environments/{environmentId}/ssl/certificates/{certificateId}": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Environments"
@@ -22292,6 +22993,12 @@
       }
     },
     "/environments/{environmentId}/ssl/certificates/{certificateId}/actions/activate": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "post": {
         "tags": [
           "Environments"
@@ -22481,6 +23188,12 @@
       }
     },
     "/environments/{environmentId}/ssl/certificates/{certificateId}/actions/deactivate": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "post": {
         "tags": [
           "Environments"
@@ -22620,6 +23333,12 @@
       }
     },
     "/environments/{environmentId}/ssl/csrs": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Environments"
@@ -22978,6 +23697,12 @@
       }
     },
     "/environments/{environmentId}/ssl/csrs/{certificateId}": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Environments"
@@ -23218,6 +23943,12 @@
       }
     },
     "/environments/{environmentId}/variables": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Environments"
@@ -23571,6 +24302,12 @@
       }
     },
     "/environments/{environmentId}/variables/{environmentVariableName}": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Environments"
@@ -24003,6 +24740,12 @@
       }
     },
     "/ides/{ideUuid}": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Cloud IDE"
@@ -24055,8 +24798,8 @@
                       "uuid": "10be1d3e-f2b4-4d34-855d-321df3938ffd",
                       "first_name": "First",
                       "last_name": "Last",
-                      "last_login_at": "2019-01-31T15:53:11.000Z",
-                      "created_at": "2016-08-14T21:38:59.000Z",
+                      "last_login_at": "2019-01-31T10:53:11-05:00",
+                      "created_at": "2016-08-14T17:38:59-04:00",
                       "email": "user.name@example.com",
                       "picture_url": "https://accounts.acquia.com/path/to/image.png",
                       "username": "user.name"
@@ -24155,6 +24898,12 @@
       }
     },
     "/identity-providers": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Identity Providers"
@@ -24273,6 +25022,12 @@
       }
     },
     "/identity-providers/{identityProviderUuid}": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Identity Providers"
@@ -24656,6 +25411,12 @@
       }
     },
     "/identity-providers/{identityProviderUuid}/actions/enable": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "post": {
         "tags": [
           "Identity Providers"
@@ -24749,6 +25510,12 @@
       }
     },
     "/identity-providers/{identityProviderUuid}/actions/disable": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "post": {
         "tags": [
           "Identity Providers"
@@ -24842,6 +25609,12 @@
       }
     },
     "/invites/{token}": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Invite"
@@ -24883,8 +25656,8 @@
                     "uuid": "2429bf71-9145-4266-b532-1f4e3beaed55",
                     "first_name": "Joe",
                     "last_name": "Smith",
-                    "last_login_at": "2019-01-30T13:58:07.000Z",
-                    "created_at": "2015-08-14T21:37:23.000Z",
+                    "last_login_at": "2019-01-30T08:58:07-05:00",
+                    "created_at": "2015-08-14T17:37:23-04:00",
                     "mail": "joe.smith@example.com",
                     "picture_url": "https://accounts.acquia.com/images/users/2429bf71-9145-4266-b532-1f4e3beaed55/style/avatar",
                     "username": "joe.smith"
@@ -24905,7 +25678,7 @@
                   },
                   "uuid": "d258dc23-90c5-447c-b550-981b469796d9",
                   "email": "joe.smith@example.com",
-                  "created_at": "2019-01-30T14:12:15.000Z",
+                  "created_at": "2019-01-30T09:12:15-05:00",
                   "token": "189d2089-c7f1-418c-a437-9676f4edb1b3",
                   "flags": {
                     "declined": false
@@ -25033,6 +25806,12 @@
       }
     },
     "/invites/{token}/actions/accept": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "post": {
         "tags": [
           "Invite"
@@ -25109,6 +25888,12 @@
       }
     },
     "/invites/{token}/actions/decline": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "post": {
         "tags": [
           "Invite"
@@ -25185,6 +25970,12 @@
       }
     },
     "/invites/{token}/actions/resend": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "post": {
         "tags": [
           "Invite"
@@ -25243,6 +26034,12 @@
       }
     },
     "/messages/{messageUuid}/actions/dismiss": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "post": {
         "tags": [
           "Messages"
@@ -25320,6 +26117,12 @@
       }
     },
     "/messages/{messageUuid}/actions/follow": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Messages"
@@ -25367,6 +26170,12 @@
       }
     },
     "/notifications/{notificationUuid}": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Notifications"
@@ -25398,8 +26207,8 @@
                   "event": "ApplicationAddedToRecents",
                   "label": "Application added to recents list",
                   "description": "\"Canary QA 11 - ACE\" was added to your recent applications list.",
-                  "created_at": "2019-07-29T20:47:13.000Z",
-                  "completed_at": "2019-07-29T20:47:13.000Z",
+                  "created_at": "2019-07-29T20:47:13+00:00",
+                  "completed_at": "2019-07-29T20:47:13+00:00",
                   "status": "completed",
                   "progress": 100,
                   "context": {
@@ -25447,6 +26256,12 @@
       }
     },
     "/options": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Options"
@@ -25487,6 +26302,12 @@
       }
     },
     "/options/cde-sizes": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Options"
@@ -25565,6 +26386,12 @@
       }
     },
     "/options/log-forwarding": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Options"
@@ -25605,6 +26432,12 @@
       }
     },
     "/options/log-forwarding/sources": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Options"
@@ -25650,6 +26483,12 @@
       }
     },
     "/options/log-forwarding/consumers": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Options"
@@ -25692,6 +26531,12 @@
       }
     },
     "/options/colors": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Options"
@@ -25776,6 +26621,12 @@
       }
     },
     "/organizations": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Organizations"
@@ -25904,6 +26755,12 @@
       }
     },
     "/organizations/{organizationUuid}": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Organizations"
@@ -26241,6 +27098,12 @@
       }
     },
     "/organizations/{organizationUuid}/actions/change-owner": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "post": {
         "tags": [
           "Organizations"
@@ -26382,6 +27245,12 @@
       }
     },
     "/organizations/{organizationUuid}/actions/leave": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "post": {
         "tags": [
           "Organizations"
@@ -26476,6 +27345,12 @@
       }
     },
     "/organizations/{organizationUuid}/admins": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Organizations"
@@ -26605,6 +27480,12 @@
       }
     },
     "/organizations/{organizationUuid}/admins/{userUuid}": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Organizations"
@@ -26774,6 +27655,12 @@
       }
     },
     "/organizations/{organizationUuid}/admin-invites": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Organizations"
@@ -26842,7 +27729,7 @@
                         },
                         "uuid": "f921fa88-47e3-49df-9dbb-75950aaca428",
                         "email": "invitee@example.com",
-                        "created_at": "2012-05-15T12:00:00.000Z",
+                        "created_at": "2012-05-15T12:00:00Z",
                         "token": "dd9ea69fdcb6bee08b31a858b85535ec",
                         "flags": {
                           "declined": false
@@ -26868,7 +27755,7 @@
                         },
                         "uuid": "857a8ec9-ac33-428d-8b1c-718d7f6f9aa4",
                         "email": "invitee2@example.com",
-                        "created_at": "2012-05-15T12:00:00.000Z",
+                        "created_at": "2012-05-15T12:00:00Z",
                         "token": "dd9ea69fdcb6bee08b31a858b85535ed",
                         "flags": {
                           "declined": false
@@ -27024,6 +27911,12 @@
       }
     },
     "/organizations/{organizationUuid}/applications": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Organizations"
@@ -27229,6 +28122,12 @@
       }
     },
     "/organizations/{organizationUuid}/available-tags": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Organizations"
@@ -27822,6 +28721,12 @@
       }
     },
     "/organizations/{organizationUuid}/identity-provider": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Organizations"
@@ -27893,6 +28798,12 @@
       }
     },
     "/organizations/{organizationUuid}/members": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Organizations"
@@ -28068,6 +28979,12 @@
       }
     },
     "/organizations/{organizationUuid}/members/{userUuid}": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Organizations"
@@ -28277,6 +29194,12 @@
       }
     },
     "/organizations/{organizationUuid}/members/{userUuid}/applications": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Organizations"
@@ -28430,6 +29353,12 @@
       }
     },
     "/organizations/{organizationUuid}/notifications": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Organizations"
@@ -28501,8 +29430,8 @@
                         "event": "TeamCreated",
                         "label": "Team created",
                         "description": "Created a new team project anomaly.",
-                        "created_at": "2022-12-08T15:42:37.000Z",
-                        "completed_at": "2022-12-08T15:42:37.000Z",
+                        "created_at": "2022-12-08T15:42:37+00:00",
+                        "completed_at": "2022-12-08T15:42:37+00:00",
                         "status": "completed",
                         "progress": 100,
                         "context": {
@@ -28550,8 +29479,8 @@
                             "uuid": "08a44409-568f-46f6-8038-4f30e19e3eb2",
                             "first_name": "Thomas",
                             "last_name": "Anderson",
-                            "last_login_at": "2022-11-30T16:22:48.000Z",
-                            "created_at": "2019-10-15T20:22:19.000Z",
+                            "last_login_at": "2022-11-30T16:22:48+00:00",
+                            "created_at": "2019-10-15T20:22:19+00:00",
                             "email": "thomas.a.anderson@acquia.com",
                             "picture_url": "https://accounts.acquia.com/images/users/08a44409-568f-46f6-8038-4f30e19e3eb2/style/avatar",
                             "username": "thomas.a.anderson@acquia.com"
@@ -28586,6 +29515,12 @@
       }
     },
     "/organizations/{organizationUuid}/roles": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Organizations"
@@ -28671,7 +29606,7 @@
                           "name": "Example Organization"
                         },
                         "last_edited": {
-                          "edited_at": "2011-03-28T17:09:41.000Z",
+                          "edited_at": "2011-03-28T13:09:41-04:00",
                           "user": {
                             "uuid": "aaaa1234-11e2-c374-6954-6931d150b259",
                             "first_name": "Jane",
@@ -28719,7 +29654,7 @@
                           "name": "Example Organization"
                         },
                         "last_edited": {
-                          "edited_at": "2011-03-28T17:09:41.000Z",
+                          "edited_at": "2011-03-28T13:09:41-04:00",
                           "user": {
                             "uuid": "6661357e-f562-4b77-8de9-60b4bf83e01b",
                             "first_name": "Acquia",
@@ -28758,7 +29693,7 @@
                           "name": "Example Organization"
                         },
                         "last_edited": {
-                          "edited_at": "2011-03-28T17:09:41.000Z",
+                          "edited_at": "2011-03-28T13:09:41-04:00",
                           "user": {
                             "uuid": "bbbb1234-11e2-c374-6954-6931d150b259",
                             "first_name": "John",
@@ -28988,6 +29923,12 @@
       }
     },
     "/organizations/{organizationUuid}/subscriptions": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Organizations"
@@ -29196,6 +30137,12 @@
       }
     },
     "/organizations/{organizationUuid}/team-invites": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Organizations"
@@ -29264,8 +30211,8 @@
                           "uuid": "879fc134-e8d9-49ab-a1a8-ffa33fddf8c9",
                           "first_name": "Joe",
                           "last_name": "Smith",
-                          "last_login_at": "2019-01-30T13:58:07.000Z",
-                          "created_at": "2014-08-14T21:37:23.000Z",
+                          "last_login_at": "2019-01-30T08:58:07-05:00",
+                          "created_at": "2014-08-14T17:37:23-04:00",
                           "mail": "joe.smith@example.com",
                           "picture_url": "https://accounts.acquia.com/images/users/879fc134-e8d9-49ab-a1a8-ffa33fddf8c9/style/avatar",
                           "username": "joe.smith"
@@ -29286,7 +30233,7 @@
                         },
                         "uuid": "fd745f4b-178f-4c09-87cc-4061a60eb1c9",
                         "email": "invitee@example.com",
-                        "created_at": "2012-05-15T12:00:00.000Z",
+                        "created_at": "2012-05-15T12:00:00Z",
                         "token": "dd9ea69fdcb6bee08b31a858b85535ec",
                         "flags": {
                           "declined": true
@@ -29303,8 +30250,8 @@
                           "uuid": "7e181890-bfb9-40d7-874b-ec78912c7525",
                           "first_name": "Jane",
                           "last_name": "Smith",
-                          "last_login_at": "2018-01-30T13:58:07.000Z",
-                          "created_at": "2017-08-14T21:37:23.000Z",
+                          "last_login_at": "2018-01-30T08:58:07-05:00",
+                          "created_at": "2017-08-14T17:37:23-04:00",
                           "mail": "jane.smith@example.com",
                           "picture_url": "https://accounts.acquia.com/images/users/7e181890-bfb9-40d7-874b-ec78912c7525/style/avatar",
                           "username": "joe.smith"
@@ -29329,7 +30276,7 @@
                         },
                         "uuid": "036612d0-8879-44a6-b2e2-93e0e30fc7fb",
                         "email": "invitee2@example.com",
-                        "created_at": "2012-05-15T12:00:00.000Z",
+                        "created_at": "2012-05-15T12:00:00Z",
                         "token": "dd9ea69fdcb6bee08b31a858b85535ed",
                         "flags": {
                           "declined": false
@@ -29346,8 +30293,8 @@
                           "uuid": "36dd8434-8eda-4c75-9f80-4f8a76d622b2",
                           "first_name": "David",
                           "last_name": "Green",
-                          "last_login_at": "2018-03-21T13:48:07.000Z",
-                          "created_at": "2016-03-14T21:37:23.000Z",
+                          "last_login_at": "2018-03-21T08:48:07-05:00",
+                          "created_at": "2016-03-14T17:37:23-04:00",
                           "mail": "david.green@example.com",
                           "picture_url": "https://accounts.acquia.com/images/users/36dd8434-8eda-4c75-9f80-4f8a76d622b2/style/avatar",
                           "username": "joe.smith"
@@ -29368,7 +30315,7 @@
                         },
                         "uuid": "24f7baea-5d0c-4860-8838-23130f092c48",
                         "email": "invitee2@example.com",
-                        "created_at": "2013-05-15T12:00:00.000Z",
+                        "created_at": "2013-05-15T12:00:00Z",
                         "token": "aa1ea69fdcb6bee08b31a858b85535ee",
                         "flags": {
                           "declined": false
@@ -29407,6 +30354,12 @@
       }
     },
     "/organizations/{organizationUuid}/teams": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Organizations"
@@ -29654,6 +30607,12 @@
       }
     },
     "/permissions": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Teams and Permissions"
@@ -30121,6 +31080,12 @@
       }
     },
     "/roles/{roleUuid}": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Teams and Permissions"
@@ -30194,7 +31159,7 @@
                     "name": "My Organization"
                   },
                   "last_edited": {
-                    "edited_at": "2011-03-28T17:09:41.000Z",
+                    "edited_at": "2011-03-28T13:09:41-04:00",
                     "user": {
                       "uuid": "590909a0-e819-43e6-a8e3-212dc3e35852",
                       "first_name": "Jane",
@@ -30413,6 +31378,12 @@
       }
     },
     "/subscriptions": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Subscriptions"
@@ -30477,8 +31448,8 @@
                         "id": 123,
                         "uuid": "faa297f3-f59a-4abc-8d71-904f51bcb1c5",
                         "name": "Acquia Cloud Free Subscription",
-                        "start_at": "2011-03-28T00:00:00.000Z",
-                        "expire_at": "2015-11-11T00:00:00.000Z",
+                        "start_at": "2011-03-28T00:00:00",
+                        "expire_at": "2015-11-11T00:00:00",
                         "product": {
                           "id": 1890149,
                           "name": "Acquia Cloud Free",
@@ -30519,8 +31490,8 @@
                         "id": 222,
                         "uuid": "36496037-6eb5-482d-8549-e45e1718f2b7",
                         "name": "My Acquia Subscription",
-                        "start_at": "2012-05-15T12:00:00.000Z",
-                        "expire_at": "2015-05-15T12:00:00.000Z",
+                        "start_at": "2012-05-15T12:00:00Z",
+                        "expire_at": "2015-05-15T12:00:00Z",
                         "product": {
                           "id": 8999,
                           "name": "Enterprise",
@@ -30561,8 +31532,8 @@
                         "id": 333,
                         "uuid": "2d92f652-882c-458a-8183-4d9cef7c2fde",
                         "name": "My Acquia Subscription 2",
-                        "start_at": "2012-05-15T12:00:00.000Z",
-                        "expire_at": "2015-05-15T12:00:00.000Z",
+                        "start_at": "2012-05-15T12:00:00Z",
+                        "expire_at": "2015-05-15T12:00:00Z",
                         "product": {
                           "id": 8999,
                           "name": "Enterprise",
@@ -30627,6 +31598,12 @@
       }
     },
     "/subscriptions/{subscriptionUuid}": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Subscriptions"
@@ -30657,8 +31634,8 @@
                   "id": 329876,
                   "uuid": "8533debb-ae4e-427b-aa34-731719b4201a",
                   "name": "My Subscription",
-                  "start_at": "2015-05-13T00:00:00.000Z",
-                  "expire_at": "2018-05-12T00:00:00.000Z",
+                  "start_at": "2015-05-13T00:00:00",
+                  "expire_at": "2018-05-12T00:00:00",
                   "product": {
                     "id": 8999,
                     "name": "Enterprise",
@@ -30808,6 +31785,12 @@
       }
     },
     "/subscriptions/{subscriptionUuid}/apm": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Application Performance Monitoring Services"
@@ -30902,6 +31885,12 @@
       }
     },
     "/subscriptions/{subscriptionUuid}/apm/{apmType}": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Application Performance Monitoring Services"
@@ -30976,6 +31965,12 @@
       }
     },
     "/subscriptions/{subscriptionUuid}/apm/{apmType}/actions/opt-in": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "post": {
         "tags": [
           "Application Performance Monitoring Services"
@@ -31094,6 +32089,12 @@
       }
     },
     "/subscriptions/{subscriptionUuid}/applications": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Subscriptions"
@@ -31234,6 +32235,12 @@
       }
     },
     "/subscriptions/{subscriptionUuid}/code-studio": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Subscriptions"
@@ -31422,6 +32429,12 @@
       }
     },
     "/subscriptions/{subscriptionUuid}/code-studio/actions/enable": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "post": {
         "tags": [
           "Subscriptions"
@@ -31502,6 +32515,12 @@
       }
     },
     "/subscriptions/{subscriptionUuid}/code-studio/applications": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Subscriptions"
@@ -31639,6 +32658,12 @@
       }
     },
     "/subscriptions/{subscriptionUuid}/code-studio/users": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Subscriptions"
@@ -31863,6 +32888,12 @@
       }
     },
     "/subscriptions/{subscriptionUuid}/code-studio/users/{userUuid}": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Subscriptions"
@@ -32041,6 +33072,12 @@
       }
     },
     "/subscriptions/{subscriptionUuid}/domains": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Subscriptions"
@@ -32475,6 +33512,12 @@
       }
     },
     "/subscriptions/{subscriptionUuid}/domains/{domainRegistrationUuid}": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Subscriptions"
@@ -32728,6 +33771,12 @@
       }
     },
     "/subscriptions/{subscriptionUuid}/domains/{domainRegistrationUuid}/actions/verify": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "post": {
         "tags": [
           "Subscriptions"
@@ -32839,6 +33888,12 @@
       }
     },
     "/subscriptions/{subscriptionUuid}/entitlements": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Subscriptions"
@@ -32868,7 +33923,7 @@
                         "offering_ids": [
                           "b2a188df-00b7-47bf-a664-66835cde53b0"
                         ],
-                        "expires_at": "2023-05-16T11:15:05.000Z",
+                        "expires_at": "2023-05-16T11:15:05+00:00",
                         "flags": {
                           "trial": true
                         },
@@ -32883,7 +33938,7 @@
                         "offering_ids": [
                           "b2a188df-00b7-47bf-a664-66835cde53b0"
                         ],
-                        "expires_at": "2023-05-16T11:15:05.000Z",
+                        "expires_at": "2023-05-16T11:15:05+00:00",
                         "flags": {
                           "trial": true
                         },
@@ -32894,7 +33949,7 @@
                         "offering_ids": [
                           "b2a188df-00b7-47bf-a664-66835cde53b0"
                         ],
-                        "expires_at": "2023-05-16T11:15:05.000Z",
+                        "expires_at": "2023-05-16T11:15:05+00:00",
                         "flags": {
                           "trial": true
                         },
@@ -32908,7 +33963,7 @@
                         "offering_ids": [
                           "b2a188df-00b7-47bf-a664-66835cde53b0"
                         ],
-                        "expires_at": "2023-05-16T11:15:05.000Z",
+                        "expires_at": "2023-05-16T11:15:05+00:00",
                         "flags": {
                           "trial": true
                         },
@@ -32919,7 +33974,7 @@
                         "offering_ids": [
                           "b2a188df-00b7-47bf-a664-66835cde53b0"
                         ],
-                        "expires_at": "2023-05-16T11:15:05.000Z",
+                        "expires_at": "2023-05-16T11:15:05+00:00",
                         "flags": {
                           "trial": true
                         },
@@ -32930,7 +33985,7 @@
                         "offering_ids": [
                           "b2a188df-00b7-47bf-a664-66835cde53b0"
                         ],
-                        "expires_at": "2023-05-16T11:15:05.000Z",
+                        "expires_at": "2023-05-16T11:15:05+00:00",
                         "flags": {
                           "trial": true
                         },
@@ -32975,6 +34030,12 @@
       }
     },
     "/subscriptions/{subscriptionUuid}/ides": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Subscriptions"
@@ -33031,8 +34092,8 @@
                             "uuid": "10be1d3e-f2b4-4d34-855d-321df3938ffd",
                             "first_name": "First",
                             "last_name": "Last",
-                            "last_login_at": "2019-01-31T15:53:11.000Z",
-                            "created_at": "2016-08-14T21:38:59.000Z",
+                            "last_login_at": "2019-01-31T10:53:11-05:00",
+                            "created_at": "2016-08-14T17:38:59-04:00",
                             "email": "user.name@example.com",
                             "picture_url": "https://accounts.acquia.com/path/to/image.png",
                             "username": "user.name"
@@ -33062,8 +34123,8 @@
                             "uuid": "10be1d3e-f2b4-4d34-855d-321df3938ffd",
                             "first_name": "First",
                             "last_name": "Last",
-                            "last_login_at": "2019-01-31T15:53:11.000Z",
-                            "created_at": "2016-08-14T21:38:59.000Z",
+                            "last_login_at": "2019-01-31T10:53:11-05:00",
+                            "created_at": "2016-08-14T17:38:59-04:00",
                             "email": "user.name@example.com",
                             "picture_url": "https://accounts.acquia.com/path/to/image.png",
                             "username": "user.name"
@@ -33098,6 +34159,12 @@
       }
     },
     "/subscriptions/{subscriptionUuid}/metrics/usage": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Subscriptions"
@@ -33195,6 +34262,12 @@
       }
     },
     "/subscriptions/{subscriptionUuid}/metrics/usage/data": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Subscriptions"
@@ -33247,15 +34320,15 @@
                         "metric": "views",
                         "datapoints": [
                           [
-                            "2019-03-13T00:00:00.000Z",
+                            "2019-03-13T00:00:00+00:00",
                             "9"
                           ],
                           [
-                            "2019-03-14T00:00:00.000Z",
+                            "2019-03-14T00:00:00+00:00",
                             "1"
                           ]
                         ],
-                        "last_data_at": "2019-03-14T00:00:00.000Z",
+                        "last_data_at": "2019-03-14T00:00:00+00:00",
                         "metadata": {
                           "subscription": {
                             "uuids": [
@@ -33281,15 +34354,15 @@
                         "metric": "visits",
                         "datapoints": [
                           [
-                            "2019-03-13T00:00:00.000Z",
+                            "2019-03-13T00:00:00+00:00",
                             "3"
                           ],
                           [
-                            "2019-03-14T00:00:00.000Z",
+                            "2019-03-14T00:00:00+00:00",
                             "1"
                           ]
                         ],
-                        "last_data_at": "2019-03-14T00:00:00.000Z",
+                        "last_data_at": "2019-03-14T00:00:00+00:00",
                         "metadata": {
                           "subscription": {
                             "uuids": [
@@ -33357,6 +34430,12 @@
       }
     },
     "/subscriptions/{subscriptionUuid}/metrics/usage/data-by-application": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Subscriptions"
@@ -33422,15 +34501,15 @@
                         "metric": "views",
                         "datapoints": [
                           [
-                            "2019-03-13T00:00:00.000Z",
+                            "2019-03-13T00:00:00+00:00",
                             "9"
                           ],
                           [
-                            "2019-03-14T00:00:00.000Z",
+                            "2019-03-14T00:00:00+00:00",
                             "1"
                           ]
                         ],
-                        "last_data_at": "2019-03-14T00:00:00.000Z",
+                        "last_data_at": "2019-03-14T00:00:00+00:00",
                         "metadata": {
                           "subscription": {
                             "uuids": [
@@ -33463,15 +34542,15 @@
                         "metric": "visits",
                         "datapoints": [
                           [
-                            "2019-03-13T00:00:00.000Z",
+                            "2019-03-13T00:00:00+00:00",
                             "3"
                           ],
                           [
-                            "2019-03-14T00:00:00.000Z",
+                            "2019-03-14T00:00:00+00:00",
                             "1"
                           ]
                         ],
-                        "last_data_at": "2019-03-14T00:00:00.000Z",
+                        "last_data_at": "2019-03-14T00:00:00+00:00",
                         "metadata": {
                           "subscription": {
                             "uuids": [
@@ -33546,6 +34625,12 @@
       }
     },
     "/subscriptions/{subscriptionUuid}/metrics/usage/{usageMetric}": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Subscriptions"
@@ -33582,15 +34667,15 @@
                   "metric": "views",
                   "datapoints": [
                     [
-                      "2019-03-13T00:00:00.000Z",
+                      "2019-03-13T00:00:00+00:00",
                       "9"
                     ],
                     [
-                      "2019-03-14T00:00:00.000Z",
+                      "2019-03-14T00:00:00+00:00",
                       "1"
                     ]
                   ],
-                  "last_data_at": "2019-03-14T00:00:00.000Z",
+                  "last_data_at": "2019-03-14T00:00:00+00:00",
                   "metadata": {
                     "subscription": {
                       "uuids": [
@@ -33655,6 +34740,12 @@
       }
     },
     "/subscriptions/{subscriptionUuid}/metrics/usage/views-by-application": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Subscriptions"
@@ -33720,15 +34811,15 @@
                         "metric": "views",
                         "datapoints": [
                           [
-                            "2019-03-13T00:00:00.000Z",
+                            "2019-03-13T00:00:00+00:00",
                             "9"
                           ],
                           [
-                            "2019-03-14T00:00:00.000Z",
+                            "2019-03-14T00:00:00+00:00",
                             "1"
                           ]
                         ],
-                        "last_data_at": "2019-03-14T00:00:00.000Z",
+                        "last_data_at": "2019-03-14T00:00:00+00:00",
                         "metadata": {
                           "subscription": {
                             "uuids": [
@@ -33803,6 +34894,12 @@
       }
     },
     "/subscriptions/{subscriptionUuid}/metrics/usage/visits-by-application": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Subscriptions"
@@ -33868,15 +34965,15 @@
                         "metric": "visits",
                         "datapoints": [
                           [
-                            "2019-03-13T00:00:00.000Z",
+                            "2019-03-13T00:00:00+00:00",
                             "3"
                           ],
                           [
-                            "2019-03-14T00:00:00.000Z",
+                            "2019-03-14T00:00:00+00:00",
                             "1"
                           ]
                         ],
-                        "last_data_at": "2019-03-14T00:00:00.000Z",
+                        "last_data_at": "2019-03-14T00:00:00+00:00",
                         "metadata": {
                           "subscription": {
                             "uuids": [
@@ -33951,6 +35048,12 @@
       }
     },
     "/subscriptions/{subscriptionUuid}/shield-acl": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Subscriptions"
@@ -34236,6 +35339,12 @@
       }
     },
     "/subscriptions/{subscriptionUuid}/shield-acl/{shieldAclUuid}": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Subscriptions"
@@ -34609,6 +35718,12 @@
       }
     },
     "/subscriptions/{subscriptionUuid}/shield-acl/actions/reset": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "post": {
         "tags": [
           "Subscriptions"
@@ -34733,6 +35848,12 @@
       }
     },
     "/teams": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Teams and Permissions"
@@ -34838,6 +35959,12 @@
       }
     },
     "/teams/{teamUuid}": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Teams and Permissions"
@@ -35078,6 +36205,12 @@
       }
     },
     "/teams/{teamUuid}/actions/leave": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "post": {
         "tags": [
           "Teams and Permissions"
@@ -35154,6 +36287,12 @@
       }
     },
     "/teams/{teamUuid}/applications": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Teams and Permissions"
@@ -35441,6 +36580,12 @@
       }
     },
     "/teams/{teamUuid}/applications/{applicationUuid}": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "delete": {
         "tags": [
           "Teams and Permissions"
@@ -35526,6 +36671,12 @@
       }
     },
     "/teams/{teamUuid}/invites": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Teams and Permissions"
@@ -35621,7 +36772,7 @@
                         },
                         "uuid": "f4347e76-bcd7-41f6-91aa-ac6691755f0c",
                         "email": "invitee@example.com",
-                        "created_at": "2012-05-15T12:00:00.000Z",
+                        "created_at": "2012-05-15T12:00:00Z",
                         "token": "dd9ea69fdcb6bee08b31a858b85535ec",
                         "flags": {
                           "declined": true
@@ -35667,7 +36818,7 @@
                         },
                         "uuid": "6bf96944-bb9b-4629-b593-d658e44d8054",
                         "email": "invitee2@example.com",
-                        "created_at": "2012-05-15T12:00:00.000Z",
+                        "created_at": "2012-05-15T12:00:00Z",
                         "token": "dd9ea69fdcb6bee08b31a858b85535ed",
                         "flags": {
                           "declined": false
@@ -35901,6 +37052,12 @@
       }
     },
     "/teams/{teamUuid}/members": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "get": {
         "tags": [
           "Teams and Permissions"
@@ -36023,6 +37180,12 @@
       }
     },
     "/teams/{teamUuid}/members/{userUuid}": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
       "put": {
         "tags": [
           "Teams and Permissions"
@@ -36254,6 +37417,12 @@
       }
     },
     "/codebases/{codebaseId}/bulk-code-switch": {
+      "servers": [
+        {
+          "url": "/",
+          "description": ""
+        }
+      ],
       "get": {
         "operationId": "api_codebases_codebaseIdbulk-code-switch_get_collection",
         "tags": [
@@ -36342,7 +37511,7 @@
                               "created_at": {
                                 "type": "string",
                                 "format": "date-time",
-                                "example": "2024-12-20T06:39:57.000Z"
+                                "example": "2024-12-20T06:39:57+00:00"
                               }
                             }
                           }
@@ -36737,6 +37906,12 @@
       }
     },
     "/codebases/{codebaseId}/bulk-code-switch/{bulkCodeSwitchId}": {
+      "servers": [
+        {
+          "url": "/",
+          "description": ""
+        }
+      ],
       "get": {
         "operationId": "get_bulk_code_switch_resource",
         "tags": [
@@ -36792,7 +37967,7 @@
                     "created_at": {
                       "type": "string",
                       "format": "date-time",
-                      "example": "2024-12-20T06:39:57.000Z"
+                      "example": "2024-12-20T06:39:57+00:00"
                     }
                   }
                 }
@@ -36890,6 +38065,12 @@
       }
     },
     "/applications/{applicationId}/codebase": {
+      "servers": [
+        {
+          "url": "/",
+          "description": ""
+        }
+      ],
       "get": {
         "operationId": "api_applications_applicationIdcodebase_get",
         "tags": [
@@ -36994,12 +38175,12 @@
                     "created_at": {
                       "type": "string",
                       "format": "date-time",
-                      "example": "2024-12-11T04:25:47.000Z"
+                      "example": "2024-12-11T04:25:47+00:00"
                     },
                     "updated_at": {
                       "type": "string",
                       "format": "date-time",
-                      "example": "2024-12-11T04:25:47.000Z"
+                      "example": "2024-12-11T04:25:47+00:00"
                     },
                     "description": {
                       "type": "string",
@@ -37104,6 +38285,12 @@
       }
     },
     "/codebases": {
+      "servers": [
+        {
+          "url": "/",
+          "description": ""
+        }
+      ],
       "get": {
         "operationId": "api_codebases_get_collection",
         "tags": [
@@ -37241,12 +38428,12 @@
                               "created_at": {
                                 "type": "string",
                                 "format": "date-time",
-                                "example": "2024-12-20T06:39:50.000Z"
+                                "example": "2024-12-20T06:39:50+00:00"
                               },
                               "updated_at": {
                                 "type": "string",
                                 "format": "date-time",
-                                "example": "2024-12-20T06:39:50.000Z"
+                                "example": "2024-12-20T06:39:50+00:00"
                               },
                               "description": {
                                 "type": "string",
@@ -37422,6 +38609,12 @@
       }
     },
     "/codebases/{codebaseId}": {
+      "servers": [
+        {
+          "url": "/",
+          "description": ""
+        }
+      ],
       "get": {
         "operationId": "get_codebase_by_id",
         "tags": [
@@ -37526,12 +38719,12 @@
                     "created_at": {
                       "type": "string",
                       "format": "date-time",
-                      "example": "2024-12-11T04:25:47.000Z"
+                      "example": "2024-12-11T04:25:47+00:00"
                     },
                     "updated_at": {
                       "type": "string",
                       "format": "date-time",
-                      "example": "2024-12-11T04:25:47.000Z"
+                      "example": "2024-12-11T04:25:47+00:00"
                     },
                     "description": {
                       "type": "string",
@@ -37895,6 +39088,18 @@
             "style": "simple",
             "explode": false,
             "allowReserved": false
+          },
+          {
+            "name": "force",
+            "in": "query",
+            "description": "Force-delete the codebase, bypassing application checks. Requires ROLE_ENGINEERING.",
+            "required": false,
+            "deprecated": false,
+            "schema": {
+              "type": "boolean"
+            },
+            "style": "form",
+            "explode": false
           }
         ],
         "deprecated": false,
@@ -37906,6 +39111,12 @@
       }
     },
     "/subscriptions/{subscriptionId}/codebases": {
+      "servers": [
+        {
+          "url": "/",
+          "description": ""
+        }
+      ],
       "get": {
         "operationId": "subscription_codebases",
         "tags": [
@@ -38043,12 +39254,12 @@
                               "created_at": {
                                 "type": "string",
                                 "format": "date-time",
-                                "example": "2024-12-20T06:39:50.000Z"
+                                "example": "2024-12-20T06:39:50+00:00"
                               },
                               "updated_at": {
                                 "type": "string",
                                 "format": "date-time",
-                                "example": "2024-12-20T06:39:50.000Z"
+                                "example": "2024-12-20T06:39:50+00:00"
                               },
                               "description": {
                                 "type": "string",
@@ -38239,6 +39450,7 @@
       },
       "post": {
         "operationId": "api_subscriptions_subscriptionIdcodebases_post",
+        "x-prerelease": true,
         "tags": [
           "Codebases"
         ],
@@ -38546,6 +39758,12 @@
       }
     },
     "/codebases/{codebaseId}/applications": {
+      "servers": [
+        {
+          "url": "/",
+          "description": ""
+        }
+      ],
       "get": {
         "operationId": "codebase_applications",
         "x-prerelease": true,
@@ -38770,6 +39988,12 @@
       }
     },
     "/codebases/{codebaseId}/references": {
+      "servers": [
+        {
+          "url": "/",
+          "description": ""
+        }
+      ],
       "get": {
         "operationId": "get_references_by_codebase",
         "tags": [
@@ -39016,6 +40240,12 @@
       }
     },
     "/codebases/{codebaseId}/references/{referenceName}": {
+      "servers": [
+        {
+          "url": "/",
+          "description": ""
+        }
+      ],
       "get": {
         "operationId": "get_single_reference",
         "tags": [
@@ -39167,6 +40397,12 @@
       }
     },
     "/site-instances/{siteId}.{environmentId}/database": {
+      "servers": [
+        {
+          "url": "/",
+          "description": ""
+        }
+      ],
       "get": {
         "operationId": "site_instance_database",
         "x-cli-name": "site-instances:database",
@@ -39516,7 +40752,7 @@
               }
             }
           },
-          "required": false
+          "required": true
         },
         "deprecated": false,
         "security": [
@@ -39527,6 +40763,12 @@
       }
     },
     "/site-instances/{siteId}.{environmentId}/database/backups": {
+      "servers": [
+        {
+          "url": "/",
+          "description": ""
+        }
+      ],
       "get": {
         "operationId": "get_database_backups",
         "x-cli-name": "site-instances:database:backups",
@@ -40005,6 +41247,12 @@
       }
     },
     "/site-instances/{siteId}.{environmentId}/database/backups/{id}": {
+      "servers": [
+        {
+          "url": "/",
+          "description": ""
+        }
+      ],
       "get": {
         "operationId": "get_database_backup",
         "x-cli-name": "site-instances:database:backups:get",
@@ -40370,6 +41618,12 @@
       }
     },
     "/site-instances/{siteId}.{environmentId}/database/backups/{id}/actions/download": {
+      "servers": [
+        {
+          "url": "/",
+          "description": ""
+        }
+      ],
       "get": {
         "operationId": "api_site-instances_siteId._environmentIddatabasebackups_idactionsdownload_get",
         "x-cli-name": "site-instances:database:backups:download",
@@ -40540,6 +41794,12 @@
       }
     },
     "/site-instances/{siteId}.{environmentId}/database/backups/{id}/actions/restore": {
+      "servers": [
+        {
+          "url": "/",
+          "description": ""
+        }
+      ],
       "post": {
         "operationId": "restore_database_backup",
         "x-cli-name": "site-instances:database:backups:restore",
@@ -40721,6 +41981,12 @@
       }
     },
     "/site-instances/{siteId}.{environmentId}/domains": {
+      "servers": [
+        {
+          "url": "/",
+          "description": ""
+        }
+      ],
       "get": {
         "operationId": "site_instance_domains",
         "x-cli-name": "site-instances:domains",
@@ -41016,6 +42282,12 @@
       }
     },
     "/site-instances/{siteId}.{environmentId}/domains/{domainName}": {
+      "servers": [
+        {
+          "url": "/",
+          "description": ""
+        }
+      ],
       "get": {
         "operationId": "site_instance_domain",
         "x-cli-name": "site-instances:domain",
@@ -41044,18 +42316,13 @@
                         }
                       }
                     },
-                    "domain": {
-                      "type": "object",
-                      "properties": {
-                        "name": {
-                          "type": "string",
-                          "example": "example.com"
-                        },
-                        "is_managed": {
-                          "type": "boolean",
-                          "example": true
-                        }
-                      }
+                    "name": {
+                      "type": "string",
+                      "example": "example.com"
+                    },
+                    "is_managed": {
+                      "type": "boolean",
+                      "example": true
                     }
                   }
                 }
@@ -41194,37 +42461,6 @@
         "x-prerelease": true,
         "tags": [],
         "responses": {
-          "201": {
-            "description": "Domain updated",
-            "content": {
-              "application/hal+json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "_links": {
-                      "type": "object",
-                      "properties": {
-                        "self": {
-                          "type": "object",
-                          "properties": {
-                            "href": {
-                              "type": "string",
-                              "format": "string",
-                              "example": "https://cloud.acquia.com/api/site-instances/3e8ecbec-ea7c-4260-8414-ef2938c859bc.d3f7270e-c45f-4801-9308-5e8afe84a323/domains/example.com"
-                            }
-                          }
-                        }
-                      }
-                    },
-                    "name": {
-                      "type": "string",
-                      "example": "example.com"
-                    }
-                  }
-                }
-              }
-            }
-          },
           "400": {
             "description": "Invalid input"
           },
@@ -41302,6 +42538,37 @@
           },
           "422": {
             "description": "Unprocessable entity"
+          },
+          "202": {
+            "description": "Domain updated.",
+            "content": {
+              "application/hal+json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "_links": {
+                      "type": "object",
+                      "properties": {
+                        "self": {
+                          "type": "object",
+                          "properties": {
+                            "href": {
+                              "type": "string",
+                              "format": "string",
+                              "example": "https://cloud.acquia.com/api/site-instances/3e8ecbec-ea7c-4260-8414-ef2938c859bc.d3f7270e-c45f-4801-9308-5e8afe84a323/domains/example.com"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "name": {
+                      "type": "string",
+                      "example": "example.com"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "Associate a site and environment with a domain.",
@@ -41519,6 +42786,12 @@
       }
     },
     "/site-instances/{siteId}.{environmentId}/domains/{domainName}/status": {
+      "servers": [
+        {
+          "url": "/",
+          "description": ""
+        }
+      ],
       "get": {
         "operationId": "site_instance_domain_status",
         "x-cli-name": "site-instances:domain:status",
@@ -41720,6 +42993,12 @@
       }
     },
     "/codebases/{codebaseId}/environments": {
+      "servers": [
+        {
+          "url": "/",
+          "description": ""
+        }
+      ],
       "get": {
         "operationId": "environments_by_codebase",
         "x-cli-name": "codebases:environments-list",
@@ -42113,6 +43392,12 @@
       }
     },
     "/codebases/{codebaseId}/environments/{environmentId}": {
+      "servers": [
+        {
+          "url": "/",
+          "description": ""
+        }
+      ],
       "get": {
         "operationId": "environment_by_codebase_id",
         "x-cli-name": "codebases:environments-find",
@@ -42359,6 +43644,12 @@
       }
     },
     "/v3/environments/{environmentId}": {
+      "servers": [
+        {
+          "url": "/",
+          "description": ""
+        }
+      ],
       "get": {
         "operationId": "environment_by_id",
         "x-cli-name": "environments-v3:find",
@@ -42780,7 +44071,7 @@
               }
             }
           },
-          "required": false
+          "required": true
         },
         "deprecated": false,
         "security": [
@@ -42791,6 +44082,12 @@
       }
     },
     "/sites/{siteId}/environments": {
+      "servers": [
+        {
+          "url": "/",
+          "description": ""
+        }
+      ],
       "get": {
         "operationId": "environments_by_site",
         "x-cli-name": "sites:environments-list",
@@ -43182,6 +44479,12 @@
       }
     },
     "/environments/{environmentId}/site-instances": {
+      "servers": [
+        {
+          "url": "/",
+          "description": ""
+        }
+      ],
       "post": {
         "operationId": "api_environments_environmentIdsite-instances_post",
         "x-cli-name": "environments:site-instances:create",
@@ -43352,7 +44655,7 @@
               }
             }
           },
-          "required": false
+          "required": true
         },
         "deprecated": false,
         "security": [
@@ -43363,6 +44666,12 @@
       }
     },
     "/site-instances/{siteId}.{environmentId}": {
+      "servers": [
+        {
+          "url": "/",
+          "description": ""
+        }
+      ],
       "get": {
         "operationId": "site_instance",
         "x-cli-name": "site-instances:find",
@@ -43698,6 +45007,12 @@
       }
     },
     "/site-instances/{siteId}.{environmentId}/actions/cancel": {
+      "servers": [
+        {
+          "url": "/",
+          "description": ""
+        }
+      ],
       "post": {
         "operationId": "api_site-instances_siteId._environmentIdactionscancel_post",
         "x-cli-name": "site-instances:dissociate",
@@ -43876,6 +45191,12 @@
       }
     },
     "/site-instances/{siteId}.{environmentId}/files": {
+      "servers": [
+        {
+          "url": "/",
+          "description": ""
+        }
+      ],
       "post": {
         "operationId": "api_site-instances_siteId._environmentIdfiles_post",
         "x-cli-name": "site-instances:files:copy",
@@ -44060,7 +45381,7 @@
               }
             }
           },
-          "required": false
+          "required": true
         },
         "deprecated": false,
         "security": [
@@ -44071,6 +45392,12 @@
       }
     },
     "/v3/environments/{environmentId}/actions/clear-caches": {
+      "servers": [
+        {
+          "url": "/",
+          "description": ""
+        }
+      ],
       "post": {
         "operationId": "postV3EnvironmentsClearCaches",
         "x-cli-name": "environments-v3:clear-caches",
@@ -44229,7 +45556,7 @@
               }
             }
           },
-          "required": false
+          "required": true
         },
         "deprecated": false,
         "security": [
@@ -44240,6 +45567,11 @@
       }
     },
     "/private-networks": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api"
+        }
+      ],
       "post": {
         "summary": "Create a new Private Network",
         "description": "Creates a new Private Network with optional subresource configuration.\n\nThis comprehensive endpoint allows you to create a private network and optionally configure \nits subresources (connections, VPNs, VPC peers, ingress, and isolation) during the initial creation.\n\n**Subresource Creation:**\n- **Connections**: Configure CIDR block and egress access settings\n- **VPNs**: Create one or more VPN connections with tunnel configurations\n- **VPC Peers**: Create one or more VPC peering connections\n- **Ingress**: Configure ingress access rules and privacy settings\n- **Isolation**: Configure compute and network isolation flags\n\nAll subresources are optional. If not specified during creation, they can be configured later\nusing their respective endpoints.\n",
@@ -44307,6 +45639,11 @@
       }
     },
     "/private-networks/{privateNetworkId}": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api"
+        }
+      ],
       "get": {
         "summary": "Retrieve a Private Network by ID",
         "parameters": [
@@ -44466,6 +45803,11 @@
       }
     },
     "/subscriptions/{subscriptionId}/private-networks": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api"
+        }
+      ],
       "get": {
         "summary": "List Private Networks for a Subscription",
         "operationId": "getPrivateNetworksBySubscription",
@@ -44521,6 +45863,11 @@
       }
     },
     "/private-networks/{privateNetworkId}/connections/vpns": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api"
+        }
+      ],
       "post": {
         "summary": "Add a new VPN to an existing private network",
         "operationId": "addVpnToPrivateNetwork",
@@ -44674,6 +46021,11 @@
       }
     },
     "/private-networks/{privateNetworkId}/connections/vpns/{vpnId}": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api"
+        }
+      ],
       "get": {
         "summary": "Retrieve a VPN for a Private Network.",
         "operationId": "getVpnFromPrivateNetwork",
@@ -44883,6 +46235,11 @@
       }
     },
     "/private-networks/{privateNetworkId}/connections/vpc-peers": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api"
+        }
+      ],
       "post": {
         "summary": "Add a new VPC Peer to an existing private network",
         "operationId": "addVpcPeerToPrivateNetwork",
@@ -44906,7 +46263,8 @@
                 "name": "vpcPeer2",
                 "aws_account": "123456789012",
                 "vpc_id": "vpc-1234567890abcdef0",
-                "vpc_cidr": "120.24.16.1/24"
+                "vpc_cidr": "120.24.16.1/24",
+                "region": "eu-central-1"
               }
             }
           }
@@ -45003,6 +46361,11 @@
       }
     },
     "/private-networks/{privateNetworkId}/connections/vpc-peers/{vpcPeerId}": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api"
+        }
+      ],
       "get": {
         "summary": "Get a specific VPC Peer from a private network",
         "operationId": "getVpcPeerFromPrivateNetwork",
@@ -45102,6 +46465,11 @@
       }
     },
     "/private-networks/{privateNetworkId}/connections": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api"
+        }
+      ],
       "put": {
         "summary": "Update Connections for a Private Network.",
         "operationId": "updatePrivateNetworkConnections",
@@ -45212,6 +46580,11 @@
       }
     },
     "/private-networks/{privateNetworkId}/isolation": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api"
+        }
+      ],
       "get": {
         "summary": "Get Isolation for a Private Network.",
         "operationId": "getPrivateNetworkIsolation",
@@ -45322,6 +46695,11 @@
       }
     },
     "/private-networks/{privateNetworkId}/ingress": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api"
+        }
+      ],
       "put": {
         "summary": "Update Ingress for a Private Network.",
         "operationId": "updatePrivateNetworkIngress",
@@ -45436,6 +46814,12 @@
       }
     },
     "/codebases/{codebaseId}/sites": {
+      "servers": [
+        {
+          "url": "/",
+          "description": ""
+        }
+      ],
       "get": {
         "operationId": "api_codebases_codebaseIdsites_get_collection",
         "x-cli-name": "codebases:sites-list",
@@ -45515,6 +46899,11 @@
                               "codebase_id": {
                                 "type": "string",
                                 "example": "1234-5678"
+                              },
+                              "delete_at": {
+                                "type": "string",
+                                "format": "date-time",
+                                "example": "2026-12-31T23:59:59Z"
                               }
                             }
                           }
@@ -45583,6 +46972,26 @@
                           }
                         }
                       }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "bad_request"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "The request could not be understood due to malformed syntax."
                     }
                   }
                 }
@@ -45668,6 +47077,12 @@
       }
     },
     "/environments/{environmentId}/sites": {
+      "servers": [
+        {
+          "url": "/",
+          "description": ""
+        }
+      ],
       "get": {
         "operationId": "api_environments_environmentIdsites_get_collection",
         "x-cli-name": "environments:sites-list",
@@ -45756,6 +47171,11 @@
                               "codebase_id": {
                                 "type": "string",
                                 "example": "8765-4321"
+                              },
+                              "delete_at": {
+                                "type": "string",
+                                "format": "date-time",
+                                "example": "2026-12-31T23:59:59Z"
                               }
                             }
                           }
@@ -45824,6 +47244,26 @@
                           }
                         }
                       }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "bad_request"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "The request could not be understood due to malformed syntax."
                     }
                   }
                 }
@@ -45912,6 +47352,12 @@
       }
     },
     "/subscriptions/{subscriptionId}/sites": {
+      "servers": [
+        {
+          "url": "/",
+          "description": ""
+        }
+      ],
       "get": {
         "operationId": "api_subscriptions_subscriptionIdsites_get_collection",
         "tags": [],
@@ -45991,6 +47437,10 @@
                               "codebase_id": {
                                 "type": "string",
                                 "example": "8765-4321"
+                              },
+                              "deleted_at": {
+                                "type": "string",
+                                "example": "1798761599"
                               }
                             }
                           }
@@ -46028,6 +47478,26 @@
                           }
                         }
                       }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "bad_request"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "The request could not be understood due to malformed syntax."
                     }
                   }
                 }
@@ -46093,6 +47563,12 @@
       }
     },
     "/sites": {
+      "servers": [
+        {
+          "url": "/",
+          "description": ""
+        }
+      ],
       "get": {
         "operationId": "get_sites",
         "x-cli-name": "sites:list",
@@ -46172,6 +47648,11 @@
                               "codebase_id": {
                                 "type": "string",
                                 "example": "8765-4321"
+                              },
+                              "delete_at": {
+                                "type": "string",
+                                "format": "date-time",
+                                "example": "2026-12-31T23:59:59Z"
                               }
                             }
                           }
@@ -46240,6 +47721,26 @@
                           }
                         }
                       }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "bad_request"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "The request could not be understood due to malformed syntax."
                     }
                   }
                 }
@@ -46315,16 +47816,42 @@
         "x-prerelease": true,
         "tags": [],
         "responses": {
-          "201": {
-            "description": "Site created successfully.",
+          "400": {
+            "description": "Invalid input"
+          },
+          "404": {
+            "description": "Site not found.",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
                   "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "not_found"
+                    },
                     "message": {
                       "type": "string",
-                      "example": "Site with label:My Site 1 creation started."
+                      "example": "The site you are trying to access does not exist, or you do not have permission to access it."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable entity"
+          },
+          "202": {
+            "description": "Site creation started.",
+            "content": {
+              "application/hal+json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Site creation started."
                     },
                     "_links": {
                       "type": "object",
@@ -46353,32 +47880,6 @@
                 }
               }
             }
-          },
-          "400": {
-            "description": "Invalid input"
-          },
-          "404": {
-            "description": "Site not found.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "error": {
-                      "type": "string",
-                      "example": "not_found"
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "The site you are trying to access does not exist, or you do not have permission to access it."
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Unprocessable entity"
           }
         },
         "summary": "Creates a site for a codebase.",
@@ -46390,11 +47891,12 @@
             "application/json": {
               "schema": {
                 "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "name",
+                  "codebase_id"
+                ],
                 "properties": {
-                  "site_id": {
-                    "type": "string",
-                    "example": "0ebce493-9d09-479d-a9a8-138a206fa687"
-                  },
                   "name": {
                     "type": "string",
                     "example": "site1"
@@ -46402,6 +47904,10 @@
                   "label": {
                     "type": "string",
                     "example": "My Site 1"
+                  },
+                  "description": {
+                    "type": "string",
+                    "example": "My Site 1 description"
                   },
                   "codebase_id": {
                     "type": "string",
@@ -46411,7 +47917,7 @@
               }
             }
           },
-          "required": false
+          "required": true
         },
         "deprecated": false,
         "security": [
@@ -46422,6 +47928,12 @@
       }
     },
     "/sites/{siteId}": {
+      "servers": [
+        {
+          "url": "/",
+          "description": ""
+        }
+      ],
       "get": {
         "operationId": "get_site_by_id",
         "x-cli-name": "sites:find",
@@ -46431,7 +47943,7 @@
           "200": {
             "description": "Details about a particular site.",
             "content": {
-              "application/json": {
+              "application/hal+json": {
                 "schema": {
                   "type": "object",
                   "properties": {
@@ -46444,6 +47956,15 @@
                             "href": {
                               "type": "string",
                               "example": "https://cloud.acquia.com/api/sites/0ebce493-9d09-479d-a9a8-138a206fa687"
+                            }
+                          }
+                        },
+                        "codebase": {
+                          "type": "object",
+                          "properties": {
+                            "href": {
+                              "type": "string",
+                              "example": "https://cloud.acquia.com/api/codebases/8765-4321"
                             }
                           }
                         }
@@ -46468,6 +47989,19 @@
                     "codebase_id": {
                       "type": "string",
                       "example": "8765-4321"
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "ready",
+                        "marked-for-deletion"
+                      ],
+                      "example": "ready"
+                    },
+                    "delete_at": {
+                      "type": "string",
+                      "format": "date-time",
+                      "example": "2026-12-31T23:59:59Z"
                     }
                   }
                 }
@@ -46529,10 +48063,10 @@
         "x-prerelease": true,
         "tags": [],
         "responses": {
-          "202": {
+          "200": {
             "description": "Site updated successfully.",
             "content": {
-              "application/json": {
+              "application/hal+json": {
                 "schema": {
                   "type": "object",
                   "properties": {
@@ -46613,6 +48147,8 @@
             "application/json": {
               "schema": {
                 "type": "object",
+                "minProperties": 1,
+                "additionalProperties": false,
                 "properties": {
                   "label": {
                     "type": "string",
@@ -46626,7 +48162,7 @@
               }
             }
           },
-          "required": false
+          "required": true
         },
         "deprecated": false,
         "security": [
@@ -46642,15 +48178,15 @@
         "tags": [],
         "responses": {
           "202": {
-            "description": "Site delete started.",
+            "description": "Site deleted.",
             "content": {
-              "application/json": {
+              "application/hal+json": {
                 "schema": {
                   "type": "object",
                   "properties": {
                     "message": {
                       "type": "string",
-                      "example": "Site delete started."
+                      "example": "Site deleted."
                     },
                     "_links": {
                       "type": "object",
@@ -46720,6 +48256,118 @@
           }
         ]
       }
+    },
+    "/environments/{environmentId}/trusted-proxies": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
+      "get": {
+        "tags": [
+          "Environments"
+        ],
+        "summary": "Returns the trusted proxy settings for an Environment.",
+        "description": "Returns the trusted proxy settings for an Environment.",
+        "operationId": "getEnvironmentTrustedProxies",
+        "x-cli-name": "environments:trusted-proxies",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Acquia_Cloud_API_Documentation_environment-id"
+          }
+        ],
+        "security": [
+          {
+            "Acquia_Cloud_API_Documentation_OAuth2": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/hal+json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "is_enabled": {
+                      "type": "boolean",
+                      "description": "Whether trusted proxies are enabled.",
+                      "example": true
+                    },
+                    "addresses": {
+                      "type": "array",
+                      "description": "The list of trusted proxy IP addresses or CIDR ranges.",
+                      "items": {
+                        "type": "string",
+                        "example": "192.0.2.1"
+                      }
+                    },
+                    "_links": {
+                      "type": "object",
+                      "properties": {
+                        "self": {
+                          "type": "object",
+                          "properties": {
+                            "href": {
+                              "type": "string",
+                              "format": "uri",
+                              "example": "https://cloud.acquia.com/api/environments/24-a47ac10b-58cc-4372-a567-0e02b2c3d470/trusted-proxies"
+                            }
+                          }
+                        },
+                        "parent": {
+                          "type": "object",
+                          "properties": {
+                            "href": {
+                              "type": "string",
+                              "format": "uri",
+                              "example": "https://cloud.acquia.com/api/environments/24-a47ac10b-58cc-4372-a567-0e02b2c3d470"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "is_enabled": true,
+                  "addresses": [
+                    "192.0.2.1",
+                    "198.51.100.0/24"
+                  ],
+                  "_links": {
+                    "self": {
+                      "href": "https://cloud.acquia.com/api/environments/24-a47ac10b-58cc-4372-a567-0e02b2c3d470/trusted-proxies"
+                    },
+                    "parent": {
+                      "href": "https://cloud.acquia.com/api/environments/24-a47ac10b-58cc-4372-a567-0e02b2c3d470"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/hal+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Acquia_Cloud_API_Documentation_error"
+                },
+                "examples": {
+                  "Not found": {
+                    "value": {
+                      "error": "not_found",
+                      "message": "The environment you are trying to access does not exist, or you do not have permission to access it."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -46766,7 +48414,7 @@
         "schema": {
           "type": "string"
         },
-        "example": "2023-09-01T00:00:00.000Z"
+        "example": "2023-09-01"
       },
       "Acquia_Cloud_API_Documentation_to": {
         "name": "to",
@@ -46776,7 +48424,7 @@
         "schema": {
           "type": "string"
         },
-        "example": "2023-09-29T00:00:00.000Z"
+        "example": "2023-09-29"
       },
       "Acquia_Cloud_API_Documentation_sort": {
         "name": "sort",
@@ -46954,7 +48602,7 @@
       "Acquia_Cloud_API_Documentation_resolution": {
         "name": "resolution",
         "in": "query",
-        "description": "Specifies the data granularity of the request. Available resolutions: minute, hour, day, week or month.\n\nLimits:\n- 3 hour limit for “minute” resolution\n- 1 week limit for “hour” resolution\n- 6 month limit for “day” resolution\n- 1 year limit for \"week\" resolution\n- 3 year limit for “month” resolution\n",
+        "description": "Specifies the data granularity of the request. Available resolutions: minute, hour, day, week or month.\n\nLimits:\n- 3 hour limit for \u201cminute\u201d resolution\n- 1 week limit for \u201chour\u201d resolution\n- 6 month limit for \u201cday\u201d resolution\n- 1 year limit for \"week\" resolution\n- 3 year limit for \u201cmonth\u201d resolution\n",
         "required": false,
         "schema": {
           "type": "string",
@@ -47016,7 +48664,7 @@
         "schema": {
           "type": "string"
         },
-        "example": "2019-10-01T00:00:00.000Z"
+        "example": "2019-10-01"
       },
       "Acquia_Cloud_API_Documentation_deprecated-to": {
         "name": "to",
@@ -47027,7 +48675,7 @@
         "schema": {
           "type": "string"
         },
-        "example": "2020-01-01T00:00:00.000Z"
+        "example": "2020-01-01"
       },
       "Acquia_Cloud_API_Documentation_backup-id": {
         "name": "backupId",
@@ -47099,7 +48747,7 @@
         "schema": {
           "type": "string"
         },
-        "example": "2021-01-29T22:45:21.000Z"
+        "example": "2021-01-29T22:45:21+00:00"
       },
       "Acquia_Cloud_API_Documentation_to-no-default": {
         "name": "to",
@@ -47109,7 +48757,7 @@
         "schema": {
           "type": "string"
         },
-        "example": "2021-01-29T23:55:21.000Z"
+        "example": "2021-01-29T23:55:21+00:00"
       },
       "Acquia_Cloud_API_Documentation_index-id": {
         "name": "indexId",
@@ -47352,7 +49000,7 @@
         "schema": {
           "type": "string"
         },
-        "example": "2021-01-29T22:45:21.000Z"
+        "example": "2021-01-29T22:45:21+00:00"
       },
       "Acquia_Cloud_API_Documentation_ApmType": {
         "$ref": "#/components/parameters/Acquia_Cloud_API_Documentation_apm-type"
@@ -52378,10 +54026,60 @@
         "properties": {
           "total": {
             "type": "integer",
-            "description": "The number of items returned in the collection."
+            "description": "The total number of items in the collection."
+          },
+          "count": {
+            "type": "integer",
+            "description": "The number of items returned in the current result set."
           },
           "_links": {
-            "$ref": "#/components/schemas/Acquia_Cloud_API_Documentation_links"
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Acquia_Cloud_API_Documentation_links"
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "parent": {
+                    "type": "object",
+                    "description": "A link to the parent environment resource.",
+                    "properties": {
+                      "href": {
+                        "type": "string",
+                        "format": "uri",
+                        "description": "The URI of the parent environment."
+                      }
+                    }
+                  },
+                  "limit": {
+                    "type": "object",
+                    "description": "A templated link to apply a limit to the collection.",
+                    "properties": {
+                      "href": {
+                        "type": "string",
+                        "description": "The URI template for applying a limit."
+                      },
+                      "templated": {
+                        "type": "boolean"
+                      }
+                    }
+                  },
+                  "offset": {
+                    "type": "object",
+                    "description": "A templated link to apply an offset to the collection.",
+                    "properties": {
+                      "href": {
+                        "type": "string",
+                        "description": "The URI template for applying an offset."
+                      },
+                      "templated": {
+                        "type": "boolean"
+                      }
+                    }
+                  }
+                }
+              }
+            ]
           },
           "_embedded": {
             "type": "object",
@@ -60313,6 +62011,10 @@
           "vpc_cidr": {
             "type": "string",
             "pattern": "^([0-9]{1,3}\\.){3}[0-9]{1,3}/[0-9]{1,2}$"
+          },
+          "region": {
+            "type": "string",
+            "description": "The region where the VPC Peer is deployed"
           }
         }
       },
@@ -60338,6 +62040,10 @@
           "peering_connection_id": {
             "type": "string",
             "description": "The ID of the peering connection (optional)"
+          },
+          "region": {
+            "type": "string",
+            "description": "The region where the VPC Peer is deployed (optional)"
           },
           "_links": {
             "$ref": "#/components/schemas/Private_Network_Service_API_HalItem"
@@ -60683,6 +62389,19 @@
           "codebase_id": {
             "$ref": "#/components/schemas/Site_Service_CodebaseId"
           },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ready",
+              "marked-for-deletion"
+            ]
+          },
+          "delete_at": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time",
+            "description": "ISO 8601 datetime indicating when the site is scheduled for deletion. Only present when status is marked-for-deletion."
+          },
           "_links": {
             "type": "array",
             "items": {
@@ -60764,6 +62483,19 @@
           },
           "codebase_id": {
             "$ref": "#/components/schemas/Site_Service_CodebaseId.jsonhal"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ready",
+              "marked-for-deletion"
+            ]
+          },
+          "delete_at": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time",
+            "description": "ISO 8601 datetime indicating when the site is scheduled for deletion. Only present when status is marked-for-deletion."
           }
         }
       },
@@ -61118,8 +62850,8 @@
               "description": "Private network for NGC",
               "label": "ngc-private",
               "status": "active",
-              "created_at": "2023-10-01T12:00:00.000Z",
-              "updated_at": "2023-10-01T12:00:00.000Z"
+              "created_at": "2023-10-01T12:00:00Z",
+              "updated_at": "2023-10-01T12:00:00Z"
             }
           }
         }
@@ -61194,7 +62926,8 @@
               "aws_account": "123456789012",
               "vpc_id": "vpc-1234567890abcdef0",
               "vpc_cidr": "120.24.16.1/24",
-              "peering_connection_id": "pcx-1234567890abcdef0"
+              "peering_connection_id": "pcx-1234567890abcdef0",
+              "region": "eu-central-1"
             }
           }
         }
@@ -61315,8 +63048,8 @@
                       "name": "test-private-network-1",
                       "label": "some label",
                       "description": "Private network description",
-                      "created_at": "2021-01-01T00:00:00.000Z",
-                      "updated_at": "2021-01-01T00:00:00.000Z",
+                      "created_at": "2021-01-01T00:00:00Z",
+                      "updated_at": "2021-01-01T00:00:00Z",
                       "_links": {
                         "self": {
                           "href": "https://cloud.acquia.com/api/private-networks/456e4567-e89b-11d3-a789-426614174000"
@@ -61331,8 +63064,8 @@
                       "name": "test-private-network-2",
                       "label": "some label",
                       "description": "Private network description",
-                      "created_at": "2021-01-01T00:00:00.000Z",
-                      "updated_at": "2021-01-01T00:00:00.000Z",
+                      "created_at": "2021-01-01T00:00:00Z",
+                      "updated_at": "2021-01-01T00:00:00Z",
                       "_links": {
                         "self": {
                           "href": "https://cloud.acquia.com/api/private-networks/456e4567-e89b-11d3-a789-426614174001"
@@ -61441,14 +63174,16 @@
                     "name": "vpcPeer1",
                     "aws_account": "123456789012",
                     "vpc_id": "vpc-1234567890abcdef0",
-                    "vpc_cidr": "10.0.0.0/16"
+                    "vpc_cidr": "10.0.0.0/16",
+                    "region": "eu-central-1"
                   },
                   {
                     "id": 2,
                     "name": "vpcPeer2",
                     "aws_account": "123456789012",
                     "vpc_id": "vpc-1234567890abcdef0",
-                    "vpc_cidr": "10.0.0.0/16"
+                    "vpc_cidr": "10.0.0.0/16",
+                    "region": "eu-central-1"
                   }
                 ]
               }
@@ -61548,7 +63283,8 @@
                       "name": "vpcPeer1",
                       "aws_account": "123456789012",
                       "vpc_id": "vpc-1234567890abcdef0",
-                      "vpc_cidr": "120.24.16.1/24"
+                      "vpc_cidr": "120.24.16.1/24",
+                      "region": "eu-central-1"
                     }
                   ]
                 }
