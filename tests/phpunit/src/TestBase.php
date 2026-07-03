@@ -317,8 +317,12 @@ abstract class TestBase extends TestCase
     protected function getPathMethodCodeFromSpec(string $operationId): array
     {
         $acquiaCloudSpec = self::getCloudApiSpec();
+        $httpMethods = ['get', 'post', 'put', 'patch', 'delete', 'head', 'options', 'trace'];
         foreach ($acquiaCloudSpec['paths'] as $path => $methodEndpoint) {
             foreach ($methodEndpoint as $method => $endpoint) {
+                if (!in_array($method, $httpMethods, true) || !isset($endpoint['operationId'])) {
+                    continue;
+                }
                 if ($endpoint['operationId'] === $operationId) {
                     foreach ($endpoint['responses'] as $code => $response) {
                         if ($code >= 200 && $code < 300) {
