@@ -8,6 +8,7 @@ use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Command\Remote\SshCommand;
 use Acquia\Cli\Command\Self\ClearCacheCommand;
 use Acquia\Cli\Helpers\SshHelper;
+use PHPUnit\Framework\Attributes\Group;
 use Prophecy\Argument;
 
 /**
@@ -20,9 +21,7 @@ class SshCommandTest extends SshCommandTestBase
         return $this->injectCommand(SshCommand::class);
     }
 
-    /**
-     * @group serial
-     */
+    #[Group('serial')]
     public function testRemoteAliasesDownloadCommand(): void
     {
         ClearCacheCommand::clearCaches();
@@ -34,7 +33,7 @@ class SshCommandTest extends SshCommandTestBase
             'ssh',
             'site.dev@sitedev.ssh.hosted.acquia-sites.com',
             '-t',
-            '-o StrictHostKeyChecking=no',
+            '-o StrictHostKeyChecking=accept-new',
             '-o AddressFamily inet',
             '-o LogLevel=ERROR',
             'cd /var/www/html/devcloud2.dev; exec $SHELL -l',

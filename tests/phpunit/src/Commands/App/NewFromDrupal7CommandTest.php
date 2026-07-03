@@ -7,6 +7,7 @@ namespace Acquia\Cli\Tests\Commands\App;
 use Acquia\Cli\Command\App\NewFromDrupal7Command;
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Tests\CommandTestBase;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Prophecy\Prophecy\ObjectProphecy;
 use Symfony\Component\Process\Process;
 
@@ -80,8 +81,8 @@ class NewFromDrupal7CommandTest extends CommandTestBase
      *   that would be provided to the --recommendations CLI option.
      * @param string $expected_json
      *   The expected output.
-     * @dataProvider provideTestNewFromDrupal7Command
      */
+    #[DataProvider('provideTestNewFromDrupal7Command')]
     public function testNewFromDrupal7Command(string $extensions_json, string $recommendations_json, string $expected_json): void
     {
         foreach (func_get_args() as $file) {

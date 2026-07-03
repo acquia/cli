@@ -12,6 +12,7 @@ use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Tests\CommandTestBase;
 use AcquiaCloudApi\Connector\Connector;
 use Generator;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Prophecy\Argument;
 use Symfony\Component\Validator\Exception\ValidatorException;
 
@@ -87,9 +88,7 @@ class AuthLoginCommandTest extends CommandTestBase
         ];
     }
 
-    /**
-     * @dataProvider providerTestAuthLoginInvalidInputCommand
-     */
+    #[DataProvider('providerTestAuthLoginInvalidInputCommand')]
     public function testAuthLoginInvalidInputCommand(array $inputs, array $args): void
     {
         $this->clientServiceProphecy->isMachineAuthenticated()

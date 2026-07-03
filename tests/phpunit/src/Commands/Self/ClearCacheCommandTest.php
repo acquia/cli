@@ -8,6 +8,7 @@ use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Command\Ide\IdeListCommand;
 use Acquia\Cli\Command\Self\ClearCacheCommand;
 use Acquia\Cli\Tests\CommandTestBase;
+use PHPUnit\Framework\Attributes\Group;
 
 /**
  * @property \Acquia\Cli\Command\App\UnlinkCommand $command
@@ -19,9 +20,7 @@ class ClearCacheCommandTest extends CommandTestBase
         return $this->injectCommand(ClearCacheCommand::class);
     }
 
-    /**
-     * @group serial
-     */
+    #[Group('serial')]
     public function testAliasesAreCached(): void
     {
         ClearCacheCommand::clearCaches();
@@ -63,11 +62,19 @@ class ClearCacheCommandTest extends CommandTestBase
 
     public function testClearCaches(): void
     {
+        // Seed both caches so we can prove each is cleared.
+        $aliasCache = CommandBase::getAliasCache();
+        $aliasItem = $aliasCache->getItem('some-alias');
+        $aliasCache->save($aliasItem->set('value'));
+        $updateCache = CommandBase::getUpdateCheckCache();
+        $updateItem = $updateCache->getItem('latest-version.1_0_0');
+        $updateCache->save($updateItem->set('2.0.0'));
+
         $this->executeCommand();
         $output = $this->getDisplay();
         $this->assertStringContainsString('Acquia CLI caches were cleared', $output);
 
-        $cache = CommandBase::getAliasCache();
-        $this->assertCount(0, iterator_to_array($cache->getItems(), false));
+        $this->assertCount(0, iterator_to_array($aliasCache->getItems(), false));
+        $this->assertFalse(CommandBase::getUpdateCheckCache()->getItem('latest-version.1_0_0')->isHit());
     }
 }

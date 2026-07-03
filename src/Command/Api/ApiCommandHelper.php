@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace Acquia\Cli\Command\Api;
 
+use Acquia\Cli\Command\Acsf\AcsfListCommand;
 use Acquia\Cli\CommandFactoryInterface;
 use Acquia\Cli\Exception\AcquiaCliException;
-use Symfony\Component\Cache\Adapter\NullAdapter;
+use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\Cache\Adapter\PhpArrayAdapter;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputDefinition;
@@ -15,6 +16,11 @@ use Symfony\Component\Console\Logger\ConsoleLogger;
 
 class ApiCommandHelper
 {
+    /**
+     * @var array<string, array<mixed>>
+     */
+    private array $loadedSpecs = [];
+
     public function __construct(
         private ConsoleLogger $logger
     ) {
@@ -339,14 +345,21 @@ class ApiCommandHelper
      */
     private function getCloudApiSpec(string $specFilePath): array
     {
+        // Memoize within the process so building many commands (e.g. for the
+        // command list) loads the spec at most once.
+        if (isset($this->loadedSpecs[$specFilePath])) {
+            return $this->loadedSpecs[$specFilePath];
+        }
         $cacheKey = basename($specFilePath);
-        $cache = new PhpArrayAdapter(__DIR__ . '/../../../var/cache/' . $cacheKey . '.cache', new NullAdapter());
+        // Fall back to a filesystem cache so the parsed spec is still cached
+        // between invocations when the warmed PHP cache file is absent.
+        $cache = new PhpArrayAdapter(__DIR__ . '/../../../var/cache/' . $cacheKey . '.cache', new FilesystemAdapter());
         $cacheItemChecksum = $cache->getItem($cacheKey . '.checksum');
         $cacheItemSpec = $cache->getItem($cacheKey);
 
         // When running the phar, the original file may not exist. In that case, always use the cache.
         if (!file_exists($specFilePath) && $cacheItemSpec->isHit()) {
-            return $cacheItemSpec->get();
+            return $this->loadedSpecs[$specFilePath] = $cacheItemSpec->get();
         }
 
         // Otherwise, only use cache when it is valid.
@@ -356,19 +369,26 @@ class ApiCommandHelper
             $this->useCloudApiSpecCache()
             && $this->isApiSpecChecksumCacheValid($cacheItemChecksum, $checksum) && $cacheItemSpec->isHit()
         ) {
-            return $cacheItemSpec->get();
+            return $this->loadedSpecs[$specFilePath] = $cacheItemSpec->get();
         }
 
         // Parse file. This can take a long while!
         $this->logger->debug("Rebuilding caches...");
         $spec = json_decode(file_get_contents($specFilePath), true);
 
+        // Populate the fallback cache so the parse result survives even if
+        // the warmed PHP cache file is later deleted.
+        $cacheItemSpec->set($spec);
+        $cache->save($cacheItemSpec);
+        $cacheItemChecksum->set($checksum);
+        $cache->save($cacheItemChecksum);
+
         $cache->warmUp([
             $cacheKey => $spec,
             $cacheKey . '.checksum' => $checksum,
         ]);
 
-        return $spec;
+        return $this->loadedSpecs[$specFilePath] = $spec;
     }
 
     /**
@@ -377,45 +397,168 @@ class ApiCommandHelper
     private function generateApiCommandsFromSpec(array $acquiaCloudSpec, string $commandPrefix, CommandFactoryInterface $commandFactory): array
     {
         $apiCommands = [];
+        $skippedApiCommands = $this->getSkippedApiCommands();
         foreach ($acquiaCloudSpec['paths'] as $path => $endpoint) {
             foreach ($endpoint as $method => $schema) {
                 if (!array_key_exists('x-cli-name', $schema)) {
                     continue;
                 }
 
-                if (in_array($schema['x-cli-name'], $this->getSkippedApiCommands(), true)) {
+                if (in_array($schema['x-cli-name'], $skippedApiCommands, true)) {
                     continue;
                 }
 
-                $commandName = $commandPrefix . ':' . $schema['x-cli-name'];
-                $command = $commandFactory->createCommand();
-                $command->setName($commandName);
-                $command->setDescription($schema['summary']);
-                $command->setMethod($method);
-                $command->setResponses($schema['responses']);
-                $command->setHidden(
-                    self::isDeprecated($schema) || self::isPreRelease($schema)
-                );
-                if (array_key_exists('servers', $acquiaCloudSpec)) {
-                    $command->setServers($acquiaCloudSpec['servers']);
-                }
-                $command->setPath($path);
-
-                $helpText = "For more help, see https://cloudapi-docs.acquia.com/ or https://dev.acquia.com/api-documentation/acquia-cloud-site-factory-api for acsf commands.";
-                if (self::isPreRelease($schema)) {
-                    $helpText .= "\n\nThis endpoint is pre-release and therefore unsupported and may be changed or removed without notice.";
-                }
-                if (self::isDeprecated($schema)) {
-                    $helpText .= "\n\nThis endpoint is deprecated and may be removed without notice.";
-                }
-                $command->setHelp($helpText);
-
-                $this->addApiCommandParameters($schema, $acquiaCloudSpec, $command);
-                $apiCommands[] = $command;
+                $apiCommands[] = $this->buildApiCommand($path, $method, $schema, $acquiaCloudSpec, $commandPrefix, $commandFactory);
             }
         }
 
         return $apiCommands;
+    }
+
+    /**
+     * Build a single fully-configured API command from its spec entry.
+     */
+    private function buildApiCommand(string $path, string $method, array $schema, array $acquiaCloudSpec, string $commandPrefix, CommandFactoryInterface $commandFactory): ApiBaseCommand
+    {
+        $command = $commandFactory->createCommand();
+        $command->setName($commandPrefix . ':' . $schema['x-cli-name']);
+        $command->setDescription($schema['summary']);
+        $command->setMethod($method);
+        $command->setResponses($schema['responses']);
+        $command->setHidden(
+            self::isDeprecated($schema) || self::isPreRelease($schema)
+        );
+        if (array_key_exists('servers', $acquiaCloudSpec)) {
+            $command->setServers($acquiaCloudSpec['servers']);
+        }
+        $command->setPath($path);
+
+        $helpText = "For more help, see https://cloudapi-docs.acquia.com/ or https://dev.acquia.com/api-documentation/acquia-cloud-site-factory-api for acsf commands.";
+        if (self::isPreRelease($schema)) {
+            $helpText .= "\n\nThis endpoint is pre-release and therefore unsupported and may be changed or removed without notice.";
+        }
+        if (self::isDeprecated($schema)) {
+            $helpText .= "\n\nThis endpoint is deprecated and may be removed without notice.";
+        }
+        $command->setHelp($helpText);
+
+        $this->addApiCommandParameters($schema, $acquiaCloudSpec, $command);
+        return $command;
+    }
+
+    /**
+     * Build a lazy command-loader map for every spec-derived command.
+     *
+     * Each entry is a closure that fully configures one command only when it is
+     * actually requested. Registration is driven by a lightweight manifest
+     * (~30 KB) instead of the full ~1 MB spec, so invoking a non-API command
+     * (the common case) never loads or parses the full spec at all.
+     *
+     * @return array<string, \Closure(): \Symfony\Component\Console\Command\Command>
+     */
+    public function getApiCommandFactories(string $acquiaCloudSpecFilePath, string $commandPrefix, CommandFactoryInterface $commandFactory): array
+    {
+        $manifest = $this->getApiSpecManifest($acquiaCloudSpecFilePath);
+        $factories = [];
+        // Tracks whether each namespace has at least one visible command, so
+        // the namespace list commands match generateApiListCommands() exactly.
+        $namespaceHasVisibleCommand = [];
+        foreach ($manifest as $cliName => $entry) {
+            $name = $commandPrefix . ':' . $cliName;
+            $path = $entry['path'];
+            $method = $entry['method'];
+            $factories[$name] = function () use ($acquiaCloudSpecFilePath, $path, $method, $commandPrefix, $commandFactory): ApiBaseCommand {
+                $acquiaCloudSpec = $this->getCloudApiSpec($acquiaCloudSpecFilePath);
+                return $this->buildApiCommand($path, $method, $acquiaCloudSpec['paths'][$path][$method], $acquiaCloudSpec, $commandPrefix, $commandFactory);
+            };
+
+            $nameParts = explode(':', $name);
+            if (count($nameParts) < 3) {
+                continue;
+            }
+            $namespace = $nameParts[1];
+            $namespaceHasVisibleCommand[$namespace] ??= false;
+            if (!$entry['deprecated'] && !$entry['prerelease']) {
+                $namespaceHasVisibleCommand[$namespace] = true;
+            }
+        }
+        foreach ($namespaceHasVisibleCommand as $namespace => $hasVisibleCommand) {
+            if (!$hasVisibleCommand) {
+                continue;
+            }
+            $listName = $commandPrefix . ':' . $namespace;
+            $factories[$listName] = fn (): ApiListCommand|AcsfListCommand => $this->buildApiListCommand($listName, $namespace, $commandFactory);
+        }
+        return $factories;
+    }
+
+    /**
+     * Build (and cache) a lightweight manifest of the spec for command
+     * registration: command name, its path/method, and visibility flags.
+     *
+     * The manifest is stored in its own cache file, separate from the full
+     * spec, so loading it does not pull the full spec into memory.
+     *
+     * @return array<string, array{path: string, method: string, deprecated: bool, prerelease: bool}>
+     * @infection-ignore-all
+     */
+    private function getApiSpecManifest(string $specFilePath): array
+    {
+        $cacheKey = basename($specFilePath) . '.manifest';
+        $cache = new PhpArrayAdapter(__DIR__ . '/../../../var/cache/' . $cacheKey . '.cache', new FilesystemAdapter());
+        $manifestItem = $cache->getItem($cacheKey);
+        $checksumItem = $cache->getItem($cacheKey . '.checksum');
+
+        // When running the phar, the original spec file may not exist; rely on
+        // the bundled cache.
+        if (!file_exists($specFilePath) && $manifestItem->isHit()) {
+            return $manifestItem->get();
+        }
+
+        $checksum = md5_file($specFilePath);
+        if (
+            $this->useCloudApiSpecCache()
+            && $this->isApiSpecChecksumCacheValid($checksumItem, $checksum)
+            && $manifestItem->isHit()
+        ) {
+            return $manifestItem->get();
+        }
+
+        $manifest = $this->buildApiSpecManifest($this->getCloudApiSpec($specFilePath));
+        $cache->warmUp([
+            $cacheKey => $manifest,
+            $cacheKey . '.checksum' => $checksum,
+        ]);
+        return $manifest;
+    }
+
+    /**
+     * Reduce a full spec to the manifest entries used for command registration.
+     *
+     * @param array<mixed> $acquiaCloudSpec
+     * @return array<string, array{path: string, method: string, deprecated: bool, prerelease: bool}>
+     */
+    private function buildApiSpecManifest(array $acquiaCloudSpec): array
+    {
+        $skippedApiCommands = $this->getSkippedApiCommands();
+        $manifest = [];
+        foreach ($acquiaCloudSpec['paths'] as $path => $endpoint) {
+            foreach ($endpoint as $method => $schema) {
+                if (!array_key_exists('x-cli-name', $schema)) {
+                    continue;
+                }
+                if (in_array($schema['x-cli-name'], $skippedApiCommands, true)) {
+                    continue;
+                }
+                $manifest[$schema['x-cli-name']] = [
+                    'deprecated' => self::isDeprecated($schema),
+                    'method' => $method,
+                    'path' => $path,
+                    'prerelease' => self::isPreRelease($schema),
+                ];
+            }
+        }
+        return $manifest;
     }
 
     /**
@@ -555,62 +698,48 @@ class ApiCommandHelper
      */
     private function generateApiListCommands(array $apiCommands, string $commandPrefix, CommandFactoryInterface $commandFactory): array
     {
-        $apiListCommands = [];
+        // List commands (api:{namespace}) are only registered when at least one
+        // sub-command under that namespace exists and is visible. If every
+        // sub-command is hidden (deprecated/pre-release), the namespace list is
+        // omitted. Index namespace visibility in a single pass to avoid
+        // re-scanning the full command list for every command.
+        $namespaceHasVisibleCommand = [];
         foreach ($apiCommands as $apiCommand) {
             $commandNameParts = explode(':', $apiCommand->getName());
             if (count($commandNameParts) < 3) {
                 continue;
             }
             $namespace = $commandNameParts[1];
-            $name = $commandPrefix . ':' . $namespace;
-            $hasVisibleCommand = $this->namespaceHasVisibleCommand($apiCommands, $namespace);
-            if (!array_key_exists($name, $apiListCommands) && $hasVisibleCommand) {
-                /** @var \Acquia\Cli\Command\Acsf\AcsfListCommand|\Acquia\Cli\Command\Api\ApiListCommand $command */
-                $command = $commandFactory->createListCommand();
-                $command->setName($name);
-                $command->setNamespace($name);
-                $command->setAliases([]);
-                $command->setDescription("List all API commands for the $namespace resource");
-                $apiListCommands[$name] = $command;
+            if (!array_key_exists($namespace, $namespaceHasVisibleCommand)) {
+                $namespaceHasVisibleCommand[$namespace] = false;
             }
+            if (!$apiCommand->isHidden()) {
+                $namespaceHasVisibleCommand[$namespace] = true;
+            }
+        }
+
+        $apiListCommands = [];
+        foreach ($namespaceHasVisibleCommand as $namespace => $hasVisibleCommand) {
+            if (!$hasVisibleCommand) {
+                continue;
+            }
+            $name = $commandPrefix . ':' . $namespace;
+            $apiListCommands[$name] = $this->buildApiListCommand($name, $namespace, $commandFactory);
         }
         return $apiListCommands;
     }
 
     /**
-     * Whether any API command in the given namespace is visible (not hidden).
-     *
-     * List commands (api:{namespace}) are only registered when at least one sub-command
-     * under that namespace exists and is visible. If every sub-command is hidden
-     * (deprecated/pre-release), the namespace list is omitted.
-     *
-     * @param ApiBaseCommand[] $apiCommands
+     * Build a single namespace list command (e.g. api:accounts).
      */
-    private function namespaceHasVisibleCommand(array $apiCommands, string $namespace): bool
+    private function buildApiListCommand(string $name, string $namespace, CommandFactoryInterface $commandFactory): ApiListCommand|AcsfListCommand
     {
-        $commandsInNamespace = [];
-        foreach ($apiCommands as $apiCommand) {
-            $commandNameParts = explode(':', $apiCommand->getName());
-            if (count($commandNameParts) < 3) {
-                continue;
-            }
-            if ($commandNameParts[1] !== $namespace) {
-                continue;
-            }
-            $commandsInNamespace[] = $apiCommand;
-        }
-
-        if ($commandsInNamespace === []) {
-            return false;
-        }
-
-        foreach ($commandsInNamespace as $command) {
-            if (!$command->isHidden()) {
-                return true;
-            }
-        }
-
-        return false;
+        $command = $commandFactory->createListCommand();
+        $command->setName($name);
+        $command->setNamespace($name);
+        $command->setAliases([]);
+        $command->setDescription("List all API commands for the $namespace resource");
+        return $command;
     }
 
     /**

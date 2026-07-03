@@ -7,14 +7,15 @@ namespace Acquia\Cli\Tests\CloudApi;
 use Acquia\Cli\CloudApi\ConnectorFactory;
 use Acquia\Cli\CloudApi\PathRewriteConnector;
 use AcquiaCloudApi\Connector\Connector;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
- * @covers \Acquia\Cli\CloudApi\ConnectorFactory
- *
  * Unit tests for the ConnectorFactory. Ensures that the factory returns the correct
  * connector type depending on the presence of the AH_CODEBASE_UUID environment variable.
  */
+#[CoversClass(ConnectorFactory::class)]
 class ConnectorFactoryTest extends TestCase
 {
     /**
@@ -32,9 +33,7 @@ class ConnectorFactoryTest extends TestCase
     }
 
 
-    /**
-     * @dataProvider connectorFactoryProvider
-     */
+    #[DataProvider('connectorFactoryProvider')]
     public function testCreateConnectorFactoryBehavior(?string $envValue, string $expectedClass): void
     {
         if ($envValue !== null) {

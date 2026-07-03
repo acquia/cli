@@ -248,7 +248,7 @@ abstract class PullCommandTestBase extends CommandTestBase
         $command = [
             'rsync',
             '-avPhze',
-            'ssh -o StrictHostKeyChecking=no',
+            'ssh -o StrictHostKeyChecking=accept-new',
             $environment->ssh_url . ':' . $sourceDir,
             $destinationDir,
         ];

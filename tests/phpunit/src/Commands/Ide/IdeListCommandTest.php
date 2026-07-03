@@ -7,6 +7,7 @@ namespace Acquia\Cli\Tests\Commands\Ide;
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Command\Ide\IdeListCommand;
 use Acquia\Cli\Tests\CommandTestBase;
+use PHPUnit\Framework\Attributes\Group;
 
 /**
  * @property \Acquia\Cli\Command\Ide\IdeListCommand $command
@@ -18,9 +19,7 @@ class IdeListCommandTest extends CommandTestBase
         return $this->injectCommand(IdeListCommand::class);
     }
 
-    /**
-     * @group brokenProphecy
-     */
+    #[Group('brokenProphecy')]
     public function testIdeListCommand(): void
     {
         $applications = $this->mockRequest('getApplications');
@@ -49,9 +48,7 @@ class IdeListCommandTest extends CommandTestBase
         $this->assertStringContainsString('IDE URL: https://feea197a-9503-4441-9f49-b4d420b0ecf8.ides.acquia.com', $output);
     }
 
-    /**
-     * @group brokenProphecy
-     */
+    #[Group('brokenProphecy')]
     public function testIdeListEmptyCommand(): void
     {
         $this->mockRequest('getApplications');

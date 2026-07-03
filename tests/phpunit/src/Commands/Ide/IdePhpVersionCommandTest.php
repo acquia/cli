@@ -9,6 +9,7 @@ use Acquia\Cli\Command\Ide\IdePhpVersionCommand;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Helpers\LocalMachineHelper;
 use Acquia\Cli\Tests\CommandTestBase;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Prophecy\Prophecy\ObjectProphecy;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Process\Process;
@@ -38,9 +39,7 @@ class IdePhpVersionCommandTest extends CommandTestBase
         ];
     }
 
-    /**
-     * @dataProvider providerTestIdePhpVersionCommand
-     */
+    #[DataProvider('providerTestIdePhpVersionCommand')]
     public function testIdePhpVersionCommand(string $version): void
     {
         $localMachineHelper = $this->mockLocalMachineHelper();
@@ -73,9 +72,7 @@ class IdePhpVersionCommandTest extends CommandTestBase
         ];
     }
 
-    /**
-     * @dataProvider providerTestIdePhpVersionCommandFailure
-     */
+    #[DataProvider('providerTestIdePhpVersionCommandFailure')]
     public function testIdePhpVersionCommandFailure(string $version, string $exceptionClass): void
     {
         $this->expectException($exceptionClass);

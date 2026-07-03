@@ -10,6 +10,16 @@ Acquia CLI is not a local development environment. If you are looking for an int
 
 Install instructions and official documentation are available at https://docs.acquia.com/acquia-cli/install/
 
+### Shell completion
+
+Acquia CLI supports tab completion for bash, zsh, and fish. To enable it, run
+`acli completion --help` and follow the installation instructions for your
+shell. For example, for bash:
+
+```shell
+acli completion bash > /etc/bash_completion.d/acli
+```
+
 ## Contribution
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for instructions on building, testing, and contributing to Acquia CLI.

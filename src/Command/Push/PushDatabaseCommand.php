@@ -80,7 +80,7 @@ final class PushDatabaseCommand extends PushCommandBase
         $command = [
             'rsync',
             '-tDvPhe',
-            'ssh -o StrictHostKeyChecking=no',
+            'ssh -o StrictHostKeyChecking=accept-new',
             $localFilepath,
             $environment->sshUrl . ':' . $remoteFilepath,
         ];

@@ -9,6 +9,7 @@ use Acquia\Cli\AcsfApi\AcsfConnectorFactory;
 use Acquia\Cli\AcsfApi\AcsfCredentials;
 use Acquia\Cli\Application;
 use Acquia\Cli\Tests\TestBase;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 class AcsfServiceTest extends TestBase
 {
@@ -43,9 +44,7 @@ class AcsfServiceTest extends TestBase
         ];
     }
 
-    /**
-     * @dataProvider providerTestIsMachineAuthenticated
-     */
+    #[DataProvider('providerTestIsMachineAuthenticated')]
     public function testIsMachineAuthenticated(array $envVars, bool $isAuthenticated): void
     {
         self::setEnvVars($envVars);

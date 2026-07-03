@@ -12,6 +12,9 @@ use Gitlab\Api\Groups;
 use Gitlab\Api\ProjectNamespaces;
 use Gitlab\Api\Projects;
 use Gitlab\Client;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\RequiresOperatingSystem;
 use Prophecy\Argument;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Path;
@@ -20,8 +23,8 @@ use Symfony\Component\Yaml\Yaml;
 /**
  * @property \Acquia\Cli\Command\CodeStudio\CodeStudioPipelinesMigrateCommand
  *     $command
- * @requires OS linux|darwin
  */
+#[RequiresOperatingSystem('linux|darwin')]
 class CodeStudioPipelinesMigrateCommandTest extends CommandTestBase
 {
     use IdeRequiredTestTrait;
@@ -99,13 +102,8 @@ class CodeStudioPipelinesMigrateCommandTest extends CommandTestBase
         ];
     }
 
-    /**
-     * @dataProvider providerTestCommand
-     * @param $mockedGitlabProjects
-     * @param $args
-     * @param $inputs
-     * @group brokenProphecy
-     */
+    #[DataProvider('providerTestCommand')]
+    #[Group('brokenProphecy')]
     public function testCommand(mixed $mockedGitlabProjects, mixed $inputs, mixed $args): void
     {
         copy(

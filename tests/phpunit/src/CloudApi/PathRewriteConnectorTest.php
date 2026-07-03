@@ -6,16 +6,17 @@ namespace Acquia\Cli\Tests\CloudApi;
 
 use Acquia\Cli\CloudApi\PathRewriteConnector;
 use AcquiaCloudApi\Connector\ConnectorInterface;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
 /**
- * @covers \Acquia\Cli\CloudApi\PathRewriteConnector
- *
  * Unit tests for the PathRewriteConnector decorator. Ensures all path rewriting logic,
  * delegation, and error handling are correct.
  */
+#[CoversClass(PathRewriteConnector::class)]
 class PathRewriteConnectorTest extends TestCase
 {
     /**
@@ -47,11 +48,11 @@ class PathRewriteConnectorTest extends TestCase
     }
 
     /**
-     * @dataProvider createRequestProvider
      * @param string $verb The HTTP verb to test.
      * @param string $inputPath The input path to test.
      * @param string $expectedPath The expected path after rewriting.
      */
+    #[DataProvider('createRequestProvider')]
     public function testCreateRequestPathRewriting(string $verb, string $inputPath, string $expectedPath): void
     {
         $mock = $this->createMock(RequestInterface::class);
@@ -66,12 +67,12 @@ class PathRewriteConnectorTest extends TestCase
 
 
     /**
-     * @dataProvider sendRequestProvider
      * @param string $verb The HTTP verb to test.
      * @param string $inputPath The input path to test.
      * @param string $expectedPath The expected path after rewriting.
      * @param array $options The options to pass to sendRequest.
      */
+    #[DataProvider('sendRequestProvider')]
     public function testSendRequestPathRewriting(string $verb, string $inputPath, string $expectedPath, array $options): void
     {
         $mock = $this->createMock(ResponseInterface::class);
@@ -84,10 +85,10 @@ class PathRewriteConnectorTest extends TestCase
     }
 
     /**
-     * @dataProvider delegationProvider
      * @param string $method The method to test delegation for.
      * @param mixed $expected The expected return value from the inner connector.
      */
+    #[DataProvider('delegationProvider')]
     public function testDelegation(string $method, string $expected): void
     {
         $this->inner->expects($this->once())

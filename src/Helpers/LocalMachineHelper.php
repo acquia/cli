@@ -110,7 +110,7 @@ class LocalMachineHelper
      */
     private function configureProcess(Process $process, ?string $cwd = null, ?bool $printOutput = true, ?float $timeout = null, ?array $env = null, bool $stdin = true): Process
     {
-        if (function_exists('posix_isatty') && $stdin && !@posix_isatty(STDIN)) {
+        if (function_exists('posix_isatty') && $stdin && !$this->isTtyStream(STDIN)) {
             $process->setInput(STDIN);
         }
         if ($cwd) {
@@ -123,6 +123,32 @@ class LocalMachineHelper
         $process->setTimeout($timeout);
 
         return $process;
+    }
+
+    /**
+     * Determines whether a stream refers to an interactive terminal.
+     *
+     * posix_isatty() emits a warning (and returns FALSE) for streams that
+     * cannot be mapped to a file descriptor, e.g. in-memory streams. Handle
+     * that case explicitly instead of suppressing errors.
+     *
+     * @param resource|int $fileDescriptor
+     */
+    private function isTtyStream(mixed $fileDescriptor): bool
+    {
+        if (!function_exists('posix_isatty')) {
+            return false;
+        }
+        set_error_handler(static function (): bool {
+            // Swallow the warning; posix_isatty() returns FALSE in this
+            // case, correctly reporting the stream as not a TTY.
+            return true;
+        });
+        try {
+            return posix_isatty($fileDescriptor);
+        } finally {
+            restore_error_handler();
+        }
     }
 
     private function executeProcess(Process $process, ?callable $callback = null, ?bool $printOutput = true, ?array $env = null): Process
@@ -400,7 +426,20 @@ class LocalMachineHelper
         }
         if ($browser) {
             $this->io->info("Opening $uri");
-            $this->executeFromCmd("$browser $uri");
+            // Split the browser command on whitespace to support commands
+            // with arguments (e.g. "open -a Firefox") while passing the URI
+            // as a single argument so it is never shell-interpreted.
+            $cmd = array_values(array_filter(explode(' ', $browser), static function (string $part): bool {
+                return $part !== '';
+            }));
+            if ($cmd[0] === 'start' && OsInfo::isWindows()) {
+                // On Windows, `start` is a cmd.exe built-in rather than an
+                // executable, and it treats the first quoted argument as a
+                // window title, so pass an empty title before the URI.
+                $cmd = ['cmd', '/c', 'start', ''];
+            }
+            $cmd[] = $uri;
+            $this->execute($cmd, null, null, false);
 
             return true;
         }

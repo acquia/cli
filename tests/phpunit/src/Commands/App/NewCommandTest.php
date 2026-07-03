@@ -7,6 +7,7 @@ namespace Acquia\Cli\Tests\Commands\App;
 use Acquia\Cli\Command\App\NewCommand;
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Tests\CommandTestBase;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Prophecy\Prophecy\ObjectProphecy;
 use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Process\Process;
@@ -45,9 +46,7 @@ class NewCommandTest extends CommandTestBase
         ];
     }
 
-    /**
-     * @dataProvider provideTestNewDrupalCommand
-     */
+    #[DataProvider('provideTestNewDrupalCommand')]
     public function testNewDrupalCommand(array $package, string $directory = 'drupal'): void
     {
         $this->newProjectDir = Path::makeAbsolute($directory, $this->projectDir);

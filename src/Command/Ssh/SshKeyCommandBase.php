@@ -265,6 +265,16 @@ EOT
             throw new AcquiaCliException($process->getOutput() . $process->getErrorOutput());
         }
 
+        // The ssh-keygen utility sets restrictive permissions itself, but
+        // enforce them defensively in case of a permissive umask or
+        // non-standard ssh-keygen implementation.
+        if (file_exists($filepath)) {
+            chmod($filepath, 0600);
+        }
+        if (file_exists($this->sshDir)) {
+            chmod($this->sshDir, 0700);
+        }
+
         return $filepath;
     }
 
