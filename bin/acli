@@ -24,6 +24,7 @@ use Acquia\Cli\Helpers\LocalMachineHelper;
 use Dotenv\Dotenv;
 use SelfUpdate\SelfUpdateCommand;
 use SelfUpdate\SelfUpdateManager;
+use Symfony\Component\Console\CommandLoader\FactoryCommandLoader;
 use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Filesystem;
@@ -97,8 +98,12 @@ $application = $container->get(Application::class);
 $output = $container->get(OutputInterface::class);
 /** @var ApiCommandHelper $helper */
 $helper = $container->get(ApiCommandHelper::class);
-$application->addCommands($helper->getApiCommands( __DIR__ . '/../assets/acquia-spec.json', 'api', $container->get(ApiCommandFactory::class)));
-$application->addCommands($helper->getApiCommands( __DIR__ . '/../assets/acsf-spec.json', 'acsf', $container->get(AcsfCommandFactory::class)));
+// Register the spec-derived commands lazily so a normal invocation only builds
+// the single command being run, rather than all ~500 API/ACSF commands.
+$application->setCommandLoader(new FactoryCommandLoader(array_merge(
+  $helper->getApiCommandFactories(__DIR__ . '/../assets/acquia-spec.json', 'api', $container->get(ApiCommandFactory::class)),
+  $helper->getApiCommandFactories(__DIR__ . '/../assets/acsf-spec.json', 'acsf', $container->get(AcsfCommandFactory::class))
+)));
 try {
   /** @var SelfUpdateManager $selfUpdateManager*/
   $selfUpdateManager = $container->get(SelfUpdateManager::class);

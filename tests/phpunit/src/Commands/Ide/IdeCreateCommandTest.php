@@ -9,6 +9,7 @@ use Acquia\Cli\Command\Ide\IdeCreateCommand;
 use Acquia\Cli\Tests\CommandTestBase;
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Response;
+use PHPUnit\Framework\Attributes\Group;
 use Prophecy\Prophecy\ObjectProphecy;
 
 /**
@@ -38,9 +39,7 @@ class IdeCreateCommandTest extends CommandTestBase
         );
     }
 
-    /**
-     * @group brokenProphecy
-     */
+    #[Group('brokenProphecy')]
     public function testCreate(): void
     {
         $applicationsResponse = $this->mockRequest('getApplications');

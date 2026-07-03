@@ -16,13 +16,16 @@ use Gitlab\Api\Groups;
 use Gitlab\Api\ProjectNamespaces;
 use Gitlab\Api\Schedules;
 use Gitlab\Client;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\RequiresOperatingSystem;
 use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
 
 /**
  * @property \Acquia\Cli\Command\CodeStudio\CodeStudioWizardCommand $command
- * @requires OS linux|darwin
  */
+#[RequiresOperatingSystem('linux|darwin')]
 class CodeStudioWizardCommandTest extends WizardTestBase
 {
     use IdeRequiredTestTrait;
@@ -187,9 +190,7 @@ class CodeStudioWizardCommandTest extends WizardTestBase
         ];
     }
 
-    /**
-     * @dataProvider providerTestCommand
-     */
+    #[DataProvider('providerTestCommand')]
     public function testCommand(array $mockedGitlabProjects, array $inputs, array $args): void
     {
         $this->clientServiceProphecy->setConnector(Argument::type(Connector::class))
@@ -331,9 +332,7 @@ class CodeStudioWizardCommandTest extends WizardTestBase
         ];
     }
 
-    /**
-     * @dataProvider providerTestCommandCodebase
-     */
+    #[DataProvider('providerTestCommandCodebase')]
     public function testCommandCodebase(array $mockedGitlabProjects, array $inputs, array $args): void
     {
         $this->clientServiceProphecy->setConnector(Argument::type(Connector::class))
@@ -437,9 +436,7 @@ class CodeStudioWizardCommandTest extends WizardTestBase
         self::assertStringContainsString('Codebase', $output);
     }
 
-    /**
-     * @group brokenProphecy
-     */
+    #[Group('brokenProphecy')]
     public function testInvalidGitLabCredentials(): void
     {
         $localMachineHelper = $this->mockLocalMachineHelper();
@@ -455,9 +452,7 @@ class CodeStudioWizardCommandTest extends WizardTestBase
         ]);
     }
 
-    /**
-     * @group brokenProphecy
-     */
+    #[Group('brokenProphecy')]
     public function testMissingGitLabCredentials(): void
     {
         $localMachineHelper = $this->mockLocalMachineHelper();

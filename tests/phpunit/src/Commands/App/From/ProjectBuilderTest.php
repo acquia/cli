@@ -8,15 +8,16 @@ use Acquia\Cli\Command\App\From\Composer\ProjectBuilder;
 use Acquia\Cli\Command\App\From\Configuration;
 use Acquia\Cli\Command\App\From\Recommendation\Recommendations;
 use Acquia\Cli\Command\App\From\Recommendation\Resolver;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 final class ProjectBuilderTest extends TestCase
 {
     /**
-     * @dataProvider getTestResources
      * @param resource $configuration_resource
      * @param resource $recommendations_resource
      */
+    #[DataProvider('getTestResources')]
     public function test($configuration_resource, $recommendations_resource, array $expected_project_definition): void
     {
         assert(is_resource($configuration_resource));

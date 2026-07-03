@@ -8,6 +8,7 @@ use Acquia\Cli\Command\App\AppVcsInfo;
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Tests\CommandTestBase;
+use PHPUnit\Framework\Attributes\Group;
 
 /**
  * @property \Acquia\Cli\Command\App\AppVcsInfo $command
@@ -19,9 +20,7 @@ class AppVcsInfoTest extends CommandTestBase
         return $this->injectCommand(AppVcsInfo::class);
     }
 
-    /**
-     * @group brokenProphecy
-     */
+    #[Group('brokenProphecy')]
     public function testNoEnvAvailableCommand(): void
     {
         $applications = $this->mockRequest('getApplications');
@@ -45,9 +44,7 @@ class AppVcsInfoTest extends CommandTestBase
         );
     }
 
-    /**
-     * @group brokenProphecy
-     */
+    #[Group('brokenProphecy')]
     public function testNoVcsAvailableCommand(): void
     {
         $applications = $this->mockRequest('getApplications');
@@ -70,9 +67,7 @@ class AppVcsInfoTest extends CommandTestBase
         );
     }
 
-    /**
-     * @group brokenProphecy
-     */
+    #[Group('brokenProphecy')]
     public function testShowVcsListCommand(): void
     {
         $applications = $this->mockRequest('getApplications');
@@ -103,9 +98,7 @@ EOD;
         self::assertStringContainsStringIgnoringLineEndings($expected, $output);
     }
 
-    /**
-     * @group brokenProphecy
-     */
+    #[Group('brokenProphecy')]
     public function testNoDeployedVcs(): void
     {
         $applications = $this->mockRequest('getApplications');
@@ -134,9 +127,7 @@ EOD;
         );
     }
 
-    /**
-     * @group brokenProphecy
-     */
+    #[Group('brokenProphecy')]
     public function testListOnlyDeployedVcs(): void
     {
         $applications = $this->mockRequest('getApplications');

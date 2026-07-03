@@ -7,6 +7,7 @@ namespace Acquia\Cli\Tests\Commands\App\From;
 use Acquia\Cli\Command\App\From\Recommendation\RecommendationInterface;
 use Acquia\Cli\Command\App\From\Recommendation\Recommendations;
 use Acquia\Cli\Command\App\From\SourceSite\ExtensionInterface;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Prophecy\PhpUnit\ProphecyTrait;
 
@@ -23,8 +24,8 @@ class RecommendationsTest extends TestCase
      *   An expected recommendation or a JSON exception in the case that the
      *     given
      *   $configuration is malformed.
-     * @dataProvider getTestConfigurations
      */
+    #[DataProvider('getTestConfigurations')]
     public function test(string $configuration, mixed $expectation): void
     {
         $test_stream = fopen('php://memory', 'rw');

@@ -33,6 +33,7 @@ final class ClearCacheCommand extends CommandBase
     {
         $cache = self::getAliasCache();
         $cache->clear();
+        self::getUpdateCheckCache()->clear();
         $systemCacheDir = Path::join(sys_get_temp_dir(), 'symphony-cache');
         $fs = new Filesystem();
         $fs->remove([$systemCacheDir]);

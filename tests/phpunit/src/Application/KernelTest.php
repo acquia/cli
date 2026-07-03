@@ -5,12 +5,11 @@ declare(strict_types=1);
 namespace Acquia\Cli\Tests\Application;
 
 use Acquia\Cli\Tests\ApplicationTestBase;
+use PHPUnit\Framework\Attributes\Group;
 
 class KernelTest extends ApplicationTestBase
 {
-    /**
-     * @group serial
-     */
+    #[Group('serial')]
     public function testRun(): void
     {
         $this->setInput([

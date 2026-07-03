@@ -8,6 +8,7 @@ use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Command\Ssh\SshKeyUploadCommand;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Tests\CommandTestBase;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Prophecy\Argument;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Path;
@@ -63,9 +64,7 @@ class SshKeyUploadCommandTest extends CommandTestBase
         ];
     }
 
-    /**
-     * @dataProvider providerTestUpload
-     */
+    #[DataProvider('providerTestUpload')]
     public function testUpload(array $args, array $inputs, bool $perms): void
     {
         $sshKeysRequestBody = self::getMockRequestBodyFromSpec('/account/ssh-keys');

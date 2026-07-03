@@ -56,6 +56,47 @@ class TelemetryHelper
         return ($now - $buildTimestamp) > $interval;
     }
 
+    /**
+     * Redact values of sensitive options and arguments in telemetry data.
+     *
+     * @param array<mixed> $data
+     *   An array of option or argument values keyed by name.
+     * @return array<mixed>
+     *   The array with sensitive values redacted.
+     */
+    public static function redactSensitiveData(array $data): array
+    {
+        $sensitiveNames = [
+            'api-key',
+            'api-secret',
+            'key',
+            'password',
+            'secret',
+            'token',
+        ];
+        foreach ($data as $name => $value) {
+            if ($value !== null && in_array($name, $sensitiveNames, true)) {
+                $data[$name] = 'REDACTED';
+            } elseif (is_array($value)) {
+                $data[$name] = self::redactSensitiveData($value);
+            }
+        }
+        return $data;
+    }
+
+    /**
+     * Redact sensitive command-line parameters from a Bugsnag context string.
+     */
+    public static function redactSensitiveContext(string $context): string
+    {
+        foreach (['--password', '--key', '--secret'] as $sensitiveOption) {
+            if (str_contains($context, $sensitiveOption)) {
+                $context = substr($context, 0, strpos($context, $sensitiveOption) + strlen($sensitiveOption)) . 'REDACTED';
+            }
+        }
+        return $context;
+    }
+
     public function initializeBugsnag(): void
     {
         if (empty($this->bugSnagKey)) {
@@ -103,9 +144,7 @@ class TelemetryHelper
                 $context = substr($context, strpos($context, 'acli ') + 5);
             }
             // Strip sensitive parameters from context.
-            if (str_contains($context, "--password")) {
-                $context = substr($context, 0, strpos($context, "--password") + 10) . 'REDACTED';
-            }
+            $context = self::redactSensitiveContext($context);
             $report->setContext($context);
             return true;
         });

@@ -7,12 +7,14 @@ namespace Acquia\Cli\Tests\Commands\Ide\Wizard;
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Command\Ide\Wizard\IdeWizardCreateSshKeyCommand;
 use Acquia\Cli\Tests\Commands\Ide\IdeHelper;
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\RequiresOperatingSystem;
 
 /**
  * @property \Acquia\Cli\Command\Ide\Wizard\IdeWizardCreateSshKeyCommand
  *     $command
- * @requires OS linux|darwin
  */
+#[RequiresOperatingSystem('linux|darwin')]
 class IdeWizardCreateSshKeyCommandTest extends IdeWizardTestBase
 {
     public function setUp(): void
@@ -38,9 +40,7 @@ class IdeWizardCreateSshKeyCommandTest extends IdeWizardTestBase
         $this->runTestCreate();
     }
 
-    /**
-     * @group brokenProphecy
-     */
+    #[Group('brokenProphecy')]
     public function testSshKeyAlreadyUploaded(): void
     {
         $this->runTestSshKeyAlreadyUploaded();
@@ -61,9 +61,7 @@ class IdeWizardCreateSshKeyCommandTest extends IdeWizardTestBase
         $this->runTestPromptWaitForSshReturnsFalse();
     }
 
-    /**
-     * @group brokenProphecy
-     */
+    #[Group('brokenProphecy')]
     public function testIdeWizardCreateSshKeyCommandHelpContainsIdeHelperText(): void
     {
         $help = $this->command->getHelp();

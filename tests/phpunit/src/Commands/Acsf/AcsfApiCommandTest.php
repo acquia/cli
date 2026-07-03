@@ -12,6 +12,7 @@ use Acquia\Cli\Command\Api\ApiBaseCommand;
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\CommandFactoryInterface;
 use Acquia\Cli\Exception\AcquiaCliException;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Prophecy\Argument;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -164,9 +165,7 @@ class AcsfApiCommandTest extends AcsfCommandTestBase
         ];
     }
 
-    /**
-     * @dataProvider providerTestAcsfCommandExecutionForHttpGetMultiple
-     */
+    #[DataProvider('providerTestAcsfCommandExecutionForHttpGetMultiple')]
     public function testAcsfCommandExecutionForHttpGetMultiple(string $method, string $specPath, string $path, string $command, array $arguments = [], array $jsonArguments = []): void
     {
         $mockBody = self::getMockResponseFromSpec($specPath, $method, '200', true);

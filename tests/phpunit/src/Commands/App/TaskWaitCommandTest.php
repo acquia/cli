@@ -8,6 +8,7 @@ use Acquia\Cli\Command\App\TaskWaitCommand;
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Tests\CommandTestBase;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Component\Console\Command\Command;
 
 /**
@@ -20,9 +21,7 @@ class TaskWaitCommandTest extends CommandTestBase
         return $this->injectCommand(TaskWaitCommand::class);
     }
 
-    /**
-     * @dataProvider providerTestTaskWaitCommand
-     */
+    #[DataProvider('providerTestTaskWaitCommand')]
     public function testTaskWaitCommand(string $notification): void
     {
         $notificationUuid = '1bd3487e-71d1-4fca-a2d9-5f969b3d35c1';
@@ -113,9 +112,7 @@ EOT,
         // Assert.
     }
 
-    /**
-     * @dataProvider providerTestTaskWaitCommandWithInvalidJson
-     */
+    #[DataProvider('providerTestTaskWaitCommandWithInvalidJson')]
     public function testTaskWaitCommandWithInvalidJson(string $notification): void
     {
         $this->expectException(AcquiaCliException::class);

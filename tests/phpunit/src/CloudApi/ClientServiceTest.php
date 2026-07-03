@@ -9,6 +9,7 @@ use Acquia\Cli\CloudApi\CloudCredentials;
 use Acquia\Cli\CloudApi\ConnectorFactory;
 use Acquia\Cli\DataStore\CloudDataStore;
 use Acquia\Cli\Tests\TestBase;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 class ClientServiceTest extends TestBase
 {
@@ -53,9 +54,7 @@ class ClientServiceTest extends TestBase
         ];
     }
 
-    /**
-     * @dataProvider providerTestIsMachineAuthenticated
-     */
+    #[DataProvider('providerTestIsMachineAuthenticated')]
     public function testIsMachineAuthenticated(array $envVars, bool $isAuthenticated): void
     {
         self::setEnvVars($envVars);

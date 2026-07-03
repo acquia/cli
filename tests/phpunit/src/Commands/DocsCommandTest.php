@@ -7,6 +7,7 @@ namespace Acquia\Cli\Tests\Commands;
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Command\DocsCommand;
 use Acquia\Cli\Tests\CommandTestBase;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Prophecy\Argument;
 
 /**
@@ -19,9 +20,7 @@ class DocsCommandTest extends CommandTestBase
         return $this->injectCommand(DocsCommand::class);
     }
 
-    /**
-     * @dataProvider providerTestDocsCommand
-     */
+    #[DataProvider('providerTestDocsCommand')]
     public function testDocsCommand(int $input, string $expectedOutput): void
     {
         $localMachineHelper = $this->mockLocalMachineHelper();

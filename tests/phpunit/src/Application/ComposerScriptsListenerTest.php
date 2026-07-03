@@ -7,6 +7,7 @@ namespace Acquia\Cli\Tests\Application;
 use Acquia\Cli\Command\HelloWorldCommand;
 use Acquia\Cli\EventListener\ComposerScriptsListener;
 use Acquia\Cli\Tests\ApplicationTestBase;
+use PHPUnit\Framework\Attributes\Group;
 use Symfony\Component\Console\Event\ConsoleCommandEvent;
 use Symfony\Component\Console\Event\ConsoleTerminateEvent;
 use Symfony\Component\Filesystem\Path;
@@ -19,9 +20,7 @@ use Symfony\Component\Filesystem\Path;
  */
 class ComposerScriptsListenerTest extends ApplicationTestBase
 {
-    /**
-     * @group serial
-     */
+    #[Group('serial')]
     public function testPreScripts(): void
     {
         $json = [
@@ -43,9 +42,7 @@ class ComposerScriptsListenerTest extends ApplicationTestBase
         self::assertStringContainsString('pre-acli-hello-world', $buffer);
     }
 
-    /**
-     * @group serial
-     */
+    #[Group('serial')]
     public function testPostScripts(): void
     {
         $json = [

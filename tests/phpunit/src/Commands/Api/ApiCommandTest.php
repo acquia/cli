@@ -10,6 +10,8 @@ use Acquia\Cli\Command\Self\ClearCacheCommand;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Tests\CommandTestBase;
 use AcquiaCloudApi\Exception\ApiErrorException;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use Symfony\Component\Console\Exception\MissingInputException;
 use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Validator\Exception\ValidatorException;
@@ -245,10 +247,8 @@ EOD;
         ];
     }
 
-    /**
-     * @dataProvider providerTestConvertApplicationAliasToUuidArgument
-     * @group serial
-     */
+    #[DataProvider('providerTestConvertApplicationAliasToUuidArgument')]
+    #[Group('serial')]
     public function testConvertApplicationAliasToUuidArgument(bool $support): void
     {
         ClearCacheCommand::clearCaches();
@@ -379,9 +379,7 @@ EOD;
         $this->assertEquals(0, $this->getStatusCode());
     }
 
-    /**
-     * @group serial
-     */
+    #[Group('serial')]
     public function testConvertInvalidEnvironmentAliasToUuidArgument(): void
     {
         ClearCacheCommand::clearCaches();
@@ -494,9 +492,7 @@ EOD;
         ];
     }
 
-    /**
-     * @dataProvider providerTestApiCommandDefinitionParameters
-     */
+    #[DataProvider('providerTestApiCommandDefinitionParameters')]
     public function testApiCommandDefinitionParameters(string $useSpecCache, string $commandName, string $method, string $usage): void
     {
         putenv('ACQUIA_CLI_USE_CLOUD_API_SPEC_CACHE=' . $useSpecCache);
@@ -591,12 +587,7 @@ EOD;
         ];
     }
 
-    /**
-     * @dataProvider providerTestApiCommandDefinitionRequestBody
-     * @param $commandName
-     * @param $method
-     * @param $usage
-     */
+    #[DataProvider('providerTestApiCommandDefinitionRequestBody')]
     public function testApiCommandDefinitionRequestBody(string $commandName, string $method, array $usage): void
     {
         $this->command = $this->getApiCommandByName($commandName);

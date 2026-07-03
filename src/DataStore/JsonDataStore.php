@@ -34,6 +34,8 @@ class JsonDataStore extends Datastore
     public function dump(): void
     {
         $this->fileSystem->dumpFile($this->filepath, json_encode($this->data->export(), JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT));
+        // Restrict access since this file may contain credentials.
+        $this->fileSystem->chmod($this->filepath, 0600);
     }
 
     protected function cleanLegacyConfig(array &$array): bool
