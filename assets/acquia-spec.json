@@ -41487,6 +41487,90 @@
           }
         }
       }
+    },
+    "/codebases/{codebaseId}/applications": {
+      "servers": [
+        {
+          "url": "/",
+          "description": ""
+        }
+      ],
+      "get": {
+        "operationId": "codebase_applications",
+        "x-prerelease": true,
+        "tags": [
+          "Codebases"
+        ],
+        "summary": "Retrieves a list of applications by codebase ID.",
+        "description": "Retrieves the collection of application resources from codebase ID. If the user has admin-level access, no filter is applied. Otherwise, the resources are filtered based on the requesting user's permissions.",
+        "x-cli-name": "codebases:applications:list",
+        "parameters": [
+          {
+            "name": "codebaseId",
+            "in": "path",
+            "description": "The codebase entity's unique identifier.",
+            "required": true,
+            "deprecated": false,
+            "allowEmptyValue": false,
+            "schema": {
+              "type": "string"
+            },
+            "style": "simple",
+            "explode": false,
+            "allowReserved": false
+          }
+        ],
+        "deprecated": false,
+        "security": [
+          {
+            "Codebase_Service_JWT": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Retrieves a list of applications by codebase ID.",
+            "content": {
+              "application/hal+json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "_embedded": {
+                      "type": "object",
+                      "properties": {
+                        "items": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "example": "App1"
+                              },
+                              "machine_name": {
+                                "type": "string",
+                                "example": "APP_NAME"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Codebase not found."
+          }
+        }
+      }
     }
   },
   "components": {

@@ -316,7 +316,7 @@ class ApiCommandHelperTest extends CommandTestBase
         $this->assertStringNotContainsString('pre-release', $normal->getHelp());
         $this->assertStringNotContainsString('deprecated and may be removed', $normal->getHelp());
 
-        $preRelease = $this->getApiCommandByName('api:codebases:sites-list');
+        $preRelease = $this->getApiCommandByName('api:codebases:applications:list');
         $this->assertNotNull($preRelease);
         // The notice must be appended to (not replace) the base help text.
         $this->assertStringContainsString('For more help', $preRelease->getHelp());
