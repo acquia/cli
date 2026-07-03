@@ -14,6 +14,16 @@
       "url": "https://www.acquia.com"
     }
   },
+  "servers": [
+    {
+      "url": "https://cloud.acquia.com/api",
+      "description": "Cloud API"
+    },
+    {
+      "url": "/",
+      "description": ""
+    }
+  ],
   "tags": [
     {
       "name": "Current system health",
@@ -1060,7 +1070,7 @@
                         },
                         "uuid": "eb947b2c-2fe0-11e9-b210-d663bd873d93",
                         "email": "invitee@example.com",
-                        "created_at": "2012-05-15T12:00:00Z",
+                        "created_at": "2012-05-15T12:00:00.000Z",
                         "token": "dd9ea69fdcb6bee08b31a858b85535ec",
                         "flags": {
                           "declined": false
@@ -1089,7 +1099,7 @@
                         },
                         "uuid": "0540f4ba-2fe1-11e9-b210-d663bd873d93",
                         "email": "invitee@example.com",
-                        "created_at": "2012-05-15T12:00:00Z",
+                        "created_at": "2012-05-15T12:00:00.000Z",
                         "token": "dd9ea69fdcb6bee08b31a858b85535ec",
                         "flags": {
                           "declined": false
@@ -1588,7 +1598,7 @@
                         "uuid": "02905393-65d7-4bef-873b-24593f73d273",
                         "label": "PC Home",
                         "fingerprint": "5d:23:fb:45:70:df:ef:ad:ca:bf:81:93:cd:50:26:28",
-                        "created_at": "2017-05-09T20:30:35+00:00",
+                        "created_at": "2017-05-09T20:30:35.000Z",
                         "public_key": "ssh-rsa AAAAB3NzaC1yc2EADHrfHY17SbrmAAABIwAAAQEAklOUpkTIpNLTGK9Tjom/BWDSUGPl+nafzlZ5ew18JH4JW9jbhUFrviQzM7xlELEVf4h9lFX5HDTYW7hdI4yQVkbPppSwg0cda3Pbv7kOdJ/MTyBlWXFCR+HAo3FXRitBqxiX1nKhXpHAZsMciLq8V6RjsNAQwdsdMFvSlVK/7XAt3FaoJoAsncM1Q9x5+3V0Ww68/eIFmb1zuUFljQJKprrX88XypNDvjYNby6vw/Pb0rwert/EnmZ+AW4OZPnTPI89ZPmVMLuayrD2cE86Z/il8b+gw3r3+1nKatmIkjn2so1d01QraTlMqVSsbxNrRFi9wrf+M7Q== example@example.com",
                         "_links": {
                           "self": {
@@ -1600,7 +1610,7 @@
                         "uuid": "d40833b3-6ea4-4339-9e2c-4b78e700258b",
                         "label": "Laptop Work",
                         "fingerprint": "5b:18:fb:50:55:df:cf:d5:bf:ea:81:23:ef:55:22:29",
-                        "created_at": "2017-05-09T20:30:35+00:00",
+                        "created_at": "2017-05-09T20:30:35.000Z",
                         "public_key": "ssh-rsa 1yc2EAAAABIwbrmTIpNLTGK9Tjom/BWDSUGPl+nafzlHDAAAQEAklOUpkDHrfHY17STYW7hdI4yZ5ew18JH4JW9jbhUFrviQzM7xlELEVf4pSwg0cda3PbAAAAB3NzaCv7kOdJ/MTyBlWXFCRh9lFX5QVkbPp+HAo3FXRitBqxiX1nKhXpHAZsMciLq8V6RjsNAQwdsdMFvSlVK/7XAt3FaoJoAsncM1Q9x5+3V0Ww68/eIFmb1zuUFljQJKprrX88XypNDvjYNby6vw/Pb0rwert/EnmZ+AW4OZPnTPI89ZPmVMLuayrD2cE86Z/il8b+gw3r3+1nKatmIkjn2so1d01QraTlMqVSsbxNrRFi9wrf+M7Q== example@example.com",
                         "_links": {
                           "self": {
@@ -1612,7 +1622,7 @@
                         "uuid": "c40ee264-0023-4f60-815b-d20b44740746",
                         "label": "PC Work",
                         "fingerprint": "7c:s3:ab:30:40:da:cf:c5:bf:ca:31:33:ed:58:23:21",
-                        "created_at": "2017-05-09T20:30:35+00:00",
+                        "created_at": "2017-05-09T20:30:35.000Z",
                         "public_key": "ssh-rsa A1yc2EAAAlOUpkDHrfHY17SbrmTIAAAB3NzaCom/BWDSUGPl+nafzlHDTYW7hdI4yQVkbPppSwg0cda3ABIwAAAQEAkPZ5ew18JH4JW9jbhUFrviQzM7xlELEVf4h9lFX5bv7kOdJ/MTyBlWXFCR+HAo3FXRitBqxiX1nKhXpHAZsMciLq8V6RjsNAQwdsdMFvSlVK/7XAt3FaoJoAsncM1Q9x5+3V0Ww68/eIFmb1zuUFljQJKprrX88XypNDvjYNby6vw/Pb0rwert/EnmZ+AW4OZPnTPI89ZPmVMLuayrD2cE86Z/il8b+gw3r3+1nKatmIkjn2so1d01QraTlMqVSsbxNrRFi9wrf+M7Q== example@example.com",
                         "_links": {
                           "self": {
@@ -1833,7 +1843,7 @@
                   "uuid": "b2a53dfb-f4e2-4543-814d-7a9aa3793746",
                   "label": "PC Home",
                   "fingerprint": "8d:13:fb:50:50:da:cf:c5:bf:ca:31:33:ed:51:27:24",
-                  "created_at": "2017-05-09T20:30:35+00:00",
+                  "created_at": "2017-05-09T20:30:35.000Z",
                   "public_key": "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQChwPHzTTDKDpSbpa2+d22LcbQmsw92eLsUK3Fmei1fiGDkd34NsYCN8m7lsi3NbvdMS83CtPQPWiCveYPzFs1/hHc4PYj8opD2CNnr5iWVVbyaulCYHCgVv4aB/ojcexg8q483A4xJeF15TiCr/gu34rK6ucTvC/tn/rCwJBudczvEwt0klqYwv8Cl/ytaQboSuem5KgSjO3lMrb6CWtfSNhE43ZOw+UBFBqxIninN868vGMkIv9VY34Pwj54rPn/ItQd6Ef4B0KHHaGmzK0vfP+AK7FxNMoHnj3iYT33KZNqtDozdn5tYyH/bThPebEtgqUn+/w5l6wZIC/8zzvls/127ngHk+jNa0PlNyS2TxhPUK4NaPHIEnnrlp07JEYC4ImcBjaYCWAdcTcUkcJjwZQkN4bGmyO9cjICH98SdLD/HxqzTHeaYDbAX/Hu9HfaBb5dXLWsjw3Xc6hoVnUUZbMQyfgb0KgxDLh92eNGxJkpZiL0VDNOWCxDWsNpzwhLNkLqCvI6lyxiLaUzvJAk6dPaRhExmCbU1lDO2eR0FdSwC1TEhJOT9eDIK1r2hztZKs2oa5FNFfB/IFHVWasVFC9N2h/r/egB5zsRxC9MqBLRBq95NBxaRSFng6ML5WZSw41Qi4C/JWVm89rdj2WqScDHYyAdwyyppWU4T5c9Fmw== example@example.com",
                   "_links": {
                     "self": {
@@ -3739,7 +3749,7 @@
                         "id": 1,
                         "name": "master@e5a80b9e0a2bdb1df32c6cdfce54deb70cc20ad2",
                         "state": "ready",
-                        "created_at": "2012-05-15T12:00:00Z",
+                        "created_at": "2012-05-15T12:00:00.000Z",
                         "_links": {
                           "self": {
                             "href": "https://cloud.acquia.com/api/applications/a47ac10b-58cc-4372-a567-0e02b2c3d470/artifacts/1"
@@ -3750,7 +3760,7 @@
                         "id": 2,
                         "name": "master@a265389db6a6918cf4e51edbe5f06d7e1578175c",
                         "state": "pending-upload",
-                        "created_at": "2012-05-15T12:00:00Z",
+                        "created_at": "2012-05-15T12:00:00.000Z",
                         "_links": {
                           "self": {
                             "href": "https://cloud.acquia.com/api/applications/a47ac10b-58cc-4372-a567-0e02b2c3d470/artifacts/2"
@@ -3761,7 +3771,7 @@
                         "id": 3,
                         "name": "master@e7157f36e5fb82317ffee2fc2d70302cdad0c60c",
                         "state": "deleted",
-                        "created_at": "2012-05-15T12:00:00Z",
+                        "created_at": "2012-05-15T12:00:00.000Z",
                         "_links": {
                           "self": {
                             "href": "https://cloud.acquia.com/api/applications/a47ac10b-58cc-4372-a567-0e02b2c3d470/artifacts/3"
@@ -3836,7 +3846,7 @@
                   "id": 1,
                   "name": "master@e5a80b9e0a2bdb1df32c6cdfce54deb70cc20ad2",
                   "state": "ready",
-                  "created_at": "2012-05-15T12:00:00Z",
+                  "created_at": "2012-05-15T12:00:00.000Z",
                   "_links": {
                     "self": {
                       "href": "https://cloud.acquia.com/api/applications/a47ac10b-58cc-4372-a567-0e02b2c3d470/artifacts/1"
@@ -14444,8 +14454,8 @@
                           "name": "db_name"
                         },
                         "type": "daily",
-                        "started_at": "2012-05-15T12:00:00Z",
-                        "completed_at": "2012-05-15T12:00:00Z",
+                        "started_at": "2012-05-15T12:00:00.000Z",
+                        "completed_at": "2012-05-15T12:00:00.000Z",
                         "flags": {
                           "deleted": false
                         },
@@ -14473,7 +14483,7 @@
                         },
                         "type": "daily",
                         "started_at": "2012-03-28T12:00:00Z",
-                        "completed_at": "2012-03-28T12:00:01Z",
+                        "completed_at": "2012-03-28T12:00:01.000Z",
                         "flags": {
                           "deleted": false
                         },
@@ -14749,8 +14759,8 @@
                     "name": "db_name"
                   },
                   "type": "daily",
-                  "started_at": "2012-05-15T12:00:00Z",
-                  "completed_at": "2012-05-15T12:00:00Z",
+                  "started_at": "2012-05-15T12:00:00.000Z",
+                  "completed_at": "2012-05-15T12:00:00.000Z",
                   "flags": {
                     "deleted": false
                   },
@@ -27848,7 +27858,7 @@
                         },
                         "uuid": "f921fa88-47e3-49df-9dbb-75950aaca428",
                         "email": "invitee@example.com",
-                        "created_at": "2012-05-15T12:00:00Z",
+                        "created_at": "2012-05-15T12:00:00.000Z",
                         "token": "dd9ea69fdcb6bee08b31a858b85535ec",
                         "flags": {
                           "declined": false
@@ -27874,7 +27884,7 @@
                         },
                         "uuid": "857a8ec9-ac33-428d-8b1c-718d7f6f9aa4",
                         "email": "invitee2@example.com",
-                        "created_at": "2012-05-15T12:00:00Z",
+                        "created_at": "2012-05-15T12:00:00.000Z",
                         "token": "dd9ea69fdcb6bee08b31a858b85535ed",
                         "flags": {
                           "declined": false
@@ -30352,7 +30362,7 @@
                         },
                         "uuid": "fd745f4b-178f-4c09-87cc-4061a60eb1c9",
                         "email": "invitee@example.com",
-                        "created_at": "2012-05-15T12:00:00Z",
+                        "created_at": "2012-05-15T12:00:00.000Z",
                         "token": "dd9ea69fdcb6bee08b31a858b85535ec",
                         "flags": {
                           "declined": true
@@ -30395,7 +30405,7 @@
                         },
                         "uuid": "036612d0-8879-44a6-b2e2-93e0e30fc7fb",
                         "email": "invitee2@example.com",
-                        "created_at": "2012-05-15T12:00:00Z",
+                        "created_at": "2012-05-15T12:00:00.000Z",
                         "token": "dd9ea69fdcb6bee08b31a858b85535ed",
                         "flags": {
                           "declined": false
@@ -31609,7 +31619,7 @@
                         "id": 222,
                         "uuid": "36496037-6eb5-482d-8549-e45e1718f2b7",
                         "name": "My Acquia Subscription",
-                        "start_at": "2012-05-15T12:00:00Z",
+                        "start_at": "2012-05-15T12:00:00.000Z",
                         "expire_at": "2015-05-15T12:00:00Z",
                         "product": {
                           "id": 8999,
@@ -31651,7 +31661,7 @@
                         "id": 333,
                         "uuid": "2d92f652-882c-458a-8183-4d9cef7c2fde",
                         "name": "My Acquia Subscription 2",
-                        "start_at": "2012-05-15T12:00:00Z",
+                        "start_at": "2012-05-15T12:00:00.000Z",
                         "expire_at": "2015-05-15T12:00:00Z",
                         "product": {
                           "id": 8999,
@@ -36891,7 +36901,7 @@
                         },
                         "uuid": "f4347e76-bcd7-41f6-91aa-ac6691755f0c",
                         "email": "invitee@example.com",
-                        "created_at": "2012-05-15T12:00:00Z",
+                        "created_at": "2012-05-15T12:00:00.000Z",
                         "token": "dd9ea69fdcb6bee08b31a858b85535ec",
                         "flags": {
                           "declined": true
@@ -36937,7 +36947,7 @@
                         },
                         "uuid": "6bf96944-bb9b-4629-b593-d658e44d8054",
                         "email": "invitee2@example.com",
-                        "created_at": "2012-05-15T12:00:00Z",
+                        "created_at": "2012-05-15T12:00:00.000Z",
                         "token": "dd9ea69fdcb6bee08b31a858b85535ed",
                         "flags": {
                           "declined": false
@@ -41340,6 +41350,143 @@
           }
         ]
       }
+    },
+    "/v3/environments/{environmentId}": {
+      "servers": [
+        {
+          "url": "https://cloud.acquia.com/api",
+          "description": "Cloud API"
+        }
+      ],
+      "get": {
+        "tags": [],
+        "summary": "Return details about a specific environment.",
+        "operationId": "environment_by_id",
+        "x-cli-name": "environments-v3:find",
+        "x-prerelease": true,
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Acquia_Cloud_API_Documentation_environment-id"
+          }
+        ],
+        "security": [
+          {
+            "Acquia_Cloud_API_Documentation_OAuth2": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Environment details",
+            "content": {
+              "application/hal+json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid",
+                      "example": "3e8ecbec-ea7c-4260-8414-ef2938c859bc"
+                    },
+                    "name": {
+                      "type": "string",
+                      "example": "environment_3e8ecbec-ea7c-4260-8414-ef2938c859bc"
+                    },
+                    "label": {
+                      "type": "string",
+                      "example": "Environment_3e8ecbec-ea7c-4260-8414-ef2938c859bc"
+                    },
+                    "status": {
+                      "type": "string",
+                      "example": "normal"
+                    }
+                  }
+                },
+                "example": {
+                  "id": "3e8ecbec-ea7c-4260-8414-ef2938c859bc",
+                  "name": "environment_3e8ecbec-ea7c-4260-8414-ef2938c859bc",
+                  "label": "Environment_3e8ecbec-ea7c-4260-8414-ef2938c859bc",
+                  "status": "normal"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not found"
+          }
+        }
+      }
+    },
+    "/codebases/{codebaseId}/sites": {
+      "servers": [
+        {
+          "url": "/",
+          "description": ""
+        }
+      ],
+      "get": {
+        "tags": [],
+        "summary": "Retrieves a list of sites associated with a codebase.",
+        "operationId": "api_codebases_codebaseIdsites_get_collection",
+        "x-cli-name": "codebases:sites-list",
+        "x-prerelease": true,
+        "parameters": [
+          {
+            "name": "codebaseId",
+            "in": "path",
+            "required": true,
+            "description": "The codebase identifier.",
+            "schema": {
+              "type": "string"
+            },
+            "example": "d3f7270e-c45f-4801-9308-5e8afe84a323"
+          }
+        ],
+        "security": [
+          {
+            "Acquia_Cloud_API_Documentation_OAuth2": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A list of sites associated with a codebase.",
+            "content": {
+              "application/hal+json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "example": "8979a8ac-80dc-4df8-b2f0-6be36554a370"
+                    },
+                    "name": {
+                      "type": "string",
+                      "example": "site2"
+                    },
+                    "label": {
+                      "type": "string",
+                      "example": "My Site 2"
+                    }
+                  }
+                },
+                "example": {
+                  "id": "8979a8ac-80dc-4df8-b2f0-6be36554a370",
+                  "name": "site2",
+                  "label": "My Site 2"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not found"
+          }
+        }
+      }
     }
   },
   "components": {
@@ -41386,7 +41533,7 @@
         "schema": {
           "type": "string"
         },
-        "example": "2023-09-01"
+        "example": "2023-09-01T00:00:00.000Z"
       },
       "Acquia_Cloud_API_Documentation_to": {
         "name": "to",
@@ -41396,7 +41543,7 @@
         "schema": {
           "type": "string"
         },
-        "example": "2023-09-29"
+        "example": "2023-09-29T00:00:00.000Z"
       },
       "Acquia_Cloud_API_Documentation_sort": {
         "name": "sort",
@@ -41574,7 +41721,7 @@
       "Acquia_Cloud_API_Documentation_resolution": {
         "name": "resolution",
         "in": "query",
-        "description": "Specifies the data granularity of the request. Available resolutions: minute, hour, day, week or month.\n\nLimits:\n- 3 hour limit for “minute” resolution\n- 1 week limit for “hour” resolution\n- 6 month limit for “day” resolution\n- 1 year limit for \"week\" resolution\n- 3 year limit for “month” resolution\n",
+        "description": "Specifies the data granularity of the request. Available resolutions: minute, hour, day, week or month.\n\nLimits:\n- 3 hour limit for \u201cminute\u201d resolution\n- 1 week limit for \u201chour\u201d resolution\n- 6 month limit for \u201cday\u201d resolution\n- 1 year limit for \"week\" resolution\n- 3 year limit for \u201cmonth\u201d resolution\n",
         "required": false,
         "schema": {
           "type": "string",
