@@ -33,6 +33,32 @@ class ApiCommandTest extends CommandTestBase
         return $this->injectCommand(ApiBaseCommand::class);
     }
 
+    public function testTrustedProxiesCommandExecutesHttpGet(): void
+    {
+        $environmentId = '24-a47ac10b-58cc-4372-a567-0e02b2c3d470';
+        $this->clientProphecy->addOption('headers', ['Accept' => 'application/hal+json, version=2'])
+            ->shouldBeCalled();
+        $mockBody = self::getMockResponseFromSpec(
+            '/environments/{environmentId}/trusted-proxies',
+            'get',
+            '200'
+        );
+        $this->clientProphecy->request('get', '/environments/' . $environmentId . '/trusted-proxies')
+            ->willReturn($mockBody)
+            ->shouldBeCalled();
+
+        $this->command = $this->getApiCommandByName('api:environments:trusted-proxies');
+        $this->executeCommand(['environmentId' => $environmentId]);
+
+        $output = $this->getDisplay();
+        $this->assertJson($output);
+        $decoded = json_decode($output, true);
+        $this->assertArrayHasKey('is_enabled', $decoded);
+        $this->assertTrue($decoded['is_enabled']);
+        $this->assertArrayHasKey('addresses', $decoded);
+        $this->assertEquals(0, $this->getStatusCode());
+    }
+
     public function testTaskWait(): void
     {
         $environmentId = '24-a47ac10b-58cc-4372-a567-0e02b2c3d470';
@@ -456,7 +482,7 @@ EOD;
      */
     public static function providerTestApiCommandDefinitionParameters(): array
     {
-        $apiAccountsSshKeysListUsage = '--from="2023-09-01T00:00:00.000Z" --to="2023-09-29T00:00:00.000Z" --sort="field1,-field2" --limit="10" --offset="10"';
+        $apiAccountsSshKeysListUsage = '--from="2023-09-01" --to="2023-09-29" --sort="field1,-field2" --limit="10" --offset="10"';
         return [
             [
                 '0',
@@ -553,7 +579,7 @@ EOD;
             [
                 'api:private-networks:create',
                 'post',
-                ['api:private-networks:create \'123e4567-e89b-12d3-a456-426614174000\' \'us-east-1\' \'customer-private-network\' --description=\'Private network for customer\' --label=\'anyLabel\' --isolation=\'{"dedicated_compute":false,"dedicated_network":false}\' --ingress=\'{"drupal_ssh":{"ingress_acls":["test-acls"]}}\' \'{"cidr":"114.7.55.1\/16","private_egress_access":{"drupal":true},"vpns":[{"name":"vpn1","gateway_ip":"10.10.10.10","routes":["127.0.0.1\/32","127.0.0.2\/32"],"tunnel1":{"shared_key":"sharedKey1","internal_cidr":"192.1.1.0\/24","ike_versions":"1","startup_action":"start","dpd_timeout_action":"stop"},"tunnel2":{"shared_key":"sharedKey2","internal_cidr":"192.1.1.0\/14","ike_versions":"1","startup_action":"start","dpd_timeout_action":"stop"}}],"vpc_peers":[{"name":"vpcPeer1","aws_account":"123456789012","vpc_id":"vpc-1234567890abcdef0","vpc_cidr":"120.24.16.1\/24"}]}\''],
+                ['api:private-networks:create \'123e4567-e89b-12d3-a456-426614174000\' \'us-east-1\' \'customer-private-network\' --description=\'Private network for customer\' --label=\'anyLabel\' --isolation=\'{"dedicated_compute":false,"dedicated_network":false}\' --ingress=\'{"drupal_ssh":{"ingress_acls":["test-acls"]}}\' \'{"cidr":"114.7.55.1\/16","private_egress_access":{"drupal":true},"vpns":[{"name":"vpn1","gateway_ip":"10.10.10.10","routes":["127.0.0.1\/32","127.0.0.2\/32"],"tunnel1":{"shared_key":"sharedKey1","internal_cidr":"192.1.1.0\/24","ike_versions":"1","startup_action":"start","dpd_timeout_action":"stop"},"tunnel2":{"shared_key":"sharedKey2","internal_cidr":"192.1.1.0\/14","ike_versions":"1","startup_action":"start","dpd_timeout_action":"stop"}}],"vpc_peers":[{"name":"vpcPeer1","aws_account":"123456789012","vpc_id":"vpc-1234567890abcdef0","vpc_cidr":"120.24.16.1\/24","region":"eu-central-1"}]}\''],
             ],
             [
                 'api:private-networks:update-isolation',

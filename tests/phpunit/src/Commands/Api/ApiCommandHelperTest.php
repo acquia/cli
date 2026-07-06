@@ -311,7 +311,6 @@ class ApiCommandHelperTest extends CommandTestBase
         $normal = $this->getApiCommandByName('api:accounts:find');
         $this->assertNotNull($normal);
         $this->assertNotEmpty($this->readProtected($normal, 'responses'));
-        $this->assertNotEmpty($this->readProtected($normal, 'servers'));
         $this->assertStringContainsString('For more help', $normal->getHelp());
         $this->assertStringNotContainsString('pre-release', $normal->getHelp());
         $this->assertStringNotContainsString('deprecated and may be removed', $normal->getHelp());
@@ -383,5 +382,33 @@ class ApiCommandHelperTest extends CommandTestBase
             ]
         );
         $this->assertSame("--tags='drupal'", $result);
+    }
+
+    public function testTopLevelServersSetOnCommand(): void
+    {
+        $spec = [
+            'paths' => [
+                '/test/endpoint' => [
+                    'get' => [
+                        'responses' => ['200' => ['description' => 'OK']],
+                        'summary' => 'Test endpoint',
+                        'x-cli-name' => 'test:endpoint-get',
+                    ],
+                ],
+            ],
+            'servers' => [
+                ['url' => 'https://cloud.acquia.com/api', 'description' => 'Cloud API'],
+            ],
+        ];
+
+        $helper = new ApiCommandHelper($this->logger);
+        $ref = new ReflectionMethod(ApiCommandHelper::class, 'generateApiCommandsFromSpec');
+        $commands = $ref->invoke($helper, $spec, 'api', $this->getCommandFactory());
+
+        $this->assertCount(1, $commands);
+        $this->assertSame(
+            [['url' => 'https://cloud.acquia.com/api', 'description' => 'Cloud API']],
+            (new \ReflectionProperty($commands[0], 'servers'))->getValue($commands[0])
+        );
     }
 }

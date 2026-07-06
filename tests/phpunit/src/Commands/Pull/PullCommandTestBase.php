@@ -328,7 +328,7 @@ abstract class PullCommandTestBase extends CommandTestBase
         string $dbMachineName = 'db554675',
         string $localDbName = 'jxr5000596dev',
         string $env = 'dev',
-        string $createdAt = '2012-05-15T12:00:00.000Z'
+        string $createdAt = '2012-05-15T12:00:00Z'
     ): void {
         $localMachineHelper->checkRequiredBinariesExist(['gunzip', 'mysql'])
             ->shouldBeCalled();
