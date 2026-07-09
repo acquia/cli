@@ -20,11 +20,41 @@ final class PipelinesMigrateGitlabCommand extends CommandBase
 {
     // phpcs:disable SlevomatCodingStandard.Arrays.AlphabeticallySortedByKeys
     private const EVENT_STAGE_MAP = [
-        'build'         => 'build',
-        'fail-on-build' => 'fail-on-build',
-        'post-deploy'   => 'post-deploy',
-        'pr-merged'     => 'pr-merged',
-        'pr-closed'     => 'pr-closed',
+        'build' => [
+            'stage' => 'build',
+            'when' => null,
+            'rules' => null,
+        ],
+        'fail-on-build' => [
+            'stage' => 'fail-on-build',
+            'when' => 'on_failure',
+            'rules' => null,
+        ],
+        'post-deploy' => [
+            'stage' => 'post-deploy',
+            'when' => null,
+            'rules' => null,
+        ],
+        'pr-merged' => [
+            'stage' => 'pr-merged',
+            'when' => null,
+            'rules' => [
+                [
+                    'if' => '$CI_PIPELINE_SOURCE == "merge_request_event"',
+                    'when' => 'on_success',
+                ],
+            ],
+        ],
+        'pr-closed' => [
+            'stage' => 'pr-closed',
+            'when' => null,
+            'rules' => [
+                [
+                    'if' => '$CI_PIPELINE_SOURCE == "merge_request_event"',
+                    'when' => 'manual',
+                ],
+            ],
+        ],
     ];
     // phpcs:enable SlevomatCodingStandard.Arrays.AlphabeticallySortedByKeys
 
@@ -190,7 +220,7 @@ final class PipelinesMigrateGitlabCommand extends CommandBase
         $stages = [];
         $jobs = [];
 
-        foreach (self::EVENT_STAGE_MAP as $eventName => $stageName) {
+        foreach (self::EVENT_STAGE_MAP as $eventName => $eventConfig) {
             if (!array_key_exists($eventName, $contents['events'])) {
                 continue;
             }
@@ -212,34 +242,19 @@ final class PipelinesMigrateGitlabCommand extends CommandBase
                     continue;
                 }
 
-                $job = ['stage' => $stageName];
+                $job = [
+                    'script' => $stepData['script'],
+                    'stage' => $eventConfig['stage'],
+                ];
 
-                if ($hasComposer && $eventName === 'build') {
+                if ($eventName === 'build' && $hasComposer) {
                     $job['before_script'] = ['composer install'];
                 }
-
-                $job['script'] = $stepData['script'];
-
-                if ($eventName === 'fail-on-build') {
-                    $job['when'] = 'on_failure';
+                if ($eventConfig['when'] !== null) {
+                    $job['when'] = $eventConfig['when'];
                 }
-
-                if ($eventName === 'pr-merged') {
-                    $job['rules'] = [
-                        [
-                            'if'   => '$CI_PIPELINE_SOURCE == "merge_request_event"',
-                            'when' => 'on_success',
-                        ],
-                    ];
-                }
-
-                if ($eventName === 'pr-closed') {
-                    $job['rules'] = [
-                        [
-                            'if'   => '$CI_PIPELINE_SOURCE == "merge_request_event"',
-                            'when' => 'manual',
-                        ],
-                    ];
+                if ($eventConfig['rules'] !== null) {
+                    $job['rules'] = $eventConfig['rules'];
                 }
 
                 $jobs[$stepName] = $job;
@@ -247,7 +262,7 @@ final class PipelinesMigrateGitlabCommand extends CommandBase
             }
 
             if ($eventHasJob) {
-                $stages[] = $stageName;
+                $stages[] = $eventConfig['stage'];
                 $this->io->success("Migrated '$eventName' event.");
             }
         }
