@@ -175,9 +175,12 @@ final class PipelinesMigrateGitlabCommand extends CommandBase
             if (is_string($service)) {
                 $name = $service;
                 $version = null;
-            } else {
+            } elseif (is_array($service) && !empty($service)) {
                 $name = (string) array_key_first($service);
-                $version = $service[$name]['version'] ?? null;
+                $version = is_array($service[$name]) ? ($service[$name]['version'] ?? null) : null;
+            } else {
+                $this->io->warning('Skipping malformed service entry. Configure it manually in .gitlab-ci.yml.');
+                continue;
             }
 
             match ($name) {
@@ -233,10 +236,14 @@ final class PipelinesMigrateGitlabCommand extends CommandBase
             $eventHasJob = false;
 
             foreach ($eventData['steps'] as $step) {
+                if (!is_array($step) || empty($step)) {
+                    $this->io->warning("Malformed step in event '$eventName'. Skipping.");
+                    continue;
+                }
                 $stepName = (string) array_key_first($step);
                 $stepData = $step[$stepName];
 
-                if (empty($stepData['script'])) {
+                if (!is_array($stepData) || empty($stepData['script'])) {
                     $this->io->warning("Step '$stepName' in event '$eventName' has no script. Skipping.");
                     continue;
                 }

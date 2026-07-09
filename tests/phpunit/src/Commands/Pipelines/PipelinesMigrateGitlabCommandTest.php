@@ -86,15 +86,31 @@ class PipelinesMigrateGitlabCommandTest extends CommandTestBase
     public function testMissingInputFileThrows(): void
     {
         $this->expectException(AcquiaCliException::class);
-        $this->expectExceptionMessage('No acquia-pipelines.yml or acquia-pipelines.yaml file found');
+        $this->expectExceptionMessageMatches('/No acquia-pipelines\.yml or acquia-pipelines\.yaml file found/');
         $this->executeCommand();
     }
 
     public function testNonExistentPathOptionThrows(): void
     {
         $this->expectException(AcquiaCliException::class);
-        $this->expectExceptionMessage('does not exist');
+        $this->expectExceptionMessageMatches('/does not exist/');
         $this->executeCommand(['--path' => '/nonexistent/path/abc123']);
+    }
+
+    #[Group('serial')]
+    public function testYmlExtensionInputProducesYmlOutput(): void
+    {
+        $fs = new Filesystem();
+        $fs->copy(
+            Path::join($this->realFixtureDir, 'acquia-pipelines-full.yml'),
+            Path::join($this->projectDir, 'acquia-pipelines.yml')
+        );
+
+        $this->executeCommand();
+
+        $this->assertSame(0, $this->getStatusCode());
+        $this->assertFileExists(Path::join($this->projectDir, '.gitlab-ci.yml'));
+        $this->assertFileDoesNotExist(Path::join($this->projectDir, '.gitlab-ci.yaml'));
     }
 
     #[Group('serial')]
@@ -242,7 +258,7 @@ class PipelinesMigrateGitlabCommandTest extends CommandTestBase
         );
 
         $this->expectException(AcquiaCliException::class);
-        $this->expectExceptionMessage("does not contain an 'events' key");
+        $this->expectExceptionMessageMatches("/does not contain an 'events' key/");
         $this->executeCommand();
     }
 
