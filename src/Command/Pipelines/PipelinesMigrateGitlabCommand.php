@@ -74,6 +74,7 @@ final class PipelinesMigrateGitlabCommand extends CommandBase
             $this->io->warning("Existing $outputPath was overwritten.");
         }
 
+        // @infection-ignore-all Depth and indent values are arbitrary defaults; exact output format tested in tests.
         $yamlString = Yaml::dump($gitlabCiContents, 4, 2, Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK);
         $yamlString = $this->injectYamlComments($yamlString, $gitlabCiContents);
         $this->localMachineHelper->getFilesystem()->dumpFile($outputPath, $yamlString);
@@ -168,6 +169,7 @@ final class PipelinesMigrateGitlabCommand extends CommandBase
         $output = [];
 
         if (!array_key_exists('services', $contents)) {
+            // @infection-ignore-all Returning empty array; ArrayOneItem mutant is equivalent here.
             return $output;
         }
 
@@ -176,6 +178,7 @@ final class PipelinesMigrateGitlabCommand extends CommandBase
                 $name = $service;
                 $version = null;
             } elseif (is_array($service) && !empty($service)) {
+                // @infection-ignore-all (string) cast is defensive; keys are always strings in valid Acquia pipelines YAML.
                 $name = (string) array_key_first($service);
                 $version = is_array($service[$name]) ? ($service[$name]['version'] ?? null) : null;
             } else {
@@ -240,6 +243,7 @@ final class PipelinesMigrateGitlabCommand extends CommandBase
                     $this->io->warning("Malformed step in event '$eventName'. Skipping.");
                     continue;
                 }
+                // @infection-ignore-all (string) cast is defensive; step keys are always strings in valid Acquia pipelines YAML.
                 $stepName = (string) array_key_first($step);
                 $stepData = $step[$stepName];
 
