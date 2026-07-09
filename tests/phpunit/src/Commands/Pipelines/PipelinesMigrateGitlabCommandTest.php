@@ -83,6 +83,28 @@ class PipelinesMigrateGitlabCommandTest extends CommandTestBase
         $this->assertFileExists(Path::join($this->projectDir, 'acquia-pipelines.yml'));
     }
 
+    public function testYmlExtensionIsDetected(): void
+    {
+        $content = file_get_contents(Path::join($this->realFixtureDir, 'acquia-pipelines-full.yml'));
+        file_put_contents(Path::join($this->projectDir, 'acquia-pipelines.yml'), $content);
+
+        $this->executeCommand();
+
+        $this->assertSame(0, $this->getStatusCode());
+        $this->assertFileExists(Path::join($this->projectDir, '.gitlab-ci.yml'));
+    }
+
+    public function testYamlExtensionIsDetected(): void
+    {
+        $content = file_get_contents(Path::join($this->realFixtureDir, 'acquia-pipelines-full.yml'));
+        file_put_contents(Path::join($this->projectDir, 'acquia-pipelines.yaml'), $content);
+
+        $this->executeCommand();
+
+        $this->assertSame(0, $this->getStatusCode());
+        $this->assertFileExists(Path::join($this->projectDir, '.gitlab-ci.yaml'));
+    }
+
     public function testMissingInputFileThrows(): void
     {
         $this->expectException(AcquiaCliException::class);
