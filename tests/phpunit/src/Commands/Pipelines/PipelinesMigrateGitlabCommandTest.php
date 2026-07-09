@@ -347,9 +347,12 @@ class PipelinesMigrateGitlabCommandTest extends CommandTestBase
             $this->executeCommand();
             $this->fail('Expected AcquiaCliException was not thrown.');
         } catch (AcquiaCliException $e) {
+            // Must contain "Failed to parse" prefix.
             $this->assertStringContainsString('Failed to parse', $e->getMessage());
-            // Message must start with "Failed to parse" (not be reversed by Concat mutant).
+            // Must start with "Failed to parse" (Concat mutant reverses the order).
             $this->assertStringStartsWith('Failed to parse', $e->getMessage());
+            // Message must be longer than "Failed to parse <path>: " alone; $e->getMessage() adds parse details.
+            $this->assertGreaterThan(strlen('Failed to parse ' . Path::join($this->projectDir, 'acquia-pipelines.yml') . ': '), strlen($e->getMessage()));
         }
     }
 
@@ -371,16 +374,21 @@ class PipelinesMigrateGitlabCommandTest extends CommandTestBase
         $this->assertStringContainsString("Migrated 'variables' section.", $this->getDisplay());
     }
 
-    public function testIntegerServiceEntryIsSkippedWithWarning(): void
+    public function testIntegerServiceEntryIsSkippedWithWarningAndSubsequentServicesProcessed(): void
     {
         // YAML integer list item: 42 is not string and not array, should trigger warning path.
-        $yaml = "version: 1.0\nservices:\n  - 42\nevents:\n  build:\n    steps:\n      - myjob:\n          script:\n            - echo hi\n";
+        // The 'continue' (not 'break') must allow subsequent mysql service to still be processed.
+        $yaml = "version: 1.0\nservices:\n  - 42\n  - mysql\nevents:\n  build:\n    steps:\n      - myjob:\n          script:\n            - echo hi\n";
         file_put_contents(Path::join($this->projectDir, 'acquia-pipelines.yml'), $yaml);
 
         $this->executeCommand();
 
         $this->assertSame(0, $this->getStatusCode());
         $this->assertStringContainsString('malformed', $this->getDisplay());
+        // The subsequent mysql service must still be migrated (continue, not break).
+        $output = Yaml::parseFile(Path::join($this->projectDir, '.gitlab-ci.yml'));
+        $this->assertArrayHasKey('services', $output);
+        $this->assertContains('mysql', $output['services']);
     }
 
     public function testMultipleVariablesWithoutGlobalAreAllCopied(): void
@@ -424,29 +432,32 @@ class PipelinesMigrateGitlabCommandTest extends CommandTestBase
         $this->assertNotContains('build', $stages);
     }
 
-    public function testMalformedStepStringIsSkippedNonSerial(): void
+    public function testMalformedStepStringIsSkippedWithWarningNonSerial(): void
     {
         // A step that is a string (not an array) should be skipped with a warning.
+        // The continue (not break) must allow the subsequent real-step to still be processed.
         $yaml = "version: 1.0\nevents:\n  build:\n    steps:\n      - bad-string-step\n      - real-step:\n          script:\n            - echo hi\n";
         file_put_contents(Path::join($this->projectDir, 'acquia-pipelines.yml'), $yaml);
 
         $this->executeCommand();
 
         $this->assertSame(0, $this->getStatusCode());
+        $this->assertStringContainsString('Malformed step', $this->getDisplay());
         $output = Yaml::parseFile(Path::join($this->projectDir, '.gitlab-ci.yml'));
         $this->assertArrayHasKey('real-step', $output);
         $this->assertArrayNotHasKey('bad-string-step', $output);
     }
 
-    public function testStepWithoutScriptKeyIsSkippedNonSerial(): void
+    public function testStepWithoutScriptKeyIsSkippedWithWarningNonSerial(): void
     {
-        // A step with type but no script should be skipped.
+        // A step with type but no script should be skipped with a warning.
         $yaml = "version: 1.0\nevents:\n  build:\n    steps:\n      - no-script:\n          type: script\n      - with-script:\n          script:\n            - echo hi\n";
         file_put_contents(Path::join($this->projectDir, 'acquia-pipelines.yml'), $yaml);
 
         $this->executeCommand();
 
         $this->assertSame(0, $this->getStatusCode());
+        $this->assertStringContainsString('has no script', $this->getDisplay());
         $output = Yaml::parseFile(Path::join($this->projectDir, '.gitlab-ci.yml'));
         $this->assertArrayNotHasKey('no-script', $output);
         $this->assertArrayHasKey('with-script', $output);
@@ -476,6 +487,18 @@ class PipelinesMigrateGitlabCommandTest extends CommandTestBase
         $this->assertStringContainsString('multiple events', $this->getDisplay());
     }
 
+    public function testUniqueStepNamesProduceNoDuplicateWarning(): void
+    {
+        // No duplicate step names — the "multiple events" warning must NOT appear.
+        $content = (string) file_get_contents(Path::join($this->realFixtureDir, 'acquia-pipelines-full.yml'));
+        file_put_contents(Path::join($this->projectDir, 'acquia-pipelines.yml'), $content);
+
+        $this->executeCommand();
+
+        $this->assertSame(0, $this->getStatusCode());
+        $this->assertStringNotContainsString('multiple events', $this->getDisplay());
+    }
+
     public function testEventMigrationMessageIsEmitted(): void
     {
         $content = (string) file_get_contents(Path::join($this->realFixtureDir, 'acquia-pipelines-full.yml'));
@@ -486,18 +509,20 @@ class PipelinesMigrateGitlabCommandTest extends CommandTestBase
         $this->assertStringContainsString("Migrated 'build' event.", $this->getDisplay());
     }
 
-    public function testJobNameWithDotIsHandledByPregQuote(): void
+    public function testJobNameWithRegexSpecialCharsIsHandledByPregQuote(): void
     {
-        // Step name containing '.' would break preg_replace without preg_quote.
-        // With a pr-closed event, the TODO comment injection uses preg_replace with the job name.
-        $yaml = "version: 1.0\nevents:\n  pr-closed:\n    steps:\n      - step.name.with.dots:\n          script:\n            - echo closed\n";
+        // Step name containing '+' is a regex quantifier that would break preg_replace without preg_quote.
+        // Without preg_quote, '/^(step+name:)/m' means "one or more 'e' in 'step'" — wrong match.
+        // With preg_quote, '+' is escaped to '\+' so it matches the literal '+' in the step name.
+        $yaml = "version: 1.0\nevents:\n  pr-closed:\n    steps:\n      - step+name:\n          script:\n            - echo closed\n";
         file_put_contents(Path::join($this->projectDir, 'acquia-pipelines.yml'), $yaml);
 
         $this->executeCommand();
 
         $this->assertSame(0, $this->getStatusCode());
         $raw = (string) file_get_contents(Path::join($this->projectDir, '.gitlab-ci.yml'));
-        $this->assertStringContainsString('# TODO: GitLab has no native pipeline trigger', $raw);
+        // The TODO comment must appear immediately before the job entry.
+        $this->assertMatchesRegularExpression('/# TODO: GitLab has no native pipeline trigger.*\nstep\+name:/s', $raw);
     }
 
     public function testYamlIndentationIsTwoSpacesAndRulesAreBlockStyle(): void
