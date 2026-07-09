@@ -122,6 +122,9 @@ final class PipelinesMigrateGitlabCommand extends CommandBase
         if (!is_array($parsed) || !array_key_exists('events', $parsed)) {
             throw new AcquiaCliException("The file {$path} does not contain an 'events' key.");
         }
+        if (!is_array($parsed['events'])) {
+            throw new AcquiaCliException("The file {$path} has an 'events' key but its value is not a mapping.");
+        }
         return $parsed;
     }
 
@@ -187,7 +190,9 @@ final class PipelinesMigrateGitlabCommand extends CommandBase
             }
 
             match ($name) {
-                'php' => $output['image'] = 'php:' . $version,
+                'php' => $version !== null
+                    ? $output['image'] = 'php:' . $version
+                    : $this->io->warning("PHP service has no version specified. Configure 'image:' manually in .gitlab-ci.yml."),
                 'mysql' => $output['services'][] = $version ? "mysql:$version" : 'mysql',
                 'composer' => $output['_composer'] = true,
                 default => $this->io->warning("Unknown service '$name'. Configure it manually in .gitlab-ci.yml."),

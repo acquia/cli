@@ -356,6 +356,28 @@ class PipelinesMigrateGitlabCommandTest extends CommandTestBase
         }
     }
 
+    public function testEventsKeyWithScalarValueThrows(): void
+    {
+        file_put_contents(Path::join($this->projectDir, 'acquia-pipelines.yml'), "version: 1.0\nevents: \"not-a-mapping\"\n");
+        $this->expectException(AcquiaCliException::class);
+        $this->expectExceptionMessageMatches("/is not a mapping/");
+        $this->executeCommand();
+    }
+
+    public function testPhpServiceWithNoVersionEmitsWarning(): void
+    {
+        $yaml = "version: 1.0\nservices:\n  - php\nevents:\n  build:\n    steps:\n      - myjob:\n          script:\n            - echo hi\n";
+        file_put_contents(Path::join($this->projectDir, 'acquia-pipelines.yml'), $yaml);
+
+        $this->executeCommand();
+
+        $this->assertSame(0, $this->getStatusCode());
+        $this->assertStringContainsString('no version specified', $this->getDisplay());
+        // Without a version, 'image' must NOT be set to 'php:'.
+        $output = Yaml::parseFile(Path::join($this->projectDir, '.gitlab-ci.yml'));
+        $this->assertArrayNotHasKey('image', $output);
+    }
+
     public function testValidYamlWithoutEventsKeyThrows(): void
     {
         file_put_contents(Path::join($this->projectDir, 'acquia-pipelines.yml'), "version: 1.0\nservices:\n  - php\n");
