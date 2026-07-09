@@ -119,6 +119,233 @@ class PipelinesMigrateGitlabCommandTest extends CommandTestBase
         $this->executeCommand(['--path' => '/nonexistent/path/abc123']);
     }
 
+    public function testSuccessMessageIsEmitted(): void
+    {
+        $content = (string) file_get_contents(Path::join($this->realFixtureDir, 'acquia-pipelines-full.yml'));
+        file_put_contents(Path::join($this->projectDir, 'acquia-pipelines.yml'), $content);
+
+        $this->executeCommand();
+
+        $this->assertStringContainsString('Migration complete', $this->getDisplay());
+    }
+
+    public function testServicesPhpMapsToImage(): void
+    {
+        $content = (string) file_get_contents(Path::join($this->realFixtureDir, 'acquia-pipelines-full.yml'));
+        file_put_contents(Path::join($this->projectDir, 'acquia-pipelines.yml'), $content);
+
+        $this->executeCommand();
+
+        $output = Yaml::parseFile(Path::join($this->projectDir, '.gitlab-ci.yml'));
+        $this->assertSame('php:8.3', $output['image']);
+    }
+
+    public function testServicesMysqlMapsToServices(): void
+    {
+        $content = (string) file_get_contents(Path::join($this->realFixtureDir, 'acquia-pipelines-full.yml'));
+        file_put_contents(Path::join($this->projectDir, 'acquia-pipelines.yml'), $content);
+
+        $this->executeCommand();
+
+        $output = Yaml::parseFile(Path::join($this->projectDir, '.gitlab-ci.yml'));
+        $this->assertContains('mysql', $output['services']);
+    }
+
+    public function testComposerServiceAddsBeforeScript(): void
+    {
+        $content = (string) file_get_contents(Path::join($this->realFixtureDir, 'acquia-pipelines-full.yml'));
+        file_put_contents(Path::join($this->projectDir, 'acquia-pipelines.yml'), $content);
+
+        $this->executeCommand();
+
+        $output = Yaml::parseFile(Path::join($this->projectDir, '.gitlab-ci.yml'));
+        // 'setup' is in the build stage and fixture has composer service.
+        $this->assertArrayHasKey('before_script', $output['setup']);
+        $this->assertContains('composer install', $output['setup']['before_script']);
+    }
+
+    public function testNoComposerServiceNoBeforeScript(): void
+    {
+        $yaml = "version: 1.0\nevents:\n  build:\n    steps:\n      - myjob:\n          script:\n            - echo hi\n";
+        file_put_contents(Path::join($this->projectDir, 'acquia-pipelines.yml'), $yaml);
+
+        $this->executeCommand();
+
+        $output = Yaml::parseFile(Path::join($this->projectDir, '.gitlab-ci.yml'));
+        $this->assertArrayNotHasKey('before_script', $output['myjob']);
+    }
+
+    public function testVariablesGlobalIsFlattenedNonSerial(): void
+    {
+        $content = (string) file_get_contents(Path::join($this->realFixtureDir, 'acquia-pipelines-full.yml'));
+        file_put_contents(Path::join($this->projectDir, 'acquia-pipelines.yml'), $content);
+
+        $this->executeCommand();
+
+        $output = Yaml::parseFile(Path::join($this->projectDir, '.gitlab-ci.yml'));
+        $this->assertArrayHasKey('variables', $output);
+        $this->assertSame('http://127.0.0.1:8080', $output['variables']['SIMPLETEST_BASE_URL']);
+        $this->assertArrayNotHasKey('global', $output['variables']);
+    }
+
+    public function testNoVariablesSectionProducesNoVariablesKey(): void
+    {
+        $yaml = "version: 1.0\nevents:\n  build:\n    steps:\n      - myjob:\n          script:\n            - echo hi\n";
+        file_put_contents(Path::join($this->projectDir, 'acquia-pipelines.yml'), $yaml);
+
+        $this->executeCommand();
+
+        $output = Yaml::parseFile(Path::join($this->projectDir, '.gitlab-ci.yml'));
+        $this->assertArrayNotHasKey('variables', $output);
+    }
+
+    public function testVariablesWithoutGlobalWrapperPassedThrough(): void
+    {
+        $yaml = "version: 1.0\nvariables:\n  MY_VAR: value\nevents:\n  build:\n    steps:\n      - myjob:\n          script:\n            - echo hi\n";
+        file_put_contents(Path::join($this->projectDir, 'acquia-pipelines.yml'), $yaml);
+
+        $this->executeCommand();
+
+        $output = Yaml::parseFile(Path::join($this->projectDir, '.gitlab-ci.yml'));
+        $this->assertArrayHasKey('variables', $output);
+        $this->assertSame('value', $output['variables']['MY_VAR']);
+    }
+
+    public function testStagesArePopulated(): void
+    {
+        $content = (string) file_get_contents(Path::join($this->realFixtureDir, 'acquia-pipelines-full.yml'));
+        file_put_contents(Path::join($this->projectDir, 'acquia-pipelines.yml'), $content);
+
+        $this->executeCommand();
+
+        $output = Yaml::parseFile(Path::join($this->projectDir, '.gitlab-ci.yml'));
+        $this->assertArrayHasKey('stages', $output);
+        $this->assertNotEmpty($output['stages']);
+        $this->assertContains('build', $output['stages']);
+    }
+
+    public function testJobsArePopulated(): void
+    {
+        $content = (string) file_get_contents(Path::join($this->realFixtureDir, 'acquia-pipelines-full.yml'));
+        file_put_contents(Path::join($this->projectDir, 'acquia-pipelines.yml'), $content);
+
+        $this->executeCommand();
+
+        $output = Yaml::parseFile(Path::join($this->projectDir, '.gitlab-ci.yml'));
+        $this->assertArrayHasKey('setup', $output);
+        $this->assertSame('build', $output['setup']['stage']);
+    }
+
+    public function testFailOnBuildJobHasWhenOnFailure(): void
+    {
+        $content = (string) file_get_contents(Path::join($this->realFixtureDir, 'acquia-pipelines-full.yml'));
+        file_put_contents(Path::join($this->projectDir, 'acquia-pipelines.yml'), $content);
+
+        $this->executeCommand();
+
+        $output = Yaml::parseFile(Path::join($this->projectDir, '.gitlab-ci.yml'));
+        $this->assertSame('on_failure', $output['notify']['when']);
+    }
+
+    public function testPrMergedJobHasRules(): void
+    {
+        $content = (string) file_get_contents(Path::join($this->realFixtureDir, 'acquia-pipelines-full.yml'));
+        file_put_contents(Path::join($this->projectDir, 'acquia-pipelines.yml'), $content);
+
+        $this->executeCommand();
+
+        $output = Yaml::parseFile(Path::join($this->projectDir, '.gitlab-ci.yml'));
+        $this->assertArrayHasKey('rules', $output['cleanup']);
+        $this->assertSame('on_success', $output['cleanup']['rules'][0]['when']);
+    }
+
+    public function testPrClosedJobHasRules(): void
+    {
+        $content = (string) file_get_contents(Path::join($this->realFixtureDir, 'acquia-pipelines-full.yml'));
+        file_put_contents(Path::join($this->projectDir, 'acquia-pipelines.yml'), $content);
+
+        $this->executeCommand();
+
+        $output = Yaml::parseFile(Path::join($this->projectDir, '.gitlab-ci.yml'));
+        $this->assertArrayHasKey('rules', $output['teardown']);
+        $this->assertSame('manual', $output['teardown']['rules'][0]['when']);
+    }
+
+    public function testPrClosedTodoCommentIsInjected(): void
+    {
+        $content = (string) file_get_contents(Path::join($this->realFixtureDir, 'acquia-pipelines-full.yml'));
+        file_put_contents(Path::join($this->projectDir, 'acquia-pipelines.yml'), $content);
+
+        $this->executeCommand();
+
+        $raw = (string) file_get_contents(Path::join($this->projectDir, '.gitlab-ci.yml'));
+        $this->assertStringContainsString('# TODO: GitLab has no native pipeline trigger', $raw);
+    }
+
+    public function testPrMergedTodoCommentIsInjected(): void
+    {
+        $content = (string) file_get_contents(Path::join($this->realFixtureDir, 'acquia-pipelines-full.yml'));
+        file_put_contents(Path::join($this->projectDir, 'acquia-pipelines.yml'), $content);
+
+        $this->executeCommand();
+
+        $raw = (string) file_get_contents(Path::join($this->projectDir, '.gitlab-ci.yml'));
+        $this->assertStringContainsString('# TODO: Adjust rule', $raw);
+    }
+
+    public function testWhitespaceOnlyFileThrows(): void
+    {
+        file_put_contents(Path::join($this->projectDir, 'acquia-pipelines.yml'), "   \n\t  \n");
+        $this->expectException(AcquiaCliException::class);
+        $this->expectExceptionMessageMatches('/empty or unreadable/');
+        $this->executeCommand();
+    }
+
+    public function testUnknownServiceWarningNonSerial(): void
+    {
+        $yaml = "version: 1.0\nservices:\n  - redis\nevents:\n  build:\n    steps:\n      - step1:\n          script:\n            - echo hi\n";
+        file_put_contents(Path::join($this->projectDir, 'acquia-pipelines.yml'), $yaml);
+
+        $this->executeCommand();
+
+        $this->assertSame(0, $this->getStatusCode());
+        $this->assertStringContainsString('redis', $this->getDisplay());
+    }
+
+    public function testEmptyInputFileThrowsNonSerial(): void
+    {
+        file_put_contents(Path::join($this->projectDir, 'acquia-pipelines.yml'), '');
+        $this->expectException(AcquiaCliException::class);
+        $this->expectExceptionMessageMatches('/empty or unreadable/');
+        $this->executeCommand();
+    }
+
+    public function testInvalidYamlInputThrowsNonSerial(): void
+    {
+        file_put_contents(Path::join($this->projectDir, 'acquia-pipelines.yml'), "invalid: yaml: [\nbad");
+        $this->expectException(AcquiaCliException::class);
+        $this->expectExceptionMessageMatches('/Failed to parse/');
+        $this->executeCommand();
+    }
+
+    public function testYamlIndentationIsTwoSpacesAndRulesAreBlockStyle(): void
+    {
+        $content = (string) file_get_contents(Path::join($this->realFixtureDir, 'acquia-pipelines-full.yml'));
+        file_put_contents(Path::join($this->projectDir, 'acquia-pipelines.yml'), $content);
+
+        $this->executeCommand();
+
+        $raw = (string) file_get_contents(Path::join($this->projectDir, '.gitlab-ci.yml'));
+        // Two-space indentation: nested keys like "stage:" must be indented exactly 2 spaces.
+        $this->assertMatchesRegularExpression('/^  stage:/m', $raw);
+        // Must NOT use 1-space or 3-space indentation at the first level.
+        $this->assertDoesNotMatchRegularExpression('/^ stage:/m', $raw);
+        $this->assertDoesNotMatchRegularExpression('/^   stage:/m', $raw);
+        // Rules must be block style (depth >= 4) — not inlined as { if: ..., when: ... }.
+        $this->assertDoesNotMatchRegularExpression('/\{ if:/', $raw);
+        $this->assertStringContainsString('if:', $raw);
+    }
+
     #[Group('serial')]
     public function testYmlExtensionInputProducesYmlOutput(): void
     {
