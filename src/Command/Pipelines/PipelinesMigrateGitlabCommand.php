@@ -12,14 +12,15 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 #[AsCommand(name: 'pipelines:migrate:gitlab', description: 'Convert an acquia-pipelines.yml file to a generic .gitlab-ci.yml file', aliases: ['p:m:g'])]
-final class PipelinesMigrateGitlabCommand extends CommandBase {
+final class PipelinesMigrateGitlabCommand extends CommandBase
+{
+    protected function configure(): void
+    {
+        $this->addOption('path', null, InputOption::VALUE_REQUIRED, 'Path to the directory containing the acquia-pipelines.yml file. Defaults to the current directory.');
+    }
 
-  protected function configure(): void {
-    $this->addOption('path', NULL, InputOption::VALUE_REQUIRED, 'Path to the directory containing the acquia-pipelines.yml file. Defaults to the current directory.');
-  }
-
-  protected function execute(InputInterface $input, OutputInterface $output): int {
-    return Command::SUCCESS;
-  }
-
+    protected function execute(InputInterface $input, OutputInterface $output): int
+    {
+        return Command::SUCCESS;
+    }
 }
