@@ -328,6 +328,178 @@ class PipelinesMigrateGitlabCommandTest extends CommandTestBase
         $this->executeCommand();
     }
 
+    public function testOverwriteWarningIsEmitted(): void
+    {
+        $content = (string) file_get_contents(Path::join($this->realFixtureDir, 'acquia-pipelines-full.yml'));
+        file_put_contents(Path::join($this->projectDir, 'acquia-pipelines.yml'), $content);
+        file_put_contents(Path::join($this->projectDir, '.gitlab-ci.yml'), 'old: content');
+
+        $this->executeCommand();
+
+        $this->assertSame(0, $this->getStatusCode());
+        $this->assertStringContainsString('overwritten', $this->getDisplay());
+    }
+
+    public function testInvalidYamlExceptionContainsBothMessageAndParseError(): void
+    {
+        file_put_contents(Path::join($this->projectDir, 'acquia-pipelines.yml'), "invalid: yaml: [\nbad");
+        try {
+            $this->executeCommand();
+            $this->fail('Expected AcquiaCliException was not thrown.');
+        } catch (AcquiaCliException $e) {
+            $this->assertStringContainsString('Failed to parse', $e->getMessage());
+            // Message must start with "Failed to parse" (not be reversed by Concat mutant).
+            $this->assertStringStartsWith('Failed to parse', $e->getMessage());
+        }
+    }
+
+    public function testValidYamlWithoutEventsKeyThrows(): void
+    {
+        file_put_contents(Path::join($this->projectDir, 'acquia-pipelines.yml'), "version: 1.0\nservices:\n  - php\n");
+        $this->expectException(AcquiaCliException::class);
+        $this->expectExceptionMessageMatches("/does not contain an 'events' key/");
+        $this->executeCommand();
+    }
+
+    public function testVariablesMigrationMessageIsEmitted(): void
+    {
+        $content = (string) file_get_contents(Path::join($this->realFixtureDir, 'acquia-pipelines-full.yml'));
+        file_put_contents(Path::join($this->projectDir, 'acquia-pipelines.yml'), $content);
+
+        $this->executeCommand();
+
+        $this->assertStringContainsString("Migrated 'variables' section.", $this->getDisplay());
+    }
+
+    public function testIntegerServiceEntryIsSkippedWithWarning(): void
+    {
+        // YAML integer list item: 42 is not string and not array, should trigger warning path.
+        $yaml = "version: 1.0\nservices:\n  - 42\nevents:\n  build:\n    steps:\n      - myjob:\n          script:\n            - echo hi\n";
+        file_put_contents(Path::join($this->projectDir, 'acquia-pipelines.yml'), $yaml);
+
+        $this->executeCommand();
+
+        $this->assertSame(0, $this->getStatusCode());
+        $this->assertStringContainsString('malformed', $this->getDisplay());
+    }
+
+    public function testMultipleVariablesWithoutGlobalAreAllCopied(): void
+    {
+        $yaml = "version: 1.0\nvariables:\n  VAR_A: alpha\n  VAR_B: beta\nevents:\n  build:\n    steps:\n      - myjob:\n          script:\n            - echo hi\n";
+        file_put_contents(Path::join($this->projectDir, 'acquia-pipelines.yml'), $yaml);
+
+        $this->executeCommand();
+
+        $output = Yaml::parseFile(Path::join($this->projectDir, '.gitlab-ci.yml'));
+        $this->assertArrayHasKey('variables', $output);
+        $this->assertSame('alpha', $output['variables']['VAR_A']);
+        $this->assertSame('beta', $output['variables']['VAR_B']);
+    }
+
+    public function testEventsAfterMissingEventAreStillProcessed(): void
+    {
+        // Has build and post-deploy but NOT fail-on-build. The continue (not break) in the
+        // EVENT_STAGE_MAP loop means post-deploy must still be processed.
+        $yaml = "version: 1.0\nevents:\n  build:\n    steps:\n      - setup:\n          script:\n            - echo build\n  post-deploy:\n    steps:\n      - deploy:\n          script:\n            - echo deploy\n";
+        file_put_contents(Path::join($this->projectDir, 'acquia-pipelines.yml'), $yaml);
+
+        $this->executeCommand();
+
+        $output = Yaml::parseFile(Path::join($this->projectDir, '.gitlab-ci.yml'));
+        $this->assertArrayHasKey('deploy', $output);
+        $this->assertSame('post-deploy', $output['deploy']['stage']);
+    }
+
+    public function testEventWithAllStepsSkippedAddsNoStage(): void
+    {
+        // Build event has a step with no script — all steps skipped, so the build stage
+        // should NOT be added to stages (eventHasJob remains false).
+        $yaml = "version: 1.0\nevents:\n  build:\n    steps:\n      - empty-job:\n          type: script\n          script: []\n";
+        file_put_contents(Path::join($this->projectDir, 'acquia-pipelines.yml'), $yaml);
+
+        $this->executeCommand();
+
+        $output = Yaml::parseFile(Path::join($this->projectDir, '.gitlab-ci.yml'));
+        $stages = $output['stages'] ?? [];
+        $this->assertNotContains('build', $stages);
+    }
+
+    public function testMalformedStepStringIsSkippedNonSerial(): void
+    {
+        // A step that is a string (not an array) should be skipped with a warning.
+        $yaml = "version: 1.0\nevents:\n  build:\n    steps:\n      - bad-string-step\n      - real-step:\n          script:\n            - echo hi\n";
+        file_put_contents(Path::join($this->projectDir, 'acquia-pipelines.yml'), $yaml);
+
+        $this->executeCommand();
+
+        $this->assertSame(0, $this->getStatusCode());
+        $output = Yaml::parseFile(Path::join($this->projectDir, '.gitlab-ci.yml'));
+        $this->assertArrayHasKey('real-step', $output);
+        $this->assertArrayNotHasKey('bad-string-step', $output);
+    }
+
+    public function testStepWithoutScriptKeyIsSkippedNonSerial(): void
+    {
+        // A step with type but no script should be skipped.
+        $yaml = "version: 1.0\nevents:\n  build:\n    steps:\n      - no-script:\n          type: script\n      - with-script:\n          script:\n            - echo hi\n";
+        file_put_contents(Path::join($this->projectDir, 'acquia-pipelines.yml'), $yaml);
+
+        $this->executeCommand();
+
+        $this->assertSame(0, $this->getStatusCode());
+        $output = Yaml::parseFile(Path::join($this->projectDir, '.gitlab-ci.yml'));
+        $this->assertArrayNotHasKey('no-script', $output);
+        $this->assertArrayHasKey('with-script', $output);
+    }
+
+    public function testJobsContainScriptProperty(): void
+    {
+        $content = (string) file_get_contents(Path::join($this->realFixtureDir, 'acquia-pipelines-full.yml'));
+        file_put_contents(Path::join($this->projectDir, 'acquia-pipelines.yml'), $content);
+
+        $this->executeCommand();
+
+        $output = Yaml::parseFile(Path::join($this->projectDir, '.gitlab-ci.yml'));
+        $this->assertArrayHasKey('script', $output['setup']);
+        $this->assertNotEmpty($output['setup']['script']);
+    }
+
+    public function testDuplicateStepNameEmitsWarning(): void
+    {
+        // Two events with a step of the same name — duplicate warning should be emitted.
+        $yaml = "version: 1.0\nevents:\n  build:\n    steps:\n      - shared-step:\n          script:\n            - echo build\n  post-deploy:\n    steps:\n      - shared-step:\n          script:\n            - echo deploy\n";
+        file_put_contents(Path::join($this->projectDir, 'acquia-pipelines.yml'), $yaml);
+
+        $this->executeCommand();
+
+        $this->assertSame(0, $this->getStatusCode());
+        $this->assertStringContainsString('multiple events', $this->getDisplay());
+    }
+
+    public function testEventMigrationMessageIsEmitted(): void
+    {
+        $content = (string) file_get_contents(Path::join($this->realFixtureDir, 'acquia-pipelines-full.yml'));
+        file_put_contents(Path::join($this->projectDir, 'acquia-pipelines.yml'), $content);
+
+        $this->executeCommand();
+
+        $this->assertStringContainsString("Migrated 'build' event.", $this->getDisplay());
+    }
+
+    public function testJobNameWithDotIsHandledByPregQuote(): void
+    {
+        // Step name containing '.' would break preg_replace without preg_quote.
+        // With a pr-closed event, the TODO comment injection uses preg_replace with the job name.
+        $yaml = "version: 1.0\nevents:\n  pr-closed:\n    steps:\n      - step.name.with.dots:\n          script:\n            - echo closed\n";
+        file_put_contents(Path::join($this->projectDir, 'acquia-pipelines.yml'), $yaml);
+
+        $this->executeCommand();
+
+        $this->assertSame(0, $this->getStatusCode());
+        $raw = (string) file_get_contents(Path::join($this->projectDir, '.gitlab-ci.yml'));
+        $this->assertStringContainsString('# TODO: GitLab has no native pipeline trigger', $raw);
+    }
+
     public function testYamlIndentationIsTwoSpacesAndRulesAreBlockStyle(): void
     {
         $content = (string) file_get_contents(Path::join($this->realFixtureDir, 'acquia-pipelines-full.yml'));
