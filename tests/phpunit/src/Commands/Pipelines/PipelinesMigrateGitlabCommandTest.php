@@ -86,4 +86,53 @@ class PipelinesMigrateGitlabCommandTest extends CommandTestBase
         $this->assertFileExists(Path::join($tempDir, '.gitlab-ci.yml'));
         $fs->remove($tempDir);
     }
+
+    #[Group('serial')]
+    public function testServicesPhpMysqlComposer(): void
+    {
+        $fs = new Filesystem();
+        $fs->copy(
+            Path::join($this->realFixtureDir, 'acquia-pipelines-full.yml'),
+            Path::join($this->projectDir, 'acquia-pipelines.yml')
+        );
+
+        $this->executeCommand();
+
+        $this->assertSame(0, $this->getStatusCode());
+        $contents = Yaml::parseFile(Path::join($this->projectDir, '.gitlab-ci.yml'));
+        $this->assertSame('php:8.3', $contents['image']);
+        $this->assertContains('mysql', $contents['services']);
+        $this->assertArrayNotHasKey('_composer', $contents);
+    }
+
+    #[Group('serial')]
+    public function testVariablesGlobalFlattened(): void
+    {
+        $fs = new Filesystem();
+        $fs->copy(
+            Path::join($this->realFixtureDir, 'acquia-pipelines-full.yml'),
+            Path::join($this->projectDir, 'acquia-pipelines.yml')
+        );
+
+        $this->executeCommand();
+
+        $this->assertSame(0, $this->getStatusCode());
+        $contents = Yaml::parseFile(Path::join($this->projectDir, '.gitlab-ci.yml'));
+        $this->assertArrayHasKey('variables', $contents);
+        $this->assertSame('http://127.0.0.1:8080', $contents['variables']['SIMPLETEST_BASE_URL']);
+        $this->assertSame('mysql://root:root@localhost/drupal', $contents['variables']['SIMPLETEST_DB']);
+        $this->assertArrayNotHasKey('global', $contents['variables']);
+    }
+
+    #[Group('serial')]
+    public function testUnknownServiceWarning(): void
+    {
+        $customContent = "version: 1.0\nservices:\n  - redis\nevents:\n  build:\n    steps:\n      - step1:\n          script:\n            - echo hi\n";
+        file_put_contents(Path::join($this->projectDir, 'acquia-pipelines.yml'), $customContent);
+
+        $this->executeCommand();
+
+        $this->assertSame(0, $this->getStatusCode());
+        $this->assertStringContainsString('redis', $this->getDisplay());
+    }
 }

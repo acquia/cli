@@ -91,7 +91,75 @@ final class PipelinesMigrateGitlabCommand extends CommandBase
      */
     private function convert(array $acquiaPipelinesContents): array
     {
-        // Stub — full implementation in Task 4.
-        return ['stages' => ['build']];
+        $output = [];
+        $servicesMeta = $this->migrateServices($acquiaPipelinesContents);
+        $variables = $this->migrateVariables($acquiaPipelinesContents);
+
+        if (isset($servicesMeta['image'])) {
+            $output['image'] = $servicesMeta['image'];
+        }
+        if (isset($servicesMeta['services'])) {
+            $output['services'] = $servicesMeta['services'];
+        }
+        if (!empty($variables)) {
+            $output['variables'] = $variables;
+            $this->io->success("Migrated 'variables' section.");
+        }
+
+        // Stages and jobs — populated in Task 5.
+        $output['stages'] = ['build'];
+
+        return $output;
+    }
+
+    /**
+     * @param array<mixed> $contents
+     * @return array<mixed>
+     */
+    private function migrateServices(array $contents): array
+    {
+        $output = [];
+
+        if (!array_key_exists('services', $contents)) {
+            return $output;
+        }
+
+        foreach ($contents['services'] as $service) {
+            if (is_string($service)) {
+                $name = $service;
+                $version = null;
+            } else {
+                $name = (string) array_key_first($service);
+                $version = $service[$name]['version'] ?? null;
+            }
+
+            match ($name) {
+                'php' => $output['image'] = 'php:' . $version,
+                'mysql' => $output['services'][] = $version ? "mysql:$version" : 'mysql',
+                'composer' => $output['_composer'] = true,
+                default => $this->io->warning("Unknown service '$name'. Configure it manually in .gitlab-ci.yml."),
+            };
+        }
+
+        return $output;
+    }
+
+    /**
+     * @param array<mixed> $contents
+     * @return array<mixed>
+     */
+    private function migrateVariables(array $contents): array
+    {
+        if (!array_key_exists('variables', $contents)) {
+            return [];
+        }
+
+        $vars = $contents['variables'];
+
+        if (array_key_exists('global', $vars) && is_array($vars['global'])) {
+            return $vars['global'];
+        }
+
+        return $vars;
     }
 }
