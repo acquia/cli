@@ -18,6 +18,16 @@ use Symfony\Component\Yaml\Yaml;
 #[AsCommand(name: 'pipelines:migrate:gitlab', description: 'Convert an acquia-pipelines.yml file to a generic .gitlab-ci.yml file', aliases: ['p:m:g'])]
 final class PipelinesMigrateGitlabCommand extends CommandBase
 {
+    // phpcs:disable SlevomatCodingStandard.Arrays.AlphabeticallySortedByKeys
+    private const EVENT_STAGE_MAP = [
+        'build'         => 'build',
+        'fail-on-build' => 'fail-on-build',
+        'post-deploy'   => 'post-deploy',
+        'pr-merged'     => 'pr-merged',
+        'pr-closed'     => 'pr-closed',
+    ];
+    // phpcs:enable SlevomatCodingStandard.Arrays.AlphabeticallySortedByKeys
+
     protected function configure(): void
     {
         $this->addOption('path', null, InputOption::VALUE_REQUIRED, 'Path to the directory containing the acquia-pipelines.yml file. Defaults to the current directory.');
@@ -106,8 +116,16 @@ final class PipelinesMigrateGitlabCommand extends CommandBase
             $this->io->success("Migrated 'variables' section.");
         }
 
-        // Stages and jobs — populated in Task 5.
-        $output['stages'] = ['build'];
+        $hasComposer = isset($servicesMeta['_composer']) && $servicesMeta['_composer'];
+        $eventsMeta = $this->migrateEvents($acquiaPipelinesContents, $hasComposer);
+
+        if (!empty($eventsMeta['stages'])) {
+            $output['stages'] = $eventsMeta['stages'];
+        }
+
+        foreach ($eventsMeta['jobs'] as $jobName => $jobDef) {
+            $output[$jobName] = $jobDef;
+        }
 
         return $output;
     }
@@ -161,5 +179,79 @@ final class PipelinesMigrateGitlabCommand extends CommandBase
         }
 
         return $vars;
+    }
+
+    /**
+     * @param array<mixed> $contents
+     * @return array{stages: list<string>, jobs: array<string, array<mixed>>}
+     */
+    private function migrateEvents(array $contents, bool $hasComposer): array
+    {
+        $stages = [];
+        $jobs = [];
+
+        foreach (self::EVENT_STAGE_MAP as $eventName => $stageName) {
+            if (!array_key_exists($eventName, $contents['events'])) {
+                continue;
+            }
+
+            $eventData = $contents['events'][$eventName];
+            if (empty($eventData['steps'])) {
+                $this->io->warning("Event '$eventName' has no steps and was skipped.");
+                continue;
+            }
+
+            $eventHasJob = false;
+
+            foreach ($eventData['steps'] as $step) {
+                $stepName = (string) array_key_first($step);
+                $stepData = $step[$stepName];
+
+                if (empty($stepData['script'])) {
+                    $this->io->warning("Step '$stepName' in event '$eventName' has no script. Skipping.");
+                    continue;
+                }
+
+                $job = ['stage' => $stageName];
+
+                if ($hasComposer && $eventName === 'build') {
+                    $job['before_script'] = ['composer install'];
+                }
+
+                $job['script'] = $stepData['script'];
+
+                if ($eventName === 'fail-on-build') {
+                    $job['when'] = 'on_failure';
+                }
+
+                if ($eventName === 'pr-merged') {
+                    $job['rules'] = [
+                        [
+                            'if'   => '$CI_PIPELINE_SOURCE == "merge_request_event"',
+                            'when' => 'on_success',
+                        ],
+                    ];
+                }
+
+                if ($eventName === 'pr-closed') {
+                    $job['rules'] = [
+                        [
+                            'if'   => '$CI_PIPELINE_SOURCE == "merge_request_event"',
+                            'when' => 'manual',
+                        ],
+                    ];
+                }
+
+                $jobs[$stepName] = $job;
+                $eventHasJob = true;
+            }
+
+            if ($eventHasJob) {
+                $stages[] = $stageName;
+                $this->io->success("Migrated '$eventName' event.");
+            }
+        }
+
+        return ['stages' => $stages, 'jobs' => $jobs];
     }
 }
