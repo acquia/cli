@@ -277,4 +277,40 @@ class PipelinesMigrateGitlabCommandTest extends CommandTestBase
         $this->assertArrayHasKey('stages', $contents);
         $this->assertStringContainsString('overwritten', $this->getDisplay());
     }
+
+    #[Group('serial')]
+    public function testPrMergedAndPrClosedJobsHaveYamlComments(): void
+    {
+        $fs = new Filesystem();
+        $fs->copy(
+            Path::join($this->realFixtureDir, 'acquia-pipelines-full.yml'),
+            Path::join($this->projectDir, 'acquia-pipelines.yml')
+        );
+
+        $this->executeCommand();
+
+        $this->assertSame(0, $this->getStatusCode());
+        $outputFile = Path::join($this->projectDir, '.gitlab-ci.yml');
+        $raw = file_get_contents($outputFile);
+        $this->assertStringContainsString('# TODO: Adjust rule', $raw);
+        $this->assertStringContainsString('# TODO: GitLab has no native pipeline trigger', $raw);
+    }
+
+    #[Group('serial')]
+    public function testEmptyInputFileThrows(): void
+    {
+        file_put_contents(Path::join($this->projectDir, 'acquia-pipelines.yml'), '');
+        $this->expectException(AcquiaCliException::class);
+        $this->expectExceptionMessageMatches('/empty or unreadable/');
+        $this->executeCommand();
+    }
+
+    #[Group('serial')]
+    public function testInvalidYamlInputThrows(): void
+    {
+        file_put_contents(Path::join($this->projectDir, 'acquia-pipelines.yml'), "invalid: yaml: [\nbad");
+        $this->expectException(AcquiaCliException::class);
+        $this->expectExceptionMessageMatches('/Failed to parse/');
+        $this->executeCommand();
+    }
 }

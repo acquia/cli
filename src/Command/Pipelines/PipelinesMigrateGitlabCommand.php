@@ -74,10 +74,9 @@ final class PipelinesMigrateGitlabCommand extends CommandBase
             $this->io->warning("Existing $outputPath was overwritten.");
         }
 
-        $this->localMachineHelper->getFilesystem()->dumpFile(
-            $outputPath,
-            Yaml::dump($gitlabCiContents, 4, 2, Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK)
-        );
+        $yamlString = Yaml::dump($gitlabCiContents, 4, 2, Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK);
+        $yamlString = $this->injectYamlComments($yamlString, $gitlabCiContents);
+        $this->localMachineHelper->getFilesystem()->dumpFile($outputPath, $yamlString);
 
         $this->io->success("Migration complete. Created $outputPath. Review the file before committing — some manual adjustments may be needed.");
 
@@ -257,6 +256,9 @@ final class PipelinesMigrateGitlabCommand extends CommandBase
                     $job['rules'] = $eventConfig['rules'];
                 }
 
+                if (array_key_exists($stepName, $jobs)) {
+                    $this->io->warning("Step name '$stepName' appears in multiple events. The job from '$eventName' overwrites a previous one.");
+                }
                 $jobs[$stepName] = $job;
                 $eventHasJob = true;
             }
@@ -268,5 +270,34 @@ final class PipelinesMigrateGitlabCommand extends CommandBase
         }
 
         return ['stages' => $stages, 'jobs' => $jobs];
+    }
+
+    /**
+     * @param array<mixed> $gitlabContents
+     */
+    private function injectYamlComments(string $yaml, array $gitlabContents): string
+    {
+        $commentMap = [
+            'pr-closed' => '# TODO: GitLab has no native pipeline trigger for a closed-without-merge MR. This is a best-effort placeholder — review and adjust manually.',
+            'pr-merged' => '# TODO: Adjust rule — GitLab has no direct "merged" pipeline event. Consider using push pipelines on your default branch instead.',
+        ];
+
+        foreach ($gitlabContents as $jobName => $jobDef) {
+            if (!is_array($jobDef) || !isset($jobDef['stage'])) {
+                continue;
+            }
+            $stage = $jobDef['stage'];
+            if (!isset($commentMap[$stage])) {
+                continue;
+            }
+            $comment = $commentMap[$stage];
+            $yaml = preg_replace(
+                '/^(' . preg_quote((string) $jobName, '/') . ':)/m',
+                $comment . "\n" . '$1',
+                $yaml
+            );
+        }
+
+        return $yaml;
     }
 }
