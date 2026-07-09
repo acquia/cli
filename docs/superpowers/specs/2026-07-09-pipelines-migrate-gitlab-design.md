@@ -33,12 +33,14 @@ acli p:m:g
 ## File Detection
 
 1. Resolve target directory: use `--path` if provided, otherwise `$projectDir`.
-2. Look for `acquia-pipelines.yml` first, then `acquia-pipelines.yaml`.
-3. If neither exists → throw `AcquiaCliException`: `"No acquia-pipelines.yml or acquia-pipelines.yaml file found in <dir>."`
-4. Output filename mirrors input extension:
+2. If `--path` is provided and the directory does not exist → throw `AcquiaCliException`: `"The path '<dir>' does not exist."`
+3. Look for `acquia-pipelines.yml` first, then `acquia-pipelines.yaml`.
+4. If neither exists → throw `AcquiaCliException`: `"No acquia-pipelines.yml or acquia-pipelines.yaml file found in <dir>."`
+5. Output filename mirrors input extension:
    - `acquia-pipelines.yml` → `.gitlab-ci.yml`
    - `acquia-pipelines.yaml` → `.gitlab-ci.yaml`
-5. Output is written to the **same directory** as the input file.
+6. Output is written to the **same directory** as the input file.
+7. If the output file already exists → overwrite it and emit `io->warning("Existing <output-file> was overwritten.")`.
 
 ---
 
@@ -76,8 +78,8 @@ stages:
 | `build` | `build` | None (runs on every pipeline) |
 | `fail-on-build` | `fail-on-build` | `when: on_failure` on every job in this stage |
 | `post-deploy` | `post-deploy` | None (runs always, after build) |
-| `pr-merged` | `pr-merged` | `rules: [{if: '$CI_MERGE_REQUEST_EVENT_TYPE == "merged_result"'}]` |
-| `pr-closed` | `pr-closed` | `rules: [{if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_STATE == "closed"'}]` |
+| `pr-merged` | `pr-merged` | `rules: [{if: '$CI_PIPELINE_SOURCE == "merge_request_event"', when: on_success}]` + YAML comment: `# TODO: Adjust rule — GitLab has no direct "merged" pipeline event. Consider using push pipelines on your default branch instead.` |
+| `pr-closed` | `pr-closed` | `rules: [{if: '$CI_PIPELINE_SOURCE == "merge_request_event"', when: manual}]` + YAML comment: `# TODO: GitLab has no native pipeline trigger for a closed-without-merge MR. This is a best-effort placeholder — review and adjust manually.` |
 
 ### Step → Job mapping
 
@@ -99,6 +101,7 @@ Each step within an event becomes a named GitLab CI job:
 
 ### Errors — throw `AcquiaCliException`, halt execution
 
+- `--path` directory does not exist
 - Input file not found in target directory
 - Input file is empty or invalid YAML
 - Input file has no `events` key
@@ -159,3 +162,5 @@ Uses `#[DataProvider]`, `#[Group]` PHP attributes. Extends `CommandTestBase`. No
 | 8 | `fail-on-build` steps | Each job has `when: on_failure` |
 | 9 | `pr-merged` / `pr-closed` jobs | Correct `rules:` on each job |
 | 10 | Source file not deleted | `acquia-pipelines.yml` still present after command runs |
+| 11 | Output file already exists | Overwritten, warning emitted |
+| 12 | `--path` points to non-existent directory | `AcquiaCliException` thrown |
