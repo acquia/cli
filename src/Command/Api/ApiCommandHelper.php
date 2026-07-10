@@ -462,8 +462,14 @@ class ApiCommandHelper
     private function buildApiCommand(string $path, string $method, array $schema, array $acquiaCloudSpec, string $commandPrefix, CommandFactoryInterface $commandFactory): ApiBaseCommand
     {
         $command = $commandFactory->createCommand();
-        $command->setName($commandPrefix . ':' . $schema['x-cli-name']);
-        $command->setDescription($schema['summary']);
+        $command->setName($commandPrefix . ':' . $this->getCliCommandName($schema));
+        $stability = $this->getSchemaStability($schema);
+        $command->setStability($stability);
+        $description = $schema['summary'];
+        if ($stability !== null && $stability !== 'production') {
+            $description .= " [{$stability}]";
+        }
+        $command->setDescription($description);
         $command->setMethod($method);
         $command->setResponses($schema['responses']);
         $command->setHidden(
@@ -585,13 +591,17 @@ class ApiCommandHelper
         $manifest = [];
         foreach ($acquiaCloudSpec['paths'] as $path => $endpoint) {
             foreach ($endpoint as $method => $schema) {
-                if (!array_key_exists('x-cli-name', $schema)) {
+                $cliName = $this->getCliCommandName($schema);
+                if ($cliName === null) {
                     continue;
                 }
-                if (in_array($schema['x-cli-name'], $skippedApiCommands, true)) {
+                if ($this->shouldSkipOperation($schema)) {
                     continue;
                 }
-                $manifest[$schema['x-cli-name']] = [
+                if (in_array($cliName, $skippedApiCommands, true)) {
+                    continue;
+                }
+                $manifest[$cliName] = [
                     'deprecated' => self::isDeprecated($schema),
                     'method' => $method,
                     'path' => $path,
@@ -748,7 +758,7 @@ class ApiCommandHelper
         $namespaceHasVisibleCommand = [];
         foreach ($apiCommands as $apiCommand) {
             $commandNameParts = explode(':', $apiCommand->getName());
-            if (!isset($commandNameParts[$prefixDepth])) {
+            if (!isset($commandNameParts[$prefixDepth + 1])) {
                 continue;
             }
             $namespace = $commandNameParts[$prefixDepth];
