@@ -48,6 +48,50 @@ PHPUnit data providers may be used to fuzz input for a test case as long as the 
 
 Test cases are declarative specifications. They should not implement or utilize any logic, especially not as provided by the covered source code itself.
 
+### Running integration tests locally
+
+The integration test suite (`tests/integration/`) drives the real `acli` binary against the live Acquia Cloud API. Unlike unit tests, it requires valid cloud credentials and a provisioned application.
+
+#### Prerequisites
+
+1. **Acquia Cloud account** — A free developer account is sufficient. Sign up or log in at [https://www.acquia.com/products/drupal-cloud/acquia-cloud](https://www.acquia.com/products/drupal-cloud/acquia-cloud). An existing subscription also works.
+2. **An application** — Create or identify an existing application in the Acquia Cloud UI to use as the test target.
+3. **API credentials** — In the Acquia Cloud UI, go to **Account → API tokens** to generate a token key and secret.
+4. **Python 3.8+** — `python3 --version`
+
+#### Required environment variables
+
+| Variable | Description | Where to find it |
+|---|---|---|
+| `APPLICATION_UUID` | UUID of the target application | Cloud UI → Applications → click app → URL contains the UUID |
+| `APPLICATION_NAME` | Display name of the application | Cloud UI → Applications |
+| `ACLI_AUTH_TOKEN` | API token key | Cloud UI → Account → API tokens |
+| `ACLI_AUTH_SECRET` | API token secret | Shown once at token creation time |
+
+Export them before running tests:
+```bash
+export APPLICATION_UUID="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+export APPLICATION_NAME="My Application"
+export ACLI_AUTH_TOKEN="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+export ACLI_AUTH_SECRET="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+```
+
+#### Safe (read-only) subset
+
+`test_01_auth_login_with_telemetry_disabled` is the only test that does not create, modify, or delete any cloud resource. It disables telemetry and verifies credential login. Run it alone with:
+
+```bash
+python3 -m unittest tests.integration.testcases.TestExecutableWithPrompt.test_01_auth_login_with_telemetry_disabled
+```
+
+#### Full integration suite
+
+> **Warning: The full suite is destructive.** Tests `test_02` through `test_04` create and then delete a live environment in your application. Only run the full suite against a **dedicated throwaway application** — never against a production application.
+
+```bash
+python3 -m unittest discover -s tests/integration/testcases
+```
+
 ## Submitting pull requests
 
 Pull requests must also adhere to the following guidelines:
@@ -127,3 +171,41 @@ Code, comment, and other style standards should generally follow those set by th
 - Write command descriptions in sentence case and imperative mood without a trailing period (`Create a Cloud IDE`). Do not use a trailing period for argument and option descriptions.
 - Use camelCase for all property, method, and variable names.
 - Use hyphens to separate words in options and arguments (`addOption('ssh-key')`), or any other variable exposed to end users.
+
+## Common issues
+
+### Coverage run fails with "No code coverage driver available"
+
+`composer coverage` requires the `pcov` PHP extension. Install it with your version manager or package manager:
+
+```bash
+# macOS (Homebrew / pecl)
+pecl install pcov
+
+# Ubuntu / Debian
+apt-get install php-pcov
+
+# After installing, confirm it's active
+php -m | grep pcov
+```
+
+If you only need a quick test run without coverage, use `composer test` or `composer unit` instead — these do not require pcov.
+
+### phpcs fails with "ERROR: Referenced sniff ... does not exist"
+
+This happens when you run `phpcs` (or `git commit`) before running `composer install`. The phpcs ruleset depends on packages in `vendor/`. Fix:
+
+```bash
+composer install
+```
+
+### VSCode Xdebug does not attach
+
+The `.vscode/launch.json` "Listen for Xdebug" configuration listens on port 9003. If another PHP-FPM, CLI process, or a previous debug session is already bound to that port, the debugger silently fails to connect.
+
+Check for a conflicting process and stop it:
+
+```bash
+lsof -i :9003
+# Kill the PID shown, then re-run the "Listen for Xdebug" launch config in VSCode
+```
