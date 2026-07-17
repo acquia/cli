@@ -32,7 +32,7 @@ jobs:
       - name: Create PR if spec changed
         if: steps.diff.outputs.changed == 'true'
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
           BRANCH="automated/update-acquia-v3-spec-${{ github.run_id }}"
           git config user.name "github-actions[bot]"
