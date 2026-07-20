@@ -59,6 +59,48 @@ class ApiCommandTest extends CommandTestBase
         $this->assertEquals(0, $this->getStatusCode());
     }
 
+    /**
+     * A body-less POST (no requestBody in the spec) must send an empty JSON
+     * object so the Cloud Platform API receives both a Content-Type header and
+     * a body, preventing HTTP 415 / HTTP 400 errors.
+     */
+    public function testBodylessPostSendsEmptyJsonBody(): void
+    {
+        $agreementUuid = 'da1c0a8e-ff69-45db-88fc-acd6d2affbb7';
+        $this->mockRequest('postAcceptAgreement', $agreementUuid);
+        $this->clientProphecy->addOption('headers', ['Accept' => 'application/hal+json, version=2'])
+            ->shouldBeCalled();
+        $this->clientProphecy->addOption('json', new \stdClass())
+            ->shouldBeCalled();
+        $this->command = $this->getApiCommandByName('api:agreements:accept');
+        $this->executeCommand(['agreementUuid' => $agreementUuid]);
+        $this->assertEquals(0, $this->getStatusCode());
+    }
+
+    /**
+     * A body-less PUT (requestBody with no properties, required: false) must
+     * NOT send `{}`. Guzzle creates a non-seekable stream for the empty object
+     * which triggers `curl_setopt_array(): Stream does not support seeking`.
+     */
+    public function testBodylessPutDoesNotSendEmptyJsonBody(): void
+    {
+        $siteId = '3e8ecbec-ea7c-4260-8414-ef2938c859bc';
+        $environmentId = 'd3f7270e-c45f-4801-9308-5e8afe84a323';
+        $domainName = 'example.com';
+        $this->mockRequest('add_domain_to_site', [$siteId, $environmentId, $domainName]);
+        $this->clientProphecy->addOption('headers', ['Accept' => 'application/hal+json, version=2'])
+            ->shouldBeCalled();
+        $this->clientProphecy->addOption('json', new \stdClass())
+            ->shouldNotBeCalled();
+        $this->command = $this->getApiCommandByName('api:site-instances:domain:add');
+        $this->executeCommand([
+            'domainName' => $domainName,
+            'environmentId' => $environmentId,
+            'siteId' => $siteId,
+        ]);
+        $this->assertEquals(0, $this->getStatusCode());
+    }
+
     public function testTaskWait(): void
     {
         $environmentId = '24-a47ac10b-58cc-4372-a567-0e02b2c3d470';
