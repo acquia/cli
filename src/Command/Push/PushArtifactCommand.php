@@ -111,7 +111,7 @@ final class PushArtifactCommand extends CommandBase
             ]);
 
             $this->checklist->addItem('Preparing artifact directory');
-            $this->cloneSourceBranch($outputCallback, $artifactDir, $destinationGitUrls[0], $sourceGitBranch);
+            $this->cloneSourceBranch($outputCallback, $artifactDir, $destinationGitUrls, $sourceGitBranch);
             $this->checklist->completePreviousItem();
         }
 
@@ -175,8 +175,10 @@ final class PushArtifactCommand extends CommandBase
 
     /**
      * Prepare a directory to build the artifact.
+     *
+     * @param string[] $vcsUrls
      */
-    private function cloneSourceBranch(Closure $outputCallback, string $artifactDir, string $vcsUrl, string $vcsPath): void
+    private function cloneSourceBranch(Closure $outputCallback, string $artifactDir, array $vcsUrls, string $vcsPath): void
     {
         $fs = $this->localMachineHelper->getFilesystem();
 
@@ -185,39 +187,63 @@ final class PushArtifactCommand extends CommandBase
 
         $outputCallback('out', "Initializing Git in $artifactDir");
         $this->localMachineHelper->checkRequiredBinariesExist(['git']);
+        $printOutput = $this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL;
         $process = $this->localMachineHelper->execute([
             'git',
             'clone',
             '--depth=1',
-            $vcsUrl,
+            $vcsUrls[0],
             $artifactDir,
-        ], $outputCallback, null, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
+        ], $outputCallback, null, $printOutput);
         if (!$process->isSuccessful()) {
             throw new AcquiaCliException('Failed to clone repository from the Cloud Platform: {message}', ['message' => $process->getErrorOutput()]);
         }
-        $process = $this->localMachineHelper->execute([
-            'git',
-            'fetch',
-            '--depth=1',
-            '--update-head-ok',
-            $vcsUrl,
-            $vcsPath . ':' . $vcsPath,
-        ], $outputCallback, $artifactDir, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
-        if (!$process->isSuccessful()) {
-            // Remote branch does not exist. Just create it locally. This will create
-            // the new branch off of the current commit.
+
+        // Fetch the branch tip from every destination so out-of-sync remotes
+        // are detected before the artifact is built and pushed.
+        $tips = [];
+        foreach ($vcsUrls as $vcsUrl) {
+            $outputCallback('out', "Fetching $vcsPath from $vcsUrl");
+            $process = $this->localMachineHelper->execute([
+                'git',
+                'fetch',
+                '--depth=1',
+                $vcsUrl,
+                $vcsPath,
+            ], $outputCallback, $artifactDir, $printOutput);
+            if (!$process->isSuccessful()) {
+                // The branch does not exist on this remote yet. The push will
+                // create it.
+                continue;
+            }
+            $process = $this->localMachineHelper->execute([
+                'git',
+                'rev-parse',
+                'FETCH_HEAD',
+            ], null, $artifactDir, false);
+            if ($process->isSuccessful() && trim($process->getOutput()) !== '') {
+                $tips[$vcsUrl] = trim($process->getOutput());
+            }
+        }
+
+        if ($tips === []) {
+            // The branch does not exist on any remote. Just create it locally.
+            // This will create the new branch off of the current commit.
             $process = $this->localMachineHelper->execute([
                 'git',
                 'checkout',
                 '-b',
                 $vcsPath,
-            ], $outputCallback, $artifactDir, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
+            ], $outputCallback, $artifactDir, $printOutput);
         } else {
+            $baseTip = $this->determineBaseTip($tips, $vcsPath, $artifactDir);
             $process = $this->localMachineHelper->execute([
                 'git',
                 'checkout',
+                '-B',
                 $vcsPath,
-            ], $outputCallback, $artifactDir, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
+                $baseTip,
+            ], $outputCallback, $artifactDir, $printOutput);
         }
         if (!$process->isSuccessful()) {
             throw new AcquiaCliException("Could not checkout $vcsPath branch locally: {message}", ['message' => $process->getErrorOutput() . $process->getOutput()]);
@@ -393,11 +419,68 @@ final class PushArtifactCommand extends CommandBase
     }
 
     /**
+     * Pick the branch tip to base the artifact on.
+     *
+     * Ensures every destination can fast-forward to the artifact commit. If
+     * the tips differ but are ancestor-related, the most advanced tip wins.
+     * Truly diverged tips abort the push before anything is built.
+     *
+     * @param array<string, string> $tips
+     */
+    private function determineBaseTip(array $tips, string $vcsPath, string $artifactDir): string
+    {
+        $uniqueTips = array_values(array_unique($tips));
+        if (count($uniqueTips) === 1) {
+            return $uniqueTips[0];
+        }
+
+        // The tips differ. Deepen the shallow history so ancestry between
+        // them can be established.
+        foreach (array_keys($tips) as $vcsUrl) {
+            $this->localMachineHelper->execute([
+                'git',
+                'fetch',
+                '--deepen=50',
+                $vcsUrl,
+                $vcsPath,
+            ], null, $artifactDir, false);
+        }
+        foreach ($uniqueTips as $candidate) {
+            foreach ($uniqueTips as $other) {
+                if ($other === $candidate) {
+                    continue;
+                }
+                $process = $this->localMachineHelper->execute([
+                    'git',
+                    'merge-base',
+                    '--is-ancestor',
+                    $other,
+                    $candidate,
+                ], null, $artifactDir, false);
+                if (!$process->isSuccessful()) {
+                    continue 2;
+                }
+            }
+            return $candidate;
+        }
+
+        $remoteTips = [];
+        foreach ($tips as $vcsUrl => $tip) {
+            $remoteTips[] = "$vcsUrl ($tip)";
+        }
+        throw new AcquiaCliException('The destination git repositories are out of sync for the {branch} branch: {tips}. Reconcile them (e.g. delete the stale artifact branch from the out-of-date remote or push the desired tip to it) and try again.', [
+            'branch' => $vcsPath,
+            'tips' => implode(', ', $remoteTips),
+        ]);
+    }
+
+    /**
      * Push the artifact.
      */
     private function pushArtifact(Closure $outputCallback, string $artifactDir, array $vcsUrls, string $destGitBranch): void
     {
         $this->localMachineHelper->checkRequiredBinariesExist(['git']);
+        $failures = [];
         foreach ($vcsUrls as $vcsUrl) {
             $outputCallback('out', "Pushing changes to Acquia Git ($vcsUrl)");
             $args = [
@@ -408,8 +491,13 @@ final class PushArtifactCommand extends CommandBase
             ];
             $process = $this->localMachineHelper->execute($args, $outputCallback, $artifactDir, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
             if (!$process->isSuccessful()) {
-                throw new AcquiaCliException("Unable to push artifact: {message}", ['message' => $process->getOutput() . $process->getErrorOutput()]);
+                // Keep pushing to the remaining remotes so a single failure
+                // does not leave them further out of sync.
+                $failures[] = "$vcsUrl: " . $process->getOutput() . $process->getErrorOutput();
             }
+        }
+        if ($failures !== []) {
+            throw new AcquiaCliException("Unable to push artifact: {message}", ['message' => implode(PHP_EOL, $failures)]);
         }
     }
 
