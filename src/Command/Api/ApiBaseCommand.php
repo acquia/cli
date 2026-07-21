@@ -247,6 +247,9 @@ class ApiBaseCommand extends CommandBase
         if (isset($oneOf)) {
             $types = [];
             foreach ($oneOf as $type) {
+                if (!array_key_exists('type', $type)) {
+                    continue;
+                }
                 if ($type['type'] === 'array' && str_contains($value, ',')) {
                     return $this->castParamToArray($type, $value);
                 }

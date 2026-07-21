@@ -100,6 +100,24 @@ class ApiCommandTest extends CommandTestBase
         ]);
         $this->assertEquals(0, $this->getStatusCode());
     }
+  
+    /**
+     * oneOf entries that lack a 'type' key (e.g. unresolved $ref) must be
+     * skipped silently rather than throwing an "Undefined array key" warning.
+     */
+    public function testCastParamTypeSkipsOneOfEntriesWithoutTypeKey(): void
+    {
+        $command = $this->getApiCommandByName('api:environments:code-switch');
+        $ref = new \ReflectionMethod($command, 'castParamType');
+        $paramSpec = [
+            'oneOf' => [
+                ['$ref' => '#/components/schemas/SomeRef'],
+                ['type' => 'integer'],
+            ],
+        ];
+        $result = $ref->invoke($command, $paramSpec, '42');
+        $this->assertSame(42, $result);
+    }
 
     public function testTaskWait(): void
     {
