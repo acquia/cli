@@ -100,7 +100,7 @@ class ApiCommandTest extends CommandTestBase
         ]);
         $this->assertEquals(0, $this->getStatusCode());
     }
-  
+
     /**
      * oneOf entries that lack a 'type' key (e.g. unresolved $ref) must be
      * skipped silently rather than throwing an "Undefined array key" warning.
