@@ -146,15 +146,29 @@ class ApiBaseCommand extends CommandBase
     private function mungeResponse(mixed &$response): void
     {
         if (is_object($response) && property_exists($response, '_links')) {
-            unset($response->_links);
+            $response->_links = $this->filterLinks($response->_links);
         }
         foreach ($response as &$value) {
             if (is_object($value) && property_exists($value, '_links')) {
-                unset($value->_links);
+                $value->_links = $this->filterLinks($value->_links);
             } elseif (is_array($value) && array_key_exists('_links', $value)) {
-                unset($value['_links']);
+                $value['_links'] = $this->filterLinks($value['_links']);
             }
         }
+    }
+
+    private function filterLinks(mixed $links): mixed
+    {
+        if (is_object($links)) {
+            foreach (array_keys((array) $links) as $key) {
+                if ($key !== 'download') {
+                    unset($links->$key);
+                }
+            }
+        } elseif (is_array($links)) {
+            $links = array_filter($links, static fn($key) => $key === 'download', ARRAY_FILTER_USE_KEY);
+        }
+        return $links;
     }
 
     public function setMethod(string $method): void
