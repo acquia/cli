@@ -16,7 +16,7 @@ jobs:
 
       - name: Download latest v3 spec
         run: |
-          curl -fsSL https://api-specs-dev.dev.cicd.acquia.io/openapi.yaml \
+          curl -fsSL https://api-specs-dev.dev.mesh.cicd.acquia.io/openapi.yaml \
             | python3 -c "import sys,yaml,json; json.dump(yaml.safe_load(sys.stdin), sys.stdout)" \
             > assets/acquia-v3-spec.json
 
@@ -43,7 +43,7 @@ jobs:
           git push origin "$BRANCH"
           gh pr create \
             --title "chore: update Acquia v3 OpenAPI spec" \
-            --body "Automated spec update from https://api-specs-dev.dev.cicd.acquia.io/openapi.yaml" \
+            --body "Automated spec update from https://api-specs-dev.dev.mesh.cicd.acquia.io/openapi.yaml" \
             --label "chore" \
             --base "${{ github.ref_name }}" \
             --head "$BRANCH"
