@@ -114,6 +114,16 @@ class ApiBaseCommand extends CommandBase
         $acquiaCloudClient->addOption('headers', [
             'Accept' => 'application/hal+json, version=2',
         ]);
+        // Some POST endpoints have no request body (e.g. schedule-delete). The
+        // Cloud Platform API requires both a Content-Type header and a body for
+        // all POST requests. Guzzle's `json` option satisfies both; passing an
+        // empty object sends `{}` with Content-Type: application/json.
+        // PUT/PATCH endpoints with no body (e.g. site-instances:domain:add) must
+        // not send `{}`: Guzzle creates a non-seekable stream which triggers
+        // `curl_setopt_array(): Stream does not support seeking`.
+        if (strtoupper($this->method) === 'POST' && empty($this->postParams)) {
+            $acquiaCloudClient->addOption('json', new \stdClass());
+        }
 
         try {
             if ($this->output->isVeryVerbose()) {
