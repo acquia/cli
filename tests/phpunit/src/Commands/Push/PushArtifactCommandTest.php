@@ -195,6 +195,30 @@ EOF;
         $this->assertStringNotContainsString('Pushing changes to Acquia Git (site@svn-3.hosted.acquia-sites.com:site.git)', $output);
     }
 
+    public function testPushArtifactWithoutAutoloadRuntime(): void
+    {
+        $applications = $this->mockRequest('getApplications');
+        $this->mockRequest('getApplicationByUuid', $applications[0]->uuid);
+        $environments = $this->mockRequest('getApplicationEnvironments', $applications[0]->uuid);
+        $localMachineHelper = $this->mockLocalMachineHelper();
+        $this->setUpPushArtifact($localMachineHelper, $environments[0]->vcs->path, [$environments[0]->vcs->url], 'master:master', true, true, false, true, false);
+        $inputs = [
+            // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
+            'n',
+            // Select a Cloud Platform application:
+            0,
+            // Would you like to link the project at ... ?
+            'y',
+            // Choose an Acquia environment:
+            0,
+        ];
+        $this->executeCommand(['--no-push' => true], $inputs);
+
+        $output = $this->getDisplay();
+
+        $this->assertStringContainsString('Adding and committing changed files', $output);
+    }
+
     public function testPushArtifactNoCommit(): void
     {
         $applications = $this->mockRequest('getApplications');
@@ -243,7 +267,7 @@ EOF;
         $this->assertStringNotContainsString('Adding and committing changed files', $output);
         $this->assertStringNotContainsString('Pushing changes to Acquia Git (site@svn-3.hosted.acquia-sites.com:site.git)', $output);
     }
-    protected function setUpPushArtifact(ObjectProphecy $localMachineHelper, string $vcsPath, array $vcsUrls, string $destGitRef = 'master:master', bool $clone = true, bool $commit = true, bool $push = true, bool $printOutput = true): void
+    protected function setUpPushArtifact(ObjectProphecy $localMachineHelper, string $vcsPath, array $vcsUrls, string $destGitRef = 'master:master', bool $clone = true, bool $commit = true, bool $push = true, bool $printOutput = true, bool $hasAutoloadRuntime = true): void
     {
         touch(Path::join($this->projectDir, 'composer.json'));
         mkdir(Path::join($this->projectDir, 'docroot'));
@@ -267,7 +291,7 @@ EOF;
             $this->mockCloneShallow($localMachineHelper, $vcsPath, $vcsUrls[0], $artifactDir, $printOutput);
         }
         if ($commit) {
-            $this->mockGitAddCommit($localMachineHelper, $artifactDir, $commitHash, $printOutput);
+            $this->mockGitAddCommit($localMachineHelper, $artifactDir, $commitHash, $printOutput, $hasAutoloadRuntime);
         }
         if ($push) {
             $this->mockGitPush($vcsUrls, $localMachineHelper, $artifactDir, $destGitRef, $printOutput);
@@ -340,7 +364,7 @@ EOF;
             ->willReturn($process->reveal())->shouldBeCalled();
     }
 
-    protected function mockGitAddCommit(ObjectProphecy $localMachineHelper, string $artifactDir, string $commitHash, bool $printOutput): void
+    protected function mockGitAddCommit(ObjectProphecy $localMachineHelper, string $artifactDir, string $commitHash, bool $printOutput, bool $hasAutoloadRuntime = true): void
     {
         $process = $this->mockProcess();
         $localMachineHelper->execute([
@@ -363,6 +387,22 @@ EOF;
             'docroot/autoload.php',
         ], null, $artifactDir, false)
             ->willReturn($process->reveal())->shouldBeCalled();
+        $runtimeFile = Path::join($artifactDir, 'docroot', 'autoload_runtime.php');
+        if ($hasAutoloadRuntime) {
+            // Simulate Drupal 11.4+ where autoload_runtime.php is generated.
+            @mkdir(Path::join($artifactDir, 'docroot'), 0777, true);
+            touch($runtimeFile);
+            $localMachineHelper->execute([
+                'git',
+                'add',
+                '-f',
+                'docroot/autoload_runtime.php',
+            ], null, $artifactDir, false)
+                ->willReturn($process->reveal())->shouldBeCalled();
+        } else {
+            // Simulate Drupal < 11.4 where autoload_runtime.php is absent.
+            @unlink($runtimeFile);
+        }
         $localMachineHelper->execute([
             'git',
             'add',
