@@ -457,6 +457,13 @@ final class PushArtifactCommand extends CommandBase
             }
         }
         $this->scaffoldFiles[] = 'docroot/autoload.php';
+        // autoload_runtime.php was introduced in Drupal 11.4 as the Symfony
+        // Runtime bootstrap entry point. It is not in core's file-mapping so
+        // it must be force-added like autoload.php, but only when present —
+        // Drupal < 11.4 does not generate this file.
+        if (file_exists(Path::join($artifactDir, 'docroot', 'autoload_runtime.php'))) {
+            $this->scaffoldFiles[] = 'docroot/autoload_runtime.php';
+        }
 
         return $this->scaffoldFiles;
     }
