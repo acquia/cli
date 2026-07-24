@@ -78,6 +78,7 @@ class ApiCommandTest extends CommandTestBase
     }
 
     /**
+<<<<<<< HEAD
      * A POST with a request body must NOT send the empty-body fallback;
      * the real payload's json option handles Content-Type automatically.
      */
@@ -87,14 +88,34 @@ class ApiCommandTest extends CommandTestBase
         $branch = 'my-feature-branch';
         $this->mockRequest('postEnvironmentsSwitchCode', $environmentId, null, 'Switching code');
         $this->clientProphecy->addOption('json', ['branch' => $branch])->shouldBeCalled();
+=======
+     * A body-less PUT (requestBody with no properties, required: false) must
+     * NOT send `{}`. Guzzle creates a non-seekable stream for the empty object
+     * which triggers `curl_setopt_array(): Stream does not support seeking`.
+     */
+    public function testBodylessPutDoesNotSendEmptyJsonBody(): void
+    {
+        $siteId = '3e8ecbec-ea7c-4260-8414-ef2938c859bc';
+        $environmentId = 'd3f7270e-c45f-4801-9308-5e8afe84a323';
+        $domainName = 'example.com';
+        $this->mockRequest('add_domain_to_site', [$siteId, $environmentId, $domainName]);
+>>>>>>> origin/main
         $this->clientProphecy->addOption('headers', ['Accept' => 'application/hal+json, version=2'])
             ->shouldBeCalled();
         $this->clientProphecy->addOption('json', new \stdClass())
             ->shouldNotBeCalled();
+<<<<<<< HEAD
         $this->command = $this->getApiCommandByName('api:environments:code-switch');
         $this->executeCommand([
             'branch' => $branch,
             'environmentId' => $environmentId,
+=======
+        $this->command = $this->getApiCommandByName('api:site-instances:domain:add');
+        $this->executeCommand([
+            'domainName' => $domainName,
+            'environmentId' => $environmentId,
+            'siteId' => $siteId,
+>>>>>>> origin/main
         ]);
         $this->assertEquals(0, $this->getStatusCode());
     }
