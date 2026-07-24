@@ -78,6 +78,28 @@ class ApiCommandTest extends CommandTestBase
     }
 
     /**
+     * A POST with a request body must NOT send the empty-body fallback;
+     * the real payload's json option handles Content-Type automatically.
+     */
+    public function testPostWithBodyDoesNotSendEmptyFallback(): void
+    {
+        $environmentId = '24-a47ac10b-58cc-4372-a567-0e02b2c3d470';
+        $branch = 'my-feature-branch';
+        $this->mockRequest('postEnvironmentsSwitchCode', $environmentId, null, 'Switching code');
+        $this->clientProphecy->addOption('json', ['branch' => $branch])->shouldBeCalled();
+        $this->clientProphecy->addOption('headers', ['Accept' => 'application/hal+json, version=2'])
+            ->shouldBeCalled();
+        $this->clientProphecy->addOption('json', new \stdClass())
+            ->shouldNotBeCalled();
+        $this->command = $this->getApiCommandByName('api:environments:code-switch');
+        $this->executeCommand([
+            'branch' => $branch,
+            'environmentId' => $environmentId,
+        ]);
+        $this->assertEquals(0, $this->getStatusCode());
+    }
+
+    /**
      * A body-less PUT (requestBody with no properties, required: false) must
      * NOT send `{}`. Guzzle creates a non-seekable stream for the empty object
      * which triggers `curl_setopt_array(): Stream does not support seeking`.
@@ -1242,5 +1264,67 @@ EOD;
         $this->assertArrayNotHasKey('_links', $decoded[1], 'MEO command must remove _links from array items');
         $this->assertEquals(1, $decoded[0]['id']);
         $this->assertEquals('site2', $decoded[1]['name']);
+    }
+
+    /**
+     * A command with non-production stability must print a warning at runtime.
+     * Kills mutants that remove the stability check or change the condition.
+     */
+    public function testStabilityWarningPrintedForNonProductionCommand(): void
+    {
+        $this->clientProphecy->addOption('headers', ['Accept' => 'application/hal+json, version=2'])
+            ->shouldBeCalled();
+        $mockBody = self::getMockResponseFromSpec('/account/ssh-keys', 'get', '200');
+        $this->clientProphecy->request('get', '/account/ssh-keys')
+            ->willReturn($mockBody->{'_embedded'}->items)
+            ->shouldBeCalled();
+        $this->command = $this->getApiCommandByName('api:accounts:ssh-keys-list');
+        $this->command->setStability('development');
+        $this->executeCommand([]);
+        $this->assertStringContainsString(
+            'This command is in development and may change without notice.',
+            $this->getDisplay()
+        );
+    }
+
+    /**
+     * A production command must NOT print a stability warning.
+     * Kills mutants that fire the warning unconditionally.
+     */
+    public function testNoStabilityWarningForProductionCommand(): void
+    {
+        $this->clientProphecy->addOption('headers', ['Accept' => 'application/hal+json, version=2'])
+            ->shouldBeCalled();
+        $mockBody = self::getMockResponseFromSpec('/account/ssh-keys', 'get', '200');
+        $this->clientProphecy->request('get', '/account/ssh-keys')
+            ->willReturn($mockBody->{'_embedded'}->items)
+            ->shouldBeCalled();
+        $this->command = $this->getApiCommandByName('api:accounts:ssh-keys-list');
+        $this->command->setStability('production');
+        $this->executeCommand([]);
+        $this->assertStringNotContainsString(
+            'may change without notice',
+            $this->getDisplay()
+        );
+    }
+
+    /**
+     * Null stability (v2 commands) must not trigger any warning.
+     */
+    public function testNoStabilityWarningWhenStabilityIsNull(): void
+    {
+        $this->clientProphecy->addOption('headers', ['Accept' => 'application/hal+json, version=2'])
+            ->shouldBeCalled();
+        $mockBody = self::getMockResponseFromSpec('/account/ssh-keys', 'get', '200');
+        $this->clientProphecy->request('get', '/account/ssh-keys')
+            ->willReturn($mockBody->{'_embedded'}->items)
+            ->shouldBeCalled();
+        $this->command = $this->getApiCommandByName('api:accounts:ssh-keys-list');
+        // Stability is null by default — no setStability() call.
+        $this->executeCommand([]);
+        $this->assertStringNotContainsString(
+            'may change without notice',
+            $this->getDisplay()
+        );
     }
 }

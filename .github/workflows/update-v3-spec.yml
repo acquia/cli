@@ -1,0 +1,50 @@
+name: Update Acquia v3 API spec
+
+on:
+  schedule:
+    - cron: '0 3 * * *'
+  workflow_dispatch:
+
+jobs:
+  update-spec:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Download latest v3 spec
+        run: |
+          curl -fsSL https://api-specs-dev.dev.mesh.cicd.acquia.io/openapi.yaml \
+            | python3 -c "import sys,yaml,json; json.dump(yaml.safe_load(sys.stdin), sys.stdout)" \
+            > assets/acquia-v3-spec.json
+
+      - name: Check for changes
+        id: diff
+        run: |
+          if git diff --quiet assets/acquia-v3-spec.json; then
+            echo "changed=false" >> $GITHUB_OUTPUT
+          else
+            echo "changed=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create PR if spec changed
+        if: steps.diff.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: |
+          BRANCH="automated/update-acquia-v3-spec-${{ github.run_id }}"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout -b "$BRANCH"
+          git add assets/acquia-v3-spec.json
+          git commit -m "chore: update Acquia v3 OpenAPI spec"
+          git push origin "$BRANCH"
+          gh pr create \
+            --title "chore: update Acquia v3 OpenAPI spec" \
+            --body "Automated spec update from https://api-specs-dev.dev.mesh.cicd.acquia.io/openapi.yaml" \
+            --label "chore" \
+            --base "${{ github.ref_name }}" \
+            --head "$BRANCH"
+          gh pr merge "$BRANCH" --auto --squash
