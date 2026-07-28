@@ -43,7 +43,7 @@ jobs:
           git push origin "$BRANCH"
           gh pr create \
             --title "chore: update Acquia v3 OpenAPI spec" \
-            --body "Automated spec update from https://api-specs-dev.dev.mesh.cicd.acquia.io/openapi.yaml" \
+            --body "Automated update of the Acquia v3 OpenAPI spec." \
             --label "chore" \
             --base "${{ github.ref_name }}" \
             --head "$BRANCH"
