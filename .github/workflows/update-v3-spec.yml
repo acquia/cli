@@ -14,11 +14,18 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - name: Download latest v3 spec
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Redocly CLI
+        run: npm install -g @redocly/cli@latest
+
+      - name: Download and dereference v3 spec
         run: |
-          curl -fsSL https://staging.api.acquia.com/v3/openapi.yaml \
-            | python3 -c "import sys,yaml,json; json.dump(yaml.safe_load(sys.stdin), sys.stdout)" \
-            > assets/acquia-v3-spec.json
+          curl -fsSL https://staging.api.acquia.com/v3/openapi.yaml -o /tmp/acquia-v3-raw.yaml
+          redocly bundle --dereferenced /tmp/acquia-v3-raw.yaml -o /tmp/acquia-v3-deref.json
+          jq 'del(.paths["/openapi.yaml"])' /tmp/acquia-v3-deref.json > assets/acquia-v3-spec.json
 
       - name: Check for changes
         id: diff
