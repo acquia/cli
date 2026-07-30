@@ -300,6 +300,37 @@ class ApiV3CommandHelperTest extends CommandTestBase
         $this->assertSame('api:v3:sites:list', $commands[0]->getName());
     }
 
+    /**
+     * Kills the Continue_ mutation (continue→break) in the shouldSkipOperation() check.
+     *
+     * When shouldSkipOperation() returns true for one method (e.g. cli.enabled=false),
+     * the next method on the same path must still be generated. `break` would exit
+     * the inner method-loop and silently drop it.
+     */
+    public function testShouldSkipOperationContinuesNotBreaksInnerLoop(): void
+    {
+        $opBase = [
+            'parameters' => [],
+            'responses' => ['200' => ['description' => 'OK', 'content' => []]],
+            'summary' => 'Test',
+        ];
+        $spec = [
+            'info' => ['title' => 'Test', 'version' => '1.0'],
+            'openapi' => '3.1.0',
+            'paths' => [
+                '/sites' => [
+                    // shouldSkipOperation() returns true → cli.enabled is false.
+                    'get' => $opBase + ['x-acquia-exposure' => ['channels' => ['cli' => ['command' => 'sites:get', 'enabled' => false]]]],
+                    // shouldSkipOperation() returns false → must still be generated.
+                    'post' => $opBase + ['x-acquia-exposure' => ['channels' => ['cli' => ['command' => 'sites:list']]]],
+                ],
+            ],
+        ];
+        $commands = $this->loadCommandsFromSpec($spec);
+        $this->assertCount(1, $commands);
+        $this->assertSame('api:v3:sites:list', $commands[0]->getName());
+    }
+
     // End-to-end: drive the real v3 bundle through the real helper.
     private const V3_PREFIX = 'api:v3';
 

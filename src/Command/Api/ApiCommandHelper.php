@@ -176,25 +176,22 @@ class ApiCommandHelper
 
         // Symfony Console allows at most one IS_ARRAY argument (it must be last).
         // When a spec has multiple required array body params, strip IS_ARRAY from all but the last.
-        $inputDefinition = array_values($inputDefinition);
-        $arrayArgIndices = [];
+        $arrayArgKeys = [];
         foreach ($inputDefinition as $index => $parameterDefinition) {
             if ($parameterDefinition instanceof InputArgument && $parameterDefinition->isArray()) {
-                $arrayArgIndices[] = $index;
+                $arrayArgKeys[] = $index;
             }
         }
-        if (count($arrayArgIndices) > 1) {
-            // Keep the last IS_ARRAY argument as-is.
-            array_pop($arrayArgIndices);
-            foreach ($arrayArgIndices as $index) {
-                /** @var InputArgument $arg */
-                $arg = $inputDefinition[$index];
-                $inputDefinition[$index] = new InputArgument(
-                    $arg->getName(),
-                    InputArgument::REQUIRED,
-                    $arg->getDescription()
-                );
-            }
+        // Pop the last key so that argument keeps IS_ARRAY; strip IS_ARRAY from the rest.
+        array_pop($arrayArgKeys);
+        foreach ($arrayArgKeys as $index) {
+            /** @var InputArgument $arg */
+            $arg = $inputDefinition[$index];
+            $inputDefinition[$index] = new InputArgument(
+                $arg->getName(),
+                InputArgument::REQUIRED,
+                $arg->getDescription()
+            );
         }
 
         return [$inputDefinition, $usage];
