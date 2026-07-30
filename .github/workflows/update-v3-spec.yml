@@ -16,7 +16,7 @@ jobs:
 
       - name: Download latest v3 spec
         run: |
-          curl -fsSL https://api-specs-dev.dev.mesh.cicd.acquia.io/openapi.yaml \
+          curl -fsSL https://staging.api.acquia.com/v3/openapi.yaml \
             | python3 -c "import sys,yaml,json; json.dump(yaml.safe_load(sys.stdin), sys.stdout)" \
             > assets/acquia-v3-spec.json
 
