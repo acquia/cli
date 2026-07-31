@@ -420,7 +420,7 @@ EOF;
 
         $revParseProcesses = [];
         foreach ($vcsUrls as $vcsUrl) {
-            $tip = $tips[$vcsUrl];
+            $tip = $tips[$vcsUrl] ?? null;
             $fetchProcess = $this->mockProcess($tip !== null);
             $localMachineHelper->execute([
                 'git',

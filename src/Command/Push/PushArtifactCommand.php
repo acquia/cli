@@ -221,9 +221,21 @@ final class PushArtifactCommand extends CommandBase
                 'rev-parse',
                 'FETCH_HEAD',
             ], null, $artifactDir, false);
-            if ($process->isSuccessful() && trim($process->getOutput()) !== '') {
-                $tips[$vcsUrl] = trim($process->getOutput());
+            if (!$process->isSuccessful()) {
+                throw new AcquiaCliException('Failed to resolve fetched tip for the {branch} branch from {url}: {message}', [
+                    'branch' => $vcsPath,
+                    'url' => $vcsUrl,
+                    'message' => $process->getErrorOutput() . $process->getOutput(),
+                ]);
             }
+            $tip = trim($process->getOutput());
+            if ($tip === '') {
+                throw new AcquiaCliException('Failed to resolve fetched tip for the {branch} branch from {url}: empty output', [
+                    'branch' => $vcsPath,
+                    'url' => $vcsUrl,
+                ]);
+            }
+            $tips[$vcsUrl] = $tip;
         }
 
         if ($tips === []) {
@@ -437,13 +449,20 @@ final class PushArtifactCommand extends CommandBase
         // The tips differ. Deepen the shallow history so ancestry between
         // them can be established.
         foreach (array_keys($tips) as $vcsUrl) {
-            $this->localMachineHelper->execute([
+            $process = $this->localMachineHelper->execute([
                 'git',
                 'fetch',
                 '--deepen=50',
                 $vcsUrl,
                 $vcsPath,
             ], null, $artifactDir, false);
+            if (!$process->isSuccessful()) {
+                throw new AcquiaCliException('Failed to deepen history for the {branch} branch from {url}: {message}', [
+                    'branch' => $vcsPath,
+                    'url' => $vcsUrl,
+                    'message' => $process->getErrorOutput() . $process->getOutput(),
+                ]);
+            }
         }
         foreach ($uniqueTips as $candidate) {
             foreach ($uniqueTips as $other) {
@@ -457,9 +476,18 @@ final class PushArtifactCommand extends CommandBase
                     $other,
                     $candidate,
                 ], null, $artifactDir, false);
-                if (!$process->isSuccessful()) {
+                $exitCode = $process->getExitCode();
+                if ($exitCode === 0) {
+                    continue;
+                }
+                if ($exitCode === 1) {
                     continue 2;
                 }
+                throw new AcquiaCliException('Failed to compare ancestry between {other} and {candidate}: {message}', [
+                    'other' => $other,
+                    'candidate' => $candidate,
+                    'message' => $process->getErrorOutput() . $process->getOutput(),
+                ]);
             }
             return $candidate;
         }
