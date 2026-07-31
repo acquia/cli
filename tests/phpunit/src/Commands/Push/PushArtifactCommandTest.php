@@ -21,6 +21,10 @@ use Symfony\Component\Process\Process;
  */
 class PushArtifactCommandTest extends PullCommandTestBase
 {
+    private const PROCESS_OUTPUT = 'process stdout.';
+
+    private const PROCESS_ERROR_OUTPUT = 'process stderr.';
+
     protected function createCommand(): CommandBase
     {
         return $this->injectCommand(PushArtifactCommand::class);
@@ -166,6 +170,8 @@ EOF;
 
         $output = $this->getDisplay();
 
+        $this->assertStringContainsString('Fetching master from https://github.com/example1/cli.git', $output);
+        $this->assertStringContainsString('Fetching master from https://github.com/example2/cli.git', $output);
         $this->assertStringContainsString('Pushing changes to Acquia Git (https://github.com/example1/cli.git)', $output);
         $this->assertStringContainsString('Pushing changes to Acquia Git (https://github.com/example2/cli.git)', $output);
     }
@@ -177,16 +183,7 @@ EOF;
             'https://github.com/example2/cli.git',
         ];
         $localMachineHelper = $this->mockLocalMachineHelper();
-        touch(Path::join($this->projectDir, 'composer.json'));
-        mkdir(Path::join($this->projectDir, 'docroot'));
-        $this->createMockGitConfigFile();
-        $fs = $this->prophet->prophesize(Filesystem::class);
-        $localMachineHelper->getFilesystem()->willReturn($fs);
-        $this->mockExecuteGitStatus(false, $localMachineHelper, $this->projectDir);
-        $this->mockGetLocalCommitHash($localMachineHelper, $this->projectDir, 'abc123');
-        $localMachineHelper->checkRequiredBinariesExist(['git'])
-            ->shouldBeCalled();
-        $artifactDir = Path::join(sys_get_temp_dir(), 'acli-push-artifact');
+        $artifactDir = $this->mockArtifactSourceCheckout($localMachineHelper);
         $this->mockCloneShallow($localMachineHelper, 'master', $destinationGitUrls, $artifactDir, true, [
             $destinationGitUrls[0] => 'sha1',
             $destinationGitUrls[1] => 'sha2',
@@ -196,7 +193,116 @@ EOF;
         $this->mockGitMergeBase($localMachineHelper, 'sha1', 'sha2', false);
 
         $this->expectException(AcquiaCliException::class);
-        $this->expectExceptionMessageMatches('/out of sync/');
+        $this->expectExceptionMessage('The destination git repositories are out of sync for the master branch: https://github.com/example1/cli.git (sha1), https://github.com/example2/cli.git (sha2).');
+        $this->executeCommand([
+            '--destination-git-branch' => 'master',
+            '--destination-git-urls' => $destinationGitUrls,
+        ]);
+    }
+
+    public function testPushArtifactToRemoteDivergedFromOneOfThreeRemotes(): void
+    {
+        $destinationGitUrls = [
+            'https://github.com/example1/cli.git',
+            'https://github.com/example2/cli.git',
+            'https://github.com/example3/cli.git',
+        ];
+        $localMachineHelper = $this->mockLocalMachineHelper();
+        $artifactDir = $this->mockArtifactSourceCheckout($localMachineHelper);
+        $this->mockCloneShallow($localMachineHelper, 'master', $destinationGitUrls, $artifactDir, true, [
+            $destinationGitUrls[0] => 'newsha',
+            $destinationGitUrls[1] => 'oldsha',
+            $destinationGitUrls[2] => 'divergedsha',
+        ]);
+        $this->mockGitDeepen($localMachineHelper, 'master', $destinationGitUrls);
+        // The second remote is behind the first, so the first remains a
+        // candidate until the diverged third remote rules it out.
+        $this->mockGitMergeBase($localMachineHelper, 'oldsha', 'newsha', true);
+        $this->mockGitMergeBase($localMachineHelper, 'divergedsha', 'newsha', false);
+        $this->mockGitMergeBase($localMachineHelper, 'newsha', 'oldsha', false);
+        $this->mockGitMergeBase($localMachineHelper, 'newsha', 'divergedsha', false);
+
+        $this->expectException(AcquiaCliException::class);
+        $this->expectExceptionMessage('The destination git repositories are out of sync for the master branch');
+        $this->executeCommand([
+            '--destination-git-branch' => 'master',
+            '--destination-git-urls' => $destinationGitUrls,
+        ]);
+    }
+
+    public function testPushArtifactFailsWhenFetchedTipCannotBeResolved(): void
+    {
+        $destinationGitUrls = ['https://github.com/example1/cli.git'];
+        $localMachineHelper = $this->mockLocalMachineHelper();
+        $artifactDir = $this->mockArtifactSourceCheckout($localMachineHelper);
+        $this->mockGitCloneShallow($localMachineHelper, $destinationGitUrls[0], $artifactDir);
+        $this->mockGitFetchBranch($localMachineHelper, 'master', $destinationGitUrls[0]);
+        $this->mockGitRevParse($localMachineHelper, ['sha1'], false);
+
+        $this->expectException(AcquiaCliException::class);
+        $this->expectExceptionMessage('Failed to resolve fetched tip for the master branch from https://github.com/example1/cli.git: ' . self::PROCESS_ERROR_OUTPUT . self::PROCESS_OUTPUT);
+        $this->executeCommand([
+            '--destination-git-branch' => 'master',
+            '--destination-git-urls' => $destinationGitUrls,
+        ]);
+    }
+
+    public function testPushArtifactFailsWhenFetchedTipIsEmpty(): void
+    {
+        $destinationGitUrls = ['https://github.com/example1/cli.git'];
+        $localMachineHelper = $this->mockLocalMachineHelper();
+        $artifactDir = $this->mockArtifactSourceCheckout($localMachineHelper);
+        $this->mockGitCloneShallow($localMachineHelper, $destinationGitUrls[0], $artifactDir);
+        $this->mockGitFetchBranch($localMachineHelper, 'master', $destinationGitUrls[0]);
+        $this->mockGitRevParse($localMachineHelper, ['']);
+
+        $this->expectException(AcquiaCliException::class);
+        $this->expectExceptionMessage('Failed to resolve fetched tip for the master branch from https://github.com/example1/cli.git: empty output');
+        $this->executeCommand([
+            '--destination-git-branch' => 'master',
+            '--destination-git-urls' => $destinationGitUrls,
+        ]);
+    }
+
+    public function testPushArtifactFailsWhenHistoryCannotBeDeepened(): void
+    {
+        $destinationGitUrls = [
+            'https://github.com/example1/cli.git',
+            'https://github.com/example2/cli.git',
+        ];
+        $localMachineHelper = $this->mockLocalMachineHelper();
+        $artifactDir = $this->mockArtifactSourceCheckout($localMachineHelper);
+        $this->mockCloneShallow($localMachineHelper, 'master', $destinationGitUrls, $artifactDir, true, [
+            $destinationGitUrls[0] => 'sha1',
+            $destinationGitUrls[1] => 'sha2',
+        ]);
+        $this->mockGitDeepen($localMachineHelper, 'master', [$destinationGitUrls[0]], false);
+
+        $this->expectException(AcquiaCliException::class);
+        $this->expectExceptionMessage('Failed to deepen history for the master branch from https://github.com/example1/cli.git: ' . self::PROCESS_ERROR_OUTPUT . self::PROCESS_OUTPUT);
+        $this->executeCommand([
+            '--destination-git-branch' => 'master',
+            '--destination-git-urls' => $destinationGitUrls,
+        ]);
+    }
+
+    public function testPushArtifactFailsWhenAncestryCannotBeCompared(): void
+    {
+        $destinationGitUrls = [
+            'https://github.com/example1/cli.git',
+            'https://github.com/example2/cli.git',
+        ];
+        $localMachineHelper = $this->mockLocalMachineHelper();
+        $artifactDir = $this->mockArtifactSourceCheckout($localMachineHelper);
+        $this->mockCloneShallow($localMachineHelper, 'master', $destinationGitUrls, $artifactDir, true, [
+            $destinationGitUrls[0] => 'sha1',
+            $destinationGitUrls[1] => 'sha2',
+        ]);
+        $this->mockGitDeepen($localMachineHelper, 'master', $destinationGitUrls);
+        $this->mockGitMergeBaseExitCode($localMachineHelper, 'sha2', 'sha1', 128);
+
+        $this->expectException(AcquiaCliException::class);
+        $this->expectExceptionMessage('Failed to compare ancestry between sha2 and sha1: ' . self::PROCESS_ERROR_OUTPUT . self::PROCESS_OUTPUT);
         $this->executeCommand([
             '--destination-git-branch' => 'master',
             '--destination-git-urls' => $destinationGitUrls,
@@ -284,7 +390,7 @@ EOF;
         $this->mockGitPush($destinationGitUrls, $localMachineHelper, $artifactDir, 'master:master', true, [$destinationGitUrls[0]]);
 
         $this->expectException(AcquiaCliException::class);
-        $this->expectExceptionMessageMatches('~https://github\.com/example1/cli\.git~');
+        $this->expectExceptionMessage('Unable to push artifact: https://github.com/example1/cli.git: ' . self::PROCESS_OUTPUT . self::PROCESS_ERROR_OUTPUT);
         $this->executeCommand([
             '--destination-git-branch' => 'master',
             '--destination-git-urls' => $destinationGitUrls,
@@ -431,42 +537,18 @@ EOF;
         if ($tips === null) {
             $tips = array_fill_keys($vcsUrls, 'mainbranchsha');
         }
-        $process = $this->prophet->prophesize(Process::class);
-        $process->isSuccessful()->willReturn(true)->shouldBeCalled();
-        $localMachineHelper->execute([
-            'git',
-            'clone',
-            '--depth=1',
-            $vcsUrls[0],
-            $artifactDir,
-        ], Argument::type('callable'), null, $printOutput)
-            ->willReturn($process->reveal())->shouldBeCalled();
+        $this->mockGitCloneShallow($localMachineHelper, $vcsUrls[0], $artifactDir, $printOutput);
 
-        $revParseProcesses = [];
+        $revParseTips = [];
         foreach ($vcsUrls as $vcsUrl) {
             $tip = $tips[$vcsUrl] ?? null;
-            $fetchProcess = $this->mockProcess($tip !== null);
-            $localMachineHelper->execute([
-                'git',
-                'fetch',
-                '--depth=1',
-                $vcsUrl,
-                $vcsPath,
-            ], Argument::type('callable'), Argument::type('string'), $printOutput)
-                ->willReturn($fetchProcess->reveal())->shouldBeCalled();
+            $this->mockGitFetchBranch($localMachineHelper, $vcsPath, $vcsUrl, $printOutput, $tip !== null);
             if ($tip !== null) {
-                $revParseProcess = $this->mockProcess();
-                $revParseProcess->getOutput()->willReturn($tip . PHP_EOL);
-                $revParseProcesses[] = $revParseProcess->reveal();
+                $revParseTips[] = $tip;
             }
         }
-        if ($revParseProcesses !== []) {
-            $localMachineHelper->execute([
-                'git',
-                'rev-parse',
-                'FETCH_HEAD',
-            ], null, Argument::type('string'), false)
-                ->willReturn(...$revParseProcesses)->shouldBeCalled();
+        if ($revParseTips !== []) {
+            $this->mockGitRevParse($localMachineHelper, $revParseTips);
         }
 
         $uniqueTips = array_values(array_unique(array_filter($tips, static fn ($tip) => $tip !== null)));
@@ -477,12 +559,78 @@ EOF;
                 '-b',
                 $vcsPath,
             ], Argument::type('callable'), Argument::type('string'), $printOutput)
-                ->willReturn($process->reveal())->shouldBeCalled();
+                ->willReturn($this->mockProcess()->reveal())->shouldBeCalled();
         } elseif (count($uniqueTips) === 1) {
             $this->mockGitCheckoutBase($localMachineHelper, $vcsPath, $uniqueTips[0], $printOutput);
         }
         // Multiple distinct tips: the test mocks deepen, merge-base, and
         // checkout calls itself.
+    }
+
+    /**
+     * Mock everything the command does before it clones the destination.
+     *
+     * @return string
+     *   The artifact directory.
+     */
+    protected function mockArtifactSourceCheckout(ObjectProphecy $localMachineHelper): string
+    {
+        touch(Path::join($this->projectDir, 'composer.json'));
+        mkdir(Path::join($this->projectDir, 'docroot'));
+        $this->createMockGitConfigFile();
+        $fs = $this->prophet->prophesize(Filesystem::class);
+        $localMachineHelper->getFilesystem()->willReturn($fs);
+        $this->mockExecuteGitStatus(false, $localMachineHelper, $this->projectDir);
+        $this->mockGetLocalCommitHash($localMachineHelper, $this->projectDir, 'abc123');
+        $localMachineHelper->checkRequiredBinariesExist(['git'])
+            ->shouldBeCalled();
+        return Path::join(sys_get_temp_dir(), 'acli-push-artifact');
+    }
+
+    protected function mockGitCloneShallow(ObjectProphecy $localMachineHelper, string $vcsUrl, string $artifactDir, bool $printOutput = true): void
+    {
+        $localMachineHelper->execute([
+            'git',
+            'clone',
+            '--depth=1',
+            $vcsUrl,
+            $artifactDir,
+        ], Argument::type('callable'), null, $printOutput)
+            ->willReturn($this->mockProcess()->reveal())->shouldBeCalled();
+    }
+
+    protected function mockGitFetchBranch(ObjectProphecy $localMachineHelper, string $vcsPath, string $vcsUrl, bool $printOutput = true, bool $success = true): void
+    {
+        $localMachineHelper->execute([
+            'git',
+            'fetch',
+            '--depth=1',
+            $vcsUrl,
+            $vcsPath,
+        ], Argument::type('callable'), Argument::type('string'), $printOutput)
+            ->willReturn($this->mockProcess($success)->reveal())->shouldBeCalled();
+    }
+
+    /**
+     * @param string[] $tips
+     *   The sha each consecutive rev-parse call resolves to.
+     */
+    protected function mockGitRevParse(ObjectProphecy $localMachineHelper, array $tips, bool $success = true): void
+    {
+        $processes = [];
+        foreach ($tips as $tip) {
+            $process = $success ? $this->mockProcess() : $this->mockFailedProcess();
+            if ($success) {
+                $process->getOutput()->willReturn($tip === '' ? '' : $tip . PHP_EOL);
+            }
+            $processes[] = $process->reveal();
+        }
+        $localMachineHelper->execute([
+            'git',
+            'rev-parse',
+            'FETCH_HEAD',
+        ], null, Argument::type('string'), false)
+            ->willReturn(...$processes)->shouldBeCalled();
     }
 
     protected function mockGitCheckoutBase(ObjectProphecy $localMachineHelper, string $vcsPath, string $baseTip, bool $printOutput = true): void
@@ -498,9 +646,10 @@ EOF;
             ->willReturn($process->reveal())->shouldBeCalled();
     }
 
-    protected function mockGitDeepen(ObjectProphecy $localMachineHelper, string $vcsPath, array $vcsUrls): void
+    protected function mockGitDeepen(ObjectProphecy $localMachineHelper, string $vcsPath, array $vcsUrls, bool $success = true): void
     {
         foreach ($vcsUrls as $vcsUrl) {
+            $process = $success ? $this->mockProcess() : $this->mockFailedProcess();
             $localMachineHelper->execute([
                 'git',
                 'fetch',
@@ -508,12 +657,27 @@ EOF;
                 $vcsUrl,
                 $vcsPath,
             ], null, Argument::type('string'), false)
-                ->willReturn($this->mockProcess()->reveal())->shouldBeCalled();
+                ->willReturn($process->reveal())->shouldBeCalled();
         }
+    }
+
+    protected function mockFailedProcess(): ObjectProphecy
+    {
+        $process = $this->mockProcess(false);
+        $process->getOutput()->willReturn(self::PROCESS_OUTPUT);
+        $process->getErrorOutput()->willReturn(self::PROCESS_ERROR_OUTPUT);
+        return $process;
     }
 
     protected function mockGitMergeBase(ObjectProphecy $localMachineHelper, string $ancestor, string $descendant, bool $isAncestor): void
     {
+        $this->mockGitMergeBaseExitCode($localMachineHelper, $ancestor, $descendant, $isAncestor ? 0 : 1);
+    }
+
+    protected function mockGitMergeBaseExitCode(ObjectProphecy $localMachineHelper, string $ancestor, string $descendant, int $exitCode): void
+    {
+        $process = $exitCode === 0 ? $this->mockProcess() : $this->mockFailedProcess();
+        $process->getExitCode()->willReturn($exitCode);
         $localMachineHelper->execute([
             'git',
             'merge-base',
@@ -521,7 +685,7 @@ EOF;
             $ancestor,
             $descendant,
         ], null, Argument::type('string'), false)
-            ->willReturn($this->mockProcess($isAncestor)->reveal())->shouldBeCalled();
+            ->willReturn($process->reveal())->shouldBeCalled();
     }
 
     protected function mockLocalGitConfig(ObjectProphecy $localMachineHelper, string $artifactDir, bool $printOutput = true): void
@@ -646,7 +810,8 @@ EOF;
     protected function mockGitPush(array $gitUrls, ObjectProphecy $localMachineHelper, string $artifactDir, string $destGitRef, bool $printOutput, array $failingUrls = []): void
     {
         foreach ($gitUrls as $gitUrl) {
-            $process = $this->mockProcess(!in_array($gitUrl, $failingUrls, true));
+            $succeeds = !in_array($gitUrl, $failingUrls, true);
+            $process = $succeeds ? $this->mockProcess() : $this->mockFailedProcess();
             $localMachineHelper->execute([
                 'git',
                 'push',
