@@ -224,8 +224,8 @@ final class PushArtifactCommand extends CommandBase
             if (!$process->isSuccessful()) {
                 throw new AcquiaCliException('Failed to resolve fetched tip for the {branch} branch from {url}: {message}', [
                     'branch' => $vcsPath,
-                    'url' => $vcsUrl,
                     'message' => $process->getErrorOutput() . $process->getOutput(),
+                    'url' => $vcsUrl,
                 ]);
             }
             $tip = trim($process->getOutput());
@@ -459,8 +459,8 @@ final class PushArtifactCommand extends CommandBase
             if (!$process->isSuccessful()) {
                 throw new AcquiaCliException('Failed to deepen history for the {branch} branch from {url}: {message}', [
                     'branch' => $vcsPath,
-                    'url' => $vcsUrl,
                     'message' => $process->getErrorOutput() . $process->getOutput(),
+                    'url' => $vcsUrl,
                 ]);
             }
         }
@@ -484,9 +484,9 @@ final class PushArtifactCommand extends CommandBase
                     continue 2;
                 }
                 throw new AcquiaCliException('Failed to compare ancestry between {other} and {candidate}: {message}', [
-                    'other' => $other,
                     'candidate' => $candidate,
                     'message' => $process->getErrorOutput() . $process->getOutput(),
+                    'other' => $other,
                 ]);
             }
             return $candidate;
@@ -573,6 +573,13 @@ final class PushArtifactCommand extends CommandBase
             }
         }
         $this->scaffoldFiles[] = 'docroot/autoload.php';
+        // autoload_runtime.php was introduced in Drupal 11.4 as the Symfony
+        // Runtime bootstrap entry point. It is not in core's file-mapping so
+        // it must be force-added like autoload.php, but only when present —
+        // Drupal < 11.4 does not generate this file.
+        if (file_exists(Path::join($artifactDir, 'docroot', 'autoload_runtime.php'))) {
+            $this->scaffoldFiles[] = 'docroot/autoload_runtime.php';
+        }
 
         return $this->scaffoldFiles;
     }
