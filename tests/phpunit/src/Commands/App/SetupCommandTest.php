@@ -13,6 +13,7 @@ use ArrayIterator;
 use GuzzleHttp\Client;
 use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
+use Psr\Http\Message\ResponseInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Finder\Finder;
@@ -98,6 +99,11 @@ class SetupCommandTest extends PullCommandTestBase
         $describe->getOutput()->willReturn(json_encode(['raw' => ['primary_url' => 'https://site.ddev.site']]));
         $localMachineHelper->execute(['ddev', 'describe', '-j'], null, $dir, false)
             ->willReturn($describe->reveal())
+            ->shouldBeCalled();
+        $response = $this->prophet->prophesize(ResponseInterface::class);
+        $response->getStatusCode()->willReturn(200);
+        $this->httpClientProphecy->request('GET', 'https://site.ddev.site', Argument::any())
+            ->willReturn($response->reveal())
             ->shouldBeCalled();
     }
 

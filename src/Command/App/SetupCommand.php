@@ -10,6 +10,7 @@ use Acquia\Cli\Helpers\SshCommandTrait;
 use AcquiaCloudApi\Endpoints\Account;
 use AcquiaCloudApi\Endpoints\SshKeys;
 use AcquiaCloudApi\Response\EnvironmentResponse;
+use Exception;
 use FilesystemIterator;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -59,6 +60,7 @@ final class SetupCommand extends PullCommandBase
             $this->refreshDrupal($output);
         }
         $url = $this->getLocalSiteUrl();
+        $this->checkSiteResponds($url);
         if ($input->isInteractive() && $this->localMachineHelper->isBrowserAvailable()) {
             $this->localMachineHelper->startBrowser($url);
         }
@@ -350,6 +352,27 @@ final class SetupCommand extends PullCommandBase
             }
         }
         return 'https://' . basename($this->dir) . '.ddev.site';
+    }
+
+    /**
+     * Verify the site actually serves before telling the user it is ready.
+     * A warning, not a failure: some sites legitimately need extra local
+     * steps, and everything else has already succeeded.
+     */
+    private function checkSiteResponds(string $url): void
+    {
+        try {
+            $status = $this->httpClient->request('GET', $url, [
+                'http_errors' => false,
+                'timeout' => 30,
+                'verify' => false,
+            ])->getStatusCode();
+        } catch (Exception) {
+            $status = 0;
+        }
+        if ($status === 0 || $status >= 400) {
+            $this->io->warning("The site did not respond as expected at $url (HTTP " . ($status ?: 'no response') . '). The stack is up, but the site may need attention: check `ddev logs -s web` and try `ddev drush uli`.');
+        }
     }
 
     private function printSummary(EnvironmentResponse $environment, string $url): void
