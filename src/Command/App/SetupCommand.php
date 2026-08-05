@@ -381,16 +381,22 @@ final class SetupCommand extends PullCommandBase
     private function printSummary(EnvironmentResponse $environment, string $url): void
     {
         $this->io->success("Your local development environment is ready: $url");
-        $this->io->writeln([
+        $lines = [
             'What you have:',
             "  Site:  $url",
             "  Code:  $this->dir (<options=bold>{$environment->vcs->path}</> branch, tracking the $environment->label environment)",
             '',
             'Next steps:',
             '  ddev drush uli   Get a one-time login link for your site',
-            '  acli pull        Re-sync the database and files from Cloud',
-            '  ddev stop        Stop the local environment',
-        ]);
+        ];
+        // A tag-tracking environment does not deploy on push, so only
+        // advertise git push where it actually deploys.
+        if (!str_starts_with($environment->vcs->path, 'tags/')) {
+            $lines[] = "  git push         Deploy: commit your changes and push — the $environment->label environment runs the <options=bold>{$environment->vcs->path}</> branch";
+        }
+        $lines[] = '  acli pull        Re-sync the database and files from Cloud';
+        $lines[] = '  ddev stop        Stop the local environment';
+        $this->io->writeln($lines);
     }
 
     /**

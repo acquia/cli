@@ -313,6 +313,8 @@ class SetupCommandTest extends PullCommandTestBase
         $this->assertStringContainsString('✓ SSH key id_rsa.pub is registered with the Cloud Platform', $output);
         $this->assertStringContainsString('Your local development environment is ready: https://site.ddev.site', $output);
         $this->assertStringContainsString('ddev drush uli', $output);
+        $this->assertStringContainsString('git push', $output);
+        $this->assertStringContainsString('runs the master branch', $output);
         // The project was linked to the Cloud application.
         $this->assertFileExists(Path::join($dir, '.acquia-cli.yml'));
         $this->assertStringContainsString($environment->application->uuid, file_get_contents(Path::join($dir, '.acquia-cli.yml')));
