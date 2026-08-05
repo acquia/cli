@@ -43,6 +43,7 @@ Available commands:
   docs                     Open Acquia product documentation in a web browser
   help                     Display help for a command
   list                     [self:list] List commands
+  setup                    Set up a complete local development environment for an Acquia application
  acsf
   acsf:list                [acsf] List all Acquia Cloud Site Factory commands
  api

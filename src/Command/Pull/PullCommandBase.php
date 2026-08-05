@@ -133,9 +133,11 @@ abstract class PullCommandBase extends CommandBase
     /**
      * @param bool $onDemand Force on-demand backup.
      * @param bool $noImport Skip import.
+     * @return string[] Local file paths of the downloaded database dumps. When
+     *   $noImport is false, the dumps have already been imported and deleted.
      * @throws \Acquia\Cli\Exception\AcquiaCliException
      */
-    protected function pullDatabase(InputInterface $input, OutputInterface $output, EnvironmentResponse $sourceEnvironment, bool $onDemand = false, bool $noImport = false, bool $multipleDbs = false): void
+    protected function pullDatabase(InputInterface $input, OutputInterface $output, EnvironmentResponse $sourceEnvironment, bool $onDemand = false, bool $noImport = false, bool $multipleDbs = false): array
     {
         if (!$noImport) {
             // Verify database connection.
@@ -145,6 +147,7 @@ abstract class PullCommandBase extends CommandBase
         $site = $this->determineSite($sourceEnvironment, $input);
         $databases = $this->determineCloudDatabases($acquiaCloudClient, $sourceEnvironment, $site, $multipleDbs);
 
+        $localFilepaths = [];
         foreach ($databases as $database) {
             if ($onDemand) {
                 $this->checklist->addItem("Creating an on-demand database(s) backup on Cloud Platform");
@@ -159,6 +162,7 @@ abstract class PullCommandBase extends CommandBase
             $this->checklist->addItem("Downloading $database->name database copy from the Cloud Platform");
             $localFilepath = $this->downloadDatabaseBackup($sourceEnvironment, $database, $backupResponse, $this->getOutputCallback($output, $this->checklist));
             $this->checklist->completePreviousItem();
+            $localFilepaths[] = $localFilepath;
 
             if ($noImport) {
                 $this->io->success("$database->name database backup downloaded to $localFilepath");
@@ -168,6 +172,8 @@ abstract class PullCommandBase extends CommandBase
                 $this->checklist->completePreviousItem();
             }
         }
+
+        return $localFilepaths;
     }
 
     protected function pullFiles(InputInterface $input, OutputInterface $output, EnvironmentResponse $sourceEnvironment): void
@@ -573,7 +579,7 @@ abstract class PullCommandBase extends CommandBase
         throw new AcquiaCliException('Execute this command from within a Drupal project directory or an empty directory');
     }
 
-    private function cloneFromCloud(EnvironmentResponse $chosenEnvironment, Closure $outputCallback): void
+    protected function cloneFromCloud(EnvironmentResponse $chosenEnvironment, Closure $outputCallback): void
     {
         $this->localMachineHelper->checkRequiredBinariesExist(['git']);
         $command = [
