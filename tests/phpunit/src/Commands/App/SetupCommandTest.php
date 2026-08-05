@@ -239,7 +239,6 @@ class SetupCommandTest extends PullCommandTestBase
         $this->command->sshHelper = $sshHelper->reveal();
         $this->mockGetBackup($environment);
         $dumpPath = Path::join(sys_get_temp_dir(), 'dev-my_db-my_dbdev-2012-05-15T12:00:00Z.sql.gz');
-        $this->fs->dumpFile($dumpPath, 'fake dump');
         $localMachineHelper->checkRequiredBinariesExist(['gunzip'])
             ->shouldBeCalled();
         $localMachineHelper->executeFromCmd('bash -o pipefail -c "gunzip -c \"$DUMP_FILEPATH\" | ddev import-db"', Argument::type('callable'), $dir, false, null, ['DUMP_FILEPATH' => $dumpPath])
