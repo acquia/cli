@@ -153,6 +153,44 @@ class SetupCommandTest extends PullCommandTestBase
     }
 
     /**
+     * A failed clone must throw the clone error, not attempt the branch
+     * checkout in a directory that does not exist.
+     */
+    public function testSetupCloneFailure(): void
+    {
+        $dir = Path::join($this->projectDir, 'site');
+        $localMachineHelper = $this->mockLocalMachineHelper();
+        $this->mockPrerequisitesFound($localMachineHelper);
+        $this->mockRequest('getAccount');
+        $environment = $this->mockRequest('getEnvironment', self::$environmentId);
+        $sshKeys = $this->mockRequest('getAccountSshKeys');
+        $this->mockLocalSshKey($localMachineHelper, $sshKeys[0]->public_key);
+        $localMachineHelper->checkRequiredBinariesExist(['git'])
+            ->shouldBeCalled();
+        $process = $this->mockProcess(false);
+        $localMachineHelper->execute([
+            'git',
+            'clone',
+            $environment->vcs->url,
+            $dir,
+        ], Argument::type('callable'), null, false, null, ['GIT_SSH_COMMAND' => 'ssh -o StrictHostKeyChecking=accept-new'])
+            ->willReturn($process->reveal())
+            ->shouldBeCalled();
+        $localMachineHelper->execute([
+            'git',
+            'checkout',
+            $environment->vcs->path,
+        ], Argument::cetera())
+            ->shouldNotBeCalled();
+        $this->expectException(AcquiaCliException::class);
+        $this->expectExceptionMessage('Failed to clone repository from the Cloud Platform');
+        $this->executeCommand([
+            '--dir' => $dir,
+            'environmentId' => self::$environmentId,
+        ], [], OutputInterface::VERBOSITY_NORMAL, false);
+    }
+
+    /**
      * From nothing to a working site, non-interactively: clone, configure
      * ddev, start it, import the database, sync files.
      */
@@ -195,7 +233,10 @@ class SetupCommandTest extends PullCommandTestBase
         $this->command->sshHelper = $sshHelper->reveal();
         $this->mockGetBackup($environment);
         $dumpPath = Path::join(sys_get_temp_dir(), 'dev-my_db-my_dbdev-2012-05-15T12:00:00Z.sql.gz');
-        $localMachineHelper->execute(['ddev', 'import-db', '--file=' . $dumpPath], Argument::type('callable'), $dir, false, null)
+        $this->fs->dumpFile($dumpPath, 'fake dump');
+        $localMachineHelper->checkRequiredBinariesExist(['gunzip'])
+            ->shouldBeCalled();
+        $localMachineHelper->executeFromCmd('bash -o pipefail -c "gunzip -c \"$DUMP_FILEPATH\" | ddev import-db"', Argument::type('callable'), $dir, false, null, ['DUMP_FILEPATH' => $dumpPath])
             ->willReturn($process->reveal())
             ->shouldBeCalled();
 

@@ -309,9 +309,13 @@ final class SetupCommand extends PullCommandBase
      */
     private function importDatabaseDumps(array $dumpPaths, OutputInterface $output): void
     {
+        $this->localMachineHelper->checkRequiredBinariesExist(['gunzip']);
         foreach ($dumpPaths as $dumpPath) {
             $this->checklist->addItem('Importing database into ddev');
-            $process = $this->localMachineHelper->execute(['ddev', 'import-db', '--file=' . $dumpPath], $this->getOutputCallback($output, $this->checklist), $this->dir, false, null);
+            // Stream the dump through stdin: ddev's --file import stages the
+            // dump via the .ddev bind mount, which is unreliable on some
+            // Docker providers (e.g. colima).
+            $process = $this->localMachineHelper->executeFromCmd('bash -o pipefail -c "gunzip -c \"$DUMP_FILEPATH\" | ddev import-db"', $this->getOutputCallback($output, $this->checklist), $this->dir, false, null, ['DUMP_FILEPATH' => $dumpPath]);
             if (!$process->isSuccessful()) {
                 throw new AcquiaCliException('Unable to import database into ddev. {message}', ['message' => $process->getErrorOutput()]);
             }

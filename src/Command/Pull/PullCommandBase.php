@@ -589,10 +589,13 @@ abstract class PullCommandBase extends CommandBase
             $this->dir,
         ];
         $process = $this->localMachineHelper->execute($command, $outputCallback, null, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL), null, ['GIT_SSH_COMMAND' => 'ssh -o StrictHostKeyChecking=accept-new']);
-        $this->checkoutBranchFromEnv($chosenEnvironment, $outputCallback);
         if (!$process->isSuccessful()) {
+            // Check success before the branch checkout: when the clone fails,
+            // the target directory does not exist and the checkout would die
+            // with an unhelpful "cwd does not exist" process error.
             throw new AcquiaCliException('Failed to clone repository from the Cloud Platform: {message}', ['message' => $process->getErrorOutput()]);
         }
+        $this->checkoutBranchFromEnv($chosenEnvironment, $outputCallback);
         $this->projectDir = $this->dir;
     }
 
