@@ -159,6 +159,41 @@ class SetupCommandTest extends PullCommandTestBase
     }
 
     /**
+     * Without --dir, setup confirms the clone directory interactively with a
+     * derived default, and clones into whatever the user answers.
+     */
+    public function testSetupPromptsForCloneDirectory(): void
+    {
+        $answeredDir = Path::join($this->projectDir, 'my-custom-dir');
+        $localMachineHelper = $this->mockLocalMachineHelper();
+        $this->mockPrerequisitesFound($localMachineHelper);
+        $this->mockRequest('getAccount');
+        $environment = $this->mockRequest('getEnvironment', self::$environmentId);
+        $sshKeys = $this->mockRequest('getAccountSshKeys');
+        $this->mockLocalSshKey($localMachineHelper, $sshKeys[0]->public_key);
+        $localMachineHelper->readFile(Argument::type('string'))->willReturn('');
+        $localMachineHelper->checkRequiredBinariesExist(['git'])
+            ->shouldBeCalled();
+        $process = $this->mockProcess(false);
+        $localMachineHelper->execute([
+            'git',
+            'clone',
+            $environment->vcs->url,
+            $answeredDir,
+        ], Argument::type('callable'), null, false, null, ['GIT_SSH_COMMAND' => 'ssh -o StrictHostKeyChecking=accept-new'])
+            ->willReturn($process->reveal())
+            ->shouldBeCalled();
+        $this->expectException(AcquiaCliException::class);
+        $this->expectExceptionMessage('Failed to clone repository from the Cloud Platform');
+        $this->executeCommand([
+            'environmentId' => self::$environmentId,
+        ], [
+            // Where should the code be cloned?
+            $answeredDir,
+        ], OutputInterface::VERBOSITY_NORMAL);
+    }
+
+    /**
      * A failed clone must throw the clone error, not attempt the branch
      * checkout in a directory that does not exist.
      */

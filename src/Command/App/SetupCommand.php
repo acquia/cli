@@ -194,7 +194,10 @@ final class SetupCommand extends PullCommandBase
         if ($this->isEnvironmentCheckout($cwd, $environment)) {
             return $cwd;
         }
-        return Path::join($cwd, self::getSitegroup($environment));
+        $default = Path::join($cwd, self::getSitegroup($environment));
+        // In non-interactive mode ask() returns the default without prompting.
+        $dir = $this->io->ask('Where should the code be cloned?', $default);
+        return Path::makeAbsolute(Path::canonicalize($dir), $cwd);
     }
 
     private function isEnvironmentCheckout(string $dir, EnvironmentResponse $environment): bool
