@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Acquia\Cli\Command\App;
+namespace Acquia\Cli\Command\Dev;
 
 use Acquia\Cli\Command\Pull\PullCommandBase;
 use Acquia\Cli\Exception\AcquiaCliException;
@@ -10,7 +10,6 @@ use Acquia\Cli\Helpers\SshCommandTrait;
 use AcquiaCloudApi\Endpoints\Account;
 use AcquiaCloudApi\Endpoints\SshKeys;
 use AcquiaCloudApi\Response\EnvironmentResponse;
-use Exception;
 use FilesystemIterator;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -21,9 +20,10 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Yaml\Yaml;
 
-#[AsCommand(name: 'setup', description: 'Set up a complete local development environment for an Acquia application')]
-final class SetupCommand extends PullCommandBase
+#[AsCommand(name: 'dev:init', description: 'Set up a complete local development environment for an Acquia application')]
+final class DevInitCommand extends PullCommandBase
 {
+    use DevStackTrait;
     use SshCommandTrait;
 
     protected function configure(): void
@@ -34,8 +34,9 @@ final class SetupCommand extends PullCommandBase
             ->addUsage('myapp.dev --dir=./myapp --no-interaction')
             ->setHelp('This command takes you from nothing to a working local copy of an Acquia application: it authenticates with the Cloud Platform, helps you pick an application and environment, registers an SSH key if needed, clones your code, provisions a local stack with ddev, imports the database and files, and opens the site in your browser.'
                 . "\n\nPrerequisites: git, Docker, and ddev (the command checks for these and tells you how to install anything missing)."
-                . "\n\nEvery step is skipped automatically if it is already done, so if setup fails partway you can fix the problem and re-run <info>acli setup</info> to resume where it left off."
-                . "\n\nFor non-interactive use (CI, scripts), pass the environment ID and credentials: <info>ACLI_KEY=... ACLI_SECRET=... acli setup myapp.dev --no-interaction</info>. This requires an SSH key already registered with the Cloud Platform.");
+                . "\n\nEvery step is skipped automatically if it is already done, so if setup fails partway you can fix the problem and re-run <info>acli dev:init</info> to resume where it left off."
+                . "\n\nUse <info>acli dev:start</info> and <info>acli dev:stop</info> for the daily start/stop loop; use ddev directly for everything else (drush, logs, ssh)."
+                . "\n\nFor non-interactive use (CI, scripts), pass the environment ID and credentials: <info>ACLI_KEY=... ACLI_SECRET=... acli dev:init myapp.dev --no-interaction</info>. This requires an SSH key already registered with the Cloud Platform.");
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -91,11 +92,11 @@ final class SetupCommand extends PullCommandBase
             }
         }
         if ($missing) {
-            throw new AcquiaCliException("Some required tools are missing. Install them with the commands below, then re-run acli setup:\n" . implode("\n", $missing));
+            throw new AcquiaCliException("Some required tools are missing. Install them with the commands below, then re-run acli dev:init:\n" . implode("\n", $missing));
         }
         $process = $this->localMachineHelper->execute(['docker', 'info'], null, null, false, 30);
         if (!$process->isSuccessful()) {
-            throw new AcquiaCliException('Docker is installed but not running. Start your Docker provider (Docker Desktop, OrbStack, or `colima start`), then re-run acli setup.');
+            throw new AcquiaCliException('Docker is installed but not running. Start your Docker provider (Docker Desktop, OrbStack, or `colima start`), then re-run acli dev:init.');
         }
         $this->io->writeln('✓ Found git, docker, and ddev');
     }
@@ -262,19 +263,6 @@ final class SetupCommand extends PullCommandBase
     }
 
     /**
-     * @throws \Acquia\Cli\Exception\AcquiaCliException
-     */
-    private function startLocalEnvironment(OutputInterface $output): void
-    {
-        $this->checklist->addItem('Starting ddev (the first run may download Docker images)');
-        $process = $this->localMachineHelper->execute(['ddev', 'start', '-y'], $this->getOutputCallback($output, $this->checklist), $this->dir, false, null);
-        if (!$process->isSuccessful()) {
-            throw new AcquiaCliException('Unable to start ddev. {message}', ['message' => $process->getErrorOutput()]);
-        }
-        $this->checklist->completePreviousItem();
-    }
-
-    /**
      * Install Composer dependencies inside the ddev web container so that
      * PHP and Composer are not required on the host.
      *
@@ -345,39 +333,6 @@ final class SetupCommand extends PullCommandBase
         }
     }
 
-    private function getLocalSiteUrl(): string
-    {
-        $process = $this->localMachineHelper->execute(['ddev', 'describe', '-j'], null, $this->dir, false);
-        if ($process->isSuccessful()) {
-            $json = json_decode($process->getOutput(), true);
-            if (is_array($json) && isset($json['raw']['primary_url'])) {
-                return $json['raw']['primary_url'];
-            }
-        }
-        return 'https://' . basename($this->dir) . '.ddev.site';
-    }
-
-    /**
-     * Verify the site actually serves before telling the user it is ready.
-     * A warning, not a failure: some sites legitimately need extra local
-     * steps, and everything else has already succeeded.
-     */
-    private function checkSiteResponds(string $url): void
-    {
-        try {
-            $status = $this->httpClient->request('GET', $url, [
-                'http_errors' => false,
-                'timeout' => 30,
-                'verify' => false,
-            ])->getStatusCode();
-        } catch (Exception) {
-            $status = 0;
-        }
-        if ($status === 0 || $status >= 400) {
-            $this->io->warning("The site did not respond as expected at $url (HTTP " . ($status ?: 'no response') . '). The stack is up, but the site may need attention: check `ddev logs -s web` and try `ddev drush uli`.');
-        }
-    }
-
     private function printSummary(EnvironmentResponse $environment, string $url): void
     {
         $this->io->success("Your local development environment is ready: $url");
@@ -395,7 +350,7 @@ final class SetupCommand extends PullCommandBase
             $lines[] = "  git push         Deploy: commit your changes and push — the $environment->label environment runs the <options=bold>{$environment->vcs->path}</> branch";
         }
         $lines[] = '  acli pull        Re-sync the database and files from Cloud';
-        $lines[] = '  ddev stop        Stop the local environment';
+        $lines[] = '  acli dev:stop    Stop the local environment (acli dev:start brings it back)';
         $this->io->writeln($lines);
     }
 

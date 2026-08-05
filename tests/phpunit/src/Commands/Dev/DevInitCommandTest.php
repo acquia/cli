@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Acquia\Cli\Tests\Commands\App;
+namespace Acquia\Cli\Tests\Commands\Dev;
 
-use Acquia\Cli\Command\App\SetupCommand;
 use Acquia\Cli\Command\CommandBase;
+use Acquia\Cli\Command\Dev\DevInitCommand;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Tests\Commands\Ide\IdeHelper;
 use Acquia\Cli\Tests\Commands\Pull\PullCommandTestBase;
@@ -20,9 +20,9 @@ use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
 
 /**
- * @property \Acquia\Cli\Command\App\SetupCommand $command
+ * @property \Acquia\Cli\Command\Dev\DevInitCommand $command
  */
-class SetupCommandTest extends PullCommandTestBase
+class DevInitCommandTest extends PullCommandTestBase
 {
     private static string $environmentId = '24-a47ac10b-58cc-4372-a567-0e02b2c3d470';
 
@@ -36,7 +36,7 @@ class SetupCommandTest extends PullCommandTestBase
     {
         $this->httpClientProphecy = $this->prophet->prophesize(Client::class);
 
-        return new SetupCommand(
+        return new DevInitCommand(
             $this->localMachineHelper,
             $this->datastoreCloud,
             $this->datastoreAcli,
@@ -107,7 +107,7 @@ class SetupCommandTest extends PullCommandTestBase
             ->shouldBeCalled();
     }
 
-    public function testSetupMissingPrerequisites(): void
+    public function testDevInitMissingPrerequisites(): void
     {
         $localMachineHelper = $this->mockLocalMachineHelper();
         $localMachineHelper->commandExists('git')->willReturn(true);
@@ -118,7 +118,7 @@ class SetupCommandTest extends PullCommandTestBase
         $this->executeCommand([], [], OutputInterface::VERBOSITY_NORMAL);
     }
 
-    public function testSetupDockerNotRunning(): void
+    public function testDevInitDockerNotRunning(): void
     {
         $localMachineHelper = $this->mockLocalMachineHelper();
         foreach (['git', 'docker', 'ddev'] as $binary) {
@@ -132,7 +132,7 @@ class SetupCommandTest extends PullCommandTestBase
         $this->executeCommand([], [], OutputInterface::VERBOSITY_NORMAL);
     }
 
-    public function testSetupNotAuthenticatedNonInteractive(): void
+    public function testDevInitNotAuthenticatedNonInteractive(): void
     {
         $localMachineHelper = $this->mockLocalMachineHelper();
         $this->mockPrerequisitesFound($localMachineHelper);
@@ -142,7 +142,7 @@ class SetupCommandTest extends PullCommandTestBase
         $this->executeCommand([], [], OutputInterface::VERBOSITY_NORMAL, false);
     }
 
-    public function testSetupNoSshKeyNonInteractive(): void
+    public function testDevInitNoSshKeyNonInteractive(): void
     {
         $localMachineHelper = $this->mockLocalMachineHelper();
         $this->mockPrerequisitesFound($localMachineHelper);
@@ -162,7 +162,7 @@ class SetupCommandTest extends PullCommandTestBase
      * Without --dir, setup confirms the clone directory interactively with a
      * derived default, and clones into whatever the user answers.
      */
-    public function testSetupPromptsForCloneDirectory(): void
+    public function testDevInitPromptsForCloneDirectory(): void
     {
         $answeredDir = Path::join($this->projectDir, 'my-custom-dir');
         $localMachineHelper = $this->mockLocalMachineHelper();
@@ -197,7 +197,7 @@ class SetupCommandTest extends PullCommandTestBase
      * A failed clone must throw the clone error, not attempt the branch
      * checkout in a directory that does not exist.
      */
-    public function testSetupCloneFailure(): void
+    public function testDevInitCloneFailure(): void
     {
         $dir = Path::join($this->projectDir, 'site');
         $localMachineHelper = $this->mockLocalMachineHelper();
@@ -235,7 +235,7 @@ class SetupCommandTest extends PullCommandTestBase
      * From nothing to a working site, non-interactively: clone, configure
      * ddev, start it, import the database, sync files.
      */
-    public function testSetupFreshNonInteractive(): void
+    public function testDevInitFreshNonInteractive(): void
     {
         $dir = Path::join($this->projectDir, 'site');
         $localMachineHelper = $this->mockLocalMachineHelper();
@@ -324,7 +324,7 @@ class SetupCommandTest extends PullCommandTestBase
      * Re-running setup on an existing checkout with an installed site skips
      * every completed step instead of redoing it.
      */
-    public function testSetupResumeSkipsCompletedSteps(): void
+    public function testDevInitResumeSkipsCompletedSteps(): void
     {
         $dir = $this->projectDir;
         $localMachineHelper = $this->mockLocalMachineHelper();

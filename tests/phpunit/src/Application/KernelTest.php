@@ -43,7 +43,6 @@ Available commands:
   docs                     Open Acquia product documentation in a web browser
   help                     Display help for a command
   list                     [self:list] List commands
-  setup                    Set up a complete local development environment for an Acquia application
  acsf
   acsf:list                [acsf] List all Acquia Cloud Site Factory commands
  api
@@ -72,6 +71,10 @@ EOD;
  codestudio
   codestudio:php-version   Change the PHP version in Code Studio
   codestudio:wizard        [cs:wizard] Create and/or configure a new Code Studio project for a given Cloud Platform application
+ dev
+  dev:init                 Set up a complete local development environment for an Acquia application
+  dev:start                Start the local development environment
+  dev:stop                 Stop the local development environment
  env
   env:certificate-create   Install an SSL certificate.
   env:create               Create a new Continuous Delivery Environment (CDE)

@@ -16,7 +16,7 @@ Go from nothing to a working local development environment with one command:
 curl -fsSL https://raw.githubusercontent.com/acquia/cli/main/install.sh | sh
 ```
 
-This installs the latest Acquia CLI (a self-contained binary on macOS Apple Silicon and Linux x86_64 — no PHP required) and starts `acli setup`, which authenticates you with the Cloud Platform, clones one of your applications, provisions a local [ddev](https://ddev.com) stack, and imports your database and files. Already have acli installed? Just run `acli setup`. See `acli help setup` for details, including non-interactive usage for CI.
+This installs the latest Acquia CLI (a self-contained binary on macOS Apple Silicon and Linux x86_64 — no PHP required) and starts `acli dev:init`, which authenticates you with the Cloud Platform, clones one of your applications, provisions a local [ddev](https://ddev.com) stack, and imports your database and files. Already have acli installed? Just run `acli dev:init`. See `acli help dev:init` for details, including non-interactive usage for CI.
 
 Install instructions and official documentation are available at https://docs.acquia.com/acquia-cli/install/
 

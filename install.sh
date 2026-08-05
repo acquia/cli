@@ -4,7 +4,7 @@
 #
 #   curl -fsSL https://raw.githubusercontent.com/acquia/cli/main/install.sh | sh
 #
-# Installs the latest release of Acquia CLI and then starts `acli setup`,
+# Installs the latest release of Acquia CLI and then starts `acli dev:init`,
 # which walks you through creating a complete local development environment.
 #
 # On macOS (Apple Silicon) and Linux (x86_64) this installs a self-contained
@@ -14,7 +14,7 @@
 # The script is deliberately small and readable — please do inspect it.
 # Environment variables:
 #   ACLI_INSTALL_DIR       Install directory (default: ~/.local/bin)
-#   ACLI_INSTALL_NO_SETUP  Set to 1 to skip running `acli setup` after install.
+#   ACLI_INSTALL_NO_SETUP  Set to 1 to skip running `acli dev:init` after install.
 #   ACLI_INSTALL_BASE_URL  Alternative download location (e.g. a PR build).
 
 set -eu
@@ -97,12 +97,12 @@ fi
 
 say ""
 # When piped to sh, stdin is the script itself. Reattach the terminal so
-# `acli setup` can ask questions; in truly non-interactive contexts (CI),
+# `acli dev:init` can ask questions; in truly non-interactive contexts (CI),
 # print the next step instead of running it.
 if [ -t 0 ]; then
-    exec "$INSTALL_DIR/acli" setup
+    exec "$INSTALL_DIR/acli" dev:init
 elif [ -e /dev/tty ] && (: </dev/tty) 2>/dev/null; then
-    exec "$INSTALL_DIR/acli" setup </dev/tty
+    exec "$INSTALL_DIR/acli" dev:init </dev/tty
 else
-    say "Next, run: $INSTALL_DIR/acli setup"
+    say "Next, run: $INSTALL_DIR/acli dev:init"
 fi
