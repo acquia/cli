@@ -159,6 +159,67 @@ class DevInitCommandTest extends PullCommandTestBase
     }
 
     /**
+     * With no registered SSH key, dev:init generates one, uploads it, and
+     * waits for it to become active — no hand-off to other commands.
+     */
+    public function testDevInitGeneratesAndUploadsSshKey(): void
+    {
+        $dir = Path::join($this->projectDir, 'site');
+        $localMachineHelper = $this->mockLocalMachineHelper();
+        $this->mockPrerequisitesFound($localMachineHelper);
+        $this->mockRequest('getAccount');
+        $environment = $this->mockRequest('getEnvironment', self::$environmentId);
+        $this->mockRequest('getAccountSshKeys');
+        $this->mockLocalSshKey($localMachineHelper, 'ssh-rsa KeyNotOnTheCloudPlatform');
+        $localMachineHelper->commandExists('ssh-add')->willReturn(false);
+
+        // Key generation.
+        $keyPath = Path::join($this->sshDir, 'id_acquia_cli');
+        $localMachineHelper->checkRequiredBinariesExist(['ssh-keygen'])
+            ->shouldBeCalled();
+        $process = $this->mockProcess();
+        $localMachineHelper->execute(['ssh-keygen', '-t', 'rsa', '-b', '4096', '-N', '', '-C', 'acli-dev', '-f', $keyPath], null, null, false)
+            ->willReturn($process->reveal())
+            ->shouldBeCalled();
+        $sshKeysRequestBody = self::getMockRequestBodyFromSpec('/account/ssh-keys');
+        $localMachineHelper->readFile($keyPath . '.pub')
+            ->willReturn($sshKeysRequestBody['public_key']);
+
+        // Upload and installation polling.
+        $this->mockRequest('postAccountSshKeys', null, [
+            'json' => [
+                'label' => preg_replace('/\W/', '', 'acli_dev_' . (gethostname() ?: 'machine')),
+                'public_key' => $sshKeysRequestBody['public_key'],
+            ],
+        ]);
+        $localMachineHelper->execute(['git', 'ls-remote', $environment->vcs->url, 'HEAD'], null, null, false, 30, ['GIT_SSH_COMMAND' => 'ssh -o StrictHostKeyChecking=accept-new -o BatchMode=yes'])
+            ->willReturn($process->reveal())
+            ->shouldBeCalled();
+
+        // End the test at the clone: the key flow above is what is under test.
+        $localMachineHelper->checkRequiredBinariesExist(['git'])
+            ->shouldBeCalled();
+        $failedClone = $this->mockProcess(false);
+        $localMachineHelper->execute([
+            'git',
+            'clone',
+            $environment->vcs->url,
+            $dir,
+        ], Argument::type('callable'), null, false, null, ['GIT_SSH_COMMAND' => 'ssh -o StrictHostKeyChecking=accept-new'])
+            ->willReturn($failedClone->reveal())
+            ->shouldBeCalled();
+        $this->expectException(AcquiaCliException::class);
+        $this->expectExceptionMessage('Failed to clone repository from the Cloud Platform');
+        $this->executeCommand([
+            '--dir' => $dir,
+            'environmentId' => self::$environmentId,
+        ], [
+            // Generate a new SSH key and upload it to your Acquia account now?
+            'y',
+        ], OutputInterface::VERBOSITY_NORMAL);
+    }
+
+    /**
      * Without --dir, setup confirms the clone directory interactively with a
      * derived default, and clones into whatever the user answers.
      */

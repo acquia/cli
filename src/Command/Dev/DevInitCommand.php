@@ -6,6 +6,7 @@ namespace Acquia\Cli\Command\Dev;
 
 use Acquia\Cli\Command\Pull\PullCommandBase;
 use Acquia\Cli\Exception\AcquiaCliException;
+use Acquia\Cli\Helpers\LoopHelper;
 use Acquia\Cli\Helpers\SshCommandTrait;
 use AcquiaCloudApi\Endpoints\Account;
 use AcquiaCloudApi\Endpoints\SshKeys;
@@ -45,7 +46,7 @@ final class DevInitCommand extends PullCommandBase
         $this->checkPrerequisites();
         $this->ensureAuthenticated($input, $output);
         $environment = $this->determineEnvironment($input, $output);
-        $this->ensureSshKey($input, $output);
+        $this->ensureSshKey($input, $environment);
         $this->dir = $this->determineTargetDirectory($input, $environment);
         $this->ensureCode($environment, $output);
         $this->linkApplication($environment);
@@ -126,7 +127,7 @@ final class DevInitCommand extends PullCommandBase
      *
      * @throws \Acquia\Cli\Exception\AcquiaCliException
      */
-    private function ensureSshKey(InputInterface $input, OutputInterface $output): void
+    private function ensureSshKey(InputInterface $input, EnvironmentResponse $environment): void
     {
         $cloudKeys = (new SshKeys($this->cloudApiClientService->getClient()))->getAll();
         foreach ($this->findLocalSshKeys() as $localKey) {
@@ -151,10 +152,49 @@ final class DevInitCommand extends PullCommandBase
             throw new AcquiaCliException('No local SSH key is registered with the Cloud Platform. Run `acli ssh-key:create-upload` first.');
         }
         $this->io->writeln('You need an SSH key registered with the Cloud Platform to clone your application.');
-        $exitCode = $this->getApplication()->find('ssh-key:create-upload')->run(new ArrayInput(['command' => 'ssh-key:create-upload']), $output);
-        if ($exitCode !== Command::SUCCESS) {
-            throw new AcquiaCliException('SSH key setup failed.');
+        if (!$this->io->confirm('Generate a new SSH key and upload it to your Acquia account now?')) {
+            throw new AcquiaCliException('Register a key with `acli ssh-key:upload` (an existing key) or `acli ssh-key:create-upload` (a new, passphrase-protected key), then re-run `acli dev:init`.');
         }
+        $this->generateAndUploadSshKey($environment);
+    }
+
+    /**
+     * @throws \Acquia\Cli\Exception\AcquiaCliException
+     */
+    private function generateAndUploadSshKey(EnvironmentResponse $environment): void
+    {
+        $filepath = Path::join($this->sshDir, 'id_acquia_cli');
+        if (file_exists($filepath . '.pub')) {
+            $this->io->writeln("Using the existing key $filepath.pub");
+        } else {
+            $this->localMachineHelper->checkRequiredBinariesExist(['ssh-keygen']);
+            // RSA: the Cloud Platform API rejects other key types (ed25519).
+            $process = $this->localMachineHelper->execute(['ssh-keygen', '-t', 'rsa', '-b', '4096', '-N', '', '-C', 'acli-dev', '-f', $filepath], null, null, false);
+            if (!$process->isSuccessful()) {
+                throw new AcquiaCliException('Unable to generate an SSH key. {message}', ['message' => $process->getErrorOutput()]);
+            }
+            $this->io->writeln("✓ Created $filepath with no passphrase (use `acli ssh-key:create-upload` instead for a passphrase-protected key)");
+        }
+        $publicKey = trim($this->localMachineHelper->readFile($filepath . '.pub'));
+        $label = preg_replace('/\W/', '', 'acli_dev_' . (gethostname() ?: 'machine'));
+        (new SshKeys($this->cloudApiClientService->getClient()))->create($label, $publicKey);
+        $this->io->writeln('✓ Uploaded the key to your Cloud Platform account');
+        $this->waitForSshKeyInstallation($environment);
+    }
+
+    /**
+     * Poll until the uploaded key actually grants git access; installation on
+     * the Cloud Platform typically takes a minute or two.
+     */
+    private function waitForSshKeyInstallation(EnvironmentResponse $environment): void
+    {
+        $vcsUrl = $environment->vcs->url;
+        LoopHelper::getLoopy($this->output, $this->io, 'Waiting for the key to be installed on the Cloud Platform (usually a minute or two)...', function () use ($vcsUrl): bool {
+            $process = $this->localMachineHelper->execute(['git', 'ls-remote', $vcsUrl, 'HEAD'], null, null, false, 30, ['GIT_SSH_COMMAND' => 'ssh -o StrictHostKeyChecking=accept-new -o BatchMode=yes']);
+            return $process->isSuccessful();
+        }, function (): void {
+            $this->io->writeln('✓ SSH key is active');
+        });
     }
 
     /**
