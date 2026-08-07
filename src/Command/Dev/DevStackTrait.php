@@ -19,7 +19,7 @@ trait DevStackTrait
     /**
      * @throws \Acquia\Cli\Exception\AcquiaCliException
      */
-    protected function resolveProjectDir(InputInterface $input): string
+    private function resolveProjectDir(InputInterface $input): string
     {
         $dir = $input->getOption('dir') ? Path::makeAbsolute(Path::canonicalize($input->getOption('dir')), getcwd()) : getcwd();
         if (!file_exists(Path::join($dir, '.ddev', 'config.yaml'))) {
@@ -31,7 +31,7 @@ trait DevStackTrait
     /**
      * @throws \Acquia\Cli\Exception\AcquiaCliException
      */
-    protected function startLocalEnvironment(OutputInterface $output): void
+    private function startLocalEnvironment(OutputInterface $output): void
     {
         $this->checklist->addItem('Starting ddev (the first run may download Docker images)');
         $process = $this->localMachineHelper->execute(['ddev', 'start', '-y'], $this->getOutputCallback($output, $this->checklist), $this->dir, false, null);
@@ -41,7 +41,7 @@ trait DevStackTrait
         $this->checklist->completePreviousItem();
     }
 
-    protected function getLocalSiteUrl(): string
+    private function getLocalSiteUrl(): string
     {
         $process = $this->localMachineHelper->execute(['ddev', 'describe', '-j'], null, $this->dir, false);
         if ($process->isSuccessful()) {
@@ -58,7 +58,7 @@ trait DevStackTrait
      * A warning, not a failure: some sites legitimately need extra local
      * steps, and everything else has already succeeded.
      */
-    protected function checkSiteResponds(string $url): void
+    private function checkSiteResponds(string $url): void
     {
         try {
             $status = $this->httpClient->request('GET', $url, [

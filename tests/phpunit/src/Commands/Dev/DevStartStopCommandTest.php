@@ -61,7 +61,11 @@ class DevStartStopCommandTest extends CommandTestBase
             ->shouldBeCalled();
         $response = $this->prophet->prophesize(ResponseInterface::class);
         $response->getStatusCode()->willReturn(200);
-        $this->httpClientProphecy->request('GET', 'https://site.ddev.site', Argument::any())
+        $this->httpClientProphecy->request('GET', 'https://site.ddev.site', [
+            'http_errors' => false,
+            'timeout' => 30,
+            'verify' => false,
+        ])
             ->willReturn($response->reveal())
             ->shouldBeCalled();
 
@@ -69,14 +73,84 @@ class DevStartStopCommandTest extends CommandTestBase
 
         $this->assertSame(0, $this->getStatusCode());
         $this->assertStringContainsString('Your local site is running: https://site.ddev.site', $this->getDisplay());
+        $this->assertStringContainsString('ddev drush uli', $this->getDisplay());
         $this->assertStringContainsString('acli dev:stop', $this->getDisplay());
+        $this->assertStringNotContainsString('did not respond as expected', $this->getDisplay());
+    }
+
+    /**
+     * An unreachable site (request exception) warns rather than crashing.
+     */
+    public function testDevStartSiteUnreachable(): void
+    {
+        $dir = $this->projectDir;
+        $this->fs->dumpFile(Path::join($dir, '.ddev', 'config.yaml'), 'name: site');
+        $localMachineHelper = $this->mockLocalMachineHelper();
+        $localMachineHelper->checkRequiredBinariesExist(['ddev'])
+            ->shouldBeCalled();
+        $process = $this->mockProcess();
+        $localMachineHelper->execute(['ddev', 'start', '-y'], Argument::type('callable'), $dir, false, null)
+            ->willReturn($process->reveal())
+            ->shouldBeCalled();
+        $describe = $this->mockProcess();
+        $describe->getOutput()->willReturn(json_encode(['raw' => ['primary_url' => 'https://site.ddev.site']]));
+        $localMachineHelper->execute(['ddev', 'describe', '-j'], null, $dir, false)
+            ->willReturn($describe->reveal())
+            ->shouldBeCalled();
+        $this->httpClientProphecy->request('GET', 'https://site.ddev.site', Argument::type('array'))
+            ->willThrow(new \Exception('Connection refused'))
+            ->shouldBeCalled();
+
+        $this->executeCommand(['--dir' => $dir], [], OutputInterface::VERBOSITY_NORMAL);
+
+        $this->assertSame(0, $this->getStatusCode());
+        $this->assertStringContainsString('did not respond as expected at https://site.ddev.site (HTTP no response)', $this->getDisplay());
+    }
+
+    /**
+     * When `ddev describe` gives no usable JSON, the URL falls back to the
+     * conventional <project>.ddev.site name; an error status from the site
+     * produces a warning with next steps rather than a claimed success.
+     */
+    public function testDevStartUrlFallbackAndUnhealthySite(): void
+    {
+        $dir = $this->projectDir;
+        $this->fs->dumpFile(Path::join($dir, '.ddev', 'config.yaml'), 'name: site');
+        $localMachineHelper = $this->mockLocalMachineHelper();
+        $localMachineHelper->checkRequiredBinariesExist(['ddev'])
+            ->shouldBeCalled();
+        $process = $this->mockProcess();
+        $localMachineHelper->execute(['ddev', 'start', '-y'], Argument::type('callable'), $dir, false, null)
+            ->willReturn($process->reveal())
+            ->shouldBeCalled();
+        $describe = $this->mockProcess();
+        // Valid JSON without the expected key still falls back.
+        $describe->getOutput()->willReturn(json_encode(['raw' => ['status' => 'running']]));
+        $localMachineHelper->execute(['ddev', 'describe', '-j'], null, $dir, false)
+            ->willReturn($describe->reveal())
+            ->shouldBeCalled();
+        $fallbackUrl = 'https://' . basename($dir) . '.ddev.site';
+        $response = $this->prophet->prophesize(ResponseInterface::class);
+        $response->getStatusCode()->willReturn(400);
+        $this->httpClientProphecy->request('GET', $fallbackUrl, [
+            'http_errors' => false,
+            'timeout' => 30,
+            'verify' => false,
+        ])
+            ->willReturn($response->reveal())
+            ->shouldBeCalled();
+
+        $this->executeCommand(['--dir' => $dir], [], OutputInterface::VERBOSITY_NORMAL);
+
+        $this->assertSame(0, $this->getStatusCode());
+        $this->assertStringContainsString("did not respond as expected at $fallbackUrl (HTTP 400)", $this->getDisplay());
     }
 
     public function testDevStartWithoutProject(): void
     {
         $this->mockLocalMachineHelper();
         $this->expectException(AcquiaCliException::class);
-        $this->expectExceptionMessage('Run this command from your project directory, or run `acli dev:init` to create one.');
+        $this->expectExceptionMessage('No local environment found in ' . $this->projectDir . '. Run this command from your project directory, or run `acli dev:init` to create one.');
         $this->executeCommand(['--dir' => $this->projectDir], [], OutputInterface::VERBOSITY_NORMAL);
     }
 

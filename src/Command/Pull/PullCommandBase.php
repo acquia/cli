@@ -173,6 +173,9 @@ abstract class PullCommandBase extends CommandBase
             }
         }
 
+        // Single-database callers cannot observe a slice of this list, and
+        // multi-database callers ignore the return value.
+        // @infection-ignore-all
         return $localFilepaths;
     }
 

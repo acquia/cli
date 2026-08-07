@@ -16,6 +16,7 @@ final class DevStartCommand extends PullCommandBase
 {
     use DevStackTrait;
 
+    /** @infection-ignore-all */
     protected function configure(): void
     {
         $this

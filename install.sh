@@ -37,7 +37,7 @@ case "$OS-$ARCH" in
     Linux-x86_64) ASSET="native-acli-linux-x86_64.tar.gz" ;;
 esac
 
-TMP_DIR="$(mktemp -d)"
+TMP_DIR="$(mktemp -d "${TMPDIR:-/tmp}/acli-install.XXXXXXXX")"
 trap 'rm -rf "$TMP_DIR"' EXIT
 
 # Verify a downloaded file against the .sha256 file published with the

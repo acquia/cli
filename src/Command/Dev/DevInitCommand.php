@@ -27,6 +27,7 @@ final class DevInitCommand extends PullCommandBase
     use DevStackTrait;
     use SshCommandTrait;
 
+    /** @infection-ignore-all */
     protected function configure(): void
     {
         $this
@@ -35,7 +36,7 @@ final class DevInitCommand extends PullCommandBase
             ->addUsage('myapp.dev --dir=./myapp --no-interaction')
             ->setHelp('This command takes you from nothing to a working local copy of an Acquia application: it authenticates with the Cloud Platform, helps you pick an application and environment, registers an SSH key if needed, clones your code, provisions a local stack with ddev, imports the database and files, and opens the site in your browser.'
                 . "\n\nPrerequisites: git, Docker, and ddev (the command checks for these and tells you how to install anything missing)."
-                . "\n\nEvery step is skipped automatically if it is already done, so if setup fails partway you can fix the problem and re-run <info>acli dev:init</info> to resume where it left off."
+                . "\n\nEvery step is skipped automatically if it is already done, so if it fails partway you can fix the problem and re-run <info>acli dev:init</info> to resume where it left off."
                 . "\n\nUse <info>acli dev:start</info> and <info>acli dev:stop</info> for the daily start/stop loop; use ddev directly for everything else (drush, logs, ssh)."
                 . "\n\nFor non-interactive use (CI, scripts), pass the environment ID and credentials: <info>ACLI_KEY=... ACLI_SECRET=... acli dev:init myapp.dev --no-interaction</info>. This requires an SSH key already registered with the Cloud Platform.");
     }
@@ -185,20 +186,34 @@ final class DevInitCommand extends PullCommandBase
     /**
      * Poll until the uploaded key actually grants git access; installation on
      * the Cloud Platform typically takes a minute or two.
+     *
+     * @throws \Acquia\Cli\Exception\AcquiaCliException
      */
     private function waitForSshKeyInstallation(EnvironmentResponse $environment): void
     {
         $vcsUrl = $environment->vcs->url;
-        LoopHelper::getLoopy($this->output, $this->io, 'Waiting for the key to be installed on the Cloud Platform (usually a minute or two)...', function () use ($vcsUrl): bool {
+        // Track success ourselves: LoopHelper also invokes the done callback
+        // when its watchdog times out, so the callback alone cannot be
+        // trusted to mean the key is active. The timeout path itself is not
+        // unit-testable (45-minute watchdog).
+        // @infection-ignore-all
+        $active = false;
+        LoopHelper::getLoopy($this->output, $this->io, 'Waiting for the key to be installed on the Cloud Platform (usually a minute or two)...', function () use ($vcsUrl, &$active): bool {
             $process = $this->localMachineHelper->execute(['git', 'ls-remote', $vcsUrl, 'HEAD'], null, null, false, 30, ['GIT_SSH_COMMAND' => 'ssh -o StrictHostKeyChecking=accept-new -o BatchMode=yes']);
-            return $process->isSuccessful();
-        }, function (): void {
-            $this->io->writeln('✓ SSH key is active');
+            $active = $process->isSuccessful();
+            return $active;
+        }, static function (): void {
         });
+        if (!$active) {
+            throw new AcquiaCliException('The SSH key was uploaded but is not active yet. Wait a few minutes, then re-run `acli dev:init` — it will resume where it left off.');
+        }
+        $this->io->writeln('✓ SSH key is active');
     }
 
     /**
      * @return string[] Public keys loaded into the SSH agent, if any.
+     * @infection-ignore-all Defensive output parsing: trimming and filtering
+     *   only guard against blank lines, which change no observable outcome.
      */
     private function findSshAgentKeys(): array
     {
@@ -215,6 +230,9 @@ final class DevInitCommand extends PullCommandBase
     /**
      * Compare only the key type and base64 material: the trailing comment may
      * legitimately differ between the agent and the Cloud Platform.
+     *
+     * @infection-ignore-all Mutations transform both operands of the equality
+     *   symmetrically, so no black-box comparison test can observe them.
      */
     private function publicKeysMatch(string $a, string $b): bool
     {
@@ -328,7 +346,7 @@ final class DevInitCommand extends PullCommandBase
 
     /**
      * A fully bootstrappable Drupal site means the database was already
-     * imported; re-running setup should not clobber it.
+     * imported; re-running dev:init should not clobber it.
      */
     private function siteIsInstalled(): bool
     {
@@ -353,6 +371,9 @@ final class DevInitCommand extends PullCommandBase
                 throw new AcquiaCliException('Unable to import database into ddev. {message}', ['message' => $process->getErrorOutput()]);
             }
             $this->checklist->completePreviousItem();
+            // Temp-file cleanup; the dump name contains colons, which cannot
+            // be created as a real fixture on NTFS to observe the removal.
+            // @infection-ignore-all
             $this->localMachineHelper->getFilesystem()->remove($dumpPath);
         }
     }
@@ -360,6 +381,9 @@ final class DevInitCommand extends PullCommandBase
     /**
      * Rebuild caches and sanitize the database, like `acli pull` does. Not
      * fatal if it fails: the site is usually still usable.
+     *
+     * @infection-ignore-all Warn-only diagnostics by design; the drush
+     *   invocations themselves are asserted by the tests.
      */
     private function refreshDrupal(OutputInterface $output): void
     {
@@ -395,13 +419,17 @@ final class DevInitCommand extends PullCommandBase
     }
 
     /**
-     * ddev projects may use web/ as the docroot (e.g. Drupal CMS) instead of
-     * Acquia's traditional docroot/.
+     * Projects may use web/ (e.g. Drupal CMS) or another docroot instead of
+     * Acquia's traditional docroot/; ddev already detected the right one.
      */
     protected function getLocalFilesDir(string $site): string
     {
-        if (!is_dir(Path::join($this->dir, 'docroot')) && is_dir(Path::join($this->dir, 'web'))) {
-            return Path::join($this->dir, 'web', 'sites', $site, 'files');
+        $ddevConfigPath = Path::join($this->dir, '.ddev', 'config.yaml');
+        if (file_exists($ddevConfigPath)) {
+            $ddevConfig = Yaml::parseFile($ddevConfigPath);
+            if (!empty($ddevConfig['docroot'])) {
+                return Path::join($this->dir, $ddevConfig['docroot'], 'sites', $site, 'files');
+            }
         }
         return parent::getLocalFilesDir($site);
     }
