@@ -40,6 +40,6 @@ class EnvVarAuthenticationTest extends TestBase
         putenv('ACLI_CLOUD_API_V3_BASE_URI=' . $v3Uri);
         self::assertEquals($v3Uri, $this->cloudCredentials->getV3BaseUri());
         putenv('ACLI_CLOUD_API_V3_BASE_URI');
-        self::assertNull($this->cloudCredentials->getV3BaseUri());
+        self::assertEquals('https://api.acquia.com/v3', $this->cloudCredentials->getV3BaseUri());
     }
 }

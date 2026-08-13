@@ -103,9 +103,8 @@ services:
       $baseUri: '@=service("cloud.credentials").getBaseUri()'
       $accountsUri: '@=service("cloud.credentials").getAccountsUri()'
 
-  # v3 (MEO) connector factory — same credentials as v2, different base URI
-  # (resolved via CloudCredentials::getV3BaseUri() → ACLI_CLOUD_API_V3_BASE_URI,
-  # falling back to the v2 URI so v3 commands keep working today).
+  # v3 (MEO) connector factory — same credentials as v2, prod gateway at
+  # https://api.acquia.com/v3. Override with ACLI_CLOUD_API_V3_BASE_URI for dev/stage.
   cloud.v3.connector_factory:
     class: Acquia\Cli\CloudApi\ConnectorFactory
     arguments:

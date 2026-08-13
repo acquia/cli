@@ -23,7 +23,7 @@ jobs:
 
       - name: Download and dereference v3 spec
         run: |
-          curl -fsSL https://staging.api.acquia.com/v3/openapi.yaml -o /tmp/acquia-v3-raw.yaml
+          curl -fsSL https://api.acquia.com/v3/openapi.yaml -o /tmp/acquia-v3-raw.yaml
           redocly bundle --dereferenced /tmp/acquia-v3-raw.yaml -o /tmp/acquia-v3-deref.json
           jq 'del(.paths["/openapi.yaml"])' /tmp/acquia-v3-deref.json > assets/acquia-v3-spec.json
 
