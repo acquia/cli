@@ -113,7 +113,7 @@ final class ConfigPushCommand extends CommandBase
 
         $sourceConfig = new SourceConfig($this->sasClient->getClient());
 
-        $response = $sourceConfig->push($environment->uuid, $yaml);
+        $response = $sourceConfig->push($environment->id, $yaml);
         // @todo DXBE-20: Confirm the operation ID field name with the SAS team.
         $operationId = $response->id ?? null;
         if (!is_string($operationId)) {
