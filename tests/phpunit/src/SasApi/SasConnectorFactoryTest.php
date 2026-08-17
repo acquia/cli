@@ -92,4 +92,20 @@ class SasConnectorFactoryTest extends TestCase
         );
         $this->assertInstanceOf(AccessTokenConnector::class, $factory->createConnector());
     }
+
+    public function testKeyAndSecretReturnBeforeFallback(): void
+    {
+        // The key/secret branch returns a connector carrying the key as its
+        // client ID. A mutant removing that return would fall through to the
+        // unauthenticated fallback, whose connector carries a null client ID.
+        // The clientId property is private, so read it via reflection.
+        $factory = new SasConnectorFactory(
+            ['key' => 'k', 'secret' => 's', 'accessToken' => null, 'accessTokenExpiry' => null],
+            'https://sas.example.com',
+        );
+        $connector = $factory->createConnector();
+
+        $property = new \ReflectionProperty(\AcquiaCloudApi\Connector\Connector::class, 'clientId');
+        $this->assertSame('k', $property->getValue($connector));
+    }
 }
