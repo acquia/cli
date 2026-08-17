@@ -16,7 +16,7 @@ use AcquiaCloudApi\Connector\Connector;
 class SasConnector extends Connector
 {
     /**
-     * @param array<string, string> $config
+     * @param array<string, string|null> $config
      */
     public function __construct(array $config, ?string $baseUri = null, ?string $urlAccessToken = null)
     {
