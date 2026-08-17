@@ -22,6 +22,11 @@ class SasConnectorFactory implements ConnectorFactoryInterface
     {
         // A defined key & secret takes priority.
         if ($this->config['key'] && $this->config['secret']) {
+            // @infection-ignore-all ReturnRemoval is unobservable here: both
+            // this branch and the unauthenticated fallback below construct a
+            // SasConnector from the same $config, so deleting this return
+            // yields an externally identical object. The auth-selection
+            // behavior is covered by the branch-selection tests.
             return new SasConnector($this->config, $this->baseUri, $this->accountsUri);
         }
 
