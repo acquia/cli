@@ -96,8 +96,16 @@ class PullFilesArchiveCommandTest extends PullCommandTestBase
         $sshHelper = $this->mockSshHelper();
         $this->mockGetCloudSites($sshHelper, $selectedEnvironment);
         $localMachineHelper = $this->mockLocalMachineHelper();
-        $this->mockGetFilesystem($localMachineHelper);
         $localMachineHelper->checkRequiredBinariesExist(['ssh', 'tar'])
+            ->shouldBeCalled();
+        $fileSystem = $this->prophet->prophesize(Filesystem::class);
+        $localMachineHelper->getFilesystem()
+            ->willReturn($fileSystem->reveal())
+            ->shouldBeCalled();
+        $fileSystem->mkdir(Argument::type('string'))
+            ->shouldBeCalled();
+        // The temp tarball must be cleaned up even when the download fails.
+        $fileSystem->remove(Argument::type('string'))
             ->shouldBeCalled();
         $failedProcess = $this->mockProcess(false);
         $localMachineHelper->executeFromCmd(
@@ -146,7 +154,9 @@ class PullFilesArchiveCommandTest extends PullCommandTestBase
             ->shouldBeCalled();
         $fileSystem->mkdir($destinationDir)
             ->shouldBeCalled();
-        $fileSystem->remove(Argument::containingString('acli-files-'))
+        // Note: tempnam() truncates the prefix to three characters on Windows,
+        // so the temp path cannot be matched more precisely than "a string".
+        $fileSystem->remove(Argument::type('string'))
             ->shouldBeCalled();
         $localMachineHelper->executeFromCmd(
             Argument::containingString('ssh -o StrictHostKeyChecking=accept-new "${:SSH_URL}" "${:REMOTE_COMMAND}"'),
