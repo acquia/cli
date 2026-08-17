@@ -39,6 +39,14 @@ class SasConnectorFactoryTest extends TestCase
                 ['key' => 'k', 'secret' => null, 'accessToken' => null, 'accessTokenExpiry' => null],
                 SasConnector::class,
             ],
+            // Key without secret must NOT enter the key/secret branch (which
+            // requires both); with a valid token present it must fall through
+            // to the token branch. A "&&" mutated to "||" would wrongly return
+            // a SasConnector here.
+            'key only + valid token' => [
+                ['key' => 'k', 'secret' => null, 'accessToken' => 'tok', 'accessTokenExpiry' => (string) (time() + 3600)],
+                AccessTokenConnector::class,
+            ],
             // No credentials at all: unauthenticated connector.
             'no credentials' => [
                 ['key' => null, 'secret' => null, 'accessToken' => null, 'accessTokenExpiry' => null],
@@ -48,6 +56,11 @@ class SasConnectorFactoryTest extends TestCase
             'secret only' => [
                 ['key' => null, 'secret' => 's', 'accessToken' => null, 'accessTokenExpiry' => null],
                 SasConnector::class,
+            ],
+            // Symmetrically, secret without key must also fall through.
+            'secret only + valid token' => [
+                ['key' => null, 'secret' => 's', 'accessToken' => 'tok', 'accessTokenExpiry' => (string) (time() + 3600)],
+                AccessTokenConnector::class,
             ],
             // A valid (unexpired) access token produces an AccessTokenConnector.
             'valid token' => [
