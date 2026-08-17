@@ -27,10 +27,10 @@ use Symfony\Component\Console\Output\OutputInterface;
  * Base class for Source config commands.
  *
  * Both directions are thin triggers over the SAS API: they ask SAS to run a
- * `drush source:config:*` command on the environment, and the config moves
- * between the CMS and the site's git repository on the Acquia/GitHub side. No
- * config payload travels through these commands. Subclasses provide only the
- * direction-specific endpoint call and messaging.
+ * `drush source:config:*` command on the environment. Push (import) reads
+ * config from the site's git repository into the CMS; pull (export) does the
+ * reverse and returns the exported config for the command to write to disk.
+ * No push payload travels through these commands.
  */
 abstract class ConfigCommandBase extends CommandBase
 {
@@ -72,7 +72,7 @@ abstract class ConfigCommandBase extends CommandBase
     }
 
     /**
-     * Trigger the config operation on the environment and return the operation ID.
+     * Trigger the config operation on the environment and return the decoded response.
      */
     abstract protected function triggerOperation(SourceConfig $sourceConfig, string $environmentId): object;
 
@@ -80,6 +80,19 @@ abstract class ConfigCommandBase extends CommandBase
      * A short verb phrase describing the operation, e.g. "Importing configuration".
      */
     abstract protected function operationLabel(): string;
+
+    /**
+     * Handle a successfully completed operation.
+     *
+     * The default does nothing (push). Pull overrides this to fetch the
+     * exported payload and write it to disk.
+     */
+    protected function onSuccess(SourceConfig $sourceConfig, string $operationId): int
+    {
+        $this->io->success($this->operationLabel() . ' completed successfully.');
+
+        return Command::SUCCESS;
+    }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
@@ -115,7 +128,11 @@ abstract class ConfigCommandBase extends CommandBase
 
         $this->io->writeln(sprintf('%s submitted (operation %s). Waiting for it to complete...', $this->operationLabel(), $operationId));
 
-        return $this->waitForOperation($sourceConfig, $operationId) ? Command::SUCCESS : Command::FAILURE;
+        if (!$this->waitForOperation($sourceConfig, $operationId)) {
+            return Command::FAILURE;
+        }
+
+        return $this->onSuccess($sourceConfig, $operationId);
     }
 
     /**
@@ -138,12 +155,10 @@ abstract class ConfigCommandBase extends CommandBase
 
         LoopHelper::getLoopy($this->output, $this->io, $this->operationLabel() . '...', $checkStatus, $onDone);
 
-        if ($status === 'succeeded') {
-            $this->io->success($this->operationLabel() . ' completed successfully.');
-            return true;
+        if ($status !== 'succeeded') {
+            $this->io->error(sprintf('%s ended with status: %s', $this->operationLabel(), $status));
         }
 
-        $this->io->error(sprintf('%s ended with status: %s', $this->operationLabel(), $status));
-        return false;
+        return $status === 'succeeded';
     }
 }
