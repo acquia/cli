@@ -150,8 +150,9 @@ final class ConfigPushCommand extends CommandBase
             $relativeDir = $file->getRelativePath();
             // The root directory maps to the default collection ("").
             // Subdirectories map to dotted collection names: language/es
-            // becomes language.es.
-            $collection = $relativeDir === '' ? '' : str_replace('/', '.', $relativeDir);
+            // becomes language.es. Normalize both Unix and Windows directory
+            // separators, since Finder returns OS-specific relative paths.
+            $collection = $relativeDir === '' ? '' : str_replace(['/', '\\'], '.', $relativeDir);
             $name = $file->getBasename('.yml');
             $payload[$collection][$name] = Yaml::parseFile($file->getPathname());
         }
