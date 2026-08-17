@@ -24,27 +24,19 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Finder\Finder;
-use Symfony\Component\Yaml\Yaml;
 
 /**
- * Push local Source configuration to a site via the Sites Aggregation Service.
+ * Trigger a Source config import on a site via the Sites Aggregation Service.
  *
- * Reads every .yml file under .acquia/config/ in the current project and
- * assembles them into a single YAML document keyed by config collection (the
- * root directory is the default collection) and then by config name. This
- * mirrors the structure produced by `drush source:config:dump --single-yaml`,
- * which is what a future source:config:pull command writes out.
+ * This is a thin trigger: it asks SAS to run `drush source:config:import` on
+ * the site's environment. The command sends no payload — the config is read
+ * from the site's deployed git repository on the Acquia side, not from the
+ * local machine.
  */
 #[RequireAuth]
-#[AsCommand(name: 'source:config:push', description: 'Push Source configuration from .acquia/config to a site')]
+#[AsCommand(name: 'source:config:push', description: 'Import deployed Source configuration on a site')]
 final class ConfigPushCommand extends CommandBase
 {
-    /**
-     * The directory (relative to the project root) holding config files.
-     */
-    private const CONFIG_DIR = '.acquia/config';
-
     public function __construct(
         LocalMachineHelper $localMachineHelper,
         CloudDataStore $datastoreCloud,
@@ -95,15 +87,9 @@ final class ConfigPushCommand extends CommandBase
 
         $environment = $siteInstance->environment;
 
-        $payload = $this->assemblePayload();
-        if ($payload === []) {
-            throw new AcquiaCliException(sprintf('No configuration files found in %s.', self::CONFIG_DIR));
-        }
-        $yaml = Yaml::dump($payload, 10, 2);
-
         if (!$input->getOption('force')) {
             $answer = $this->io->confirm(
-                sprintf('Push configuration from %s to the %s environment?', self::CONFIG_DIR, $environment->name),
+                sprintf('Import deployed configuration on the %s environment?', $environment->name),
                 false,
             );
             if (!$answer) {
@@ -113,51 +99,16 @@ final class ConfigPushCommand extends CommandBase
 
         $sourceConfig = new SourceConfig($this->sasClient->getClient());
 
-        $response = $sourceConfig->push($environment->id, $yaml);
+        $response = $sourceConfig->push($environment->id);
         // @todo DXBE-20: Confirm the operation ID field name with the SAS team.
         $operationId = $response->id ?? null;
         if (!is_string($operationId)) {
             throw new AcquiaCliException('The SAS API response did not include an operation ID.');
         }
 
-        $this->io->writeln(sprintf('Config push submitted (operation %s). Waiting for it to complete...', $operationId));
+        $this->io->writeln(sprintf('Config import submitted (operation %s). Waiting for it to complete...', $operationId));
 
         return $this->waitForPush($sourceConfig, $operationId) ? Command::SUCCESS : Command::FAILURE;
-    }
-
-    /**
-     * Assemble the payload from the config files on disk.
-     *
-     * Returns a structure keyed by collection name (the default collection is
-     * the empty string; subdirectories become dotted collection names like
-     * "language.es"), then by config name (the file name minus .yml).
-     * Collections with no config files are omitted.
-     *
-     * @return array<string, array<string, mixed>>
-     */
-    private function assemblePayload(): array
-    {
-        $configDir = $this->dir . '/' . self::CONFIG_DIR;
-        if (!is_dir($configDir)) {
-            return [];
-        }
-
-        $finder = new Finder();
-        $finder->files()->in($configDir)->name('*.yml');
-
-        $payload = [];
-        foreach ($finder as $file) {
-            $relativeDir = $file->getRelativePath();
-            // The root directory maps to the default collection ("").
-            // Subdirectories map to dotted collection names: language/es
-            // becomes language.es. Normalize both Unix and Windows directory
-            // separators, since Finder returns OS-specific relative paths.
-            $collection = $relativeDir === '' ? '' : str_replace(['/', '\\'], '.', $relativeDir);
-            $name = $file->getBasename('.yml');
-            $payload[$collection][$name] = Yaml::parseFile($file->getPathname());
-        }
-
-        return $payload;
     }
 
     /**
@@ -178,14 +129,14 @@ final class ConfigPushCommand extends CommandBase
         $onDone = static function (): void {
         };
 
-        LoopHelper::getLoopy($this->output, $this->io, 'Pushing configuration...', $checkStatus, $onDone);
+        LoopHelper::getLoopy($this->output, $this->io, 'Importing configuration...', $checkStatus, $onDone);
 
         if ($status === 'succeeded') {
-            $this->io->success('Configuration pushed successfully.');
+            $this->io->success('Configuration imported successfully.');
             return true;
         }
 
-        $this->io->error(sprintf('Config push ended with status: %s', $status));
+        $this->io->error(sprintf('Config import ended with status: %s', $status));
         return false;
     }
 }
