@@ -11,6 +11,7 @@ use Acquia\Cli\Helpers\LocalMachineHelper;
 use GuzzleHttp\Client;
 use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
+use Symfony\Component\Filesystem\Filesystem;
 
 class PullFilesArchiveCommandTest extends PullCommandTestBase
 {
@@ -46,7 +47,6 @@ class PullFilesArchiveCommandTest extends PullCommandTestBase
         $sshHelper = $this->mockSshHelper();
         $this->mockGetCloudSites($sshHelper, $selectedEnvironment);
         $localMachineHelper = $this->mockLocalMachineHelper();
-        $this->mockGetFilesystem($localMachineHelper);
         $parts = explode('.', $selectedEnvironment->ssh_url);
         $sitegroup = reset($parts);
         $this->mockExecuteFilesArchiveDownload(
@@ -79,6 +79,9 @@ class PullFilesArchiveCommandTest extends PullCommandTestBase
         $this->assertStringContainsString('[0] Sample application 1', $output);
         $this->assertStringContainsString('Choose a Cloud Platform environment', $output);
         $this->assertStringContainsString('[0] Dev, dev (vcs: master)', $output);
+        // Production environments must be offered (determineEnvironment is
+        // called with $allowProduction = true).
+        $this->assertStringContainsString('Production, prod', $output);
     }
 
     /**
@@ -124,7 +127,7 @@ class PullFilesArchiveCommandTest extends PullCommandTestBase
         ];
 
         $this->expectException(AcquiaCliException::class);
-        $this->expectExceptionMessage('Unable to download files.');
+        $this->expectExceptionMessage('Unable to download files. error');
         $this->executeCommand([], $inputs);
     }
 
@@ -136,6 +139,14 @@ class PullFilesArchiveCommandTest extends PullCommandTestBase
     ): void {
         $process = $this->mockProcess();
         $localMachineHelper->checkRequiredBinariesExist(['ssh', 'tar'])
+            ->shouldBeCalled();
+        $fileSystem = $this->prophet->prophesize(Filesystem::class);
+        $localMachineHelper->getFilesystem()
+            ->willReturn($fileSystem->reveal())
+            ->shouldBeCalled();
+        $fileSystem->mkdir($destinationDir)
+            ->shouldBeCalled();
+        $fileSystem->remove(Argument::containingString('acli-files-'))
             ->shouldBeCalled();
         $localMachineHelper->executeFromCmd(
             Argument::containingString('ssh -o StrictHostKeyChecking=accept-new "${:SSH_URL}" "${:REMOTE_COMMAND}"'),
