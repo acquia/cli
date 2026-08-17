@@ -95,7 +95,8 @@ class ConfigPushCommandTest extends CommandTestBase
         );
 
         $this->assertSame(0, $this->getStatusCode());
-        $this->assertStringContainsString('Importing configuration', $this->getDisplay());
+        $this->assertStringContainsString('Importing configuration submitted (operation operation-123)', $this->getDisplay());
+        $this->assertStringContainsString('Importing configuration completed successfully.', $this->getDisplay());
     }
 
     public function testExecuteThrowsWhenOperationIdMissing(): void

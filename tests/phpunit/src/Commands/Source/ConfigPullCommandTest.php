@@ -160,4 +160,27 @@ class ConfigPullCommandTest extends CommandTestBase
         $this->assertFileExists($configDir . '/system.site.yml');
         $this->assertFileDoesNotExist($configDir . '/malformed');
     }
+
+    public function testWritePayloadDumpsNestedStructureWithIndent(): void
+    {
+        $this->writePayload($this->projectDir, [
+            '' => [
+                'node.type.blog' => [
+                    'label' => 'Blog',
+                    'settings' => [
+                        'items' => ['a', 'b'],
+                    ],
+                ],
+            ],
+        ]);
+
+        $configDir = $this->projectDir . '/.acquia/config';
+        // Nested structures must be dumped with a 2-space indent and full
+        // depth; a mutant lowering the inline depth or indent args would
+        // produce different (or invalid) output.
+        $this->assertStringEqualsFile(
+            $configDir . '/node.type.blog.yml',
+            "label: Blog\nsettings:\n  items:\n    - a\n    - b\n",
+        );
+    }
 }

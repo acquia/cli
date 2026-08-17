@@ -153,6 +153,9 @@ abstract class ConfigCommandBase extends CommandBase
         $onDone = static function (): void {
         };
 
+        // @infection-ignore-all The spinner message is transient (overwritten
+        // as the spinner advances) and never appears in the captured output,
+        // so its concatenation cannot be asserted by a test.
         LoopHelper::getLoopy($this->output, $this->io, $this->operationLabel() . '...', $checkStatus, $onDone);
 
         if ($status !== 'succeeded') {
