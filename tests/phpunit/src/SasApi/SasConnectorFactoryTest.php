@@ -24,24 +24,14 @@ class SasConnectorFactoryTest extends TestCase
     public static function connectorProvider(): array
     {
         return [
-            // Key & secret take priority and produce the standard connector.
-            'key+secret' => [
-                ['key' => 'k', 'secret' => 's', 'accessToken' => null, 'accessTokenExpiry' => null],
-                SasConnector::class,
-            ],
-            // A valid (unexpired) access token produces an AccessTokenConnector.
-            'valid token' => [
-                ['key' => null, 'secret' => null, 'accessToken' => 'tok', 'accessTokenExpiry' => (string) (time() + 3600)],
-                AccessTokenConnector::class,
-            ],
             // An expired access token falls back to an unauthenticated connector.
             'expired token' => [
                 ['key' => null, 'secret' => null, 'accessToken' => 'tok', 'accessTokenExpiry' => (string) (time() - 3600)],
                 SasConnector::class,
             ],
-            // No credentials at all: unauthenticated connector.
-            'no credentials' => [
-                ['key' => null, 'secret' => null, 'accessToken' => null, 'accessTokenExpiry' => null],
+            // Key & secret take priority and produce the standard connector.
+            'key+secret' => [
+                ['key' => 'k', 'secret' => 's', 'accessToken' => null, 'accessTokenExpiry' => null],
                 SasConnector::class,
             ],
             // Key without secret is not enough for key/secret auth.
@@ -49,10 +39,20 @@ class SasConnectorFactoryTest extends TestCase
                 ['key' => 'k', 'secret' => null, 'accessToken' => null, 'accessTokenExpiry' => null],
                 SasConnector::class,
             ],
+            // No credentials at all: unauthenticated connector.
+            'no credentials' => [
+                ['key' => null, 'secret' => null, 'accessToken' => null, 'accessTokenExpiry' => null],
+                SasConnector::class,
+            ],
             // Secret without key is not enough either.
             'secret only' => [
                 ['key' => null, 'secret' => 's', 'accessToken' => null, 'accessTokenExpiry' => null],
                 SasConnector::class,
+            ],
+            // A valid (unexpired) access token produces an AccessTokenConnector.
+            'valid token' => [
+                ['key' => null, 'secret' => null, 'accessToken' => 'tok', 'accessTokenExpiry' => (string) (time() + 3600)],
+                AccessTokenConnector::class,
             ],
         ];
     }
@@ -64,6 +64,8 @@ class SasConnectorFactoryTest extends TestCase
     public function testCreateConnectorSelectsCorrectType(array $config, string $expectedClass): void
     {
         $factory = new SasConnectorFactory($config, 'https://sas.example.com', 'https://accounts.example.com');
-        $this->assertInstanceOf($expectedClass, $factory->createConnector());
+        // Assert the exact concrete class so a flipped condition (&&/||, or a
+        // negated operand) that routes to the wrong branch fails the test.
+        $this->assertSame($expectedClass, get_class($factory->createConnector()));
     }
 }

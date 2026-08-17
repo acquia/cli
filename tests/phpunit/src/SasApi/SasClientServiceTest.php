@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Acquia\Cli\Tests\SasApi;
 
-use Acquia\Cli\Application;
 use Acquia\Cli\CloudApi\CloudCredentials;
 use Acquia\Cli\SasApi\SasClient;
 use Acquia\Cli\SasApi\SasClientService;

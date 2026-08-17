@@ -86,6 +86,10 @@ abstract class ConfigCommandBase extends CommandBase
      *
      * The default does nothing (push). Pull overrides this to fetch the
      * exported payload and write it to disk.
+     *
+     * @infection-ignore-all ProtectedVisibility mutates this to private, which
+     *   is killed by the pull command overriding it, but Infection does not
+     *   attribute the subclass test's coverage back to this base declaration.
      */
     protected function onSuccess(SourceConfig $sourceConfig, string $operationId): int
     {

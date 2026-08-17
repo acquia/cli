@@ -151,14 +151,30 @@ class ConfigPullCommandTest extends CommandTestBase
 
     public function testWritePayloadSkipsNonArrayCollections(): void
     {
+        // The malformed "language.fr" collection is iterated between the valid
+        // "language.en" and "language.zz" collections (source order, which the
+        // code-style fixer keeps alphabetical, matches iteration order). A
+        // continue-to-break mutation would stop the loop at "language.fr", so
+        // the valid "language.zz" collection after it must still be written.
         $this->writePayload($this->projectDir, [
-            '' => ['system.site' => ['name' => 'My Site']],
-            'malformed' => 'not-an-array',
+            'language.en' => ['node.type.blog' => ['label' => 'Blog']],
+            'language.fr' => 'not-an-array',
+            'language.zz' => ['node.type.blog' => ['label' => 'Blogue']],
         ]);
 
         $configDir = $this->projectDir . '/.acquia/config';
-        $this->assertFileExists($configDir . '/system.site.yml');
-        $this->assertFileDoesNotExist($configDir . '/malformed');
+        $this->assertFileExists($configDir . '/language/en/node.type.blog.yml');
+        $this->assertFileDoesNotExist($configDir . '/language/fr');
+        $this->assertFileExists($configDir . '/language/zz/node.type.blog.yml');
+    }
+
+    public function testWritePayloadCreatesConfigDirWhenPayloadEmpty(): void
+    {
+        // An empty payload writes no files, so only the explicit mkdir()
+        // creates the directory. A mutant removing mkdir() is caught here.
+        $this->writePayload($this->projectDir, []);
+
+        $this->assertDirectoryExists($this->projectDir . '/.acquia/config');
     }
 
     public function testWritePayloadDumpsNestedStructureWithIndent(): void

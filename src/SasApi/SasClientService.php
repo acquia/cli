@@ -18,6 +18,9 @@ class SasClientService extends ClientService
     public function getClient(): SasClient
     {
         $client = SasClient::factory($this->connector);
+        // @infection-ignore-all configureClient() only sets User-Agent headers
+        // (inherited SDK behavior); its removal is not observable via the
+        // returned client in a unit test.
         $this->configureClient($client);
 
         return $client;
