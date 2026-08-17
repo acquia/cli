@@ -105,6 +105,8 @@ EOD;
   self:telemetry:disable   [telemetry:disable] Disable anonymous sharing of usage and performance data
   self:telemetry:enable    [telemetry:enable] Enable anonymous sharing of usage and performance data
   self:telemetry:toggle    [telemetry] Toggle anonymous sharing of usage and performance data
+ source
+  source:config:push       Push Source configuration from .acquia/config to a site
  ssh-key
   ssh-key:create           Create an SSH key on your local machine
   ssh-key:create-upload    Create an SSH key on your local machine and upload it to the Cloud Platform
