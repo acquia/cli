@@ -106,6 +106,7 @@ EOD;
   self:telemetry:enable    [telemetry:enable] Enable anonymous sharing of usage and performance data
   self:telemetry:toggle    [telemetry] Toggle anonymous sharing of usage and performance data
  source
+  source:config:pull       Export Source configuration from a site
   source:config:push       Import deployed Source configuration on a site
  ssh-key
   ssh-key:create           Create an SSH key on your local machine

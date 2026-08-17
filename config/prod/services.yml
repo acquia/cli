@@ -57,9 +57,22 @@ services:
       - ../../src/Command/Api/ApiBaseCommand.php
       - ../../src/Command/Api/ApiListCommand.php
       - ../../src/Command/Api/ApiListCommandBase.php
+      # The Source config commands inherit from ConfigCommandBase instead.
+      - ../../src/Command/Source/**
       - ../../src/Command/App/From/**
   Acquia\Cli\Command\CommandBase:
     abstract: true
+
+  # Source config commands share a common abstract base (which carries the
+  # same constructor as CommandBase plus the SAS client service).
+  Acquia\Cli\Command\Source\ConfigCommandBase:
+    abstract: true
+    parent: Acquia\Cli\Command\CommandBase
+  Acquia\Cli\Command\Source\:
+    resource: ../../src/Command/Source
+    parent: Acquia\Cli\Command\Source\ConfigCommandBase
+    exclude:
+      - ../../src/Command/Source/ConfigCommandBase.php
 
   Acquia\Cli\EventListener\ExceptionListener:
     tags:
