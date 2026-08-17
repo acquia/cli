@@ -29,6 +29,18 @@ final class ConfigPullCommand extends ConfigCommandBase
      */
     private const CONFIG_DIR = '.acquia/config';
 
+    /**
+     * The inline depth and indentation for dumped config YAML.
+     *
+     * @infection-ignore-all Increment/DecrementInteger on the depth is not
+     *   observable: any depth beyond the config's actual nesting produces
+     *   identical output, and the indent behavior is covered by the nested
+     *   structure test. The values only need to be "deep enough".
+     */
+    private const DUMP_DEPTH = 10;
+
+    private const DUMP_INDENT = 2;
+
     protected function triggerOperation(SourceConfig $sourceConfig, string $environmentId): object
     {
         return $sourceConfig->pull($environmentId);
@@ -92,7 +104,7 @@ final class ConfigPullCommand extends ConfigCommandBase
             foreach ($items as $name => $values) {
                 $filesystem->dumpFile(
                     sprintf('%s/%s.yml', $collectionDir, $name),
-                    Yaml::dump($values, 10, 2),
+                    Yaml::dump($values, self::DUMP_DEPTH, self::DUMP_INDENT),
                 );
             }
         }

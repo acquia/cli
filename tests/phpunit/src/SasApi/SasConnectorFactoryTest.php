@@ -68,4 +68,15 @@ class SasConnectorFactoryTest extends TestCase
         // negated operand) that routes to the wrong branch fails the test.
         $this->assertSame($expectedClass, get_class($factory->createConnector()));
     }
+
+    public function testAccessTokenConnectorSelectedForValidToken(): void
+    {
+        // A valid token yields an AccessTokenConnector. Asserting the type is
+        // enough: it only happens when the access-token branch is taken.
+        $factory = new SasConnectorFactory(
+            ['key' => null, 'secret' => null, 'accessToken' => 'tok', 'accessTokenExpiry' => (string) (time() + 3600)],
+            'https://sas.example.com',
+        );
+        $this->assertInstanceOf(AccessTokenConnector::class, $factory->createConnector());
+    }
 }
