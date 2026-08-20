@@ -921,11 +921,13 @@ EOD;
         $output = $this->getDisplay();
         $decoded = json_decode($output, true);
 
-        // Verify _links was removed (munged) from all items.
+        // Verify _links was filtered (munged) — still present but empty (no download key in fixture).
         $this->assertIsArray($decoded);
         $this->assertCount(2, $decoded);
-        $this->assertArrayNotHasKey('_links', $decoded[0]);
-        $this->assertArrayNotHasKey('_links', $decoded[1]);
+        $this->assertArrayHasKey('_links', $decoded[0]);
+        $this->assertEmpty($decoded[0]['_links']);
+        $this->assertArrayHasKey('_links', $decoded[1]);
+        $this->assertEmpty($decoded[1]['_links']);
         $this->assertEquals(1, $decoded[0]['id']);
         $this->assertEquals(2, $decoded[1]['id']);
     }
@@ -974,12 +976,14 @@ EOD;
         $output = $this->getDisplay();
         $decoded = json_decode($output, true);
 
-        // Verify _links was removed (munged by original 12-char check).
-        // If mutant (13-char check) exists, _links would remain and this assertion would fail.
+        // Verify _links was filtered (munged by original 12-char check) — still present but empty.
+        // If mutant (13-char check) exists, munging is skipped and _links retains its original keys.
         $this->assertIsArray($decoded);
         $this->assertCount(2, $decoded);
-        $this->assertArrayNotHasKey('_links', $decoded[0]);
-        $this->assertArrayNotHasKey('_links', $decoded[1]);
+        $this->assertArrayHasKey('_links', $decoded[0]);
+        $this->assertEmpty($decoded[0]['_links']);
+        $this->assertArrayHasKey('_links', $decoded[1]);
+        $this->assertEmpty($decoded[1]['_links']);
     }
 
     /**
@@ -1026,14 +1030,14 @@ EOD;
     }
 
     /**
-     * Tests that mungeResponse removes _links from the top-level response object.
+     * Tests that mungeResponse filters _links on the top-level response object (keeps only 'download').
      * This kills the LogicalAndNegation mutant that negates the condition.
      *
-     * Original: if (is_object($response) && property_exists($response, '_links')) → unsets _links
-     * Mutant: if (!(is_object($response) && property_exists($response, '_links'))) → doesn't unset _links
+     * Original: if (is_object($response) && property_exists($response, '_links')) → filters _links
+     * Mutant: if (!(is_object($response) && property_exists($response, '_links'))) → skips filtering
      *
-     * By verifying _links are removed from the top-level object, we ensure the original condition is used.
-     * If the mutant exists, _links would remain and this test would fail.
+     * By verifying non-download keys are stripped from _links, we ensure the original condition is used.
+     * If the mutant exists, _links would retain all original keys and these assertions would fail.
      */
     public function testTranslationPathMungesTopLevelLinks(): void
     {
@@ -1072,27 +1076,30 @@ EOD;
         $output = $this->getDisplay();
         $decoded = json_decode($output, true);
 
-        // Verify _links was removed (munged) from the top-level object.
-        // Original code: is_object($response) && property_exists($response, '_links') → true → unsets
-        // Mutant code: !(is_object($response) && property_exists($response, '_links')) → false → doesn't unset
-        // So if mutant exists, _links would remain and this assertion would fail.
+        // Verify _links was filtered (munged) on the top-level object — present but empty (no download key).
+        // Original code: is_object($response) && property_exists($response, '_links') → true → filters
+        // Mutant code: !(is_object($response) && property_exists($response, '_links')) → false → skips
+        // So if mutant exists, _links would retain 'next'/'self' keys and assertEmpty would fail.
         $this->assertIsArray($decoded);
-        $this->assertArrayNotHasKey('_links', $decoded);
-        // Verify nested objects' _links are also removed by the foreach loop.
+        $this->assertArrayHasKey('_links', $decoded);
+        $this->assertEmpty($decoded['_links']);
+        // Verify nested objects' _links are also filtered by the foreach loop.
         $this->assertIsArray($decoded['data']);
-        $this->assertArrayNotHasKey('_links', $decoded['data']);
+        $this->assertArrayHasKey('_links', $decoded['data']);
+        $this->assertEmpty($decoded['data']['_links']);
         $this->assertEquals('test', $decoded['data']['message']);
         $this->assertIsArray($decoded['meta']);
-        $this->assertArrayNotHasKey('_links', $decoded['meta']);
+        $this->assertArrayHasKey('_links', $decoded['meta']);
+        $this->assertEmpty($decoded['meta']['_links']);
         $this->assertEquals(10, $decoded['meta']['count']);
     }
 
     /**
-     * Mutation test: MEO commands must remove _links from the response.
+     * Mutation test: MEO commands must filter _links keeping only the 'download' key.
      * Kills mutants that make isMeoCommand() return false or skip mungeResponse().
      *
-     * When isMeoCommand() returns true, mungeResponse() is called and _links are removed.
-     * If a mutant makes isMeoCommand() return false, _links would remain and this assertion fails.
+     * When isMeoCommand() returns true, mungeResponse() is called and _links are filtered.
+     * If a mutant makes isMeoCommand() return false, _links would retain all original keys.
      */
     public function testMeoCommandRemovesLinksFromResponse(): void
     {
@@ -1120,7 +1127,8 @@ EOD;
         $decoded = json_decode($output, true);
 
         $this->assertIsArray($decoded);
-        $this->assertArrayNotHasKey('_links', $decoded[0], 'MEO command must remove _links from response');
+        $this->assertArrayHasKey('_links', $decoded[0]);
+        $this->assertEmpty($decoded[0]['_links'], 'MEO command must filter _links (no download key in fixture leaves it empty)');
         $this->assertEquals(1, $decoded[0]['id']);
         $this->assertEquals('site1', $decoded[0]['name']);
     }
@@ -1157,8 +1165,8 @@ EOD;
     }
 
     /**
-     * Mutation test: mungeResponse must remove top-level _links on an object.
-     * Kills mutants that skip the top-level unset in mungeResponse().
+     * Mutation test: mungeResponse must filter _links on the top-level response object (keeps only 'download').
+     * Kills mutants that skip the top-level filterLinks call in mungeResponse().
      *
      * Uses api:codebases:sites-list (MEO command with no environmentId) to avoid
      * environment alias validation that would require extra API mocks.
@@ -1188,17 +1196,18 @@ EOD;
         $decoded = json_decode($output, true);
 
         $this->assertIsArray($decoded);
-        $this->assertArrayNotHasKey('_links', $decoded, 'MEO command must remove top-level _links');
+        $this->assertArrayHasKey('_links', $decoded);
+        $this->assertEmpty($decoded['_links'], 'MEO command must filter top-level _links (no download key in fixture leaves it empty)');
         $this->assertEquals('site-123', $decoded['id']);
         $this->assertEquals('My Site', $decoded['name']);
     }
 
     /**
-     * Mutation test: mungeResponse must remove _links from array items (not just objects).
+     * Mutation test: mungeResponse must filter _links from array items (not just objects).
      * Kills LogicalAnd mutant (line 152): is_object($value) && property_exists → || would call
      * property_exists() on arrays and throw TypeError.
      * Kills LogicalAndSingleSubExprNegation mutant (line 154): array_key_exists → !array_key_exists
-     * would skip removal when _links exists, leaving it in the output.
+     * would skip filtering when _links exists, leaving all original keys in the output.
      *
      * Some MEO endpoints return top-level array responses (array of arrays). When foreach iterates,
      * $value is an array - we must use array_key_exists for arrays, not property_exists.
@@ -1238,9 +1247,93 @@ EOD;
 
         $this->assertIsArray($decoded);
         $this->assertCount(2, $decoded);
-        $this->assertArrayNotHasKey('_links', $decoded[0], 'MEO command must remove _links from array items');
-        $this->assertArrayNotHasKey('_links', $decoded[1], 'MEO command must remove _links from array items');
+        $this->assertArrayHasKey('_links', $decoded[0]);
+        $this->assertEmpty($decoded[0]['_links'], 'MEO command must filter _links from array items (no download key leaves it empty)');
+        $this->assertArrayHasKey('_links', $decoded[1]);
+        $this->assertEmpty($decoded[1]['_links'], 'MEO command must filter _links from array items (no download key leaves it empty)');
         $this->assertEquals(1, $decoded[0]['id']);
         $this->assertEquals('site2', $decoded[1]['name']);
+    }
+
+    /**
+     * Data provider for testMeoCommandPreservesDownloadKeyInLinks.
+     *
+     * @return array<string, array{expectedDownloadHref: string, getLinks: callable, mockResponse: mixed}>
+     *  Return an associative array where each key is a descriptive test case name, and each value is an array containing:
+     *  - 'expectedDownloadHref': The expected href value for the 'download' link
+     *  - 'getLinks': A callable that takes the decoded response and returns the _links array to check
+     *  - 'mockResponse': The mock response to return from the API request, which can be an array or object depending on the test case
+     */
+    public static function providerTestFilterLinksPreservesDownloadKey(): array
+    {
+        return [
+            'array items with array-typed _links' => [
+                'expectedDownloadHref' => 'https://s3.amazonaws.com/test/db/backups/site-1/environment/database.sql.gz',
+                'getLinks' => static fn(array $decoded) => $decoded[0]['_links'],
+                'mockResponse' => [
+                    [
+                        'id' => 1,
+                        'name' => 'site1',
+                        '_links' => [
+                            'download' => ['href' => 'https://s3.amazonaws.com/test/db/backups/site-1/environment/database.sql.gz'],
+                            'self' => ['href' => '/api/site/1'],
+                        ],
+                    ],
+                ],
+            ],
+            'object items in array' => [
+                'expectedDownloadHref' => 'https://s3.amazonaws.com/test/db/backups/site-1/environment/database.sql.gz',
+                'getLinks' => static fn(array $decoded) => $decoded[0]['_links'],
+                'mockResponse' => [(object)[
+                    'id' => 1,
+                    'name' => 'site1',
+                    '_links' => (object)[
+                        'download' => (object)['href' => 'https://s3.amazonaws.com/test/db/backups/site-1/environment/database.sql.gz'],
+                        'self' => (object)['href' => '/api/site/1'],
+                    ],
+                ],
+                ],
+            ],
+            'top-level response object' => [
+                'expectedDownloadHref' => 'https://s3.amazonaws.com/test/db/backups/site-123/environment/database.sql.gz',
+                'getLinks' => static fn(array $decoded) => $decoded['_links'],
+                'mockResponse' => (object)[
+                    'id' => 'site-123',
+                    'name' => 'My Site',
+                    '_links' => (object)[
+                        'download' => (object)['href' => 'https://s3.amazonaws.com/test/db/backups/site-123/environment/database.sql.gz'],
+                        'self' => (object)['href' => '/api/sites/123'],
+                    ],
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * Tests that filterLinks preserves the 'download' key and removes all other keys from _links,
+     * regardless of whether _links is on a top-level object, an object item, or an array item.
+     */
+    #[DataProvider('providerTestFilterLinksPreservesDownloadKey')]
+    public function testMeoCommandPreservesDownloadKeyInLinks(mixed $mockResponse, callable $getLinks, string $expectedDownloadHref): void
+    {
+        $this->clientProphecy->addOption('headers', ['Accept' => 'application/hal+json, version=2'])
+            ->shouldBeCalled();
+
+        $this->command = $this->getApiCommandByName('api:codebases:sites-list');
+        $this->clientProphecy->request(
+            $this->command->getMethod(),
+            '/codebases/test-codebase-uuid/sites'
+        )
+            ->willReturn($mockResponse)
+            ->shouldBeCalled();
+
+        $this->executeCommand(['codebaseId' => 'test-codebase-uuid']);
+
+        $decoded = json_decode($this->getDisplay(), true);
+        $links = $getLinks($decoded);
+
+        $this->assertArrayHasKey('download', $links, 'filterLinks must preserve the download key');
+        $this->assertArrayNotHasKey('self', $links, 'filterLinks must remove non-download keys');
+        $this->assertEquals($expectedDownloadHref, $links['download']['href']);
     }
 }
