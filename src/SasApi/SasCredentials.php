@@ -23,7 +23,8 @@ class SasCredentials extends CloudCredentials
      */
     public function getBaseUri(): ?string
     {
+        // Treat a set-but-empty value the same as unset.
         $uri = getenv('ACLI_SAS_BASE_URI');
-        return $uri !== false ? $uri : self::DEFAULT_BASE_URI;
+        return !empty($uri) ? $uri : self::DEFAULT_BASE_URI;
     }
 }

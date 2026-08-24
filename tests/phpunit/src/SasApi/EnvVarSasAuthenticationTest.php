@@ -6,7 +6,10 @@ namespace Acquia\Cli\Tests\SasApi;
 
 use Acquia\Cli\SasApi\SasCredentials;
 use Acquia\Cli\Tests\TestBase;
+use PHPUnit\Framework\Attributes\Group;
 
+// Mutates process-global env vars, so must run in the serial group.
+#[Group('serial')]
 class EnvVarSasAuthenticationTest extends TestBase
 {
     private static string $sasBaseUri = 'https://sites-aggregation-service.dev.cicd.acquia.io/api';
@@ -39,6 +42,15 @@ class EnvVarSasAuthenticationTest extends TestBase
     public function testDefaultBaseUri(): void
     {
         putenv('ACLI_SAS_BASE_URI');
+        self::assertEquals(
+            'https://sites-aggregation-service-prod.prod.cicd.acquia.io/api',
+            $this->cloudCredentials->getBaseUri()
+        );
+    }
+
+    public function testEmptyBaseUriFallsBackToDefault(): void
+    {
+        putenv('ACLI_SAS_BASE_URI=');
         self::assertEquals(
             'https://sites-aggregation-service-prod.prod.cicd.acquia.io/api',
             $this->cloudCredentials->getBaseUri()

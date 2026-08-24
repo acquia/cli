@@ -9,7 +9,10 @@ use Acquia\Cli\DataStore\CloudDataStore;
 use Acquia\Cli\SasApi\SasClientService;
 use Acquia\Cli\SasApi\SasCredentials;
 use Acquia\Cli\Tests\TestBase;
+use PHPUnit\Framework\Attributes\Group;
 
+// Mutates process-global env vars, so must run in the serial group.
+#[Group('serial')]
 class SasClientServiceTest extends TestBase
 {
     protected function tearDown(): void
