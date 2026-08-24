@@ -121,6 +121,29 @@ services:
       $connectorFactory: '@cloud.v3.connector_factory'
       $application: '@Acquia\Cli\Application'
       $credentials: '@cloud.credentials'
+
+  # Sites Aggregation Service (SAS) — standalone service sharing the Cloud API
+  # auth layer. Prod default https://sites-aggregation-service.prod.cicd.acquia.io/api.
+  # Override with ACLI_SAS_BASE_URI for dev/qa/stage.
+  sas.credentials:
+    class: Acquia\Cli\SasApi\SasCredentials
+
+  sas.connector_factory:
+    class: Acquia\Cli\CloudApi\ConnectorFactory
+    arguments:
+      $config:
+        key: '@=service("sas.credentials").getCloudKey()'
+        secret: '@=service("sas.credentials").getCloudSecret()'
+        accessToken: '@=service("sas.credentials").getCloudAccessToken()'
+        accessTokenExpiry: '@=service("sas.credentials").getCloudAccessTokenExpiry()'
+      $baseUri: '@=service("sas.credentials").getBaseUri()'
+      $accountsUri: '@=service("sas.credentials").getAccountsUri()'
+
+  Acquia\Cli\SasApi\SasClientService:
+    arguments:
+      $connectorFactory: '@sas.connector_factory'
+      $application: '@Acquia\Cli\Application'
+      $credentials: '@sas.credentials'
   AcquiaCloudApi\Connector\ConnectorInterface:
     alias: Acquia\Cli\CloudApi\ConnectorFactory
   AcquiaCloudApi\Connector\Connector:
