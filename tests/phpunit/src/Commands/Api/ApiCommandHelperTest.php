@@ -11,6 +11,8 @@ use Acquia\Cli\Tests\CommandTestBase;
 use ReflectionMethod;
 use Symfony\Component\Cache\Adapter\PhpArrayAdapter;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Logger\ConsoleLogger;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -216,6 +218,33 @@ class ApiCommandHelperTest extends CommandTestBase
     }
 
     /**
+     * Two-segment prefix (api:v3) must produce api:v3:{namespace} list commands,
+     * not api:v3:v3 (the bug caused by hardcoding $commandNameParts[1]).
+     */
+    public function testTwoSegmentPrefixProducesCorrectNamespaceListCommands(): void
+    {
+        $apiCommands = [
+            $this->createMockApiCommand('api:v3:environments:find', false),
+            $this->createMockApiCommand('api:v3:environments:list', false),
+        ];
+        $listCommands = $this->generateApiListCommands($apiCommands, 'api:v3');
+        $this->assertArrayHasKey('api:v3:environments', $listCommands);
+        $this->assertArrayNotHasKey('api:v3:v3', $listCommands, 'Prefix-depth bug: commandNameParts[1] was used instead of prefixDepth index.');
+    }
+
+    /**
+     * Commands with fewer parts than prefix+2 must be skipped with two-segment prefix.
+     */
+    public function testTwoSegmentPrefixSkipsShallowCommands(): void
+    {
+        $apiCommands = [
+            $this->createMockApiCommand('api:v3:environments', false),
+        ];
+        $listCommands = $this->generateApiListCommands($apiCommands, 'api:v3');
+        $this->assertEmpty($listCommands);
+    }
+
+    /**
      * Calls private or protected method of ApiCommandHelper class via reflection.
      *
      * @throws \ReflectionException
@@ -360,6 +389,31 @@ class ApiCommandHelperTest extends CommandTestBase
     }
 
     /**
+     * Default v2 behavior: getCliCommandName reads the legacy x-cli-name key.
+     */
+    public function testGetCliCommandNameReturnsLegacyXCliNameValue(): void
+    {
+        $result = $this->invokeApiCommandHelperMethod(
+            'getCliCommandName',
+            [['x-cli-name' => 'applications:list']],
+        );
+        $this->assertSame('applications:list', $result);
+    }
+
+    /**
+     * Default v2 behavior: getCliCommandName returns null when x-cli-name is absent,
+     * so generateApiCommandsFromSpec skips the operation.
+     */
+    public function testGetCliCommandNameReturnsNullWhenLegacyKeyMissing(): void
+    {
+        $result = $this->invokeApiCommandHelperMethod(
+            'getCliCommandName',
+            [['summary' => 'No CLI name declared']],
+        );
+        $this->assertNull($result);
+    }
+
+    /**
      * Test that addPostArgumentUsageToExample correctly formats a flat array with a single item.
      */
     public function testAddPostArgumentUsageToExampleFlatArraySingleItem(): void
@@ -410,5 +464,107 @@ class ApiCommandHelperTest extends CommandTestBase
             [['url' => 'https://cloud.acquia.com/api', 'description' => 'Cloud API']],
             (new \ReflectionProperty($commands[0], 'servers'))->getValue($commands[0])
         );
+    }
+
+    /**
+     * A single required array body param must keep IS_ARRAY mode.
+     * Kills GreaterThan mutation: count($arrayArgKeys) > 1 vs >= 1.
+     */
+    public function testSingleRequiredArrayBodyParamKeepsIsArray(): void
+    {
+        $schema = [
+            'requestBody' => [
+                'content' => [
+                    'application/json' => [
+                        'schema' => [
+                            'properties' => [
+                                'domains' => ['type' => 'array', 'description' => 'Domains'],
+                            ],
+                            'required' => ['domains'],
+                            'type' => 'object',
+                        ],
+                    ],
+                ],
+            ],
+        ];
+        [$inputDefinition] = $this->invokeApiCommandHelperMethod('addApiCommandParametersForRequestBody', [$schema, []]);
+        $domainsArg = $this->findInputByName($inputDefinition, 'domains');
+        $this->assertInstanceOf(InputArgument::class, $domainsArg);
+        $this->assertTrue($domainsArg->isArray(), 'Single required array param must keep IS_ARRAY mode.');
+    }
+
+    /**
+     * Two required array body params: first loses IS_ARRAY, last keeps it.
+     * Kills FunctionCallRemoval mutation: removing array_slice would strip all array args.
+     */
+    public function testTwoRequiredArrayBodyParamsFirstLosesIsArrayLastKeepsIt(): void
+    {
+        $schema = [
+            'requestBody' => [
+                'content' => [
+                    'application/json' => [
+                        'schema' => [
+                            'properties' => [
+                                'domains' => ['type' => 'array', 'description' => 'Domains'],
+                                'paths' => ['type' => 'array', 'description' => 'Paths'],
+                            ],
+                            'required' => ['domains', 'paths'],
+                            'type' => 'object',
+                        ],
+                    ],
+                ],
+            ],
+        ];
+        [$inputDefinition] = $this->invokeApiCommandHelperMethod('addApiCommandParametersForRequestBody', [$schema, []]);
+        $domainsArg = $this->findInputByName($inputDefinition, 'domains');
+        $pathsArg = $this->findInputByName($inputDefinition, 'paths');
+        $this->assertInstanceOf(InputArgument::class, $domainsArg);
+        $this->assertInstanceOf(InputArgument::class, $pathsArg);
+        $this->assertFalse($domainsArg->isArray(), 'First required array param must lose IS_ARRAY when two exist.');
+        $this->assertTrue($pathsArg->isArray(), 'Last required array param must keep IS_ARRAY.');
+    }
+
+    /**
+     * An optional array param (InputOption with VALUE_IS_ARRAY) must not be treated as
+     * an IS_ARRAY InputArgument, so the required array arg keeps its IS_ARRAY flag.
+     * Kills LogicalAnd mutation: instanceof && isArray() vs instanceof || isArray().
+     */
+    public function testOptionalArrayOptionDoesNotInterfereWithRequiredArrayArg(): void
+    {
+        $schema = [
+            'requestBody' => [
+                'content' => [
+                    'application/json' => [
+                        'schema' => [
+                            'properties' => [
+                                'domains' => ['type' => 'array', 'description' => 'Domains'],
+                                'tags' => ['type' => 'array', 'description' => 'Tags'],
+                            ],
+                            'required' => ['domains'],
+                            'type' => 'object',
+                        ],
+                    ],
+                ],
+            ],
+        ];
+        [$inputDefinition] = $this->invokeApiCommandHelperMethod('addApiCommandParametersForRequestBody', [$schema, []]);
+        $domainsArg = $this->findInputByName($inputDefinition, 'domains');
+        $tagsInput = $this->findInputByName($inputDefinition, 'tags');
+        $this->assertInstanceOf(InputArgument::class, $domainsArg);
+        $this->assertTrue($domainsArg->isArray(), 'Required array arg must keep IS_ARRAY when no other required array args exist.');
+        $this->assertInstanceOf(InputOption::class, $tagsInput, 'Optional array param must remain an InputOption.');
+    }
+
+    /**
+     * @param array<InputArgument|InputOption> $inputDefinition
+     */
+    private function findInputByName(array $inputDefinition, string $name): InputArgument|InputOption|null
+    {
+        foreach ($inputDefinition as $input) {
+            if ($input->getName() === $name) {
+                return $input;
+            }
+        }
+        return null;
     }
 }

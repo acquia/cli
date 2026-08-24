@@ -1,0 +1,58 @@
+name: Update Acquia v3 API spec
+
+on:
+  schedule:
+    - cron: '0 3 * * *'
+  workflow_dispatch:
+
+jobs:
+  update-spec:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Redocly CLI
+        run: npm install -g @redocly/cli@latest
+
+      - name: Download and dereference v3 spec
+        run: |
+          curl -fsSL https://api.acquia.com/v3/openapi.yaml -o /tmp/acquia-v3-raw.yaml
+          git hash-object /tmp/acquia-v3-raw.yaml > assets/acquia-v3-spec.version
+          redocly bundle --dereferenced /tmp/acquia-v3-raw.yaml -o /tmp/acquia-v3-deref.json
+          jq 'del(.paths["/openapi.yaml"])' /tmp/acquia-v3-deref.json > assets/acquia-v3-spec.json
+
+      - name: Check for changes
+        id: diff
+        run: |
+          if git diff --quiet -- assets/acquia-v3-spec.json assets/acquia-v3-spec.version; then
+            echo "changed=false" >> $GITHUB_OUTPUT
+          else
+            echo "changed=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create PR if spec changed
+        if: steps.diff.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: |
+          BRANCH="automated/update-acquia-v3-spec-${{ github.run_id }}"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout -b "$BRANCH"
+          git add assets/acquia-v3-spec.json assets/acquia-v3-spec.version
+          git commit -m "chore: update Acquia v3 OpenAPI spec"
+          git push origin "$BRANCH"
+          gh pr create \
+            --title "chore: update Acquia v3 OpenAPI spec" \
+            --body "Automated update of the Acquia v3 OpenAPI spec." \
+            --label "chore" \
+            --base "${{ github.ref_name }}" \
+            --head "$BRANCH"
+          gh pr merge "$BRANCH" --auto --squash
