@@ -15,7 +15,7 @@ use Acquia\Cli\CloudApi\CloudCredentials;
  */
 class SasCredentials extends CloudCredentials
 {
-    private const DEFAULT_BASE_URI = 'https://sites-aggregation-service.prod.cicd.acquia.io/api';
+    private const DEFAULT_BASE_URI = 'https://sites-aggregation-service-prod.prod.cicd.acquia.io/api';
 
     /**
      * Base URI for SAS. Override with ACLI_SAS_BASE_URI for non-production

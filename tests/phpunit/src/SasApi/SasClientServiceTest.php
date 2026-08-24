@@ -45,7 +45,7 @@ class SasClientServiceTest extends TestBase
         );
         $sasService = new SasClientService($connectorFactory, $this->application, $credentials);
         $this->assertEquals(
-            'https://sites-aggregation-service.prod.cicd.acquia.io/api',
+            'https://sites-aggregation-service-prod.prod.cicd.acquia.io/api',
             $connectorFactory->createConnector()->getBaseUri()
         );
         $this->assertFalse($sasService->isMachineAuthenticated());

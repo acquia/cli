@@ -123,7 +123,7 @@ services:
       $credentials: '@cloud.credentials'
 
   # Sites Aggregation Service (SAS) — standalone service sharing the Cloud API
-  # auth layer. Prod default https://sites-aggregation-service.prod.cicd.acquia.io/api.
+  # auth layer. Prod default https://sites-aggregation-service-prod.prod.cicd.acquia.io/api.
   # Override with ACLI_SAS_BASE_URI for dev/qa/stage.
   sas.credentials:
     class: Acquia\Cli\SasApi\SasCredentials

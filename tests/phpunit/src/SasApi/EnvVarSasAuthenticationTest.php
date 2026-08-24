@@ -40,7 +40,7 @@ class EnvVarSasAuthenticationTest extends TestBase
     {
         putenv('ACLI_SAS_BASE_URI');
         self::assertEquals(
-            'https://sites-aggregation-service.prod.cicd.acquia.io/api',
+            'https://sites-aggregation-service-prod.prod.cicd.acquia.io/api',
             $this->cloudCredentials->getBaseUri()
         );
     }
