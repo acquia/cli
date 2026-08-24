@@ -20,7 +20,7 @@ final class AuthLoginCommand extends CommandBase
         $this
             ->addOption('key', 'k', InputOption::VALUE_REQUIRED, 'Your Cloud Platform API key')
             ->addOption('secret', 's', InputOption::VALUE_REQUIRED, 'Your Cloud Platform API secret')
-            ->addOption('environment', null, InputOption::VALUE_REQUIRED, '', 'prod')
+            ->addOption('environment', null, InputOption::VALUE_REQUIRED, 'Cloud Platform API environment', 'prod')
             ->setHelp('Acquia CLI can store multiple sets of credentials in case you have multiple Cloud Platform accounts. However, only a single account can be active at a time. This command allows you to activate a new or existing set of credentials.');
     }
 
