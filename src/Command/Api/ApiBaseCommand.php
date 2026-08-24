@@ -42,6 +42,8 @@ class ApiBaseCommand extends CommandBase
 
     protected string $path;
 
+    private ?string $stability = null;
+
     /**
      * @var array<mixed>
      */
@@ -99,10 +101,23 @@ class ApiBaseCommand extends CommandBase
      * @throws \JsonException
      * @throws \AcquiaCloudApi\Exception\ApiErrorException
      */
+    public function setStability(?string $stability): void
+    {
+        $this->stability = $stability;
+    }
+
+    public function getStability(): ?string
+    {
+        return $this->stability;
+    }
+
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         if ($this->getName() === 'api:base') {
             throw new AcquiaCliException('api:base is not a valid command');
+        }
+        if ($this->stability !== null && $this->stability !== 'production') {
+            $this->io->warning("This command is in {$this->stability} and may change without notice.");
         }
         // Build query from non-null options.
         $acquiaCloudClient = $this->cloudApiClientService->getClient();
