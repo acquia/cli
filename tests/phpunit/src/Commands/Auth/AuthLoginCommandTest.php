@@ -150,6 +150,26 @@ class AuthLoginCommandTest extends CommandTestBase
         $this->executeCommand($args, $inputs);
     }
 
+    public static function providerTestAuthLoginInvalidEnvironmentCommand(): Generator
+    {
+        yield [['--key' => self::$key, '--secret' => self::$secret, '--environment' => 'my env']];
+        yield [['--key' => self::$key, '--secret' => self::$secret, '--environment' => 'env!']];
+        yield [['--key' => self::$key, '--secret' => self::$secret, '--environment' => 'env_name']];
+    }
+
+    #[DataProvider('providerTestAuthLoginInvalidEnvironmentCommand')]
+    public function testAuthLoginInvalidEnvironmentCommand(array $args): void
+    {
+        $this->clientServiceProphecy->isMachineAuthenticated()
+            ->willReturn(false);
+        $this->removeMockCloudConfigFile();
+        $this->createDataStores();
+        $this->command = $this->createCommand();
+        $this->expectException(AcquiaCliException::class);
+        $this->expectExceptionMessage('Invalid environment value');
+        $this->executeCommand($args);
+    }
+
     public function testAuthLoginInvalidDatastore(): void
     {
         $this->clientServiceProphecy->isMachineAuthenticated()

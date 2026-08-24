@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Acquia\Cli\Command\Auth;
 
 use Acquia\Cli\Command\CommandBase;
+use Acquia\Cli\Exception\AcquiaCliException;
 use AcquiaCloudApi\Endpoints\Account;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -76,12 +77,16 @@ final class AuthLoginCommand extends CommandBase
      */
     private function getUrisForEnvironment(string $env): array
     {
-        if ($env === 'prod') {
+        $env = strtolower(trim($env));
+        if ($env === '' || $env === 'prod') {
             return [null, null];
         }
+        if (!preg_match('/^[a-z0-9-]+$/', $env)) {
+            throw new AcquiaCliException('Invalid environment value: {env}', ['env' => $env]);
+        }
         return [
-            "https://{$env}.cloud.acquia.com/api",
-            "https://{$env}.accounts.acquia.com/api/auth/oauth/token",
+            "https://$env.cloud.acquia.com/api",
+            "https://$env.accounts.acquia.com/api/auth/oauth/token",
         ];
     }
 

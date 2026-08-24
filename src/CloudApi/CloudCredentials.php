@@ -84,7 +84,7 @@ class CloudCredentials implements ApiCredentialsInterface
         if ($uri = getenv('ACLI_CLOUD_API_BASE_URI')) {
             return $uri;
         }
-        return $this->getActiveKeyData()['cloud_api_base_uri'] ?? null;
+        return ($this->getActiveKeyData() ?? [])['cloud_api_base_uri'] ?? null;
     }
 
     /**
@@ -104,7 +104,7 @@ class CloudCredentials implements ApiCredentialsInterface
         if ($uri = getenv('ACLI_CLOUD_API_ACCOUNTS_URI')) {
             return $uri;
         }
-        return $this->getActiveKeyData()['accounts_uri'] ?? null;
+        return ($this->getActiveKeyData() ?? [])['accounts_uri'] ?? null;
     }
 
     /**
