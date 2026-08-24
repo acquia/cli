@@ -47,6 +47,56 @@ class AuthLoginCommandTest extends CommandTestBase
         $this->assertKeySavedCorrectly();
     }
 
+    public function testAuthLoginCommandWithStagingEnvironment(): void
+    {
+        $this->mockRequest('getAccount');
+        $this->clientServiceProphecy->setConnector(Argument::type(Connector::class))
+            ->shouldBeCalled();
+        $this->clientServiceProphecy->isMachineAuthenticated()
+            ->willReturn(false);
+        $this->removeMockCloudConfigFile();
+        $this->createDataStores();
+        $this->command = $this->createCommand();
+
+        $this->executeCommand([
+            '--environment' => 'staging',
+            '--key' => self::$key,
+            '--secret' => self::$secret,
+        ]);
+        $output = $this->getDisplay();
+
+        $this->assertStringContainsString('Saved credentials', $output);
+        $this->assertKeySavedCorrectly();
+        $config = new CloudDataStore($this->localMachineHelper, new CloudDataConfig(), $this->cloudConfigFilepath);
+        $keys = $config->get('keys');
+        $this->assertSame('https://staging.cloud.acquia.com/api', $keys[self::$key]['cloud_api_base_uri']);
+        $this->assertSame('https://staging.accounts.acquia.com/api/auth/oauth/token', $keys[self::$key]['accounts_uri']);
+    }
+
+    public function testAuthLoginCommandProdEnvironmentDoesNotStoreUris(): void
+    {
+        $this->mockRequest('getAccount');
+        $this->clientServiceProphecy->setConnector(Argument::type(Connector::class))
+            ->shouldBeCalled();
+        $this->clientServiceProphecy->isMachineAuthenticated()
+            ->willReturn(false);
+        $this->removeMockCloudConfigFile();
+        $this->createDataStores();
+        $this->command = $this->createCommand();
+
+        $this->executeCommand([
+            '--key' => self::$key,
+            '--secret' => self::$secret,
+        ]);
+        $output = $this->getDisplay();
+
+        $this->assertStringContainsString('Saved credentials', $output);
+        $config = new CloudDataStore($this->localMachineHelper, new CloudDataConfig(), $this->cloudConfigFilepath);
+        $keys = $config->get('keys');
+        $this->assertNull($keys[self::$key]['cloud_api_base_uri'] ?? null);
+        $this->assertNull($keys[self::$key]['accounts_uri'] ?? null);
+    }
+
     public function testAuthLoginNoKeysCommand(): void
     {
         $this->mockRequest('getAccount');
