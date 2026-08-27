@@ -37,22 +37,27 @@ jobs:
             echo "changed=true" >> $GITHUB_OUTPUT
           fi
 
-      - name: Create PR if spec changed
+      - name: Create or update PR if spec changed
         if: steps.diff.outputs.changed == 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          BRANCH="automated/update-acquia-v3-spec-${{ github.run_id }}"
+          BRANCH="automated/update-acquia-v3-spec"
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git checkout -b "$BRANCH"
+          git checkout -B "$BRANCH"
           git add assets/acquia-v3-spec.json assets/acquia-v3-spec.version
           git commit -m "chore: update Acquia v3 OpenAPI spec"
-          git push origin "$BRANCH"
-          gh pr create \
-            --title "chore: update Acquia v3 OpenAPI spec" \
-            --body "Automated update of the Acquia v3 OpenAPI spec." \
-            --label "chore" \
-            --base "${{ github.ref_name }}" \
-            --head "$BRANCH"
+          git push origin "$BRANCH" --force
+          EXISTING_PR=$(gh pr list --head "$BRANCH" --state open --json number --jq '.[0].number')
+          if [ -n "$EXISTING_PR" ]; then
+            echo "Updating existing PR #$EXISTING_PR"
+          else
+            gh pr create \
+              --title "chore: update Acquia v3 OpenAPI spec" \
+              --body "Automated update of the Acquia v3 OpenAPI spec." \
+              --label "chore" \
+              --base "${{ github.ref_name }}" \
+              --head "$BRANCH"
+          fi
           # gh pr merge "$BRANCH" --auto --squash
