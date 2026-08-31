@@ -30,6 +30,23 @@ class CloudCredentialsTest extends TestBase
         $this->assertSame('https://staging.accounts.acquia.com/api/auth/oauth/token', $this->cloudCredentials->getAccountsUri());
     }
 
+    public function testGetBaseUriReturnsNullWhenActiveKeyNotInKeysArray(): void
+    {
+        $this->datastoreCloud->set('keys', [
+            self::$key => [
+                'accounts_uri' => 'https://staging.accounts.acquia.com/api/auth/oauth/token',
+                'cloud_api_base_uri' => 'https://staging.cloud.acquia.com/api',
+                'label' => 'Test Key',
+                'secret' => self::$secret,
+                'uuid' => self::$key,
+            ],
+        ]);
+        $this->datastoreCloud->set('acli_key', 'nonexistent-key-uuid');
+
+        $this->assertNull($this->cloudCredentials->getBaseUri());
+        $this->assertNull($this->cloudCredentials->getAccountsUri());
+    }
+
     public function testGetBaseUriEnvVarTakesPriorityOverStoredUri(): void
     {
         $this->datastoreCloud->set('keys', [
