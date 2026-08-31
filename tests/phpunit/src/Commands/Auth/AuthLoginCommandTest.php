@@ -236,6 +236,41 @@ class AuthLoginCommandTest extends CommandTestBase
         $this->assertNull($keys[self::$key]['cloud_api_base_uri'] ?? null);
     }
 
+    public function testAuthLoginNonInteractiveWithExistingProdKey(): void
+    {
+        $existingKeyUuid = 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee';
+        $this->mockRequest('getAccount');
+        $this->clientServiceProphecy->setConnector(Argument::type(Connector::class))
+            ->shouldBeCalled();
+        $this->clientServiceProphecy->isMachineAuthenticated()
+            ->willReturn(false);
+        $this->fs->dumpFile($this->cloudConfigFilepath, json_encode([
+            'acli_key' => $existingKeyUuid,
+            'keys' => [
+                $existingKeyUuid => [
+                    'label' => 'Existing Key',
+                    'secret' => 'existing-secret',
+                    'uuid' => $existingKeyUuid,
+                    // No cloud_api_base_uri = prod key.
+                ],
+            ],
+            'send_telemetry' => false,
+        ]));
+        $this->createDataStores();
+        $this->command = $this->createCommand();
+
+        $this->executeCommand(
+            ['--key' => self::$key, '--secret' => self::$secret],
+            inputs: [],
+            interactive: false,
+        );
+        $output = $this->getDisplay();
+
+        $this->assertStringContainsString('Saved credentials', $output);
+        $config = new CloudDataStore($this->localMachineHelper, new CloudDataConfig(), $this->cloudConfigFilepath);
+        $this->assertSame(self::$key, $config->get('acli_key'));
+    }
+
     public function testAuthLoginNoKeysCommand(): void
     {
         $this->mockRequest('getAccount');
