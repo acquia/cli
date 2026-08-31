@@ -48,7 +48,20 @@ class AuthLoginCommandTest extends CommandTestBase
         $this->assertKeySavedCorrectly();
     }
 
-    public function testAuthLoginCommandWithStagingEnvironment(): void
+    /**
+     * @return string[]
+     */
+    public static function providerTestAuthLoginCommandWithStagingEnvironment(): array
+    {
+        return [
+            ['staging'],
+            ['Staging'],
+            [' staging'],
+        ];
+    }
+
+    #[\PHPUnit\Framework\Attributes\DataProvider('providerTestAuthLoginCommandWithStagingEnvironment')]
+    public function testAuthLoginCommandWithStagingEnvironment(string $environment): void
     {
         $this->mockRequest('getAccount');
         $this->clientServiceProphecy->setConnector(Argument::type(Connector::class))
@@ -60,7 +73,7 @@ class AuthLoginCommandTest extends CommandTestBase
         $this->command = $this->createCommand();
 
         $this->executeCommand([
-            '--environment' => 'staging',
+            '--environment' => $environment,
             '--key' => self::$key,
             '--secret' => self::$secret,
         ]);
@@ -340,7 +353,7 @@ class AuthLoginCommandTest extends CommandTestBase
         $this->createDataStores();
         $this->command = $this->createCommand();
         $this->expectException(AcquiaCliException::class);
-        $this->expectExceptionMessage('Invalid environment value');
+        $this->expectExceptionMessage('Invalid environment value: ' . $args['--environment']);
         $this->executeCommand($args);
     }
 
