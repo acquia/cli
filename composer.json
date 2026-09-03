@@ -155,7 +155,7 @@
             "@unit"
         ],
         "stan": [
-            "phpstan analyze"
+            "phpstan analyze --memory-limit=1G"
         ]
     }
 }
