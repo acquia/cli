@@ -49,6 +49,12 @@ final class PushArtifactCommand extends CommandBase
             ->addOption('dry-run', null, InputOption::VALUE_NONE, 'Deprecated: Use no-push instead')
             ->addOption('no-push', null, InputOption::VALUE_NONE, 'Do not push changes to Acquia Cloud')
             ->addOption('no-commit', null, InputOption::VALUE_NONE, 'Do not commit changes. Implies no-push')
+            ->addOption(
+                'commit-message',
+                null,
+                InputOption::VALUE_REQUIRED,
+                'Custom commit message for artifact commit'
+            )
             ->addOption('no-clone', null, InputOption::VALUE_NONE, 'Do not clone repository. Implies no-commit and no-push')
             ->addOption('destination-git-urls', 'u', InputOption::VALUE_IS_ARRAY | InputOption::VALUE_REQUIRED, 'The URL of your git repository to which the artifact branch will be pushed. Use multiple times for multiple URLs.')
             ->addOption('destination-git-branch', 'b', InputOption::VALUE_REQUIRED, 'The destination branch to push the artifact to')
@@ -385,11 +391,45 @@ final class PushArtifactCommand extends CommandBase
 
     private function generateCommitMessage(string $commitHash): array|string
     {
-        if ($envVar = getenv('ACLI_PUSH_ARTIFACT_COMMIT_MSG')) {
-            return $envVar;
+        // CLI option.
+        if ($option = $this->input->getOption('commit-message')) {
+            $this->logger->debug('Using custom commit message from --commit-message option.');
+            return $this->sanitizeCommitMessage($option, $commitHash);
         }
 
+        // ENV fallback.
+        if ($envVar = getenv('ACLI_PUSH_ARTIFACT_COMMIT_MSG')) {
+            $this->logger->debug('Using commit message from ACLI_PUSH_ARTIFACT_COMMIT_MSG env var.');
+            return $this->sanitizeCommitMessage($envVar, $commitHash);
+        }
+
+        // Default behavior.
         return "Automated commit by Acquia CLI (source commit: $commitHash)";
+    }
+
+    /**
+     * Sanitize commit message.
+     */
+    private function sanitizeCommitMessage(string $message, string $commitHash): string
+    {
+        // Remove control characters (security / log safety).
+        $message = preg_replace('/[\x00-\x1F\x7F]/u', '', $message);
+
+        // Keep only first line (git subject best practice).
+        $message = strtok($message, "\n");
+
+        // Trim whitespace.
+        $message = trim($message);
+
+        // Limit length (avoid abuse / log issues).
+        $message = mb_substr($message, 0, 255);
+
+        // Fallback if empty after sanitization.
+        if ($message === '') {
+            return "Automated commit by Acquia CLI (source commit: $commitHash)";
+        }
+
+        return $message;
     }
 
     /**
