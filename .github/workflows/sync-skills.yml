@@ -5,6 +5,10 @@ on:
     types: [published]
   workflow_dispatch:
     inputs:
+      tag:
+        description: 'ACLI release tag to sync (defaults to latest release)'
+        required: false
+        type: string
       force:
         description: 'Force PR even if no skill files changed'
         required: false
@@ -19,6 +23,11 @@ jobs:
       - name: Checkout release commit
         uses: actions/checkout@v7
 
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          coverage: none
       - name: Resolve version tag
         id: version
         run: |
@@ -35,9 +44,9 @@ jobs:
       - name: Download ACLI binary
         run: |
           curl -fsSL "https://github.com/acquia/cli/releases/download/${{ steps.version.outputs.tag }}/acli.phar" \
-            -o /usr/local/bin/acli
-          chmod +x /usr/local/bin/acli
-
+            -o "$RUNNER_TEMP/acli"
+          chmod +x "$RUNNER_TEMP/acli"
+          echo "$RUNNER_TEMP" >> "$GITHUB_PATH"
       - name: Generate commands JSON
         run: acli list --format=json > /tmp/acli-commands.json
 
