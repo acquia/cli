@@ -23,32 +23,14 @@ jobs:
       - name: Checkout release commit
         uses: actions/checkout@v7
 
-      - name: Set up PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.2'
-          coverage: none
       - name: Resolve version tag
         id: version
         run: |
           if [ "${{ github.event_name }}" = "release" ]; then
             echo "tag=${{ github.event.release.tag_name }}" >> $GITHUB_OUTPUT
           else
-            echo "tag=${{ github.ref_name }}" >> $GITHUB_OUTPUT
+            echo "tag=${{ inputs.tag }}" >> $GITHUB_OUTPUT
           fi
-
-      - name: Read Acquia spec version
-        id: spec
-        run: echo "version=$(cat assets/acquia-spec.version)" >> $GITHUB_OUTPUT
-
-      - name: Download ACLI binary
-        run: |
-          curl -fsSL "https://github.com/acquia/cli/releases/download/${{ steps.version.outputs.tag }}/acli.phar" \
-            -o "$RUNNER_TEMP/acli"
-          chmod +x "$RUNNER_TEMP/acli"
-          echo "$RUNNER_TEMP" >> "$GITHUB_PATH"
-      - name: Generate commands JSON
-        run: acli list --format=json > /tmp/acli-commands.json
 
       - name: Dispatch sync event to acquia-skills
         env:
@@ -58,5 +40,5 @@ jobs:
             --method POST \
             --field event_type=sync-acli-skills \
             --field "client_payload[acli_version]=${{ steps.version.outputs.tag }}" \
-            --field "client_payload[spec_version]=${{ steps.spec.outputs.version }}" \
+            --field "client_payload[spec_version]=$(cat assets/acquia-spec.version)" \
             --field "client_payload[force]=${{ inputs.force || false }}"
