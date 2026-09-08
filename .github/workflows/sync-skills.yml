@@ -20,17 +20,23 @@ jobs:
     runs-on: ubuntu-24.04
     name: Sync skills to acquia-skills repo
     steps:
-      - name: Checkout release commit
-        uses: actions/checkout@v7
-
       - name: Resolve version tag
         id: version
         run: |
           if [ "${{ github.event_name }}" = "release" ]; then
             echo "tag=${{ github.event.release.tag_name }}" >> $GITHUB_OUTPUT
-          else
+          elif [ -n "${{ inputs.tag }}" ]; then
             echo "tag=${{ inputs.tag }}" >> $GITHUB_OUTPUT
+          else
+            echo "tag=$(gh release view --repo acquia/cli --json tagName --jq '.tagName')" >> $GITHUB_OUTPUT
           fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Checkout release commit
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ steps.version.outputs.tag }}
 
       - name: Dispatch sync event to acquia-skills
         env:
