@@ -33,6 +33,8 @@ services:
       - ../../src/DataStore/YamlStore.php
       - ../../src/DataStore/JsonDataStore.php
       - ../../src/CloudApi/AccessTokenConnector.php
+      # SourceConfig is instantiated by the command with the SAS client.
+      - ../../src/SasApi/SourceConfig.php
       - ../../src/Command/App/From/**
     public: true
     resource: ../../src
@@ -55,9 +57,22 @@ services:
       - ../../src/Command/Api/ApiBaseCommand.php
       - ../../src/Command/Api/ApiListCommand.php
       - ../../src/Command/Api/ApiListCommandBase.php
+      # The Source config commands inherit from ConfigCommandBase instead.
+      - ../../src/Command/Source/**
       - ../../src/Command/App/From/**
   Acquia\Cli\Command\CommandBase:
     abstract: true
+
+  # Source config commands share a common abstract base (which carries the
+  # same constructor as CommandBase plus the SAS client service).
+  Acquia\Cli\Command\Source\ConfigCommandBase:
+    abstract: true
+    parent: Acquia\Cli\Command\CommandBase
+  Acquia\Cli\Command\Source\:
+    resource: ../../src/Command/Source
+    parent: Acquia\Cli\Command\Source\ConfigCommandBase
+    exclude:
+      - ../../src/Command/Source/ConfigCommandBase.php
 
   Acquia\Cli\EventListener\ExceptionListener:
     tags:
@@ -78,6 +93,9 @@ services:
 
   acsf.credentials:
     class: Acquia\Cli\AcsfApi\AcsfCredentials
+
+  sas.credentials:
+    class: Acquia\Cli\SasApi\SasCredentials
 
   # AcquiaCloudApi services.
   Acquia\Cli\Command\Api\ApiCommandFactory: ~
@@ -150,6 +168,22 @@ services:
   Acquia\Cli\Command\Auth\AuthAcsfLogoutCommand:
     arguments:
       Acquia\Cli\ApiCredentialsInterface: '@acsf.credentials'
+
+  # Sites Aggregation Service (SAS) API services.
+  # SAS shares the Accounts authentication layer with the Cloud API, so it
+  # reuses the standard cloud credentials; only the base URI differs.
+  Acquia\Cli\SasApi\SasConnectorFactory:
+    arguments:
+      $config:
+        # @see https://symfony.com/doc/current/service_container/expression_language.html
+        key: '@=service("cloud.credentials").getCloudKey()'
+        secret: '@=service("cloud.credentials").getCloudSecret()'
+        accessToken: '@=service("cloud.credentials").getCloudAccessToken()'
+        accessTokenExpiry: '@=service("cloud.credentials").getCloudAccessTokenExpiry()'
+      $baseUri: '@=service("sas.credentials").getBaseUri()'
+      $accountsUri: '@=service("cloud.credentials").getAccountsUri()'
+  Acquia\Cli\SasApi\SasConnector:
+    alias: Acquia\Cli\SasApi\SasConnectorFactory
 
   # Symfony services.
   Acquia\Cli\Application:
