@@ -6,9 +6,7 @@ namespace Acquia\Cli\Tests\Commands\Remote;
 
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Command\Remote\SshCommand;
-use Acquia\Cli\Command\Self\ClearCacheCommand;
 use Acquia\Cli\Helpers\SshHelper;
-use PHPUnit\Framework\Attributes\Group;
 use Prophecy\Argument;
 
 /**
@@ -21,11 +19,9 @@ class SshCommandTest extends SshCommandTestBase
         return $this->injectCommand(SshCommand::class);
     }
 
-    #[Group('serial')]
-    public function testRemoteAliasesDownloadCommand(): void
+    public function testRemoteSshCommand(): void
     {
-        ClearCacheCommand::clearCaches();
-        $this->mockForGetEnvironmentFromAliasArg();
+        $this->mockGetEnvironment();
         [$process, $localMachineHelper] = $this->mockForExecuteCommand();
         $localMachineHelper->checkRequiredBinariesExist(['ssh'])
             ->shouldBeCalled();
@@ -36,7 +32,7 @@ class SshCommandTest extends SshCommandTestBase
             '-o StrictHostKeyChecking=accept-new',
             '-o AddressFamily inet',
             '-o LogLevel=ERROR',
-            'cd /var/www/html/devcloud2.dev; exec $SHELL -l',
+            'cd /var/www/html/site.dev; exec $SHELL -l',
         ];
         $localMachineHelper
             ->execute($sshCommand, Argument::type('callable'), null, true, null, null)
@@ -44,13 +40,34 @@ class SshCommandTest extends SshCommandTestBase
             ->shouldBeCalled();
 
         $this->command->sshHelper = new SshHelper($this->output, $localMachineHelper->reveal(), $this->logger);
+        $this->executeCommand(['ssh_command' => []], self::inputChooseEnvironment());
 
-        $args = [
-            'alias' => 'devcloud2.dev',
+        $this->getDisplay();
+    }
+
+    public function testRemoteSshCommandWithEnvUuid(): void
+    {
+        $this->mockRequest('getEnvironment', '24-a47ac10b-58cc-4372-a567-0e02b2c3d470');
+        [$process, $localMachineHelper] = $this->mockForExecuteCommand();
+        $localMachineHelper->checkRequiredBinariesExist(['ssh'])
+            ->shouldBeCalled();
+        $sshCommand = [
+            'ssh',
+            'site.dev@sitedev.ssh.hosted.acquia-sites.com',
+            '-t',
+            '-o StrictHostKeyChecking=accept-new',
+            '-o AddressFamily inet',
+            '-o LogLevel=ERROR',
+            'cd /var/www/html/site.dev; exec $SHELL -l',
         ];
-        $this->executeCommand($args);
+        $localMachineHelper
+            ->execute($sshCommand, Argument::type('callable'), null, true, null, null)
+            ->willReturn($process->reveal())
+            ->shouldBeCalled();
 
-        // Assert.
-        $output = $this->getDisplay();
+        $this->command->sshHelper = new SshHelper($this->output, $localMachineHelper->reveal(), $this->logger);
+        $this->executeCommand(['environmentId' => '24-a47ac10b-58cc-4372-a567-0e02b2c3d470']);
+
+        $this->getDisplay();
     }
 }
