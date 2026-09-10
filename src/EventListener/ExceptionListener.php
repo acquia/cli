@@ -71,6 +71,9 @@ class ExceptionListener
                 case 'Could not extract aliases to {destination}':
                     $this->helpMessages[] = 'Check that you have write access to the directory';
                     break;
+                case 'Failed to clone repository from the Cloud Platform: {message}':
+                    $this->helpMessages[] = 'Check that your SSH key is registered with the Cloud Platform (run <bg=' . $this->messagesBgColor . ";fg=$this->messagesFgColor;options=bold>acli ssh-key:list</>). A newly added key can take several minutes to propagate to your application's servers.";
+                    break;
                 case 'Unable to import local database. {message}':
                     $this->helpMessages[] = 'Check for MySQL warnings above or in the server log (/var/log/mysql/error.log)';
                     $this->helpMessages[] = 'Frequently, `MySQL server has gone away` messages are caused by max_allowed_packet being exceeded.';
