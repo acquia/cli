@@ -10,15 +10,6 @@ use Symfony\Component\Process\Process;
 
 abstract class SshCommandTestBase extends CommandTestBase
 {
-    protected function mockForGetEnvironmentFromAliasArg(): void
-    {
-        $applicationsResponse = $this->mockApplicationsRequest(1);
-        $this->mockEnvironmentsRequest($applicationsResponse);
-        $this->clientProphecy->addQuery('filter', 'hosting=@*:devcloud2')
-            ->shouldBeCalled();
-        $this->mockRequest('getAccount');
-    }
-
     /**
      * @return array<mixed>
      */
