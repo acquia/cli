@@ -108,6 +108,7 @@ EOD;
  source
   source:config:pull       Export Source configuration from a site
   source:config:push       Import deployed Source configuration on a site
+  source:link              Associate your working copy with a Source site
  ssh-key
   ssh-key:create           Create an SSH key on your local machine
   ssh-key:create-upload    Create an SSH key on your local machine and upload it to the Cloud Platform

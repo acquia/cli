@@ -318,6 +318,17 @@ class LocalMachineHelper
     }
 
     /**
+     * Gets the root of the Source working copy that contains $cwd.
+     *
+     * That is the nearest directory at or above $cwd containing
+     * .acquia/config; when there is none (nothing pulled yet), $cwd itself.
+     */
+    public static function getSourceWorkingCopyDir(string $cwd): string
+    {
+        return self::findDirectoryContainingFiles($cwd, ['.acquia/config']) ?: $cwd;
+    }
+
+    /**
      * Traverses file system upwards in search of a given file.
      *
      * Begins searching for $file in $workingDirectory and climbs up
