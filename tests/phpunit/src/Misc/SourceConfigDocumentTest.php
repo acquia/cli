@@ -10,6 +10,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Finder\Finder;
+use Symfony\Component\Yaml\Yaml;
 
 #[CoversClass(SourceConfigDocument::class)]
 class SourceConfigDocumentTest extends TestCase
@@ -60,6 +61,10 @@ class SourceConfigDocumentTest extends TestCase
                 "'':\n  123:\n    a: b\n",
                 ['123.yml' => "a: b\n"],
             ],
+            'name containing dot-dot' => [
+                "'':\n  a..b:\n    a: b\n",
+                ['a..b.yml' => "a: b\n"],
+            ],
             'nesting deeper than ten levels stays in block style' => [
                 "'':\n  a.b:\n    l1:\n      l2:\n        l3:\n          l4:\n            l5:\n              l6:\n                l7:\n                  l8:\n                    l9:\n                      l10:\n                        l11:\n                          - deep\n",
                 ['a.b.yml' => "l1:\n  l2:\n    l3:\n      l4:\n        l5:\n          l6:\n            l7:\n              l8:\n                l9:\n                  l10:\n                    l11:\n                      - deep\n"],
@@ -88,18 +93,21 @@ class SourceConfigDocumentTest extends TestCase
      */
     public static function invalidDocuments(): array
     {
-        return [
-            'collection with dot-dot' => ["language..:\n  a.b: {}\n", '"language.." is not a valid configuration name'],
-            'collection with slash' => ["language/nl:\n  a.b: {}\n", '"language/nl" is not a valid configuration name'],
-            'empty' => ['', 'empty or not a map'],
-            'empty map' => ['{}', 'empty or not a map'],
-            'empty name' => ["'':\n  '': {}\n", '"" is not a valid configuration name'],
-            'name with backslash' => ["'':\n  'a\\b': {}\n", '"a\b" is not a valid configuration name'],
-            'name with dot-dot' => ["'':\n  ../b: {}\n", '"../b" is not a valid configuration name'],
-            'name with slash' => ["'':\n  a/b: {}\n", '"a/b" is not a valid configuration name'],
-            'scalar' => ['foo', 'empty or not a map'],
-            'scalar collection' => ["'': foo\n", 'Collection "" is not a map'],
+        $rows = [
+            'empty' => ['', 'The configuration document is empty or not a map of collections.'],
+            'empty map' => ['{}', 'The configuration document is empty or not a map of collections.'],
+            'scalar' => ['foo', 'The configuration document is empty or not a map of collections.'],
+            'scalar collection' => ["'': foo\n", 'Collection "" is not a map of configuration objects.'],
+            'unsafe collection after a good one' => ["'':\n  a:\n    k: v\nlanguage/nl:\n  a:\n    k: v\n", '"language/nl" is not a valid collection name.'],
+            'unsafe name after a good one' => ["'':\n  a:\n    k: v\n  ../x:\n    k: v\n", '"../x" is not a valid configuration name.'],
         ];
+        foreach (['', '.', '..', 'a/b', 'a\\b', "a\0b", '../x'] as $name) {
+            $rows['unsafe name ' . json_encode($name)] = [Yaml::dump(['' => [$name => ['k' => 'v']]]), sprintf('"%s" is not a valid configuration name.', $name)];
+        }
+        foreach (['..', 'language/nl', 'a..b', 'language.'] as $collection) {
+            $rows['unsafe collection ' . json_encode($collection)] = [Yaml::dump([$collection => ['a' => ['k' => 'v']]]), sprintf('"%s" is not a valid collection name.', $collection)];
+        }
+        return $rows;
     }
 
     #[DataProvider('invalidDocuments')]

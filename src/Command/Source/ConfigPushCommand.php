@@ -9,7 +9,7 @@ use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Helpers\LoopHelper;
 use Acquia\Cli\Helpers\SourceConfigDocument;
 use AcquiaCloudApi\Connector\Client;
-use Exception;
+use AcquiaCloudApi\Exception\ApiErrorException;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -17,6 +17,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Throwable;
 
 #[RequireAuth]
 #[AsCommand(name: 'source:cms:config:push', description: 'Import .acquia/config into a Source site')]
@@ -53,7 +54,15 @@ final class ConfigPushCommand extends ConfigCommandBase
         }
 
         $client = $this->cloudApiClientService->getClient();
-        $client->request('put', "/source-sites/$siteId/config", ['json' => ['configuration' => $document]]);
+        try {
+            $client->request('put', "/source-sites/$siteId/config", ['json' => ['configuration' => $document]]);
+        } catch (ApiErrorException $e) {
+            // 409: the site is already importing (or exporting) configuration.
+            if ($e->getResponseBody()->error === 'conflict') {
+                throw new AcquiaCliException('A configuration sync is already running for Source site {site}. Wait for it to finish, then push again.', ['site' => $siteId]);
+            }
+            throw $e;
+        }
 
         if ($json) {
             // The import resource is the only stdout: silence the spinner and the report.
@@ -61,7 +70,7 @@ final class ConfigPushCommand extends ConfigCommandBase
             $this->io = new SymfonyStyle($input, $this->output);
         }
         $import = $this->waitForImport($client, $siteId);
-        $exitCode = $this->reportImport($import);
+        $exitCode = $this->reportImport($siteId, $import);
         if ($json) {
             $output->writeln(json_encode($import, JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT));
         }
@@ -80,7 +89,7 @@ final class ConfigPushCommand extends ConfigCommandBase
             try {
                 $import = $client->request('get', "/source-sites/$siteId/config/import");
                 return $import->status !== 'running';
-            } catch (Exception $e) {
+            } catch (Throwable $e) {
                 // An exception escaping the loop would leave its timers behind.
                 $error = $e;
                 return true;
@@ -89,31 +98,35 @@ final class ConfigPushCommand extends ConfigCommandBase
         LoopHelper::getLoopy($this->output, $this->io, 'Importing configuration', $poll, static function (): void {
         });
         if ($error !== null) {
-            throw new AcquiaCliException('The import was accepted but its outcome is unknown ({reason}). Check the site before pushing again.', ['reason' => $error->getMessage()]);
+            throw new AcquiaCliException('The import was accepted but its outcome is unknown ({reason}). Check the site before pushing again. The import may still finish, and the status it reports may then be that of a later import.', ['reason' => $error->getMessage()]);
         }
         return $import;
     }
 
-    private function reportImport(object $import): int
+    private function reportImport(string $siteId, object $import): int
     {
         switch ($import->status) {
             case 'succeeded':
-                $this->io->success('Configuration imported.');
+                $this->io->success("Imported .acquia/config into Source site $siteId.");
                 return Command::SUCCESS;
 
             case 'refused':
-                $this->io->error('The import was refused; the site is unchanged.');
+                $this->io->error("Source site $siteId refused the configuration; nothing was imported:");
                 foreach ($import->violations ?? [] as $violation) {
-                    $location = trim(($violation->collection ?? '') . ' ' . ($violation->config ?? '')) ?: 'document';
-                    $this->io->writeln(" - $location [$violation->code]: $violation->message");
+                    $location = match (true) {
+                        isset($violation->collection) => "$violation->collection: $violation->config",
+                        isset($violation->config) => $violation->config,
+                        default => 'document',
+                    };
+                    $this->io->writeln(sprintf(' - %s [%s]: %s', $location, $violation->code, $violation->message));
                 }
                 return Command::FAILURE;
 
             case 'failed':
-                $this->io->error('The import failed and the site was restored from its backup.');
+                $this->io->error("The import into Source site $siteId failed; the site was rolled back to its previous configuration.");
                 return Command::FAILURE;
         }
         // Only the 45-minute watchdog in LoopHelper can leave the status at "running".
-        throw new AcquiaCliException('The import was accepted but its outcome is unknown (status {status}). Check the site before pushing again.', ['status' => $import->status]);
+        throw new AcquiaCliException('The import was accepted but its outcome is unknown (status {status}). Check the site before pushing again. The import may still finish, and the status it reports may then be that of a later import.', ['status' => $import->status]);
     }
 }

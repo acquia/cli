@@ -102,6 +102,21 @@ class ConfigPullCommandTest extends CommandTestBase
         $this->assertDirectoryDoesNotExist($this->configDir . '.tmp');
     }
 
+    public function testUnsafeNameWritesNothing(): void
+    {
+        $this->fs->dumpFile($this->configDir . '/system.site.yml', "name: Old\n");
+        $this->mockConfig('site-a', "'':\n  system.site:\n    name: Site\n  ../evil:\n    name: Evil\n");
+        try {
+            $this->executeCommand(['--site' => 'site-a']);
+            $this->fail('Expected an exception');
+        } catch (AcquiaCliException $e) {
+            $this->assertSame('"../evil" is not a valid configuration name.', $e->getMessage());
+        }
+        $this->assertStringEqualsFile($this->configDir . '/system.site.yml', "name: Old\n");
+        $this->assertDirectoryDoesNotExist($this->configDir . '.tmp');
+        $this->assertFileDoesNotExist($this->projectDir . '/.acquia/evil.yml');
+    }
+
     public function testWriteFailureLeavesExistingConfigIntact(): void
     {
         $this->fs->dumpFile($this->configDir . '/system.site.yml', "name: Old\n");

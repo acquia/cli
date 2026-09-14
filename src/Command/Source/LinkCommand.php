@@ -26,6 +26,10 @@ final class LinkCommand extends SourceCommandBase
         $datastore = $this->sourceDatastore($this->workingCopyDir());
         $client = $this->cloudApiClientService->getClient();
         if ($siteId = $input->getArgument('sourceSiteId')) {
+            // The ID becomes a URL path segment.
+            if (!preg_match('/^[a-zA-Z0-9-]+$/', $siteId)) {
+                throw new AcquiaCliException('"{id}" is not a valid Source site ID: only letters, digits and hyphens are allowed.', ['id' => $siteId]);
+            }
             $site = $client->request('get', "/source-sites/$siteId");
         } else {
             if ($linked = $datastore->get('source_site_id')) {

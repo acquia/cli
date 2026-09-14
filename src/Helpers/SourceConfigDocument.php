@@ -34,14 +34,17 @@ final class SourceConfigDocument
         }
         $files = [];
         foreach ($document as $collection => $objects) {
+            $collection = (string) $collection;
             if (!is_array($objects)) {
                 throw new AcquiaCliException('Collection "{collection}" is not a map of configuration objects.', ['collection' => $collection]);
             }
-            $dir = $collection === '' ? '' : str_replace('.', '/', self::pathSegment($collection)) . '/';
+            $dir = $collection === '' ? '' : str_replace('.', '/', self::assertSafe('collection', $collection, explode('.', $collection))) . '/';
             foreach ($objects as $name => $values) {
-                $files[$dir . self::pathSegment($name) . '.yml'] = self::encode($values);
+                $name = (string) $name;
+                $files[$dir . self::assertSafe('configuration', $name, [$name]) . '.yml'] = self::encode($values);
             }
         }
+        // Every path was validated above, so a bad document yields no files at all.
         return $files;
     }
 
@@ -70,15 +73,20 @@ final class SourceConfigDocument
     }
 
     /**
-     * Rejects collection and config names that could escape .acquia/config.
+     * Rejects a collection or config name that could escape .acquia/config.
+     *
+     * @param list<string> $segments
+     *   The path segments the name becomes; a segment must not be '', '.' or
+     *   '..' nor contain a slash, backslash or NUL. "a..b" is a legal segment.
      */
-    private static function pathSegment(string|int $segment): string
+    private static function assertSafe(string $what, string $name, array $segments): string
     {
-        $segment = (string) $segment;
-        if ($segment === '' || preg_match('#[/\\\\]|\.\.#', $segment)) {
-            throw new AcquiaCliException('"{segment}" is not a valid configuration name.', ['segment' => $segment]);
+        foreach ($segments as $segment) {
+            if (in_array($segment, ['', '.', '..'], true) || preg_match('#[/\\\\\0]#', $segment)) {
+                throw new AcquiaCliException('"{name}" is not a valid {what} name.', ['name' => $name, 'what' => $what]);
+            }
         }
-        return $segment;
+        return $name;
     }
 
     private static function decode(string $yaml): mixed
