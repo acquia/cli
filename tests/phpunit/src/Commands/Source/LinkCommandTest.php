@@ -55,8 +55,8 @@ class LinkCommandTest extends CommandTestBase
     public function testInvalidArgumentThrowsBeforeRequesting(): void
     {
         $this->expectException(AcquiaCliException::class);
-        $this->expectExceptionMessage('"../applications" is not a valid Source site ID: only letters, digits and hyphens are allowed.');
-        $this->executeCommand(['sourceSiteId' => '../applications']);
+        $this->expectExceptionMessage('"site-a/../applications" is not a valid Source site ID: only letters, digits and hyphens are allowed.');
+        $this->executeCommand(['sourceSiteId' => 'site-a/../applications']);
     }
 
     public function testAlreadyLinkedWithoutArgument(): void

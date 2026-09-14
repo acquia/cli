@@ -76,7 +76,7 @@ class ConfigPushCommandTest extends CommandTestBase
         $this->assertStringContainsString('Replace the configuration of Source site site-a with the contents of', $display);
         $this->assertStringContainsString('Source site site-a refused the configuration; nothing was imported:', $display);
         $this->assertStringContainsString(" - language.nl: system.site [not_allowed]: Not in the allow list.\n - system.site [missing]: Required.\n - document [too_large]: Too large.\n", $display);
-        $this->assertStringNotContainsString('The import failed', $display);
+        $this->assertStringNotContainsString('The import into Source site site-a failed', $display);
     }
 
     public function testJsonOutput(): void

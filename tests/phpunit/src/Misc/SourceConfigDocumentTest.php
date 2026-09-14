@@ -57,6 +57,10 @@ class SourceConfigDocumentTest extends TestCase
                 "'':\n  system.site:\n    name: Site\n",
                 ['system.site.yml' => "name: Site\n"],
             ],
+            'integer collection' => [
+                "123:\n  a.b:\n    a: b\n",
+                ['123/a.b.yml' => "a: b\n"],
+            ],
             'integer name' => [
                 "'':\n  123:\n    a: b\n",
                 ['123.yml' => "a: b\n"],
