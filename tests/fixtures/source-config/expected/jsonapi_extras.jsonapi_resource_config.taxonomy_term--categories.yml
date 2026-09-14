@@ -1,0 +1,23 @@
+uuid: 3de1fcf1-6265-449b-b2b8-8e7e6de29a23
+langcode: en
+status: true
+dependencies:
+  config:
+    - taxonomy.vocabulary.categories
+id: taxonomy_term--categories
+disabled: false
+path: taxonomy/categories
+resourceType: taxonomy_term--categories
+resourceFields:
+  tid:
+    disabled: true
+    fieldName: tid
+    publicName: tid
+    enhancer:
+      id: ''
+  revision_id:
+    disabled: true
+    fieldName: revision_id
+    publicName: revision_id
+    enhancer:
+      id: ''

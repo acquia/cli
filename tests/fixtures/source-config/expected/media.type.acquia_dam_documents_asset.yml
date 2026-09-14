@@ -1,0 +1,22 @@
+uuid: 23522cef-5a17-4174-927e-c7fd5036cd5c
+langcode: en
+status: true
+dependencies:
+  module:
+    - acquia_dam
+_core:
+  default_config_hash: 8h5DgYko5SomQwIFf_Sl07c2horRgHA-7HUR9W1jO3w
+id: acquia_dam_documents_asset
+label: 'Acquia DAM: Document'
+description: 'Media assets type of any other documents in the remote DAM service.'
+source: 'acquia_dam_asset:documents'
+queue_thumbnail_downloads: true
+new_revision: false
+source_configuration:
+  source_field: acquia_dam_asset_id
+  download_assets: false
+  preserve_filename_case: false
+  uri_scheme: public
+  file_extensions: ''
+field_map:
+  filename: name

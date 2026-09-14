@@ -1,0 +1,77 @@
+uuid: b4dba31a-d5e9-489e-a407-fb72f9b68b94
+langcode: en
+status: true
+dependencies: {  }
+_core:
+  default_config_hash: 76FJTGBVpHJB6qZr8FuTS7ALLixyz1wQ8uXdEkl6Blk
+id: jsonapi_resource_config--jsonapi_resource_config
+disabled: true
+path: jsonapi_resource_config/jsonapi_resource_config
+resourceType: jsonapi_resource_config--jsonapi_resource_config
+resourceFields:
+  uuid:
+    disabled: false
+    fieldName: uuid
+    publicName: uuid
+    enhancer:
+      id: ''
+  langcode:
+    disabled: false
+    fieldName: langcode
+    publicName: langcode
+    enhancer:
+      id: ''
+  status:
+    disabled: false
+    fieldName: status
+    publicName: status
+    enhancer:
+      id: ''
+  dependencies:
+    disabled: false
+    fieldName: dependencies
+    publicName: dependencies
+    enhancer:
+      id: ''
+  third_party_settings:
+    disabled: false
+    fieldName: third_party_settings
+    publicName: third_party_settings
+    enhancer:
+      id: ''
+  _core:
+    disabled: false
+    fieldName: _core
+    publicName: _core
+    enhancer:
+      id: ''
+  id:
+    disabled: false
+    fieldName: id
+    publicName: id
+    enhancer:
+      id: ''
+  disabled:
+    disabled: false
+    fieldName: disabled
+    publicName: disabled
+    enhancer:
+      id: ''
+  path:
+    disabled: false
+    fieldName: path
+    publicName: path
+    enhancer:
+      id: ''
+  resourceType:
+    disabled: false
+    fieldName: resourceType
+    publicName: resourceType
+    enhancer:
+      id: ''
+  resourceFields:
+    disabled: false
+    fieldName: resourceFields
+    publicName: resourceFields
+    enhancer:
+      id: ''

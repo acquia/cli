@@ -1,0 +1,77 @@
+uuid: 3e8377ed-6cef-4873-909a-c66ea99e3174
+langcode: en
+status: true
+dependencies:
+  config:
+    - node.type.article
+id: node--article
+disabled: false
+path: node/article
+resourceType: node--article
+resourceFields:
+  promote:
+    disabled: true
+    fieldName: promote
+    publicName: promote
+    enhancer:
+      id: ''
+  sticky:
+    disabled: true
+    fieldName: sticky
+    publicName: sticky
+    enhancer:
+      id: ''
+  nid:
+    disabled: true
+    fieldName: nid
+    publicName: nid
+    enhancer:
+      id: ''
+  vid:
+    disabled: true
+    fieldName: vid
+    publicName: vid
+    enhancer:
+      id: ''
+  cover_image:
+    disabled: false
+    fieldName: cover_image
+    publicName: cover_image
+    enhancer:
+      id: ''
+  media:
+    disabled: false
+    fieldName: media
+    publicName: media
+    enhancer:
+      id: ''
+  related_articles:
+    disabled: false
+    fieldName: related_articles
+    publicName: related_articles
+    enhancer:
+      id: ''
+  author_profile:
+    disabled: false
+    fieldName: author_profile
+    publicName: author_profile
+    enhancer:
+      id: ''
+  categories:
+    disabled: false
+    fieldName: categories
+    publicName: categories
+    enhancer:
+      id: ''
+  tags:
+    disabled: false
+    fieldName: tags
+    publicName: tags
+    enhancer:
+      id: ''
+  body:
+    disabled: false
+    fieldName: body
+    publicName: body
+    enhancer:
+      id: ''

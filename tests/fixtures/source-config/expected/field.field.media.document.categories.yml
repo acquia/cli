@@ -1,0 +1,29 @@
+uuid: 4b35b9eb-3991-4686-b717-814599528fc6
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.media.categories
+    - media.type.document
+    - taxonomy.vocabulary.categories
+id: media.document.categories
+field_name: categories
+entity_type: media
+bundle: document
+label: Categories
+description: 'Categorize this media item.'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:taxonomy_term'
+  handler_settings:
+    target_bundles:
+      categories: categories
+    sort:
+      field: name
+      direction: asc
+    auto_create: true
+    auto_create_bundle: categories
+field_type: entity_reference

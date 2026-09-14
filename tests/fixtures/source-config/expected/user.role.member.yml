@@ -1,0 +1,113 @@
+uuid: 125df397-8564-45b5-90b7-0fc686ee7e01
+langcode: en
+status: true
+dependencies:
+  config:
+    - filter.format.filtered_html
+    - media.type.document
+    - media.type.image
+    - media.type.remote_video
+    - media.type.video
+    - node.type.article
+    - node.type.person
+    - taxonomy.vocabulary.categories
+    - taxonomy.vocabulary.tags
+    - workflows.workflow.editorial
+  module:
+    - acquia_dam
+    - acquia_optimize
+    - canvas
+    - config_translation
+    - content_moderation
+    - content_translation
+    - entity_clone
+    - filter
+    - jsonapi
+    - media
+    - node
+    - path
+    - redirect
+    - scheduler
+    - system
+    - taxonomy
+id: member
+label: Member
+weight: 2
+is_admin: false
+permissions:
+  - 'access content overview'
+  - 'access jsonapi developer tools'
+  - 'access media overview'
+  - 'access menu overview'
+  - 'access taxonomy overview'
+  - 'administer redirects'
+  - 'authorize with acquia dam'
+  - 'clone node entity'
+  - 'clone taxonomy_term entity'
+  - 'create article content'
+  - 'create canvas_page'
+  - 'create content translations'
+  - 'create document media'
+  - 'create image media'
+  - 'create menu_link_content'
+  - 'create person content'
+  - 'create remote_video media'
+  - 'create terms in categories'
+  - 'create terms in tags'
+  - 'create url aliases'
+  - 'create video media'
+  - 'delete any article content'
+  - 'delete any document media'
+  - 'delete any image media'
+  - 'delete any person content'
+  - 'delete any remote_video media'
+  - 'delete any video media'
+  - 'delete canvas_page'
+  - 'delete content translations'
+  - 'delete menu_link_content'
+  - 'delete terms in categories'
+  - 'delete terms in tags'
+  - 'edit any article content'
+  - 'edit any document media'
+  - 'edit any image media'
+  - 'edit any person content'
+  - 'edit any remote_video media'
+  - 'edit any video media'
+  - 'edit canvas_page'
+  - 'edit terms in categories'
+  - 'edit terms in tags'
+  - 'publish auto-saves'
+  - 'revert all revisions'
+  - 'revert any document media revisions'
+  - 'revert any image media revisions'
+  - 'revert any remote_video media revisions'
+  - 'revert article revisions'
+  - 'revert person revisions'
+  - 'scan acquia optimize'
+  - 'schedule publishing of nodes'
+  - 'take_ownership_on_clone node entity'
+  - 'translate any entity'
+  - 'translate article node'
+  - 'translate categories taxonomy_term'
+  - 'translate configuration'
+  - 'translate tags taxonomy_term'
+  - 'update content translations'
+  - 'update menu'
+  - 'update menu_link_content'
+  - 'use editorial transition archive'
+  - 'use editorial transition archived_published'
+  - 'use editorial transition create_new_draft'
+  - 'use editorial transition mark_reviewed'
+  - 'use editorial transition publish'
+  - 'use editorial transition review'
+  - 'use text format filtered_html'
+  - 'view all media revisions'
+  - 'view all revisions'
+  - 'view any document media revisions'
+  - 'view any image media revisions'
+  - 'view any remote_video media revisions'
+  - 'view any unpublished content'
+  - 'view article revisions'
+  - 'view latest version'
+  - 'view person revisions'
+  - 'view scheduled content'

@@ -1,0 +1,44 @@
+uuid: 2e9313c0-f149-45a0-99ea-02a7f9370491
+langcode: en
+status: true
+dependencies:
+  config:
+    - core.entity_form_mode.media.media_library
+    - field.field.media.document.categories
+    - field.field.media.document.media_file
+    - field.field.media.document.tags
+    - media.type.document
+  module:
+    - metatag
+id: media.document.media_library
+targetEntityType: media
+bundle: document
+mode: media_library
+content:
+  metatags:
+    type: metatag_firehose
+    weight: 26
+    region: content
+    settings:
+      sidebar: true
+      use_details: true
+    third_party_settings: {  }
+  name:
+    type: string_textfield
+    weight: 0
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+hidden:
+  categories: true
+  created: true
+  langcode: true
+  media_file: true
+  path: true
+  replace_file: true
+  status: true
+  tags: true
+  translation: true
+  uid: true
