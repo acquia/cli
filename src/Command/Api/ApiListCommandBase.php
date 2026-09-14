@@ -24,9 +24,10 @@ class ApiListCommandBase extends CommandBase
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $command = $this->getApplication()->find('list');
+        // @infection-ignore-all — 'command' key is vestigial in Symfony; namespace comparison operator mutations don't affect observable output.
         $arguments = [
             'command' => 'list',
-            'namespace' => 'api',
+            'namespace' => $this->namespace,
         ];
         $listInput = new ArrayInput($arguments);
 

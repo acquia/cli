@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Acquia\Cli\Tests\Commands\Auth;
 
+use Acquia\Cli\CloudApi\CloudCredentials;
 use Acquia\Cli\Command\Auth\AuthLoginCommand;
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Config\CloudDataConfig;
@@ -45,6 +46,242 @@ class AuthLoginCommandTest extends CommandTestBase
 
         $this->assertStringContainsString('Saved credentials', $output);
         $this->assertKeySavedCorrectly();
+    }
+
+    /**
+     * @return string[]
+     */
+    public static function providerTestAuthLoginCommandWithStagingEnvironment(): array
+    {
+        return [
+            ['staging'],
+            ['Staging'],
+            [' staging'],
+        ];
+    }
+
+    #[\PHPUnit\Framework\Attributes\DataProvider('providerTestAuthLoginCommandWithStagingEnvironment')]
+    public function testAuthLoginCommandWithStagingEnvironment(string $environment): void
+    {
+        $this->mockRequest('getAccount');
+        $this->clientServiceProphecy->setConnector(Argument::type(Connector::class))
+            ->shouldBeCalled();
+        $this->clientServiceProphecy->isMachineAuthenticated()
+            ->willReturn(false);
+        $this->removeMockCloudConfigFile();
+        $this->createDataStores();
+        $this->command = $this->createCommand();
+
+        $this->executeCommand([
+            '--environment' => $environment,
+            '--key' => self::$key,
+            '--secret' => self::$secret,
+        ]);
+        $output = $this->getDisplay();
+
+        $this->assertStringContainsString('Saved credentials', $output);
+        $this->assertKeySavedCorrectly();
+        $config = new CloudDataStore($this->localMachineHelper, new CloudDataConfig(), $this->cloudConfigFilepath);
+        $keys = $config->get('keys');
+        $this->assertSame('https://staging.cloud.acquia.com/api', $keys[self::$key]['cloud_api_base_uri']);
+        $this->assertSame('https://staging.accounts.acquia.com/api/auth/oauth/token', $keys[self::$key]['accounts_uri']);
+    }
+
+    public function testAuthLoginCommandProdEnvironmentDoesNotStoreUris(): void
+    {
+        $this->mockRequest('getAccount');
+        $this->clientServiceProphecy->setConnector(Argument::type(Connector::class))
+            ->shouldBeCalled();
+        $this->clientServiceProphecy->isMachineAuthenticated()
+            ->willReturn(false);
+        $this->removeMockCloudConfigFile();
+        $this->createDataStores();
+        $this->command = $this->createCommand();
+
+        $this->executeCommand([
+            '--key' => self::$key,
+            '--secret' => self::$secret,
+        ]);
+        $output = $this->getDisplay();
+
+        $this->assertStringContainsString('Saved credentials', $output);
+        $config = new CloudDataStore($this->localMachineHelper, new CloudDataConfig(), $this->cloudConfigFilepath);
+        $keys = $config->get('keys');
+        $this->assertNull($keys[self::$key]['cloud_api_base_uri'] ?? null);
+        $this->assertNull($keys[self::$key]['accounts_uri'] ?? null);
+    }
+
+    public function testAuthLoginExplicitProdEnvironmentDoesNotStoreUris(): void
+    {
+        $this->mockRequest('getAccount');
+        $this->clientServiceProphecy->setConnector(Argument::type(Connector::class))
+            ->shouldBeCalled();
+        $this->clientServiceProphecy->isMachineAuthenticated()
+            ->willReturn(false);
+        $this->removeMockCloudConfigFile();
+        $this->createDataStores();
+        $this->command = $this->createCommand();
+
+        $this->executeCommand([
+            '--environment' => 'prod',
+            '--key' => self::$key,
+            '--secret' => self::$secret,
+        ]);
+        $output = $this->getDisplay();
+
+        $this->assertStringContainsString('Saved credentials', $output);
+        $config = new CloudDataStore($this->localMachineHelper, new CloudDataConfig(), $this->cloudConfigFilepath);
+        $keys = $config->get('keys');
+        $this->assertNull($keys[self::$key]['cloud_api_base_uri'] ?? null);
+        $this->assertNull($keys[self::$key]['accounts_uri'] ?? null);
+    }
+
+    public function testAuthLoginInteractiveSelectsExistingEnvironmentKey(): void
+    {
+        $stagingKeyUuid = 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee';
+        $this->clientServiceProphecy->setConnector(Argument::type(Connector::class))
+            ->shouldBeCalled();
+        $this->clientServiceProphecy->isMachineAuthenticated()
+            ->willReturn(false);
+        $this->fs->dumpFile($this->cloudConfigFilepath, json_encode([
+            'acli_key' => $stagingKeyUuid,
+            'keys' => [
+                $stagingKeyUuid => [
+                    'accounts_uri' => 'https://staging.accounts.acquia.com/api/auth/oauth/token',
+                    'cloud_api_base_uri' => 'https://staging.cloud.acquia.com/api',
+                    'label' => 'Staging Key',
+                    'secret' => self::$secret,
+                    'uuid' => $stagingKeyUuid,
+                ],
+            ],
+            'send_telemetry' => false,
+        ]));
+        $this->createDataStores();
+        $this->cloudCredentials = new CloudCredentials($this->datastoreCloud);
+        $this->command = $this->createCommand();
+
+        $this->executeCommand(
+            ['--environment' => 'staging'],
+            ['Staging Key'],
+        );
+        $output = $this->getDisplay();
+
+        $this->assertStringContainsString('Acquia CLI will use the API key', $output);
+        $this->assertStringContainsString('Staging Key', $output);
+        $config = new CloudDataStore($this->localMachineHelper, new CloudDataConfig(), $this->cloudConfigFilepath);
+        $this->assertSame($stagingKeyUuid, $config->get('acli_key'));
+    }
+
+    public function testAuthLoginInteractiveCreatesNewKeyForExistingEnvironment(): void
+    {
+        $stagingKeyUuid = 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee';
+        $this->mockRequest('getAccount');
+        $this->clientServiceProphecy->setConnector(Argument::type(Connector::class))
+            ->shouldBeCalled();
+        $this->clientServiceProphecy->isMachineAuthenticated()
+            ->willReturn(false);
+        $this->fs->dumpFile($this->cloudConfigFilepath, json_encode([
+            'acli_key' => $stagingKeyUuid,
+            'keys' => [
+                $stagingKeyUuid => [
+                    'accounts_uri' => 'https://staging.accounts.acquia.com/api/auth/oauth/token',
+                    'cloud_api_base_uri' => 'https://staging.cloud.acquia.com/api',
+                    'label' => 'Staging Key',
+                    'secret' => self::$secret,
+                    'uuid' => $stagingKeyUuid,
+                ],
+            ],
+            'send_telemetry' => false,
+        ]));
+        $this->createDataStores();
+        $this->command = $this->createCommand();
+
+        $this->executeCommand(
+            ['--environment' => 'staging', '--key' => self::$key, '--secret' => self::$secret],
+            ['Enter a new API key'],
+        );
+        $output = $this->getDisplay();
+
+        $this->assertStringContainsString('Saved credentials', $output);
+        $config = new CloudDataStore($this->localMachineHelper, new CloudDataConfig(), $this->cloudConfigFilepath);
+        $this->assertSame(self::$key, $config->get('acli_key'));
+        $keys = $config->get('keys');
+        $this->assertSame('https://staging.cloud.acquia.com/api', $keys[self::$key]['cloud_api_base_uri']);
+        $this->assertSame('https://staging.accounts.acquia.com/api/auth/oauth/token', $keys[self::$key]['accounts_uri']);
+    }
+
+    public function testAuthLoginProdLoginSkipsNonProdKeys(): void
+    {
+        $stagingKeyUuid = 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee';
+        $this->mockRequest('getAccount');
+        $this->clientServiceProphecy->setConnector(Argument::type(Connector::class))
+            ->shouldBeCalled();
+        $this->clientServiceProphecy->isMachineAuthenticated()
+            ->willReturn(false);
+        // Only a staging key exists; logging in to prod should not prompt for it.
+        $this->fs->dumpFile($this->cloudConfigFilepath, json_encode([
+            'acli_key' => $stagingKeyUuid,
+            'keys' => [
+                $stagingKeyUuid => [
+                    'accounts_uri' => 'https://staging.accounts.acquia.com/api/auth/oauth/token',
+                    'cloud_api_base_uri' => 'https://staging.cloud.acquia.com/api',
+                    'label' => 'Staging Key',
+                    'secret' => self::$secret,
+                    'uuid' => $stagingKeyUuid,
+                ],
+            ],
+            'send_telemetry' => false,
+        ]));
+        $this->createDataStores();
+        $this->command = $this->createCommand();
+
+        // No interactive input needed: no prod keys exist so no selection prompt is shown.
+        $this->executeCommand([
+            '--key' => self::$key,
+            '--secret' => self::$secret,
+        ]);
+        $output = $this->getDisplay();
+
+        $this->assertStringContainsString('Saved credentials', $output);
+        $config = new CloudDataStore($this->localMachineHelper, new CloudDataConfig(), $this->cloudConfigFilepath);
+        $this->assertSame(self::$key, $config->get('acli_key'));
+        $keys = $config->get('keys');
+        $this->assertNull($keys[self::$key]['cloud_api_base_uri'] ?? null);
+    }
+
+    public function testAuthLoginNonInteractiveWithExistingProdKey(): void
+    {
+        $existingKeyUuid = 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee';
+        $this->mockRequest('getAccount');
+        $this->clientServiceProphecy->setConnector(Argument::type(Connector::class))
+            ->shouldBeCalled();
+        $this->clientServiceProphecy->isMachineAuthenticated()
+            ->willReturn(false);
+        $this->fs->dumpFile($this->cloudConfigFilepath, json_encode([
+            'acli_key' => $existingKeyUuid,
+            'keys' => [
+                $existingKeyUuid => [
+                    'label' => 'Existing Key',
+                    'secret' => 'existing-secret',
+                    'uuid' => $existingKeyUuid,
+                    // No cloud_api_base_uri = prod key.
+                ],
+            ],
+            'send_telemetry' => false,
+        ]));
+        $this->createDataStores();
+        $this->command = $this->createCommand();
+
+        $this->executeCommand(
+            ['--key' => self::$key, '--secret' => self::$secret],
+            inputs: [],
+            interactive: false,
+        );
+        $output = $this->getDisplay();
+
+        $this->assertStringContainsString('Saved credentials', $output);
+        $config = new CloudDataStore($this->localMachineHelper, new CloudDataConfig(), $this->cloudConfigFilepath);
+        $this->assertSame(self::$key, $config->get('acli_key'));
     }
 
     public function testAuthLoginNoKeysCommand(): void
@@ -98,6 +335,26 @@ class AuthLoginCommandTest extends CommandTestBase
         $this->command = $this->createCommand();
         $this->expectException(ValidatorException::class);
         $this->executeCommand($args, $inputs);
+    }
+
+    public static function providerTestAuthLoginInvalidEnvironmentCommand(): Generator
+    {
+        yield [['--key' => self::$key, '--secret' => self::$secret, '--environment' => 'my env']];
+        yield [['--key' => self::$key, '--secret' => self::$secret, '--environment' => 'env!']];
+        yield [['--key' => self::$key, '--secret' => self::$secret, '--environment' => 'env_name']];
+    }
+
+    #[DataProvider('providerTestAuthLoginInvalidEnvironmentCommand')]
+    public function testAuthLoginInvalidEnvironmentCommand(array $args): void
+    {
+        $this->clientServiceProphecy->isMachineAuthenticated()
+            ->willReturn(false);
+        $this->removeMockCloudConfigFile();
+        $this->createDataStores();
+        $this->command = $this->createCommand();
+        $this->expectException(AcquiaCliException::class);
+        $this->expectExceptionMessage('Invalid environment value: ' . $args['--environment']);
+        $this->executeCommand($args);
     }
 
     public function testAuthLoginInvalidDatastore(): void

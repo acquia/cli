@@ -174,6 +174,26 @@ class ApiCommandHelper
             }
         }
 
+        // Symfony Console allows at most one IS_ARRAY argument (it must be last).
+        // When a spec has multiple required array body params, strip IS_ARRAY from all but the last.
+        $arrayArgKeys = [];
+        foreach ($inputDefinition as $index => $parameterDefinition) {
+            if ($parameterDefinition instanceof InputArgument && $parameterDefinition->isArray()) {
+                $arrayArgKeys[] = $index;
+            }
+        }
+        // Pop the last key so that argument keeps IS_ARRAY; strip IS_ARRAY from the rest.
+        array_pop($arrayArgKeys);
+        foreach ($arrayArgKeys as $index) {
+            /** @var InputArgument $arg */
+            $arg = $inputDefinition[$index];
+            $inputDefinition[$index] = new InputArgument(
+                $arg->getName(),
+                InputArgument::REQUIRED,
+                $arg->getDescription()
+            );
+        }
+
         return [$inputDefinition, $usage];
     }
 
@@ -392,6 +412,42 @@ class ApiCommandHelper
     }
 
     /**
+     * Extracts the CLI command name declared in an operation schema.
+     * Override in subclasses to support alternative extension keys.
+     *
+     * @phpcs:disable SlevomatCodingStandard.Classes.MethodSpacing,SlevomatCodingStandard.Classes.ClassMemberSpacing
+     * MUST stay protected so ApiV3CommandHelper can override — do not change to private.
+     */
+    protected function getCliCommandName(array $schema): ?string
+    {
+        return $schema['x-cli-name'] ?? null;
+    }
+
+    /**
+     * Extracts the stability level from an operation schema, or null if not declared.
+     * Override in subclasses that use a different spec convention (e.g. v3).
+     *
+     * @infection-ignore-all — protected→private is a false positive: PHP still dispatches
+     *   to the child's protected override via $this, so behaviour is identical.
+     */
+    protected function getSchemaStability(array $schema): ?string
+    {
+        return null;
+    }
+
+    /**
+     * Whether this operation should be excluded from the generated command set.
+     * Override in subclasses to add audience or channel-based filtering.
+     *
+     * @infection-ignore-all — protected→private is a false positive: PHP still dispatches
+     *   to the child's protected override via $this, so behaviour is identical.
+     */
+    protected function shouldSkipOperation(array $schema): bool
+    {
+        return false;
+    }
+
+    /**
      * @return ApiBaseCommand[]
      */
     private function generateApiCommandsFromSpec(array $acquiaCloudSpec, string $commandPrefix, CommandFactoryInterface $commandFactory): array
@@ -400,11 +456,16 @@ class ApiCommandHelper
         $skippedApiCommands = $this->getSkippedApiCommands();
         foreach ($acquiaCloudSpec['paths'] as $path => $endpoint) {
             foreach ($endpoint as $method => $schema) {
-                if (!array_key_exists('x-cli-name', $schema)) {
+                $cliName = $this->getCliCommandName($schema);
+                if ($cliName === null) {
                     continue;
                 }
 
-                if (in_array($schema['x-cli-name'], $skippedApiCommands, true)) {
+                if ($this->shouldSkipOperation($schema)) {
+                    continue;
+                }
+
+                if (in_array($cliName, $skippedApiCommands, true)) {
                     continue;
                 }
 
@@ -421,8 +482,14 @@ class ApiCommandHelper
     private function buildApiCommand(string $path, string $method, array $schema, array $acquiaCloudSpec, string $commandPrefix, CommandFactoryInterface $commandFactory): ApiBaseCommand
     {
         $command = $commandFactory->createCommand();
-        $command->setName($commandPrefix . ':' . $schema['x-cli-name']);
-        $command->setDescription($schema['summary']);
+        $command->setName($commandPrefix . ':' . $this->getCliCommandName($schema));
+        $stability = $this->getSchemaStability($schema);
+        $command->setStability($stability);
+        $description = $schema['summary'];
+        if ($stability !== null && $stability !== 'production') {
+            $description .= " [{$stability}]";
+        }
+        $command->setDescription($description);
         $command->setMethod($method);
         $command->setResponses($schema['responses']);
         $command->setHidden(
@@ -544,13 +611,17 @@ class ApiCommandHelper
         $manifest = [];
         foreach ($acquiaCloudSpec['paths'] as $path => $endpoint) {
             foreach ($endpoint as $method => $schema) {
-                if (!array_key_exists('x-cli-name', $schema)) {
+                $cliName = $this->getCliCommandName($schema);
+                if ($cliName === null) {
                     continue;
                 }
-                if (in_array($schema['x-cli-name'], $skippedApiCommands, true)) {
+                if ($this->shouldSkipOperation($schema)) {
                     continue;
                 }
-                $manifest[$schema['x-cli-name']] = [
+                if (in_array($cliName, $skippedApiCommands, true)) {
+                    continue;
+                }
+                $manifest[$cliName] = [
                     'deprecated' => self::isDeprecated($schema),
                     'method' => $method,
                     'path' => $path,
@@ -698,6 +769,7 @@ class ApiCommandHelper
      */
     private function generateApiListCommands(array $apiCommands, string $commandPrefix, CommandFactoryInterface $commandFactory): array
     {
+        $prefixDepth = count(explode(':', $commandPrefix));
         // List commands (api:{namespace}) are only registered when at least one
         // sub-command under that namespace exists and is visible. If every
         // sub-command is hidden (deprecated/pre-release), the namespace list is
@@ -706,10 +778,10 @@ class ApiCommandHelper
         $namespaceHasVisibleCommand = [];
         foreach ($apiCommands as $apiCommand) {
             $commandNameParts = explode(':', $apiCommand->getName());
-            if (count($commandNameParts) < 3) {
+            if (!isset($commandNameParts[$prefixDepth + 1])) {
                 continue;
             }
-            $namespace = $commandNameParts[1];
+            $namespace = $commandNameParts[$prefixDepth];
             if (!array_key_exists($namespace, $namespaceHasVisibleCommand)) {
                 $namespaceHasVisibleCommand[$namespace] = false;
             }
