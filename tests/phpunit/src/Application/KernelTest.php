@@ -4,8 +4,14 @@ declare(strict_types=1);
 
 namespace Acquia\Cli\Tests\Application;
 
+use Acquia\Cli\CloudApi\V3ClientService;
+use Acquia\Cli\Command\CommandBase;
+use Acquia\Cli\Command\Source\ConfigPullCommand;
+use Acquia\Cli\Command\Source\ConfigPushCommand;
+use Acquia\Cli\Command\Source\LinkCommand;
 use Acquia\Cli\Tests\ApplicationTestBase;
 use PHPUnit\Framework\Attributes\Group;
+use ReflectionProperty;
 
 class KernelTest extends ApplicationTestBase
 {
@@ -20,6 +26,17 @@ class KernelTest extends ApplicationTestBase
         // Could probably handle that more intelligently...
         $this->assertStringStartsWith($this->getStart(), $buffer);
         $this->assertStringEndsWith($this->getEnd(), $buffer);
+    }
+
+    #[Group('serial')]
+    public function testSourceCommandsUseCloudApiV3(): void
+    {
+        self::setEnvVars(['ACLI_REPO_ROOT' => $this->projectDir, 'ACLI_VERSION' => 'dev-unknown']);
+        $this->setInput([]);
+        $property = new ReflectionProperty(CommandBase::class, 'cloudApiClientService');
+        foreach ([LinkCommand::class, ConfigPullCommand::class, ConfigPushCommand::class] as $class) {
+            $this->assertInstanceOf(V3ClientService::class, $property->getValue($this->kernel->getContainer()->get($class)));
+        }
     }
 
     private function getStart(): string
@@ -106,8 +123,8 @@ EOD;
   self:telemetry:enable    [telemetry:enable] Enable anonymous sharing of usage and performance data
   self:telemetry:toggle    [telemetry] Toggle anonymous sharing of usage and performance data
  source
-  source:config:pull       Export Source configuration from a site
-  source:config:push       Import deployed Source configuration on a site
+  source:cms:config:pull   Export a Source site's configuration to .acquia/config
+  source:cms:config:push   Import .acquia/config into a Source site
   source:link              Associate your working copy with a Source site
  ssh-key
   ssh-key:create           Create an SSH key on your local machine

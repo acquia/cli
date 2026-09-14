@@ -6,134 +6,128 @@ namespace Acquia\Cli\Tests\Commands\Source;
 
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Command\Source\ConfigPushCommand;
-use Acquia\Cli\SasApi\SasClient;
-use Acquia\Cli\SasApi\SasClientService;
+use Acquia\Cli\Command\Source\SourceCommandBase;
+use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Tests\CommandTestBase;
-use Prophecy\Prophecy\ObjectProphecy;
+use AcquiaCloudApi\Exception\ApiErrorException;
+use ReflectionProperty;
 
 /**
  * @property ConfigPushCommand $command
  */
 class ConfigPushCommandTest extends CommandTestBase
 {
-    /**
-     * The site instance ID the tests resolve against.
-     */
-    private const SITE_ID = '0ebce493-9d09-479d-a9a8-138a206fa687';
-    private const ENVIRONMENT_ID = '3e8ecbec-ea7c-4260-8414-ef2938c859bc';
-    private const SITE_INSTANCE_ID = self::SITE_ID . '.' . self::ENVIRONMENT_ID;
+    private const DOCUMENT = "'':\n  system.site:\n    name: Site\nlanguage.nl:\n  system.site:\n    name: Website\n";
 
-    private SasClientService|ObjectProphecy $sasClientServiceProphecy;
-
-    private SasClient|ObjectProphecy $sasClientProphecy;
+    private string $configDir;
 
     protected function createCommand(): CommandBase
     {
-        $this->sasClientProphecy = $this->prophet->prophesize(SasClient::class);
-        $this->sasClientServiceProphecy = $this->prophet->prophesize(SasClientService::class);
-        $this->sasClientServiceProphecy->getClient()->willReturn($this->sasClientProphecy->reveal());
+        $command = $this->injectCommand(ConfigPushCommand::class);
+        (new ReflectionProperty(SourceCommandBase::class, 'cwd'))->setValue($command, $this->projectDir);
+        $this->configDir = $this->projectDir . '/.acquia/config';
+        $this->fs->dumpFile($this->configDir . '/language/nl/system.site.yml', "name: Website\n");
+        $this->fs->dumpFile($this->configDir . '/system.site.yml', "name: Site\n");
+        $this->fs->dumpFile($this->configDir . '/.htaccess', "Deny from all\n");
+        return $command;
+    }
 
-        return new ConfigPushCommand(
-            $this->localMachineHelper,
-            $this->datastoreCloud,
-            $this->datastoreAcli,
-            $this->cloudCredentials,
-            $this->telemetryHelper,
-            $this->acliRepoRoot,
-            $this->clientServiceProphecy->reveal(),
-            $this->sshHelper,
-            $this->sshDir,
-            $this->logger,
-            $this->selfUpdateManager,
-            $this->sasClientServiceProphecy->reveal(),
-        );
+    private function mockPut(): void
+    {
+        $this->clientProphecy->request('put', '/source-sites/site-a/config', ['json' => ['configuration' => self::DOCUMENT]])
+            ->willReturn((object) ['message' => 'accepted'])
+            ->shouldBeCalled();
     }
 
     /**
-     * Mock the Cloud API calls needed to resolve a site instance from
-     * --siteInstanceId: environment, site, site instance, and codebase.
+     * @param array<object> $imports
      */
-    private function mockSiteInstanceResolution(): void
+    private function mockImport(array $imports): void
     {
-        $environment = $this->getMockCodeBaseEnvironment();
-        $this->clientProphecy->request('get', '/v3/environments/' . self::ENVIRONMENT_ID)
-            ->willReturn($environment)
-            ->shouldBeCalled();
-
-        $site = $this->getMockSite();
-        $this->clientProphecy->request('get', '/sites/' . self::SITE_ID)
-            ->willReturn($site)
-            ->shouldBeCalled();
-
-        $siteInstance = $this->getMockSiteInstanceResponse();
-        $this->clientProphecy->request('get', '/site-instances/' . self::SITE_INSTANCE_ID)
-            ->willReturn($siteInstance)
-            ->shouldBeCalled();
-
-        $codebase = $this->getMockCodebaseResponse();
-        $this->clientProphecy->request('get', '/codebases/d3f7270e-c45f-4801-9308-5e8afe84a323')
-            ->willReturn($codebase)
+        $this->clientProphecy->request('get', '/source-sites/site-a/config/import')
+            ->willReturn(...$imports)
             ->shouldBeCalled();
     }
 
-    public function testExecutePushesAndPollsToCompletion(): void
+    public function testSucceeds(): void
     {
-        $this->mockSiteInstanceResolution();
-
-        // The push trigger returns an operation ID.
-        $this->sasClientProphecy->request('post', '/environments/' . self::ENVIRONMENT_ID . '/config-import')
-            ->willReturn((object) ['id' => 'operation-123'])
-            ->shouldBeCalled();
-
-        // The status poll immediately reports success.
-        $this->sasClientProphecy->request('get', '/config-operation/operation-123')
-            ->willReturn((object) ['status' => 'succeeded'])
-            ->shouldBeCalled();
-
-        $this->executeCommand(
-            ['--siteInstanceId' => self::SITE_INSTANCE_ID, '--force' => true],
-        );
-
+        $this->mockPut();
+        $this->mockImport([(object) ['status' => 'running'], (object) ['status' => 'succeeded']]);
+        $this->executeCommand(['--site' => 'site-a', '--force' => true], [], interactive: false);
         $this->assertSame(0, $this->getStatusCode());
-        $this->assertStringContainsString('Importing configuration submitted (operation operation-123)', $this->getDisplay());
-        $this->assertStringContainsString('Importing configuration completed successfully.', $this->getDisplay());
+        $this->assertStringContainsString('Configuration imported.', $this->getDisplay());
     }
 
-    public function testExecuteThrowsWhenOperationIdMissing(): void
+    public function testRefusedListsViolations(): void
     {
-        $this->mockSiteInstanceResolution();
-
-        // The push trigger returns a response with no operation ID.
-        $this->sasClientProphecy->request('post', '/environments/' . self::ENVIRONMENT_ID . '/config-import')
-            ->willReturn((object) [])
-            ->shouldBeCalled();
-
-        $this->expectException(\Acquia\Cli\Exception\AcquiaCliException::class);
-        $this->expectExceptionMessage('did not include an operation ID');
-
-        $this->executeCommand(
-            ['--siteInstanceId' => self::SITE_INSTANCE_ID, '--force' => true],
-        );
-    }
-
-    public function testExecuteFailsWhenOperationFails(): void
-    {
-        $this->mockSiteInstanceResolution();
-
-        $this->sasClientProphecy->request('post', '/environments/' . self::ENVIRONMENT_ID . '/config-import')
-            ->willReturn((object) ['id' => 'operation-456'])
-            ->shouldBeCalled();
-
-        // The status poll reports failure.
-        $this->sasClientProphecy->request('get', '/config-operation/operation-456')
-            ->willReturn((object) ['status' => 'failed'])
-            ->shouldBeCalled();
-
-        $this->executeCommand(
-            ['--siteInstanceId' => self::SITE_INSTANCE_ID, '--force' => true],
-        );
-
+        $this->mockPut();
+        $this->mockImport([(object) [
+            'status' => 'refused',
+            'violations' => [
+                (object) ['code' => 'not_allowed', 'collection' => 'language.nl', 'config' => 'system.site', 'message' => 'Not in the allow list.'],
+                (object) ['code' => 'missing', 'config' => 'system.site', 'message' => 'Required.'],
+                (object) ['code' => 'too_large', 'message' => 'Too large.'],
+            ],
+        ],
+        ]);
+        $this->executeCommand(['--site' => 'site-a'], ['y']);
         $this->assertSame(1, $this->getStatusCode());
-        $this->assertStringContainsString('failed', $this->getDisplay());
+        $display = $this->getDisplay();
+        $this->assertStringContainsString('Replace the configuration of Source site site-a with the contents of', $display);
+        $this->assertStringContainsString('The import was refused; the site is unchanged.', $display);
+        $this->assertStringContainsString(" - language.nl system.site [not_allowed]: Not in the allow list.\n - system.site [missing]: Required.\n - document [too_large]: Too large.\n", $display);
+        $this->assertStringNotContainsString('The import failed', $display);
+    }
+
+    public function testFailed(): void
+    {
+        $this->mockPut();
+        $this->mockImport([(object) ['status' => 'failed']]);
+        $this->executeCommand(['--site' => 'site-a', '--force' => true]);
+        $this->assertSame(1, $this->getStatusCode());
+        $this->assertStringContainsString('The import failed and the site was restored from its backup.', $this->getDisplay());
+    }
+
+    public function testUnknownStatusThrows(): void
+    {
+        $this->mockPut();
+        $this->mockImport([(object) ['status' => 'running']]);
+        $this->clientProphecy->request('get', '/source-sites/site-a/config/import')
+            ->willReturn((object) ['status' => 'weird']);
+        $this->expectException(AcquiaCliException::class);
+        $this->expectExceptionMessage('The import was accepted but its outcome is unknown (status weird). Check the site before pushing again.');
+        $this->executeCommand(['--site' => 'site-a', '--force' => true]);
+    }
+
+    public function testPollErrorThrows(): void
+    {
+        $this->mockPut();
+        $this->clientProphecy->request('get', '/source-sites/site-a/config/import')
+            ->willThrow(new ApiErrorException((object) ['error' => 'not_found', 'message' => 'No import yet.']))
+            ->shouldBeCalled();
+        $this->expectException(AcquiaCliException::class);
+        $this->expectExceptionMessage('The import was accepted but its outcome is unknown (No import yet.). Check the site before pushing again.');
+        $this->executeCommand(['--site' => 'site-a', '--force' => true]);
+    }
+
+    public function testNonInteractiveWithoutForceThrows(): void
+    {
+        $this->expectException(AcquiaCliException::class);
+        $this->expectExceptionMessage('Pass --force to push without confirmation when running non-interactively.');
+        $this->executeCommand(['--site' => 'site-a'], [], interactive: false);
+    }
+
+    public function testDeclineDoesNotPush(): void
+    {
+        $this->executeCommand(['--site' => 'site-a'], ['n']);
+        $this->assertSame(0, $this->getStatusCode());
+    }
+
+    public function testMissingConfigDirThrows(): void
+    {
+        $this->fs->remove($this->configDir);
+        $this->expectException(AcquiaCliException::class);
+        $this->expectExceptionMessage($this->configDir . ' does not exist. Run acli source:cms:config:pull first.');
+        $this->executeCommand(['--site' => 'site-a', '--force' => true]);
     }
 }
