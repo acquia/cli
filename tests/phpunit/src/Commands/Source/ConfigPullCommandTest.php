@@ -18,7 +18,11 @@ use Symfony\Component\Filesystem\Exception\IOException;
  */
 class ConfigPullCommandTest extends CommandTestBase
 {
-    private const DOCUMENT = "'':\n  system.site:\n    name: Site\nlanguage.nl:\n  system.site:\n    name: Website\n";
+    /**
+     * The site UUID in system.site is what an import checks first; it is not
+     * the site ID the commands address.
+     */
+    private const DOCUMENT = "'':\n  system.site:\n    name: Site\n    uuid: 7c1f0a94-5d3b-4e18-9a62-0b8d4c5e6f70\nlanguage.nl:\n  system.site:\n    name: Website\n";
 
     private string $configDir;
 
@@ -43,7 +47,7 @@ class ConfigPullCommandTest extends CommandTestBase
         $this->fs->dumpFile($this->configDir . '.tmp/leftover.yml', "old: true\n");
         $this->mockConfig('site-a');
         $this->executeCommand(['--site' => 'site-a']);
-        $this->assertStringEqualsFile($this->configDir . '/system.site.yml', "name: Site\n");
+        $this->assertStringEqualsFile($this->configDir . '/system.site.yml', "name: Site\nuuid: 7c1f0a94-5d3b-4e18-9a62-0b8d4c5e6f70\n");
         $this->assertStringEqualsFile($this->configDir . '/language/nl/system.site.yml', "name: Website\n");
         $this->assertFileDoesNotExist($this->configDir . '/stale.yml');
         $this->assertFileDoesNotExist($this->configDir . '/leftover.yml');

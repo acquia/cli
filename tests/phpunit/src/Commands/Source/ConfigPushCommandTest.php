@@ -17,7 +17,11 @@ use ReflectionProperty;
  */
 class ConfigPushCommandTest extends CommandTestBase
 {
-    private const DOCUMENT = "'':\n  system.site:\n    name: Site\nlanguage.nl:\n  system.site:\n    name: Website\n";
+    /**
+     * The site UUID in system.site is what an import checks first; it is not
+     * the site ID the commands address.
+     */
+    private const DOCUMENT = "'':\n  system.site:\n    name: Site\n    uuid: 7c1f0a94-5d3b-4e18-9a62-0b8d4c5e6f70\nlanguage.nl:\n  system.site:\n    name: Website\n";
 
     private string $configDir;
 
@@ -27,7 +31,7 @@ class ConfigPushCommandTest extends CommandTestBase
         (new ReflectionProperty(SourceCommandBase::class, 'cwd'))->setValue($command, $this->projectDir);
         $this->configDir = $this->projectDir . '/.acquia/config';
         $this->fs->dumpFile($this->configDir . '/language/nl/system.site.yml', "name: Website\n");
-        $this->fs->dumpFile($this->configDir . '/system.site.yml', "name: Site\n");
+        $this->fs->dumpFile($this->configDir . '/system.site.yml', "name: Site\nuuid: 7c1f0a94-5d3b-4e18-9a62-0b8d4c5e6f70\n");
         $this->fs->dumpFile($this->configDir . '/.htaccess', "Deny from all\n");
         return $command;
     }
@@ -66,7 +70,7 @@ class ConfigPushCommandTest extends CommandTestBase
             'violations' => [
                 (object) ['code' => 'not_allowed', 'collection' => 'language.nl', 'config' => 'system.site', 'message' => 'Not in the allow list.'],
                 (object) ['code' => 'missing', 'config' => 'system.site', 'message' => 'Required.'],
-                (object) ['code' => 'too_large', 'message' => 'Too large.'],
+                (object) ['code' => 'site_uuid_mismatch', 'message' => 'The configuration was exported from site 7c1f0a94-5d3b-4e18-9a62-0b8d4c5e6f70, not from this site.'],
             ],
         ],
         ]);
@@ -75,7 +79,7 @@ class ConfigPushCommandTest extends CommandTestBase
         $display = $this->getDisplay();
         $this->assertStringContainsString('Replace the configuration of Source site site-a with the contents of', $display);
         $this->assertStringContainsString('Source site site-a refused the configuration; nothing was imported:', $display);
-        $this->assertStringContainsString(" - language.nl: system.site [not_allowed]: Not in the allow list.\n - system.site [missing]: Required.\n - document [too_large]: Too large.\n", $display);
+        $this->assertStringContainsString(" - language.nl: system.site [not_allowed]: Not in the allow list.\n - system.site [missing]: Required.\n - document [site_uuid_mismatch]: The configuration was exported from site 7c1f0a94-5d3b-4e18-9a62-0b8d4c5e6f70, not from this site.\n", $display);
         $this->assertStringNotContainsString('The import into Source site site-a failed', $display);
     }
 
