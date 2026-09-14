@@ -14,7 +14,9 @@ use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
 
 #[RequireAuth]
 #[AsCommand(name: 'source:cms:config:push', description: 'Import .acquia/config into a Source site')]
@@ -28,6 +30,7 @@ final class ConfigPushCommand extends ConfigCommandBase
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
+        $json = $this->outputsJson();
         $root = $this->workingCopyDir();
         $siteId = $this->determineSourceSite($root);
         $configDir = "$root/.acquia/config";
@@ -52,7 +55,18 @@ final class ConfigPushCommand extends ConfigCommandBase
         $client = $this->cloudApiClientService->getClient();
         $client->request('put', "/source-sites/$siteId/config", ['json' => ['configuration' => $document]]);
 
-        return $this->reportImport($this->waitForImport($client, $siteId));
+        if ($json) {
+            // The import resource is the only stdout: silence the spinner and the report.
+            $this->output = new NullOutput();
+            $this->io = new SymfonyStyle($input, $this->output);
+        }
+        $import = $this->waitForImport($client, $siteId);
+        $exitCode = $this->reportImport($import);
+        if ($json) {
+            $output->writeln(json_encode($import, JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT));
+        }
+
+        return $exitCode;
     }
 
     /**

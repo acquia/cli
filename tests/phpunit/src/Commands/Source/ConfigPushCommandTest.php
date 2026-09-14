@@ -79,6 +79,16 @@ class ConfigPushCommandTest extends CommandTestBase
         $this->assertStringNotContainsString('The import failed', $display);
     }
 
+    public function testJsonOutput(): void
+    {
+        $this->mockPut();
+        $import = (object) ['status' => 'refused', 'violations' => [(object) ['code' => 'too_large', 'message' => 'Too large.']]];
+        $this->mockImport([$import]);
+        $this->executeCommand(['--site' => 'site-a', '--force' => true, '--format' => 'json']);
+        $this->assertSame(1, $this->getStatusCode());
+        $this->assertSame(json_encode($import, JSON_PRETTY_PRINT) . "\n", $this->getDisplay());
+    }
+
     public function testFailed(): void
     {
         $this->mockPut();

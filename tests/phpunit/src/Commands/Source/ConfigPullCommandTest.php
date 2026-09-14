@@ -67,6 +67,20 @@ class ConfigPullCommandTest extends CommandTestBase
         $this->assertFileExists($this->configDir . '/system.site.yml');
     }
 
+    public function testJsonOutput(): void
+    {
+        $this->mockConfig('site-a');
+        $this->executeCommand(['--site' => 'site-a', '--format' => 'json']);
+        $this->assertSame(json_encode(['directory' => $this->configDir, 'files' => ['system.site.yml', 'language/nl/system.site.yml']], JSON_PRETTY_PRINT) . "\n", $this->getDisplay());
+    }
+
+    public function testUnknownFormatThrows(): void
+    {
+        $this->expectException(AcquiaCliException::class);
+        $this->expectExceptionMessage('Unknown output format "xml". Use txt or json.');
+        $this->executeCommand(['--site' => 'site-a', '--format' => 'xml']);
+    }
+
     public function testNoSiteThrows(): void
     {
         $this->expectException(AcquiaCliException::class);

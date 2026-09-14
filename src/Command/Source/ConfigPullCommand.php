@@ -17,6 +17,7 @@ final class ConfigPullCommand extends ConfigCommandBase
 {
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
+        $json = $this->outputsJson();
         $root = $this->workingCopyDir();
         $siteId = $this->determineSourceSite($root);
         $response = $this->cloudApiClientService->getClient()->request('get', "/source-sites/$siteId/config");
@@ -37,7 +38,11 @@ final class ConfigPullCommand extends ConfigCommandBase
         } finally {
             $filesystem->remove($tmpDir);
         }
-        $this->io->success(sprintf('Exported %d configuration files from Source site %s to %s', count($files), $siteId, $configDir));
+        if ($json) {
+            $output->writeln(json_encode(['directory' => $configDir, 'files' => array_keys($files)], JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT));
+        } else {
+            $this->io->success(sprintf('Exported %d configuration files from Source site %s to %s', count($files), $siteId, $configDir));
+        }
 
         return Command::SUCCESS;
     }

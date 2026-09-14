@@ -15,7 +15,23 @@ abstract class ConfigCommandBase extends SourceCommandBase
 {
     protected function configure(): void
     {
-        $this->addOption('site', null, InputOption::VALUE_REQUIRED, 'The Source site ID (defaults to the one recorded by acli source:link)');
+        $this
+            ->addOption('site', null, InputOption::VALUE_REQUIRED, 'The Source site ID (defaults to the one recorded by acli source:link)')
+            ->addOption('format', null, InputOption::VALUE_REQUIRED, 'The output format (txt or json)', 'txt');
+    }
+
+    /**
+     * Whether --format=json was passed: the outcome is then the only stdout.
+     *
+     * @throws \Acquia\Cli\Exception\AcquiaCliException
+     */
+    protected function outputsJson(): bool
+    {
+        $format = $this->input->getOption('format');
+        if (!in_array($format, ['txt', 'json'], true)) {
+            throw new AcquiaCliException('Unknown output format "{format}". Use txt or json.', ['format' => $format]);
+        }
+        return $format === 'json';
     }
 
     /**
