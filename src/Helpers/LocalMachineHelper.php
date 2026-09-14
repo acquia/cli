@@ -322,6 +322,12 @@ class LocalMachineHelper
      *
      * That is the nearest directory at or above $cwd containing
      * .acquia/config; when there is none (nothing pulled yet), $cwd itself.
+     *
+     * Neither of the two existing directory lookups fits: getProjectDir()
+     * finds a Drupal project by its docroot, which a Source working copy does
+     * not have, and getConfigDir() is the user's own acli configuration
+     * directory (~/.acquia), which holds cloud_api.conf and is never a working
+     * copy.
      */
     public static function getSourceWorkingCopyDir(string $cwd): string
     {
