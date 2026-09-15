@@ -21,7 +21,16 @@ class ConfigPushCommandTest extends CommandTestBase
      * The site UUID in system.site is what an import checks first; it is not
      * the site ID the commands address.
      */
-    private const DOCUMENT = "'':\n  system.site:\n    name: Site\n    uuid: 7c1f0a94-5d3b-4e18-9a62-0b8d4c5e6f70\nlanguage.nl:\n  system.site:\n    name: Website\n";
+    private const DOCUMENT = <<<'YAML'
+        '':
+          system.site:
+            name: Site
+            uuid: 7c1f0a94-5d3b-4e18-9a62-0b8d4c5e6f70
+        language.nl:
+          system.site:
+            name: Website
+
+        YAML;
 
     private string $configDir;
 
@@ -57,7 +66,7 @@ class ConfigPushCommandTest extends CommandTestBase
     {
         $this->mockPut();
         $this->mockImport([(object) ['status' => 'running'], (object) ['status' => 'succeeded']]);
-        $this->executeCommand(['--site' => 'site-a', '--force' => true], [], interactive: false);
+        $this->executeCommand(['--site' => 'site-a', '--yes' => true], [], interactive: false);
         $this->assertSame(0, $this->getStatusCode());
         $this->assertStringContainsString('Imported .acquia/config into Source site site-a.', $this->getDisplay());
     }
@@ -88,7 +97,7 @@ class ConfigPushCommandTest extends CommandTestBase
         $this->mockPut();
         $import = (object) ['status' => 'refused', 'violations' => [(object) ['code' => 'too_large', 'message' => 'Too large.']]];
         $this->mockImport([$import]);
-        $this->executeCommand(['--site' => 'site-a', '--force' => true, '--format' => 'json']);
+        $this->executeCommand(['--site' => 'site-a', '--yes' => true, '--format' => 'json']);
         $this->assertSame(1, $this->getStatusCode());
         $this->assertSame(json_encode($import, JSON_PRETTY_PRINT) . "\n", $this->getDisplay());
     }
@@ -97,7 +106,7 @@ class ConfigPushCommandTest extends CommandTestBase
     {
         $this->mockPut();
         $this->mockImport([(object) ['status' => 'failed']]);
-        $this->executeCommand(['--site' => 'site-a', '--force' => true]);
+        $this->executeCommand(['--site' => 'site-a', '--yes' => true]);
         $this->assertSame(1, $this->getStatusCode());
         // The error block wraps, so assert the two halves separately.
         $this->assertStringContainsString('The import into Source site site-a failed; the site was rolled back to', $this->getDisplay());
@@ -110,7 +119,7 @@ class ConfigPushCommandTest extends CommandTestBase
         $this->mockImport([(object) ['status' => 'weird']]);
         $this->expectException(AcquiaCliException::class);
         $this->expectExceptionMessage('The import was accepted but its outcome is unknown (status weird). Check the site before pushing again. The import may still finish, and the status it reports may then be that of a later import.');
-        $this->executeCommand(['--site' => 'site-a', '--force' => true]);
+        $this->executeCommand(['--site' => 'site-a', '--yes' => true]);
     }
 
     public function testConflictThrows(): void
@@ -119,7 +128,7 @@ class ConfigPushCommandTest extends CommandTestBase
             ->willThrow(new ApiErrorException((object) ['error' => 'conflict', 'message' => 'A sync is in progress.']));
         $this->expectException(AcquiaCliException::class);
         $this->expectExceptionMessage('A configuration sync is already running for Source site site-a. Wait for it to finish, then push again.');
-        $this->executeCommand(['--site' => 'site-a', '--force' => true]);
+        $this->executeCommand(['--site' => 'site-a', '--yes' => true]);
     }
 
     public function testOtherApiErrorPropagates(): void
@@ -128,7 +137,7 @@ class ConfigPushCommandTest extends CommandTestBase
             ->willThrow(new ApiErrorException((object) ['error' => 'validation_failed', 'message' => (object) ['configuration' => 'Too large.']]));
         $this->expectException(ApiErrorException::class);
         $this->expectExceptionMessage('Too large.');
-        $this->executeCommand(['--site' => 'site-a', '--force' => true]);
+        $this->executeCommand(['--site' => 'site-a', '--yes' => true]);
     }
 
     public function testInvalidYamlNamesFile(): void
@@ -136,7 +145,7 @@ class ConfigPushCommandTest extends CommandTestBase
         $this->fs->dumpFile($this->configDir . '/language/nl/system.site.yml', "name: 'unterminated\n");
         $this->expectException(AcquiaCliException::class);
         $this->expectExceptionMessage('language/nl/system.site.yml is not valid YAML: Malformed inline YAML string');
-        $this->executeCommand(['--site' => 'site-a', '--force' => true]);
+        $this->executeCommand(['--site' => 'site-a', '--yes' => true]);
     }
 
     public function testPollErrorThrows(): void
@@ -147,13 +156,13 @@ class ConfigPushCommandTest extends CommandTestBase
             ->shouldBeCalled();
         $this->expectException(AcquiaCliException::class);
         $this->expectExceptionMessage('The import was accepted but its outcome is unknown (No import yet.). Check the site before pushing again. The import may still finish, and the status it reports may then be that of a later import.');
-        $this->executeCommand(['--site' => 'site-a', '--force' => true]);
+        $this->executeCommand(['--site' => 'site-a', '--yes' => true]);
     }
 
     public function testNonInteractiveWithoutForceThrows(): void
     {
         $this->expectException(AcquiaCliException::class);
-        $this->expectExceptionMessage('Pass --force to push without confirmation when running non-interactively.');
+        $this->expectExceptionMessage('Pass --yes to push without confirmation when running non-interactively.');
         $this->executeCommand(['--site' => 'site-a'], [], interactive: false);
     }
 
@@ -168,6 +177,6 @@ class ConfigPushCommandTest extends CommandTestBase
         $this->fs->remove($this->configDir);
         $this->expectException(AcquiaCliException::class);
         $this->expectExceptionMessage($this->configDir . ' does not exist. Run acli source:cms:config:pull first.');
-        $this->executeCommand(['--site' => 'site-a', '--force' => true]);
+        $this->executeCommand(['--site' => 'site-a', '--yes' => true]);
     }
 }

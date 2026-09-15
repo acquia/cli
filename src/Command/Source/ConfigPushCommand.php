@@ -26,7 +26,7 @@ final class ConfigPushCommand extends ConfigCommandBase
     protected function configure(): void
     {
         parent::configure();
-        $this->addOption('force', 'f', InputOption::VALUE_NONE, 'Skip the confirmation prompt (required when non-interactive)');
+        $this->addOption('yes', 'y', InputOption::VALUE_NONE, 'Skip the confirmation prompt (required when non-interactive)');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -38,15 +38,11 @@ final class ConfigPushCommand extends ConfigCommandBase
         if (!is_dir($configDir)) {
             throw new AcquiaCliException('{dir} does not exist. Run acli source:cms:config:pull first.', ['dir' => $configDir]);
         }
-        $files = [];
-        foreach ($this->localMachineHelper->getFinder()->files()->in($configDir)->name('*.yml') as $file) {
-            $files[$file->getRelativePathname()] = $file->getContents();
-        }
-        $document = SourceConfigDocument::fromFiles($files);
+        $document = SourceConfigDocument::fromDirectory($configDir);
 
-        if (!$input->getOption('force')) {
+        if (!$input->getOption('yes')) {
             if (!$input->isInteractive()) {
-                throw new AcquiaCliException('Pass --force to push without confirmation when running non-interactively.');
+                throw new AcquiaCliException('Pass --yes to push without confirmation when running non-interactively.');
             }
             if (!$this->io->confirm("Replace the configuration of Source site $siteId with the contents of $configDir? The site will be offline while the import runs, and its database is backed up first.")) {
                 return Command::SUCCESS;
@@ -95,6 +91,8 @@ final class ConfigPushCommand extends ConfigCommandBase
                 return true;
             }
         };
+        // getLoopy() requires a done callback; the outcome is read from $import
+        // and $error above once it returns, so there is nothing to do here.
         LoopHelper::getLoopy($this->output, $this->io, 'Importing configuration', $poll, static function (): void {
         });
         if ($error !== null) {

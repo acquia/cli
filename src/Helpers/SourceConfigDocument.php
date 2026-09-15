@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Acquia\Cli\Helpers;
 
 use Acquia\Cli\Exception\AcquiaCliException;
+use Symfony\Component\Finder\Finder;
 use Symfony\Component\Yaml\Dumper;
 use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Parser;
@@ -38,14 +39,26 @@ final class SourceConfigDocument
             if (!is_array($objects)) {
                 throw new AcquiaCliException('Collection "{collection}" is not a map of configuration objects.', ['collection' => $collection]);
             }
-            $dir = $collection === '' ? '' : str_replace('.', '/', self::assertSafe('collection', $collection, explode('.', $collection))) . '/';
+            $dir = $collection === '' ? '' : str_replace('.', '/', self::assertPathIsSafe('collection', $collection, explode('.', $collection))) . '/';
             foreach ($objects as $name => $values) {
                 $name = (string) $name;
-                $files[$dir . self::assertSafe('configuration', $name, [$name]) . '.yml'] = self::encode($values);
+                $files[$dir . self::assertPathIsSafe('configuration', $name, [$name]) . '.yml'] = self::encode($values);
             }
         }
         // Every path was validated above, so a bad document yields no files at all.
         return $files;
+    }
+
+    /**
+     * Reads every *.yml file under $dir and encodes it as a document.
+     */
+    public static function fromDirectory(string $dir): string
+    {
+        $files = [];
+        foreach ((new Finder())->files()->in($dir)->name('*.yml') as $file) {
+            $files[$file->getRelativePathname()] = $file->getContents();
+        }
+        return self::fromFiles($files);
     }
 
     /**
@@ -75,11 +88,15 @@ final class SourceConfigDocument
     /**
      * Rejects a collection or config name that could escape .acquia/config.
      *
+     * @param string $what
+     *   What $name is, for the exception message: 'collection' or 'configuration'.
+     * @param string $name
+     *   The collection or configuration name as given in the document.
      * @param list<string> $segments
      *   The path segments the name becomes; a segment must not be '', '.' or
      *   '..' nor contain a slash, backslash or NUL. "a..b" is a legal segment.
      */
-    private static function assertSafe(string $what, string $name, array $segments): string
+    private static function assertPathIsSafe(string $what, string $name, array $segments): string
     {
         foreach ($segments as $segment) {
             if (in_array($segment, ['', '.', '..'], true) || preg_match('#[/\\\\\0]#', $segment)) {
