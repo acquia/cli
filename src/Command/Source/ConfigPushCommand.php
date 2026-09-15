@@ -48,7 +48,7 @@ final class ConfigPushCommand extends ConfigCommandBase
             if (!$input->isInteractive()) {
                 throw new AcquiaCliException('Pass --force to push without confirmation when running non-interactively.');
             }
-            if (!$this->io->confirm("Replace the configuration of Source site $siteId with the contents of $configDir? The site is put in maintenance mode and its database is backed up first.")) {
+            if (!$this->io->confirm("Replace the configuration of Source site $siteId with the contents of $configDir? The site will be offline while the import runs, and its database is backed up first.")) {
                 return Command::SUCCESS;
             }
         }
