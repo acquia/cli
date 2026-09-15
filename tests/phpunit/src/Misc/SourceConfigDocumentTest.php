@@ -24,7 +24,9 @@ class SourceConfigDocumentTest extends TestCase
     {
         $files = [];
         foreach ((new Finder())->files()->in(self::FIXTURE_DIR . '/expected')->name('*.yml') as $file) {
-            $files[$file->getRelativePathname()] = $file->getContents();
+            // toFiles() always joins collection directories with '/'; Finder
+            // uses the OS separator, which is '\' on Windows.
+            $files[str_replace('\\', '/', $file->getRelativePathname())] = $file->getContents();
         }
         ksort($files);
         return $files;
