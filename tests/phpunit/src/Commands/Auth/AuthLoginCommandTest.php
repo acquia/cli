@@ -10,11 +10,17 @@ use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Config\CloudDataConfig;
 use Acquia\Cli\DataStore\CloudDataStore;
 use Acquia\Cli\Exception\AcquiaCliException;
+use Acquia\Cli\Helpers\LocalMachineHelper;
 use Acquia\Cli\Tests\CommandTestBase;
 use AcquiaCloudApi\Connector\Connector;
 use Generator;
+use GuzzleHttp\Client as GuzzleClient;
+use GuzzleHttp\Handler\MockHandler;
+use GuzzleHttp\HandlerStack;
+use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Prophecy\Argument;
+use Prophecy\Prophecy\ObjectProphecy;
 use Symfony\Component\Validator\Exception\ValidatorException;
 
 /**
@@ -22,11 +28,262 @@ use Symfony\Component\Validator\Exception\ValidatorException;
  */
 class AuthLoginCommandTest extends CommandTestBase
 {
+    /** @var array<string, string|false> */
+    private array $savedDeviceCodeEnvVars = [];
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        foreach (['ACLI_DEVICE_CLIENT_ID', 'ACLI_OKTA_DOMAIN', 'ACLI_OKTA_AUTH_SERVER_ID'] as $var) {
+            $this->savedDeviceCodeEnvVars[$var] = getenv($var);
+        }
+    }
+
+    protected function tearDown(): void
+    {
+        parent::tearDown();
+        foreach ($this->savedDeviceCodeEnvVars as $var => $value) {
+            putenv($value === false ? $var : $var . '=' . $value);
+        }
+    }
+
     protected function createCommand(): CommandBase
     {
         return $this->injectCommand(AuthLoginCommand::class);
     }
 
+    private function enableDeviceCodeConfig(): void
+    {
+        putenv('ACLI_DEVICE_CLIENT_ID=test-client-id');
+        putenv('ACLI_OKTA_DOMAIN=example.okta.com');
+        putenv('ACLI_OKTA_AUTH_SERVER_ID=ausTest');
+    }
+
+    /**
+     * @param array<\GuzzleHttp\Psr7\Response> $responses
+     */
+    private function createDeviceCodeCommand(array $responses, ?ObjectProphecy $localMachineHelperProphecy = null): AuthLoginCommand
+    {
+        $mock = new MockHandler($responses);
+        $client = new GuzzleClient(['handler' => HandlerStack::create($mock)]);
+        $localMachineHelper = $localMachineHelperProphecy?->reveal()
+            ?? $this->prophet->prophesize(LocalMachineHelper::class)->reveal();
+
+        return new AuthLoginCommand(
+            $localMachineHelper,
+            $this->datastoreCloud,
+            $this->datastoreAcli,
+            $this->cloudCredentials,
+            $this->telemetryHelper,
+            $this->acliRepoRoot,
+            $this->clientServiceProphecy->reveal(),
+            $this->sshHelper,
+            $this->sshDir,
+            $this->logger,
+            $this->selfUpdateManager,
+            $client,
+        );
+    }
+
+    private function givenFreshCloudConfigWithTelemetryDisabled(): void
+    {
+        $this->removeMockCloudConfigFile();
+        $this->fs->dumpFile($this->cloudConfigFilepath, json_encode(['send_telemetry' => false]));
+        $this->createDataStores();
+    }
+
+    private function deviceAuthorizeResponse(): Response
+    {
+        return new Response(200, [], json_encode([
+            'device_code' => 'test-device-code',
+            'expires_in' => 600,
+            'interval' => 0,
+            'user_code' => 'ABCD1234',
+            'verification_uri' => 'https://example.okta.com/activate',
+        ]));
+    }
+
+    // -------------------------------------------------------------------------
+    // Device code flow tests
+    // -------------------------------------------------------------------------
+    public function testDeviceCodeFlowSuccess(): void
+    {
+        $this->enableDeviceCodeConfig();
+        $this->givenFreshCloudConfigWithTelemetryDisabled();
+        $this->command = $this->createDeviceCodeCommand([
+            $this->deviceAuthorizeResponse(),
+            new Response(200, [], json_encode([
+                'access_token' => 'test-access-token',
+                'expires_in' => 300,
+                'refresh_token' => 'test-refresh-token',
+            ])),
+        ]);
+
+        $this->executeCommand([], ['no']);
+        $output = $this->getDisplay();
+
+        $this->assertStringContainsString('https://example.okta.com/activate', $output);
+        $this->assertStringContainsString('ABCD1234', $output);
+        $this->assertStringContainsString('Authenticated successfully', $output);
+
+        $config = new CloudDataStore($this->localMachineHelper, new CloudDataConfig(), $this->cloudConfigFilepath);
+        $deviceToken = $config->get('device_token');
+        $this->assertEquals('test-access-token', $deviceToken['access_token']);
+        $this->assertEquals('test-refresh-token', $deviceToken['refresh_token']);
+        $this->assertEquals('test-client-id', $deviceToken['client_id']);
+    }
+
+    public function testDeviceCodeFlowAuthorizationPendingThenSuccess(): void
+    {
+        $this->enableDeviceCodeConfig();
+        $this->givenFreshCloudConfigWithTelemetryDisabled();
+        $this->command = $this->createDeviceCodeCommand([
+            $this->deviceAuthorizeResponse(),
+            new Response(200, [], json_encode(['error' => 'authorization_pending'])),
+            new Response(200, [], json_encode([
+                'access_token' => 'test-access-token',
+                'expires_in' => 300,
+                'refresh_token' => 'test-refresh-token',
+            ])),
+        ]);
+
+        $this->executeCommand([], ['no']);
+        $output = $this->getDisplay();
+
+        $this->assertStringContainsString('Authenticated successfully', $output);
+    }
+
+    public function testDeviceCodeFlowAccessDenied(): void
+    {
+        $this->enableDeviceCodeConfig();
+        $this->givenFreshCloudConfigWithTelemetryDisabled();
+        $this->command = $this->createDeviceCodeCommand([
+            $this->deviceAuthorizeResponse(),
+            new Response(200, [], json_encode(['error' => 'access_denied'])),
+        ]);
+
+        $this->executeCommand([], ['no', 'no']);
+        $output = $this->getDisplay();
+
+        $this->assertStringContainsString('Authorization denied', $output);
+    }
+
+    public function testDeviceCodeFlowExpiredToken(): void
+    {
+        $this->enableDeviceCodeConfig();
+        $this->givenFreshCloudConfigWithTelemetryDisabled();
+        $this->command = $this->createDeviceCodeCommand([
+            $this->deviceAuthorizeResponse(),
+            new Response(200, [], json_encode(['error' => 'expired_token'])),
+        ]);
+
+        $this->executeCommand([], ['no', 'no']);
+        $output = $this->getDisplay();
+
+        $this->assertStringContainsString('Code expired', $output);
+    }
+
+    public function testDeviceCodeFlowInitiateFailure(): void
+    {
+        $this->enableDeviceCodeConfig();
+        $this->givenFreshCloudConfigWithTelemetryDisabled();
+        $this->command = $this->createDeviceCodeCommand([
+            new Response(400, [], json_encode(['error' => 'invalid_client'])),
+        ]);
+
+        $this->executeCommand([], ['no']);
+        $output = $this->getDisplay();
+
+        $this->assertStringContainsString('Failed to initiate device code flow', $output);
+    }
+
+    public function testDeviceCodeFlowFallsBackToLegacyOnFailure(): void
+    {
+        $this->enableDeviceCodeConfig();
+        $this->givenFreshCloudConfigWithTelemetryDisabled();
+        $this->mockRequest('getAccount');
+        $this->clientServiceProphecy->setConnector(Argument::type(Connector::class))
+            ->shouldBeCalled();
+        $this->clientServiceProphecy->isMachineAuthenticated()
+            ->willReturn(false);
+
+        $localMachineHelperProphecy = $this->prophet->prophesize(LocalMachineHelper::class);
+        $localMachineHelperProphecy->useTty()->willReturn(false);
+        $this->command = $this->createDeviceCodeCommand([
+            new Response(400, [], json_encode(['error' => 'invalid_client'])),
+        ], $localMachineHelperProphecy);
+
+        // inputs: 'yes' = fallback confirm, 'no' = open browser to create token, then key + secret.
+        $this->executeCommand([], ['yes', 'no', self::$key, self::$secret]);
+        $output = $this->getDisplay();
+
+        $this->assertStringContainsString('Failed to initiate device code flow', $output);
+        $this->assertStringContainsString('Saved credentials', $output);
+    }
+
+    public function testDeviceCodeFlowOpensBrowserWhenConfirmed(): void
+    {
+        $this->enableDeviceCodeConfig();
+        $this->givenFreshCloudConfigWithTelemetryDisabled();
+        $localMachineHelperProphecy = $this->prophet->prophesize(LocalMachineHelper::class);
+        $localMachineHelperProphecy->startBrowser('https://example.okta.com/activate')
+            ->shouldBeCalled()
+            ->willReturn(true);
+        $this->command = $this->createDeviceCodeCommand([
+            $this->deviceAuthorizeResponse(),
+            new Response(200, [], json_encode([
+                'access_token' => 'test-access-token',
+                'expires_in' => 300,
+            ])),
+        ], $localMachineHelperProphecy);
+
+        $this->executeCommand([], ['yes']);
+    }
+
+    public function testDeviceCodeFlowDoesNotOpenBrowserWhenDeclined(): void
+    {
+        $this->enableDeviceCodeConfig();
+        $this->givenFreshCloudConfigWithTelemetryDisabled();
+        $localMachineHelperProphecy = $this->prophet->prophesize(LocalMachineHelper::class);
+        $localMachineHelperProphecy->startBrowser(Argument::any())
+            ->shouldNotBeCalled();
+        $this->command = $this->createDeviceCodeCommand([
+            $this->deviceAuthorizeResponse(),
+            new Response(200, [], json_encode([
+                'access_token' => 'test-access-token',
+                'expires_in' => 300,
+            ])),
+        ], $localMachineHelperProphecy);
+
+        $this->executeCommand([], ['no']);
+    }
+
+    public function testSmartRoutingDeviceTokenReauthDeclined(): void
+    {
+        $this->enableDeviceCodeConfig();
+        $this->removeMockCloudConfigFile();
+        $this->fs->dumpFile($this->cloudConfigFilepath, json_encode([
+            'device_token' => [
+                'access_token' => 'existing-token',
+                'client_id' => 'test-client-id',
+                'expiry' => time() + 300,
+                'refresh_token' => 'existing-refresh-token',
+            ],
+            'send_telemetry' => false,
+        ]));
+        $this->createDataStores();
+        $this->command = $this->createDeviceCodeCommand([]);
+
+        $this->executeCommand([], ['no']);
+        $output = $this->getDisplay();
+
+        $this->assertStringContainsString('Already authenticated via', $output);
+        $this->assertStringNotContainsString('Authenticated successfully', $output);
+    }
+
+    // -------------------------------------------------------------------------
+    // Legacy auth tests
+    // -------------------------------------------------------------------------
     public function testAuthLoginCommand(): void
     {
         $this->mockRequest('getAccount');
@@ -60,7 +317,7 @@ class AuthLoginCommandTest extends CommandTestBase
         ];
     }
 
-    #[\PHPUnit\Framework\Attributes\DataProvider('providerTestAuthLoginCommandWithStagingEnvironment')]
+    #[DataProvider('providerTestAuthLoginCommandWithStagingEnvironment')]
     public function testAuthLoginCommandWithStagingEnvironment(string $environment): void
     {
         $this->mockRequest('getAccount');

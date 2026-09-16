@@ -76,4 +76,9 @@ class AcsfCredentials implements ApiCredentialsInterface
 
         return null;
     }
+
+    public function getCloudDeviceAccessToken(): ?string
+    {
+        return null;
+    }
 }

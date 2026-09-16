@@ -77,7 +77,8 @@ class ClientService
     {
         return (
             $this->credentials->getCloudAccessToken() ||
-            ($this->credentials->getCloudKey() && $this->credentials->getCloudSecret())
+            ($this->credentials->getCloudKey() && $this->credentials->getCloudSecret()) ||
+            ($this->credentials->getCloudDeviceAccessToken() !== null)
         );
     }
 }

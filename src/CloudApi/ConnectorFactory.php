@@ -40,6 +40,21 @@ class ConnectorFactory implements ConnectorFactoryInterface
             return new Connector($this->config, $this->baseUri, $this->accountsUri);
         }
 
+        // Device code token path.
+        if (!empty($this->config['deviceAccessToken'])) {
+            $accessToken = new AccessToken([
+                'access_token' => $this->config['deviceAccessToken'],
+                'expires' => $this->config['deviceAccessTokenExpiry'] ?? 0,
+            ]);
+            if (!$accessToken->hasExpired()) {
+                return new AccessTokenConnector([
+                    'access_token' => $accessToken,
+                    'key' => null,
+                    'secret' => null,
+                ], $this->baseUri, $this->accountsUri);
+            }
+        }
+
         // Fall back to a valid access token.
         if ($this->config['accessToken']) {
             $accessToken = $this->createAccessToken();

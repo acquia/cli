@@ -73,14 +73,21 @@ services:
   Acquia\Cli\ApiCredentialsInterface:
     alias: Acquia\Cli\CloudApi\CloudCredentials
 
+  Acquia\Cli\CloudApi\DeviceTokenRefresher: ~
+
   cloud.credentials:
     class: Acquia\Cli\CloudApi\CloudCredentials
+    arguments:
+      $deviceTokenRefresher: '@Acquia\Cli\CloudApi\DeviceTokenRefresher'
 
   acsf.credentials:
     class: Acquia\Cli\AcsfApi\AcsfCredentials
 
   # AcquiaCloudApi services.
+  Acquia\Cli\Command\Api\ApiCommandHelper: ~
+  Acquia\Cli\Command\Api\ApiV3CommandHelper: ~
   Acquia\Cli\Command\Api\ApiCommandFactory: ~
+  Acquia\Cli\Command\Api\ApiV3CommandFactory: ~
   Acquia\Cli\Command\Api\ApiBaseCommand:
     class: Acquia\Cli\Command\Api\ApiBaseCommand
     factory: ['@Acquia\Cli\Command\Api\ApiCommandFactory', 'createCommand']
@@ -100,6 +107,8 @@ services:
         secret: '@=service("cloud.credentials").getCloudSecret()'
         accessToken: '@=service("cloud.credentials").getCloudAccessToken()'
         accessTokenExpiry: '@=service("cloud.credentials").getCloudAccessTokenExpiry()'
+        deviceAccessToken: '@=service("cloud.credentials").getCloudDeviceAccessToken()'
+        deviceAccessTokenExpiry: '@=service("cloud.credentials").getCloudDeviceTokenExpiry()'
       $baseUri: '@=service("cloud.credentials").getBaseUri()'
       $accountsUri: '@=service("cloud.credentials").getAccountsUri()'
 
@@ -113,6 +122,8 @@ services:
         secret: '@=service("cloud.credentials").getCloudSecret()'
         accessToken: '@=service("cloud.credentials").getCloudAccessToken()'
         accessTokenExpiry: '@=service("cloud.credentials").getCloudAccessTokenExpiry()'
+        deviceAccessToken: '@=service("cloud.credentials").getCloudDeviceAccessToken()'
+        deviceAccessTokenExpiry: '@=service("cloud.credentials").getCloudDeviceTokenExpiry()'
       $baseUri: '@=service("cloud.credentials").getV3BaseUri()'
       $accountsUri: '@=service("cloud.credentials").getAccountsUri()'
 
