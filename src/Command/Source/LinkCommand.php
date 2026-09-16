@@ -43,7 +43,7 @@ final class LinkCommand extends SourceCommandBase
             if (!$sites) {
                 throw new AcquiaCliException('There are no Source sites to link to.');
             }
-            // ponytail: first page of /source-sites only; add pagination when a subscription exceeds one page.
+            // Only the first page of /source-sites; add pagination when a subscription exceeds one page.
             $site = $this->promptChooseFromObjectsOrArrays($sites, 'id', 'label', 'Select a Source site');
         }
         $datastore->set('source_site_id', $site->id);
