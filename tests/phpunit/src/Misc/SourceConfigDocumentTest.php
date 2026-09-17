@@ -8,8 +8,10 @@ use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Helpers\SourceConfigDocument;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Finder\Finder;
+use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Yaml;
 
 #[CoversClass(SourceConfigDocument::class)]
@@ -76,8 +78,8 @@ class SourceConfigDocumentTest extends TestCase
                 ['a.b.yml' => "l1:\n  l2:\n    l3:\n      l4:\n        l5:\n          l6:\n            l7:\n              l8:\n                l9:\n                  l10:\n                    l11:\n                      - deep\n"],
             ],
             'scalars, sequences, empty maps and multi-line strings keep the core encoding' => [
-                "'':\n  a.b:\n    nothing: null\n    flag: false\n    count: 3\n    ratio: 1.0\n    numeric: '123'\n    unicode: 'Ünïcødé ✓'\n    'key: colon': 1\n    list:\n      - a\n      - b\n    empty: {  }\n    text: |\n      line 1\n      line 2\n    text_no_newline: |-\n      line 1\n      line 2\n    tagged: !custom_tag value\n",
-                ['a.b.yml' => "nothing: null\nflag: false\ncount: 3\nratio: 1.0\nnumeric: '123'\nunicode: 'Ünïcødé ✓'\n'key: colon': 1\nlist:\n  - a\n  - b\nempty: {  }\ntext: |\n  line 1\n  line 2\ntext_no_newline: |-\n  line 1\n  line 2\ntagged: !custom_tag value\n"],
+                "'':\n  a.b:\n    nothing: null\n    flag: false\n    count: 3\n    ratio: 1.0\n    numeric: '123'\n    unicode: 'Ünïcødé ✓'\n    'key: colon': 1\n    list:\n      - a\n      - b\n    empty: {  }\n    text: |\n      line 1\n      line 2\n    text_no_newline: |-\n      line 1\n      line 2",
+                ['a.b.yml' => "nothing: null\nflag: false\ncount: 3\nratio: 1.0\nnumeric: '123'\nunicode: 'Ünïcødé ✓'\n'key: colon': 1\nlist:\n  - a\n  - b\nempty: {  }\ntext: |\n  line 1\n  line 2\ntext_no_newline: |-\n  line 1\n  line 2"],
             ],
         ];
     }
@@ -121,6 +123,14 @@ class SourceConfigDocumentTest extends TestCase
     {
         $this->expectException(AcquiaCliException::class);
         $this->expectExceptionMessage($message);
+        SourceConfigDocument::toFiles($document);
+    }
+
+    #[TestWith(["'':\n  a.b:\n    tagged: !custom_tag value\n"], 'custom tag')]
+    #[TestWith(["'':\n  a.b:\n    tagged: !php/const PHP_INT_MAX\n"], 'php constant tag')]
+    public function testToFilesRejectsUnsupportedTags(string $document): void
+    {
+        $this->expectException(ParseException::class);
         SourceConfigDocument::toFiles($document);
     }
 
