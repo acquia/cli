@@ -34,6 +34,8 @@ class CloudDataConfig implements ConfigurationInterface
             ->scalarNode('label')->end()
             ->scalarNode('uuid')->end()
             ->scalarNode('secret')->isRequired()->end()
+            ->scalarNode('cloud_api_base_uri')->defaultNull()->end()
+            ->scalarNode('accounts_uri')->defaultNull()->end()
             ->end()
             ->end()
             ->end()
