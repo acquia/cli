@@ -126,6 +126,7 @@ EOD;
   source:cms:config:pull   Export a Source site's configuration to .acquia/config
   source:cms:config:push   Import .acquia/config into a Source site
   source:link              Associate your working copy with a Source site
+  source:unlink            Remove the working copy's association with its Source site
  ssh-key
   ssh-key:create           Create an SSH key on your local machine
   ssh-key:create-upload    Create an SSH key on your local machine and upload it to the Cloud Platform
