@@ -419,7 +419,7 @@ class AuthLoginCommandTest extends CommandTestBase
 
         $this->executeCommand(
             ['--environment' => 'staging'],
-            ['Staging Key'],
+            ['yes', 'Staging Key'],
         );
         $output = $this->getDisplay();
 

@@ -17,6 +17,8 @@ use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
 use AcquiaCloudApi\Endpoints\Account;
 use GuzzleHttp\Client as GuzzleClient;
 use GuzzleHttp\Exception\ClientException;
+use GuzzleHttp\Exception\ConnectException;
+use GuzzleHttp\Exception\RequestException;
 use Psr\Log\LoggerInterface;
 use SelfUpdate\SelfUpdateManager;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -148,11 +150,12 @@ final class AuthLoginCommand extends CommandBase
 
         $data = json_decode((string) $response->getBody(), true);
 
-        $deviceCode = $data['device_code'];
-        $userCode   = $data['user_code'];
-        $verifyUrl  = $data['verification_uri'];
-        $expiresIn  = $data['expires_in'] ?? 600;
-        $interval   = $data['interval'] ?? 5;
+        $deviceCode       = $data['device_code'];
+        $userCode         = $data['user_code'];
+        $verifyUrl        = $data['verification_uri'];
+        $verifyUrlComplete = $data['verification_uri_complete'] ?? $verifyUrl;
+        $expiresIn        = $data['expires_in'] ?? 600;
+        $interval         = $data['interval'] ?? 5;
 
         // Step 2 — surface the code and URL for the human.
         $output->writeln('');
@@ -166,7 +169,7 @@ final class AuthLoginCommand extends CommandBase
         $output->writeln('');
 
         if (!AcquiaDrupalEnvironmentDetector::isAhIdeEnv() && $this->io->confirm('Do you want to open this page to sign in now?')) {
-            $this->localMachineHelper->startBrowser($verifyUrl);
+            $this->localMachineHelper->startBrowser($verifyUrlComplete);
         }
 
         $output->writeln(sprintf('Waiting for authorization... (code expires in %d minutes)', (int) ceil($expiresIn / 60)));
@@ -186,7 +189,13 @@ final class AuthLoginCommand extends CommandBase
                 ]);
                 $token = json_decode((string) $tokenResponse->getBody(), true);
             } catch (ClientException $e) {
+                // HTTP 4xx — parse the structured error body.
                 $token = json_decode((string) $e->getResponse()->getBody(), true);
+            } catch (ConnectException | RequestException $e) {
+                // Transport error (DNS, timeout, no response). Back off exponentially
+                // and retry; only abort when the device code itself has expired.
+                $interval = min($interval * 2, 30);
+                continue;
             }
 
             $error = $token['error'] ?? '';

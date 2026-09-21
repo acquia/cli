@@ -197,7 +197,7 @@ class AccessTokenConnectorTest extends TestBase
         $client = $clientService->getClient();
         $options = $client->getOptions();
         $this->assertEquals([
-            'User-Agent' => [0 => 'acli/UNKNOWN'],
+            'User-Agent' => [0 => 'acli/UNKNOWN (agent:acquia)'],
             'X-Cloud-IDE-UUID' => IdeHelper::$remoteIdeUuid,
         ], $options['headers']);
 

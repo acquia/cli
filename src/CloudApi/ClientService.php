@@ -7,6 +7,7 @@ namespace Acquia\Cli\CloudApi;
 use Acquia\Cli\ApiCredentialsInterface;
 use Acquia\Cli\Application;
 use Acquia\Cli\ConnectorFactoryInterface;
+use Acquia\Cli\Helpers\TelemetryHelper;
 use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Connector\ConnectorInterface;
 
@@ -54,7 +55,11 @@ class ClientService
 
     protected function configureClient(Client $client): void
     {
-        $userAgent = sprintf("acli/%s", $this->application->getVersion());
+        $userAgent = sprintf('acli/%s', $this->application->getVersion());
+        $provider = TelemetryHelper::getEnvironmentProvider();
+        if ($provider !== null) {
+            $userAgent .= sprintf(' (agent:%s)', $provider);
+        }
         $customHeaders = [
             'User-Agent' => [$userAgent],
         ];

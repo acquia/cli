@@ -6,6 +6,7 @@ namespace Acquia\Cli\CloudApi;
 
 use Acquia\Cli\DataStore\CloudDataStore;
 use GuzzleHttp\Client as GuzzleClient;
+use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\GuzzleException;
 use League\OAuth2\Client\Token\AccessToken;
 
@@ -35,7 +36,8 @@ class DeviceTokenRefresher
             'expires'      => $stored['expiry'] ?? 0,
         ]);
 
-        if (!$token->hasExpired()) {
+        // Refresh 60 s before actual expiry so requests in-flight don't hit a 401.
+        if (($token->getExpires() - time()) > 60) {
             return $stored['access_token'];
         }
 
@@ -61,7 +63,15 @@ class DeviceTokenRefresher
                 ]
             );
             $new = json_decode((string) $response->getBody(), true);
+        } catch (ClientException $e) {
+            // HTTP 4xx: refresh token is likely expired or revoked.
+            $status = $e->getResponse()->getStatusCode();
+            if ($status === 400 || $status === 401) {
+                error_log('[acli] Device token refresh failed (HTTP ' . $status . '). Run `acli auth:login` to re-authenticate.');
+            }
+            return null;
         } catch (GuzzleException) {
+            // Network / transport error — fail silently; caller falls back.
             return null;
         }
 
