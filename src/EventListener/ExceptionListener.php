@@ -94,7 +94,12 @@ class ExceptionListener
                     break;
                 case "This resource requires additional authentication.":
                     $this->helpMessages[] = "This is likely because you have Federated Authentication required for your organization.";
-                    $this->helpMessages[] = "Run `acli login` to authenticate via API token and then try again.";
+                    if (getenv('AH_ORGANIZATION_UUID')) {
+                        $this->helpMessages[] = "`AH_ORGANIZATION_UUID` is already set in your environment. Run `acli auth:login` to configure API credentials, then retry.";
+                    } else {
+                        $this->helpMessages[] = "First, export your organization UUID: `export AH_ORGANIZATION_UUID=YOUR_ORG_UUID`. Find your UUID at https://cloud.acquia.com/a/organizations";
+                        $this->helpMessages[] = "Then run `acli auth:login` to configure API credentials and retry.";
+                    }
                     $this->helpMessages[] = "Get help for this error at https://docs.acquia.com/acquia-cloud-platform/add-ons/acquia-cli/known-issues#federated-authentication-does-not-work";
                     break;
                 default:

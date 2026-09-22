@@ -11,6 +11,7 @@ use Acquia\Cli\Tests\TestBase;
 use AcquiaCloudApi\Exception\ApiErrorException;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Event\ConsoleErrorEvent;
 use Symfony\Component\Console\Exception\RuntimeException;
@@ -127,7 +128,8 @@ class ExceptionListenerTest extends TestBase
                 ]),
                 [
                     'This is likely because you have Federated Authentication required for your organization.',
-                    'Run `acli login` to authenticate via API token and then try again.',
+                    'First, export your organization UUID: `export AH_ORGANIZATION_UUID=YOUR_ORG_UUID`. Find your UUID at https://cloud.acquia.com/a/organizations',
+                    'Then run `acli auth:login` to configure API credentials and retry.',
                     'Get help for this error at https://docs.acquia.com/acquia-cloud-platform/add-ons/acquia-cli/known-issues#federated-authentication-does-not-work',
                 ],
             ],
@@ -149,5 +151,36 @@ class ExceptionListenerTest extends TestBase
                 ],
             ],
         ];
+    }
+
+    #[Group('serial')]
+    public function testFederatedAuthHelpWithOrgUuidAlreadySet(): void
+    {
+        putenv('AH_ORGANIZATION_UUID=647fb0ca-8903-4e45-bbca-9472d8efafcb');
+        try {
+            $exceptionListener = new ExceptionListener();
+            $commandProphecy = $this->prophet->prophesize(Command::class);
+            $applicationProphecy = $this->prophet->prophesize(Application::class);
+            $messages = [
+                '<options=bold>How to fix it:</> This is likely because you have Federated Authentication required for your organization.',
+                '`AH_ORGANIZATION_UUID` is already set in your environment. Run `acli auth:login` to configure API credentials, then retry.',
+                'Get help for this error at https://docs.acquia.com/acquia-cloud-platform/add-ons/acquia-cli/known-issues#federated-authentication-does-not-work',
+                'You can find Acquia CLI documentation at https://docs.acquia.com/acquia-cli/',
+                'You can submit a support ticket at https://support-acquia.force.com/s/contactsupport' . PHP_EOL . 'Re-run the command with the <bg=blue;fg=white;options=bold>-vvv</> flag and include the full command output in your support ticket.',
+            ];
+            $applicationProphecy->setHelpMessages($messages)->shouldBeCalled();
+            $commandProphecy->getApplication()->willReturn($applicationProphecy->reveal());
+            $commandProphecy->getName()->willReturn('ide:wizard:ssh-key:create-upload');
+            $error = new ApiErrorException((object) [
+                'error' => '',
+                'message' => 'This resource requires additional authentication.',
+            ]);
+            $consoleErrorEvent = new ConsoleErrorEvent($this->input, $this->output, $error, $commandProphecy->reveal());
+            $exceptionListener->onConsoleError($consoleErrorEvent);
+            $this->prophet->checkPredictions();
+            self::assertTrue(true);
+        } finally {
+            putenv('AH_ORGANIZATION_UUID');
+        }
     }
 }
