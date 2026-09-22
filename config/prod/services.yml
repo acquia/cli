@@ -84,10 +84,7 @@ services:
     class: Acquia\Cli\AcsfApi\AcsfCredentials
 
   # AcquiaCloudApi services.
-  Acquia\Cli\Command\Api\ApiCommandHelper: ~
-  Acquia\Cli\Command\Api\ApiV3CommandHelper: ~
   Acquia\Cli\Command\Api\ApiCommandFactory: ~
-  Acquia\Cli\Command\Api\ApiV3CommandFactory: ~
   Acquia\Cli\Command\Api\ApiBaseCommand:
     class: Acquia\Cli\Command\Api\ApiBaseCommand
     factory: ['@Acquia\Cli\Command\Api\ApiCommandFactory', 'createCommand']

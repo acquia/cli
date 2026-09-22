@@ -149,6 +149,10 @@ final class AuthLoginCommand extends CommandBase
         }
 
         $data = json_decode((string) $response->getBody(), true);
+        if (!is_array($data) || !isset($data['device_code'], $data['user_code'], $data['verification_uri'])) {
+            $output->writeln('<error>Unexpected response from device authorization endpoint.</error>');
+            return Command::FAILURE;
+        }
 
         $deviceCode       = $data['device_code'];
         $userCode         = $data['user_code'];
