@@ -45,7 +45,7 @@ class DeviceTokenRefresherTest extends TestBase
         $datastoreProphecy = $this->prophet->prophesize(CloudDataStore::class);
         $this->datastoreProphecy = $datastoreProphecy;
 
-        return new DeviceTokenRefresher($datastoreProphecy->reveal(), $client);
+        return new DeviceTokenRefresher($datastoreProphecy->reveal(), $this->logger, $client);
     }
 
     public function testReturnsNullWhenNoTokenStored(): void

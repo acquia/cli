@@ -9,11 +9,13 @@ use GuzzleHttp\Client as GuzzleClient;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\GuzzleException;
 use League\OAuth2\Client\Token\AccessToken;
+use Psr\Log\LoggerInterface;
 
 class DeviceTokenRefresher
 {
     public function __construct(
         private CloudDataStore $datastore,
+        private LoggerInterface $logger,
         private GuzzleClient $httpClient = new GuzzleClient(['timeout' => 15]),
     ) {
     }
@@ -67,7 +69,7 @@ class DeviceTokenRefresher
             // HTTP 4xx: refresh token is likely expired or revoked.
             $status = $e->getResponse()->getStatusCode();
             if ($status === 400 || $status === 401) {
-                error_log('[acli] Device token refresh failed (HTTP ' . $status . '). Run `acli auth:login` to re-authenticate.');
+                $this->logger->warning('Device token refresh failed (HTTP {status}). Run `acli auth:login` to re-authenticate.', ['status' => $status]);
             }
             return null;
         } catch (GuzzleException) {
