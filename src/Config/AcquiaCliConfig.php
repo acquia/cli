@@ -21,6 +21,7 @@ class AcquiaCliConfig implements ConfigurationInterface
             ->getRootNode()
                 ->children()
                     ->scalarNode('cloud_app_uuid')->end()
+                    ->scalarNode('source_site_id')->end()
                     ->arrayNode('push')
                         ->children()
                             ->arrayNode('artifact')

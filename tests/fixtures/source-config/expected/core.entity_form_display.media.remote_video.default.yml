@@ -1,0 +1,114 @@
+uuid: e785e143-ba3c-4c6f-baa8-4756b8f507b2
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.media.remote_video.categories
+    - field.field.media.remote_video.media_oembed_video
+    - field.field.media.remote_video.tags
+    - media.type.remote_video
+  module:
+    - field_group
+    - haas_content
+    - media
+    - metatag
+    - path
+third_party_settings:
+  field_group:
+    group_taxonomy:
+      children:
+        - categories
+        - tags
+      label: Taxonomy
+      region: content
+      parent_name: ''
+      weight: 9
+      format_type: fieldset
+      format_settings:
+        classes: ''
+        show_empty_fields: false
+        id: ''
+        description: ''
+        required_fields: false
+id: media.remote_video.default
+targetEntityType: media
+bundle: remote_video
+mode: default
+content:
+  categories:
+    type: entity_reference_tagify_hierarchical
+    weight: 27
+    region: content
+    settings:
+      match_operator: CONTAINS
+      match_limit: 20
+      placeholder: 'Choose categories'
+      suggestions_dropdown: 0
+      show_entity_id: 0
+    third_party_settings: {  }
+  created:
+    type: datetime_timestamp
+    weight: 5
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+  media_oembed_video:
+    type: oembed_textfield
+    weight: 0
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  metatags:
+    type: metatag_firehose
+    weight: 26
+    region: content
+    settings:
+      sidebar: true
+      use_details: true
+    third_party_settings: {  }
+  path:
+    type: path
+    weight: 7
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+  status:
+    type: boolean_checkbox
+    weight: 8
+    region: content
+    settings:
+      display_label: true
+    third_party_settings: {  }
+  tags:
+    type: entity_reference_tagify
+    weight: 28
+    region: content
+    settings:
+      match_operator: CONTAINS
+      match_limit: 20
+      placeholder: 'Add tags'
+      suggestions_dropdown: 0
+      show_entity_id: 0
+    third_party_settings: {  }
+  translation:
+    weight: 6
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+  uid:
+    type: entity_reference_autocomplete
+    weight: 2
+    region: content
+    settings:
+      match_operator: CONTAINS
+      match_limit: 10
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+hidden:
+  categories: true
+  langcode: true
+  name: true
+  tags: true

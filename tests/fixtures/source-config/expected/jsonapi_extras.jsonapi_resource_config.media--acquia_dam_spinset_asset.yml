@@ -1,0 +1,23 @@
+uuid: 21eb8e8d-5180-461f-8ab8-e5d84b7d8d88
+langcode: en
+status: true
+dependencies:
+  config:
+    - media.type.acquia_dam_spinset_asset
+id: media--acquia_dam_spinset_asset
+disabled: false
+path: media/acquia_dam_spinset_asset
+resourceType: media--acquia_dam_spinset_asset
+resourceFields:
+  mid:
+    disabled: true
+    fieldName: mid
+    publicName: mid
+    enhancer:
+      id: ''
+  vid:
+    disabled: true
+    fieldName: vid
+    publicName: vid
+    enhancer:
+      id: ''

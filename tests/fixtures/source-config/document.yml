@@ -1,0 +1,5916 @@
+'':
+  core.base_field_override.node.article.promote:
+    uuid: cf936d55-e374-43fb-a904-dada6a58afd2
+    langcode: en
+    status: true
+    dependencies:
+      config:
+        - node.type.article
+    _core:
+      default_config_hash: GrzL4TIZFEHW2o6Qr_sTIT2DWt88DwkgC2NWj3xE46I
+    id: node.article.promote
+    field_name: promote
+    entity_type: node
+    bundle: article
+    label: 'Promoted to front page'
+    description: ''
+    required: false
+    translatable: true
+    default_value:
+      -
+        value: false
+    default_value_callback: ''
+    settings:
+      on_label: 'On'
+      off_label: 'Off'
+    field_type: boolean
+  core.base_field_override.node.person.status:
+    uuid: 9cfb97b6-b6f5-40dc-bd3b-546cba522619
+    langcode: en
+    status: true
+    dependencies:
+      config:
+        - node.type.person
+    _core:
+      default_config_hash: y-kCVhlvg7OvtzBrI0hCYIcduf55A5oRXl9bDGjHSLc
+    id: node.person.status
+    field_name: status
+    entity_type: node
+    bundle: person
+    label: Published
+    description: ''
+    required: false
+    translatable: true
+    default_value:
+      -
+        value: false
+    default_value_callback: ''
+    settings:
+      on_label: 'On'
+      off_label: 'Off'
+    field_type: boolean
+  core.base_field_override.node.person.title:
+    uuid: 37ce7281-601d-4fc1-aa6b-d9a0a9bd97d8
+    langcode: en
+    status: true
+    dependencies:
+      config:
+        - node.type.person
+    _core:
+      default_config_hash: ppJksNIlmg7WiVfHydPDROhK9ceGLvo7Lm1ejQfbmQE
+    id: node.person.title
+    field_name: title
+    entity_type: node
+    bundle: person
+    label: 'Display name'
+    description: ''
+    required: true
+    translatable: true
+    default_value: {  }
+    default_value_callback: ''
+    settings: {  }
+    field_type: string
+  core.entity_form_display.media.document.default:
+    uuid: a28bd6b1-bc3d-4b6f-82a1-56b99fdfdada
+    langcode: en
+    status: true
+    dependencies:
+      config:
+        - field.field.media.document.categories
+        - field.field.media.document.media_file
+        - field.field.media.document.tags
+        - media.type.document
+      module:
+        - field_group
+        - file
+        - haas_content
+        - metatag
+        - path
+    third_party_settings:
+      field_group:
+        group_taxonomy:
+          children:
+            - categories
+            - tags
+          label: Taxonomy
+          region: content
+          parent_name: ''
+          weight: 9
+          format_type: fieldset
+          format_settings:
+            classes: ''
+            show_empty_fields: false
+            id: ''
+            description: ''
+            required_fields: false
+    id: media.document.default
+    targetEntityType: media
+    bundle: document
+    mode: default
+    content:
+      categories:
+        type: entity_reference_tagify_hierarchical
+        weight: 27
+        region: content
+        settings:
+          match_operator: CONTAINS
+          match_limit: 20
+          placeholder: 'Choose categories'
+          suggestions_dropdown: 0
+          show_entity_id: 0
+        third_party_settings: {  }
+      created:
+        type: datetime_timestamp
+        weight: 4
+        region: content
+        settings: {  }
+        third_party_settings: {  }
+      media_file:
+        type: file_generic
+        weight: 1
+        region: content
+        settings:
+          progress_indicator: throbber
+        third_party_settings: {  }
+      metatags:
+        type: metatag_firehose
+        weight: 26
+        region: content
+        settings:
+          sidebar: true
+          use_details: true
+        third_party_settings: {  }
+      name:
+        type: string_textfield
+        weight: 0
+        region: content
+        settings:
+          size: 60
+          placeholder: ''
+        third_party_settings: {  }
+      path:
+        type: path
+        weight: 6
+        region: content
+        settings: {  }
+        third_party_settings: {  }
+      replace_file:
+        weight: 2
+        region: content
+        settings: {  }
+        third_party_settings: {  }
+      status:
+        type: boolean_checkbox
+        weight: 7
+        region: content
+        settings:
+          display_label: true
+        third_party_settings: {  }
+      tags:
+        type: entity_reference_tagify
+        weight: 28
+        region: content
+        settings:
+          match_operator: CONTAINS
+          match_limit: 20
+          placeholder: 'Add tags'
+          suggestions_dropdown: 0
+          show_entity_id: 0
+        third_party_settings: {  }
+      translation:
+        weight: 5
+        region: content
+        settings: {  }
+        third_party_settings: {  }
+      uid:
+        type: entity_reference_autocomplete
+        weight: 3
+        region: content
+        settings:
+          match_operator: CONTAINS
+          match_limit: 10
+          size: 60
+          placeholder: ''
+        third_party_settings: {  }
+    hidden:
+      categories: true
+      langcode: true
+      tags: true
+  core.entity_form_display.media.document.media_library:
+    uuid: 2e9313c0-f149-45a0-99ea-02a7f9370491
+    langcode: en
+    status: true
+    dependencies:
+      config:
+        - core.entity_form_mode.media.media_library
+        - field.field.media.document.categories
+        - field.field.media.document.media_file
+        - field.field.media.document.tags
+        - media.type.document
+      module:
+        - metatag
+    id: media.document.media_library
+    targetEntityType: media
+    bundle: document
+    mode: media_library
+    content:
+      metatags:
+        type: metatag_firehose
+        weight: 26
+        region: content
+        settings:
+          sidebar: true
+          use_details: true
+        third_party_settings: {  }
+      name:
+        type: string_textfield
+        weight: 0
+        region: content
+        settings:
+          size: 60
+          placeholder: ''
+        third_party_settings: {  }
+    hidden:
+      categories: true
+      created: true
+      langcode: true
+      media_file: true
+      path: true
+      replace_file: true
+      status: true
+      tags: true
+      translation: true
+      uid: true
+  core.entity_form_display.media.image.default:
+    uuid: 834789b9-8f75-415c-8d3d-83f5848a2418
+    langcode: en
+    status: true
+    dependencies:
+      config:
+        - field.field.media.image.categories
+        - field.field.media.image.media_image
+        - field.field.media.image.tags
+        - image.style.media_library
+        - media.type.image
+      module:
+        - field_group
+        - focal_point
+        - haas_content
+        - metatag
+        - path
+    third_party_settings:
+      field_group:
+        group_taxonomy:
+          children:
+            - categories
+            - tags
+          label: Taxonomy
+          region: content
+          parent_name: ''
+          weight: 10
+          format_type: fieldset
+          format_settings:
+            classes: ''
+            show_empty_fields: false
+            id: ''
+            description: ''
+            required_fields: false
+    id: media.image.default
+    targetEntityType: media
+    bundle: image
+    mode: default
+    content:
+      categories:
+        type: entity_reference_tagify_hierarchical
+        weight: 27
+        region: content
+        settings:
+          match_operator: CONTAINS
+          match_limit: 20
+          placeholder: 'Choose categories'
+          suggestions_dropdown: 0
+          show_entity_id: 0
+        third_party_settings: {  }
+      created:
+        type: datetime_timestamp
+        weight: 6
+        region: content
+        settings: {  }
+        third_party_settings: {  }
+      media_image:
+        type: image_focal_point
+        weight: 1
+        region: content
+        settings:
+          progress_indicator: throbber
+          preview_image_style: media_library
+          preview_link: true
+          offsets: '50,50'
+        third_party_settings: {  }
+      metatags:
+        type: metatag_firehose
+        weight: 26
+        region: content
+        settings:
+          sidebar: true
+          use_details: true
+        third_party_settings: {  }
+      name:
+        type: string_textfield
+        weight: 0
+        region: content
+        settings:
+          size: 60
+          placeholder: ''
+        third_party_settings: {  }
+      path:
+        type: path
+        weight: 8
+        region: content
+        settings: {  }
+        third_party_settings: {  }
+      replace_file:
+        weight: 2
+        region: content
+        settings: {  }
+        third_party_settings: {  }
+      status:
+        type: boolean_checkbox
+        weight: 9
+        region: content
+        settings:
+          display_label: true
+        third_party_settings: {  }
+      tags:
+        type: entity_reference_tagify
+        weight: 28
+        region: content
+        settings:
+          match_operator: CONTAINS
+          match_limit: 20
+          placeholder: 'Add tags'
+          suggestions_dropdown: 0
+          show_entity_id: 0
+        third_party_settings: {  }
+      translation:
+        weight: 7
+        region: content
+        settings: {  }
+        third_party_settings: {  }
+      uid:
+        type: entity_reference_autocomplete
+        weight: 3
+        region: content
+        settings:
+          match_operator: CONTAINS
+          match_limit: 10
+          size: 60
+          placeholder: ''
+        third_party_settings: {  }
+    hidden:
+      categories: true
+      langcode: true
+      tags: true
+  core.entity_form_display.media.image.media_library:
+    uuid: 964d313a-3fe4-4398-8959-73258556ef11
+    langcode: en
+    status: true
+    dependencies:
+      config:
+        - core.entity_form_mode.media.media_library
+        - field.field.media.image.categories
+        - field.field.media.image.media_image
+        - field.field.media.image.tags
+        - image.style.media_library
+        - media.type.image
+      module:
+        - image
+        - metatag
+    id: media.image.media_library
+    targetEntityType: media
+    bundle: image
+    mode: media_library
+    content:
+      media_image:
+        type: image_image
+        weight: 5
+        region: content
+        settings:
+          progress_indicator: throbber
+          preview_image_style: media_library
+        third_party_settings: {  }
+      metatags:
+        type: metatag_firehose
+        weight: 26
+        region: content
+        settings:
+          sidebar: true
+          use_details: true
+        third_party_settings: {  }
+      name:
+        type: string_textfield
+        weight: 0
+        region: content
+        settings:
+          size: 60
+          placeholder: ''
+        third_party_settings: {  }
+    hidden:
+      categories: true
+      created: true
+      langcode: true
+      path: true
+      replace_file: true
+      status: true
+      tags: true
+      translation: true
+      uid: true
+  core.entity_form_display.media.remote_video.default:
+    uuid: e785e143-ba3c-4c6f-baa8-4756b8f507b2
+    langcode: en
+    status: true
+    dependencies:
+      config:
+        - field.field.media.remote_video.categories
+        - field.field.media.remote_video.media_oembed_video
+        - field.field.media.remote_video.tags
+        - media.type.remote_video
+      module:
+        - field_group
+        - haas_content
+        - media
+        - metatag
+        - path
+    third_party_settings:
+      field_group:
+        group_taxonomy:
+          children:
+            - categories
+            - tags
+          label: Taxonomy
+          region: content
+          parent_name: ''
+          weight: 9
+          format_type: fieldset
+          format_settings:
+            classes: ''
+            show_empty_fields: false
+            id: ''
+            description: ''
+            required_fields: false
+    id: media.remote_video.default
+    targetEntityType: media
+    bundle: remote_video
+    mode: default
+    content:
+      categories:
+        type: entity_reference_tagify_hierarchical
+        weight: 27
+        region: content
+        settings:
+          match_operator: CONTAINS
+          match_limit: 20
+          placeholder: 'Choose categories'
+          suggestions_dropdown: 0
+          show_entity_id: 0
+        third_party_settings: {  }
+      created:
+        type: datetime_timestamp
+        weight: 5
+        region: content
+        settings: {  }
+        third_party_settings: {  }
+      media_oembed_video:
+        type: oembed_textfield
+        weight: 0
+        region: content
+        settings:
+          size: 60
+          placeholder: ''
+        third_party_settings: {  }
+      metatags:
+        type: metatag_firehose
+        weight: 26
+        region: content
+        settings:
+          sidebar: true
+          use_details: true
+        third_party_settings: {  }
+      path:
+        type: path
+        weight: 7
+        region: content
+        settings: {  }
+        third_party_settings: {  }
+      status:
+        type: boolean_checkbox
+        weight: 8
+        region: content
+        settings:
+          display_label: true
+        third_party_settings: {  }
+      tags:
+        type: entity_reference_tagify
+        weight: 28
+        region: content
+        settings:
+          match_operator: CONTAINS
+          match_limit: 20
+          placeholder: 'Add tags'
+          suggestions_dropdown: 0
+          show_entity_id: 0
+        third_party_settings: {  }
+      translation:
+        weight: 6
+        region: content
+        settings: {  }
+        third_party_settings: {  }
+      uid:
+        type: entity_reference_autocomplete
+        weight: 2
+        region: content
+        settings:
+          match_operator: CONTAINS
+          match_limit: 10
+          size: 60
+          placeholder: ''
+        third_party_settings: {  }
+    hidden:
+      categories: true
+      langcode: true
+      name: true
+      tags: true
+  core.entity_form_display.media.remote_video.media_library:
+    uuid: 44a32894-5844-4d96-8667-ccd987cf8fbf
+    langcode: en
+    status: true
+    dependencies:
+      config:
+        - core.entity_form_mode.media.media_library
+        - field.field.media.remote_video.categories
+        - field.field.media.remote_video.media_oembed_video
+        - field.field.media.remote_video.tags
+        - media.type.remote_video
+      module:
+        - metatag
+    id: media.remote_video.media_library
+    targetEntityType: media
+    bundle: remote_video
+    mode: media_library
+    content:
+      metatags:
+        type: metatag_firehose
+        weight: 26
+        region: content
+        settings:
+          sidebar: true
+          use_details: true
+        third_party_settings: {  }
+      name:
+        type: string_textfield
+        weight: 0
+        region: content
+        settings:
+          size: 60
+          placeholder: ''
+        third_party_settings: {  }
+    hidden:
+      categories: true
+      created: true
+      langcode: true
+      media_oembed_video: true
+      path: true
+      scheduler_settings: true
+      status: true
+      tags: true
+      translation: true
+      uid: true
+  core.entity_form_display.media.video.default:
+    uuid: 5264cca0-f083-456b-8107-a31532ebd404
+    langcode: en
+    status: true
+    dependencies:
+      config:
+        - field.field.media.video.categories
+        - field.field.media.video.media_video_file
+        - field.field.media.video.tags
+        - media.type.video
+      module:
+        - field_group
+        - file
+        - haas_content
+        - metatag
+        - path
+    third_party_settings:
+      field_group:
+        group_taxonomy:
+          children:
+            - categories
+            - tags
+          label: Taxonomy
+          region: content
+          parent_name: ''
+          weight: 10
+          format_type: fieldset
+          format_settings:
+            classes: ''
+            show_empty_fields: false
+            id: ''
+            description: ''
+            required_fields: false
+    id: media.video.default
+    targetEntityType: media
+    bundle: video
+    mode: default
+    content:
+      categories:
+        type: entity_reference_tagify_hierarchical
+        weight: 27
+        region: content
+        settings:
+          match_operator: CONTAINS
+          match_limit: 20
+          placeholder: 'Choose categories'
+          suggestions_dropdown: 0
+          show_entity_id: 0
+        third_party_settings: {  }
+      created:
+        type: datetime_timestamp
+        weight: 10
+        region: content
+        settings: {  }
+        third_party_settings: {  }
+      media_video_file:
+        type: file_generic
+        weight: 0
+        region: content
+        settings:
+          progress_indicator: throbber
+        third_party_settings: {  }
+      metatags:
+        type: metatag_firehose
+        weight: 26
+        region: content
+        settings:
+          sidebar: true
+          use_details: true
+        third_party_settings: {  }
+      name:
+        type: string_textfield
+        weight: -5
+        region: content
+        settings:
+          size: 60
+          placeholder: ''
+        third_party_settings: {  }
+      path:
+        type: path
+        weight: 30
+        region: content
+        settings: {  }
+        third_party_settings: {  }
+      replace_file:
+        weight: 1
+        region: content
+        settings: {  }
+        third_party_settings: {  }
+      status:
+        type: boolean_checkbox
+        weight: 100
+        region: content
+        settings:
+          display_label: true
+        third_party_settings: {  }
+      tags:
+        type: entity_reference_tagify
+        weight: 28
+        region: content
+        settings:
+          match_operator: CONTAINS
+          match_limit: 20
+          placeholder: 'Add tags'
+          suggestions_dropdown: 0
+          show_entity_id: 0
+        third_party_settings: {  }
+      translation:
+        weight: 5
+        region: content
+        settings: {  }
+        third_party_settings: {  }
+      uid:
+        type: entity_reference_autocomplete
+        weight: 5
+        region: content
+        settings:
+          match_operator: CONTAINS
+          match_limit: 10
+          size: 60
+          placeholder: ''
+        third_party_settings: {  }
+    hidden:
+      categories: true
+      langcode: true
+      tags: true
+  core.entity_form_display.media.video.media_library:
+    uuid: c226360d-9d96-4673-965b-ecef5954f9e3
+    langcode: en
+    status: true
+    dependencies:
+      config:
+        - core.entity_form_mode.media.media_library
+        - field.field.media.video.categories
+        - field.field.media.video.media_video_file
+        - field.field.media.video.tags
+        - media.type.video
+      module:
+        - file
+        - metatag
+    id: media.video.media_library
+    targetEntityType: media
+    bundle: video
+    mode: media_library
+    content:
+      media_video_file:
+        type: file_generic
+        weight: 0
+        region: content
+        settings:
+          progress_indicator: throbber
+        third_party_settings: {  }
+      metatags:
+        type: metatag_firehose
+        weight: 26
+        region: content
+        settings:
+          sidebar: true
+          use_details: true
+        third_party_settings: {  }
+      name:
+        type: string_textfield
+        weight: -5
+        region: content
+        settings:
+          size: 60
+          placeholder: ''
+        third_party_settings: {  }
+    hidden:
+      categories: true
+      created: true
+      langcode: true
+      metatag: true
+      path: true
+      replace_file: true
+      status: true
+      tags: true
+      uid: true
+  core.entity_form_display.node.article.default:
+    uuid: ae410a68-db84-4959-94d5-28881553eee5
+    langcode: en
+    status: true
+    dependencies:
+      config:
+        - field.field.node.article.author_profile
+        - field.field.node.article.body
+        - field.field.node.article.categories
+        - field.field.node.article.cover_image
+        - field.field.node.article.media
+        - field.field.node.article.related_articles
+        - field.field.node.article.tags
+        - node.type.article
+        - workflows.workflow.editorial
+      module:
+        - content_moderation
+        - field_group
+        - haas_content
+        - media_library
+        - metatag
+        - path
+        - scheduler
+        - scheduler_content_moderation_integration
+        - text
+    third_party_settings:
+      field_group:
+        group_taxonomy:
+          children:
+            - categories
+            - tags
+          label: Taxonomy
+          region: content
+          parent_name: ''
+          weight: 8
+          format_type: fieldset
+          format_settings:
+            classes: ''
+            show_empty_fields: false
+            id: ''
+            description: ''
+            required_fields: false
+        group_media:
+          children:
+            - cover_image
+            - media
+          label: Media
+          region: content
+          parent_name: ''
+          weight: 10
+          format_type: fieldset
+          format_settings:
+            classes: ''
+            show_empty_fields: false
+            id: ''
+            description: ''
+            required_fields: false
+    _core:
+      default_config_hash: cOT_33fZCrMJzsUb_qmwzIS0bhCLp-VAGFdGOsoC65c
+    id: node.article.default
+    targetEntityType: node
+    bundle: article
+    mode: default
+    content:
+      author_profile:
+        type: entity_reference_tagify
+        weight: 101
+        region: content
+        settings:
+          match_operator: CONTAINS
+          match_limit: 20
+          placeholder: 'Choose author profile'
+          suggestions_dropdown: 0
+          show_entity_id: 0
+          show_stacked: false
+        third_party_settings: {  }
+      body:
+        type: text_textarea_with_summary
+        weight: 7
+        region: content
+        settings:
+          rows: 9
+          summary_rows: 3
+          placeholder: ''
+          show_summary: false
+        third_party_settings: {  }
+      categories:
+        type: entity_reference_tagify_hierarchical
+        weight: 13
+        region: content
+        settings:
+          match_operator: CONTAINS
+          match_limit: 20
+          placeholder: 'Choose categories'
+          suggestions_dropdown: 0
+          show_entity_id: 0
+          show_stacked: false
+        third_party_settings: {  }
+      cover_image:
+        type: media_library_widget
+        weight: 14
+        region: content
+        settings:
+          media_types: {  }
+        third_party_settings: {  }
+      created:
+        type: datetime_timestamp
+        weight: 2
+        region: content
+        settings: {  }
+        third_party_settings: {  }
+      media:
+        type: media_library_widget
+        weight: 15
+        region: content
+        settings:
+          media_types: {  }
+        third_party_settings: {  }
+      metatags:
+        type: metatag_firehose
+        weight: 11
+        region: content
+        settings:
+          sidebar: true
+          use_details: true
+        third_party_settings: {  }
+      path:
+        type: path
+        weight: 3
+        region: content
+        settings: {  }
+        third_party_settings: {  }
+      related_articles:
+        type: entity_reference_tagify
+        weight: 12
+        region: content
+        settings:
+          match_operator: CONTAINS
+          match_limit: 20
+          placeholder: 'Choose related articles'
+          suggestions_dropdown: 0
+          show_entity_id: 0
+          show_stacked: false
+        third_party_settings: {  }
+      scheduler_settings:
+        weight: 5
+        region: content
+        settings: {  }
+        third_party_settings: {  }
+      simple_sitemap:
+        weight: 10
+        region: content
+        settings: {  }
+        third_party_settings: {  }
+      status:
+        type: boolean_checkbox
+        weight: 6
+        region: content
+        settings:
+          display_label: true
+        third_party_settings: {  }
+      tags:
+        type: entity_reference_tagify
+        weight: 15
+        region: content
+        settings:
+          match_operator: CONTAINS
+          match_limit: 20
+          placeholder: 'Add tags'
+          suggestions_dropdown: 0
+          show_entity_id: 0
+          show_stacked: false
+        third_party_settings: {  }
+      title:
+        type: string_textfield
+        weight: 0
+        region: content
+        settings:
+          size: 60
+          placeholder: ''
+        third_party_settings: {  }
+      translation:
+        weight: 4
+        region: content
+        settings: {  }
+        third_party_settings: {  }
+      uid:
+        type: entity_reference_autocomplete
+        weight: 1
+        region: content
+        settings:
+          match_operator: CONTAINS
+          match_limit: 10
+          size: 60
+          placeholder: ''
+        third_party_settings: {  }
+      url_redirects:
+        weight: 4
+        region: content
+        settings: {  }
+        third_party_settings: {  }
+    hidden: {  }
+  core.entity_form_display.node.person.default:
+    uuid: 3b1e48e8-d086-4ce1-ae8d-bbb2324f9fd9
+    langcode: en
+    status: true
+    dependencies:
+      config:
+        - field.field.node.person.bio
+        - field.field.node.person.first_name
+        - field.field.node.person.job_title
+        - field.field.node.person.last_name
+        - field.field.node.person.profile_image
+        - node.type.person
+        - workflows.workflow.editorial
+      module:
+        - content_moderation
+        - media_library
+        - metatag
+        - path
+        - scheduler
+        - scheduler_content_moderation_integration
+        - text
+    _core:
+      default_config_hash: zHl0kW2YFAD4ks6O9qVmSfYQ8uMGh6H4ORrzGrUtMDc
+    id: node.person.default
+    targetEntityType: node
+    bundle: person
+    mode: default
+    content:
+      bio:
+        type: text_textarea
+        weight: 125
+        region: content
+        settings:
+          rows: 5
+          placeholder: ''
+        third_party_settings: {  }
+      created:
+        type: datetime_timestamp
+        weight: 10
+        region: content
+        settings: {  }
+        third_party_settings: {  }
+      first_name:
+        type: string_textfield
+        weight: 122
+        region: content
+        settings:
+          size: 60
+          placeholder: ''
+        third_party_settings: {  }
+      job_title:
+        type: string_textfield
+        weight: 124
+        region: content
+        settings:
+          size: 60
+          placeholder: ''
+        third_party_settings: {  }
+      last_name:
+        type: string_textfield
+        weight: 123
+        region: content
+        settings:
+          size: 60
+          placeholder: ''
+        third_party_settings: {  }
+      metatags:
+        type: metatag_firehose
+        weight: 121
+        region: content
+        settings:
+          sidebar: true
+          use_details: true
+        third_party_settings: {  }
+      path:
+        type: path
+        weight: 30
+        region: content
+        settings: {  }
+        third_party_settings: {  }
+      profile_image:
+        type: media_library_widget
+        weight: 126
+        region: content
+        settings:
+          media_types: {  }
+        third_party_settings: {  }
+      simple_sitemap:
+        weight: 10
+        region: content
+        settings: {  }
+        third_party_settings: {  }
+      status:
+        type: boolean_checkbox
+        weight: 120
+        region: content
+        settings:
+          display_label: true
+        third_party_settings: {  }
+      title:
+        type: string_textfield
+        weight: -5
+        region: content
+        settings:
+          size: 60
+          placeholder: ''
+        third_party_settings: {  }
+      uid:
+        type: entity_reference_autocomplete
+        weight: 5
+        region: content
+        settings:
+          match_operator: CONTAINS
+          match_limit: 10
+          size: 60
+          placeholder: ''
+        third_party_settings: {  }
+      url_redirects:
+        weight: 50
+        region: content
+        settings: {  }
+        third_party_settings: {  }
+    hidden: {  }
+  core.entity_form_display.taxonomy_term.categories.default:
+    uuid: c0dd9b7b-2ce7-4987-af08-b3b749739676
+    langcode: en
+    status: true
+    dependencies:
+      config:
+        - taxonomy.vocabulary.categories
+      module:
+        - metatag
+        - path
+        - text
+    id: taxonomy_term.categories.default
+    targetEntityType: taxonomy_term
+    bundle: categories
+    mode: default
+    content:
+      description:
+        type: text_textfield
+        weight: 0
+        region: content
+        settings:
+          size: 60
+          placeholder: ''
+        third_party_settings: {  }
+      metatags:
+        type: metatag_firehose
+        weight: 101
+        region: content
+        settings:
+          sidebar: true
+          use_details: true
+        third_party_settings: {  }
+      name:
+        type: string_textfield
+        weight: -5
+        region: content
+        settings:
+          size: 60
+          placeholder: ''
+        third_party_settings: {  }
+      path:
+        type: path
+        weight: 30
+        region: content
+        settings: {  }
+        third_party_settings: {  }
+      status:
+        type: boolean_checkbox
+        weight: 100
+        region: content
+        settings:
+          display_label: true
+        third_party_settings: {  }
+      translation:
+        weight: 10
+        region: content
+        settings: {  }
+        third_party_settings: {  }
+    hidden:
+      langcode: true
+  core.entity_form_display.taxonomy_term.tags.default:
+    uuid: 7331f039-8381-412e-be3c-b616ddfc4e8f
+    langcode: en
+    status: true
+    dependencies:
+      config:
+        - taxonomy.vocabulary.tags
+      module:
+        - metatag
+        - path
+        - text
+    id: taxonomy_term.tags.default
+    targetEntityType: taxonomy_term
+    bundle: tags
+    mode: default
+    content:
+      description:
+        type: text_textfield
+        weight: 0
+        region: content
+        settings:
+          size: 60
+          placeholder: ''
+        third_party_settings: {  }
+      metatags:
+        type: metatag_firehose
+        weight: 101
+        region: content
+        settings:
+          sidebar: true
+          use_details: true
+        third_party_settings: {  }
+      name:
+        type: string_textfield
+        weight: -5
+        region: content
+        settings:
+          size: 60
+          placeholder: ''
+        third_party_settings: {  }
+      path:
+        type: path
+        weight: 30
+        region: content
+        settings: {  }
+        third_party_settings: {  }
+      status:
+        type: boolean_checkbox
+        weight: 100
+        region: content
+        settings:
+          display_label: true
+        third_party_settings: {  }
+      translation:
+        weight: 10
+        region: content
+        settings: {  }
+        third_party_settings: {  }
+    hidden:
+      langcode: true
+  cors_ui.configuration:
+    enabled: true
+    allowedHeaders:
+      - Authorization
+      - X-Consumer-ID
+    allowedMethods:
+      - OPTIONS
+      - GET
+    allowedOrigins:
+      - '*'
+    exposedHeaders: {  }
+    maxAge: 5
+    supportsCredentials: false
+  field.field.media.document.categories:
+    uuid: 4b35b9eb-3991-4686-b717-814599528fc6
+    langcode: en
+    status: true
+    dependencies:
+      config:
+        - field.storage.media.categories
+        - media.type.document
+        - taxonomy.vocabulary.categories
+    id: media.document.categories
+    field_name: categories
+    entity_type: media
+    bundle: document
+    label: Categories
+    description: 'Categorize this media item.'
+    required: false
+    translatable: false
+    default_value: {  }
+    default_value_callback: ''
+    settings:
+      handler: 'default:taxonomy_term'
+      handler_settings:
+        target_bundles:
+          categories: categories
+        sort:
+          field: name
+          direction: asc
+        auto_create: true
+        auto_create_bundle: categories
+    field_type: entity_reference
+  field.field.media.document.media_file:
+    uuid: 5d71e168-7bbc-4317-a5f0-63af2daf3818
+    langcode: en
+    status: true
+    dependencies:
+      config:
+        - field.storage.media.media_file
+        - media.type.document
+      module:
+        - file
+    id: media.document.media_file
+    field_name: media_file
+    entity_type: media
+    bundle: document
+    label: File
+    description: ''
+    required: true
+    translatable: true
+    default_value: {  }
+    default_value_callback: ''
+    settings:
+      handler: 'default:file'
+      handler_settings: {  }
+      file_directory: '[date:custom:Y]-[date:custom:m]'
+      file_extensions: 'txt doc docx pdf'
+      max_filesize: ''
+      description_field: false
+    field_type: file
+  field.field.media.document.tags:
+    uuid: 10716007-318f-42e5-898e-2e7e31aedaa9
+    langcode: en
+    status: true
+    dependencies:
+      config:
+        - field.storage.media.tags
+        - media.type.document
+        - taxonomy.vocabulary.tags
+    id: media.document.tags
+    field_name: tags
+    entity_type: media
+    bundle: document
+    label: Tags
+    description: ''
+    required: false
+    translatable: false
+    default_value: {  }
+    default_value_callback: ''
+    settings:
+      handler: 'default:taxonomy_term'
+      handler_settings:
+        target_bundles:
+          tags: tags
+        sort:
+          field: name
+          direction: asc
+        auto_create: true
+        auto_create_bundle: ''
+    field_type: entity_reference
+  field.field.media.image.categories:
+    uuid: 3b25b8ea-2890-4585-a606-703499427fb5
+    langcode: en
+    status: true
+    dependencies:
+      config:
+        - field.storage.media.categories
+        - media.type.image
+        - taxonomy.vocabulary.categories
+    id: media.image.categories
+    field_name: categories
+    entity_type: media
+    bundle: image
+    label: Categories
+    description: ''
+    required: false
+    translatable: false
+    default_value: {  }
+    default_value_callback: ''
+    settings:
+      handler: 'default:taxonomy_term'
+      handler_settings:
+        target_bundles:
+          categories: categories
+        sort:
+          field: name
+          direction: asc
+        auto_create: false
+        auto_create_bundle: ''
+    field_type: entity_reference
+  field.field.media.image.media_image:
+    uuid: c6acba7d-93e7-4eaf-9a57-3f4066cbf2be
+    langcode: en
+    status: true
+    dependencies:
+      config:
+        - field.storage.media.media_image
+        - media.type.image
+      module:
+        - image
+    id: media.image.media_image
+    field_name: media_image
+    entity_type: media
+    bundle: image
+    label: Image
+    description: ''
+    required: true
+    translatable: true
+    default_value: {  }
+    default_value_callback: ''
+    settings:
+      handler: 'default:file'
+      handler_settings: {  }
+      file_directory: '[date:custom:Y]-[date:custom:m]'
+      file_extensions: 'png gif jpg jpeg'
+      max_filesize: '5 MB'
+      max_resolution: ''
+      min_resolution: ''
+      alt_field: true
+      alt_field_required: true
+      title_field: false
+      title_field_required: false
+      default_image:
+        uuid: null
+        alt: ''
+        title: ''
+        width: null
+        height: null
+    field_type: image
+  field.field.media.image.tags:
+    uuid: 18850dbd-8d73-4316-a59e-74ad80b5cded
+    langcode: en
+    status: true
+    dependencies:
+      config:
+        - field.storage.media.tags
+        - media.type.image
+        - taxonomy.vocabulary.tags
+    id: media.image.tags
+    field_name: tags
+    entity_type: media
+    bundle: image
+    label: Tags
+    description: ''
+    required: false
+    translatable: false
+    default_value: {  }
+    default_value_callback: ''
+    settings:
+      handler: 'default:taxonomy_term'
+      handler_settings:
+        target_bundles:
+          tags: tags
+        sort:
+          field: name
+          direction: asc
+        auto_create: true
+        auto_create_bundle: ''
+    field_type: entity_reference
+  field.field.media.remote_video.categories:
+    uuid: 0a76c8ff-04aa-4b44-995f-44317c17a749
+    langcode: en
+    status: true
+    dependencies:
+      config:
+        - field.storage.media.categories
+        - media.type.remote_video
+        - taxonomy.vocabulary.categories
+    id: media.remote_video.categories
+    field_name: categories
+    entity_type: media
+    bundle: remote_video
+    label: Categories
+    description: ''
+    required: false
+    translatable: false
+    default_value: {  }
+    default_value_callback: ''
+    settings:
+      handler: 'default:taxonomy_term'
+      handler_settings:
+        target_bundles:
+          categories: categories
+        sort:
+          field: name
+          direction: asc
+        auto_create: false
+        auto_create_bundle: ''
+    field_type: entity_reference
+  field.field.media.remote_video.media_oembed_video:
+    uuid: 4fbb19e5-e680-4f44-9ebe-16d5dc0d8b3b
+    langcode: en
+    status: true
+    dependencies:
+      config:
+        - field.storage.media.media_oembed_video
+        - media.type.remote_video
+    id: media.remote_video.media_oembed_video
+    field_name: media_oembed_video
+    entity_type: media
+    bundle: remote_video
+    label: 'Remote video URL'
+    description: ''
+    required: true
+    translatable: true
+    default_value: {  }
+    default_value_callback: ''
+    settings: {  }
+    field_type: string
+  field.field.media.remote_video.tags:
+    uuid: 56fe693a-f53e-4115-afda-76e3c9582f4c
+    langcode: en
+    status: true
+    dependencies:
+      config:
+        - field.storage.media.tags
+        - media.type.remote_video
+        - taxonomy.vocabulary.tags
+    id: media.remote_video.tags
+    field_name: tags
+    entity_type: media
+    bundle: remote_video
+    label: Tags
+    description: ''
+    required: false
+    translatable: false
+    default_value: {  }
+    default_value_callback: ''
+    settings:
+      handler: 'default:taxonomy_term'
+      handler_settings:
+        target_bundles:
+          tags: tags
+        sort:
+          field: name
+          direction: asc
+        auto_create: true
+        auto_create_bundle: ''
+    field_type: entity_reference
+  field.field.media.video.categories:
+    uuid: 16d504e1-c6c6-4708-8aa5-5cd43f5ca5f5
+    langcode: en
+    status: true
+    dependencies:
+      config:
+        - field.storage.media.categories
+        - media.type.video
+        - taxonomy.vocabulary.categories
+    id: media.video.categories
+    field_name: categories
+    entity_type: media
+    bundle: video
+    label: Categories
+    description: ''
+    required: false
+    translatable: false
+    default_value: {  }
+    default_value_callback: ''
+    settings:
+      handler: 'default:taxonomy_term'
+      handler_settings:
+        target_bundles:
+          categories: categories
+        sort:
+          field: name
+          direction: asc
+        auto_create: false
+        auto_create_bundle: ''
+    field_type: entity_reference
+  field.field.media.video.media_video_file:
+    uuid: 0349bb02-418c-4e89-8071-dbca654ab025
+    langcode: en
+    status: true
+    dependencies:
+      config:
+        - field.storage.media.media_video_file
+        - media.type.video
+      module:
+        - file
+    id: media.video.media_video_file
+    field_name: media_video_file
+    entity_type: media
+    bundle: video
+    label: 'Video file'
+    description: ''
+    required: true
+    translatable: true
+    default_value: {  }
+    default_value_callback: ''
+    settings:
+      handler: 'default:file'
+      handler_settings: {  }
+      file_directory: '[date:custom:Y]-[date:custom:m]'
+      file_extensions: 'mp4 webm'
+      max_filesize: ''
+      description_field: false
+    field_type: file
+  field.field.media.video.tags:
+    uuid: 626f4fbf-0f3d-4ea9-bccc-7bb31d7fc5c3
+    langcode: en
+    status: true
+    dependencies:
+      config:
+        - field.storage.media.tags
+        - media.type.video
+        - taxonomy.vocabulary.tags
+    id: media.video.tags
+    field_name: tags
+    entity_type: media
+    bundle: video
+    label: Tags
+    description: ''
+    required: false
+    translatable: false
+    default_value: {  }
+    default_value_callback: ''
+    settings:
+      handler: 'default:taxonomy_term'
+      handler_settings:
+        target_bundles:
+          tags: tags
+        sort:
+          field: name
+          direction: asc
+        auto_create: true
+        auto_create_bundle: ''
+    field_type: entity_reference
+  field.field.node.article.author_profile:
+    uuid: fc92655c-12ab-4ff9-89a3-249f3a301ca5
+    langcode: en
+    status: true
+    dependencies:
+      config:
+        - field.storage.node.author_profile
+        - node.type.article
+        - node.type.person
+    _core:
+      default_config_hash: Ty2qU2W4G9orxERW-YGWOFpG99QRetfhcW0Nz_zyA6g
+    id: node.article.author_profile
+    field_name: author_profile
+    entity_type: node
+    bundle: article
+    label: 'Author profile'
+    description: ''
+    required: false
+    translatable: false
+    default_value: {  }
+    default_value_callback: ''
+    settings:
+      handler: 'default:node'
+      handler_settings:
+        target_bundles:
+          person: person
+        sort:
+          field: _none
+          direction: ASC
+        auto_create: false
+        auto_create_bundle: ''
+    field_type: entity_reference
+  field.field.node.article.body:
+    uuid: 66b76963-a33f-4b51-83b1-bf1626b0e270
+    langcode: en
+    status: true
+    dependencies:
+      config:
+        - field.storage.node.body
+        - node.type.article
+      module:
+        - text
+    _core:
+      default_config_hash: fEIT1MRCWfrspUK3KUN7kZgMo5HCXRGz1l1xcEPueoI
+    id: node.article.body
+    field_name: body
+    entity_type: node
+    bundle: article
+    label: Body
+    description: ''
+    required: false
+    translatable: true
+    default_value: {  }
+    default_value_callback: ''
+    settings:
+      display_summary: true
+      required_summary: false
+      allowed_formats: {  }
+    field_type: text_with_summary
+  field.field.node.article.categories:
+    uuid: c4587ecd-f4c2-4284-a6fe-f91e75ab3324
+    langcode: en
+    status: true
+    dependencies:
+      config:
+        - field.storage.node.categories
+        - node.type.article
+        - taxonomy.vocabulary.categories
+    _core:
+      default_config_hash: Kez1LIlwG0qMCz8l7_1PCPiqwdLA3UTXdvY7kIuCDYQ
+    id: node.article.categories
+    field_name: categories
+    entity_type: node
+    bundle: article
+    label: Categories
+    description: ''
+    required: false
+    translatable: false
+    default_value: {  }
+    default_value_callback: ''
+    settings:
+      handler: 'default:taxonomy_term'
+      handler_settings:
+        target_bundles:
+          categories: categories
+        sort:
+          field: name
+          direction: asc
+        auto_create: false
+        auto_create_bundle: ''
+    field_type: entity_reference
+  field.field.node.article.cover_image:
+    uuid: a80e408f-75d9-4237-93ef-2d8033fb7eba
+    langcode: en
+    status: true
+    dependencies:
+      config:
+        - field.storage.node.cover_image
+        - media.type.image
+        - node.type.article
+    _core:
+      default_config_hash: XGSMo9v2c3WJIdt8MUxqH_y2Ea5WlgExYE07q2D6NTE
+    id: node.article.cover_image
+    field_name: cover_image
+    entity_type: node
+    bundle: article
+    label: 'Cover Image'
+    description: ''
+    required: false
+    translatable: false
+    default_value: {  }
+    default_value_callback: ''
+    settings:
+      handler: 'default:media'
+      handler_settings:
+        target_bundles:
+          image: image
+        sort:
+          field: _none
+          direction: ASC
+        auto_create: false
+        auto_create_bundle: ''
+    field_type: entity_reference
+  field.field.node.article.media:
+    uuid: fffffa10-b9c7-490e-bcc1-e7c951d0b6f3
+    langcode: en
+    status: true
+    dependencies:
+      config:
+        - field.storage.node.media
+        - media.type.document
+        - media.type.image
+        - media.type.remote_video
+        - media.type.video
+        - node.type.article
+    _core:
+      default_config_hash: drZbG6MSHksx6F7mhTYkCYn_Qr8Mmfg4Odu7lC2XDQ0
+    id: node.article.media
+    field_name: media
+    entity_type: node
+    bundle: article
+    label: Media
+    description: ''
+    required: false
+    translatable: false
+    default_value: {  }
+    default_value_callback: ''
+    settings:
+      handler: 'default:media'
+      handler_settings:
+        target_bundles:
+          document: document
+          image: image
+          remote_video: remote_video
+          video: video
+        sort:
+          field: _none
+          direction: ASC
+        auto_create: false
+        auto_create_bundle: document
+    field_type: entity_reference
+  field.field.node.article.related_articles:
+    uuid: 22043365-10fa-491b-82ac-ae598f255055
+    langcode: en
+    status: true
+    dependencies:
+      config:
+        - field.storage.node.related_articles
+        - node.type.article
+    _core:
+      default_config_hash: CfDI8wI2SVzG-SaJSGPrk2xofxa7CNZqvUUlpfy7_0s
+    id: node.article.related_articles
+    field_name: related_articles
+    entity_type: node
+    bundle: article
+    label: 'Related articles'
+    description: ''
+    required: false
+    translatable: false
+    default_value: {  }
+    default_value_callback: ''
+    settings:
+      handler: 'default:node'
+      handler_settings:
+        target_bundles:
+          article: article
+        sort:
+          field: _none
+          direction: ASC
+        auto_create: false
+        auto_create_bundle: ''
+    field_type: entity_reference
+  field.field.node.article.tags:
+    uuid: ea9b5a2c-9373-431f-a705-54063c206984
+    langcode: en
+    status: true
+    dependencies:
+      config:
+        - field.storage.node.tags
+        - node.type.article
+        - taxonomy.vocabulary.tags
+    _core:
+      default_config_hash: JQMY1oW3WFdyPXlo94jyczyGwYJqvkKhKmprchmnM5w
+    id: node.article.tags
+    field_name: tags
+    entity_type: node
+    bundle: article
+    label: Tags
+    description: ''
+    required: false
+    translatable: false
+    default_value: {  }
+    default_value_callback: ''
+    settings:
+      handler: 'default:taxonomy_term'
+      handler_settings:
+        target_bundles:
+          tags: tags
+        sort:
+          field: name
+          direction: asc
+        auto_create: true
+        auto_create_bundle: ''
+    field_type: entity_reference
+  field.field.node.person.bio:
+    uuid: 05d4ad42-d287-47a9-b5a1-bbbd8e06ae5d
+    langcode: en
+    status: true
+    dependencies:
+      config:
+        - field.storage.node.bio
+        - node.type.person
+      module:
+        - text
+    _core:
+      default_config_hash: 7l84MnU9HwIC5EsqNNiorKGAnoeIYpfZmu8NRuPu9bc
+    id: node.person.bio
+    field_name: bio
+    entity_type: node
+    bundle: person
+    label: Bio
+    description: ''
+    required: false
+    translatable: false
+    default_value: {  }
+    default_value_callback: ''
+    settings:
+      allowed_formats: {  }
+    field_type: text_long
+  field.field.node.person.first_name:
+    uuid: e4c205e0-6c5f-445d-8f3f-753600f0632c
+    langcode: en
+    status: true
+    dependencies:
+      config:
+        - field.storage.node.first_name
+        - node.type.person
+    _core:
+      default_config_hash: TxsRv0JCOkhhHlfNBBAQdLD2Cz13Q6n5gb5Jtb3fQbA
+    id: node.person.first_name
+    field_name: first_name
+    entity_type: node
+    bundle: person
+    label: 'First name'
+    description: ''
+    required: false
+    translatable: false
+    default_value: {  }
+    default_value_callback: ''
+    settings: {  }
+    field_type: string
+  field.field.node.person.job_title:
+    uuid: b5302b8e-e4bc-41fb-9da5-4e6c5392fb38
+    langcode: en
+    status: true
+    dependencies:
+      config:
+        - field.storage.node.job_title
+        - node.type.person
+    _core:
+      default_config_hash: 6E9egi3l_sG2vypsaF3wsNizzes8Tniv7O9YiP_50mM
+    id: node.person.job_title
+    field_name: job_title
+    entity_type: node
+    bundle: person
+    label: 'Job title'
+    description: ''
+    required: false
+    translatable: false
+    default_value: {  }
+    default_value_callback: ''
+    settings: {  }
+    field_type: string
+  field.field.node.person.last_name:
+    uuid: eefce936-4e7a-4d99-bbe4-830b56da5853
+    langcode: en
+    status: true
+    dependencies:
+      config:
+        - field.storage.node.last_name
+        - node.type.person
+    _core:
+      default_config_hash: J_Dxi1m4ypCIQDm7rGRyGHMZEKlpH71lMBwQujdsbUI
+    id: node.person.last_name
+    field_name: last_name
+    entity_type: node
+    bundle: person
+    label: 'Last name'
+    description: ''
+    required: false
+    translatable: false
+    default_value: {  }
+    default_value_callback: ''
+    settings: {  }
+    field_type: string
+  field.field.node.person.profile_image:
+    uuid: 1b277342-55f9-4a53-8389-c4f05570e4b0
+    langcode: en
+    status: true
+    dependencies:
+      config:
+        - field.storage.node.profile_image
+        - media.type.image
+        - node.type.person
+    _core:
+      default_config_hash: pYYEZRKCY_nAsQDyVZWbbEdl3FxXXSEiQM3ztrdPrHM
+    id: node.person.profile_image
+    field_name: profile_image
+    entity_type: node
+    bundle: person
+    label: 'Profile image'
+    description: ''
+    required: false
+    translatable: false
+    default_value: {  }
+    default_value_callback: ''
+    settings:
+      handler: 'default:media'
+      handler_settings:
+        target_bundles:
+          image: image
+        sort:
+          field: _none
+          direction: ASC
+        auto_create: false
+        auto_create_bundle: ''
+    field_type: entity_reference
+  field.storage.media.categories:
+    uuid: 33c3323c-cc16-4f3e-9ca1-4148e24d7c8c
+    langcode: en
+    status: true
+    dependencies:
+      module:
+        - media
+        - taxonomy
+    _core:
+      default_config_hash: EMuVBQ75PY6QWCLAWkLxUnNUyR_J6hcSyz6dnEGLmYU
+    id: media.categories
+    field_name: categories
+    entity_type: media
+    type: entity_reference
+    settings:
+      target_type: taxonomy_term
+    module: core
+    locked: false
+    cardinality: -1
+    translatable: true
+    indexes: {  }
+    persist_with_no_fields: false
+    custom_storage: false
+  field.storage.media.media_file:
+    uuid: 134fb0bd-9f5b-4cf4-93e4-dea848ee6c4c
+    langcode: en
+    status: true
+    dependencies:
+      module:
+        - file
+        - media
+    id: media.media_file
+    field_name: media_file
+    entity_type: media
+    type: file
+    settings:
+      target_type: file
+      display_field: false
+      display_default: false
+      uri_scheme: public
+    module: file
+    locked: false
+    cardinality: 1
+    translatable: true
+    indexes: {  }
+    persist_with_no_fields: false
+    custom_storage: false
+  field.storage.media.media_image:
+    uuid: 5812e4c8-7d68-475a-9a9b-d0636484dc7c
+    langcode: en
+    status: true
+    dependencies:
+      module:
+        - file
+        - image
+        - media
+    id: media.media_image
+    field_name: media_image
+    entity_type: media
+    type: image
+    settings:
+      target_type: file
+      display_field: false
+      display_default: false
+      uri_scheme: public
+      default_image:
+        uuid: null
+        alt: ''
+        title: ''
+        width: null
+        height: null
+    module: image
+    locked: false
+    cardinality: 1
+    translatable: true
+    indexes: {  }
+    persist_with_no_fields: false
+    custom_storage: false
+  field.storage.media.media_oembed_video:
+    uuid: ba80e088-b394-4540-ab44-2f825727584a
+    langcode: en
+    status: true
+    dependencies:
+      module:
+        - media
+    id: media.media_oembed_video
+    field_name: media_oembed_video
+    entity_type: media
+    type: string
+    settings:
+      max_length: 255
+      case_sensitive: false
+      is_ascii: false
+    module: core
+    locked: false
+    cardinality: 1
+    translatable: true
+    indexes: {  }
+    persist_with_no_fields: false
+    custom_storage: false
+  field.storage.media.media_video_file:
+    uuid: 16bbd58a-f1ed-4857-8c25-66ad4690bc2f
+    langcode: en
+    status: true
+    dependencies:
+      module:
+        - file
+        - media
+    id: media.media_video_file
+    field_name: media_video_file
+    entity_type: media
+    type: file
+    settings:
+      target_type: file
+      display_field: false
+      display_default: false
+      uri_scheme: public
+    module: file
+    locked: false
+    cardinality: 1
+    translatable: true
+    indexes: {  }
+    persist_with_no_fields: false
+    custom_storage: false
+  field.storage.media.tags:
+    uuid: eb2e25c2-1bd9-43c1-b55f-d9fe812c4e51
+    langcode: en
+    status: true
+    dependencies:
+      module:
+        - media
+        - taxonomy
+    _core:
+      default_config_hash: nsDHegRPxHC91wiJ5U-5EJHt7DPaSRwfi_ASFXLmKJ0
+    id: media.tags
+    field_name: tags
+    entity_type: media
+    type: entity_reference
+    settings:
+      target_type: taxonomy_term
+    module: core
+    locked: false
+    cardinality: -1
+    translatable: true
+    indexes: {  }
+    persist_with_no_fields: false
+    custom_storage: false
+  field.storage.node.author_profile:
+    uuid: 0b176e07-472d-48c4-b85c-dc6eaf5f4418
+    langcode: en
+    status: true
+    dependencies:
+      module:
+        - node
+    _core:
+      default_config_hash: j6F8e6ZXfehSgEtIgt5RlqvE2u3wEGrQzsePMnFmCJY
+    id: node.author_profile
+    field_name: author_profile
+    entity_type: node
+    type: entity_reference
+    settings:
+      target_type: node
+    module: core
+    locked: false
+    cardinality: 1
+    translatable: true
+    indexes: {  }
+    persist_with_no_fields: false
+    custom_storage: false
+  field.storage.node.bio:
+    uuid: 26e37c7e-a149-4806-b76a-accd26fb4313
+    langcode: en
+    status: true
+    dependencies:
+      module:
+        - node
+        - text
+    _core:
+      default_config_hash: cjeVsWv_HNS6yv-LIYKE9GnyDAZn4h9IHSyREZMSnJA
+    id: node.bio
+    field_name: bio
+    entity_type: node
+    type: text_long
+    settings: {  }
+    module: text
+    locked: false
+    cardinality: 1
+    translatable: true
+    indexes: {  }
+    persist_with_no_fields: false
+    custom_storage: false
+  field.storage.node.body:
+    uuid: 4f7870f6-0e18-4a78-8768-2c5b5a979855
+    langcode: en
+    status: true
+    dependencies:
+      module:
+        - node
+        - text
+    _core:
+      default_config_hash: MUIKkjeexJ6Ditr19_dwVpmPBXBMpqyId3UXHlqrlXA
+    id: node.body
+    field_name: body
+    entity_type: node
+    type: text_with_summary
+    settings: {  }
+    module: text
+    locked: false
+    cardinality: 1
+    translatable: true
+    indexes: {  }
+    persist_with_no_fields: true
+    custom_storage: false
+  field.storage.node.categories:
+    uuid: 70f9a5f7-ba7f-4b38-b5a9-be475b029982
+    langcode: en
+    status: true
+    dependencies:
+      module:
+        - node
+        - taxonomy
+    _core:
+      default_config_hash: _vzK8VMUJt-ef0dvEzZL8ePpFHT2XHkk7PkVH5gvNOE
+    id: node.categories
+    field_name: categories
+    entity_type: node
+    type: entity_reference
+    settings:
+      target_type: taxonomy_term
+    module: core
+    locked: false
+    cardinality: -1
+    translatable: true
+    indexes: {  }
+    persist_with_no_fields: false
+    custom_storage: false
+  field.storage.node.cover_image:
+    uuid: 5ab86e70-c3a4-4f64-8a49-6f670d976aea
+    langcode: en
+    status: true
+    dependencies:
+      module:
+        - media
+        - node
+    _core:
+      default_config_hash: Peu21t69lDVGV9QEO06-eV0n8cg9N6EzyRTQ7KZ4Vd4
+    id: node.cover_image
+    field_name: cover_image
+    entity_type: node
+    type: entity_reference
+    settings:
+      target_type: media
+    module: core
+    locked: false
+    cardinality: 1
+    translatable: true
+    indexes: {  }
+    persist_with_no_fields: false
+    custom_storage: false
+  field.storage.node.first_name:
+    uuid: a9e1f580-9e28-45aa-b032-92fe41a19132
+    langcode: en
+    status: true
+    dependencies:
+      module:
+        - node
+    _core:
+      default_config_hash: N4idHxzebWKnBwWxyzfl50iY4ptpCXfsMLibUlCXiDw
+    id: node.first_name
+    field_name: first_name
+    entity_type: node
+    type: string
+    settings:
+      max_length: 255
+      case_sensitive: false
+      is_ascii: false
+    module: core
+    locked: false
+    cardinality: 1
+    translatable: true
+    indexes: {  }
+    persist_with_no_fields: false
+    custom_storage: false
+  field.storage.node.job_title:
+    uuid: c6ad9cf4-f05f-4cd8-99e6-664c6ce0ed5b
+    langcode: en
+    status: true
+    dependencies:
+      module:
+        - node
+    _core:
+      default_config_hash: Fy4RJGjHzrbwmCsymSvEN0m-28d_Nggwq7dTFOoceBw
+    id: node.job_title
+    field_name: job_title
+    entity_type: node
+    type: string
+    settings:
+      max_length: 255
+      case_sensitive: false
+      is_ascii: false
+    module: core
+    locked: false
+    cardinality: 1
+    translatable: true
+    indexes: {  }
+    persist_with_no_fields: false
+    custom_storage: false
+  field.storage.node.last_name:
+    uuid: 85f0c7f6-4ec1-4aff-a365-799d88baea43
+    langcode: en
+    status: true
+    dependencies:
+      module:
+        - node
+    _core:
+      default_config_hash: 16tNQBFfe4YcFj4IYhB8W9tXxWV5DlzLXokG1SZim38
+    id: node.last_name
+    field_name: last_name
+    entity_type: node
+    type: string
+    settings:
+      max_length: 255
+      case_sensitive: false
+      is_ascii: false
+    module: core
+    locked: false
+    cardinality: 1
+    translatable: true
+    indexes: {  }
+    persist_with_no_fields: false
+    custom_storage: false
+  field.storage.node.media:
+    uuid: 323235ac-c805-41fc-885a-3f52b60adcc8
+    langcode: en
+    status: true
+    dependencies:
+      module:
+        - media
+        - node
+    _core:
+      default_config_hash: azt40w38SQY5-AE1YBcqUXi4EMrKmLUJJ915h9NM9iY
+    id: node.media
+    field_name: media
+    entity_type: node
+    type: entity_reference
+    settings:
+      target_type: media
+    module: core
+    locked: false
+    cardinality: -1
+    translatable: true
+    indexes: {  }
+    persist_with_no_fields: false
+    custom_storage: false
+  field.storage.node.profile_image:
+    uuid: 31ca357c-141a-41c8-b017-300590cf7649
+    langcode: en
+    status: true
+    dependencies:
+      module:
+        - media
+        - node
+    _core:
+      default_config_hash: FWYb-Gltcu5bYj1Jc5hc_V5jsIlEJVEPfjogRDMTR38
+    id: node.profile_image
+    field_name: profile_image
+    entity_type: node
+    type: entity_reference
+    settings:
+      target_type: media
+    module: core
+    locked: false
+    cardinality: 1
+    translatable: true
+    indexes: {  }
+    persist_with_no_fields: false
+    custom_storage: false
+  field.storage.node.related_articles:
+    uuid: a6ffa49b-11bf-4d0e-86a0-61846fd10d8e
+    langcode: en
+    status: true
+    dependencies:
+      module:
+        - node
+    _core:
+      default_config_hash: tJ5vXWhmoQkCF_9tfIBzesrfEf8QY_WI2wQiZn8wuzk
+    id: node.related_articles
+    field_name: related_articles
+    entity_type: node
+    type: entity_reference
+    settings:
+      target_type: node
+    module: core
+    locked: false
+    cardinality: -1
+    translatable: true
+    indexes: {  }
+    persist_with_no_fields: false
+    custom_storage: false
+  field.storage.node.tags:
+    uuid: d8473663-8d69-4a2b-a456-bfbd777b20b7
+    langcode: en
+    status: true
+    dependencies:
+      module:
+        - node
+        - taxonomy
+    _core:
+      default_config_hash: 7GUCylaSVOHvvTEKJQjhPmxYisi6rljPaBEw-dfGeg4
+    id: node.tags
+    field_name: tags
+    entity_type: node
+    type: entity_reference
+    settings:
+      target_type: taxonomy_term
+    module: core
+    locked: false
+    cardinality: -1
+    translatable: true
+    indexes: {  }
+    persist_with_no_fields: false
+    custom_storage: false
+  filter.format.canvas_html_block:
+    uuid: 37f4f0ab-15b2-4ba2-9304-83aa106bedab
+    langcode: en
+    status: true
+    dependencies:
+      enforced:
+        module:
+          - canvas
+    name: 'Drupal Canvas — Block HTML (locked)'
+    format: canvas_html_block
+    weight: 1000
+    filters:
+      filter_html:
+        id: filter_html
+        provider: filter
+        status: true
+        weight: 0
+        settings:
+          allowed_html: '<strong> <em> <u> <a href> <p> <br> <ul> <ol> <li>'
+          filter_html_help: false
+          filter_html_nofollow: false
+  filter.format.filtered_html:
+    uuid: 7fa7675c-aade-4ede-a1e0-9b40c99e61c8
+    langcode: en
+    status: true
+    dependencies:
+      config:
+        - core.entity_view_mode.media.large
+        - core.entity_view_mode.media.medium
+        - core.entity_view_mode.media.small
+      module:
+        - editor
+        - linkit
+        - media
+    _core:
+      default_config_hash: 70VIfICq9Iu2PsiWuAzN5np2800jt0bme0QEE0ksd9c
+    name: 'Filtered HTML'
+    format: filtered_html
+    weight: -9
+    filters:
+      editor_file_reference:
+        id: editor_file_reference
+        provider: editor
+        status: false
+        weight: -50
+        settings: {  }
+      filter_autop:
+        id: filter_autop
+        provider: filter
+        status: true
+        weight: 0
+        settings: {  }
+      filter_html:
+        id: filter_html
+        provider: filter
+        status: true
+        weight: 2
+        settings:
+          allowed_html: '<drupal-media data-embed-code-id data-entity-revision data-entity-type data-entity-uuid alt> <br> <p class="text-align-left text-align-center text-align-right text-align-justify"> <h2 id class="text-align-left text-align-center text-align-right text-align-justify"> <h3 id class="text-align-left text-align-center text-align-right text-align-justify"> <h4 id class="text-align-left text-align-center text-align-right text-align-justify"> <h5 id class="text-align-left text-align-center text-align-right text-align-justify"> <h6 id class="text-align-left text-align-center text-align-right text-align-justify"> <cite> <dl> <dt> <dd> <img data-align data-caption> <a hreflang href data-entity-type data-entity-uuid data-entity-substitution> <blockquote cite> <ul type> <ol type start> <strong> <em> <u> <code> <s> <sub> <sup> <li>'
+          filter_html_help: true
+          filter_html_nofollow: false
+      filter_url:
+        id: filter_url
+        provider: filter
+        status: true
+        weight: 1
+        settings:
+          filter_url_length: 72
+      linkit:
+        id: linkit
+        provider: linkit
+        status: true
+        weight: 0
+        settings:
+          title: true
+      media_embed:
+        id: media_embed
+        provider: media
+        status: true
+        weight: 4
+        settings:
+          default_view_mode: default
+          allowed_view_modes:
+            default: default
+            large: large
+            medium: medium
+            small: small
+          allowed_media_types: {  }
+  jsonapi.settings:
+    _core:
+      default_config_hash: ve5n0mfUSWWZEFldenHnFrpcL1XKTjzTacerxemPPU4
+    read_only: true
+    maintenance_header_retry_seconds:
+      min: 5
+      max: 10
+  jsonapi_extras.jsonapi_resource_config.action--action:
+    uuid: 15cd646b-45d9-433c-9027-0216018393e9
+    langcode: en
+    status: true
+    dependencies:
+      module:
+        - system
+    _core:
+      default_config_hash: 9X4ZIVNgsJtq2yczBBL-hn5VvN5DmXshmv_sPuRCLe0
+    id: action--action
+    disabled: true
+    path: action/action
+    resourceType: action--action
+    resourceFields:
+      uuid:
+        disabled: false
+        fieldName: uuid
+        publicName: uuid
+        enhancer:
+          id: ''
+      langcode:
+        disabled: false
+        fieldName: langcode
+        publicName: langcode
+        enhancer:
+          id: ''
+      status:
+        disabled: false
+        fieldName: status
+        publicName: status
+        enhancer:
+          id: ''
+      dependencies:
+        disabled: false
+        fieldName: dependencies
+        publicName: dependencies
+        enhancer:
+          id: ''
+      third_party_settings:
+        disabled: false
+        fieldName: third_party_settings
+        publicName: third_party_settings
+        enhancer:
+          id: ''
+      _core:
+        disabled: false
+        fieldName: _core
+        publicName: _core
+        enhancer:
+          id: ''
+      id:
+        disabled: false
+        fieldName: id
+        publicName: id
+        enhancer:
+          id: ''
+      label:
+        disabled: false
+        fieldName: label
+        publicName: label
+        enhancer:
+          id: ''
+      type:
+        disabled: false
+        fieldName: type
+        publicName: type
+        enhancer:
+          id: ''
+      plugin:
+        disabled: false
+        fieldName: plugin
+        publicName: plugin
+        enhancer:
+          id: ''
+      configuration:
+        disabled: false
+        fieldName: configuration
+        publicName: configuration
+        enhancer:
+          id: ''
+  jsonapi_extras.jsonapi_resource_config.base_field_override--base_field_override:
+    uuid: 82925c66-87b8-4797-9f79-5d1fae51da18
+    langcode: en
+    status: true
+    dependencies: {  }
+    _core:
+      default_config_hash: F05pvtbMSdYKAHY3Sv2fmUL0tMNbBemEEZDVDh7hsjI
+    id: base_field_override--base_field_override
+    disabled: true
+    path: base_field_override/base_field_override
+    resourceType: base_field_override--base_field_override
+    resourceFields:
+      uuid:
+        disabled: false
+        fieldName: uuid
+        publicName: uuid
+        enhancer:
+          id: ''
+      langcode:
+        disabled: false
+        fieldName: langcode
+        publicName: langcode
+        enhancer:
+          id: ''
+      status:
+        disabled: false
+        fieldName: status
+        publicName: status
+        enhancer:
+          id: ''
+      dependencies:
+        disabled: false
+        fieldName: dependencies
+        publicName: dependencies
+        enhancer:
+          id: ''
+      third_party_settings:
+        disabled: false
+        fieldName: third_party_settings
+        publicName: third_party_settings
+        enhancer:
+          id: ''
+      _core:
+        disabled: false
+        fieldName: _core
+        publicName: _core
+        enhancer:
+          id: ''
+      id:
+        disabled: false
+        fieldName: id
+        publicName: id
+        enhancer:
+          id: ''
+      field_name:
+        disabled: false
+        fieldName: field_name
+        publicName: field_name
+        enhancer:
+          id: ''
+      entity_type:
+        disabled: false
+        fieldName: entity_type
+        publicName: entity_type
+        enhancer:
+          id: ''
+      bundle:
+        disabled: false
+        fieldName: bundle
+        publicName: bundle
+        enhancer:
+          id: ''
+      label:
+        disabled: false
+        fieldName: label
+        publicName: label
+        enhancer:
+          id: ''
+      description:
+        disabled: false
+        fieldName: description
+        publicName: description
+        enhancer:
+          id: ''
+      required:
+        disabled: false
+        fieldName: required
+        publicName: required
+        enhancer:
+          id: ''
+      translatable:
+        disabled: false
+        fieldName: translatable
+        publicName: translatable
+        enhancer:
+          id: ''
+      default_value:
+        disabled: false
+        fieldName: default_value
+        publicName: default_value
+        enhancer:
+          id: ''
+      default_value_callback:
+        disabled: false
+        fieldName: default_value_callback
+        publicName: default_value_callback
+        enhancer:
+          id: ''
+      settings:
+        disabled: false
+        fieldName: settings
+        publicName: settings
+        enhancer:
+          id: ''
+      field_type:
+        disabled: false
+        fieldName: field_type
+        publicName: field_type
+        enhancer:
+          id: ''
+  jsonapi_extras.jsonapi_resource_config.canvas_page--canvas_page:
+    uuid: a70e5826-528d-4f37-8540-23d857815cf4
+    langcode: en
+    status: true
+    dependencies:
+      module:
+        - canvas
+    id: canvas_page--canvas_page
+    disabled: false
+    path: page
+    resourceType: page
+    resourceFields:
+      id:
+        disabled: true
+        fieldName: id
+        publicName: id
+        enhancer:
+          id: ''
+      uuid:
+        disabled: false
+        fieldName: uuid
+        publicName: uuid
+        enhancer:
+          id: ''
+      revision_id:
+        disabled: true
+        fieldName: revision_id
+        publicName: revision_id
+        enhancer:
+          id: ''
+      langcode:
+        disabled: false
+        fieldName: langcode
+        publicName: langcode
+        enhancer:
+          id: ''
+      revision_created:
+        disabled: false
+        fieldName: revision_created
+        publicName: revision_created
+        enhancer:
+          id: ''
+      revision_user:
+        disabled: false
+        fieldName: revision_user
+        publicName: revision_user
+        enhancer:
+          id: ''
+      revision_log:
+        disabled: false
+        fieldName: revision_log
+        publicName: revision_log
+        enhancer:
+          id: ''
+      status:
+        disabled: false
+        fieldName: status
+        publicName: status
+        enhancer:
+          id: ''
+      owner:
+        disabled: false
+        fieldName: owner
+        publicName: owner
+        enhancer:
+          id: ''
+      title:
+        disabled: false
+        fieldName: title
+        publicName: title
+        enhancer:
+          id: ''
+      description:
+        disabled: false
+        fieldName: description
+        publicName: description
+        enhancer:
+          id: ''
+      components:
+        disabled: false
+        fieldName: components
+        publicName: components
+        enhancer:
+          id: ''
+      path:
+        disabled: false
+        fieldName: path
+        publicName: path
+        enhancer:
+          id: ''
+      created:
+        disabled: false
+        fieldName: created
+        publicName: created
+        enhancer:
+          id: ''
+      changed:
+        disabled: false
+        fieldName: changed
+        publicName: changed
+        enhancer:
+          id: ''
+      image:
+        disabled: false
+        fieldName: image
+        publicName: image
+        enhancer:
+          id: ''
+      default_langcode:
+        disabled: false
+        fieldName: default_langcode
+        publicName: default_langcode
+        enhancer:
+          id: ''
+      revision_default:
+        disabled: false
+        fieldName: revision_default
+        publicName: revision_default
+        enhancer:
+          id: ''
+      revision_translation_affected:
+        disabled: false
+        fieldName: revision_translation_affected
+        publicName: revision_translation_affected
+        enhancer:
+          id: ''
+      metatags:
+        disabled: false
+        fieldName: metatags
+        publicName: metatags
+        enhancer:
+          id: ''
+      metatag:
+        disabled: false
+        fieldName: metatag
+        publicName: metatags
+        enhancer:
+          id: ''
+      include_in_search:
+        disabled: false
+        fieldName: include_in_search
+        publicName: include_in_search
+        enhancer:
+          id: ''
+  jsonapi_extras.jsonapi_resource_config.editor--editor:
+    uuid: e0a0f8c0-41de-4f1b-a61b-4cb512cb52b4
+    langcode: en
+    status: true
+    dependencies:
+      module:
+        - editor
+    _core:
+      default_config_hash: I-DLkkojYLWwe0H0TLqOL8Orl3oIQmzGRHuZQJbugOc
+    id: editor--editor
+    disabled: true
+    path: editor/editor
+    resourceType: editor--editor
+    resourceFields:
+      uuid:
+        disabled: false
+        fieldName: uuid
+        publicName: uuid
+        enhancer:
+          id: ''
+      langcode:
+        disabled: false
+        fieldName: langcode
+        publicName: langcode
+        enhancer:
+          id: ''
+      status:
+        disabled: false
+        fieldName: status
+        publicName: status
+        enhancer:
+          id: ''
+      dependencies:
+        disabled: false
+        fieldName: dependencies
+        publicName: dependencies
+        enhancer:
+          id: ''
+      third_party_settings:
+        disabled: false
+        fieldName: third_party_settings
+        publicName: third_party_settings
+        enhancer:
+          id: ''
+      _core:
+        disabled: false
+        fieldName: _core
+        publicName: _core
+        enhancer:
+          id: ''
+      format:
+        disabled: false
+        fieldName: format
+        publicName: format
+        enhancer:
+          id: ''
+      editor:
+        disabled: false
+        fieldName: editor
+        publicName: editor
+        enhancer:
+          id: ''
+      settings:
+        disabled: false
+        fieldName: settings
+        publicName: settings
+        enhancer:
+          id: ''
+      image_upload:
+        disabled: false
+        fieldName: image_upload
+        publicName: image_upload
+        enhancer:
+          id: ''
+  jsonapi_extras.jsonapi_resource_config.field_config--field_config:
+    uuid: 31870546-06c4-4fa0-8864-f76fd294926b
+    langcode: en
+    status: true
+    dependencies:
+      module:
+        - field
+    _core:
+      default_config_hash: R5AOt674QYy32z2MopHirBCg5BPuuKJlu7B2b-O1rpY
+    id: field_config--field_config
+    disabled: true
+    path: field_config/field_config
+    resourceType: field_config--field_config
+    resourceFields:
+      uuid:
+        disabled: false
+        fieldName: uuid
+        publicName: uuid
+        enhancer:
+          id: ''
+      langcode:
+        disabled: false
+        fieldName: langcode
+        publicName: langcode
+        enhancer:
+          id: ''
+      status:
+        disabled: false
+        fieldName: status
+        publicName: status
+        enhancer:
+          id: ''
+      dependencies:
+        disabled: false
+        fieldName: dependencies
+        publicName: dependencies
+        enhancer:
+          id: ''
+      third_party_settings:
+        disabled: false
+        fieldName: third_party_settings
+        publicName: third_party_settings
+        enhancer:
+          id: ''
+      _core:
+        disabled: false
+        fieldName: _core
+        publicName: _core
+        enhancer:
+          id: ''
+      id:
+        disabled: false
+        fieldName: id
+        publicName: id
+        enhancer:
+          id: ''
+      field_name:
+        disabled: false
+        fieldName: field_name
+        publicName: field_name
+        enhancer:
+          id: ''
+      entity_type:
+        disabled: false
+        fieldName: entity_type
+        publicName: entity_type
+        enhancer:
+          id: ''
+      bundle:
+        disabled: false
+        fieldName: bundle
+        publicName: bundle
+        enhancer:
+          id: ''
+      label:
+        disabled: false
+        fieldName: label
+        publicName: label
+        enhancer:
+          id: ''
+      description:
+        disabled: false
+        fieldName: description
+        publicName: description
+        enhancer:
+          id: ''
+      required:
+        disabled: false
+        fieldName: required
+        publicName: required
+        enhancer:
+          id: ''
+      translatable:
+        disabled: false
+        fieldName: translatable
+        publicName: translatable
+        enhancer:
+          id: ''
+      default_value:
+        disabled: false
+        fieldName: default_value
+        publicName: default_value
+        enhancer:
+          id: ''
+      default_value_callback:
+        disabled: false
+        fieldName: default_value_callback
+        publicName: default_value_callback
+        enhancer:
+          id: ''
+      settings:
+        disabled: false
+        fieldName: settings
+        publicName: settings
+        enhancer:
+          id: ''
+      field_type:
+        disabled: false
+        fieldName: field_type
+        publicName: field_type
+        enhancer:
+          id: ''
+  jsonapi_extras.jsonapi_resource_config.field_storage_config--field_storage_config:
+    uuid: 62ceab2e-a15a-44c5-a159-c429c6341b1a
+    langcode: en
+    status: true
+    dependencies:
+      module:
+        - field
+    _core:
+      default_config_hash: t4_BXr94f1IWXRObimwyj2cXIb9feTav_FgFIP64cXE
+    id: field_storage_config--field_storage_config
+    disabled: true
+    path: field_storage_config/field_storage_config
+    resourceType: field_storage_config--field_storage_config
+    resourceFields:
+      uuid:
+        disabled: false
+        fieldName: uuid
+        publicName: uuid
+        enhancer:
+          id: ''
+      langcode:
+        disabled: false
+        fieldName: langcode
+        publicName: langcode
+        enhancer:
+          id: ''
+      status:
+        disabled: false
+        fieldName: status
+        publicName: status
+        enhancer:
+          id: ''
+      dependencies:
+        disabled: false
+        fieldName: dependencies
+        publicName: dependencies
+        enhancer:
+          id: ''
+      third_party_settings:
+        disabled: false
+        fieldName: third_party_settings
+        publicName: third_party_settings
+        enhancer:
+          id: ''
+      _core:
+        disabled: false
+        fieldName: _core
+        publicName: _core
+        enhancer:
+          id: ''
+      id:
+        disabled: false
+        fieldName: id
+        publicName: id
+        enhancer:
+          id: ''
+      field_name:
+        disabled: false
+        fieldName: field_name
+        publicName: field_name
+        enhancer:
+          id: ''
+      entity_type:
+        disabled: false
+        fieldName: entity_type
+        publicName: entity_type
+        enhancer:
+          id: ''
+      type:
+        disabled: false
+        fieldName: type
+        publicName: type
+        enhancer:
+          id: ''
+      settings:
+        disabled: false
+        fieldName: settings
+        publicName: settings
+        enhancer:
+          id: ''
+      module:
+        disabled: false
+        fieldName: module
+        publicName: module
+        enhancer:
+          id: ''
+      locked:
+        disabled: false
+        fieldName: locked
+        publicName: locked
+        enhancer:
+          id: ''
+      cardinality:
+        disabled: false
+        fieldName: cardinality
+        publicName: cardinality
+        enhancer:
+          id: ''
+      translatable:
+        disabled: false
+        fieldName: translatable
+        publicName: translatable
+        enhancer:
+          id: ''
+      indexes:
+        disabled: false
+        fieldName: indexes
+        publicName: indexes
+        enhancer:
+          id: ''
+      persist_with_no_fields:
+        disabled: false
+        fieldName: persist_with_no_fields
+        publicName: persist_with_no_fields
+        enhancer:
+          id: ''
+      custom_storage:
+        disabled: false
+        fieldName: custom_storage
+        publicName: custom_storage
+        enhancer:
+          id: ''
+  jsonapi_extras.jsonapi_resource_config.file--file:
+    uuid: ddd77a94-3cd2-4f2b-ab86-b53322dfd214
+    langcode: en
+    status: true
+    dependencies:
+      module:
+        - file
+    id: file--file
+    disabled: false
+    path: file/file
+    resourceType: file--file
+    resourceFields:
+      fid:
+        disabled: true
+        fieldName: fid
+        publicName: fid
+        enhancer:
+          id: ''
+      uuid:
+        disabled: false
+        fieldName: uuid
+        publicName: uuid
+        enhancer:
+          id: ''
+      langcode:
+        disabled: false
+        fieldName: langcode
+        publicName: langcode
+        enhancer:
+          id: ''
+      uid:
+        disabled: false
+        fieldName: uid
+        publicName: uid
+        enhancer:
+          id: ''
+      filename:
+        disabled: false
+        fieldName: filename
+        publicName: filename
+        enhancer:
+          id: ''
+      uri:
+        disabled: false
+        fieldName: uri
+        publicName: uri
+        enhancer:
+          id: ''
+      filemime:
+        disabled: false
+        fieldName: filemime
+        publicName: filemime
+        enhancer:
+          id: ''
+      filesize:
+        disabled: false
+        fieldName: filesize
+        publicName: filesize
+        enhancer:
+          id: ''
+      status:
+        disabled: false
+        fieldName: status
+        publicName: status
+        enhancer:
+          id: ''
+      created:
+        disabled: false
+        fieldName: created
+        publicName: created
+        enhancer:
+          id: ''
+      changed:
+        disabled: false
+        fieldName: changed
+        publicName: changed
+        enhancer:
+          id: ''
+  jsonapi_extras.jsonapi_resource_config.filter_format--filter_format:
+    uuid: 0cd6b876-f76e-4bac-a798-69a31be8d5d8
+    langcode: en
+    status: true
+    dependencies:
+      module:
+        - filter
+    _core:
+      default_config_hash: 4Rj2dGFuKn9jG_Q5hWoBhxKLm5nSO_Mg9NEIYL4Reo8
+    id: filter_format--filter_format
+    disabled: true
+    path: filter_format/filter_format
+    resourceType: filter_format--filter_format
+    resourceFields:
+      uuid:
+        disabled: false
+        fieldName: uuid
+        publicName: uuid
+        enhancer:
+          id: ''
+      langcode:
+        disabled: false
+        fieldName: langcode
+        publicName: langcode
+        enhancer:
+          id: ''
+      status:
+        disabled: false
+        fieldName: status
+        publicName: status
+        enhancer:
+          id: ''
+      dependencies:
+        disabled: false
+        fieldName: dependencies
+        publicName: dependencies
+        enhancer:
+          id: ''
+      third_party_settings:
+        disabled: false
+        fieldName: third_party_settings
+        publicName: third_party_settings
+        enhancer:
+          id: ''
+      _core:
+        disabled: false
+        fieldName: _core
+        publicName: _core
+        enhancer:
+          id: ''
+      name:
+        disabled: false
+        fieldName: name
+        publicName: name
+        enhancer:
+          id: ''
+      format:
+        disabled: false
+        fieldName: format
+        publicName: format
+        enhancer:
+          id: ''
+      weight:
+        disabled: false
+        fieldName: weight
+        publicName: weight
+        enhancer:
+          id: ''
+      roles:
+        disabled: false
+        fieldName: roles
+        publicName: roles
+        enhancer:
+          id: ''
+      filters:
+        disabled: false
+        fieldName: filters
+        publicName: filters
+        enhancer:
+          id: ''
+  jsonapi_extras.jsonapi_resource_config.jsonapi_resource_config--jsonapi_resource_config:
+    uuid: b4dba31a-d5e9-489e-a407-fb72f9b68b94
+    langcode: en
+    status: true
+    dependencies: {  }
+    _core:
+      default_config_hash: 76FJTGBVpHJB6qZr8FuTS7ALLixyz1wQ8uXdEkl6Blk
+    id: jsonapi_resource_config--jsonapi_resource_config
+    disabled: true
+    path: jsonapi_resource_config/jsonapi_resource_config
+    resourceType: jsonapi_resource_config--jsonapi_resource_config
+    resourceFields:
+      uuid:
+        disabled: false
+        fieldName: uuid
+        publicName: uuid
+        enhancer:
+          id: ''
+      langcode:
+        disabled: false
+        fieldName: langcode
+        publicName: langcode
+        enhancer:
+          id: ''
+      status:
+        disabled: false
+        fieldName: status
+        publicName: status
+        enhancer:
+          id: ''
+      dependencies:
+        disabled: false
+        fieldName: dependencies
+        publicName: dependencies
+        enhancer:
+          id: ''
+      third_party_settings:
+        disabled: false
+        fieldName: third_party_settings
+        publicName: third_party_settings
+        enhancer:
+          id: ''
+      _core:
+        disabled: false
+        fieldName: _core
+        publicName: _core
+        enhancer:
+          id: ''
+      id:
+        disabled: false
+        fieldName: id
+        publicName: id
+        enhancer:
+          id: ''
+      disabled:
+        disabled: false
+        fieldName: disabled
+        publicName: disabled
+        enhancer:
+          id: ''
+      path:
+        disabled: false
+        fieldName: path
+        publicName: path
+        enhancer:
+          id: ''
+      resourceType:
+        disabled: false
+        fieldName: resourceType
+        publicName: resourceType
+        enhancer:
+          id: ''
+      resourceFields:
+        disabled: false
+        fieldName: resourceFields
+        publicName: resourceFields
+        enhancer:
+          id: ''
+  jsonapi_extras.jsonapi_resource_config.media--acquia_dam_archive_asset:
+    uuid: 2c2d4aa1-8fb9-4374-80fe-127ed15a7925
+    langcode: en
+    status: true
+    dependencies:
+      config:
+        - media.type.acquia_dam_archive_asset
+    id: media--acquia_dam_archive_asset
+    disabled: false
+    path: media/acquia_dam_archive_asset
+    resourceType: media--acquia_dam_archive_asset
+    resourceFields:
+      mid:
+        disabled: true
+        fieldName: mid
+        publicName: mid
+        enhancer:
+          id: ''
+      vid:
+        disabled: true
+        fieldName: vid
+        publicName: vid
+        enhancer:
+          id: ''
+  jsonapi_extras.jsonapi_resource_config.media--acquia_dam_documents_asset:
+    uuid: 8c7f40fd-6b4b-4924-b32a-d2e98f8cb69e
+    langcode: en
+    status: true
+    dependencies:
+      config:
+        - media.type.acquia_dam_documents_asset
+    id: media--acquia_dam_documents_asset
+    disabled: false
+    path: media/acquia_dam_documents_asset
+    resourceType: media--acquia_dam_documents_asset
+    resourceFields:
+      mid:
+        disabled: true
+        fieldName: mid
+        publicName: mid
+        enhancer:
+          id: ''
+      vid:
+        disabled: true
+        fieldName: vid
+        publicName: vid
+        enhancer:
+          id: ''
+  jsonapi_extras.jsonapi_resource_config.media--acquia_dam_image_asset:
+    uuid: 609fdd10-3b85-42e0-99c2-c3ecd77950ee
+    langcode: en
+    status: true
+    dependencies:
+      config:
+        - media.type.acquia_dam_image_asset
+    id: media--acquia_dam_image_asset
+    disabled: false
+    path: media/acquia_dam_image_asset
+    resourceType: media--acquia_dam_image_asset
+    resourceFields:
+      mid:
+        disabled: true
+        fieldName: mid
+        publicName: mid
+        enhancer:
+          id: ''
+      vid:
+        disabled: true
+        fieldName: vid
+        publicName: vid
+        enhancer:
+          id: ''
+  jsonapi_extras.jsonapi_resource_config.media--acquia_dam_pdf_asset:
+    uuid: c6692689-9ca2-46ff-aade-18aad54ca8e6
+    langcode: en
+    status: true
+    dependencies:
+      config:
+        - media.type.acquia_dam_pdf_asset
+    id: media--acquia_dam_pdf_asset
+    disabled: false
+    path: media/acquia_dam_pdf_asset
+    resourceType: media--acquia_dam_pdf_asset
+    resourceFields:
+      mid:
+        disabled: true
+        fieldName: mid
+        publicName: mid
+        enhancer:
+          id: ''
+      vid:
+        disabled: true
+        fieldName: vid
+        publicName: vid
+        enhancer:
+          id: ''
+  jsonapi_extras.jsonapi_resource_config.media--acquia_dam_spinset_asset:
+    uuid: 21eb8e8d-5180-461f-8ab8-e5d84b7d8d88
+    langcode: en
+    status: true
+    dependencies:
+      config:
+        - media.type.acquia_dam_spinset_asset
+    id: media--acquia_dam_spinset_asset
+    disabled: false
+    path: media/acquia_dam_spinset_asset
+    resourceType: media--acquia_dam_spinset_asset
+    resourceFields:
+      mid:
+        disabled: true
+        fieldName: mid
+        publicName: mid
+        enhancer:
+          id: ''
+      vid:
+        disabled: true
+        fieldName: vid
+        publicName: vid
+        enhancer:
+          id: ''
+  jsonapi_extras.jsonapi_resource_config.media--acquia_dam_video_asset:
+    uuid: 4820f7ab-712f-4aad-a74f-fcde77e79bf3
+    langcode: en
+    status: true
+    dependencies:
+      config:
+        - media.type.acquia_dam_video_asset
+    id: media--acquia_dam_video_asset
+    disabled: false
+    path: media/acquia_dam_video_asset
+    resourceType: media--acquia_dam_video_asset
+    resourceFields:
+      mid:
+        disabled: true
+        fieldName: mid
+        publicName: mid
+        enhancer:
+          id: ''
+      vid:
+        disabled: true
+        fieldName: vid
+        publicName: vid
+        enhancer:
+          id: ''
+  jsonapi_extras.jsonapi_resource_config.media--document:
+    uuid: 6b2625a5-9875-42ca-abba-406af76e1f3d
+    langcode: en
+    status: true
+    dependencies:
+      config:
+        - media.type.document
+    id: media--document
+    disabled: false
+    path: media/document
+    resourceType: media--document
+    resourceFields:
+      mid:
+        disabled: true
+        fieldName: mid
+        publicName: mid
+        enhancer:
+          id: ''
+      uuid:
+        disabled: false
+        fieldName: uuid
+        publicName: uuid
+        enhancer:
+          id: ''
+      vid:
+        disabled: true
+        fieldName: vid
+        publicName: vid
+        enhancer:
+          id: ''
+      langcode:
+        disabled: false
+        fieldName: langcode
+        publicName: langcode
+        enhancer:
+          id: ''
+      bundle:
+        disabled: false
+        fieldName: bundle
+        publicName: bundle
+        enhancer:
+          id: ''
+      revision_created:
+        disabled: false
+        fieldName: revision_created
+        publicName: revision_created
+        enhancer:
+          id: ''
+      revision_user:
+        disabled: false
+        fieldName: revision_user
+        publicName: revision_user
+        enhancer:
+          id: ''
+      revision_log_message:
+        disabled: false
+        fieldName: revision_log_message
+        publicName: revision_log_message
+        enhancer:
+          id: ''
+      status:
+        disabled: false
+        fieldName: status
+        publicName: status
+        enhancer:
+          id: ''
+      uid:
+        disabled: false
+        fieldName: uid
+        publicName: uid
+        enhancer:
+          id: ''
+      name:
+        disabled: false
+        fieldName: name
+        publicName: name
+        enhancer:
+          id: ''
+      thumbnail:
+        disabled: false
+        fieldName: thumbnail
+        publicName: thumbnail
+        enhancer:
+          id: ''
+      created:
+        disabled: false
+        fieldName: created
+        publicName: created
+        enhancer:
+          id: ''
+      changed:
+        disabled: false
+        fieldName: changed
+        publicName: changed
+        enhancer:
+          id: ''
+      default_langcode:
+        disabled: false
+        fieldName: default_langcode
+        publicName: default_langcode
+        enhancer:
+          id: ''
+      revision_default:
+        disabled: false
+        fieldName: revision_default
+        publicName: revision_default
+        enhancer:
+          id: ''
+      revision_translation_affected:
+        disabled: false
+        fieldName: revision_translation_affected
+        publicName: revision_translation_affected
+        enhancer:
+          id: ''
+      metatag:
+        disabled: false
+        fieldName: metatag
+        publicName: metatag
+        enhancer:
+          id: ''
+      path:
+        disabled: false
+        fieldName: path
+        publicName: path
+        enhancer:
+          id: ''
+      content_translation_source:
+        disabled: false
+        fieldName: content_translation_source
+        publicName: content_translation_source
+        enhancer:
+          id: ''
+      content_translation_outdated:
+        disabled: false
+        fieldName: content_translation_outdated
+        publicName: content_translation_outdated
+        enhancer:
+          id: ''
+      metatags:
+        disabled: false
+        fieldName: metatags
+        publicName: metatags
+        enhancer:
+          id: ''
+      categories:
+        disabled: false
+        fieldName: categories
+        publicName: categories
+        enhancer:
+          id: ''
+      media_file:
+        disabled: false
+        fieldName: media_file
+        publicName: media_file
+        enhancer:
+          id: ''
+      tags:
+        disabled: false
+        fieldName: tags
+        publicName: tags
+        enhancer:
+          id: ''
+  jsonapi_extras.jsonapi_resource_config.media--image:
+    uuid: b0c307bd-5395-448d-9e0b-c2b2065646eb
+    langcode: en
+    status: true
+    dependencies:
+      config:
+        - media.type.image
+    id: media--image
+    disabled: false
+    path: media/image
+    resourceType: media--image
+    resourceFields:
+      mid:
+        disabled: true
+        fieldName: mid
+        publicName: mid
+        enhancer:
+          id: ''
+      uuid:
+        disabled: false
+        fieldName: uuid
+        publicName: uuid
+        enhancer:
+          id: ''
+      vid:
+        disabled: true
+        fieldName: vid
+        publicName: vid
+        enhancer:
+          id: ''
+      langcode:
+        disabled: false
+        fieldName: langcode
+        publicName: langcode
+        enhancer:
+          id: ''
+      bundle:
+        disabled: false
+        fieldName: bundle
+        publicName: bundle
+        enhancer:
+          id: ''
+      revision_created:
+        disabled: false
+        fieldName: revision_created
+        publicName: revision_created
+        enhancer:
+          id: ''
+      revision_user:
+        disabled: false
+        fieldName: revision_user
+        publicName: revision_user
+        enhancer:
+          id: ''
+      revision_log_message:
+        disabled: false
+        fieldName: revision_log_message
+        publicName: revision_log_message
+        enhancer:
+          id: ''
+      status:
+        disabled: false
+        fieldName: status
+        publicName: status
+        enhancer:
+          id: ''
+      uid:
+        disabled: false
+        fieldName: uid
+        publicName: uid
+        enhancer:
+          id: ''
+      name:
+        disabled: false
+        fieldName: name
+        publicName: name
+        enhancer:
+          id: ''
+      thumbnail:
+        disabled: false
+        fieldName: thumbnail
+        publicName: thumbnail
+        enhancer:
+          id: ''
+      created:
+        disabled: false
+        fieldName: created
+        publicName: created
+        enhancer:
+          id: ''
+      changed:
+        disabled: false
+        fieldName: changed
+        publicName: changed
+        enhancer:
+          id: ''
+      default_langcode:
+        disabled: false
+        fieldName: default_langcode
+        publicName: default_langcode
+        enhancer:
+          id: ''
+      revision_default:
+        disabled: false
+        fieldName: revision_default
+        publicName: revision_default
+        enhancer:
+          id: ''
+      revision_translation_affected:
+        disabled: false
+        fieldName: revision_translation_affected
+        publicName: revision_translation_affected
+        enhancer:
+          id: ''
+      metatag:
+        disabled: false
+        fieldName: metatag
+        publicName: metatag
+        enhancer:
+          id: ''
+      path:
+        disabled: false
+        fieldName: path
+        publicName: path
+        enhancer:
+          id: ''
+      content_translation_source:
+        disabled: false
+        fieldName: content_translation_source
+        publicName: content_translation_source
+        enhancer:
+          id: ''
+      content_translation_outdated:
+        disabled: false
+        fieldName: content_translation_outdated
+        publicName: content_translation_outdated
+        enhancer:
+          id: ''
+      metatags:
+        disabled: false
+        fieldName: metatags
+        publicName: metatags
+        enhancer:
+          id: ''
+      categories:
+        disabled: false
+        fieldName: categories
+        publicName: categories
+        enhancer:
+          id: ''
+      media_image:
+        disabled: false
+        fieldName: media_image
+        publicName: media_image
+        enhancer:
+          id: ''
+      tags:
+        disabled: false
+        fieldName: tags
+        publicName: tags
+        enhancer:
+          id: ''
+  jsonapi_extras.jsonapi_resource_config.media--remote_video:
+    uuid: 802ea38e-eb78-43c5-8196-e8f9ea332485
+    langcode: en
+    status: true
+    dependencies:
+      config:
+        - media.type.remote_video
+    id: media--remote_video
+    disabled: false
+    path: media/remote_video
+    resourceType: media--remote_video
+    resourceFields:
+      mid:
+        disabled: true
+        fieldName: mid
+        publicName: mid
+        enhancer:
+          id: ''
+      uuid:
+        disabled: false
+        fieldName: uuid
+        publicName: uuid
+        enhancer:
+          id: ''
+      vid:
+        disabled: true
+        fieldName: vid
+        publicName: vid
+        enhancer:
+          id: ''
+      langcode:
+        disabled: false
+        fieldName: langcode
+        publicName: langcode
+        enhancer:
+          id: ''
+      bundle:
+        disabled: false
+        fieldName: bundle
+        publicName: bundle
+        enhancer:
+          id: ''
+      revision_created:
+        disabled: false
+        fieldName: revision_created
+        publicName: revision_created
+        enhancer:
+          id: ''
+      revision_user:
+        disabled: false
+        fieldName: revision_user
+        publicName: revision_user
+        enhancer:
+          id: ''
+      revision_log_message:
+        disabled: false
+        fieldName: revision_log_message
+        publicName: revision_log_message
+        enhancer:
+          id: ''
+      status:
+        disabled: false
+        fieldName: status
+        publicName: status
+        enhancer:
+          id: ''
+      uid:
+        disabled: false
+        fieldName: uid
+        publicName: uid
+        enhancer:
+          id: ''
+      name:
+        disabled: false
+        fieldName: name
+        publicName: name
+        enhancer:
+          id: ''
+      thumbnail:
+        disabled: false
+        fieldName: thumbnail
+        publicName: thumbnail
+        enhancer:
+          id: ''
+      created:
+        disabled: false
+        fieldName: created
+        publicName: created
+        enhancer:
+          id: ''
+      changed:
+        disabled: false
+        fieldName: changed
+        publicName: changed
+        enhancer:
+          id: ''
+      default_langcode:
+        disabled: false
+        fieldName: default_langcode
+        publicName: default_langcode
+        enhancer:
+          id: ''
+      revision_default:
+        disabled: false
+        fieldName: revision_default
+        publicName: revision_default
+        enhancer:
+          id: ''
+      revision_translation_affected:
+        disabled: false
+        fieldName: revision_translation_affected
+        publicName: revision_translation_affected
+        enhancer:
+          id: ''
+      metatag:
+        disabled: false
+        fieldName: metatag
+        publicName: metatag
+        enhancer:
+          id: ''
+      path:
+        disabled: false
+        fieldName: path
+        publicName: path
+        enhancer:
+          id: ''
+      content_translation_source:
+        disabled: false
+        fieldName: content_translation_source
+        publicName: content_translation_source
+        enhancer:
+          id: ''
+      content_translation_outdated:
+        disabled: false
+        fieldName: content_translation_outdated
+        publicName: content_translation_outdated
+        enhancer:
+          id: ''
+      metatags:
+        disabled: false
+        fieldName: metatags
+        publicName: metatags
+        enhancer:
+          id: ''
+      categories:
+        disabled: false
+        fieldName: categories
+        publicName: categories
+        enhancer:
+          id: ''
+      media_oembed_video:
+        disabled: false
+        fieldName: media_oembed_video
+        publicName: media_oembed_video
+        enhancer:
+          id: ''
+      tags:
+        disabled: false
+        fieldName: tags
+        publicName: tags
+        enhancer:
+          id: ''
+  jsonapi_extras.jsonapi_resource_config.media--video:
+    uuid: 99fcf7d8-ae01-4c0f-9dde-dd2d430f01ff
+    langcode: en
+    status: true
+    dependencies:
+      config:
+        - media.type.video
+    id: media--video
+    disabled: false
+    path: media/video
+    resourceType: media--video
+    resourceFields:
+      mid:
+        disabled: true
+        fieldName: mid
+        publicName: mid
+        enhancer:
+          id: ''
+      uuid:
+        disabled: false
+        fieldName: uuid
+        publicName: uuid
+        enhancer:
+          id: ''
+      vid:
+        disabled: true
+        fieldName: vid
+        publicName: vid
+        enhancer:
+          id: ''
+      langcode:
+        disabled: false
+        fieldName: langcode
+        publicName: langcode
+        enhancer:
+          id: ''
+      bundle:
+        disabled: false
+        fieldName: bundle
+        publicName: bundle
+        enhancer:
+          id: ''
+      name:
+        disabled: false
+        fieldName: name
+        publicName: name
+        enhancer:
+          id: ''
+      uid:
+        disabled: false
+        fieldName: uid
+        publicName: uid
+        enhancer:
+          id: ''
+      status:
+        disabled: false
+        fieldName: status
+        publicName: status
+        enhancer:
+          id: ''
+      thumbnail:
+        disabled: false
+        fieldName: thumbnail
+        publicName: thumbnail
+        enhancer:
+          id: ''
+      created:
+        disabled: false
+        fieldName: created
+        publicName: created
+        enhancer:
+          id: ''
+      changed:
+        disabled: false
+        fieldName: changed
+        publicName: changed
+        enhancer:
+          id: ''
+      default_langcode:
+        disabled: false
+        fieldName: default_langcode
+        publicName: default_langcode
+        enhancer:
+          id: ''
+      revision_created:
+        disabled: false
+        fieldName: revision_created
+        publicName: revision_created
+        enhancer:
+          id: ''
+      revision_user:
+        disabled: false
+        fieldName: revision_user
+        publicName: revision_user
+        enhancer:
+          id: ''
+      revision_log_message:
+        disabled: false
+        fieldName: revision_log_message
+        publicName: revision_log_message
+        enhancer:
+          id: ''
+      revision_translation_affected:
+        disabled: false
+        fieldName: revision_translation_affected
+        publicName: revision_translation_affected
+        enhancer:
+          id: ''
+      content_translation_source:
+        disabled: false
+        fieldName: content_translation_source
+        publicName: content_translation_source
+        enhancer:
+          id: ''
+      content_translation_outdated:
+        disabled: false
+        fieldName: content_translation_outdated
+        publicName: content_translation_outdated
+        enhancer:
+          id: ''
+      metatags:
+        disabled: false
+        fieldName: metatags
+        publicName: metatags
+        enhancer:
+          id: ''
+      categories:
+        disabled: false
+        fieldName: categories
+        publicName: categories
+        enhancer:
+          id: ''
+      media_video_file:
+        disabled: false
+        fieldName: media_video_file
+        publicName: media_video_file
+        enhancer:
+          id: ''
+      tags:
+        disabled: false
+        fieldName: tags
+        publicName: tags
+        enhancer:
+          id: ''
+  jsonapi_extras.jsonapi_resource_config.node--article:
+    uuid: 3e8377ed-6cef-4873-909a-c66ea99e3174
+    langcode: en
+    status: true
+    dependencies:
+      config:
+        - node.type.article
+    id: node--article
+    disabled: false
+    path: node/article
+    resourceType: node--article
+    resourceFields:
+      promote:
+        disabled: true
+        fieldName: promote
+        publicName: promote
+        enhancer:
+          id: ''
+      sticky:
+        disabled: true
+        fieldName: sticky
+        publicName: sticky
+        enhancer:
+          id: ''
+      nid:
+        disabled: true
+        fieldName: nid
+        publicName: nid
+        enhancer:
+          id: ''
+      vid:
+        disabled: true
+        fieldName: vid
+        publicName: vid
+        enhancer:
+          id: ''
+      cover_image:
+        disabled: false
+        fieldName: cover_image
+        publicName: cover_image
+        enhancer:
+          id: ''
+      media:
+        disabled: false
+        fieldName: media
+        publicName: media
+        enhancer:
+          id: ''
+      related_articles:
+        disabled: false
+        fieldName: related_articles
+        publicName: related_articles
+        enhancer:
+          id: ''
+      author_profile:
+        disabled: false
+        fieldName: author_profile
+        publicName: author_profile
+        enhancer:
+          id: ''
+      categories:
+        disabled: false
+        fieldName: categories
+        publicName: categories
+        enhancer:
+          id: ''
+      tags:
+        disabled: false
+        fieldName: tags
+        publicName: tags
+        enhancer:
+          id: ''
+      body:
+        disabled: false
+        fieldName: body
+        publicName: body
+        enhancer:
+          id: ''
+  jsonapi_extras.jsonapi_resource_config.node--person:
+    uuid: fb2d7b1c-55ab-4040-9c31-dee9815952bc
+    langcode: en
+    status: true
+    dependencies:
+      config:
+        - node.type.person
+    id: node--person
+    disabled: false
+    path: node/person
+    resourceType: node--person
+    resourceFields:
+      promote:
+        disabled: true
+        fieldName: promote
+        publicName: promote
+        enhancer:
+          id: ''
+      sticky:
+        disabled: true
+        fieldName: sticky
+        publicName: sticky
+        enhancer:
+          id: ''
+      nid:
+        disabled: true
+        fieldName: nid
+        publicName: nid
+        enhancer:
+          id: ''
+      vid:
+        disabled: true
+        fieldName: vid
+        publicName: vid
+        enhancer:
+          id: ''
+      first_name:
+        disabled: false
+        fieldName: first_name
+        publicName: first_name
+        enhancer:
+          id: ''
+      job_title:
+        disabled: false
+        fieldName: job_title
+        publicName: job_title
+        enhancer:
+          id: ''
+      last_name:
+        disabled: false
+        fieldName: last_name
+        publicName: last_name
+        enhancer:
+          id: ''
+      profile_image:
+        disabled: false
+        fieldName: profile_image
+        publicName: profile_image
+        enhancer:
+          id: ''
+      bio:
+        disabled: false
+        fieldName: bio
+        publicName: bio
+        enhancer:
+          id: ''
+  jsonapi_extras.jsonapi_resource_config.pathauto_pattern--pathauto_pattern:
+    uuid: 772f8381-5285-4d69-bc62-97ac71335da8
+    langcode: en
+    status: true
+    dependencies:
+      module:
+        - pathauto
+    _core:
+      default_config_hash: ymD5ZQ3cFhmTDSsOPB9SOb6g8eZGBulrPZDzveVqTB4
+    id: pathauto_pattern--pathauto_pattern
+    disabled: true
+    path: pathauto_pattern/pathauto_pattern
+    resourceType: pathauto_pattern--pathauto_pattern
+    resourceFields:
+      uuid:
+        disabled: false
+        fieldName: uuid
+        publicName: uuid
+        enhancer:
+          id: ''
+      langcode:
+        disabled: false
+        fieldName: langcode
+        publicName: langcode
+        enhancer:
+          id: ''
+      status:
+        disabled: false
+        fieldName: status
+        publicName: status
+        enhancer:
+          id: ''
+      dependencies:
+        disabled: false
+        fieldName: dependencies
+        publicName: dependencies
+        enhancer:
+          id: ''
+      third_party_settings:
+        disabled: false
+        fieldName: third_party_settings
+        publicName: third_party_settings
+        enhancer:
+          id: ''
+      _core:
+        disabled: false
+        fieldName: _core
+        publicName: _core
+        enhancer:
+          id: ''
+      id:
+        disabled: false
+        fieldName: id
+        publicName: id
+        enhancer:
+          id: ''
+      label:
+        disabled: false
+        fieldName: label
+        publicName: label
+        enhancer:
+          id: ''
+      type:
+        disabled: false
+        fieldName: type
+        publicName: type
+        enhancer:
+          id: ''
+      pattern:
+        disabled: false
+        fieldName: pattern
+        publicName: pattern
+        enhancer:
+          id: ''
+      selection_criteria:
+        disabled: false
+        fieldName: selection_criteria
+        publicName: selection_criteria
+        enhancer:
+          id: ''
+      selection_logic:
+        disabled: false
+        fieldName: selection_logic
+        publicName: selection_logic
+        enhancer:
+          id: ''
+      weight:
+        disabled: false
+        fieldName: weight
+        publicName: weight
+        enhancer:
+          id: ''
+      relationships:
+        disabled: false
+        fieldName: relationships
+        publicName: relationships
+        enhancer:
+          id: ''
+  jsonapi_extras.jsonapi_resource_config.search_api_index--search_api_index:
+    uuid: ffc62925-83d7-49b1-ad31-bd81ffad44c7
+    langcode: en
+    status: true
+    dependencies:
+      module:
+        - search_api
+    _core:
+      default_config_hash: KY93XPQdrIIM07G6vq8aV6QgDW1Y5Gsd6-6DEDta9Po
+    id: search_api_index--search_api_index
+    disabled: true
+    path: search_api_index/search_api_index
+    resourceType: search_api_index--search_api_index
+    resourceFields:
+      uuid:
+        disabled: false
+        fieldName: uuid
+        publicName: uuid
+        enhancer:
+          id: ''
+      langcode:
+        disabled: false
+        fieldName: langcode
+        publicName: langcode
+        enhancer:
+          id: ''
+      status:
+        disabled: false
+        fieldName: status
+        publicName: status
+        enhancer:
+          id: ''
+      dependencies:
+        disabled: false
+        fieldName: dependencies
+        publicName: dependencies
+        enhancer:
+          id: ''
+      third_party_settings:
+        disabled: false
+        fieldName: third_party_settings
+        publicName: third_party_settings
+        enhancer:
+          id: ''
+      _core:
+        disabled: false
+        fieldName: _core
+        publicName: _core
+        enhancer:
+          id: ''
+      id:
+        disabled: false
+        fieldName: id
+        publicName: id
+        enhancer:
+          id: ''
+      name:
+        disabled: false
+        fieldName: name
+        publicName: name
+        enhancer:
+          id: ''
+      description:
+        disabled: false
+        fieldName: description
+        publicName: description
+        enhancer:
+          id: ''
+      read_only:
+        disabled: false
+        fieldName: read_only
+        publicName: read_only
+        enhancer:
+          id: ''
+      field_settings:
+        disabled: false
+        fieldName: field_settings
+        publicName: field_settings
+        enhancer:
+          id: ''
+      datasource_settings:
+        disabled: false
+        fieldName: datasource_settings
+        publicName: datasource_settings
+        enhancer:
+          id: ''
+      processor_settings:
+        disabled: false
+        fieldName: processor_settings
+        publicName: processor_settings
+        enhancer:
+          id: ''
+      tracker_settings:
+        disabled: false
+        fieldName: tracker_settings
+        publicName: tracker_settings
+        enhancer:
+          id: ''
+      options:
+        disabled: false
+        fieldName: options
+        publicName: options
+        enhancer:
+          id: ''
+      server:
+        disabled: false
+        fieldName: server
+        publicName: server
+        enhancer:
+          id: ''
+  jsonapi_extras.jsonapi_resource_config.search_api_server--search_api_server:
+    uuid: ec680b4d-c835-4fb0-968a-9c10ceb87a03
+    langcode: en
+    status: true
+    dependencies:
+      module:
+        - search_api
+    _core:
+      default_config_hash: j2XaaaVTFd1RzzKMFfxbKghW7N5LauCDST3yixU-9LA
+    id: search_api_server--search_api_server
+    disabled: true
+    path: search_api_server/search_api_server
+    resourceType: search_api_server--search_api_server
+    resourceFields:
+      uuid:
+        disabled: false
+        fieldName: uuid
+        publicName: uuid
+        enhancer:
+          id: ''
+      langcode:
+        disabled: false
+        fieldName: langcode
+        publicName: langcode
+        enhancer:
+          id: ''
+      status:
+        disabled: false
+        fieldName: status
+        publicName: status
+        enhancer:
+          id: ''
+      dependencies:
+        disabled: false
+        fieldName: dependencies
+        publicName: dependencies
+        enhancer:
+          id: ''
+      third_party_settings:
+        disabled: false
+        fieldName: third_party_settings
+        publicName: third_party_settings
+        enhancer:
+          id: ''
+      _core:
+        disabled: false
+        fieldName: _core
+        publicName: _core
+        enhancer:
+          id: ''
+      id:
+        disabled: false
+        fieldName: id
+        publicName: id
+        enhancer:
+          id: ''
+      name:
+        disabled: false
+        fieldName: name
+        publicName: name
+        enhancer:
+          id: ''
+      description:
+        disabled: false
+        fieldName: description
+        publicName: description
+        enhancer:
+          id: ''
+      backend:
+        disabled: false
+        fieldName: backend
+        publicName: backend
+        enhancer:
+          id: ''
+      backend_config:
+        disabled: false
+        fieldName: backend_config
+        publicName: backend_config
+        enhancer:
+          id: ''
+  jsonapi_extras.jsonapi_resource_config.search_api_task--search_api_task:
+    uuid: 54eeac89-87fa-4a96-8072-f0ede31bec0a
+    langcode: en
+    status: true
+    dependencies:
+      module:
+        - search_api
+    _core:
+      default_config_hash: dlz2FEucNtI8tpe1bbc3ds14iGfloJbR5OzfcYPPyjY
+    id: search_api_task--search_api_task
+    disabled: true
+    path: search_api_task/search_api_task
+    resourceType: search_api_task--search_api_task
+    resourceFields:
+      id:
+        disabled: false
+        fieldName: id
+        publicName: id
+        enhancer:
+          id: ''
+      type:
+        disabled: false
+        fieldName: type
+        publicName: type
+        enhancer:
+          id: ''
+      server_id:
+        disabled: false
+        fieldName: server_id
+        publicName: server_id
+        enhancer:
+          id: ''
+      index_id:
+        disabled: false
+        fieldName: index_id
+        publicName: index_id
+        enhancer:
+          id: ''
+      data:
+        disabled: false
+        fieldName: data
+        publicName: data
+        enhancer:
+          id: ''
+  jsonapi_extras.jsonapi_resource_config.taxonomy_term--categories:
+    uuid: 3de1fcf1-6265-449b-b2b8-8e7e6de29a23
+    langcode: en
+    status: true
+    dependencies:
+      config:
+        - taxonomy.vocabulary.categories
+    id: taxonomy_term--categories
+    disabled: false
+    path: taxonomy/categories
+    resourceType: taxonomy_term--categories
+    resourceFields:
+      tid:
+        disabled: true
+        fieldName: tid
+        publicName: tid
+        enhancer:
+          id: ''
+      revision_id:
+        disabled: true
+        fieldName: revision_id
+        publicName: revision_id
+        enhancer:
+          id: ''
+  jsonapi_extras.jsonapi_resource_config.taxonomy_term--tags:
+    uuid: f2196fc9-381e-4d06-87f4-fb7ffa56ddbe
+    langcode: en
+    status: true
+    dependencies:
+      config:
+        - taxonomy.vocabulary.tags
+    id: taxonomy_term--tags
+    disabled: false
+    path: taxonomy/tags
+    resourceType: taxonomy_term--tags
+    resourceFields:
+      tid:
+        disabled: true
+        fieldName: tid
+        publicName: tid
+        enhancer:
+          id: ''
+      revision_id:
+        disabled: true
+        fieldName: revision_id
+        publicName: revision_id
+        enhancer:
+          id: ''
+  jsonapi_extras.jsonapi_resource_config.user--user:
+    uuid: 52d1a5e4-7d81-4ab7-9449-d178a7cff0d8
+    langcode: en
+    status: true
+    dependencies:
+      module:
+        - user
+    _core:
+      default_config_hash: EfdYHM4z82LKBkVYjP3XRC5fWpRqs8PYbcVeJYVw8IQ
+    id: user--user
+    disabled: true
+    path: user/user
+    resourceType: user--user
+    resourceFields:
+      uid:
+        disabled: false
+        fieldName: uid
+        publicName: uid
+        enhancer:
+          id: ''
+      uuid:
+        disabled: false
+        fieldName: uuid
+        publicName: uuid
+        enhancer:
+          id: ''
+      langcode:
+        disabled: false
+        fieldName: langcode
+        publicName: langcode
+        enhancer:
+          id: ''
+      preferred_langcode:
+        disabled: false
+        fieldName: preferred_langcode
+        publicName: preferred_langcode
+        enhancer:
+          id: ''
+      preferred_admin_langcode:
+        disabled: false
+        fieldName: preferred_admin_langcode
+        publicName: preferred_admin_langcode
+        enhancer:
+          id: ''
+      name:
+        disabled: false
+        fieldName: name
+        publicName: name
+        enhancer:
+          id: ''
+      pass:
+        disabled: false
+        fieldName: pass
+        publicName: pass
+        enhancer:
+          id: ''
+      mail:
+        disabled: false
+        fieldName: mail
+        publicName: mail
+        enhancer:
+          id: ''
+      timezone:
+        disabled: false
+        fieldName: timezone
+        publicName: timezone
+        enhancer:
+          id: ''
+      status:
+        disabled: false
+        fieldName: status
+        publicName: status
+        enhancer:
+          id: ''
+      created:
+        disabled: false
+        fieldName: created
+        publicName: created
+        enhancer:
+          id: ''
+      changed:
+        disabled: false
+        fieldName: changed
+        publicName: changed
+        enhancer:
+          id: ''
+      access:
+        disabled: false
+        fieldName: access
+        publicName: access
+        enhancer:
+          id: ''
+      login:
+        disabled: false
+        fieldName: login
+        publicName: login
+        enhancer:
+          id: ''
+      init:
+        disabled: false
+        fieldName: init
+        publicName: init
+        enhancer:
+          id: ''
+      roles:
+        disabled: false
+        fieldName: roles
+        publicName: roles
+        enhancer:
+          id: ''
+      default_langcode:
+        disabled: false
+        fieldName: default_langcode
+        publicName: default_langcode
+        enhancer:
+          id: ''
+      metatag:
+        disabled: false
+        fieldName: metatag
+        publicName: metatag
+        enhancer:
+          id: ''
+      path:
+        disabled: false
+        fieldName: path
+        publicName: path
+        enhancer:
+          id: ''
+      field_last_password_reset:
+        disabled: false
+        fieldName: field_last_password_reset
+        publicName: field_last_password_reset
+        enhancer:
+          id: ''
+      field_password_expiration:
+        disabled: false
+        fieldName: field_password_expiration
+        publicName: field_password_expiration
+        enhancer:
+          id: ''
+      tmgmt_translation_skills:
+        disabled: false
+        fieldName: tmgmt_translation_skills
+        publicName: tmgmt_translation_skills
+        enhancer:
+          id: ''
+  jsonapi_extras.jsonapi_resource_config.user_role--user_role:
+    uuid: 9fe7fa3f-c5ab-48bf-99e9-1674e5d3edd0
+    langcode: en
+    status: true
+    dependencies:
+      module:
+        - user
+    _core:
+      default_config_hash: Cg2vgMl-2aeMJjMi32tq94dzB2nRq_3-WqBlB9QSqfI
+    id: user_role--user_role
+    disabled: true
+    path: user_role/user_role
+    resourceType: user_role--user_role
+    resourceFields:
+      uuid:
+        disabled: false
+        fieldName: uuid
+        publicName: uuid
+        enhancer:
+          id: ''
+      langcode:
+        disabled: false
+        fieldName: langcode
+        publicName: langcode
+        enhancer:
+          id: ''
+      status:
+        disabled: false
+        fieldName: status
+        publicName: status
+        enhancer:
+          id: ''
+      dependencies:
+        disabled: false
+        fieldName: dependencies
+        publicName: dependencies
+        enhancer:
+          id: ''
+      third_party_settings:
+        disabled: false
+        fieldName: third_party_settings
+        publicName: third_party_settings
+        enhancer:
+          id: ''
+      _core:
+        disabled: false
+        fieldName: _core
+        publicName: _core
+        enhancer:
+          id: ''
+      id:
+        disabled: false
+        fieldName: id
+        publicName: id
+        enhancer:
+          id: ''
+      label:
+        disabled: false
+        fieldName: label
+        publicName: label
+        enhancer:
+          id: ''
+      weight:
+        disabled: false
+        fieldName: weight
+        publicName: weight
+        enhancer:
+          id: ''
+      is_admin:
+        disabled: false
+        fieldName: is_admin
+        publicName: is_admin
+        enhancer:
+          id: ''
+      permissions:
+        disabled: false
+        fieldName: permissions
+        publicName: permissions
+        enhancer:
+          id: ''
+  jsonapi_extras.jsonapi_resource_config.view--view:
+    uuid: ffb42fea-1b9d-40e2-bf14-f69563a7feba
+    langcode: en
+    status: true
+    dependencies:
+      module:
+        - views
+    _core:
+      default_config_hash: QF8NLJDVJ-NEn8h3YLaiZVh1CpYCO5nzf82VpFgQJas
+    id: view--view
+    disabled: true
+    path: view/view
+    resourceType: view--view
+    resourceFields:
+      uuid:
+        disabled: false
+        fieldName: uuid
+        publicName: uuid
+        enhancer:
+          id: ''
+      langcode:
+        disabled: false
+        fieldName: langcode
+        publicName: langcode
+        enhancer:
+          id: ''
+      status:
+        disabled: false
+        fieldName: status
+        publicName: status
+        enhancer:
+          id: ''
+      dependencies:
+        disabled: false
+        fieldName: dependencies
+        publicName: dependencies
+        enhancer:
+          id: ''
+      third_party_settings:
+        disabled: false
+        fieldName: third_party_settings
+        publicName: third_party_settings
+        enhancer:
+          id: ''
+      _core:
+        disabled: false
+        fieldName: _core
+        publicName: _core
+        enhancer:
+          id: ''
+      id:
+        disabled: false
+        fieldName: id
+        publicName: id
+        enhancer:
+          id: ''
+      label:
+        disabled: false
+        fieldName: label
+        publicName: label
+        enhancer:
+          id: ''
+      module:
+        disabled: false
+        fieldName: module
+        publicName: module
+        enhancer:
+          id: ''
+      description:
+        disabled: false
+        fieldName: description
+        publicName: description
+        enhancer:
+          id: ''
+      tag:
+        disabled: false
+        fieldName: tag
+        publicName: tag
+        enhancer:
+          id: ''
+      base_table:
+        disabled: false
+        fieldName: base_table
+        publicName: base_table
+        enhancer:
+          id: ''
+      base_field:
+        disabled: false
+        fieldName: base_field
+        publicName: base_field
+        enhancer:
+          id: ''
+      display:
+        disabled: false
+        fieldName: display
+        publicName: display
+        enhancer:
+          id: ''
+  jsonapi_extras.jsonapi_resource_config.workflow--workflow:
+    uuid: eb10093a-cd9c-4d3a-b2b5-2249fef4b2ae
+    langcode: en
+    status: true
+    dependencies:
+      module:
+        - workflows
+    _core:
+      default_config_hash: L8SSGJCFy1o5nnxPk-OCnP9DATq6ExX_h1NeJ2o1PIg
+    id: workflow--workflow
+    disabled: true
+    path: workflow/workflow
+    resourceType: workflow--workflow
+    resourceFields:
+      uuid:
+        disabled: false
+        fieldName: uuid
+        publicName: uuid
+        enhancer:
+          id: ''
+      langcode:
+        disabled: false
+        fieldName: langcode
+        publicName: langcode
+        enhancer:
+          id: ''
+      status:
+        disabled: false
+        fieldName: status
+        publicName: status
+        enhancer:
+          id: ''
+      dependencies:
+        disabled: false
+        fieldName: dependencies
+        publicName: dependencies
+        enhancer:
+          id: ''
+      third_party_settings:
+        disabled: false
+        fieldName: third_party_settings
+        publicName: third_party_settings
+        enhancer:
+          id: ''
+      _core:
+        disabled: false
+        fieldName: _core
+        publicName: _core
+        enhancer:
+          id: ''
+      id:
+        disabled: false
+        fieldName: id
+        publicName: id
+        enhancer:
+          id: ''
+      label:
+        disabled: false
+        fieldName: label
+        publicName: label
+        enhancer:
+          id: ''
+      type:
+        disabled: false
+        fieldName: type
+        publicName: type
+        enhancer:
+          id: ''
+      type_settings:
+        disabled: false
+        fieldName: type_settings
+        publicName: type_settings
+        enhancer:
+          id: ''
+  jsonapi_extras.settings:
+    _core:
+      default_config_hash: MkHeCM1mSSJO-NAGk-71UEfY-Pm136zlecHR7qU2w00
+    path_prefix: api
+    include_count: true
+    default_disabled: true
+    validate_configuration_integrity: false
+  language.entity.en:
+    uuid: 568583a3-6f50-4e6c-8934-6a2178e1c564
+    langcode: en
+    status: true
+    dependencies: {  }
+    id: en
+    label: English
+    direction: ltr
+    weight: 0
+    locked: false
+  language.entity.nl:
+    uuid: 938751a5-9be6-442d-b4ec-4c54e8825761
+    langcode: en
+    status: true
+    dependencies: {  }
+    id: nl
+    label: Dutch
+    direction: ltr
+    weight: 0
+    locked: false
+  language.negotiation:
+    _core:
+      default_config_hash: uEePITI9tV6WqzmsTb7MfPCi5yPWXSxAN1xeLcYFQbM
+    session:
+      parameter: language
+    url:
+      source: path_prefix
+      prefixes:
+        en: ''
+        '': null
+        nl: nl
+      domains:
+        en: ''
+        nl: ''
+    selected_langcode: site_default
+  language.types:
+    _core:
+      default_config_hash: dqouFqVseNJNvEjsoYKxbinFOITuCxYhi4y2OTNQP_8
+    all:
+      - language_interface
+      - language_content
+      - language_url
+    configurable:
+      - language_interface
+      - language_content
+    negotiation:
+      language_content:
+        enabled:
+          language-url: -8
+          language-selected: 12
+        method_weights:
+          language-url: -8
+          language-selected: 12
+      language_url:
+        enabled:
+          language-url: 0
+          language-url-fallback: 1
+      language_interface:
+        enabled:
+          language-url: 0
+  media.type.acquia_dam_archive_asset:
+    uuid: 1804fe93-ca4a-493c-b094-50086bd016be
+    langcode: en
+    status: true
+    dependencies:
+      module:
+        - acquia_dam
+    _core:
+      default_config_hash: buAxf1MHzKwrXiSRJ_6e66l758T3tTLbbDs9vTFVig4
+    id: acquia_dam_archive_asset
+    label: 'Acquia DAM: Archive'
+    description: 'Media assets type of archive in the remote DAM service.'
+    source: 'acquia_dam_asset:archive'
+    queue_thumbnail_downloads: false
+    new_revision: false
+    source_configuration:
+      source_field: acquia_dam_asset_id
+      download_assets: false
+      preserve_filename_case: false
+      uri_scheme: public
+      file_extensions: ''
+    field_map:
+      filename: name
+  media.type.acquia_dam_audio_asset:
+    uuid: facbc4ff-d287-4146-9b1d-1bf2ce7c2df0
+    langcode: en
+    status: true
+    dependencies:
+      module:
+        - acquia_dam
+    id: acquia_dam_audio_asset
+    label: 'Acquia DAM: Audio'
+    description: 'Media assets type of sound clips in the remote DAM service.'
+    source: 'acquia_dam_asset:audio'
+    queue_thumbnail_downloads: false
+    new_revision: false
+    source_configuration:
+      source_field: acquia_dam_asset_id
+      download_assets: false
+      preserve_filename_case: false
+      uri_scheme: public
+      file_extensions: 'mp3 ogg wav'
+    field_map:
+      filename: name
+  media.type.acquia_dam_documents_asset:
+    uuid: 23522cef-5a17-4174-927e-c7fd5036cd5c
+    langcode: en
+    status: true
+    dependencies:
+      module:
+        - acquia_dam
+    _core:
+      default_config_hash: 8h5DgYko5SomQwIFf_Sl07c2horRgHA-7HUR9W1jO3w
+    id: acquia_dam_documents_asset
+    label: 'Acquia DAM: Document'
+    description: 'Media assets type of any other documents in the remote DAM service.'
+    source: 'acquia_dam_asset:documents'
+    queue_thumbnail_downloads: true
+    new_revision: false
+    source_configuration:
+      source_field: acquia_dam_asset_id
+      download_assets: false
+      preserve_filename_case: false
+      uri_scheme: public
+      file_extensions: ''
+    field_map:
+      filename: name
+  media.type.acquia_dam_generic_asset:
+    uuid: 94ea1164-84cd-4810-9313-e8c78a059485
+    langcode: en
+    status: true
+    dependencies:
+      module:
+        - acquia_dam
+    id: acquia_dam_generic_asset
+    label: 'Acquia DAM: Generic'
+    description: 'Media assets in the remote DAM service without any known type declared.'
+    source: 'acquia_dam_asset:generic'
+    queue_thumbnail_downloads: false
+    new_revision: false
+    source_configuration:
+      source_field: acquia_dam_asset_id
+      download_assets: false
+      preserve_filename_case: false
+      uri_scheme: public
+      file_extensions: ''
+    field_map:
+      filename: name
+  media.type.acquia_dam_image_asset:
+    uuid: b30761b7-bb54-44aa-a51a-513ceff0ad35
+    langcode: en
+    status: true
+    dependencies:
+      module:
+        - acquia_dam
+    _core:
+      default_config_hash: b8U_I4eY4-9kLbUs0JcjamOiEoEmwjwKllECBiSonFc
+    id: acquia_dam_image_asset
+    label: 'Acquia DAM: Image'
+    description: 'Media assets type of still image in the remote DAM service.'
+    source: 'acquia_dam_asset:image'
+    queue_thumbnail_downloads: true
+    new_revision: true
+    source_configuration:
+      source_field: acquia_dam_asset_id
+      download_assets: false
+      preserve_filename_case: false
+      uri_scheme: public
+      file_extensions: ''
+    field_map:
+      filename: name
+  media.type.acquia_dam_pdf_asset:
+    uuid: ed6dd8cb-c7d6-4763-9f12-02da32fb9b7a
+    langcode: en
+    status: true
+    dependencies:
+      module:
+        - acquia_dam
+    _core:
+      default_config_hash: 3iJHY6Ws1HA1Y7V7qdUsdvjqtGc0xT33GaPso-z9y0Y
+    id: acquia_dam_pdf_asset
+    label: 'Acquia DAM: PDF'
+    description: 'Media assets type of PDF file in the remote DAM service.'
+    source: 'acquia_dam_asset:pdf'
+    queue_thumbnail_downloads: true
+    new_revision: false
+    source_configuration:
+      source_field: acquia_dam_asset_id
+      download_assets: false
+      preserve_filename_case: false
+      uri_scheme: public
+      file_extensions: ''
+    field_map:
+      filename: name
+  media.type.acquia_dam_spinset_asset:
+    uuid: 72dc0159-efd8-45ce-8108-57b346b35e67
+    langcode: en
+    status: true
+    dependencies:
+      module:
+        - acquia_dam
+    _core:
+      default_config_hash: eDQp2c61xXq8PR-jQMuv48PgZukKSBEScQ7KIMKcIPs
+    id: acquia_dam_spinset_asset
+    label: 'Acquia DAM: Spinset'
+    description: 'Media assets type of spinset in the remote DAM service.'
+    source: 'acquia_dam_asset:spinset'
+    queue_thumbnail_downloads: true
+    new_revision: false
+    source_configuration:
+      source_field: acquia_dam_asset_id
+      download_assets: false
+      preserve_filename_case: false
+      uri_scheme: public
+      file_extensions: ''
+    field_map:
+      filename: name
+  media.type.acquia_dam_video_asset:
+    uuid: 73534acf-788a-42b8-9ce0-745240d44ea4
+    langcode: en
+    status: true
+    dependencies:
+      module:
+        - acquia_dam
+    _core:
+      default_config_hash: K8bQSZiFJfzFc9CVRx1vND5Im1B69d6Lh9MTOdl2jMA
+    id: acquia_dam_video_asset
+    label: 'Acquia DAM: Video'
+    description: 'Media assets type of motion picture in the remote DAM service.'
+    source: 'acquia_dam_asset:video'
+    queue_thumbnail_downloads: true
+    new_revision: false
+    source_configuration:
+      source_field: acquia_dam_asset_id
+      download_assets: false
+      preserve_filename_case: false
+      uri_scheme: public
+      file_extensions: 'mp4 mov'
+    field_map:
+      filename: name
+  media.type.document:
+    uuid: a7136410-014a-43d2-9a4c-ad7f7a28bace
+    langcode: en
+    status: true
+    dependencies:
+      module:
+        - scheduler
+    third_party_settings:
+      scheduler:
+        expand_fieldset: when_required
+        fields_display_mode: vertical_tab
+        publish_enable: false
+        publish_past_date: error
+        publish_past_date_created: false
+        publish_required: false
+        publish_revision: false
+        publish_touch: false
+        show_message_after_update: true
+        unpublish_enable: false
+        unpublish_required: false
+        unpublish_revision: false
+    id: document
+    label: Document
+    description: 'Locally hosted documents.'
+    source: file
+    queue_thumbnail_downloads: false
+    new_revision: true
+    source_configuration:
+      source_field: media_file
+    field_map: {  }
+  media.type.image:
+    uuid: 323e33e4-82d0-4881-8589-7c6766e3b721
+    langcode: en
+    status: true
+    dependencies:
+      module:
+        - scheduler
+    third_party_settings:
+      scheduler:
+        expand_fieldset: when_required
+        fields_display_mode: vertical_tab
+        publish_enable: false
+        publish_past_date: error
+        publish_past_date_created: false
+        publish_required: false
+        publish_revision: false
+        publish_touch: false
+        show_message_after_update: true
+        unpublish_enable: false
+        unpublish_required: false
+        unpublish_revision: false
+    id: image
+    label: Image
+    description: 'Locally hosted images.'
+    source: image
+    queue_thumbnail_downloads: false
+    new_revision: true
+    source_configuration:
+      source_field: media_image
+    field_map: {  }
+  media.type.remote_video:
+    uuid: dcf7b327-5460-4a63-97b7-697a2e6d2e90
+    langcode: en
+    status: true
+    dependencies:
+      module:
+        - crop
+        - scheduler
+    third_party_settings:
+      scheduler:
+        expand_fieldset: when_required
+        fields_display_mode: vertical_tab
+        publish_enable: false
+        publish_past_date: error
+        publish_past_date_created: false
+        publish_required: false
+        publish_revision: false
+        publish_touch: false
+        show_message_after_update: true
+        unpublish_enable: false
+        unpublish_required: false
+        unpublish_revision: false
+      crop:
+        image_field: null
+    id: remote_video
+    label: 'Remote video'
+    description: 'Remotely hosted videos from external sources, e.g. YouTube, Vimeo.'
+    source: 'oembed:video'
+    queue_thumbnail_downloads: false
+    new_revision: true
+    source_configuration:
+      source_field: media_oembed_video
+      thumbnails_directory: 'public://remote_video/oembed_thumbnails/[date:custom:Y-m]'
+      providers:
+        - YouTube
+        - Vimeo
+    field_map: {  }
+  media.type.video:
+    uuid: b685a86b-cb20-44d3-afab-6d5c1f11e257
+    langcode: en
+    status: true
+    dependencies:
+      module:
+        - scheduler
+    third_party_settings:
+      scheduler:
+        expand_fieldset: when_required
+        fields_display_mode: vertical_tab
+        publish_enable: false
+        publish_past_date: error
+        publish_past_date_created: false
+        publish_required: false
+        publish_revision: false
+        publish_touch: false
+        show_message_after_update: true
+        unpublish_enable: false
+        unpublish_required: false
+        unpublish_revision: false
+    id: video
+    label: Video
+    description: 'Locally hosted videos.'
+    source: video_file
+    queue_thumbnail_downloads: false
+    new_revision: true
+    source_configuration:
+      source_field: media_video_file
+    field_map: {  }
+  metatag.metatag_defaults.canvas_page:
+    uuid: f44a964a-ab1e-4e4e-9750-208502ad3f46
+    langcode: en
+    status: true
+    dependencies:
+      enforced:
+        module:
+          - canvas
+    _core:
+      default_config_hash: SIwcq6B3EXLDsL2OPTLlBEFDS71C5QI_APQZ8grY5gA
+    id: canvas_page
+    label: Page
+    tags:
+      canonical_url: '[canvas_page:url]'
+      description: '[canvas_page:description]'
+      image_src: '[canvas_page:image:entity:media_image:entity:url]'
+      title: '[canvas_page:title] | [site:name]'
+  metatag.metatag_defaults.global:
+    uuid: 7b7847f0-8ae1-4e59-a696-683d60d12048
+    langcode: en
+    status: true
+    dependencies: {  }
+    _core:
+      default_config_hash: sL588ui1E_8-2c_UupwyYxcqX2OVyMFp3HTLbbFqvPc
+    id: global
+    label: Global
+    tags: {  }
+  metatag.metatag_defaults.node:
+    uuid: fbb62fbe-c70b-4ba9-9502-ee258b54b41b
+    langcode: en
+    status: true
+    dependencies: {  }
+    _core:
+      default_config_hash: rpwvgyEURXLz_JjgMCrkS1rUv-0k3L79BpO-ReN7fDI
+    id: node
+    label: Content
+    tags:
+      title: '[node:title] | [site:name]'
+      description: '[node:summary]'
+      canonical_url: '[node:url]'
+  metatag.metatag_defaults.taxonomy_term:
+    uuid: 7129c8fa-2ed8-482e-b72d-9697848289a4
+    langcode: en
+    status: true
+    dependencies: {  }
+    _core:
+      default_config_hash: 92bXZdyYJ5xqukdfmGRr_CYcwm1vfuS8b8aJ7X_G7E0
+    id: taxonomy_term
+    label: 'Taxonomy term'
+    tags:
+      canonical_url: '[term:url]'
+      description: '[term:description]'
+      title: '[term:name] | [site:name]'
+  metatag.settings:
+    _core:
+      default_config_hash: tKLBW2GXZVLFXqS9QgLyfTuxCLc1u_quKPQLtCia-Bw
+    entity_type_groups:
+      canvas_page:
+        canvas_page:
+          basic: basic
+      media:
+        document:
+          basic: basic
+        image:
+          basic: basic
+        remote_video:
+          basic: basic
+        video:
+          basic: basic
+      node:
+        article:
+          basic: basic
+          open_graph: open_graph
+          schema_article: schema_article
+        page:
+          basic: basic
+          open_graph: open_graph
+      taxonomy_term:
+        article_type:
+          basic: basic
+        categories:
+          basic: basic
+        tags:
+          basic: basic
+    separator: ','
+    tag_trim_method: beforeValue
+    use_maxlength: true
+    tag_trim_maxlength:
+      metatag_maxlength_title: null
+      metatag_maxlength_description: null
+      metatag_maxlength_abstract: null
+      metatag_maxlength_og_site_name: null
+      metatag_maxlength_og_title: null
+      metatag_maxlength_og_description: null
+      metatag_maxlength_twitter_cards_description: null
+      metatag_maxlength_twitter_cards_title: null
+    tag_scroll_max_height: ''
+    tag_trim_end: '|.,-:;/+&([{"'''
+  node.type.article:
+    uuid: 2a87029b-e22b-4590-91d8-8b7a5efb1ad5
+    langcode: en
+    status: true
+    dependencies:
+      module:
+        - menu_ui
+        - scheduler
+    third_party_settings:
+      menu_ui:
+        available_menus: {  }
+        parent: ''
+      scheduler:
+        expand_fieldset: when_required
+        fields_display_mode: vertical_tab
+        publish_enable: true
+        publish_past_date: error
+        publish_past_date_created: false
+        publish_required: false
+        publish_revision: false
+        publish_touch: true
+        show_message_after_update: true
+        unpublish_enable: true
+        unpublish_required: false
+        unpublish_revision: false
+    _core:
+      default_config_hash: QLHd4bvNyfnOJebQJz1PjuZ8uVTQRfs6VAx9GwMQVQE
+    name: Article
+    type: article
+    description: 'A content type for creating various types of articles.'
+    help: null
+    new_revision: true
+    preview_mode: 0
+    display_submitted: false
+  node.type.person:
+    uuid: ed2b2623-55e7-447c-a52e-7e985d9a92cb
+    langcode: en
+    status: true
+    dependencies:
+      module:
+        - menu_ui
+        - scheduler
+    third_party_settings:
+      menu_ui:
+        available_menus: {  }
+        parent: ''
+      scheduler:
+        expand_fieldset: when_required
+        fields_display_mode: vertical_tab
+        publish_enable: false
+        publish_past_date: error
+        publish_past_date_created: false
+        publish_required: false
+        publish_revision: false
+        publish_touch: true
+        show_message_after_update: true
+        unpublish_enable: false
+        unpublish_required: false
+        unpublish_revision: false
+    _core:
+      default_config_hash: W6CdfJljyyA_nmTcVB_r6JGCr96T_lMbkGpx9AXyt5I
+    name: Person
+    type: person
+    description: 'A content type for storing information about people.'
+    help: null
+    new_revision: true
+    preview_mode: 0
+    display_submitted: true
+  system.menu.account:
+    uuid: b660c700-f6cd-49a0-981e-35a2be91d43b
+    langcode: en
+    status: true
+    dependencies: {  }
+    _core:
+      default_config_hash: M_Bh81osDyUQ4wV0GgU_NdBNqkzM87sLxjaCdFj9mnw
+    id: account
+    label: 'User account menu'
+    description: 'Links related to the active user account'
+    locked: true
+  system.menu.admin:
+    uuid: ba1db4e6-75fd-4788-adc7-12c343fbbfc4
+    langcode: en
+    status: true
+    dependencies: {  }
+    _core:
+      default_config_hash: sapEi2YDGoI9yQIT_WgIV2vUdQ6DScH0V3fAyTadAL0
+    id: admin
+    label: Administration
+    description: 'Administrative task links'
+    locked: true
+  system.menu.footer:
+    uuid: e43d243c-2be3-4749-ad91-c87f301bc684
+    langcode: en
+    status: true
+    dependencies: {  }
+    _core:
+      default_config_hash: LV3_lo3prk19VPzFZayLec_GkFFjrBD2LMHRbQj5lNg
+    id: footer
+    label: Footer
+    description: 'Site information links'
+    locked: false
+  system.menu.main:
+    uuid: 9617f539-34ea-4113-8823-217c4fcdd974
+    langcode: en
+    status: true
+    dependencies: {  }
+    _core:
+      default_config_hash: m93X95m9UfametQDTo-9cglTahTR4yJoKhYpx04XN3k
+    id: main
+    label: 'Main navigation'
+    description: 'Site section links'
+    locked: false
+  system.menu.social-media:
+    uuid: 1cd86f11-b9ca-460c-9953-8a303b361c63
+    langcode: en
+    status: true
+    dependencies: {  }
+    _core:
+      default_config_hash: XsI_5NRuIsL30vn73gijpIhObheWerORGikQLekdtcQ
+    id: social-media
+    label: 'Social Media'
+    description: 'Social media links'
+    locked: false
+  system.menu.tools:
+    uuid: 5d86f079-d540-470e-94ec-c61de46fb330
+    langcode: en
+    status: true
+    dependencies: {  }
+    _core:
+      default_config_hash: BCM-vV1zzRaLHN18dqAR_CuGOj8AFJvTx7BKl_8Gcxc
+    id: tools
+    label: Tools
+    description: 'User tool links, often added by modules'
+    locked: true
+  system.site:
+    name: 'New Site'
+    slogan: ''
+    uuid: b7f6088f-1c6d-46af-a0fa-8f444f0c19c9
+  taxonomy.vocabulary.categories:
+    uuid: 2b1d6053-3cdc-4487-9fd8-76fb86ab3fef
+    langcode: en
+    status: true
+    dependencies:
+      module:
+        - scheduler
+    third_party_settings:
+      scheduler:
+        expand_fieldset: when_required
+        fields_display_mode: vertical_tab
+        publish_enable: false
+        publish_past_date: error
+        publish_past_date_created: false
+        publish_required: false
+        publish_revision: false
+        publish_touch: false
+        show_message_after_update: true
+        unpublish_enable: false
+        unpublish_required: false
+        unpublish_revision: false
+    _core:
+      default_config_hash: iOz6vkJzPTnBCQvNtTcfC6ovJTn5wS1sCL0n533C29Y
+    name: Categories
+    vid: categories
+    description: 'Big buckets for content categorization. Descriptive metadata, for categorizing content.'
+    weight: 0
+    new_revision: false
+  taxonomy.vocabulary.tags:
+    uuid: ce93cd66-26f3-40c2-bec9-0efc0560d0ee
+    langcode: en
+    status: true
+    dependencies:
+      module:
+        - scheduler
+    third_party_settings:
+      scheduler:
+        expand_fieldset: when_required
+        fields_display_mode: vertical_tab
+        publish_enable: false
+        publish_past_date: error
+        publish_past_date_created: false
+        publish_required: false
+        publish_revision: false
+        publish_touch: false
+        show_message_after_update: true
+        unpublish_enable: false
+        unpublish_required: false
+        unpublish_revision: false
+    _core:
+      default_config_hash: QralP2i0NvRz1a3yPaZGpKiO04rdBfwIW0Tvo7Cri7w
+    name: Tags
+    vid: tags
+    description: 'For tagging content and creating content relationships so it can be surfaced easier.'
+    weight: 0
+    new_revision: false
+  user.role.member:
+    uuid: 125df397-8564-45b5-90b7-0fc686ee7e01
+    langcode: en
+    status: true
+    dependencies:
+      config:
+        - filter.format.filtered_html
+        - media.type.document
+        - media.type.image
+        - media.type.remote_video
+        - media.type.video
+        - node.type.article
+        - node.type.person
+        - taxonomy.vocabulary.categories
+        - taxonomy.vocabulary.tags
+        - workflows.workflow.editorial
+      module:
+        - acquia_dam
+        - acquia_optimize
+        - canvas
+        - config_translation
+        - content_moderation
+        - content_translation
+        - entity_clone
+        - filter
+        - jsonapi
+        - media
+        - node
+        - path
+        - redirect
+        - scheduler
+        - system
+        - taxonomy
+    id: member
+    label: Member
+    weight: 2
+    is_admin: false
+    permissions:
+      - 'access content overview'
+      - 'access jsonapi developer tools'
+      - 'access media overview'
+      - 'access menu overview'
+      - 'access taxonomy overview'
+      - 'administer redirects'
+      - 'authorize with acquia dam'
+      - 'clone node entity'
+      - 'clone taxonomy_term entity'
+      - 'create article content'
+      - 'create canvas_page'
+      - 'create content translations'
+      - 'create document media'
+      - 'create image media'
+      - 'create menu_link_content'
+      - 'create person content'
+      - 'create remote_video media'
+      - 'create terms in categories'
+      - 'create terms in tags'
+      - 'create url aliases'
+      - 'create video media'
+      - 'delete any article content'
+      - 'delete any document media'
+      - 'delete any image media'
+      - 'delete any person content'
+      - 'delete any remote_video media'
+      - 'delete any video media'
+      - 'delete canvas_page'
+      - 'delete content translations'
+      - 'delete menu_link_content'
+      - 'delete terms in categories'
+      - 'delete terms in tags'
+      - 'edit any article content'
+      - 'edit any document media'
+      - 'edit any image media'
+      - 'edit any person content'
+      - 'edit any remote_video media'
+      - 'edit any video media'
+      - 'edit canvas_page'
+      - 'edit terms in categories'
+      - 'edit terms in tags'
+      - 'publish auto-saves'
+      - 'revert all revisions'
+      - 'revert any document media revisions'
+      - 'revert any image media revisions'
+      - 'revert any remote_video media revisions'
+      - 'revert article revisions'
+      - 'revert person revisions'
+      - 'scan acquia optimize'
+      - 'schedule publishing of nodes'
+      - 'take_ownership_on_clone node entity'
+      - 'translate any entity'
+      - 'translate article node'
+      - 'translate categories taxonomy_term'
+      - 'translate configuration'
+      - 'translate tags taxonomy_term'
+      - 'update content translations'
+      - 'update menu'
+      - 'update menu_link_content'
+      - 'use editorial transition archive'
+      - 'use editorial transition archived_published'
+      - 'use editorial transition create_new_draft'
+      - 'use editorial transition mark_reviewed'
+      - 'use editorial transition publish'
+      - 'use editorial transition review'
+      - 'use text format filtered_html'
+      - 'view all media revisions'
+      - 'view all revisions'
+      - 'view any document media revisions'
+      - 'view any image media revisions'
+      - 'view any remote_video media revisions'
+      - 'view any unpublished content'
+      - 'view article revisions'
+      - 'view latest version'
+      - 'view person revisions'
+      - 'view scheduled content'
+  workflows.workflow.editorial:
+    uuid: b19c696c-c756-4ab3-b851-fe0fa0d27650
+    langcode: en
+    status: true
+    dependencies:
+      config:
+        - node.type.article
+        - node.type.person
+      module:
+        - content_moderation
+    _core:
+      default_config_hash: j1aev1TmCe0O6zvRv6bCpIHzfUb3acw201EvBqaFsGI
+    id: editorial
+    label: Editorial
+    type: content_moderation
+    type_settings:
+      states:
+        archived:
+          label: Archived
+          weight: 1
+          published: false
+          default_revision: true
+        draft:
+          label: Draft
+          weight: -3
+          published: false
+          default_revision: false
+        published:
+          label: Published
+          weight: 0
+          published: true
+          default_revision: true
+        review:
+          label: 'In review'
+          weight: -2
+          published: false
+          default_revision: false
+        reviewed:
+          label: Reviewed
+          weight: -1
+          published: false
+          default_revision: false
+      transitions:
+        archive:
+          label: Archive
+          from:
+            - published
+          to: archived
+          weight: 1
+        archived_published:
+          label: 'Restore from archive'
+          from:
+            - archived
+          to: published
+          weight: 2
+        create_new_draft:
+          label: 'Create New Draft'
+          from:
+            - archived
+            - draft
+            - published
+            - review
+          to: draft
+          weight: -3
+        mark_reviewed:
+          label: 'Mark as reviewed'
+          from:
+            - draft
+            - review
+            - reviewed
+          to: reviewed
+          weight: -1
+        publish:
+          label: Publish
+          from:
+            - draft
+            - published
+            - review
+            - reviewed
+          to: published
+          weight: 0
+        review:
+          label: 'Send to review'
+          from:
+            - draft
+            - review
+          to: review
+          weight: -2
+      entity_types:
+        node:
+          - article
+          - person
+      default_moderation_state: draft
+language.nl:
+  node.type.article:
+    name: Artikel
+    description: 'Een artikel'
+  system.site:
+    name: 'Mijn site'
+    slogan: 'Een slogan'

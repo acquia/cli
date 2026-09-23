@@ -1,0 +1,30 @@
+uuid: 22043365-10fa-491b-82ac-ae598f255055
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.related_articles
+    - node.type.article
+_core:
+  default_config_hash: CfDI8wI2SVzG-SaJSGPrk2xofxa7CNZqvUUlpfy7_0s
+id: node.article.related_articles
+field_name: related_articles
+entity_type: node
+bundle: article
+label: 'Related articles'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:node'
+  handler_settings:
+    target_bundles:
+      article: article
+    sort:
+      field: _none
+      direction: ASC
+    auto_create: false
+    auto_create_bundle: ''
+field_type: entity_reference

@@ -1,0 +1,65 @@
+uuid: fb2d7b1c-55ab-4040-9c31-dee9815952bc
+langcode: en
+status: true
+dependencies:
+  config:
+    - node.type.person
+id: node--person
+disabled: false
+path: node/person
+resourceType: node--person
+resourceFields:
+  promote:
+    disabled: true
+    fieldName: promote
+    publicName: promote
+    enhancer:
+      id: ''
+  sticky:
+    disabled: true
+    fieldName: sticky
+    publicName: sticky
+    enhancer:
+      id: ''
+  nid:
+    disabled: true
+    fieldName: nid
+    publicName: nid
+    enhancer:
+      id: ''
+  vid:
+    disabled: true
+    fieldName: vid
+    publicName: vid
+    enhancer:
+      id: ''
+  first_name:
+    disabled: false
+    fieldName: first_name
+    publicName: first_name
+    enhancer:
+      id: ''
+  job_title:
+    disabled: false
+    fieldName: job_title
+    publicName: job_title
+    enhancer:
+      id: ''
+  last_name:
+    disabled: false
+    fieldName: last_name
+    publicName: last_name
+    enhancer:
+      id: ''
+  profile_image:
+    disabled: false
+    fieldName: profile_image
+    publicName: profile_image
+    enhancer:
+      id: ''
+  bio:
+    disabled: false
+    fieldName: bio
+    publicName: bio
+    enhancer:
+      id: ''

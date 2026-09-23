@@ -1,0 +1,20 @@
+uuid: 94ea1164-84cd-4810-9313-e8c78a059485
+langcode: en
+status: true
+dependencies:
+  module:
+    - acquia_dam
+id: acquia_dam_generic_asset
+label: 'Acquia DAM: Generic'
+description: 'Media assets in the remote DAM service without any known type declared.'
+source: 'acquia_dam_asset:generic'
+queue_thumbnail_downloads: false
+new_revision: false
+source_configuration:
+  source_field: acquia_dam_asset_id
+  download_assets: false
+  preserve_filename_case: false
+  uri_scheme: public
+  file_extensions: ''
+field_map:
+  filename: name

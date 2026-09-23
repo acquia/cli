@@ -1,0 +1,79 @@
+uuid: 15cd646b-45d9-433c-9027-0216018393e9
+langcode: en
+status: true
+dependencies:
+  module:
+    - system
+_core:
+  default_config_hash: 9X4ZIVNgsJtq2yczBBL-hn5VvN5DmXshmv_sPuRCLe0
+id: action--action
+disabled: true
+path: action/action
+resourceType: action--action
+resourceFields:
+  uuid:
+    disabled: false
+    fieldName: uuid
+    publicName: uuid
+    enhancer:
+      id: ''
+  langcode:
+    disabled: false
+    fieldName: langcode
+    publicName: langcode
+    enhancer:
+      id: ''
+  status:
+    disabled: false
+    fieldName: status
+    publicName: status
+    enhancer:
+      id: ''
+  dependencies:
+    disabled: false
+    fieldName: dependencies
+    publicName: dependencies
+    enhancer:
+      id: ''
+  third_party_settings:
+    disabled: false
+    fieldName: third_party_settings
+    publicName: third_party_settings
+    enhancer:
+      id: ''
+  _core:
+    disabled: false
+    fieldName: _core
+    publicName: _core
+    enhancer:
+      id: ''
+  id:
+    disabled: false
+    fieldName: id
+    publicName: id
+    enhancer:
+      id: ''
+  label:
+    disabled: false
+    fieldName: label
+    publicName: label
+    enhancer:
+      id: ''
+  type:
+    disabled: false
+    fieldName: type
+    publicName: type
+    enhancer:
+      id: ''
+  plugin:
+    disabled: false
+    fieldName: plugin
+    publicName: plugin
+    enhancer:
+      id: ''
+  configuration:
+    disabled: false
+    fieldName: configuration
+    publicName: configuration
+    enhancer:
+      id: ''
