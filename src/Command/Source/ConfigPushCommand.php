@@ -23,10 +23,17 @@ use Throwable;
 #[AsCommand(name: 'source:cms:config:push', description: 'Import .acquia/config into a Source site')]
 final class ConfigPushCommand extends ConfigCommandBase
 {
+    /**
+     * --status's exit code while the site's latest import has not finished;
+     * distinct from Command::SUCCESS/FAILURE so a CI/CD run can poll on it.
+     */
+    private const EXIT_STILL_RUNNING = 2;
+
     protected function configure(): void
     {
         parent::configure();
         $this->addOption('yes', 'y', InputOption::VALUE_NONE, 'Skip the confirmation prompt (required when non-interactive)');
+        $this->addOption('status', null, InputOption::VALUE_NONE, "Report the site's latest import instead of starting one");
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -34,6 +41,13 @@ final class ConfigPushCommand extends ConfigCommandBase
         $json = $this->outputsJson();
         $root = $this->workingCopyDir();
         $siteId = $this->determineSourceSite($root);
+        $client = $this->cloudApiClientService->getClient();
+
+        if ($input->getOption('status')) {
+            $import = $client->request('get', "/source-sites/$siteId/config/import");
+            return $this->reportResult($input, $output, $json, $import, fn (object $import): int => $this->reportStatus($siteId, $import));
+        }
+
         $configDir = "$root/.acquia/config";
         if (!is_dir($configDir)) {
             throw new AcquiaCliException('{dir} does not exist. Run acli source:cms:config:pull first.', ['dir' => $configDir]);
@@ -49,7 +63,6 @@ final class ConfigPushCommand extends ConfigCommandBase
             }
         }
 
-        $client = $this->cloudApiClientService->getClient();
         try {
             $client->request('put', "/source-sites/$siteId/config", ['json' => ['configuration' => $document]]);
         } catch (ApiErrorException $e) {
@@ -66,11 +79,24 @@ final class ConfigPushCommand extends ConfigCommandBase
             $this->io = new SymfonyStyle($input, $this->output);
         }
         $import = $this->waitForImport($client, $siteId);
-        $exitCode = $this->reportImport($siteId, $import);
+        return $this->reportResult($input, $output, $json, $import, fn (object $import): int => $this->reportImport($siteId, $import));
+    }
+
+    /**
+     * Reports $import via $report, printing it as JSON afterward when $json.
+     *
+     * @param callable(object): int $report
+     */
+    private function reportResult(InputInterface $input, OutputInterface $output, bool $json, object $import, callable $report): int
+    {
+        if ($json) {
+            $this->output = new NullOutput();
+            $this->io = new SymfonyStyle($input, $this->output);
+        }
+        $exitCode = $report($import);
         if ($json) {
             $output->writeln(json_encode($import, JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT));
         }
-
         return $exitCode;
     }
 
@@ -99,6 +125,19 @@ final class ConfigPushCommand extends ConfigCommandBase
             throw new AcquiaCliException('The import was accepted but its outcome is unknown ({reason}). Check the site before pushing again. The import may still finish, and the status it reports may then be that of a later import.', ['reason' => $error->getMessage()]);
         }
         return $import;
+    }
+
+    /**
+     * Reports the site's latest import for --status, without waiting for it to finish.
+     */
+    private function reportStatus(string $siteId, object $import): int
+    {
+        if ($import->status === 'running') {
+            $this->io->writeln("Source site $siteId's latest import started at $import->started_at and is still running.");
+            return self::EXIT_STILL_RUNNING;
+        }
+        $this->io->writeln("Source site $siteId's latest import started at $import->started_at.");
+        return $this->reportImport($siteId, $import);
     }
 
     private function reportImport(string $siteId, object $import): int
