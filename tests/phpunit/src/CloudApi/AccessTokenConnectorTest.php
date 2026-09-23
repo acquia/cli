@@ -7,6 +7,7 @@ namespace Acquia\Cli\Tests\CloudApi;
 use Acquia\Cli\CloudApi\AccessTokenConnector;
 use Acquia\Cli\CloudApi\ClientService;
 use Acquia\Cli\CloudApi\ConnectorFactory;
+use Acquia\Cli\CloudApi\DeviceTokenRefresher;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Tests\Commands\Ide\IdeHelper;
 use Acquia\Cli\Tests\TestBase;
@@ -180,6 +181,47 @@ class AccessTokenConnectorTest extends TestBase
         $this->assertEquals(['User-Agent' => [0 => 'acli/UNKNOWN']], $options['headers']);
 
         $this->prophet->checkPredictions();
+    }
+
+    public function testDeviceTokenRefreshOnRequest(): void
+    {
+        $refresherProphecy = $this->prophet->prophesize(DeviceTokenRefresher::class);
+        $refresherProphecy->getValidAccessToken()->willReturn('fresh-device-token')->shouldBeCalled();
+
+        $connector = new AccessTokenConnector([
+            'access_token' => 'stale-token',
+            'key' => null,
+            'secret' => null,
+        ], null, null, $refresherProphecy->reveal());
+
+        $mockProvider = $this->prophet->prophesize(GenericProvider::class);
+        $mockProvider->getAuthenticatedRequest('get', ConnectorInterface::BASE_URI . 'api', Argument::that(
+            fn (AccessTokenInterface $t) => $t->getToken() === 'fresh-device-token'
+        ))->willReturn($this->prophet->prophesize(RequestInterface::class)->reveal())->shouldBeCalled();
+        $connector->setProvider($mockProvider->reveal());
+        $request = $connector->createRequest('get', 'api');
+
+        $this->assertInstanceOf(RequestInterface::class, $request);
+        $this->prophet->checkPredictions();
+    }
+
+    public function testDeviceTokenExpiredThrowsOnRequest(): void
+    {
+        $refresherProphecy = $this->prophet->prophesize(DeviceTokenRefresher::class);
+        $refresherProphecy->getValidAccessToken()->willReturn(null);
+
+        $connector = new AccessTokenConnector([
+            'access_token' => 'stale-token',
+            'key' => null,
+            'secret' => null,
+        ], null, null, $refresherProphecy->reveal());
+
+        $mockProvider = $this->prophet->prophesize(GenericProvider::class);
+        $connector->setProvider($mockProvider->reveal());
+
+        $this->expectException(AcquiaCliException::class);
+        $this->expectExceptionMessage('Device token session expired');
+        $connector->createRequest('get', 'api');
     }
 
     public function testIdeHeader(): void

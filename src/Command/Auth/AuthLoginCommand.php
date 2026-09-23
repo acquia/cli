@@ -13,7 +13,6 @@ use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Helpers\LocalMachineHelper;
 use Acquia\Cli\Helpers\SshHelper;
 use Acquia\Cli\Helpers\TelemetryHelper;
-use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
 use AcquiaCloudApi\Endpoints\Account;
 use GuzzleHttp\Client as GuzzleClient;
 use GuzzleHttp\Exception\ClientException;
@@ -172,8 +171,10 @@ final class AuthLoginCommand extends CommandBase
         $output->writeln("  <options=bold>$userCode</>");
         $output->writeln('');
 
-        if (!AcquiaDrupalEnvironmentDetector::isAhIdeEnv() && $this->io->confirm('Do you want to open this page to sign in now?')) {
+        if ($this->localMachineHelper->isBrowserAvailable() && !getenv('SSH_CONNECTION')) {
             $this->localMachineHelper->startBrowser($verifyUrlComplete);
+            $output->writeln('Confirm the code above matches what appears in your browser before approving.');
+            $output->writeln('');
         }
 
         $output->writeln(sprintf('Waiting for authorization... (code expires in %d minutes)', (int) ceil($expiresIn / 60)));

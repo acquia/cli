@@ -66,8 +66,11 @@ class AuthLoginCommandTest extends CommandTestBase
     {
         $mock = new MockHandler($responses);
         $client = new GuzzleClient(['handler' => HandlerStack::create($mock)]);
-        $localMachineHelper = $localMachineHelperProphecy?->reveal()
-            ?? $this->prophet->prophesize(LocalMachineHelper::class)->reveal();
+        if ($localMachineHelperProphecy === null) {
+            $localMachineHelperProphecy = $this->prophet->prophesize(LocalMachineHelper::class);
+            $localMachineHelperProphecy->isBrowserAvailable()->willReturn(false);
+        }
+        $localMachineHelper = $localMachineHelperProphecy->reveal();
 
         return new AuthLoginCommand(
             $localMachineHelper,
@@ -119,7 +122,7 @@ class AuthLoginCommandTest extends CommandTestBase
             ])),
         ]);
 
-        $this->executeCommand([], ['no']);
+        $this->executeCommand([], []);
         $output = $this->getDisplay();
 
         $this->assertStringContainsString('https://example.okta.com/activate', $output);
@@ -147,7 +150,7 @@ class AuthLoginCommandTest extends CommandTestBase
             ])),
         ]);
 
-        $this->executeCommand([], ['no']);
+        $this->executeCommand([], []);
         $output = $this->getDisplay();
 
         $this->assertStringContainsString('Authenticated successfully', $output);
@@ -162,7 +165,7 @@ class AuthLoginCommandTest extends CommandTestBase
             new Response(200, [], json_encode(['error' => 'access_denied'])),
         ]);
 
-        $this->executeCommand([], ['no', 'no']);
+        $this->executeCommand([], ['no']);
         $output = $this->getDisplay();
 
         $this->assertStringContainsString('Authorization denied', $output);
@@ -177,7 +180,7 @@ class AuthLoginCommandTest extends CommandTestBase
             new Response(200, [], json_encode(['error' => 'expired_token'])),
         ]);
 
-        $this->executeCommand([], ['no', 'no']);
+        $this->executeCommand([], ['no']);
         $output = $this->getDisplay();
 
         $this->assertStringContainsString('Code expired', $output);
@@ -221,11 +224,12 @@ class AuthLoginCommandTest extends CommandTestBase
         $this->assertStringContainsString('Saved credentials', $output);
     }
 
-    public function testDeviceCodeFlowOpensBrowserWhenConfirmed(): void
+    public function testDeviceCodeFlowOpensBrowserWhenAvailable(): void
     {
         $this->enableDeviceCodeConfig();
         $this->givenFreshCloudConfigWithTelemetryDisabled();
         $localMachineHelperProphecy = $this->prophet->prophesize(LocalMachineHelper::class);
+        $localMachineHelperProphecy->isBrowserAvailable()->willReturn(true);
         $localMachineHelperProphecy->startBrowser('https://example.okta.com/activate')
             ->shouldBeCalled()
             ->willReturn(true);
@@ -237,14 +241,16 @@ class AuthLoginCommandTest extends CommandTestBase
             ])),
         ], $localMachineHelperProphecy);
 
-        $this->executeCommand([], ['yes']);
+        $this->executeCommand([], []);
+        $this->assertStringContainsString('Confirm the code above matches', $this->getDisplay());
     }
 
-    public function testDeviceCodeFlowDoesNotOpenBrowserWhenDeclined(): void
+    public function testDeviceCodeFlowDoesNotOpenBrowserWhenUnavailable(): void
     {
         $this->enableDeviceCodeConfig();
         $this->givenFreshCloudConfigWithTelemetryDisabled();
         $localMachineHelperProphecy = $this->prophet->prophesize(LocalMachineHelper::class);
+        $localMachineHelperProphecy->isBrowserAvailable()->willReturn(false);
         $localMachineHelperProphecy->startBrowser(Argument::any())
             ->shouldNotBeCalled();
         $this->command = $this->createDeviceCodeCommand([
@@ -255,7 +261,32 @@ class AuthLoginCommandTest extends CommandTestBase
             ])),
         ], $localMachineHelperProphecy);
 
-        $this->executeCommand([], ['no']);
+        $this->executeCommand([], []);
+    }
+
+    public function testDeviceCodeFlowDoesNotOpenBrowserOverSsh(): void
+    {
+        $this->enableDeviceCodeConfig();
+        $this->givenFreshCloudConfigWithTelemetryDisabled();
+        $savedSsh = getenv('SSH_CONNECTION');
+        putenv('SSH_CONNECTION=127.0.0.1 12345');
+        $localMachineHelperProphecy = $this->prophet->prophesize(LocalMachineHelper::class);
+        $localMachineHelperProphecy->isBrowserAvailable()->willReturn(true);
+        $localMachineHelperProphecy->startBrowser(Argument::any())
+            ->shouldNotBeCalled();
+        $this->command = $this->createDeviceCodeCommand([
+            $this->deviceAuthorizeResponse(),
+            new Response(200, [], json_encode([
+                'access_token' => 'test-access-token',
+                'expires_in' => 300,
+            ])),
+        ], $localMachineHelperProphecy);
+
+        try {
+            $this->executeCommand([], []);
+        } finally {
+            putenv($savedSsh === false ? 'SSH_CONNECTION' : 'SSH_CONNECTION=' . $savedSsh);
+        }
     }
 
     public function testSmartRoutingDeviceTokenReauthDeclined(): void

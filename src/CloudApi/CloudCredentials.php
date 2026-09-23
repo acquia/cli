@@ -12,15 +12,11 @@ class CloudCredentials implements ApiCredentialsInterface
 {
     public function __construct(
         private CloudDataStore $datastoreCloud,
-        private ?DeviceTokenRefresher $deviceTokenRefresher = null,
     ) {
     }
 
     public function getCloudDeviceAccessToken(): ?string
     {
-        if ($this->deviceTokenRefresher !== null) {
-            return $this->deviceTokenRefresher->getValidAccessToken();
-        }
         $stored = $this->datastoreCloud->get('device_token');
         return $stored['access_token'] ?? null;
     }

@@ -77,8 +77,6 @@ services:
 
   cloud.credentials:
     class: Acquia\Cli\CloudApi\CloudCredentials
-    arguments:
-      $deviceTokenRefresher: '@Acquia\Cli\CloudApi\DeviceTokenRefresher'
 
   acsf.credentials:
     class: Acquia\Cli\AcsfApi\AcsfCredentials
