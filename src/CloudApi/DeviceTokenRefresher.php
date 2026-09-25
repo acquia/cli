@@ -13,10 +13,13 @@ use Psr\Log\LoggerInterface;
 
 class DeviceTokenRefresher
 {
+    private const REQUEST_TIMEOUT_SECONDS = 15;
+
     public function __construct(
         private CloudDataStore $datastore,
         private LoggerInterface $logger,
-        private GuzzleClient $httpClient = new GuzzleClient(['timeout' => 15]),
+        private GuzzleClient $httpClient = new GuzzleClient(),
+        private OktaConfig $oktaConfig = new OktaConfig(),
     ) {
     }
 
@@ -46,8 +49,8 @@ class DeviceTokenRefresher
         // Access token expired — attempt a silent refresh.
         $refreshToken = $stored['refresh_token'] ?? null;
         $clientId     = $stored['client_id'] ?? null;
-        $domain       = getenv('ACLI_OKTA_DOMAIN');
-        $authServer   = getenv('ACLI_OKTA_AUTH_SERVER_ID');
+        $domain       = $this->oktaConfig->domain();
+        $authServer   = $this->oktaConfig->authServerId();
 
         if (!$refreshToken || !$clientId || !$domain || !$authServer) {
             return null;
@@ -62,12 +65,23 @@ class DeviceTokenRefresher
                         'grant_type'    => 'refresh_token',
                         'refresh_token' => $refreshToken,
                     ],
+                    'timeout'     => self::REQUEST_TIMEOUT_SECONDS,
                 ]
             );
             $new = json_decode((string) $response->getBody(), true);
         } catch (ClientException $e) {
-            // HTTP 4xx: refresh token is likely expired or revoked.
             $status = $e->getResponse()->getStatusCode();
+            $body = json_decode((string) $e->getResponse()->getBody(), true);
+            $error = is_array($body) ? ($body['error'] ?? '') : '';
+
+            if ($error === 'invalid_grant') {
+                if ($winnersToken = $this->tokenWrittenByAnotherProcess($stored)) {
+                    return $winnersToken;
+                }
+                $this->logger->warning('Device token refresh failed: the refresh token is expired or revoked. Run `acli auth:login` to re-authenticate.');
+                return null;
+            }
+
             if ($status === 400 || $status === 401) {
                 $this->logger->warning('Device token refresh failed (HTTP {status}). Run `acli auth:login` to re-authenticate.', ['status' => $status]);
             }
@@ -89,5 +103,28 @@ class DeviceTokenRefresher
         ]);
 
         return $new['access_token'];
+    }
+
+    /**
+     * Returns a usable access token another process wrote while we were refreshing.
+     *
+     * Null means nothing changed, so the refresh token really is expired or revoked.
+     *
+     * @param array<string, mixed> $stored the token this call started with
+     */
+    private function tokenWrittenByAnotherProcess(array $stored): ?string
+    {
+        $current = $this->datastore->get('device_token');
+        if (!is_array($current) || empty($current['access_token'])) {
+            return null;
+        }
+        if ($current['access_token'] === ($stored['access_token'] ?? null)) {
+            return null;
+        }
+        if ((($current['expiry'] ?? 0) - time()) <= 60) {
+            return null;
+        }
+
+        return $current['access_token'];
     }
 }

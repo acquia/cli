@@ -10,6 +10,7 @@ use Acquia\Cli\ConnectorFactoryInterface;
 use Acquia\Cli\Helpers\TelemetryHelper;
 use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Connector\ConnectorInterface;
+use loophp\phposinfo\OsInfo;
 
 /**
  * Factory producing Acquia Cloud Api clients.
@@ -55,11 +56,13 @@ class ClientService
 
     protected function configureClient(Client $client): void
     {
-        $userAgent = sprintf('acli/%s', $this->application->getVersion());
         $provider = TelemetryHelper::getEnvironmentProvider();
-        if ($provider !== null) {
-            $userAgent .= sprintf(' (agent:%s)', $provider);
-        }
+        $userAgent = sprintf(
+            'Acquia CLI (%s, %s%s)',
+            $this->application->getVersion(),
+            OsInfo::uuid(),
+            $provider !== null ? ', ' . $provider : '',
+        );
         $customHeaders = [
             'User-Agent' => [$userAgent],
         ];

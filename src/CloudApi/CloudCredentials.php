@@ -21,12 +21,6 @@ class CloudCredentials implements ApiCredentialsInterface
         return $stored['access_token'] ?? null;
     }
 
-    public function getCloudDeviceTokenExpiry(): ?int
-    {
-        $stored = $this->datastoreCloud->get('device_token');
-        return isset($stored['expiry']) ? (int) $stored['expiry'] : null;
-    }
-
     public function getCloudAccessToken(): ?string
     {
         if ($token = getenv('ACLI_ACCESS_TOKEN')) {

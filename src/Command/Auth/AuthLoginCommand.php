@@ -6,6 +6,7 @@ namespace Acquia\Cli\Command\Auth;
 
 use Acquia\Cli\ApiCredentialsInterface;
 use Acquia\Cli\CloudApi\ClientService;
+use Acquia\Cli\CloudApi\OktaConfig;
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\DataStore\AcquiaCliDatastore;
 use Acquia\Cli\DataStore\CloudDataStore;
@@ -17,6 +18,7 @@ use AcquiaCloudApi\Endpoints\Account;
 use GuzzleHttp\Client as GuzzleClient;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\ConnectException;
+use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\RequestException;
 use Psr\Log\LoggerInterface;
 use SelfUpdate\SelfUpdateManager;
@@ -29,9 +31,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 #[AsCommand(name: 'auth:login', description: 'Register Cloud Platform API credentials', aliases: ['login'])]
 final class AuthLoginCommand extends CommandBase
 {
-    private const DEVICE_CLIENT_ID = '';
-    private const OKTA_DOMAIN = '';
-    private const OKTA_AUTH_SERVER_ID = '';
+    private const REQUEST_TIMEOUT_SECONDS = 30;
 
     public function __construct(
         public LocalMachineHelper $localMachineHelper,
@@ -45,7 +45,8 @@ final class AuthLoginCommand extends CommandBase
         protected string $sshDir,
         LoggerInterface $logger,
         public SelfUpdateManager $selfUpdateManager,
-        private GuzzleClient $httpClient = new GuzzleClient(['timeout' => 30]),
+        private GuzzleClient $httpClient = new GuzzleClient(),
+        private OktaConfig $oktaConfig = new OktaConfig(),
     ) {
         parent::__construct($this->localMachineHelper, $this->datastoreCloud, $this->datastoreAcli, $this->cloudCredentials, $this->telemetryHelper, $this->projectDir, $this->cloudApiClientService, $this->sshHelper, $this->sshDir, $logger, $this->selfUpdateManager);
     }
@@ -103,6 +104,8 @@ final class AuthLoginCommand extends CommandBase
             return $this->executeDeviceCodeFlowWithFallback($input, $output);
         }
 
+        $output->writeln('<comment>Device code sign-in is not configured in this build; falling back to API key authentication.</comment>');
+
         return $this->executeLegacyAuth($input, $output);
     }
 
@@ -121,16 +124,14 @@ final class AuthLoginCommand extends CommandBase
 
     private function isDeviceCodeConfigured(): bool
     {
-        return (bool) (getenv('ACLI_DEVICE_CLIENT_ID') ?: self::DEVICE_CLIENT_ID)
-            && (bool) (getenv('ACLI_OKTA_DOMAIN') ?: self::OKTA_DOMAIN)
-            && (bool) (getenv('ACLI_OKTA_AUTH_SERVER_ID') ?: self::OKTA_AUTH_SERVER_ID);
+        return $this->oktaConfig->isConfigured();
     }
 
     private function executeDeviceCodeFlow(OutputInterface $output): int
     {
-        $clientId   = getenv('ACLI_DEVICE_CLIENT_ID') ?: self::DEVICE_CLIENT_ID;
-        $domain     = getenv('ACLI_OKTA_DOMAIN') ?: self::OKTA_DOMAIN;
-        $authServer = getenv('ACLI_OKTA_AUTH_SERVER_ID') ?: self::OKTA_AUTH_SERVER_ID;
+        $clientId   = $this->oktaConfig->clientId();
+        $domain     = $this->oktaConfig->domain();
+        $authServer = $this->oktaConfig->authServerId();
 
         $baseUrl = sprintf('https://%s/oauth2/%s/v1', $domain, $authServer);
 
@@ -141,8 +142,9 @@ final class AuthLoginCommand extends CommandBase
                     'client_id' => $clientId,
                     'scope'     => 'openid profile email offline_access',
                 ],
+                'timeout'     => self::REQUEST_TIMEOUT_SECONDS,
             ]);
-        } catch (ClientException $e) {
+        } catch (GuzzleException $e) {
             $output->writeln('<error>Failed to initiate device code flow: ' . $e->getMessage() . '</error>');
             return Command::FAILURE;
         }
@@ -191,6 +193,7 @@ final class AuthLoginCommand extends CommandBase
                         'device_code' => $deviceCode,
                         'grant_type'  => 'urn:ietf:params:oauth:grant-type:device_code',
                     ],
+                    'timeout'     => self::REQUEST_TIMEOUT_SECONDS,
                 ]);
                 $token = json_decode((string) $tokenResponse->getBody(), true);
             } catch (ClientException $e) {
@@ -203,10 +206,14 @@ final class AuthLoginCommand extends CommandBase
                 continue;
             }
 
-            $error = $token['error'] ?? '';
+            $error = is_array($token) ? ($token['error'] ?? '') : '';
 
             switch ($error) {
                 case '':
+                    if (!is_array($token) || empty($token['access_token'])) {
+                        $output->writeln('<error>Unexpected response from the token endpoint: no access token returned.</error>');
+                        return Command::FAILURE;
+                    }
                     // Success — store token and exit.
                     $this->storeDeviceToken($token, $clientId);
                     $output->writeln('');

@@ -15,17 +15,22 @@ use Acquia\Cli\Tests\CommandTestBase;
 use AcquiaCloudApi\Connector\Connector;
 use Generator;
 use GuzzleHttp\Client as GuzzleClient;
+use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
+use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
+use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Validator\Exception\ValidatorException;
 
 /**
  * @property AuthLoginCommand $command
  */
+#[Group('serial')]
 class AuthLoginCommandTest extends CommandTestBase
 {
     /** @var array<string, string|false> */
@@ -93,6 +98,18 @@ class AuthLoginCommandTest extends CommandTestBase
         $this->removeMockCloudConfigFile();
         $this->fs->dumpFile($this->cloudConfigFilepath, json_encode(['send_telemetry' => false]));
         $this->createDataStores();
+    }
+
+    /**
+     * A LocalMachineHelper double for tests that do not exercise browser opening.
+     */
+    private function headlessLocalMachineHelper(): ObjectProphecy
+    {
+        $prophecy = $this->prophet->prophesize(LocalMachineHelper::class);
+        $prophecy->useTty()->willReturn(false);
+        $prophecy->isBrowserAvailable()->willReturn(false);
+
+        return $prophecy;
     }
 
     private function deviceAuthorizeResponse(): Response
@@ -210,8 +227,7 @@ class AuthLoginCommandTest extends CommandTestBase
         $this->clientServiceProphecy->isMachineAuthenticated()
             ->willReturn(false);
 
-        $localMachineHelperProphecy = $this->prophet->prophesize(LocalMachineHelper::class);
-        $localMachineHelperProphecy->useTty()->willReturn(false);
+        $localMachineHelperProphecy = $this->headlessLocalMachineHelper();
         $this->command = $this->createDeviceCodeCommand([
             new Response(400, [], json_encode(['error' => 'invalid_client'])),
         ], $localMachineHelperProphecy);
@@ -310,6 +326,169 @@ class AuthLoginCommandTest extends CommandTestBase
 
         $this->assertStringContainsString('Already authenticated via', $output);
         $this->assertStringNotContainsString('Authenticated successfully', $output);
+    }
+
+    public function testNoInteractionReauthenticatesAnExistingDeviceSessionWithoutPrompting(): void
+    {
+        $this->enableDeviceCodeConfig();
+        $this->removeMockCloudConfigFile();
+        $this->fs->dumpFile($this->cloudConfigFilepath, json_encode([
+            'device_token' => [
+                'access_token' => 'existing-token',
+                'client_id' => 'test-client-id',
+                'expiry' => time() + 300,
+                'refresh_token' => 'existing-refresh-token',
+            ],
+            'send_telemetry' => false,
+        ]));
+        $this->createDataStores();
+        $localMachineHelperProphecy = $this->headlessLocalMachineHelper();
+        $this->command = $this->createDeviceCodeCommand([
+            $this->deviceAuthorizeResponse(),
+            new Response(200, [], json_encode([
+                'access_token' => 'new-access-token',
+                'expires_in' => 300,
+                'refresh_token' => 'new-refresh-token',
+            ])),
+        ], $localMachineHelperProphecy);
+
+        $this->executeCommand([], [], OutputInterface::VERBOSITY_VERY_VERBOSE, false);
+        $output = $this->getDisplay();
+
+        $this->assertStringNotContainsString('Re-authenticate?', $output);
+        $this->assertStringContainsString('Authenticated successfully', $output);
+    }
+
+    public function testNoInteractionWithAnActiveApiKeyRoutesToLegacyWithoutPrompting(): void
+    {
+        $this->enableDeviceCodeConfig();
+        $localMachineHelperProphecy = $this->headlessLocalMachineHelper();
+        $localMachineHelperProphecy->startBrowser(Argument::any())->willReturn(true);
+        $this->command = $this->createDeviceCodeCommand([], $localMachineHelperProphecy);
+
+        $this->expectException(AcquiaCliException::class);
+        $this->expectExceptionMessage('Enter your Cloud Platform API key');
+
+        $this->executeCommand([], [], OutputInterface::VERBOSITY_VERY_VERBOSE, false);
+    }
+
+    public function testNoInteractionDoesNotOfferLegacyFallbackOnDeviceCodeFailure(): void
+    {
+        $this->enableDeviceCodeConfig();
+        $this->givenFreshCloudConfigWithTelemetryDisabled();
+        $localMachineHelperProphecy = $this->headlessLocalMachineHelper();
+        $this->command = $this->createDeviceCodeCommand([
+            new Response(400, [], json_encode(['error' => 'invalid_client'])),
+        ], $localMachineHelperProphecy);
+
+        $this->executeCommand([], [], OutputInterface::VERBOSITY_VERY_VERBOSE, false);
+        $output = $this->getDisplay();
+
+        $this->assertStringContainsString('Failed to initiate device code flow', $output);
+        $this->assertStringNotContainsString('Fall back to API key authentication?', $output);
+        $this->assertStringNotContainsString('Saved credentials', $output);
+    }
+
+    public function testDeviceCodeFlowBacksOffOnSlowDownThenSucceeds(): void
+    {
+        $this->enableDeviceCodeConfig();
+        $this->givenFreshCloudConfigWithTelemetryDisabled();
+        $localMachineHelperProphecy = $this->headlessLocalMachineHelper();
+        $this->command = $this->createDeviceCodeCommand([
+            $this->deviceAuthorizeResponse(),
+            new Response(200, [], json_encode(['error' => 'slow_down'])),
+            new Response(200, [], json_encode([
+                'access_token' => 'access-token-123',
+                'expires_in' => 300,
+                'refresh_token' => 'refresh-token-123',
+            ])),
+        ], $localMachineHelperProphecy);
+
+        $this->executeCommand([], []);
+        $output = $this->getDisplay();
+
+        $this->assertStringContainsString('Authenticated successfully', $output);
+        $this->assertStringNotContainsString('slow_down', $output);
+        $this->assertStringNotContainsString('Unexpected error', $output);
+    }
+
+    public function testDeviceCodeFlowRetriesAfterTransportFailureInPollLoop(): void
+    {
+        $this->enableDeviceCodeConfig();
+        $this->givenFreshCloudConfigWithTelemetryDisabled();
+        $localMachineHelperProphecy = $this->headlessLocalMachineHelper();
+        $this->command = $this->createDeviceCodeCommand([
+            $this->deviceAuthorizeResponse(),
+            new ConnectException('cURL error 28: Operation timed out', new Request('POST', 'https://example.okta.com')),
+            new Response(200, [], json_encode([
+                'access_token' => 'access-token-123',
+                'expires_in' => 300,
+                'refresh_token' => 'refresh-token-123',
+            ])),
+        ], $localMachineHelperProphecy);
+
+        $this->executeCommand([], []);
+        $output = $this->getDisplay();
+
+        $this->assertStringContainsString('Authenticated successfully', $output);
+        $this->assertStringNotContainsString('Timed out waiting for authorization', $output);
+    }
+
+    public function testDeviceCodeFlowRejectsTokenResponseWithoutAccessToken(): void
+    {
+        $this->enableDeviceCodeConfig();
+        $this->givenFreshCloudConfigWithTelemetryDisabled();
+        $localMachineHelperProphecy = $this->headlessLocalMachineHelper();
+        $this->command = $this->createDeviceCodeCommand([
+            new Response(200, [], json_encode([
+                'device_code' => 'device-123',
+                'expires_in' => 600,
+                'interval' => 0,
+                'user_code' => 'ABCD-EFGH',
+                'verification_uri' => 'https://example.okta.com/activate',
+            ])),
+            new Response(200, [], json_encode(['token_type' => 'Bearer'])),
+        ], $localMachineHelperProphecy);
+
+        $this->executeCommand([], ['no']);
+        $output = $this->getDisplay();
+
+        $this->assertStringNotContainsString('Authenticated successfully', $output);
+        $this->assertStringContainsString('Unexpected response', $output);
+    }
+
+    public function testDeviceCodeFlowSurvivesTransportFailureOnInitiation(): void
+    {
+        $this->enableDeviceCodeConfig();
+        $this->givenFreshCloudConfigWithTelemetryDisabled();
+        $localMachineHelperProphecy = $this->headlessLocalMachineHelper();
+        $this->command = $this->createDeviceCodeCommand([
+            new ConnectException('cURL error 6: Could not resolve host', new Request('POST', 'https://example.okta.com')),
+        ], $localMachineHelperProphecy);
+
+        $this->executeCommand([], ['no']);
+        $output = $this->getDisplay();
+
+        $this->assertStringContainsString('Failed to initiate device code flow', $output);
+    }
+
+    public function testReportsWhyItFallsBackWhenDeviceCodeIsNotConfigured(): void
+    {
+        $this->givenFreshCloudConfigWithTelemetryDisabled();
+        $this->mockRequest('getAccount');
+        $this->clientServiceProphecy->setConnector(Argument::type(Connector::class))
+            ->shouldBeCalled();
+        $this->clientServiceProphecy->isMachineAuthenticated()
+            ->willReturn(false);
+
+        $localMachineHelperProphecy = $this->headlessLocalMachineHelper();
+        $this->command = $this->createDeviceCodeCommand([], $localMachineHelperProphecy);
+
+        $this->executeCommand([], ['no', self::$key, self::$secret]);
+        $output = $this->getDisplay();
+
+        $this->assertStringContainsString('Device code sign-in is not configured', $output);
+        $this->assertStringContainsString('Saved credentials', $output);
     }
 
     // -------------------------------------------------------------------------

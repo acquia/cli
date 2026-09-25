@@ -15,6 +15,7 @@ use AcquiaCloudApi\Connector\Connector;
 use AcquiaCloudApi\Connector\ConnectorInterface;
 use League\OAuth2\Client\Provider\GenericProvider;
 use League\OAuth2\Client\Token\AccessTokenInterface;
+use loophp\phposinfo\OsInfo;
 use org\bovigo\vfs\vfsStream;
 use Prophecy\Argument;
 use Psr\Http\Message\RequestInterface;
@@ -178,7 +179,10 @@ class AccessTokenConnectorTest extends TestBase
         $clientService = new ClientService($connectorFactory, $this->application, $this->cloudCredentials);
         $client = $clientService->getClient();
         $options = $client->getOptions();
-        $this->assertEquals(['User-Agent' => [0 => 'acli/UNKNOWN']], $options['headers']);
+        $this->assertStringStartsWith(
+            sprintf('Acquia CLI (UNKNOWN, %s', OsInfo::uuid()),
+            $options['headers']['User-Agent'][0],
+        );
 
         $this->prophet->checkPredictions();
     }
@@ -239,7 +243,7 @@ class AccessTokenConnectorTest extends TestBase
         $client = $clientService->getClient();
         $options = $client->getOptions();
         $this->assertEquals([
-            'User-Agent' => [0 => 'acli/UNKNOWN (agent:acquia)'],
+            'User-Agent' => [0 => sprintf('Acquia CLI (UNKNOWN, %s, acquia)', OsInfo::uuid())],
             'X-Cloud-IDE-UUID' => IdeHelper::$remoteIdeUuid,
         ], $options['headers']);
 
