@@ -94,6 +94,9 @@ jobs:
           touch .env
           echo BUGSNAG_KEY=${{ secrets.BUGSNAG_KEY }} >> .env
           echo AMPLITUDE_KEY=${{ secrets.AMPLITUDE_KEY }} >> .env
+          echo ACLI_DEVICE_CLIENT_ID=${{ secrets.ACLI_DEVICE_CLIENT_ID }} >> .env
+          echo ACLI_OKTA_DOMAIN=${{ secrets.ACLI_OKTA_DOMAIN }} >> .env
+          echo ACLI_OKTA_AUTH_SERVER_ID=${{ secrets.ACLI_OKTA_AUTH_SERVER_ID }} >> .env
           echo ACLI_VERSION=${{ steps.acli-version.outputs.ACLI_VERSION }} >> .env
           echo ACLI_BUILD_DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ") >> .env
       - name: 'Extract additional API specs from secrets'

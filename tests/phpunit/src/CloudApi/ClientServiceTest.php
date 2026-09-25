@@ -10,10 +10,33 @@ use Acquia\Cli\CloudApi\ConnectorFactory;
 use Acquia\Cli\CloudApi\V3ClientService;
 use Acquia\Cli\DataStore\CloudDataStore;
 use Acquia\Cli\Tests\TestBase;
+use loophp\phposinfo\OsInfo;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 
 class ClientServiceTest extends TestBase
 {
+    #[Group('serial')]
+    public function testUserAgentCarriesVersionTelemetryIdAndProvider(): void
+    {
+        putenv('LANDO=1');
+        try {
+            $clientService = new ClientService(
+                new ConnectorFactory(['accessToken' => null, 'key' => null, 'secret' => null]),
+                $this->application,
+                $this->cloudCredentials,
+            );
+            $options = $clientService->getClient()->getOptions();
+
+            $this->assertSame(
+                sprintf('Acquia CLI (UNKNOWN, %s, lando)', OsInfo::uuid()),
+                $options['headers']['User-Agent'][0],
+            );
+        } finally {
+            putenv('LANDO');
+        }
+    }
+
     /**
      * @return array<mixed>
      */

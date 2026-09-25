@@ -10,11 +10,15 @@ use Acquia\Cli\Exception\AcquiaCliException;
 
 class CloudCredentials implements ApiCredentialsInterface
 {
-    /**
-     * CloudCredentials constructor.
-     */
-    public function __construct(private CloudDataStore $datastoreCloud)
+    public function __construct(
+        private CloudDataStore $datastoreCloud,
+    ) {
+    }
+
+    public function getCloudDeviceAccessToken(): ?string
     {
+        $stored = $this->datastoreCloud->get('device_token');
+        return $stored['access_token'] ?? null;
     }
 
     public function getCloudAccessToken(): ?string

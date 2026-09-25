@@ -29,6 +29,73 @@ class AuthLogoutCommandTest extends CommandTestBase
         $this->assertStringContainsString('The active Cloud Platform API credentials were deactivated', $output);
     }
 
+    public function testAuthLogoutWithDeviceTokenOnly(): void
+    {
+        $this->removeMockCloudConfigFile();
+        $this->fs->dumpFile($this->cloudConfigFilepath, json_encode([
+            'device_token' => [
+                'access_token' => 'existing-token',
+                'client_id' => 'client-123',
+                'expiry' => time() + 300,
+                'refresh_token' => 'existing-refresh-token',
+            ],
+            'send_telemetry' => false,
+        ]));
+        $this->createDataStores();
+        $this->command = $this->createCommand();
+
+        $this->executeCommand();
+        $output = $this->getDisplay();
+
+        $this->assertStringContainsString('Device code session removed', $output);
+        $this->assertStringContainsString('No Cloud Platform credentials are active', $output);
+        $this->assertStringNotContainsString('will be deactivated on this machine', $output);
+        $this->assertArrayNotHasKey('device_token', json_decode(file_get_contents($this->cloudConfigFilepath), true));
+    }
+
+    public function testAuthLogoutRemovesBothCredentialTypes(): void
+    {
+        $this->executeCommandWithDeviceTokenAlongsideKey();
+        $output = $this->getDisplay();
+
+        $this->assertStringContainsString('Device code session removed', $output);
+        $this->assertStringContainsString('The key Test Key will be deactivated on this machine.', $output);
+        $this->assertStringContainsString('The active Cloud Platform API credentials were deactivated', $output);
+
+        $config = json_decode(file_get_contents($this->cloudConfigFilepath), true);
+        $this->assertArrayNotHasKey('device_token', $config);
+        $this->assertArrayNotHasKey('acli_key', $config);
+    }
+
+    public function testAuthLogoutWithNoCredentialsAtAll(): void
+    {
+        $this->removeMockCloudConfigFile();
+        $this->fs->dumpFile($this->cloudConfigFilepath, json_encode(['send_telemetry' => false]));
+        $this->createDataStores();
+        $this->command = $this->createCommand();
+
+        $this->expectException(AcquiaCliException::class);
+        $this->expectExceptionMessage('There are no active Cloud Platform credentials');
+
+        $this->executeCommand();
+    }
+
+    private function executeCommandWithDeviceTokenAlongsideKey(): void
+    {
+        $config = json_decode(file_get_contents($this->cloudConfigFilepath), true);
+        $config['device_token'] = [
+            'access_token' => 'existing-token',
+            'client_id' => 'client-123',
+            'expiry' => time() + 300,
+            'refresh_token' => 'existing-refresh-token',
+        ];
+        $this->fs->dumpFile($this->cloudConfigFilepath, json_encode($config));
+        $this->createDataStores();
+        $this->command = $this->createCommand();
+
+        $this->executeCommand();
+    }
+
     public function testAuthLogoutInvalidDatastore(): void
     {
         $this->clientServiceProphecy->isMachineAuthenticated()

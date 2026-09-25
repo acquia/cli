@@ -7,6 +7,7 @@ namespace Acquia\Cli\Tests\CloudApi;
 use Acquia\Cli\CloudApi\AccessTokenConnector;
 use Acquia\Cli\CloudApi\ClientService;
 use Acquia\Cli\CloudApi\ConnectorFactory;
+use Acquia\Cli\CloudApi\DeviceTokenRefresher;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Tests\Commands\Ide\IdeHelper;
 use Acquia\Cli\Tests\TestBase;
@@ -14,6 +15,7 @@ use AcquiaCloudApi\Connector\Connector;
 use AcquiaCloudApi\Connector\ConnectorInterface;
 use League\OAuth2\Client\Provider\GenericProvider;
 use League\OAuth2\Client\Token\AccessTokenInterface;
+use loophp\phposinfo\OsInfo;
 use org\bovigo\vfs\vfsStream;
 use Prophecy\Argument;
 use Psr\Http\Message\RequestInterface;
@@ -177,9 +179,53 @@ class AccessTokenConnectorTest extends TestBase
         $clientService = new ClientService($connectorFactory, $this->application, $this->cloudCredentials);
         $client = $clientService->getClient();
         $options = $client->getOptions();
-        $this->assertEquals(['User-Agent' => [0 => 'acli/UNKNOWN']], $options['headers']);
+        $this->assertStringStartsWith(
+            sprintf('Acquia CLI (UNKNOWN, %s', OsInfo::uuid()),
+            $options['headers']['User-Agent'][0],
+        );
 
         $this->prophet->checkPredictions();
+    }
+
+    public function testDeviceTokenRefreshOnRequest(): void
+    {
+        $refresherProphecy = $this->prophet->prophesize(DeviceTokenRefresher::class);
+        $refresherProphecy->getValidAccessToken()->willReturn('fresh-device-token')->shouldBeCalled();
+
+        $connector = new AccessTokenConnector([
+            'access_token' => 'stale-token',
+            'key' => null,
+            'secret' => null,
+        ], null, null, $refresherProphecy->reveal());
+
+        $mockProvider = $this->prophet->prophesize(GenericProvider::class);
+        $mockProvider->getAuthenticatedRequest('get', ConnectorInterface::BASE_URI . 'api', Argument::that(
+            fn (AccessTokenInterface $t) => $t->getToken() === 'fresh-device-token'
+        ))->willReturn($this->prophet->prophesize(RequestInterface::class)->reveal())->shouldBeCalled();
+        $connector->setProvider($mockProvider->reveal());
+        $request = $connector->createRequest('get', 'api');
+
+        $this->assertInstanceOf(RequestInterface::class, $request);
+        $this->prophet->checkPredictions();
+    }
+
+    public function testDeviceTokenExpiredThrowsOnRequest(): void
+    {
+        $refresherProphecy = $this->prophet->prophesize(DeviceTokenRefresher::class);
+        $refresherProphecy->getValidAccessToken()->willReturn(null);
+
+        $connector = new AccessTokenConnector([
+            'access_token' => 'stale-token',
+            'key' => null,
+            'secret' => null,
+        ], null, null, $refresherProphecy->reveal());
+
+        $mockProvider = $this->prophet->prophesize(GenericProvider::class);
+        $connector->setProvider($mockProvider->reveal());
+
+        $this->expectException(AcquiaCliException::class);
+        $this->expectExceptionMessage('Device token session expired');
+        $connector->createRequest('get', 'api');
     }
 
     public function testIdeHeader(): void
@@ -197,7 +243,7 @@ class AccessTokenConnectorTest extends TestBase
         $client = $clientService->getClient();
         $options = $client->getOptions();
         $this->assertEquals([
-            'User-Agent' => [0 => 'acli/UNKNOWN'],
+            'User-Agent' => [0 => sprintf('Acquia CLI (UNKNOWN, %s, acquia)', OsInfo::uuid())],
             'X-Cloud-IDE-UUID' => IdeHelper::$remoteIdeUuid,
         ], $options['headers']);
 
