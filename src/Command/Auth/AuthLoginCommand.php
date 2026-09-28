@@ -259,7 +259,7 @@ final class AuthLoginCommand extends CommandBase
 
     private function executeLegacyAuth(InputInterface $input, OutputInterface $output): int
     {
-        $env = $input->getOption('environment') ?? 'prod';
+        $env = $input->getOption('environment');
         [$baseUri, $accountsUri] = $this->getUrisForEnvironment($env);
 
         $keys = $this->datastoreCloud->get('keys');
