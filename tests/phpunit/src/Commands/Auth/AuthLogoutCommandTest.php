@@ -96,6 +96,17 @@ class AuthLogoutCommandTest extends CommandTestBase
         $this->executeCommand();
     }
 
+    public function testAuthLogoutDeletesCredentialsWhenAsked(): void
+    {
+        $this->executeCommand(['--delete' => true]);
+        $output = $this->getDisplay();
+
+        $this->assertStringContainsString('The active Cloud Platform API credentials were deleted', $output);
+        $config = json_decode(file_get_contents($this->cloudConfigFilepath), true);
+        $this->assertArrayNotHasKey('acli_key', $config);
+        $this->assertSame([], $config['keys'] ?? []);
+    }
+
     public function testAuthLogoutInvalidDatastore(): void
     {
         $this->clientServiceProphecy->isMachineAuthenticated()

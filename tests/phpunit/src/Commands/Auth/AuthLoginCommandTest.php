@@ -41,6 +41,7 @@ class AuthLoginCommandTest extends CommandTestBase
         parent::setUp();
         foreach (['ACLI_DEVICE_CLIENT_ID', 'ACLI_OKTA_DOMAIN', 'ACLI_OKTA_AUTH_SERVER_ID'] as $var) {
             $this->savedDeviceCodeEnvVars[$var] = getenv($var);
+            putenv($var);
         }
     }
 
@@ -432,6 +433,168 @@ class AuthLoginCommandTest extends CommandTestBase
 
         $this->assertStringContainsString('Authenticated successfully', $output);
         $this->assertStringNotContainsString('Timed out waiting for authorization', $output);
+    }
+
+    public function testUsesDeviceCodeAfterLogoutEvenWhenKeysRemainOnDisk(): void
+    {
+        // Login routes on the *active* key, which auth:logout clears while leaving
+        // `keys` on disk. This is the migration path off API keys.
+        $this->enableDeviceCodeConfig();
+        $this->removeMockCloudConfigFile();
+        $this->fs->dumpFile($this->cloudConfigFilepath, json_encode([
+            'keys' => [
+                'key1' => ['label' => 'Test Key', 'secret' => 'secret', 'uuid' => 'key1'],
+            ],
+            'send_telemetry' => false,
+        ]));
+        $this->createDataStores();
+        $this->command = $this->createDeviceCodeCommand([
+            $this->deviceAuthorizeResponse(),
+            new Response(200, [], json_encode([
+                'access_token' => 'access-token-123',
+                'expires_in' => 300,
+                'refresh_token' => 'refresh-token-123',
+            ])),
+        ], $this->headlessLocalMachineHelper());
+
+        $this->executeCommand([], []);
+        $output = $this->getDisplay();
+
+        $this->assertStringNotContainsString('Already authenticated as', $output);
+        $this->assertStringContainsString('Sign in to Acquia ID in your browser', $output);
+        $this->assertStringContainsString('Authenticated successfully', $output);
+        $this->assertArrayHasKey('device_token', json_decode(file_get_contents($this->cloudConfigFilepath), true));
+    }
+
+
+    public function testDeviceTokenBranchRequiresOktaConfig(): void
+    {
+        $this->removeMockCloudConfigFile();
+        $this->fs->dumpFile($this->cloudConfigFilepath, json_encode([
+            'device_token' => [
+                'access_token' => 'existing-token',
+                'client_id' => 'client-123',
+                'expiry' => time() + 300,
+                'refresh_token' => 'existing-refresh-token',
+            ],
+            'send_telemetry' => false,
+        ]));
+        $this->createDataStores();
+        $this->mockRequest('getAccount');
+        $this->clientServiceProphecy->setConnector(Argument::type(Connector::class))->shouldBeCalled();
+        $this->clientServiceProphecy->isMachineAuthenticated()->willReturn(false);
+        $this->command = $this->createDeviceCodeCommand([], $this->headlessLocalMachineHelper());
+
+        $this->executeCommand([], ['no', self::$key, self::$secret]);
+        $output = $this->getDisplay();
+
+        $this->assertStringContainsString('not configured', $output);
+        $this->assertStringNotContainsString('Unable to parse URI', $output);
+    }
+
+    public function testOffersDeviceCodeToAKeyHolderAndDeactivatesTheKeyOnSuccess(): void
+    {
+        $this->enableDeviceCodeConfig();
+        $this->command = $this->createDeviceCodeCommand([
+            $this->deviceAuthorizeResponse(),
+            new Response(200, [], json_encode([
+                'access_token' => 'access-token-123',
+                'expires_in' => 300,
+                'refresh_token' => 'refresh-token-123',
+            ])),
+        ], $this->headlessLocalMachineHelper());
+
+        $this->executeCommand([], ['yes']);
+        $output = $this->getDisplay();
+
+        $this->assertStringContainsString('Sign in with device code instead?', $output);
+        $this->assertStringContainsString('Authenticated successfully', $output);
+
+        // Without clearing acli_key the token sits unreachable behind
+        // ConnectorFactory priority (2) and the login changes nothing.
+        $config = json_decode(file_get_contents($this->cloudConfigFilepath), true);
+        $this->assertArrayNotHasKey('acli_key', $config);
+        $this->assertArrayHasKey('device_token', $config);
+        $this->assertArrayHasKey('keys', $config);
+    }
+
+    public function testDecliningTheDeviceCodeOfferReachesTheKeyChooser(): void
+    {
+        // Declining must not exit: auth:login's documented purpose is switching
+        // between stored accounts, which is what the chooser is for.
+        $this->enableDeviceCodeConfig();
+        $this->clientServiceProphecy->setConnector(Argument::type(Connector::class))->shouldBeCalled();
+        $this->clientServiceProphecy->isMachineAuthenticated()->willReturn(false);
+        $this->command = $this->createDeviceCodeCommand([], $this->headlessLocalMachineHelper());
+
+        $this->executeCommand([], ['no', 'Test Key']);
+        $output = $this->getDisplay();
+
+        $this->assertStringContainsString('Activate a Cloud Platform API key', $output);
+        $this->assertStringNotContainsString('Sign in to Acquia ID in your browser', $output);
+    }
+
+    public function testDeviceCodeFlowRejectsMalformedAuthorizeResponse(): void
+    {
+        $this->enableDeviceCodeConfig();
+        $this->givenFreshCloudConfigWithTelemetryDisabled();
+        $this->command = $this->createDeviceCodeCommand([
+            new Response(200, [], json_encode(['user_code' => 'ABCD-EFGH'])),
+        ], $this->headlessLocalMachineHelper());
+
+        $this->executeCommand([], ['no']);
+
+        $this->assertStringContainsString('Unexpected response from device authorization endpoint', $this->getDisplay());
+    }
+
+    public function testDeviceCodeFlowStopsOnAnUnrecognizedTokenError(): void
+    {
+        $this->enableDeviceCodeConfig();
+        $this->givenFreshCloudConfigWithTelemetryDisabled();
+        $this->command = $this->createDeviceCodeCommand([
+            $this->deviceAuthorizeResponse(),
+            new Response(200, [], json_encode(['error' => 'invalid_scope'])),
+        ], $this->headlessLocalMachineHelper());
+
+        $this->executeCommand([], ['no']);
+
+        $this->assertStringContainsString('Unexpected error: invalid_scope', $this->getDisplay());
+    }
+
+    public function testDeviceCodeFlowTimesOutWhenTheWindowCloses(): void
+    {
+        $this->enableDeviceCodeConfig();
+        $this->givenFreshCloudConfigWithTelemetryDisabled();
+        $this->command = $this->createDeviceCodeCommand([
+            new Response(200, [], json_encode([
+                'device_code' => 'device-123',
+                'expires_in' => 0,
+                'interval' => 0,
+                'user_code' => 'ABCD-EFGH',
+                'verification_uri' => 'https://example.okta.com/activate',
+            ])),
+        ], $this->headlessLocalMachineHelper());
+
+        $this->executeCommand([], ['no']);
+
+        $this->assertStringContainsString('Timed out waiting for authorization', $this->getDisplay());
+    }
+
+    public function testDeviceCodeFlowStoresAZeroExpiryWhenOktaOmitsExpiresIn(): void
+    {
+        $this->enableDeviceCodeConfig();
+        $this->givenFreshCloudConfigWithTelemetryDisabled();
+        $this->command = $this->createDeviceCodeCommand([
+            $this->deviceAuthorizeResponse(),
+            new Response(200, [], json_encode(['access_token' => 'access-token-123'])),
+        ], $this->headlessLocalMachineHelper());
+
+        $this->executeCommand([], []);
+
+        $this->assertStringContainsString('Authenticated successfully', $this->getDisplay());
+        $stored = json_decode(file_get_contents($this->cloudConfigFilepath), true)['device_token'];
+        $this->assertSame(0, $stored['expiry']);
+        $this->assertNull($stored['refresh_token']);
     }
 
     public function testDeviceCodeFlowRejectsTokenResponseWithoutAccessToken(): void

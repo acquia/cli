@@ -72,16 +72,17 @@ final class AuthLoginCommand extends CommandBase
         $activeKey = $this->datastoreCloud->get('acli_key');
         $deviceToken = $this->datastoreCloud->get('device_token');
 
-        // Smart routing: existing API key → legacy, device token → device code re-auth.
+        if (!$this->oktaConfig->isConfigured()) {
+            $output->writeln('<comment>Device code sign-in is not configured; falling back to API key authentication.</comment>');
+            return $this->executeLegacyAuth($input, $output);
+        }
+
         if ($activeKey && $keys) {
             $label = $keys[$activeKey]['label'] ?? $activeKey;
             $output->writeln("Already authenticated as <options=bold>$label</> (API key)");
 
-            if ($input->isInteractive()) {
-                $reauth = $this->io->confirm('Re-authenticate?', false);
-                if (!$reauth) {
-                    return Command::SUCCESS;
-                }
+            if ($input->isInteractive() && $this->io->confirm('Sign in with device code instead?', false)) {
+                return $this->executeDeviceCodeFlowWithFallback($input, $output);
             }
             return $this->executeLegacyAuth($input, $output);
         }
@@ -98,15 +99,7 @@ final class AuthLoginCommand extends CommandBase
             return $this->executeDeviceCodeFlowWithFallback($input, $output);
         }
 
-        // No stored credentials — try device code,
-        // otherwise fall back to legacy key/secret prompt.
-        if ($this->isDeviceCodeConfigured()) {
-            return $this->executeDeviceCodeFlowWithFallback($input, $output);
-        }
-
-        $output->writeln('<comment>Device code sign-in is not configured in this build; falling back to API key authentication.</comment>');
-
-        return $this->executeLegacyAuth($input, $output);
+        return $this->executeDeviceCodeFlowWithFallback($input, $output);
     }
 
     private function executeDeviceCodeFlowWithFallback(InputInterface $input, OutputInterface $output): int
@@ -122,10 +115,7 @@ final class AuthLoginCommand extends CommandBase
         return $result;
     }
 
-    private function isDeviceCodeConfigured(): bool
-    {
-        return $this->oktaConfig->isConfigured();
-    }
+
 
     private function executeDeviceCodeFlow(OutputInterface $output): int
     {
@@ -259,6 +249,12 @@ final class AuthLoginCommand extends CommandBase
             'expiry'        => $expiry,
             'refresh_token' => $token['refresh_token'] ?? null,
         ]);
+
+        // The key itself stays on
+        // disk and can be reactivated with --use-legacy-auth.
+        if ($this->datastoreCloud->get('acli_key')) {
+            $this->datastoreCloud->remove('acli_key');
+        }
     }
 
     private function executeLegacyAuth(InputInterface $input, OutputInterface $output): int
