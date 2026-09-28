@@ -13,7 +13,6 @@ use AcquiaCloudApi\Connector\Connector;
 use GuzzleHttp\Client as GuzzleClient;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
-use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Prophecy\Argument;
 
@@ -32,6 +31,11 @@ class AuthLoginRoutingTest extends CommandTestBase
      */
     private array $oktaResponses = [];
 
+    /**
+     * Whether the stubbed OktaConfig reports device code as configured.
+     */
+    private bool $oktaConfigured = true;
+
     protected function createCommand(): CommandBase
     {
         $localMachineHelper = $this->prophet->prophesize(LocalMachineHelper::class);
@@ -39,7 +43,7 @@ class AuthLoginRoutingTest extends CommandTestBase
         $localMachineHelper->isBrowserAvailable()->willReturn(false);
 
         $oktaConfig = $this->prophet->prophesize(OktaConfig::class);
-        $oktaConfig->isConfigured()->willReturn(true);
+        $oktaConfig->isConfigured()->willReturn($this->oktaConfigured);
         $oktaConfig->clientId()->willReturn('client-123');
         $oktaConfig->domain()->willReturn('example.okta.com');
         $oktaConfig->authServerId()->willReturn('ausTest');
@@ -96,32 +100,19 @@ class AuthLoginRoutingTest extends CommandTestBase
         $this->assertStringNotContainsString('Sign in to Acquia ID in your browser', $output);
     }
 
-    public function testNoCommandLineOptionsReachesDeviceCode(): void
+    public function testNoCommandLineOptionsSkipsTheLegacyGuard(): void
     {
-        $this->oktaResponses = [
-            new Response(200, [], json_encode([
-                'device_code' => 'device-123',
-                'expires_in' => 600,
-                'interval' => 0,
-                'user_code' => 'ABCD-EFGH',
-                'verification_uri' => 'https://example.okta.com/activate',
-            ])),
-            new Response(200, [], json_encode([
-                'access_token' => 'access-token-123',
-                'expires_in' => 300,
-                'refresh_token' => 'refresh-token-123',
-            ])),
-        ];
+        $this->oktaConfigured = false;
         $this->removeMockCloudConfigFile();
         $this->fs->dumpFile($this->cloudConfigFilepath, json_encode(['send_telemetry' => false]));
         $this->createDataStores();
+        $this->mockRequest('getAccount');
+        $this->clientServiceProphecy->setConnector(Argument::type(Connector::class))->shouldBeCalled();
+        $this->clientServiceProphecy->isMachineAuthenticated()->willReturn(false);
         $this->command = $this->createCommand();
 
-        $this->executeCommand([], []);
-        $output = $this->getDisplay();
+        $this->executeCommand([], ['no', self::$key, self::$secret]);
 
-        $this->assertStringContainsString('Sign in to Acquia ID in your browser', $output);
-        $this->assertStringContainsString('Authenticated successfully', $output);
-        $this->assertStringNotContainsString('Saved credentials', $output);
+        $this->assertStringContainsString('Device code sign-in is not configured', $this->getDisplay());
     }
 }
