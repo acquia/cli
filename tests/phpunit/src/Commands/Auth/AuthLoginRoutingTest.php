@@ -13,6 +13,7 @@ use AcquiaCloudApi\Connector\Connector;
 use GuzzleHttp\Client as GuzzleClient;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
+use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Prophecy\Argument;
 
@@ -23,6 +24,14 @@ use Prophecy\Argument;
  */
 class AuthLoginRoutingTest extends CommandTestBase
 {
+    /**
+     * Empty means any Okta request
+     * errors, which is what the legacy-routing cases rely on.
+     *
+     * @var array<mixed>
+     */
+    private array $oktaResponses = [];
+
     protected function createCommand(): CommandBase
     {
         $localMachineHelper = $this->prophet->prophesize(LocalMachineHelper::class);
@@ -31,6 +40,9 @@ class AuthLoginRoutingTest extends CommandTestBase
 
         $oktaConfig = $this->prophet->prophesize(OktaConfig::class);
         $oktaConfig->isConfigured()->willReturn(true);
+        $oktaConfig->clientId()->willReturn('client-123');
+        $oktaConfig->domain()->willReturn('example.okta.com');
+        $oktaConfig->authServerId()->willReturn('ausTest');
 
         return new AuthLoginCommand(
             $localMachineHelper->reveal(),
@@ -44,7 +56,7 @@ class AuthLoginRoutingTest extends CommandTestBase
             $this->sshDir,
             $this->logger,
             $this->selfUpdateManager,
-            new GuzzleClient(['handler' => HandlerStack::create(new MockHandler([]))]),
+            new GuzzleClient(['handler' => HandlerStack::create(new MockHandler($this->oktaResponses))]),
             $oktaConfig->reveal(),
         );
     }
@@ -82,5 +94,34 @@ class AuthLoginRoutingTest extends CommandTestBase
 
         $this->assertStringContainsString('Saved credentials', $output);
         $this->assertStringNotContainsString('Sign in to Acquia ID in your browser', $output);
+    }
+
+    public function testNoCommandLineOptionsReachesDeviceCode(): void
+    {
+        $this->oktaResponses = [
+            new Response(200, [], json_encode([
+                'device_code' => 'device-123',
+                'expires_in' => 600,
+                'interval' => 0,
+                'user_code' => 'ABCD-EFGH',
+                'verification_uri' => 'https://example.okta.com/activate',
+            ])),
+            new Response(200, [], json_encode([
+                'access_token' => 'access-token-123',
+                'expires_in' => 300,
+                'refresh_token' => 'refresh-token-123',
+            ])),
+        ];
+        $this->removeMockCloudConfigFile();
+        $this->fs->dumpFile($this->cloudConfigFilepath, json_encode(['send_telemetry' => false]));
+        $this->createDataStores();
+        $this->command = $this->createCommand();
+
+        $this->executeCommand([], []);
+        $output = $this->getDisplay();
+
+        $this->assertStringContainsString('Sign in to Acquia ID in your browser', $output);
+        $this->assertStringContainsString('Authenticated successfully', $output);
+        $this->assertStringNotContainsString('Saved credentials', $output);
     }
 }
