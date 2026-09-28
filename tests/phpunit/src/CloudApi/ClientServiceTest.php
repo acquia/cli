@@ -92,6 +92,26 @@ class ClientServiceTest extends TestBase
         self::unsetEnvVars($envVars);
     }
 
+    public function testASubclassOverridesTheAuthenticationCheck(): void
+    {
+        $envVars = [
+            'ACLI_ACCESS_TOKEN' => null,
+            'ACLI_KEY' => 'key',
+            'ACLI_SECRET' => 'secret',
+        ];
+        self::setEnvVars($envVars);
+        $cloudDatastore = $this->prophet->prophesize(CloudDataStore::class);
+        $clientService = new TestOverridingClientService(new ConnectorFactory([
+            'accessToken' => null,
+            'key' => null,
+            'secret' => null,
+        ]), $this->application, new CloudCredentials($cloudDatastore->reveal()));
+
+        $this->assertTrue($clientService->isMachineAuthenticated());
+        $this->assertTrue($clientService->overrideWasCalled);
+        self::unsetEnvVars($envVars);
+    }
+
     public function testV3ClientServiceConstructs(): void
     {
         $cloudDatastore = $this->prophet->prophesize(CloudDataStore::class);
