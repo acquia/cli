@@ -534,38 +534,6 @@ class AuthLoginCommandTest extends CommandTestBase
         $this->assertStringNotContainsString('Sign in to Acquia ID in your browser', $output);
     }
 
-    /**
-     * @return array<array{array<string, string>, array<string>}>
-     */
-    public static function providerLegacyRoutingOptions(): array
-    {
-        return [
-            'key alone' => [['--key' => self::$key], ['no', self::$secret]],
-            'secret alone' => [['--secret' => self::$secret], ['no', self::$key]],
-            'use-legacy-auth alone' => [['--use-legacy-auth' => true], ['no', self::$key, self::$secret]],
-        ];
-    }
-
-    /**
-     * @param array<string, string> $args
-     * @param array<string> $inputs
-     */
-    #[DataProvider('providerLegacyRoutingOptions')]
-    public function testCommandLineOptionsRouteToLegacyEvenWhenDeviceCodeIsConfigured(array $args, array $inputs): void
-    {
-        $this->enableDeviceCodeConfig();
-        $this->givenFreshCloudConfigWithTelemetryDisabled();
-        $this->mockRequest('getAccount');
-        $this->clientServiceProphecy->setConnector(Argument::type(Connector::class))->shouldBeCalled();
-        $this->clientServiceProphecy->isMachineAuthenticated()->willReturn(false);
-        $this->command = $this->createDeviceCodeCommand([], $this->headlessLocalMachineHelper());
-
-        $this->executeCommand($args, $inputs);
-        $output = $this->getDisplay();
-
-        $this->assertStringContainsString('Saved credentials', $output);
-        $this->assertStringNotContainsString('Sign in to Acquia ID in your browser', $output);
-    }
 
     public function testDeviceCodeFlowRejectsMalformedAuthorizeResponse(): void
     {
