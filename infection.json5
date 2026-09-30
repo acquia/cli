@@ -17,7 +17,10 @@
             "\\$this->logger.*",
             // Cache TTLs only affect expiry timing, which is not observable in a
             // unit test without manipulating the clock.
-            ".*->expiresAfter\\(.*"
+            ".*->expiresAfter\\(.*",
+            // Checklist progress items only render via the spinner, which is
+            // disabled without a TTY, so they are not observable in a unit test.
+            "\\$this->checklist->(addItem|completePreviousItem)\\(.*"
         ]
     },
     "timeout": 30,
