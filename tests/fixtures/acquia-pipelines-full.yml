@@ -1,0 +1,53 @@
+version: 1.3.0
+services:
+  - php:
+      version: '8.3'
+  - composer:
+      version: 2
+  - mysql
+
+variables:
+  global:
+    SIMPLETEST_BASE_URL: "http://127.0.0.1:8080"
+    SIMPLETEST_DB: "mysql://root:root@localhost/drupal"
+
+events:
+  build:
+    steps:
+      - setup:
+          type: script
+          script:
+            - composer validate --no-check-all --ansi
+            - mysql -u root -proot -e "CREATE DATABASE IF NOT EXISTS drupal"
+      - validate:
+          type: script
+          script:
+            - composer drupal:validate
+  fail-on-build:
+    steps:
+      - notify:
+          type: script
+          script:
+            - echo "Build failed"
+            - curl -X POST https://hooks.example.com/notify
+  post-deploy:
+    steps:
+      - deploy:
+          type: script
+          script:
+            - echo "Deploying"
+            - pipelines-deploy
+  pr-merged:
+    steps:
+      - cleanup:
+          type: script
+          script:
+            - echo "PR merged"
+            - pipelines-deploy
+  pr-closed:
+    steps:
+      - teardown:
+          type: script
+          script:
+            - echo "PR closed"
+            - pipelines-deploy
