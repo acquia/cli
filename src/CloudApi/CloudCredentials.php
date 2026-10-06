@@ -84,7 +84,19 @@ class CloudCredentials implements ApiCredentialsInterface
         if ($uri = getenv('ACLI_CLOUD_API_BASE_URI')) {
             return $uri;
         }
-        return null;
+        return ($this->getActiveKeyData() ?? [])['cloud_api_base_uri'] ?? null;
+    }
+
+    /**
+     * Base URI for Cloud API v3 (MEO) commands registered under `api:v3:*`.
+     * Override with `ACLI_CLOUD_API_V3_BASE_URI` for non-production environments.
+     */
+    public function getV3BaseUri(): string
+    {
+        if ($uri = getenv('ACLI_CLOUD_API_V3_BASE_URI')) {
+            return $uri;
+        }
+        return 'https://api.acquia.com/v3';
     }
 
     public function getAccountsUri(): ?string
@@ -92,6 +104,22 @@ class CloudCredentials implements ApiCredentialsInterface
         if ($uri = getenv('ACLI_CLOUD_API_ACCOUNTS_URI')) {
             return $uri;
         }
-        return null;
+        return ($this->getActiveKeyData() ?? [])['accounts_uri'] ?? null;
+    }
+
+    /**
+     * @return array<string, mixed>|null
+     */
+    private function getActiveKeyData(): ?array
+    {
+        $activeKey = $this->datastoreCloud->get('acli_key');
+        if (!$activeKey) {
+            return null;
+        }
+        $keys = $this->datastoreCloud->get('keys');
+        if (!is_array($keys) || !array_key_exists($activeKey, $keys)) {
+            return null;
+        }
+        return $keys[$activeKey];
     }
 }

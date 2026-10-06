@@ -1,0 +1,50 @@
+name: Sync ACLI skills
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'ACLI release tag to sync (defaults to latest release)'
+        required: false
+        type: string
+      force:
+        description: 'Force PR even if no skill files changed'
+        required: false
+        default: false
+        type: boolean
+
+jobs:
+  sync-skills:
+    runs-on: ubuntu-24.04
+    name: Sync skills to acquia-skills repo
+    steps:
+      - name: Resolve version tag
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" = "release" ]; then
+            echo "tag=${{ github.event.release.tag_name }}" >> $GITHUB_OUTPUT
+          elif [ -n "${{ inputs.tag }}" ]; then
+            echo "tag=${{ inputs.tag }}" >> $GITHUB_OUTPUT
+          else
+            echo "tag=$(gh release view --repo acquia/cli --json tagName --jq '.tagName')" >> $GITHUB_OUTPUT
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Checkout release commit
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ steps.version.outputs.tag }}
+
+      - name: Dispatch sync event to acquia-skills
+        env:
+          GH_TOKEN: ${{ secrets.ACQUIA_SKILLS_PAT }}
+        run: |
+          gh api repos/acquia/acquia-skills/dispatches \
+            --method POST \
+            --field event_type=sync-acli-skills \
+            --field "client_payload[acli_version]=${{ steps.version.outputs.tag }}" \
+            --field "client_payload[spec_version]=$(cat assets/acquia-spec.version)" \
+            --field "client_payload[force]=${{ inputs.force || false }}"

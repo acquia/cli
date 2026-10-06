@@ -52,8 +52,9 @@ EOF
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        foreach (['api', 'acsf'] as $prefix) {
-            if ($input->getArgument('namespace') !== $prefix) {
+        foreach (['api', 'acsf', 'api:v3'] as $prefix) {
+            $requestedNs = (string) $input->getArgument('namespace');
+            if ($requestedNs !== $prefix && !str_starts_with($requestedNs, $prefix . ':')) {
                 $allCommands = $this->getApplication()->all();
                 foreach ($allCommands as $command) {
                     if (
