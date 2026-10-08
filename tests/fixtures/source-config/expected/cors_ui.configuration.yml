@@ -1,0 +1,12 @@
+enabled: true
+allowedHeaders:
+  - Authorization
+  - X-Consumer-ID
+allowedMethods:
+  - OPTIONS
+  - GET
+allowedOrigins:
+  - '*'
+exposedHeaders: {  }
+maxAge: 5
+supportsCredentials: false

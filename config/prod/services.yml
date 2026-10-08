@@ -121,6 +121,16 @@ services:
       $connectorFactory: '@cloud.v3.connector_factory'
       $application: '@Acquia\Cli\Application'
       $credentials: '@cloud.credentials'
+  # Source commands talk to Cloud API v3.
+  Acquia\Cli\Command\Source\LinkCommand:
+    arguments:
+      $cloudApiClientService: '@Acquia\Cli\CloudApi\V3ClientService'
+  Acquia\Cli\Command\Source\ConfigPullCommand:
+    arguments:
+      $cloudApiClientService: '@Acquia\Cli\CloudApi\V3ClientService'
+  Acquia\Cli\Command\Source\ConfigPushCommand:
+    arguments:
+      $cloudApiClientService: '@Acquia\Cli\CloudApi\V3ClientService'
   AcquiaCloudApi\Connector\ConnectorInterface:
     alias: Acquia\Cli\CloudApi\ConnectorFactory
   AcquiaCloudApi\Connector\Connector:

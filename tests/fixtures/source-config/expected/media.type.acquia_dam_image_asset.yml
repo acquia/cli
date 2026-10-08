@@ -1,0 +1,22 @@
+uuid: b30761b7-bb54-44aa-a51a-513ceff0ad35
+langcode: en
+status: true
+dependencies:
+  module:
+    - acquia_dam
+_core:
+  default_config_hash: b8U_I4eY4-9kLbUs0JcjamOiEoEmwjwKllECBiSonFc
+id: acquia_dam_image_asset
+label: 'Acquia DAM: Image'
+description: 'Media assets type of still image in the remote DAM service.'
+source: 'acquia_dam_asset:image'
+queue_thumbnail_downloads: true
+new_revision: true
+source_configuration:
+  source_field: acquia_dam_asset_id
+  download_assets: false
+  preserve_filename_case: false
+  uri_scheme: public
+  file_extensions: ''
+field_map:
+  filename: name

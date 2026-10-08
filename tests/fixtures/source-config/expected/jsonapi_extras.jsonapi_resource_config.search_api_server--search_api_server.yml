@@ -1,0 +1,79 @@
+uuid: ec680b4d-c835-4fb0-968a-9c10ceb87a03
+langcode: en
+status: true
+dependencies:
+  module:
+    - search_api
+_core:
+  default_config_hash: j2XaaaVTFd1RzzKMFfxbKghW7N5LauCDST3yixU-9LA
+id: search_api_server--search_api_server
+disabled: true
+path: search_api_server/search_api_server
+resourceType: search_api_server--search_api_server
+resourceFields:
+  uuid:
+    disabled: false
+    fieldName: uuid
+    publicName: uuid
+    enhancer:
+      id: ''
+  langcode:
+    disabled: false
+    fieldName: langcode
+    publicName: langcode
+    enhancer:
+      id: ''
+  status:
+    disabled: false
+    fieldName: status
+    publicName: status
+    enhancer:
+      id: ''
+  dependencies:
+    disabled: false
+    fieldName: dependencies
+    publicName: dependencies
+    enhancer:
+      id: ''
+  third_party_settings:
+    disabled: false
+    fieldName: third_party_settings
+    publicName: third_party_settings
+    enhancer:
+      id: ''
+  _core:
+    disabled: false
+    fieldName: _core
+    publicName: _core
+    enhancer:
+      id: ''
+  id:
+    disabled: false
+    fieldName: id
+    publicName: id
+    enhancer:
+      id: ''
+  name:
+    disabled: false
+    fieldName: name
+    publicName: name
+    enhancer:
+      id: ''
+  description:
+    disabled: false
+    fieldName: description
+    publicName: description
+    enhancer:
+      id: ''
+  backend:
+    disabled: false
+    fieldName: backend
+    publicName: backend
+    enhancer:
+      id: ''
+  backend_config:
+    disabled: false
+    fieldName: backend_config
+    publicName: backend_config
+    enhancer:
+      id: ''

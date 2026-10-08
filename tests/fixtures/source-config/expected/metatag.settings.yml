@@ -1,0 +1,44 @@
+_core:
+  default_config_hash: tKLBW2GXZVLFXqS9QgLyfTuxCLc1u_quKPQLtCia-Bw
+entity_type_groups:
+  canvas_page:
+    canvas_page:
+      basic: basic
+  media:
+    document:
+      basic: basic
+    image:
+      basic: basic
+    remote_video:
+      basic: basic
+    video:
+      basic: basic
+  node:
+    article:
+      basic: basic
+      open_graph: open_graph
+      schema_article: schema_article
+    page:
+      basic: basic
+      open_graph: open_graph
+  taxonomy_term:
+    article_type:
+      basic: basic
+    categories:
+      basic: basic
+    tags:
+      basic: basic
+separator: ','
+tag_trim_method: beforeValue
+use_maxlength: true
+tag_trim_maxlength:
+  metatag_maxlength_title: null
+  metatag_maxlength_description: null
+  metatag_maxlength_abstract: null
+  metatag_maxlength_og_site_name: null
+  metatag_maxlength_og_title: null
+  metatag_maxlength_og_description: null
+  metatag_maxlength_twitter_cards_description: null
+  metatag_maxlength_twitter_cards_title: null
+tag_scroll_max_height: ''
+tag_trim_end: '|.,-:;/+&([{"'''

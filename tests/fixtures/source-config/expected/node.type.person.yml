@@ -1,0 +1,33 @@
+uuid: ed2b2623-55e7-447c-a52e-7e985d9a92cb
+langcode: en
+status: true
+dependencies:
+  module:
+    - menu_ui
+    - scheduler
+third_party_settings:
+  menu_ui:
+    available_menus: {  }
+    parent: ''
+  scheduler:
+    expand_fieldset: when_required
+    fields_display_mode: vertical_tab
+    publish_enable: false
+    publish_past_date: error
+    publish_past_date_created: false
+    publish_required: false
+    publish_revision: false
+    publish_touch: true
+    show_message_after_update: true
+    unpublish_enable: false
+    unpublish_required: false
+    unpublish_revision: false
+_core:
+  default_config_hash: W6CdfJljyyA_nmTcVB_r6JGCr96T_lMbkGpx9AXyt5I
+name: Person
+type: person
+description: 'A content type for storing information about people.'
+help: null
+new_revision: true
+preview_mode: 0
+display_submitted: true

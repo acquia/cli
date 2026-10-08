@@ -1,0 +1,21 @@
+uuid: b5302b8e-e4bc-41fb-9da5-4e6c5392fb38
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.job_title
+    - node.type.person
+_core:
+  default_config_hash: 6E9egi3l_sG2vypsaF3wsNizzes8Tniv7O9YiP_50mM
+id: node.person.job_title
+field_name: job_title
+entity_type: node
+bundle: person
+label: 'Job title'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

@@ -1,0 +1,73 @@
+uuid: eb10093a-cd9c-4d3a-b2b5-2249fef4b2ae
+langcode: en
+status: true
+dependencies:
+  module:
+    - workflows
+_core:
+  default_config_hash: L8SSGJCFy1o5nnxPk-OCnP9DATq6ExX_h1NeJ2o1PIg
+id: workflow--workflow
+disabled: true
+path: workflow/workflow
+resourceType: workflow--workflow
+resourceFields:
+  uuid:
+    disabled: false
+    fieldName: uuid
+    publicName: uuid
+    enhancer:
+      id: ''
+  langcode:
+    disabled: false
+    fieldName: langcode
+    publicName: langcode
+    enhancer:
+      id: ''
+  status:
+    disabled: false
+    fieldName: status
+    publicName: status
+    enhancer:
+      id: ''
+  dependencies:
+    disabled: false
+    fieldName: dependencies
+    publicName: dependencies
+    enhancer:
+      id: ''
+  third_party_settings:
+    disabled: false
+    fieldName: third_party_settings
+    publicName: third_party_settings
+    enhancer:
+      id: ''
+  _core:
+    disabled: false
+    fieldName: _core
+    publicName: _core
+    enhancer:
+      id: ''
+  id:
+    disabled: false
+    fieldName: id
+    publicName: id
+    enhancer:
+      id: ''
+  label:
+    disabled: false
+    fieldName: label
+    publicName: label
+    enhancer:
+      id: ''
+  type:
+    disabled: false
+    fieldName: type
+    publicName: type
+    enhancer:
+      id: ''
+  type_settings:
+    disabled: false
+    fieldName: type_settings
+    publicName: type_settings
+    enhancer:
+      id: ''

@@ -1,0 +1,22 @@
+uuid: 73534acf-788a-42b8-9ce0-745240d44ea4
+langcode: en
+status: true
+dependencies:
+  module:
+    - acquia_dam
+_core:
+  default_config_hash: K8bQSZiFJfzFc9CVRx1vND5Im1B69d6Lh9MTOdl2jMA
+id: acquia_dam_video_asset
+label: 'Acquia DAM: Video'
+description: 'Media assets type of motion picture in the remote DAM service.'
+source: 'acquia_dam_asset:video'
+queue_thumbnail_downloads: true
+new_revision: false
+source_configuration:
+  source_field: acquia_dam_asset_id
+  download_assets: false
+  preserve_filename_case: false
+  uri_scheme: public
+  file_extensions: 'mp4 mov'
+field_map:
+  filename: name

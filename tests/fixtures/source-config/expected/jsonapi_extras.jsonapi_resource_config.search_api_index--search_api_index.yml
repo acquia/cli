@@ -1,0 +1,109 @@
+uuid: ffc62925-83d7-49b1-ad31-bd81ffad44c7
+langcode: en
+status: true
+dependencies:
+  module:
+    - search_api
+_core:
+  default_config_hash: KY93XPQdrIIM07G6vq8aV6QgDW1Y5Gsd6-6DEDta9Po
+id: search_api_index--search_api_index
+disabled: true
+path: search_api_index/search_api_index
+resourceType: search_api_index--search_api_index
+resourceFields:
+  uuid:
+    disabled: false
+    fieldName: uuid
+    publicName: uuid
+    enhancer:
+      id: ''
+  langcode:
+    disabled: false
+    fieldName: langcode
+    publicName: langcode
+    enhancer:
+      id: ''
+  status:
+    disabled: false
+    fieldName: status
+    publicName: status
+    enhancer:
+      id: ''
+  dependencies:
+    disabled: false
+    fieldName: dependencies
+    publicName: dependencies
+    enhancer:
+      id: ''
+  third_party_settings:
+    disabled: false
+    fieldName: third_party_settings
+    publicName: third_party_settings
+    enhancer:
+      id: ''
+  _core:
+    disabled: false
+    fieldName: _core
+    publicName: _core
+    enhancer:
+      id: ''
+  id:
+    disabled: false
+    fieldName: id
+    publicName: id
+    enhancer:
+      id: ''
+  name:
+    disabled: false
+    fieldName: name
+    publicName: name
+    enhancer:
+      id: ''
+  description:
+    disabled: false
+    fieldName: description
+    publicName: description
+    enhancer:
+      id: ''
+  read_only:
+    disabled: false
+    fieldName: read_only
+    publicName: read_only
+    enhancer:
+      id: ''
+  field_settings:
+    disabled: false
+    fieldName: field_settings
+    publicName: field_settings
+    enhancer:
+      id: ''
+  datasource_settings:
+    disabled: false
+    fieldName: datasource_settings
+    publicName: datasource_settings
+    enhancer:
+      id: ''
+  processor_settings:
+    disabled: false
+    fieldName: processor_settings
+    publicName: processor_settings
+    enhancer:
+      id: ''
+  tracker_settings:
+    disabled: false
+    fieldName: tracker_settings
+    publicName: tracker_settings
+    enhancer:
+      id: ''
+  options:
+    disabled: false
+    fieldName: options
+    publicName: options
+    enhancer:
+      id: ''
+  server:
+    disabled: false
+    fieldName: server
+    publicName: server
+    enhancer:
+      id: ''

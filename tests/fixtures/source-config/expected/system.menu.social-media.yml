@@ -1,0 +1,10 @@
+uuid: 1cd86f11-b9ca-460c-9953-8a303b361c63
+langcode: en
+status: true
+dependencies: {  }
+_core:
+  default_config_hash: XsI_5NRuIsL30vn73gijpIhObheWerORGikQLekdtcQ
+id: social-media
+label: 'Social Media'
+description: 'Social media links'
+locked: false

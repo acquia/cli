@@ -1,0 +1,122 @@
+uuid: 3b1e48e8-d086-4ce1-ae8d-bbb2324f9fd9
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.node.person.bio
+    - field.field.node.person.first_name
+    - field.field.node.person.job_title
+    - field.field.node.person.last_name
+    - field.field.node.person.profile_image
+    - node.type.person
+    - workflows.workflow.editorial
+  module:
+    - content_moderation
+    - media_library
+    - metatag
+    - path
+    - scheduler
+    - scheduler_content_moderation_integration
+    - text
+_core:
+  default_config_hash: zHl0kW2YFAD4ks6O9qVmSfYQ8uMGh6H4ORrzGrUtMDc
+id: node.person.default
+targetEntityType: node
+bundle: person
+mode: default
+content:
+  bio:
+    type: text_textarea
+    weight: 125
+    region: content
+    settings:
+      rows: 5
+      placeholder: ''
+    third_party_settings: {  }
+  created:
+    type: datetime_timestamp
+    weight: 10
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+  first_name:
+    type: string_textfield
+    weight: 122
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  job_title:
+    type: string_textfield
+    weight: 124
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  last_name:
+    type: string_textfield
+    weight: 123
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  metatags:
+    type: metatag_firehose
+    weight: 121
+    region: content
+    settings:
+      sidebar: true
+      use_details: true
+    third_party_settings: {  }
+  path:
+    type: path
+    weight: 30
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+  profile_image:
+    type: media_library_widget
+    weight: 126
+    region: content
+    settings:
+      media_types: {  }
+    third_party_settings: {  }
+  simple_sitemap:
+    weight: 10
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+  status:
+    type: boolean_checkbox
+    weight: 120
+    region: content
+    settings:
+      display_label: true
+    third_party_settings: {  }
+  title:
+    type: string_textfield
+    weight: -5
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  uid:
+    type: entity_reference_autocomplete
+    weight: 5
+    region: content
+    settings:
+      match_operator: CONTAINS
+      match_limit: 10
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  url_redirects:
+    weight: 50
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+hidden: {  }

@@ -1,0 +1,22 @@
+uuid: 72dc0159-efd8-45ce-8108-57b346b35e67
+langcode: en
+status: true
+dependencies:
+  module:
+    - acquia_dam
+_core:
+  default_config_hash: eDQp2c61xXq8PR-jQMuv48PgZukKSBEScQ7KIMKcIPs
+id: acquia_dam_spinset_asset
+label: 'Acquia DAM: Spinset'
+description: 'Media assets type of spinset in the remote DAM service.'
+source: 'acquia_dam_asset:spinset'
+queue_thumbnail_downloads: true
+new_revision: false
+source_configuration:
+  source_field: acquia_dam_asset_id
+  download_assets: false
+  preserve_filename_case: false
+  uri_scheme: public
+  file_extensions: ''
+field_map:
+  filename: name

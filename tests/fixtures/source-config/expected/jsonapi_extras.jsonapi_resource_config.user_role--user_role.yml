@@ -1,0 +1,79 @@
+uuid: 9fe7fa3f-c5ab-48bf-99e9-1674e5d3edd0
+langcode: en
+status: true
+dependencies:
+  module:
+    - user
+_core:
+  default_config_hash: Cg2vgMl-2aeMJjMi32tq94dzB2nRq_3-WqBlB9QSqfI
+id: user_role--user_role
+disabled: true
+path: user_role/user_role
+resourceType: user_role--user_role
+resourceFields:
+  uuid:
+    disabled: false
+    fieldName: uuid
+    publicName: uuid
+    enhancer:
+      id: ''
+  langcode:
+    disabled: false
+    fieldName: langcode
+    publicName: langcode
+    enhancer:
+      id: ''
+  status:
+    disabled: false
+    fieldName: status
+    publicName: status
+    enhancer:
+      id: ''
+  dependencies:
+    disabled: false
+    fieldName: dependencies
+    publicName: dependencies
+    enhancer:
+      id: ''
+  third_party_settings:
+    disabled: false
+    fieldName: third_party_settings
+    publicName: third_party_settings
+    enhancer:
+      id: ''
+  _core:
+    disabled: false
+    fieldName: _core
+    publicName: _core
+    enhancer:
+      id: ''
+  id:
+    disabled: false
+    fieldName: id
+    publicName: id
+    enhancer:
+      id: ''
+  label:
+    disabled: false
+    fieldName: label
+    publicName: label
+    enhancer:
+      id: ''
+  weight:
+    disabled: false
+    fieldName: weight
+    publicName: weight
+    enhancer:
+      id: ''
+  is_admin:
+    disabled: false
+    fieldName: is_admin
+    publicName: is_admin
+    enhancer:
+      id: ''
+  permissions:
+    disabled: false
+    fieldName: permissions
+    publicName: permissions
+    enhancer:
+      id: ''

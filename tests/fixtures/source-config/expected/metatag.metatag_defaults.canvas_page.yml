@@ -1,0 +1,16 @@
+uuid: f44a964a-ab1e-4e4e-9750-208502ad3f46
+langcode: en
+status: true
+dependencies:
+  enforced:
+    module:
+      - canvas
+_core:
+  default_config_hash: SIwcq6B3EXLDsL2OPTLlBEFDS71C5QI_APQZ8grY5gA
+id: canvas_page
+label: Page
+tags:
+  canonical_url: '[canvas_page:url]'
+  description: '[canvas_page:description]'
+  image_src: '[canvas_page:image:entity:media_image:entity:url]'
+  title: '[canvas_page:title] | [site:name]'

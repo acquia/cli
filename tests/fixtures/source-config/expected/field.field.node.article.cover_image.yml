@@ -1,0 +1,31 @@
+uuid: a80e408f-75d9-4237-93ef-2d8033fb7eba
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.cover_image
+    - media.type.image
+    - node.type.article
+_core:
+  default_config_hash: XGSMo9v2c3WJIdt8MUxqH_y2Ea5WlgExYE07q2D6NTE
+id: node.article.cover_image
+field_name: cover_image
+entity_type: node
+bundle: article
+label: 'Cover Image'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:media'
+  handler_settings:
+    target_bundles:
+      image: image
+    sort:
+      field: _none
+      direction: ASC
+    auto_create: false
+    auto_create_bundle: ''
+field_type: entity_reference
