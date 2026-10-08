@@ -5,13 +5,14 @@ declare(strict_types=1);
 namespace Acquia\Cli\CloudApi;
 
 /**
- * Okta device code configuration, shared by login and token refresh.
+ * Authorization-server configuration for the device code flow ,
+ * shared by login and token refresh.
  */
-class OktaConfig
+class AuthConfig
 {
     public function authServerId(): string
     {
-        return getenv('ACLI_OKTA_AUTH_SERVER_ID') ?: '';
+        return getenv('ACLI_AUTH_SERVER_ID') ?: '';
     }
 
     public function clientId(): string
@@ -21,7 +22,7 @@ class OktaConfig
 
     public function domain(): string
     {
-        return getenv('ACLI_OKTA_DOMAIN') ?: '';
+        return getenv('ACLI_AUTH_DOMAIN') ?: '';
     }
 
     public function isConfigured(): bool

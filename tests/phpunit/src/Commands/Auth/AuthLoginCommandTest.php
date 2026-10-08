@@ -39,7 +39,7 @@ class AuthLoginCommandTest extends CommandTestBase
     protected function setUp(): void
     {
         parent::setUp();
-        foreach (['ACLI_DEVICE_CLIENT_ID', 'ACLI_OKTA_DOMAIN', 'ACLI_OKTA_AUTH_SERVER_ID'] as $var) {
+        foreach (['ACLI_DEVICE_CLIENT_ID', 'ACLI_AUTH_DOMAIN', 'ACLI_AUTH_SERVER_ID'] as $var) {
             $this->savedDeviceCodeEnvVars[$var] = getenv($var);
             putenv($var);
         }
@@ -61,8 +61,8 @@ class AuthLoginCommandTest extends CommandTestBase
     private function enableDeviceCodeConfig(): void
     {
         putenv('ACLI_DEVICE_CLIENT_ID=test-client-id');
-        putenv('ACLI_OKTA_DOMAIN=example.okta.com');
-        putenv('ACLI_OKTA_AUTH_SERVER_ID=ausTest');
+        putenv('ACLI_AUTH_DOMAIN=example.acquia.com');
+        putenv('ACLI_AUTH_SERVER_ID=ausTest');
     }
 
     /**
@@ -120,7 +120,7 @@ class AuthLoginCommandTest extends CommandTestBase
             'expires_in' => 600,
             'interval' => 0,
             'user_code' => 'ABCD1234',
-            'verification_uri' => 'https://example.okta.com/activate',
+            'verification_uri' => 'https://example.acquia.com/activate',
         ]));
     }
 
@@ -143,7 +143,7 @@ class AuthLoginCommandTest extends CommandTestBase
         $this->executeCommand([], []);
         $output = $this->getDisplay();
 
-        $this->assertStringContainsString('https://example.okta.com/activate', $output);
+        $this->assertStringContainsString('https://example.acquia.com/activate', $output);
         $this->assertStringContainsString('ABCD1234', $output);
         $this->assertStringContainsString('Authenticated successfully', $output);
 
@@ -247,7 +247,7 @@ class AuthLoginCommandTest extends CommandTestBase
         $this->givenFreshCloudConfigWithTelemetryDisabled();
         $localMachineHelperProphecy = $this->prophet->prophesize(LocalMachineHelper::class);
         $localMachineHelperProphecy->isBrowserAvailable()->willReturn(true);
-        $localMachineHelperProphecy->startBrowser('https://example.okta.com/activate')
+        $localMachineHelperProphecy->startBrowser('https://example.acquia.com/activate')
             ->shouldBeCalled()
             ->willReturn(true);
         $this->command = $this->createDeviceCodeCommand([
@@ -420,7 +420,7 @@ class AuthLoginCommandTest extends CommandTestBase
         $localMachineHelperProphecy = $this->headlessLocalMachineHelper();
         $this->command = $this->createDeviceCodeCommand([
             $this->deviceAuthorizeResponse(),
-            new ConnectException('cURL error 28: Operation timed out', new Request('POST', 'https://example.okta.com')),
+            new ConnectException('cURL error 28: Operation timed out', new Request('POST', 'https://example.acquia.com')),
             new Response(200, [], json_encode([
                 'access_token' => 'access-token-123',
                 'expires_in' => 300,
@@ -467,7 +467,7 @@ class AuthLoginCommandTest extends CommandTestBase
     }
 
 
-    public function testDeviceTokenBranchRequiresOktaConfig(): void
+    public function testDeviceTokenBranchRequiresAuthConfig(): void
     {
         $this->removeMockCloudConfigFile();
         $this->fs->dumpFile($this->cloudConfigFilepath, json_encode([
@@ -572,7 +572,7 @@ class AuthLoginCommandTest extends CommandTestBase
                 'expires_in' => 0,
                 'interval' => 0,
                 'user_code' => 'ABCD-EFGH',
-                'verification_uri' => 'https://example.okta.com/activate',
+                'verification_uri' => 'https://example.acquia.com/activate',
             ])),
         ], $this->headlessLocalMachineHelper());
 
@@ -581,7 +581,7 @@ class AuthLoginCommandTest extends CommandTestBase
         $this->assertStringContainsString('Timed out waiting for authorization', $this->getDisplay());
     }
 
-    public function testDeviceCodeFlowStoresAZeroExpiryWhenOktaOmitsExpiresIn(): void
+    public function testDeviceCodeFlowStoresAZeroExpiryWhenTokenResponseOmitsExpiresIn(): void
     {
         $this->enableDeviceCodeConfig();
         $this->givenFreshCloudConfigWithTelemetryDisabled();
@@ -609,7 +609,7 @@ class AuthLoginCommandTest extends CommandTestBase
                 'expires_in' => 600,
                 'interval' => 0,
                 'user_code' => 'ABCD-EFGH',
-                'verification_uri' => 'https://example.okta.com/activate',
+                'verification_uri' => 'https://example.acquia.com/activate',
             ])),
             new Response(200, [], json_encode(['token_type' => 'Bearer'])),
         ], $localMachineHelperProphecy);
@@ -627,7 +627,7 @@ class AuthLoginCommandTest extends CommandTestBase
         $this->givenFreshCloudConfigWithTelemetryDisabled();
         $localMachineHelperProphecy = $this->headlessLocalMachineHelper();
         $this->command = $this->createDeviceCodeCommand([
-            new ConnectException('cURL error 6: Could not resolve host', new Request('POST', 'https://example.okta.com')),
+            new ConnectException('cURL error 6: Could not resolve host', new Request('POST', 'https://example.acquia.com')),
         ], $localMachineHelperProphecy);
 
         $this->executeCommand([], ['no']);

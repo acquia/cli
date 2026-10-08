@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Acquia\Cli\Tests\Commands\Auth;
 
-use Acquia\Cli\CloudApi\OktaConfig;
+use Acquia\Cli\CloudApi\AuthConfig;
 use Acquia\Cli\Command\Auth\AuthLoginCommand;
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Helpers\LocalMachineHelper;
@@ -17,7 +17,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use Prophecy\Argument;
 
 /**
- * Routing tests that stub OktaConfig rather than exporting its variables.
+ * Routing tests that stub AuthConfig rather than exporting its variables.
  *
  * @property AuthLoginCommand $command
  */
@@ -32,9 +32,9 @@ class AuthLoginRoutingTest extends CommandTestBase
     private array $oktaResponses = [];
 
     /**
-     * Whether the stubbed OktaConfig reports device code as configured.
+     * Whether the stubbed AuthConfig reports device code as configured.
      */
-    private bool $oktaConfigured = true;
+    private bool $authConfigured = true;
 
     protected function createCommand(): CommandBase
     {
@@ -42,11 +42,11 @@ class AuthLoginRoutingTest extends CommandTestBase
         $localMachineHelper->useTty()->willReturn(false);
         $localMachineHelper->isBrowserAvailable()->willReturn(false);
 
-        $oktaConfig = $this->prophet->prophesize(OktaConfig::class);
-        $oktaConfig->isConfigured()->willReturn($this->oktaConfigured);
-        $oktaConfig->clientId()->willReturn('client-123');
-        $oktaConfig->domain()->willReturn('example.okta.com');
-        $oktaConfig->authServerId()->willReturn('ausTest');
+        $authConfig = $this->prophet->prophesize(AuthConfig::class);
+        $authConfig->isConfigured()->willReturn($this->authConfigured);
+        $authConfig->clientId()->willReturn('client-123');
+        $authConfig->domain()->willReturn('example.acquia.com');
+        $authConfig->authServerId()->willReturn('ausTest');
 
         return new AuthLoginCommand(
             $localMachineHelper->reveal(),
@@ -61,7 +61,7 @@ class AuthLoginRoutingTest extends CommandTestBase
             $this->logger,
             $this->selfUpdateManager,
             new GuzzleClient(['handler' => HandlerStack::create(new MockHandler($this->oktaResponses))]),
-            $oktaConfig->reveal(),
+            $authConfig->reveal(),
         );
     }
 
@@ -102,7 +102,7 @@ class AuthLoginRoutingTest extends CommandTestBase
 
     public function testNoCommandLineOptionsSkipsTheLegacyGuard(): void
     {
-        $this->oktaConfigured = false;
+        $this->authConfigured = false;
         $this->removeMockCloudConfigFile();
         $this->fs->dumpFile($this->cloudConfigFilepath, json_encode(['send_telemetry' => false]));
         $this->createDataStores();

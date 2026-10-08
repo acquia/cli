@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Acquia\Cli\Command\Auth;
 
 use Acquia\Cli\ApiCredentialsInterface;
+use Acquia\Cli\CloudApi\AuthConfig;
 use Acquia\Cli\CloudApi\ClientService;
-use Acquia\Cli\CloudApi\OktaConfig;
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\DataStore\AcquiaCliDatastore;
 use Acquia\Cli\DataStore\CloudDataStore;
@@ -46,7 +46,7 @@ final class AuthLoginCommand extends CommandBase
         LoggerInterface $logger,
         public SelfUpdateManager $selfUpdateManager,
         private GuzzleClient $httpClient = new GuzzleClient(),
-        private OktaConfig $oktaConfig = new OktaConfig(),
+        private AuthConfig $authConfig = new AuthConfig(),
     ) {
         parent::__construct($this->localMachineHelper, $this->datastoreCloud, $this->datastoreAcli, $this->cloudCredentials, $this->telemetryHelper, $this->projectDir, $this->cloudApiClientService, $this->sshHelper, $this->sshDir, $logger, $this->selfUpdateManager);
     }
@@ -72,7 +72,7 @@ final class AuthLoginCommand extends CommandBase
         $activeKey = $this->datastoreCloud->get('acli_key');
         $deviceToken = $this->datastoreCloud->get('device_token');
 
-        if (!$this->oktaConfig->isConfigured()) {
+        if (!$this->authConfig->isConfigured()) {
             $output->writeln('<comment>Device code sign-in is not configured; falling back to API key authentication.</comment>');
             return $this->executeLegacyAuth($input, $output);
         }
@@ -119,9 +119,9 @@ final class AuthLoginCommand extends CommandBase
 
     private function executeDeviceCodeFlow(OutputInterface $output): int
     {
-        $clientId   = $this->oktaConfig->clientId();
-        $domain     = $this->oktaConfig->domain();
-        $authServer = $this->oktaConfig->authServerId();
+        $clientId   = $this->authConfig->clientId();
+        $domain     = $this->authConfig->domain();
+        $authServer = $this->authConfig->authServerId();
 
         $baseUrl = sprintf('https://%s/oauth2/%s/v1', $domain, $authServer);
 

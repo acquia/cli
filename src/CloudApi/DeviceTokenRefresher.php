@@ -24,7 +24,7 @@ class DeviceTokenRefresher
         private CloudDataStore $datastore,
         private LoggerInterface $logger,
         private GuzzleClient $httpClient = new GuzzleClient(),
-        private OktaConfig $oktaConfig = new OktaConfig(),
+        private AuthConfig $authConfig = new AuthConfig(),
     ) {
     }
 
@@ -73,8 +73,8 @@ class DeviceTokenRefresher
 
         $refreshToken = $stored['refresh_token'] ?? null;
         $clientId     = $stored['client_id'] ?? null;
-        $domain       = $this->oktaConfig->domain();
-        $authServer   = $this->oktaConfig->authServerId();
+        $domain       = $this->authConfig->domain();
+        $authServer   = $this->authConfig->authServerId();
 
         if (!$refreshToken || !$clientId || !$domain || !$authServer) {
             return null;

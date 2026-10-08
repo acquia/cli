@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Acquia\Cli\Tests\CloudApi;
 
+use Acquia\Cli\CloudApi\AuthConfig;
 use Acquia\Cli\CloudApi\DeviceTokenRefresher;
-use Acquia\Cli\CloudApi\OktaConfig;
 use Acquia\Cli\Config\CloudDataConfig;
 use Acquia\Cli\DataStore\CloudDataStore;
 use Acquia\Cli\Tests\TestBase;
@@ -30,7 +30,7 @@ class DeviceTokenRefresherTest extends TestBase
     protected function setUp(): void
     {
         parent::setUp();
-        foreach (['ACLI_OKTA_DOMAIN', 'ACLI_OKTA_AUTH_SERVER_ID'] as $var) {
+        foreach (['ACLI_AUTH_DOMAIN', 'ACLI_AUTH_SERVER_ID'] as $var) {
             $this->savedEnvVars[$var] = getenv($var);
             putenv($var);
         }
@@ -45,10 +45,10 @@ class DeviceTokenRefresherTest extends TestBase
         parent::tearDown();
     }
 
-    private function givenOktaIsConfigured(): void
+    private function givenAuthIsConfigured(): void
     {
-        putenv('ACLI_OKTA_DOMAIN=example.okta.com');
-        putenv('ACLI_OKTA_AUTH_SERVER_ID=ausTest');
+        putenv('ACLI_AUTH_DOMAIN=example.acquia.com');
+        putenv('ACLI_AUTH_SERVER_ID=ausTest');
     }
 
     /**
@@ -86,7 +86,7 @@ class DeviceTokenRefresherTest extends TestBase
             new CloudDataStore($this->localMachineHelper, new CloudDataConfig(), $this->cloudConfigFilepath),
             $this->logger,
             $client,
-            new OktaConfig(),
+            new AuthConfig(),
         );
     }
 
@@ -125,7 +125,7 @@ class DeviceTokenRefresherTest extends TestBase
 
     public function testReturnsNullWhenExpiredAndRefreshTokenMissing(): void
     {
-        $this->givenOktaIsConfigured();
+        $this->givenAuthIsConfigured();
         $this->writeCloudConfig(['device_token' => [
             'access_token' => 'expired-token',
             'client_id' => 'client-123',
@@ -136,7 +136,7 @@ class DeviceTokenRefresherTest extends TestBase
         $this->assertNull($this->createRefresher()->getValidAccessToken());
     }
 
-    public function testReturnsNullWhenExpiredAndOktaConfigMissing(): void
+    public function testReturnsNullWhenExpiredAndAuthConfigMissing(): void
     {
         $this->writeCloudConfig(['device_token' => $this->expiredToken()]);
 
@@ -145,7 +145,7 @@ class DeviceTokenRefresherTest extends TestBase
 
     public function testRefreshesExpiredTokenAndPersistsIt(): void
     {
-        $this->givenOktaIsConfigured();
+        $this->givenAuthIsConfigured();
         $this->writeCloudConfig(['device_token' => $this->expiredToken()]);
         $refresher = $this->createRefresher([
             new Response(200, [], json_encode([
@@ -166,7 +166,7 @@ class DeviceTokenRefresherTest extends TestBase
 
     public function testKeepsOldRefreshTokenWhenResponseOmitsNewOne(): void
     {
-        $this->givenOktaIsConfigured();
+        $this->givenAuthIsConfigured();
         $this->writeCloudConfig(['device_token' => $this->expiredToken()]);
         $refresher = $this->createRefresher([
             new Response(200, [], json_encode(['access_token' => 'new-access-token', 'expires_in' => 3600])),
@@ -181,7 +181,7 @@ class DeviceTokenRefresherTest extends TestBase
     {
         // The datastore loads an expired token; another invocation then writes a
         // fresh one. Spending a rotation here would kill the session for both.
-        $this->givenOktaIsConfigured();
+        $this->givenAuthIsConfigured();
         $this->writeCloudConfig(['device_token' => $this->expiredToken()]);
         $refresher = $this->createRefresher([
             new Response(500, [], 'the refresher must not reach Okta'),
@@ -200,7 +200,7 @@ class DeviceTokenRefresherTest extends TestBase
 
     public function testDoesNotClobberCredentialsWrittenSinceTheProcessStarted(): void
     {
-        $this->givenOktaIsConfigured();
+        $this->givenAuthIsConfigured();
         $this->writeCloudConfig(['device_token' => $this->expiredToken()]);
         $refresher = $this->createRefresher([
             new Response(200, [], json_encode(['access_token' => 'new-access-token', 'expires_in' => 3600])),
@@ -222,7 +222,7 @@ class DeviceTokenRefresherTest extends TestBase
 
     public function testReturnsNullOnInvalidGrant(): void
     {
-        $this->givenOktaIsConfigured();
+        $this->givenAuthIsConfigured();
         $this->writeCloudConfig(['device_token' => $this->expiredToken()]);
         $refresher = $this->createRefresher([
             new Response(400, [], json_encode(['error' => 'invalid_grant'])),
@@ -234,7 +234,7 @@ class DeviceTokenRefresherTest extends TestBase
 
     public function testReturnsNullOnA400ThatIsNotInvalidGrant(): void
     {
-        $this->givenOktaIsConfigured();
+        $this->givenAuthIsConfigured();
         $this->writeCloudConfig(['device_token' => $this->expiredToken()]);
         $refresher = $this->createRefresher([
             new Response(400, [], json_encode(['error' => 'invalid_client'])),
@@ -245,10 +245,10 @@ class DeviceTokenRefresherTest extends TestBase
 
     public function testReturnsNullOnATransportFailure(): void
     {
-        $this->givenOktaIsConfigured();
+        $this->givenAuthIsConfigured();
         $this->writeCloudConfig(['device_token' => $this->expiredToken()]);
         $refresher = $this->createRefresher([
-            new ConnectException('cURL error 6: Could not resolve host', new Request('POST', 'https://example.okta.com')),
+            new ConnectException('cURL error 6: Could not resolve host', new Request('POST', 'https://example.acquia.com')),
         ]);
 
         $this->assertNull($refresher->getValidAccessToken());
@@ -256,7 +256,7 @@ class DeviceTokenRefresherTest extends TestBase
 
     public function testReturnsNullWhenRefreshResponseHasNoAccessToken(): void
     {
-        $this->givenOktaIsConfigured();
+        $this->givenAuthIsConfigured();
         $this->writeCloudConfig(['device_token' => $this->expiredToken()]);
         $refresher = $this->createRefresher([
             new Response(200, [], json_encode(['token_type' => 'Bearer'])),
@@ -269,7 +269,7 @@ class DeviceTokenRefresherTest extends TestBase
     {
         // GuzzleHttp\Client is autowired, so the container injects one built
         // without options; a hung /token would block every API request.
-        $this->givenOktaIsConfigured();
+        $this->givenAuthIsConfigured();
         $this->writeCloudConfig(['device_token' => $this->expiredToken()]);
         $captured = [];
         $refresher = $this->createRefresher([], function ($request, array $options) use (&$captured) {
@@ -289,7 +289,7 @@ class DeviceTokenRefresherTest extends TestBase
 
     public function testTakesTheLockBesideTheCredentialFile(): void
     {
-        $this->givenOktaIsConfigured();
+        $this->givenAuthIsConfigured();
         $this->writeCloudConfig(['device_token' => $this->expiredToken()]);
         $refresher = $this->createRefresher([
             new Response(200, [], json_encode(['access_token' => 'new-access-token', 'expires_in' => 3600])),

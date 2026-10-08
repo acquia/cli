@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Acquia\Cli\Tests\CloudApi;
 
-use Acquia\Cli\CloudApi\OktaConfig;
+use Acquia\Cli\CloudApi\AuthConfig;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 
 #[Group('serial')]
-class OktaConfigTest extends TestCase
+class AuthConfigTest extends TestCase
 {
     /** @var array<string, string|false> */
     private array $savedEnvVars = [];
@@ -17,7 +17,7 @@ class OktaConfigTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        foreach (['ACLI_DEVICE_CLIENT_ID', 'ACLI_OKTA_DOMAIN', 'ACLI_OKTA_AUTH_SERVER_ID'] as $var) {
+        foreach (['ACLI_DEVICE_CLIENT_ID', 'ACLI_AUTH_DOMAIN', 'ACLI_AUTH_SERVER_ID'] as $var) {
             $this->savedEnvVars[$var] = getenv($var);
             putenv($var);
         }
@@ -34,18 +34,18 @@ class OktaConfigTest extends TestCase
     public function testResolvesValuesFromTheEnvironment(): void
     {
         putenv('ACLI_DEVICE_CLIENT_ID=env-client');
-        putenv('ACLI_OKTA_DOMAIN=env.okta.com');
-        putenv('ACLI_OKTA_AUTH_SERVER_ID=ausEnv');
-        $config = new OktaConfig();
+        putenv('ACLI_AUTH_DOMAIN=env.acquia.com');
+        putenv('ACLI_AUTH_SERVER_ID=ausEnv');
+        $config = new AuthConfig();
 
         $this->assertSame('env-client', $config->clientId());
-        $this->assertSame('env.okta.com', $config->domain());
+        $this->assertSame('env.acquia.com', $config->domain());
         $this->assertSame('ausEnv', $config->authServerId());
     }
 
     public function testReturnsEmptyStringsWhenNothingIsSet(): void
     {
-        $config = new OktaConfig();
+        $config = new AuthConfig();
 
         $this->assertSame('', $config->clientId());
         $this->assertSame('', $config->domain());
@@ -54,32 +54,32 @@ class OktaConfigTest extends TestCase
 
     public function testIsConfiguredIsFalseWhenNothingIsSet(): void
     {
-        $this->assertFalse((new OktaConfig())->isConfigured());
+        $this->assertFalse((new AuthConfig())->isConfigured());
     }
 
     public function testIsConfiguredIsFalseWhenOnlySomeValuesAreSet(): void
     {
         putenv('ACLI_DEVICE_CLIENT_ID=env-client');
-        putenv('ACLI_OKTA_DOMAIN=env.okta.com');
+        putenv('ACLI_AUTH_DOMAIN=env.acquia.com');
 
-        $this->assertFalse((new OktaConfig())->isConfigured());
+        $this->assertFalse((new AuthConfig())->isConfigured());
     }
 
     public function testIsConfiguredIsTrueWhenAllValuesResolve(): void
     {
         putenv('ACLI_DEVICE_CLIENT_ID=env-client');
-        putenv('ACLI_OKTA_DOMAIN=env.okta.com');
-        putenv('ACLI_OKTA_AUTH_SERVER_ID=ausEnv');
+        putenv('ACLI_AUTH_DOMAIN=env.acquia.com');
+        putenv('ACLI_AUTH_SERVER_ID=ausEnv');
 
-        $this->assertTrue((new OktaConfig())->isConfigured());
+        $this->assertTrue((new AuthConfig())->isConfigured());
     }
 
     public function testIsConfiguredIsFalseWhenAValueIsSetButEmpty(): void
     {
         putenv('ACLI_DEVICE_CLIENT_ID=env-client');
-        putenv('ACLI_OKTA_DOMAIN=env.okta.com');
-        putenv('ACLI_OKTA_AUTH_SERVER_ID=');
+        putenv('ACLI_AUTH_DOMAIN=env.acquia.com');
+        putenv('ACLI_AUTH_SERVER_ID=');
 
-        $this->assertFalse((new OktaConfig())->isConfigured());
+        $this->assertFalse((new AuthConfig())->isConfigured());
     }
 }
