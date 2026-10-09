@@ -176,6 +176,7 @@ class DeviceTokenRefresher
         $data['device_token'] = $token;
         file_put_contents($path, json_encode($data, JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT));
         chmod($path, 0600);
+        $this->datastore->syncInMemory('device_token', $token);
     }
 
     /**

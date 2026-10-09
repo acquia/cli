@@ -287,6 +287,31 @@ class DeviceTokenRefresherTest extends TestBase
         $this->assertGreaterThan(0, $captured[0]['timeout']);
     }
 
+    public function testDoesNotClobberTheRefreshWithALaterUnrelatedSet(): void
+    {
+        $this->givenAuthIsConfigured();
+        $this->writeCloudConfig(['device_token' => $this->expiredToken()]);
+        $datastore = new CloudDataStore($this->localMachineHelper, new CloudDataConfig(), $this->cloudConfigFilepath);
+        $client = new GuzzleClient([
+            'handler' => HandlerStack::create(new MockHandler([
+                new Response(200, [], json_encode([
+                    'access_token' => 'new-access-token',
+                    'expires_in' => 3600,
+                    'refresh_token' => 'new-refresh-token',
+                ])),
+            ])),
+        ]);
+        $refresher = new DeviceTokenRefresher($datastore, $this->logger, $client, new AuthConfig());
+
+        $this->assertSame('new-access-token', $refresher->getValidAccessToken());
+
+        $datastore->set('user', ['uuid' => 'test-uuid']);
+
+        $stored = $this->readCloudConfig()['device_token'];
+        $this->assertSame('new-access-token', $stored['access_token']);
+        $this->assertSame('new-refresh-token', $stored['refresh_token']);
+    }
+
     public function testTakesTheLockBesideTheCredentialFile(): void
     {
         $this->givenAuthIsConfigured();
