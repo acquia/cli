@@ -338,6 +338,9 @@ class TelemetryHelper
             'platformsh' => ['PLATFORM_ENVIRONMENT'],
             'teamcity' => ['TEAMCITY_VERSION'],
             'travis' => ['TRAVIS'],
+            'claude-code' => ['CLAUDE_CODE'],
+            'cursor' => ['CURSOR_TRACE_ID'],
+            'copilot' => ['GITHUB_COPILOT_LANGUAGE_SERVER_VERSION'],
         ];
     }
 }

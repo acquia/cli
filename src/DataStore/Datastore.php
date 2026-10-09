@@ -54,6 +54,17 @@ abstract class Datastore implements DataStoreInterface
         $this->dump();
     }
 
+    /**
+     * Updates the in-memory copy of a value without writing to disk.
+     *
+     * @param string $key The key to update in the in-memory datastore.
+     * @param mixed $value The value to set for the given key in memory.
+     */
+    public function syncInMemory(string $key, mixed $value): void
+    {
+        $this->data->set($key, $value);
+    }
+
     public function exists(string $key): bool
     {
         return $this->data->has($key);

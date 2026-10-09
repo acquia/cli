@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Acquia\Cli\Tests\CloudApi;
 
+use Acquia\Cli\CloudApi\AccessTokenConnector;
 use Acquia\Cli\CloudApi\ConnectorFactory;
 use Acquia\Cli\CloudApi\PathRewriteConnector;
 use AcquiaCloudApi\Connector\Connector;
@@ -44,6 +45,57 @@ class ConnectorFactoryTest extends TestCase
         $factory = new ConnectorFactory(['key' => 'k', 'secret' => 's'], 'https://api.example.com');
         $connector = $factory->createConnector();
         $this->assertInstanceOf($expectedClass, $connector);
+    }
+
+    public function testBuildsAccessTokenConnectorForAStaleDeviceTokenWithARefreshToken(): void
+    {
+        putenv('AH_CODEBASE_UUID');
+        $factory = new ConnectorFactory([
+            'accessToken' => null,
+            'deviceAccessToken' => 'expired-but-present',
+            'key' => null,
+            'secret' => null,
+        ], 'https://api.example.com');
+
+        $this->assertInstanceOf(AccessTokenConnector::class, $factory->createConnector());
+    }
+
+    public function testStoredKeyAndSecretOutrankADeviceToken(): void
+    {
+        putenv('AH_CODEBASE_UUID');
+        $factory = new ConnectorFactory([
+            'accessToken' => null,
+            'deviceAccessToken' => 'device-token',
+            'key' => 'k',
+            'secret' => 's',
+        ], 'https://api.example.com');
+
+        $connector = $factory->createConnector();
+
+        $this->assertInstanceOf(Connector::class, $connector);
+        $this->assertNotInstanceOf(AccessTokenConnector::class, $connector);
+    }
+
+    public function testDeviceTokenOutranksTheAccessTokenEnvVar(): void
+    {
+        putenv('AH_CODEBASE_UUID');
+        // An expired env token makes the branches distinguishable: alone it fails the
+        // expiry check, so an AccessTokenConnector here can only be the device path.
+        $expiredEnvToken = [
+            'accessToken' => 'env-access-token',
+            'accessTokenExpiry' => time() - 300,
+            'key' => null,
+            'secret' => null,
+        ];
+
+        $withoutDeviceToken = (new ConnectorFactory($expiredEnvToken, 'https://api.example.com'))->createConnector();
+        $this->assertNotInstanceOf(AccessTokenConnector::class, $withoutDeviceToken);
+
+        $withDeviceToken = (new ConnectorFactory(
+            $expiredEnvToken + ['deviceAccessToken' => 'device-token'],
+            'https://api.example.com',
+        ))->createConnector();
+        $this->assertInstanceOf(AccessTokenConnector::class, $withDeviceToken);
     }
 
     /**
