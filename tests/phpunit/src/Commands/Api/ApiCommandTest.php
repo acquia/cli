@@ -192,6 +192,39 @@ EOD;
         $this->assertStringContainsString('Select a value for logType', $output);
     }
 
+    public function testTrialCreateArgumentsInteractionPromptsTemplateAndRegionChoices(): void
+    {
+        $this->clientProphecy->addOption('headers', ['Accept' => 'application/hal+json, version=2'])
+            ->shouldBeCalled();
+        $this->mockRequest('listTrialTemplates', null, null, 'Templates list');
+        $this->mockRequest('listTrialRegions', null, null, 'Regions list');
+        $this->clientProphecy->addOption('json', ['site_name' => 'mytrialsite'])
+            ->shouldBeCalled();
+        $this->clientProphecy->addOption('json', ['site_template_id' => 'impact'])
+            ->shouldBeCalled();
+        $this->clientProphecy->addOption('json', ['region' => 'us-west-2'])
+            ->shouldBeCalled();
+        $mockResponseBody = self::getMockResponseFromSpec('/trials', 'post', '202');
+        $this->clientProphecy->request('post', '/trials')
+            ->willReturn($mockResponseBody->{'Trial created'}->value)
+            ->shouldBeCalled();
+        $this->command = $this->getApiCommandByName('api:trials:create');
+        $this->executeCommand([], [
+            'mytrialsite',
+            // Select a value for site_template_id: (Impact is index 1)
+            1,
+            // Select a value for region: (US West (Oregon) is index 1)
+            1,
+        ]);
+        $output = $this->getDisplay();
+        $this->assertStringContainsString('Enter a value for site_name', $output);
+        $this->assertStringContainsString('Select a value for site_template_id', $output);
+        $this->assertStringContainsString('Impact', $output);
+        $this->assertStringContainsString('Select a value for region', $output);
+        $this->assertStringContainsString('US West (Oregon)', $output);
+        $this->assertEquals(0, $this->getStatusCode());
+    }
+
     /**
      * @throws \AcquiaCloudApi\Exception\ApiErrorException
      * @throws \JsonException

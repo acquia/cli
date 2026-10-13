@@ -490,6 +490,20 @@ class ApiBaseCommand extends CommandBase
 
     private function askFreeFormQuestion(InputArgument $argument, array $params): mixed
     {
+        if ($this->getName() === 'api:trials:create') {
+            if ($argument->getName() === 'site_template_id') {
+                $choice = $this->promptChooseTrialOption('/trials-templates', "Select a value for {$argument->getName()}");
+                if ($choice !== null) {
+                    return $choice;
+                }
+            } elseif ($argument->getName() === 'region') {
+                $choice = $this->promptChooseTrialOption('/trials-regions', "Select a value for {$argument->getName()}");
+                if ($choice !== null) {
+                    return $choice;
+                }
+            }
+        }
+
         // Default value may be an empty array, which causes Question to choke.
         $default = $argument->getDefault() ?: null;
         $question = new Question("Enter a value for {$argument->getName()}", $default);
@@ -517,6 +531,21 @@ class ApiBaseCommand extends CommandBase
         // Allow unlimited attempts.
         $question->setMaxAttempts(null);
         return $this->io->askQuestion($question);
+    }
+
+    /**
+     * Prompts the user to choose a trial template or region id from a
+     * sibling listing endpoint, since the /trials spec declares these
+     * arguments as plain strings with no enum of valid values.
+     */
+    private function promptChooseTrialOption(string $path, string $questionText): ?string
+    {
+        $items = $this->cloudApiClientService->getClient()->request('get', $path);
+        if (!$items) {
+            return null;
+        }
+        $choice = $this->promptChooseFromObjectsOrArrays($items, 'id', 'name', $questionText);
+        return $choice?->id;
     }
 
     /**
