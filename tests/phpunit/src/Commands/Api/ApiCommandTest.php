@@ -194,8 +194,9 @@ EOD;
 
     public function testTrialCreateArgumentsInteractionPromptsTemplateAndRegionChoices(): void
     {
+        // Once for execute() plus once for each of the two choice listing requests.
         $this->clientProphecy->addOption('headers', ['Accept' => 'application/hal+json, version=2'])
-            ->shouldBeCalled();
+            ->shouldBeCalledTimes(3);
         $this->clientProphecy->addQuery('limit', 100)
             ->shouldBeCalledTimes(2);
         $this->mockRequest('listTrialTemplates', null, null, 'Templates list');
