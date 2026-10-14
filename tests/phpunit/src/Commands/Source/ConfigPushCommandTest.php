@@ -47,7 +47,7 @@ class ConfigPushCommandTest extends CommandTestBase
 
     private function mockPut(): void
     {
-        $this->clientProphecy->request('put', '/source-sites/site-a/config', ['json' => ['configuration' => self::DOCUMENT]])
+        $this->clientProphecy->request('put', '/source-sites/site-a/config', ['json' => ['source' => 'request', 'configuration' => self::DOCUMENT]])
             ->willReturn((object) ['message' => 'accepted'])
             ->shouldBeCalled();
     }
@@ -190,7 +190,7 @@ class ConfigPushCommandTest extends CommandTestBase
 
     public function testConflictThrows(): void
     {
-        $this->clientProphecy->request('put', '/source-sites/site-a/config', ['json' => ['configuration' => self::DOCUMENT]])
+        $this->clientProphecy->request('put', '/source-sites/site-a/config', ['json' => ['source' => 'request', 'configuration' => self::DOCUMENT]])
             ->willThrow(new ApiErrorException((object) ['error' => 'conflict', 'message' => 'A sync is in progress.']));
         $this->expectException(AcquiaCliException::class);
         $this->expectExceptionMessage('A configuration sync is already running for Source site site-a. Wait for it to finish, then push again.');
@@ -199,7 +199,7 @@ class ConfigPushCommandTest extends CommandTestBase
 
     public function testOtherApiErrorPropagates(): void
     {
-        $this->clientProphecy->request('put', '/source-sites/site-a/config', ['json' => ['configuration' => self::DOCUMENT]])
+        $this->clientProphecy->request('put', '/source-sites/site-a/config', ['json' => ['source' => 'request', 'configuration' => self::DOCUMENT]])
             ->willThrow(new ApiErrorException((object) ['error' => 'validation_failed', 'message' => (object) ['configuration' => 'Too large.']]));
         $this->expectException(ApiErrorException::class);
         $this->expectExceptionMessage('Too large.');

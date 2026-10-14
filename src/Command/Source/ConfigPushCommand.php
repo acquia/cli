@@ -64,7 +64,7 @@ final class ConfigPushCommand extends ConfigCommandBase
         }
 
         try {
-            $client->request('put', "/source-sites/$siteId/config", ['json' => ['configuration' => $document]]);
+            $client->request('put', "/source-sites/$siteId/config", ['json' => ['source' => 'request', 'configuration' => $document]]);
         } catch (ApiErrorException $e) {
             // 409: the site is already importing (or exporting) configuration.
             if ($e->getResponseBody()->error === 'conflict') {
