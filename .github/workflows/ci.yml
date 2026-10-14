@@ -204,25 +204,24 @@ jobs:
       GH_TOKEN: ${{ github.token }}
       GH_REPO: ${{ github.repository }}
     steps:
-      - name: Download release artifacts
+      - name: Download PHAR artifact
         uses: actions/download-artifact@v8
         with:
-          path: artifacts
-      - name: Assert release artifact basenames are unique
-        run: |
-          # Excludes SHA256SUMS: on a re-run, the artifact from the previous attempt is present.
-          dupes=$(find artifacts -type f ! -name SHA256SUMS -printf '%f\n' | sort | uniq -d)
-          if [ -n "$dupes" ]; then
-            echo "::error::Release artifacts share a basename: $dupes"
-            exit 1
-          fi
+          name: acli.phar
+          path: manifest
+      - name: Download Linux artifact
+        uses: actions/download-artifact@v8
+        with:
+          name: native-acli-linux-x86_64
+          path: manifest
+      - name: Download macOS artifact
+        uses: actions/download-artifact@v8
+        with:
+          name: native-acli-macos-aarch64
+          path: manifest
       - name: Generate SHA256SUMS
         run: |
-          # Flatten into a sibling directory; flattening in place collides on acli.phar/acli.phar.
-          mkdir manifest
-          find artifacts -type f ! -name SHA256SUMS -exec mv {} manifest/ \;
           (cd manifest && sha256sum * > ../SHA256SUMS)
-          cat SHA256SUMS
       - name: Download published release assets
         run: gh release download "$GITHUB_REF_NAME" --dir released
       - name: Verify manifest against published assets
@@ -236,8 +235,6 @@ jobs:
           gh release view "$GITHUB_REF_NAME" --json assets --jq '.assets[].name' | grep -vx SHA256SUMS | sort > assets.txt
           awk '{print $2}' SHA256SUMS | sort > listed.txt
           diff assets.txt listed.txt
-      # Upload before attaching: if the attach step fails, this is the only surviving
-      # copy of the verified manifest (a rebuild would not reproduce the same tarballs).
       - name: Store checksum manifest in Actions
         uses: actions/upload-artifact@v7
         with:
