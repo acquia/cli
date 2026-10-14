@@ -89,6 +89,7 @@ EOD;
   pull:code                Copy code from a Cloud Platform environment
   pull:database            [pull:db] Import database backup from a Cloud Platform environment
   pull:files               Copy Drupal public files from a Cloud Platform environment to your local environment
+  pull:files-archive       Copy Drupal public files from a Cloud Platform environment to your local environment as a tar archive streamed over SSH (does not require rsync)
   pull:run-scripts         Execute post pull scripts
  push
   push:artifact            Build and push a code artifact to a Cloud Platform environment
