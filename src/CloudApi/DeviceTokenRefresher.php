@@ -10,6 +10,7 @@ use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\GuzzleException;
 use League\OAuth2\Client\Token\AccessToken;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\Filesystem\Filesystem;
 
 class DeviceTokenRefresher
 {
@@ -63,11 +64,13 @@ class DeviceTokenRefresher
      */
     private function refresh(): ?string
     {
-        $stored = $this->readTokenFromDisk();
-        if (!$stored || empty($stored['access_token'])) {
+        $config = $this->readConfigFromDisk();
+        $stored = $config['device_token'] ?? null;
+        if (!is_array($stored) || empty($stored['access_token'])) {
             return null;
         }
         if ($this->hasLifeLeft($stored)) {
+            $this->datastore->syncInMemory('device_token', $stored);
             return $stored['access_token'];
         }
 
@@ -114,7 +117,7 @@ class DeviceTokenRefresher
             return null;
         }
 
-        $this->persistToken([
+        $this->persistToken($config, [
             'access_token'  => $new['access_token'],
             'client_id'     => $clientId,
             'expiry'        => isset($new['expires_in']) ? time() + (int) $new['expires_in'] : 0,
@@ -138,44 +141,34 @@ class DeviceTokenRefresher
     }
 
     /**
-     * Reads `device_token` from disk, bypassing the in-memory datastore.
+     * Reads the whole credential file from disk, bypassing the in-memory datastore.
      *
      * @return array<string, mixed>|null
      */
-    private function readTokenFromDisk(): ?array
+    private function readConfigFromDisk(): ?array
     {
         $contents = @file_get_contents($this->datastore->filepath);
-        if ($contents === false) {
-            return null;
-        }
+        $decoded = $contents === false ? null : json_decode($contents, true);
 
-        $decoded = json_decode($contents, true);
-        if (!is_array($decoded) || !isset($decoded['device_token']) || !is_array($decoded['device_token'])) {
-            return null;
-        }
-
-        return $decoded['device_token'];
+        return is_array($decoded) ? $decoded : null;
     }
 
     /**
      * Writes `device_token` without disturbing anything else in the file.
      *
+     * @param array<string, mixed> $config The file contents read inside the lock.
      * @param array<string, mixed> $token
      */
-    private function persistToken(array $token): void
+    private function persistToken(array $config, array $token): void
     {
         $path = $this->datastore->filepath;
-        $contents = @file_get_contents($path);
-        $data = $contents === false ? null : json_decode($contents, true);
+        $config['device_token'] = $token;
 
-        if (!is_array($data)) {
-            $this->datastore->set('device_token', $token);
-            return;
-        }
-
-        $data['device_token'] = $token;
-        file_put_contents($path, json_encode($data, JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT));
-        chmod($path, 0600);
+        // Same write as JsonDataStore::dump(): atomic, and it follows a symlinked config.
+        $fileSystem = new Filesystem();
+        $fileSystem->dumpFile($path, json_encode($config, JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT));
+        // Restrict access.
+        $fileSystem->chmod($path, 0600);
         $this->datastore->syncInMemory('device_token', $token);
     }
 

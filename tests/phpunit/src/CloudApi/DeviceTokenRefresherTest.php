@@ -17,6 +17,8 @@ use GuzzleHttp\Promise\Create;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\Attributes\Group;
+use Symfony\Component\Filesystem\Exception\IOException;
+use Symfony\Component\Filesystem\Path;
 
 /**
  * Uses a real on-disk CloudDataStore rather than a double.
@@ -164,6 +166,69 @@ class DeviceTokenRefresherTest extends TestBase
         $this->assertGreaterThan(time(), $stored['expiry']);
     }
 
+    public function testRestrictsTheCredentialFileToTheOwner(): void
+    {
+        $this->givenAuthIsConfigured();
+        $this->writeCloudConfig(['device_token' => $this->expiredToken()]);
+        chmod($this->cloudConfigFilepath, 0644);
+        $refresher = $this->createRefresher([
+            new Response(200, [], json_encode(['access_token' => 'new-access-token', 'expires_in' => 3600])),
+        ]);
+
+        $refresher->getValidAccessToken();
+
+        clearstatcache();
+        $this->assertSame('0600', substr(sprintf('%o', fileperms($this->cloudConfigFilepath)), -4));
+        $this->assertSame('new-access-token', $this->readCloudConfig()['device_token']['access_token']);
+    }
+
+    public function testThrowsAndKeepsTheOldFileWhenTheRefreshCannotBeSaved(): void
+    {
+        $this->givenAuthIsConfigured();
+        $this->writeCloudConfig(['device_token' => $this->expiredToken()]);
+        $refresher = $this->createRefresher([
+            new Response(200, [], json_encode(['access_token' => 'new-access-token', 'expires_in' => 3600])),
+        ]);
+        chmod(dirname($this->cloudConfigFilepath), 0555);
+
+        try {
+            $refresher->getValidAccessToken();
+            $this->fail('Expected the unsaveable refresh to throw.');
+        } catch (IOException) {
+            // Expected: the datastore lets filesystem errors propagate too.
+        } finally {
+            chmod(dirname($this->cloudConfigFilepath), 0755);
+        }
+
+        $this->assertSame('expired-token', $this->readCloudConfig()['device_token']['access_token']);
+    }
+
+    public function testWritesThroughASymlinkedCredentialFile(): void
+    {
+        $this->givenAuthIsConfigured();
+        $dir = $this->getTempDir();
+        $target = Path::join($dir, 'dotfiles', 'cloud_api.conf');
+        $link = Path::join($dir, 'config', 'cloud_api.conf');
+        $this->fs->dumpFile($target, json_encode(['device_token' => $this->expiredToken(), 'send_telemetry' => false]));
+        $this->fs->mkdir(dirname($link));
+        $this->fs->symlink($target, $link);
+
+        try {
+            $client = new GuzzleClient([
+                'handler' => HandlerStack::create(new MockHandler([
+                    new Response(200, [], json_encode(['access_token' => 'new-access-token', 'expires_in' => 3600])),
+                ])),
+            ]);
+            $datastore = new CloudDataStore($this->localMachineHelper, new CloudDataConfig(), $link);
+            (new DeviceTokenRefresher($datastore, $this->logger, $client, new AuthConfig()))->getValidAccessToken();
+
+            $this->assertTrue(is_link($link));
+            $this->assertSame('new-access-token', json_decode(file_get_contents($target), true)['device_token']['access_token']);
+        } finally {
+            $this->fs->remove($dir);
+        }
+    }
+
     public function testKeepsOldRefreshTokenWhenResponseOmitsNewOne(): void
     {
         $this->givenAuthIsConfigured();
@@ -196,6 +261,35 @@ class DeviceTokenRefresherTest extends TestBase
         ]);
 
         $this->assertSame('written-by-another-process', $refresher->getValidAccessToken());
+    }
+
+    public function testDoesNotClobberAnotherProcessesRefreshWithALaterUnrelatedSet(): void
+    {
+        $this->givenAuthIsConfigured();
+        $this->writeCloudConfig(['device_token' => $this->expiredToken()]);
+        $datastore = new CloudDataStore($this->localMachineHelper, new CloudDataConfig(), $this->cloudConfigFilepath);
+        $client = new GuzzleClient([
+            'handler' => HandlerStack::create(new MockHandler([
+                new Response(500, [], 'the refresher must not reach Okta'),
+            ])),
+        ]);
+        $refresher = new DeviceTokenRefresher($datastore, $this->logger, $client, new AuthConfig());
+
+        $this->writeCloudConfig(['device_token' => [
+            'access_token' => 'written-by-another-process',
+            'client_id' => 'client-123',
+            'expiry' => time() + 3600,
+            'refresh_token' => 'their-refresh-token',
+        ],
+        ]);
+
+        $this->assertSame('written-by-another-process', $refresher->getValidAccessToken());
+
+        $datastore->set('user', ['uuid' => 'test-uuid']);
+
+        $stored = $this->readCloudConfig()['device_token'];
+        $this->assertSame('written-by-another-process', $stored['access_token']);
+        $this->assertSame('their-refresh-token', $stored['refresh_token']);
     }
 
     public function testDoesNotClobberCredentialsWrittenSinceTheProcessStarted(): void
