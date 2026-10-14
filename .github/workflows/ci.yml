@@ -183,13 +183,70 @@ jobs:
       - name: "Upload Artifact"
         uses: actions/upload-artifact@v7
         with:
-          path: acli
+          path: native-acli-${{ matrix.platform }}.tar.gz
           name: native-acli-${{ matrix.platform }}
       -  name: Release
          uses: softprops/action-gh-release@v3
          if: startsWith(github.ref, 'refs/tags/')
          with:
            files: native-acli-${{ matrix.platform }}.tar.gz
+
+  build-checksums:
+    runs-on: ubuntu-24.04
+    if: startsWith(github.ref, 'refs/tags/')
+    needs:
+      - build-release
+      - build-native
+    permissions:
+      contents: write
+    # No checkout in this job, so gh needs an explicit repo and token.
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+    steps:
+      - name: Download PHAR artifact
+        uses: actions/download-artifact@v8
+        with:
+          name: acli.phar
+          path: manifest
+      - name: Download Linux artifact
+        uses: actions/download-artifact@v8
+        with:
+          name: native-acli-linux-x86_64
+          path: manifest
+      - name: Download macOS artifact
+        uses: actions/download-artifact@v8
+        with:
+          name: native-acli-macos-aarch64
+          path: manifest
+      - name: Generate SHA256SUMS
+        run: |
+          (cd manifest && sha256sum * > ../SHA256SUMS)
+      - name: Download published release assets
+        run: gh release download "$GITHUB_REF_NAME" --dir released
+      - name: Verify manifest against published assets
+        working-directory: released
+        run: |
+          sha256sum --check ../SHA256SUMS
+          # shasum is the macOS tool; this exercises its parser without a macOS runner.
+          shasum -a 256 --check ../SHA256SUMS
+      - name: Assert manifest lists exactly the release assets
+        run: |
+          gh release view "$GITHUB_REF_NAME" --json assets --jq '.assets[].name' | grep -vx SHA256SUMS | sort > assets.txt
+          awk '{print $2}' SHA256SUMS | sort > listed.txt
+          diff assets.txt listed.txt
+      - name: Store checksum manifest in Actions
+        uses: actions/upload-artifact@v7
+        with:
+          name: SHA256SUMS
+          path: SHA256SUMS
+          overwrite: true
+      - name: Attach SHA256SUMS to release
+        uses: softprops/action-gh-release@v3
+        with:
+          files: SHA256SUMS
+      - name: Assert SHA256SUMS is attached to the release
+        run: gh release view "$GITHUB_REF_NAME" --json assets --jq '.assets[].name' | grep -qx SHA256SUMS
 
   # Require all checks to pass without having to enumerate them in the branch protection UI.
   # @see https://github.community/t/is-it-possible-to-require-all-github-actions-tasks-to-pass-without-enumerating-them/117957
@@ -199,9 +256,12 @@ jobs:
     - test
     - build-release
     - build-native
+    - build-checksums
     runs-on: ubuntu-24.04
     steps:
     - name: Decide whether the needed jobs succeeded or failed
       uses: re-actors/alls-green@release/v1
       with:
         jobs: ${{ toJSON(needs) }}
+        # build-checksums only runs for tags, so it is skipped on every PR and push.
+        allowed-skips: build-checksums
