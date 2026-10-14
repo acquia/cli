@@ -59,6 +59,13 @@ class LinkCommandTest extends CommandTestBase
         $this->executeCommand(['sourceSiteId' => 'site-a/../applications']);
     }
 
+    public function testEmptyArgumentThrowsRatherThanChoosing(): void
+    {
+        $this->expectException(AcquiaCliException::class);
+        $this->expectExceptionMessage('"" is not a valid Source site ID: only letters, digits and hyphens are allowed.');
+        $this->executeCommand(['sourceSiteId' => '']);
+    }
+
     public function testAlreadyLinkedWithoutArgument(): void
     {
         file_put_contents($this->projectDir . '/.acquia-cli.yml', "source_site_id: site-a\n");
