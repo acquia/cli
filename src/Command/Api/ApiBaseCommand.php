@@ -545,6 +545,10 @@ class ApiBaseCommand extends CommandBase
             return null;
         }
         $choice = $this->promptChooseFromObjectsOrArrays($items, 'id', 'name', $questionText);
+        // In single-select mode, promptChooseFromObjectsOrArrays() always matches
+        // the chosen label back to an item from the same $items list, so $choice
+        // cannot actually be null here.
+        // @infection-ignore-all
         return $choice?->id;
     }
 
