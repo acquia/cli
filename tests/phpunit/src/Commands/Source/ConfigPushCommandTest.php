@@ -124,11 +124,11 @@ class ConfigPushCommandTest extends CommandTestBase
 
     public function testStatusReportsSucceededWithoutPushing(): void
     {
-        $this->mockImport([(object) ['id' => 'i1', 'status' => 'succeeded', 'started_at' => '2026-09-09T10:30:00Z', 'finished_at' => '2026-09-09T10:32:41Z']]);
+        $this->mockImport([(object) ['id' => 'i1', 'status' => 'succeeded', 'source' => 'github', 'started_at' => '2026-09-09T10:30:00Z', 'finished_at' => '2026-09-09T10:32:41Z']]);
         $this->executeCommand(['--site' => 'site-a', '--status' => true], [], interactive: false);
         $this->assertSame(0, $this->getStatusCode());
         $display = $this->getDisplay();
-        $this->assertStringContainsString("Source site site-a's latest import started at 2026-09-09T10:30:00Z.", $display);
+        $this->assertStringContainsString("Source site site-a's latest import started at 2026-09-09T10:30:00Z (source: GitHub commit).", $display);
         $this->assertStringContainsString('Imported .acquia/config into Source site site-a.', $display);
     }
 
@@ -137,6 +137,7 @@ class ConfigPushCommandTest extends CommandTestBase
         $this->mockImport([(object) [
             'finished_at' => '2026-09-09T10:32:41Z',
             'id' => 'i1',
+            'source' => 'request',
             'started_at' => '2026-09-09T10:30:00Z',
             'status' => 'refused',
             'violations' => [
@@ -147,33 +148,33 @@ class ConfigPushCommandTest extends CommandTestBase
         $this->executeCommand(['--site' => 'site-a', '--status' => true], [], interactive: false);
         $this->assertSame(1, $this->getStatusCode());
         $display = $this->getDisplay();
-        $this->assertStringContainsString("Source site site-a's latest import started at 2026-09-09T10:30:00Z.", $display);
+        $this->assertStringContainsString("Source site site-a's latest import started at 2026-09-09T10:30:00Z (source: ACLI request).", $display);
         $this->assertStringContainsString('Source site site-a refused the configuration; nothing was imported:', $display);
         $this->assertStringContainsString(' - language.nl: system.site [not_allowed]: Not in the allow list.', $display);
     }
 
     public function testStatusReportsFailed(): void
     {
-        $this->mockImport([(object) ['id' => 'i1', 'status' => 'failed', 'started_at' => '2026-09-09T10:30:00Z', 'finished_at' => '2026-09-09T10:32:41Z']]);
+        $this->mockImport([(object) ['id' => 'i1', 'status' => 'failed', 'source' => 'request', 'started_at' => '2026-09-09T10:30:00Z', 'finished_at' => '2026-09-09T10:32:41Z']]);
         $this->executeCommand(['--site' => 'site-a', '--status' => true], [], interactive: false);
         $this->assertSame(1, $this->getStatusCode());
-        $this->assertStringContainsString("Source site site-a's latest import started at 2026-09-09T10:30:00Z.", $this->getDisplay());
+        $this->assertStringContainsString("Source site site-a's latest import started at 2026-09-09T10:30:00Z (source: ACLI request).", $this->getDisplay());
         $this->assertStringContainsString('The import into Source site site-a failed; the site was rolled back to', $this->getDisplay());
     }
 
     public function testStatusReportsRunningWithDistinctExitCode(): void
     {
-        $this->mockImport([(object) ['id' => 'i1', 'status' => 'running', 'started_at' => '2026-09-09T10:30:00Z', 'finished_at' => null]]);
+        $this->mockImport([(object) ['id' => 'i1', 'status' => 'running', 'source' => 'request', 'started_at' => '2026-09-09T10:30:00Z', 'finished_at' => null]]);
         $this->executeCommand(['--site' => 'site-a', '--status' => true], [], interactive: false);
         $this->assertSame(2, $this->getStatusCode());
         $display = $this->getDisplay();
-        $this->assertStringContainsString("Source site site-a's latest import started at 2026-09-09T10:30:00Z", $display);
+        $this->assertStringContainsString("Source site site-a's latest import started at 2026-09-09T10:30:00Z (source: ACLI request)", $display);
         $this->assertStringContainsString('still running', $display);
     }
 
     public function testStatusJsonOutput(): void
     {
-        $import = (object) ['id' => 'i1', 'status' => 'refused', 'started_at' => '2026-09-09T10:30:00Z', 'finished_at' => '2026-09-09T10:32:41Z', 'violations' => [(object) ['code' => 'too_large', 'message' => 'Too large.']]];
+        $import = (object) ['id' => 'i1', 'status' => 'refused', 'source' => 'request', 'started_at' => '2026-09-09T10:30:00Z', 'finished_at' => '2026-09-09T10:32:41Z', 'violations' => [(object) ['code' => 'too_large', 'message' => 'Too large.']]];
         $this->mockImport([$import]);
         $this->executeCommand(['--site' => 'site-a', '--status' => true, '--format' => 'json'], [], interactive: false);
         $this->assertSame(1, $this->getStatusCode());
@@ -183,7 +184,7 @@ class ConfigPushCommandTest extends CommandTestBase
     public function testStatusDoesNotRequireConfigDirOrConfirmation(): void
     {
         $this->fs->remove($this->configDir);
-        $this->mockImport([(object) ['id' => 'i1', 'status' => 'succeeded', 'started_at' => '2026-09-09T10:30:00Z', 'finished_at' => '2026-09-09T10:32:41Z']]);
+        $this->mockImport([(object) ['id' => 'i1', 'status' => 'succeeded', 'source' => 'request', 'started_at' => '2026-09-09T10:30:00Z', 'finished_at' => '2026-09-09T10:32:41Z']]);
         $this->executeCommand(['--site' => 'site-a', '--status' => true], [], interactive: false);
         $this->assertSame(0, $this->getStatusCode());
     }

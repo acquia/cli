@@ -132,11 +132,15 @@ final class ConfigPushCommand extends ConfigCommandBase
      */
     private function reportStatus(string $siteId, object $import): int
     {
+        $source = match ($import->source) {
+            'request' => 'ACLI request',
+            'github' => 'GitHub commit',
+        };
         if ($import->status === 'running') {
-            $this->io->writeln("Source site $siteId's latest import started at $import->started_at and is still running.");
+            $this->io->writeln("Source site $siteId's latest import started at $import->started_at (source: $source) and is still running.");
             return self::EXIT_STILL_RUNNING;
         }
-        $this->io->writeln("Source site $siteId's latest import started at $import->started_at.");
+        $this->io->writeln("Source site $siteId's latest import started at $import->started_at (source: $source).");
         return $this->reportImport($siteId, $import);
     }
 
