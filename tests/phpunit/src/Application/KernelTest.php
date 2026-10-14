@@ -71,6 +71,10 @@ EOD;
  codestudio
   codestudio:php-version   Change the PHP version in Code Studio
   codestudio:wizard        [cs:wizard] Create and/or configure a new Code Studio project for a given Cloud Platform application
+ dev
+  dev:init                 Set up a complete local development environment for an Acquia application
+  dev:start                Start the local development environment
+  dev:stop                 Stop the local development environment
  env
   env:certificate-create   Install an SSL certificate.
   env:create               Create a new Continuous Delivery Environment (CDE)
