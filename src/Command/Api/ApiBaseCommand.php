@@ -540,7 +540,15 @@ class ApiBaseCommand extends CommandBase
      */
     private function promptChooseTrialOption(string $path, string $questionText): ?string
     {
-        $items = $this->cloudApiClientService->getClient()->request('get', $path);
+        $acquiaCloudClient = $this->cloudApiClientService->getClient();
+        // Request the same content type as execute() negotiates for every
+        // generated command, and a high limit so pagination can't hide valid
+        // choices from this listing.
+        $acquiaCloudClient->addOption('headers', [
+            'Accept' => 'application/hal+json, version=2',
+        ]);
+        $acquiaCloudClient->addQuery('limit', 100);
+        $items = $acquiaCloudClient->request('get', $path);
         if (!$items) {
             return null;
         }

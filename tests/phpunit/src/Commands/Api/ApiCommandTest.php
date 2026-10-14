@@ -196,6 +196,8 @@ EOD;
     {
         $this->clientProphecy->addOption('headers', ['Accept' => 'application/hal+json, version=2'])
             ->shouldBeCalled();
+        $this->clientProphecy->addQuery('limit', 100)
+            ->shouldBeCalledTimes(2);
         $this->mockRequest('listTrialTemplates', null, null, 'Templates list');
         $this->mockRequest('listTrialRegions', null, null, 'Regions list');
         $this->clientProphecy->addOption('json', ['site_name' => 'mytrialsite'])
