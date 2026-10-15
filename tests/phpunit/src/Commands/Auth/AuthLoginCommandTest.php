@@ -204,6 +204,25 @@ class AuthLoginCommandTest extends CommandTestBase
         $this->assertStringContainsString('Code expired', $output);
     }
 
+    public function testDeviceCodeFlowJitFailure(): void
+    {
+        $this->enableDeviceCodeConfig();
+        $this->givenFreshCloudConfigWithTelemetryDisabled();
+        $this->command = $this->createDeviceCodeCommand([
+            $this->deviceAuthorizeResponse(),
+            new Response(400, [], json_encode([
+                'error' => 'jit_failure',
+                'error_description' => 'Unable to create the user.',
+            ])),
+        ]);
+
+        $this->executeCommand([], ['no']);
+        $output = $this->getDisplay();
+
+        $this->assertStringContainsString('Google sign-in failed', $output);
+        $this->assertStringNotContainsString('Unexpected error', $output);
+    }
+
     public function testDeviceCodeFlowInitiateFailure(): void
     {
         $this->enableDeviceCodeConfig();

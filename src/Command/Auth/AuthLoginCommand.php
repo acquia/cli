@@ -227,6 +227,12 @@ final class AuthLoginCommand extends CommandBase
                     $output->writeln('<error>Code expired. Run acli login again.</error>');
                     return Command::FAILURE;
 
+                case 'jit_failure':
+                    // Okta couldn't create the user from the Google sign-in, e.g. because
+                    // the email already has a password Acquia ID.
+                    $output->writeln('<error>Google sign-in failed: an Acquia ID may already exist for this email. Run acli auth:login again and sign in with your email address and password.</error>');
+                    return Command::FAILURE;
+
                 default:
                     $output->writeln("<error>Unexpected error: $error</error>");
                     return Command::FAILURE;
