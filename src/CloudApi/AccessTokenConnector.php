@@ -21,8 +21,12 @@ class AccessTokenConnector extends Connector
     /**
      * @param array<string> $config
      */
-    public function __construct(array $config, ?string $baseUri = null, ?string $urlAccessToken = null)
-    {
+    public function __construct(
+        array $config,
+        ?string $baseUri = null,
+        ?string $urlAccessToken = null,
+        private ?DeviceTokenRefresher $deviceTokenRefresher = null,
+    ) {
         $this->accessToken = new AccessToken(['access_token' => $config['access_token']]);
         parent::__construct($config, $baseUri, $urlAccessToken);
     }
@@ -30,10 +34,18 @@ class AccessTokenConnector extends Connector
     public function createRequest(string $verb, string $path): RequestInterface
     {
         if ($file = getenv('ACLI_ACCESS_TOKEN_FILE')) {
+            // File token takes priority — skip device token refresh to avoid
+            // burning refresh token rotations for a token nothing uses.
             if (!file_exists($file)) {
                 throw new AcquiaCliException('Access token file not found at {file}', ['file' => $file]);
             }
             $this->accessToken = new AccessToken(['access_token' => trim(file_get_contents($file), "\"\n")]);
+        } elseif ($this->deviceTokenRefresher !== null) {
+            $freshToken = $this->deviceTokenRefresher->getValidAccessToken();
+            if ($freshToken === null) {
+                throw new AcquiaCliException('Device token session expired. Run <options=bold>acli auth:login</> to re-authenticate.');
+            }
+            $this->accessToken = new AccessToken(['access_token' => $freshToken]);
         }
         return $this->provider->getAuthenticatedRequest(
             $verb,

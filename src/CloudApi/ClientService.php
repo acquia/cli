@@ -7,8 +7,10 @@ namespace Acquia\Cli\CloudApi;
 use Acquia\Cli\ApiCredentialsInterface;
 use Acquia\Cli\Application;
 use Acquia\Cli\ConnectorFactoryInterface;
+use Acquia\Cli\Helpers\TelemetryHelper;
 use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Connector\ConnectorInterface;
+use loophp\phposinfo\OsInfo;
 
 /**
  * Factory producing Acquia Cloud Api clients.
@@ -54,7 +56,13 @@ class ClientService
 
     protected function configureClient(Client $client): void
     {
-        $userAgent = sprintf("acli/%s", $this->application->getVersion());
+        $provider = TelemetryHelper::getEnvironmentProvider();
+        $userAgent = sprintf(
+            'Acquia CLI (%s, %s%s)',
+            $this->application->getVersion(),
+            OsInfo::uuid(),
+            $provider !== null ? ', ' . $provider : '',
+        );
         $customHeaders = [
             'User-Agent' => [$userAgent],
         ];
@@ -77,7 +85,8 @@ class ClientService
     {
         return (
             $this->credentials->getCloudAccessToken() ||
-            ($this->credentials->getCloudKey() && $this->credentials->getCloudSecret())
+            ($this->credentials->getCloudKey() && $this->credentials->getCloudSecret()) ||
+            ($this->credentials->getCloudDeviceAccessToken() !== null)
         );
     }
 }
