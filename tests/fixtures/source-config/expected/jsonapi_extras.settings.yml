@@ -1,0 +1,6 @@
+_core:
+  default_config_hash: MkHeCM1mSSJO-NAGk-71UEfY-Pm136zlecHR7qU2w00
+path_prefix: api
+include_count: true
+default_disabled: true
+validate_configuration_integrity: false

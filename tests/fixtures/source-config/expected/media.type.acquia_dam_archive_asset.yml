@@ -1,0 +1,22 @@
+uuid: 1804fe93-ca4a-493c-b094-50086bd016be
+langcode: en
+status: true
+dependencies:
+  module:
+    - acquia_dam
+_core:
+  default_config_hash: buAxf1MHzKwrXiSRJ_6e66l758T3tTLbbDs9vTFVig4
+id: acquia_dam_archive_asset
+label: 'Acquia DAM: Archive'
+description: 'Media assets type of archive in the remote DAM service.'
+source: 'acquia_dam_asset:archive'
+queue_thumbnail_downloads: false
+new_revision: false
+source_configuration:
+  source_field: acquia_dam_asset_id
+  download_assets: false
+  preserve_filename_case: false
+  uri_scheme: public
+  file_extensions: ''
+field_map:
+  filename: name
