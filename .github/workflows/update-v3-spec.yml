@@ -46,7 +46,7 @@ jobs:
         run: |
           BRANCH="automated/update-acquia-v3-spec"
           git config user.name "devx-autopilot"
-          git config user.email "jenkinsbot-devx@acquia.com"
+          git config user.email "323048708+devx-autopilot@users.noreply.github.com"
           git checkout -B "$BRANCH"
           git add assets/acquia-v3-spec.json assets/acquia-v3-spec.version
           git commit -m "chore: update Acquia v3 OpenAPI spec"
