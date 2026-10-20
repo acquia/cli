@@ -1,0 +1,121 @@
+uuid: 31870546-06c4-4fa0-8864-f76fd294926b
+langcode: en
+status: true
+dependencies:
+  module:
+    - field
+_core:
+  default_config_hash: R5AOt674QYy32z2MopHirBCg5BPuuKJlu7B2b-O1rpY
+id: field_config--field_config
+disabled: true
+path: field_config/field_config
+resourceType: field_config--field_config
+resourceFields:
+  uuid:
+    disabled: false
+    fieldName: uuid
+    publicName: uuid
+    enhancer:
+      id: ''
+  langcode:
+    disabled: false
+    fieldName: langcode
+    publicName: langcode
+    enhancer:
+      id: ''
+  status:
+    disabled: false
+    fieldName: status
+    publicName: status
+    enhancer:
+      id: ''
+  dependencies:
+    disabled: false
+    fieldName: dependencies
+    publicName: dependencies
+    enhancer:
+      id: ''
+  third_party_settings:
+    disabled: false
+    fieldName: third_party_settings
+    publicName: third_party_settings
+    enhancer:
+      id: ''
+  _core:
+    disabled: false
+    fieldName: _core
+    publicName: _core
+    enhancer:
+      id: ''
+  id:
+    disabled: false
+    fieldName: id
+    publicName: id
+    enhancer:
+      id: ''
+  field_name:
+    disabled: false
+    fieldName: field_name
+    publicName: field_name
+    enhancer:
+      id: ''
+  entity_type:
+    disabled: false
+    fieldName: entity_type
+    publicName: entity_type
+    enhancer:
+      id: ''
+  bundle:
+    disabled: false
+    fieldName: bundle
+    publicName: bundle
+    enhancer:
+      id: ''
+  label:
+    disabled: false
+    fieldName: label
+    publicName: label
+    enhancer:
+      id: ''
+  description:
+    disabled: false
+    fieldName: description
+    publicName: description
+    enhancer:
+      id: ''
+  required:
+    disabled: false
+    fieldName: required
+    publicName: required
+    enhancer:
+      id: ''
+  translatable:
+    disabled: false
+    fieldName: translatable
+    publicName: translatable
+    enhancer:
+      id: ''
+  default_value:
+    disabled: false
+    fieldName: default_value
+    publicName: default_value
+    enhancer:
+      id: ''
+  default_value_callback:
+    disabled: false
+    fieldName: default_value_callback
+    publicName: default_value_callback
+    enhancer:
+      id: ''
+  settings:
+    disabled: false
+    fieldName: settings
+    publicName: settings
+    enhancer:
+      id: ''
+  field_type:
+    disabled: false
+    fieldName: field_type
+    publicName: field_type
+    enhancer:
+      id: ''

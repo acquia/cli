@@ -1,0 +1,97 @@
+uuid: 772f8381-5285-4d69-bc62-97ac71335da8
+langcode: en
+status: true
+dependencies:
+  module:
+    - pathauto
+_core:
+  default_config_hash: ymD5ZQ3cFhmTDSsOPB9SOb6g8eZGBulrPZDzveVqTB4
+id: pathauto_pattern--pathauto_pattern
+disabled: true
+path: pathauto_pattern/pathauto_pattern
+resourceType: pathauto_pattern--pathauto_pattern
+resourceFields:
+  uuid:
+    disabled: false
+    fieldName: uuid
+    publicName: uuid
+    enhancer:
+      id: ''
+  langcode:
+    disabled: false
+    fieldName: langcode
+    publicName: langcode
+    enhancer:
+      id: ''
+  status:
+    disabled: false
+    fieldName: status
+    publicName: status
+    enhancer:
+      id: ''
+  dependencies:
+    disabled: false
+    fieldName: dependencies
+    publicName: dependencies
+    enhancer:
+      id: ''
+  third_party_settings:
+    disabled: false
+    fieldName: third_party_settings
+    publicName: third_party_settings
+    enhancer:
+      id: ''
+  _core:
+    disabled: false
+    fieldName: _core
+    publicName: _core
+    enhancer:
+      id: ''
+  id:
+    disabled: false
+    fieldName: id
+    publicName: id
+    enhancer:
+      id: ''
+  label:
+    disabled: false
+    fieldName: label
+    publicName: label
+    enhancer:
+      id: ''
+  type:
+    disabled: false
+    fieldName: type
+    publicName: type
+    enhancer:
+      id: ''
+  pattern:
+    disabled: false
+    fieldName: pattern
+    publicName: pattern
+    enhancer:
+      id: ''
+  selection_criteria:
+    disabled: false
+    fieldName: selection_criteria
+    publicName: selection_criteria
+    enhancer:
+      id: ''
+  selection_logic:
+    disabled: false
+    fieldName: selection_logic
+    publicName: selection_logic
+    enhancer:
+      id: ''
+  weight:
+    disabled: false
+    fieldName: weight
+    publicName: weight
+    enhancer:
+      id: ''
+  relationships:
+    disabled: false
+    fieldName: relationships
+    publicName: relationships
+    enhancer:
+      id: ''

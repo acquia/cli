@@ -1,0 +1,23 @@
+uuid: 4820f7ab-712f-4aad-a74f-fcde77e79bf3
+langcode: en
+status: true
+dependencies:
+  config:
+    - media.type.acquia_dam_video_asset
+id: media--acquia_dam_video_asset
+disabled: false
+path: media/acquia_dam_video_asset
+resourceType: media--acquia_dam_video_asset
+resourceFields:
+  mid:
+    disabled: true
+    fieldName: mid
+    publicName: mid
+    enhancer:
+      id: ''
+  vid:
+    disabled: true
+    fieldName: vid
+    publicName: vid
+    enhancer:
+      id: ''

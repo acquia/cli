@@ -132,7 +132,9 @@ abstract class CommandTestBase extends TestBase
      */
     protected function getDisplay(): string
     {
-        return $this->getCommandTester()->getDisplay();
+        // Symfony Console writes PHP_EOL per line, which is \r\n on Windows;
+        // assertions in this suite are written against \n.
+        return str_replace("\r\n", "\n", $this->getCommandTester()->getDisplay());
     }
 
     /**
