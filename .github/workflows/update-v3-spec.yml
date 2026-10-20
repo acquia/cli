@@ -13,6 +13,8 @@ jobs:
       pull-requests: write
     steps:
       - uses: actions/checkout@v7
+        with:
+          token: ${{ secrets.DEVX_AUTOPILOT_TOKEN }}
 
       - uses: actions/setup-node@v7
         with:
@@ -40,11 +42,11 @@ jobs:
       - name: Create or update PR if spec changed
         if: steps.diff.outputs.changed == 'true'
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.DEVX_AUTOPILOT_TOKEN }}
         run: |
           BRANCH="automated/update-acquia-v3-spec"
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.name "devx-autopilot"
+          git config user.email "323048708+devx-autopilot@users.noreply.github.com"
           git checkout -B "$BRANCH"
           git add assets/acquia-v3-spec.json assets/acquia-v3-spec.version
           git commit -m "chore: update Acquia v3 OpenAPI spec"
