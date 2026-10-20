@@ -13,6 +13,8 @@ jobs:
       pull-requests: write
     steps:
       - uses: actions/checkout@v7
+        with:
+          token: ${{ secrets.DEVX_AUTOPILOT_TOKEN }}
 
       - uses: actions/setup-node@v7
         with:
