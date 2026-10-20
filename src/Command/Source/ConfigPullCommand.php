@@ -20,6 +20,9 @@ final class ConfigPullCommand extends ConfigCommandBase
         $json = $this->outputsJson();
         $root = $this->workingCopyDir();
         $siteId = $this->determineSourceSite($root);
+        if (!$json) {
+            $this->io->writeln("Exporting Source site $siteId's configuration...");
+        }
         $response = $this->cloudApiClientService->getClient()->request('get', "/source-sites/$siteId/config");
         $files = SourceConfigDocument::toFiles($response->configuration);
 

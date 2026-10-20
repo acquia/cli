@@ -52,6 +52,7 @@ class ConfigPullCommandTest extends CommandTestBase
         $this->assertFileDoesNotExist($this->configDir . '/stale.yml');
         $this->assertFileDoesNotExist($this->configDir . '/leftover.yml');
         $this->assertDirectoryDoesNotExist($this->configDir . '.tmp');
+        $this->assertStringContainsString("Exporting Source site site-a's configuration...", $this->getDisplay());
         $this->assertStringContainsString('Exported 2 configuration files from Source site site-a to', $this->getDisplay());
     }
 
