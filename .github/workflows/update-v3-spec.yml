@@ -40,7 +40,7 @@ jobs:
       - name: Create or update PR if spec changed
         if: steps.diff.outputs.changed == 'true'
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN_DEVX_AUTOPILOT }}
+          GH_TOKEN: ${{ secrets.DEVX_AUTOPILOT_TOKEN }}
         run: |
           BRANCH="automated/update-acquia-v3-spec"
           git config user.name "devx-autopilot"
