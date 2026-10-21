@@ -9,6 +9,9 @@ use Acquia\Cli\Command\Source\LinkCommand;
 use Acquia\Cli\Command\Source\SourceCommandBase;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Tests\CommandTestBase;
+use GuzzleHttp\Psr7\Response;
+use Prophecy\Argument;
+use Psr\Http\Message\ResponseInterface;
 use ReflectionProperty;
 
 /**
@@ -81,19 +84,58 @@ class LinkCommandTest extends CommandTestBase
         $this->executeCommand([], [], interactive: false);
     }
 
+    /**
+     * Mocks GET /source-sites as the service pages it: one HAL response per
+     * page, each with the pagination envelope that Client::request() drops.
+     *
+     * @param array<array<string>> $pages Site IDs per page.
+     */
+    private function mockSitePages(array $pages): void
+    {
+        $total = array_sum(array_map('count', $pages));
+        $limit = max(1, count($pages[0] ?? []));
+        $offset = 0;
+        foreach ($pages as $ids) {
+            $items = array_map(static fn (string $id): array => ['id' => $id, 'label' => "Site $id"], $ids);
+            $body = json_encode([
+                'count' => count($ids),
+                'pagination' => ['limit' => $limit, 'offset' => $offset, 'total' => $total],
+                'total' => $total,
+                '_embedded' => ['items' => $items],
+            ], JSON_THROW_ON_ERROR);
+            $this->clientProphecy->makeRequest('get', "/source-sites?offset=$offset")
+                ->willReturn(new Response(200, ['Content-Type' => 'application/hal+json'], $body))
+                ->shouldBeCalledOnce();
+            $offset += count($ids);
+        }
+        // The real processResponse() unwraps _embedded.items; the prophecy must too.
+        $this->clientProphecy->processResponse(Argument::type(ResponseInterface::class))
+            ->will(static fn (array $args): array => json_decode((string) $args[0]->getBody(), flags: JSON_THROW_ON_ERROR)->_embedded->items);
+    }
+
     public function testChooserRecordsChosenSite(): void
     {
-        $this->clientProphecy->request('get', '/source-sites')
-            ->willReturn([(object) ['id' => 'site-a', 'label' => 'Site A'], (object) ['id' => 'site-b', 'label' => 'Site B']])
-            ->shouldBeCalled();
+        $this->mockSitePages([['site-a', 'site-b']]);
         $this->executeCommand([], [1]);
         $this->assertStringContainsString('Select a Source site', $this->getDisplay());
         $this->assertStringEqualsFile($this->projectDir . '/.acquia-cli.yml', "source_site_id: site-b\n");
     }
 
+    public function testChooserOffersEveryPage(): void
+    {
+        $this->mockSitePages([['site-a', 'site-b'], ['site-c', 'site-d'], ['site-e']]);
+        // The last site, on the third page.
+        $this->executeCommand([], [4]);
+        $display = $this->getDisplay();
+        foreach (['site-a', 'site-b', 'site-c', 'site-d', 'site-e'] as $id) {
+            $this->assertStringContainsString("Site $id", $display);
+        }
+        $this->assertStringEqualsFile($this->projectDir . '/.acquia-cli.yml', "source_site_id: site-e\n");
+    }
+
     public function testNoSitesThrows(): void
     {
-        $this->clientProphecy->request('get', '/source-sites')->willReturn([])->shouldBeCalled();
+        $this->mockSitePages([[]]);
         $this->expectException(AcquiaCliException::class);
         $this->expectExceptionMessage('There are no Source sites to link to.');
         $this->executeCommand();

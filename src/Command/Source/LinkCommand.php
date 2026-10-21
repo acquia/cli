@@ -6,6 +6,7 @@ namespace Acquia\Cli\Command\Source;
 
 use Acquia\Cli\Attribute\RequireAuth;
 use Acquia\Cli\Exception\AcquiaCliException;
+use AcquiaCloudApi\Connector\Client;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -39,16 +40,36 @@ final class LinkCommand extends SourceCommandBase
             if (!$input->isInteractive()) {
                 throw new AcquiaCliException('Pass the Source site ID as the sourceSiteId argument when running non-interactively.');
             }
-            $sites = $client->request('get', '/source-sites');
+            $sites = $this->allSourceSites($client);
             if (!$sites) {
                 throw new AcquiaCliException('There are no Source sites to link to.');
             }
-            // Only the first page of /source-sites; add pagination when a subscription exceeds one page.
             $site = $this->promptChooseFromObjectsOrArrays($sites, 'id', 'label', 'Select a Source site');
         }
         $datastore->set('source_site_id', $site->id);
         $this->io->success("Linked this working copy to Source site $site->label ($site->id) by writing to $datastore->filepath");
 
         return Command::SUCCESS;
+    }
+
+    /**
+     * Every Source site the caller can see, across all pages.
+     *
+     * Client::request() unwraps _embedded.items and drops the pagination
+     * envelope, so the raw response is read for `pagination` and the next
+     * page is fetched by offset until the total is reached.
+     *
+     * @return array<object>
+     */
+    private function allSourceSites(Client $client): array
+    {
+        $sites = [];
+        do {
+            $response = $client->makeRequest('get', '/source-sites?offset=' . count($sites));
+            // processResponse() throws for an error response and returns the items otherwise.
+            $sites = [...$sites, ...$client->processResponse($response)];
+            $pagination = json_decode((string) $response->getBody(), flags: JSON_THROW_ON_ERROR)->pagination;
+        } while (count($sites) < $pagination->total && $pagination->limit > 0);
+        return $sites;
     }
 }
