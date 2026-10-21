@@ -14,7 +14,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 #[RequireAuth]
 #[AsCommand(name: 'source:cms:link', description: 'Associate your working copy with a Source site')]
-final class LinkCommand extends SourceCommandBase
+class LinkCommand extends SourceCommandBase
 {
     protected function configure(): void
     {

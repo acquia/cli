@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace Acquia\Cli\Tests\Application;
 
+use Acquia\Cli\Application;
 use Acquia\Cli\CloudApi\V3ClientService;
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Command\Source\ConfigPullCommand;
 use Acquia\Cli\Command\Source\ConfigPushCommand;
 use Acquia\Cli\Command\Source\LinkCommand;
+use Acquia\Cli\Command\Source\UnlinkCommand;
 use Acquia\Cli\Tests\ApplicationTestBase;
 use PHPUnit\Framework\Attributes\Group;
 use ReflectionProperty;
@@ -37,6 +39,21 @@ class KernelTest extends ApplicationTestBase
         foreach ([LinkCommand::class, ConfigPullCommand::class, ConfigPushCommand::class] as $class) {
             $this->assertInstanceOf(V3ClientService::class, $property->getValue($this->kernel->getContainer()->get($class)));
         }
+    }
+
+    #[Group('serial')]
+    public function testLegacySourceCommandsAreHidden(): void
+    {
+        self::setEnvVars(['ACLI_REPO_ROOT' => $this->projectDir, 'ACLI_VERSION' => 'dev-unknown']);
+        $this->setInput([]);
+        $application = $this->kernel->getContainer()->get(Application::class);
+        foreach (['source:link' => LinkCommand::class, 'source:unlink' => UnlinkCommand::class] as $name => $class) {
+            $command = $application->find($name);
+            $this->assertInstanceOf($class, $command);
+            $this->assertTrue($command->isHidden());
+        }
+        $property = new ReflectionProperty(CommandBase::class, 'cloudApiClientService');
+        $this->assertInstanceOf(V3ClientService::class, $property->getValue($application->find('source:link')));
     }
 
     private function getStart(): string
