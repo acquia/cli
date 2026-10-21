@@ -1,7 +1,10 @@
-uuid: 938751a5-9be6-442d-b4ec-4c54e8825761
+uuid: b9d96bc1-ed38-46e0-a804-692976a3b3bd
 langcode: en
 status: true
 dependencies: {  }
+third_party_settings:
+  language_hierarchy:
+    fallback_langcode: en
 id: nl
 label: Dutch
 direction: ltr
