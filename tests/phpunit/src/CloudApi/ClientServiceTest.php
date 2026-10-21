@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Acquia\Cli\Tests\CloudApi;
 
 use Acquia\Cli\CloudApi\ClientService;
+use Acquia\Cli\CloudApi\CloudApiClient;
 use Acquia\Cli\CloudApi\CloudCredentials;
 use Acquia\Cli\CloudApi\ConnectorFactory;
 use Acquia\Cli\CloudApi\V3ClientService;
@@ -80,5 +81,6 @@ class ClientServiceTest extends TestBase
         ]);
         $v3Service = new V3ClientService($connectorFactory, $this->application, $credentials);
         $this->assertFalse($v3Service->isMachineAuthenticated());
+        $this->assertInstanceOf(CloudApiClient::class, $v3Service->getClient());
     }
 }
