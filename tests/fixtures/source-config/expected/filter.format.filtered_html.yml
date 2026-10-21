@@ -1,0 +1,66 @@
+uuid: 7fa7675c-aade-4ede-a1e0-9b40c99e61c8
+langcode: en
+status: true
+dependencies:
+  config:
+    - core.entity_view_mode.media.large
+    - core.entity_view_mode.media.medium
+    - core.entity_view_mode.media.small
+  module:
+    - editor
+    - linkit
+    - media
+_core:
+  default_config_hash: 70VIfICq9Iu2PsiWuAzN5np2800jt0bme0QEE0ksd9c
+name: 'Filtered HTML'
+format: filtered_html
+weight: -9
+filters:
+  editor_file_reference:
+    id: editor_file_reference
+    provider: editor
+    status: false
+    weight: -50
+    settings: {  }
+  filter_autop:
+    id: filter_autop
+    provider: filter
+    status: true
+    weight: 0
+    settings: {  }
+  filter_html:
+    id: filter_html
+    provider: filter
+    status: true
+    weight: 2
+    settings:
+      allowed_html: '<drupal-media data-embed-code-id data-entity-revision data-entity-type data-entity-uuid alt> <br> <p class="text-align-left text-align-center text-align-right text-align-justify"> <h2 id class="text-align-left text-align-center text-align-right text-align-justify"> <h3 id class="text-align-left text-align-center text-align-right text-align-justify"> <h4 id class="text-align-left text-align-center text-align-right text-align-justify"> <h5 id class="text-align-left text-align-center text-align-right text-align-justify"> <h6 id class="text-align-left text-align-center text-align-right text-align-justify"> <cite> <dl> <dt> <dd> <img data-align data-caption> <a hreflang href data-entity-type data-entity-uuid data-entity-substitution> <blockquote cite> <ul type> <ol type start> <strong> <em> <u> <code> <s> <sub> <sup> <li>'
+      filter_html_help: true
+      filter_html_nofollow: false
+  filter_url:
+    id: filter_url
+    provider: filter
+    status: true
+    weight: 1
+    settings:
+      filter_url_length: 72
+  linkit:
+    id: linkit
+    provider: linkit
+    status: true
+    weight: 0
+    settings:
+      title: true
+  media_embed:
+    id: media_embed
+    provider: media
+    status: true
+    weight: 4
+    settings:
+      default_view_mode: default
+      allowed_view_modes:
+        default: default
+        large: large
+        medium: medium
+        small: small
+      allowed_media_types: {  }

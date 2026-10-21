@@ -1,0 +1,22 @@
+uuid: ed6dd8cb-c7d6-4763-9f12-02da32fb9b7a
+langcode: en
+status: true
+dependencies:
+  module:
+    - acquia_dam
+_core:
+  default_config_hash: 3iJHY6Ws1HA1Y7V7qdUsdvjqtGc0xT33GaPso-z9y0Y
+id: acquia_dam_pdf_asset
+label: 'Acquia DAM: PDF'
+description: 'Media assets type of PDF file in the remote DAM service.'
+source: 'acquia_dam_asset:pdf'
+queue_thumbnail_downloads: true
+new_revision: false
+source_configuration:
+  source_field: acquia_dam_asset_id
+  download_assets: false
+  preserve_filename_case: false
+  uri_scheme: public
+  file_extensions: ''
+field_map:
+  filename: name
