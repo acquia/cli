@@ -155,10 +155,15 @@ class ConfigPushCommandTest extends CommandTestBase
         $this->mockPut();
         $this->mockImport(self::afterPrevious());
         // 45 minutes in production; polls run at 0.1 s and then every 5 s.
-        (new ReflectionProperty(ConfigPushCommand::class, 'importTimeout'))->setValue($this->command, 0.3);
-        $this->expectException(AcquiaCliException::class);
-        $this->expectExceptionMessage('The import was accepted but its outcome is unknown (the site reported no new import before the timeout). Run acli source:cms:config:push --status to see the site\'s latest import before pushing again. The import may still finish, and the status it reports may then be that of a later import.');
-        $this->executeCommand(['--site' => 'site-a', '--yes' => true], [], interactive: false);
+        (new ReflectionProperty(ConfigPushCommand::class, 'importTimeout'))->setValue($this->command, 0.6);
+        try {
+            $this->executeCommand(['--site' => 'site-a', '--yes' => true], [], interactive: false);
+            $this->fail('Expected an exception');
+        } catch (AcquiaCliException $e) {
+            $this->assertSame('The import was accepted but its outcome is unknown (the site reported no new import before the timeout). Run acli source:cms:config:push --status to see the site\'s latest import before pushing again. The import may still finish, and the status it reports may then be that of a later import.', $e->getMessage());
+        }
+        // LoopHelper reports the timeout in minutes: 0.6 s.
+        $this->assertStringContainsString('Timed out after 0.01 minutes!', $this->getDisplay());
     }
 
     public function testRefusedListsViolations(): void
