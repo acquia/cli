@@ -228,6 +228,77 @@ EOD;
         $this->assertEquals(0, $this->getStatusCode());
     }
 
+    public function testTrialCreateTaskWaitWithoutNotificationLink(): void
+    {
+        $this->clientProphecy->addOption('headers', ['Accept' => 'application/hal+json, version=2'])
+            ->shouldBeCalled();
+        $this->clientProphecy->addOption('json', ['site_name' => 'mytrialsite'])
+            ->shouldBeCalled();
+        $this->clientProphecy->addOption('json', ['site_template_id' => 'impact'])
+            ->shouldBeCalled();
+        $this->clientProphecy->addOption('json', ['region' => 'us-west-2'])
+            ->shouldBeCalled();
+        $mockResponseBody = self::getMockResponseFromSpec('/trials', 'post', '202');
+        $this->clientProphecy->request('post', '/trials')
+            ->willReturn($mockResponseBody->{'Trial created'}->value)
+            ->shouldBeCalled();
+        $this->command = $this->getApiCommandByName('api:trials:create');
+        $this->executeCommand([
+            '--task-wait' => true,
+            'region' => 'us-west-2',
+            'site_name' => 'mytrialsite',
+            'site_template_id' => 'impact',
+        ]);
+        $output = $this->getDisplay();
+        $this->assertStringNotContainsString('_links.notification.href', $output);
+        $this->assertStringContainsString('Trial account created. Provisioning is in progress.', $output);
+        $this->assertStringContainsString('Your trial request was accepted', $output);
+        $this->assertStringContainsString('acli api:account:find-trial', $output);
+        $this->assertEquals(0, $this->getStatusCode());
+    }
+
+    public function testTrialRetryTaskWaitWithoutNotificationLink(): void
+    {
+        $trialId = 'a1b2c3d4-e5f6-7890-abcd-ef1234567890';
+        $this->clientProphecy->addOption('headers', ['Accept' => 'application/hal+json, version=2'])
+            ->shouldBeCalled();
+        $this->clientProphecy->addOption('json', new \stdClass())
+            ->shouldBeCalled();
+        $mockResponseBody = self::getMockResponseFromSpec('/trials/{trialId}/actions/retry', 'post', '202');
+        $this->clientProphecy->request('post', "/trials/$trialId/actions/retry")
+            ->willReturn($mockResponseBody->{'Trial retry initiated'}->value)
+            ->shouldBeCalled();
+        $this->command = $this->getApiCommandByName('api:trials:retry');
+        $this->executeCommand([
+            '--task-wait' => true,
+            'trialId' => $trialId,
+        ]);
+        $output = $this->getDisplay();
+        $this->assertStringNotContainsString('_links.notification.href', $output);
+        $this->assertStringContainsString('Trial retry initiated. Provisioning is in progress.', $output);
+        $this->assertStringContainsString('acli api:account:find-trial', $output);
+        $this->assertEquals(0, $this->getStatusCode());
+    }
+
+    public function testTaskWaitStillFailsForOtherCommandsWithoutNotificationLink(): void
+    {
+        $environmentId = '24-a47ac10b-58cc-4372-a567-0e02b2c3d470';
+        $this->clientProphecy->addOption('json', ['branch' => 'my-feature-branch'])->shouldBeCalled();
+        $this->clientProphecy->addOption('headers', ['Accept' => 'application/hal+json, version=2'])
+            ->shouldBeCalled();
+        $this->clientProphecy->request('post', "/environments/$environmentId/code/actions/switch")
+            ->willReturn((object) ['message' => 'Switching code', '_links' => (object) []])
+            ->shouldBeCalled();
+        $this->command = $this->getApiCommandByName('api:environments:code-switch');
+        $this->expectException(AcquiaCliException::class);
+        $this->expectExceptionMessage('JSON object must contain the _links.notification.href property');
+        $this->executeCommand([
+            '--task-wait' => true,
+            'branch' => 'my-feature-branch',
+            'environmentId' => $environmentId,
+        ]);
+    }
+
     /**
      * @throws \AcquiaCloudApi\Exception\ApiErrorException
      * @throws \JsonException
