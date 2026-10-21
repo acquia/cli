@@ -9,6 +9,7 @@ use Acquia\Cli\CloudApi\ClientService;
 use Acquia\Cli\CloudApi\ConnectorFactory;
 use Acquia\Cli\CloudApi\DeviceTokenRefresher;
 use Acquia\Cli\Exception\AcquiaCliException;
+use Acquia\Cli\Helpers\DataStoreContract;
 use Acquia\Cli\Tests\Commands\Ide\IdeHelper;
 use Acquia\Cli\Tests\TestBase;
 use AcquiaCloudApi\Connector\Connector;
@@ -176,7 +177,9 @@ class AccessTokenConnectorTest extends TestBase
                 'secret' => $this->cloudCredentials->getCloudSecret(),
             ]
         );
-        $clientService = new ClientService($connectorFactory, $this->application, $this->cloudCredentials);
+        // The telemetry ID is only sent when the developer opted in.
+        $this->datastoreCloud->set(DataStoreContract::SEND_TELEMETRY, true);
+        $clientService = new ClientService($connectorFactory, $this->application, $this->cloudCredentials, $this->datastoreCloud);
         $client = $clientService->getClient();
         $options = $client->getOptions();
         $this->assertStringStartsWith(
@@ -239,7 +242,9 @@ class AccessTokenConnectorTest extends TestBase
                 'secret' => $this->cloudCredentials->getCloudSecret(),
             ]
         );
-        $clientService = new ClientService($connectorFactory, $this->application, $this->cloudCredentials);
+        // The telemetry ID is only sent when the developer opted in.
+        $this->datastoreCloud->set(DataStoreContract::SEND_TELEMETRY, true);
+        $clientService = new ClientService($connectorFactory, $this->application, $this->cloudCredentials, $this->datastoreCloud);
         $client = $clientService->getClient();
         $options = $client->getOptions();
         $this->assertEquals([

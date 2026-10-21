@@ -180,7 +180,23 @@ class TelemetryHelper
 
     public function telemetryEnabled(): bool
     {
-        return (bool) $this->datastoreCloud->get(DataStoreContract::SEND_TELEMETRY);
+        return self::isTelemetryEnabled($this->datastoreCloud);
+    }
+
+    /**
+     * The single definition of "telemetry is on".
+     *
+     * Static because ClientService needs it for the User-Agent's telemetry ID and
+     * cannot hold a TelemetryHelper — this class depends on ClientService, so
+     * injecting it would be circular. A null datastore means consent is unknown,
+     * which counts as no.
+     */
+    public static function isTelemetryEnabled(?CloudDataStore $datastore): bool
+    {
+        if (getenv('ACLI_NO_TELEMETRY') === 'true') {
+            return false;
+        }
+        return (bool) $datastore?->get(DataStoreContract::SEND_TELEMETRY);
     }
 
     /**
@@ -338,8 +354,8 @@ class TelemetryHelper
             'platformsh' => ['PLATFORM_ENVIRONMENT'],
             'teamcity' => ['TEAMCITY_VERSION'],
             'travis' => ['TRAVIS'],
-            'claude-code' => ['CLAUDE_CODE'],
-            'cursor' => ['CURSOR_TRACE_ID'],
+            'claude-code' => ['CLAUDECODE', 'CLAUDE_CODE_ENTRYPOINT', 'CLAUDE_CODE_SESSION_ID'],
+            'cursor' => ['CURSOR_AGENT', 'CURSOR_TRACE_ID'],
             'copilot' => ['GITHUB_COPILOT_LANGUAGE_SERVER_VERSION'],
         ];
     }

@@ -7,6 +7,7 @@ namespace Acquia\Cli\CloudApi;
 use Acquia\Cli\ApiCredentialsInterface;
 use Acquia\Cli\Application;
 use Acquia\Cli\ConnectorFactoryInterface;
+use Acquia\Cli\DataStore\CloudDataStore;
 use Acquia\Cli\Helpers\TelemetryHelper;
 use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Connector\ConnectorInterface;
@@ -21,6 +22,11 @@ use loophp\phposinfo\OsInfo;
  */
 class ClientService
 {
+    /**
+     * Stands in for the telemetry ID when there isn't one to send.
+     */
+    private const TELEMETRY_ID_NONE = 'null';
+
     protected ConnectorInterface $connector;
 
     protected ConnectorFactoryInterface|ConnectorFactory $connectorFactory;
@@ -29,7 +35,7 @@ class ClientService
 
     protected ?bool $machineIsAuthenticated = null;
 
-    public function __construct(ConnectorFactoryInterface $connectorFactory, Application $application, protected ApiCredentialsInterface $credentials)
+    public function __construct(ConnectorFactoryInterface $connectorFactory, Application $application, protected ApiCredentialsInterface $credentials, protected ?CloudDataStore $datastore = null)
     {
         $this->connectorFactory = $connectorFactory;
         $this->setConnector($connectorFactory->createConnector());
@@ -60,7 +66,9 @@ class ClientService
         $userAgent = sprintf(
             'Acquia CLI (%s, %s%s)',
             $this->application->getVersion(),
-            OsInfo::uuid(),
+            TelemetryHelper::isTelemetryEnabled($this->datastore)
+                ? (OsInfo::uuid() ?: self::TELEMETRY_ID_NONE)
+                : self::TELEMETRY_ID_NONE,
             $provider !== null ? ', ' . $provider : '',
         );
         $customHeaders = [

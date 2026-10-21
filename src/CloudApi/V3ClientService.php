@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Acquia\Cli\CloudApi;
 
 use Acquia\Cli\Application;
+use Acquia\Cli\DataStore\CloudDataStore;
 
 /**
  * Client service for Cloud API v3 (MEO) commands. Shares credentials with the
@@ -13,8 +14,8 @@ use Acquia\Cli\Application;
  */
 class V3ClientService extends ClientService
 {
-    public function __construct(ConnectorFactory $connectorFactory, Application $application, CloudCredentials $credentials)
+    public function __construct(ConnectorFactory $connectorFactory, Application $application, CloudCredentials $credentials, ?CloudDataStore $datastore = null)
     {
-        parent::__construct($connectorFactory, $application, $credentials);
+        parent::__construct($connectorFactory, $application, $credentials, $datastore);
     }
 }
