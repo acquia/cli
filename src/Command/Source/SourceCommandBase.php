@@ -44,7 +44,8 @@ abstract class SourceCommandBase extends CommandBase
      */
     protected static function assertValidSiteId(string $siteId): void
     {
-        if (!preg_match('/^[a-zA-Z0-9-]+$/', $siteId)) {
+        // D: without it, $ also matches before a trailing newline.
+        if (!preg_match('/^[a-zA-Z0-9-]+$/D', $siteId)) {
             throw new AcquiaCliException('"{id}" is not a valid Source site ID: only letters, digits and hyphens are allowed.', ['id' => $siteId]);
         }
     }

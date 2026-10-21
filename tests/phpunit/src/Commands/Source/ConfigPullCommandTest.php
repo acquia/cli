@@ -71,6 +71,14 @@ class ConfigPullCommandTest extends CommandTestBase
         $this->executeCommand(['--site' => 'a/../b']);
     }
 
+    public function testTrailingNewlineInSiteOptionThrowsBeforeRequesting(): void
+    {
+        // Without the D modifier, $ also matches before a final newline.
+        $this->expectException(AcquiaCliException::class);
+        $this->expectExceptionMessage("\"site-a\n\" is not a valid Source site ID: only letters, digits and hyphens are allowed.");
+        $this->executeCommand(['--site' => "site-a\n"]);
+    }
+
     public function testInvalidRecordedSiteThrowsBeforeRequesting(): void
     {
         // .acquia-cli.yml is hand-editable.
