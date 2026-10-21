@@ -65,7 +65,11 @@ final class LinkCommand extends SourceCommandBase
     {
         $sites = [];
         do {
-            $response = $client->makeRequest('get', '/source-sites?offset=' . count($sites));
+            // request() would call modifyOptions() itself; it adds the headers
+            // acli configured (User-Agent, X-Cloud-IDE-UUID).
+            $options = $client->modifyOptions();
+            $options['query']['offset'] = count($sites);
+            $response = $client->makeRequest('get', '/source-sites', $options);
             // processResponse() throws for an error response and returns the items otherwise.
             $sites = [...$sites, ...$client->processResponse($response)];
             $pagination = json_decode((string) $response->getBody(), flags: JSON_THROW_ON_ERROR)->pagination;
