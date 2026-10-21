@@ -11,6 +11,7 @@ use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Tests\CommandTestBase;
 use AcquiaCloudApi\Exception\ApiErrorException;
 use ReflectionProperty;
+use Throwable;
 
 /**
  * @property ConfigPushCommand $command
@@ -31,6 +32,14 @@ class ConfigPushCommandTest extends CommandTestBase
             name: Website
 
         YAML;
+
+    /**
+     * The import that was already on the site before the push. It failed, so a
+     * push that mistakes it for its own would exit 1 instead of 0.
+     */
+    private const PREVIOUS_STARTED_AT = '2026-09-09T10:30:00Z';
+
+    private const STARTED_AT = '2026-10-21T09:00:00Z';
 
     private string $configDir;
 
@@ -53,36 +62,96 @@ class ConfigPushCommandTest extends CommandTestBase
     }
 
     /**
-     * @param array<object> $imports
+     * @param array<object|\Throwable> $responses One per GET of the import resource
+     *   in order; the last one repeats. A push GETs it once before the PUT, then
+     *   on every poll.
      */
-    private function mockImport(array $imports): void
+    private function mockImport(array $responses): void
     {
         $this->clientProphecy->request('get', '/source-sites/site-a/config/import')
-            ->willReturn(...$imports)
+            ->will(static function () use (&$responses): object {
+                $response = count($responses) > 1 ? array_shift($responses) : $responses[0];
+                if ($response instanceof Throwable) {
+                    throw $response;
+                }
+                return $response;
+            })
             ->shouldBeCalled();
+    }
+
+    /**
+     * @param array<string, mixed> $extra
+     */
+    private static function import(string $status, string $startedAt = self::STARTED_AT, array $extra = []): object
+    {
+        return (object) ($extra + ['status' => $status, 'started_at' => $startedAt]);
+    }
+
+    /**
+     * The push's own import, preceded by the site's previous (failed) one.
+     *
+     * @return array<object>
+     */
+    private static function afterPrevious(object ...$imports): array
+    {
+        return [self::import('failed', self::PREVIOUS_STARTED_AT), ...$imports];
     }
 
     public function testSucceeds(): void
     {
         $this->mockPut();
-        $this->mockImport([(object) ['status' => 'running'], (object) ['status' => 'succeeded']]);
+        $this->mockImport(self::afterPrevious(self::import('running'), self::import('succeeded')));
         $this->executeCommand(['--site' => 'site-a', '--yes' => true], [], interactive: false);
         $this->assertSame(0, $this->getStatusCode());
         $this->assertStringContainsString('Imported .acquia/config into Source site site-a.', $this->getDisplay());
     }
 
+    public function testIgnoresPreviousImportUntilOwnStarts(): void
+    {
+        $this->mockPut();
+        // The first poll still sees the previous import: the service has not
+        // created this push's record yet.
+        $this->mockImport(self::afterPrevious(self::import('failed', self::PREVIOUS_STARTED_AT), self::import('succeeded')));
+        $this->executeCommand(['--site' => 'site-a', '--yes' => true], [], interactive: false);
+        $this->assertSame(0, $this->getStatusCode());
+        $this->assertStringContainsString('Imported .acquia/config into Source site site-a.', $this->getDisplay());
+        $this->assertStringNotContainsString('failed', $this->getDisplay());
+    }
+
+    public function testFirstEverImport(): void
+    {
+        $this->mockPut();
+        $this->mockImport([
+            new ApiErrorException((object) ['error' => 'not_found', 'message' => 'No import yet.']),
+            self::import('running'),
+            self::import('succeeded'),
+        ]);
+        $this->executeCommand(['--site' => 'site-a', '--yes' => true], [], interactive: false);
+        $this->assertSame(0, $this->getStatusCode());
+        $this->assertStringContainsString('Imported .acquia/config into Source site site-a.', $this->getDisplay());
+    }
+
+    public function testNoNewImportBeforeTimeoutThrows(): void
+    {
+        $this->mockPut();
+        $this->mockImport(self::afterPrevious());
+        // 45 minutes in production; polls run at 0.1 s and then every 5 s.
+        (new ReflectionProperty(ConfigPushCommand::class, 'importTimeout'))->setValue($this->command, 0.3);
+        $this->expectException(AcquiaCliException::class);
+        $this->expectExceptionMessage('The import was accepted but its outcome is unknown (the site reported no new import before the timeout). Run acli source:cms:config:push --status to see the site\'s latest import before pushing again. The import may still finish, and the status it reports may then be that of a later import.');
+        $this->executeCommand(['--site' => 'site-a', '--yes' => true], [], interactive: false);
+    }
+
     public function testRefusedListsViolations(): void
     {
         $this->mockPut();
-        $this->mockImport([(object) [
-            'status' => 'refused',
+        $this->mockImport(self::afterPrevious(self::import('refused', extra: [
             'violations' => [
                 (object) ['code' => 'not_allowed', 'collection' => 'language.nl', 'config' => 'system.site', 'message' => 'Not in the allow list.'],
                 (object) ['code' => 'missing', 'config' => 'system.site', 'message' => 'Required.'],
                 (object) ['code' => 'site_uuid_mismatch', 'message' => 'The configuration was exported from site 7c1f0a94-5d3b-4e18-9a62-0b8d4c5e6f70, not from this site.'],
             ],
-        ],
-        ]);
+        ])));
         $this->executeCommand(['--site' => 'site-a'], ['y']);
         $this->assertSame(1, $this->getStatusCode());
         $display = $this->getDisplay();
@@ -95,8 +164,8 @@ class ConfigPushCommandTest extends CommandTestBase
     public function testJsonOutput(): void
     {
         $this->mockPut();
-        $import = (object) ['status' => 'refused', 'violations' => [(object) ['code' => 'too_large', 'message' => 'Too large.']]];
-        $this->mockImport([$import]);
+        $import = self::import('refused', extra: ['violations' => [(object) ['code' => 'too_large', 'message' => 'Too large.']]]);
+        $this->mockImport(self::afterPrevious($import));
         $this->executeCommand(['--site' => 'site-a', '--yes' => true, '--format' => 'json']);
         $this->assertSame(1, $this->getStatusCode());
         $this->assertSame(json_encode($import, JSON_PRETTY_PRINT) . "\n", $this->getDisplay());
@@ -105,7 +174,7 @@ class ConfigPushCommandTest extends CommandTestBase
     public function testFailed(): void
     {
         $this->mockPut();
-        $this->mockImport([(object) ['status' => 'failed']]);
+        $this->mockImport(self::afterPrevious(self::import('failed')));
         $this->executeCommand(['--site' => 'site-a', '--yes' => true]);
         $this->assertSame(1, $this->getStatusCode());
         // The error block wraps, so assert the two halves separately.
@@ -116,9 +185,9 @@ class ConfigPushCommandTest extends CommandTestBase
     public function testUnknownStatusThrows(): void
     {
         $this->mockPut();
-        $this->mockImport([(object) ['status' => 'weird']]);
+        $this->mockImport(self::afterPrevious(self::import('weird')));
         $this->expectException(AcquiaCliException::class);
-        $this->expectExceptionMessage('The import was accepted but its outcome is unknown (status weird). Check the site before pushing again. The import may still finish, and the status it reports may then be that of a later import.');
+        $this->expectExceptionMessage('The import was accepted but its outcome is unknown (status weird). Run acli source:cms:config:push --status to see the site\'s latest import before pushing again. The import may still finish, and the status it reports may then be that of a later import.');
         $this->executeCommand(['--site' => 'site-a', '--yes' => true]);
     }
 
@@ -191,6 +260,7 @@ class ConfigPushCommandTest extends CommandTestBase
 
     public function testConflictThrows(): void
     {
+        $this->mockImport(self::afterPrevious());
         $this->clientProphecy->request('put', '/source-sites/site-a/config', ['json' => ['source' => 'request', 'configuration' => self::DOCUMENT]])
             ->willThrow(new ApiErrorException((object) ['error' => 'conflict', 'message' => 'A sync is in progress.']));
         $this->expectException(AcquiaCliException::class);
@@ -200,6 +270,7 @@ class ConfigPushCommandTest extends CommandTestBase
 
     public function testOtherApiErrorPropagates(): void
     {
+        $this->mockImport(self::afterPrevious());
         $this->clientProphecy->request('put', '/source-sites/site-a/config', ['json' => ['source' => 'request', 'configuration' => self::DOCUMENT]])
             ->willThrow(new ApiErrorException((object) ['error' => 'validation_failed', 'message' => (object) ['configuration' => 'Too large.']]));
         $this->expectException(ApiErrorException::class);
@@ -218,11 +289,9 @@ class ConfigPushCommandTest extends CommandTestBase
     public function testPollErrorThrows(): void
     {
         $this->mockPut();
-        $this->clientProphecy->request('get', '/source-sites/site-a/config/import')
-            ->willThrow(new ApiErrorException((object) ['error' => 'not_found', 'message' => 'No import yet.']))
-            ->shouldBeCalled();
+        $this->mockImport(self::afterPrevious(new ApiErrorException((object) ['error' => 'internal_error', 'message' => 'Boom.'])));
         $this->expectException(AcquiaCliException::class);
-        $this->expectExceptionMessage('The import was accepted but its outcome is unknown (No import yet.). Check the site before pushing again. The import may still finish, and the status it reports may then be that of a later import.');
+        $this->expectExceptionMessage('The import was accepted but its outcome is unknown (Boom.). Run acli source:cms:config:push --status to see the site\'s latest import before pushing again. The import may still finish, and the status it reports may then be that of a later import.');
         $this->executeCommand(['--site' => 'site-a', '--yes' => true]);
     }
 
