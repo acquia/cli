@@ -163,7 +163,7 @@ class ApiBaseCommand extends CommandBase
             $this->output->writeln($contents);
             return $exitCode;
         }
-        if (in_array($this->getName(), ['api:trials:create', 'api:trials:retry'], true) && !self::hasNotificationLink($response)) {
+        if (in_array($this->getName(), ['api:trials:create', 'api:trials:retry'], true) && !isset($response->_links->notification->href)) {
             // Trial requests are accepted without a task to track.
             $this->output->writeln(json_encode($response, JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT));
             $this->io->warning('Your trial request was accepted, but there is no task to wait for. Run `acli api:account:find-trial` to check its progress.');
@@ -172,15 +172,6 @@ class ApiBaseCommand extends CommandBase
         $notificationUuid = CommandBase::getNotificationUuidFromResponse($response);
         $success = $this->waitForNotificationToComplete($this->cloudApiClientService->getClient(), $notificationUuid, "Waiting for task $notificationUuid to complete");
         return $success ? Command::SUCCESS : Command::FAILURE;
-    }
-
-    private static function hasNotificationLink(mixed $response): bool
-    {
-        if (!is_object($response)) {
-            return false;
-        }
-        $links = $response->_links ?? $response->links ?? null;
-        return is_object($links) && isset($links->notification->href);
     }
 
     private function mungeResponse(mixed &$response): void

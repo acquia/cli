@@ -251,7 +251,7 @@ EOD;
         ]);
         $output = $this->getDisplay();
         $this->assertStringNotContainsString('_links.notification.href', $output);
-        $this->assertStringContainsString('Trial account created. Provisioning is in progress.', $output);
+        $this->assertStringContainsStringIgnoringLineEndings("{\n    \"message\": \"Trial account created. Provisioning is in progress.\"", $output);
         $this->assertStringContainsString('Your trial request was accepted', $output);
         $this->assertStringContainsString('acli api:account:find-trial', $output);
         $this->assertEquals(0, $this->getStatusCode());
@@ -275,7 +275,7 @@ EOD;
         ]);
         $output = $this->getDisplay();
         $this->assertStringNotContainsString('_links.notification.href', $output);
-        $this->assertStringContainsString('Trial retry initiated. Provisioning is in progress.', $output);
+        $this->assertStringContainsStringIgnoringLineEndings("{\n    \"message\": \"Trial retry initiated. Provisioning is in progress.\"", $output);
         $this->assertStringContainsString('acli api:account:find-trial', $output);
         $this->assertEquals(0, $this->getStatusCode());
     }
