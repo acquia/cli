@@ -37,9 +37,9 @@ class ConfigPushCommandTest extends CommandTestBase
      * The import that was already on the site before the push. It failed, so a
      * push that mistakes it for its own would exit 1 instead of 0.
      */
-    private const PREVIOUS_STARTED_AT = '2026-09-09T10:30:00Z';
+    private const PREVIOUS_ID = 'i-previous';
 
-    private const STARTED_AT = '2026-10-21T09:00:00Z';
+    private const ID = 'i-this-push';
 
     private string $configDir;
 
@@ -82,9 +82,9 @@ class ConfigPushCommandTest extends CommandTestBase
     /**
      * @param array<string, mixed> $extra
      */
-    private static function import(string $status, string $startedAt = self::STARTED_AT, array $extra = []): object
+    private static function import(string $status, string $id = self::ID, array $extra = []): object
     {
-        return (object) ($extra + ['status' => $status, 'started_at' => $startedAt]);
+        return (object) ($extra + ['id' => $id, 'status' => $status]);
     }
 
     /**
@@ -94,7 +94,7 @@ class ConfigPushCommandTest extends CommandTestBase
      */
     private static function afterPrevious(object ...$imports): array
     {
-        return [self::import('failed', self::PREVIOUS_STARTED_AT), ...$imports];
+        return [self::import('failed', self::PREVIOUS_ID), ...$imports];
     }
 
     public function testSucceeds(): void
@@ -111,24 +111,43 @@ class ConfigPushCommandTest extends CommandTestBase
         $this->mockPut();
         // The first poll still sees the previous import: the service has not
         // created this push's record yet.
-        $this->mockImport(self::afterPrevious(self::import('failed', self::PREVIOUS_STARTED_AT), self::import('succeeded')));
+        $this->mockImport(self::afterPrevious(self::import('failed', self::PREVIOUS_ID), self::import('succeeded')));
         $this->executeCommand(['--site' => 'site-a', '--yes' => true], [], interactive: false);
         $this->assertSame(0, $this->getStatusCode());
         $this->assertStringContainsString('Imported .acquia/config into Source site site-a.', $this->getDisplay());
         $this->assertStringNotContainsString('failed', $this->getDisplay());
     }
 
-    public function testFirstEverImport(): void
+    public function testImportsAreToldApartByIdNotStartedAt(): void
     {
         $this->mockPut();
+        $startedAt = ['started_at' => '2026-10-21T09:00:00Z'];
         $this->mockImport([
-            new ApiErrorException((object) ['error' => 'not_found', 'message' => 'No import yet.']),
-            self::import('running'),
-            self::import('succeeded'),
+            self::import('failed', self::PREVIOUS_ID, $startedAt),
+            self::import('succeeded', self::ID, $startedAt),
         ]);
         $this->executeCommand(['--site' => 'site-a', '--yes' => true], [], interactive: false);
         $this->assertSame(0, $this->getStatusCode());
         $this->assertStringContainsString('Imported .acquia/config into Source site site-a.', $this->getDisplay());
+    }
+
+    public function testFirstEverImport(): void
+    {
+        $this->mockPut();
+        $notFound = new ApiErrorException((object) ['error' => 'not_found', 'message' => 'No import yet.']);
+        // No record before the PUT, and still none at the first poll.
+        $this->mockImport([$notFound, $notFound, self::import('succeeded')]);
+        $this->executeCommand(['--site' => 'site-a', '--yes' => true], [], interactive: false);
+        $this->assertSame(0, $this->getStatusCode());
+        $this->assertStringContainsString('Imported .acquia/config into Source site site-a.', $this->getDisplay());
+    }
+
+    public function testErrorBeforePutPropagatesWithoutPushing(): void
+    {
+        $this->mockImport([new ApiErrorException((object) ['error' => 'internal_error', 'message' => 'Boom.'])]);
+        $this->expectException(ApiErrorException::class);
+        $this->expectExceptionMessage('Boom.');
+        $this->executeCommand(['--site' => 'site-a', '--yes' => true], [], interactive: false);
     }
 
     public function testNoNewImportBeforeTimeoutThrows(): void

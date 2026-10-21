@@ -73,7 +73,7 @@ final class ConfigPushCommand extends ConfigCommandBase
         // GET .../config/import is always the site's *latest* import, and the
         // service may not have created this push's record by the first poll.
         // Remember the previous one so that the polls can skip past it.
-        $previousStartedAt = $this->latestImportStartedAt($client, $siteId);
+        $previousImportId = $this->latestImportId($client, $siteId);
         try {
             $client->request('put', "/source-sites/$siteId/config", ['json' => ['source' => 'request', 'configuration' => $document]]);
         } catch (ApiErrorException $e) {
@@ -89,7 +89,7 @@ final class ConfigPushCommand extends ConfigCommandBase
             $this->output = new NullOutput();
             $this->io = new SymfonyStyle($input, $this->output);
         }
-        $import = $this->waitForImport($client, $siteId, $previousStartedAt);
+        $import = $this->waitForImport($client, $siteId, $previousImportId);
         return $this->reportResult($input, $output, $json, $import, fn (object $import): int => $this->reportImport($siteId, $import));
     }
 
@@ -112,12 +112,12 @@ final class ConfigPushCommand extends ConfigCommandBase
     }
 
     /**
-     * When the site's latest import started, or NULL if it has never imported.
+     * The ID of the site's latest import, or NULL if it has never imported.
      */
-    private function latestImportStartedAt(Client $client, string $siteId): ?string
+    private function latestImportId(Client $client, string $siteId): ?string
     {
         try {
-            return $client->request('get', "/source-sites/$siteId/config/import")->started_at;
+            return $client->request('get', "/source-sites/$siteId/config/import")->id;
         } catch (ApiErrorException $e) {
             if ($e->getResponseBody()->error === 'not_found') {
                 return null;
@@ -127,25 +127,29 @@ final class ConfigPushCommand extends ConfigCommandBase
     }
 
     /**
-     * Polls the site's latest import until a new one has started and is no longer running.
+     * Polls the site's latest import until a new one exists and is no longer running.
      */
-    private function waitForImport(Client $client, string $siteId, ?string $previousStartedAt): object
+    private function waitForImport(Client $client, string $siteId, ?string $previousImportId): object
     {
         $import = null;
         $error = null;
-        $poll = static function () use ($client, $siteId, $previousStartedAt, &$import, &$error): bool {
+        $poll = static function () use ($client, $siteId, $previousImportId, &$import, &$error): bool {
             try {
                 $latest = $client->request('get', "/source-sites/$siteId/config/import");
-                if ($latest->started_at === $previousStartedAt) {
+            } catch (Throwable $e) {
+                // A site's first import may not have a record yet: keep polling.
+                if ($e instanceof ApiErrorException && $e->getResponseBody()->error === 'not_found') {
                     return false;
                 }
-                $import = $latest;
-                return $import->status !== 'running';
-            } catch (Throwable $e) {
                 // An exception escaping the loop would leave its timers behind.
                 $error = $e;
                 return true;
             }
+            if ($latest->id === $previousImportId) {
+                return false;
+            }
+            $import = $latest;
+            return $import->status !== 'running';
         };
         // getLoopy() requires a done callback; the outcome is read from $import
         // and $error above once it returns, so there is nothing to do here.
