@@ -6,13 +6,18 @@ Both were produced by the site itself (Drupal core's YAML encoder and
 `FileStorage`), not by Acquia CLI, so the tests prove byte-for-byte fidelity
 in both directions.
 
-To regenerate from a haas-drupal DDEV checkout: a fresh `standard` install,
-Dutch added, and two `language.nl` overrides so that `language/nl/` is
-exercised. The expected tree is written by core's `FileStorage` so that the
-layout is never reimplemented here.
+To regenerate from a haas-drupal DDEV checkout at the tag named below (the
+export depends on haas-drupal's `source:config:dump` rules, so a different
+version produces a different fixture): a fresh `standard` install, Dutch added,
+and two `language.nl` overrides so that `language/nl/` is exercised. The
+expected tree is written by core's `FileStorage` so that the layout is never
+reimplemented here.
 
 ```shell
 cd ~/Work/haas-drupal
+git fetch --tags
+git checkout 3.27.4                        # the haas-drupal version this fixture was generated with
+ddev composer install
 ddev si                                    # fresh install, standard recipe
 ddev drush language:add nl -y
 ddev drush php:eval '$o = \Drupal::service("language.config_factory_override"); $o->getOverride("nl", "system.site")->set("name", "Mijn site")->set("slogan", "Een slogan")->save(); $o->getOverride("nl", "node.type.article")->set("name", "Artikel")->set("description", "Een artikel")->save();'
