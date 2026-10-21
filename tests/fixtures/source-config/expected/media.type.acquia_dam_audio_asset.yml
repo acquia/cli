@@ -1,0 +1,20 @@
+uuid: facbc4ff-d287-4146-9b1d-1bf2ce7c2df0
+langcode: en
+status: true
+dependencies:
+  module:
+    - acquia_dam
+id: acquia_dam_audio_asset
+label: 'Acquia DAM: Audio'
+description: 'Media assets type of sound clips in the remote DAM service.'
+source: 'acquia_dam_asset:audio'
+queue_thumbnail_downloads: false
+new_revision: false
+source_configuration:
+  source_field: acquia_dam_asset_id
+  download_assets: false
+  preserve_filename_case: false
+  uri_scheme: public
+  file_extensions: 'mp3 ogg wav'
+field_map:
+  filename: name

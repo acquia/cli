@@ -1,0 +1,24 @@
+uuid: 05d4ad42-d287-47a9-b5a1-bbbd8e06ae5d
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.bio
+    - node.type.person
+  module:
+    - text
+_core:
+  default_config_hash: 7l84MnU9HwIC5EsqNNiorKGAnoeIYpfZmu8NRuPu9bc
+id: node.person.bio
+field_name: bio
+entity_type: node
+bundle: person
+label: Bio
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  allowed_formats: {  }
+field_type: text_long
