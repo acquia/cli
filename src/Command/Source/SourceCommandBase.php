@@ -12,10 +12,11 @@ use Acquia\Cli\Helpers\LocalMachineHelper;
 /**
  * Base class for commands that operate on a Source working copy.
  *
- * A working copy is the directory holding .acquia/config (usually a git
- * repository); it has no docroot, so the project directory acli infers for
- * Drupal projects does not apply. The commands may run from any directory
- * inside the working copy, including from inside .acquia/config itself.
+ * A working copy is the directory holding .acquia/config, or before the first
+ * pull the one whose .acquia-cli.yml records a Source site (usually a git
+ * repository, but it need not be); it has no docroot, so the project directory
+ * acli infers for Drupal projects does not apply. The commands may run from any directory inside the
+ * working copy, including from inside .acquia/config itself.
  */
 abstract class SourceCommandBase extends CommandBase
 {

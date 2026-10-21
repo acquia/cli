@@ -64,6 +64,30 @@ class ConfigPullCommandTest extends CommandTestBase
         $this->assertFileExists($this->configDir . '/system.site.yml');
     }
 
+    public function testFindsLinkedRootFromSubdirectoryBeforeFirstPull(): void
+    {
+        // Linked at the root, nothing pulled yet, run from a subdirectory.
+        file_put_contents($this->projectDir . '/.acquia-cli.yml', "source_site_id: site-r\n");
+        $this->fs->mkdir($this->projectDir . '/sub');
+        (new ReflectionProperty(SourceCommandBase::class, 'cwd'))->setValue($this->command, $this->projectDir . '/sub');
+        $this->mockConfig('site-r');
+        $this->executeCommand();
+        $this->assertFileExists($this->configDir . '/system.site.yml');
+        $this->assertDirectoryDoesNotExist($this->projectDir . '/sub/.acquia');
+    }
+
+    public function testIgnoresAppLinkConfigAboveWhenNothingPulledYet(): void
+    {
+        // The fixture's <root>/.acquia-cli.yml is app:link's (no source_site_id):
+        // it must not make <root> the working copy of a pull run from a
+        // subdirectory, which is then its own, unlinked working copy.
+        $this->fs->mkdir($this->projectDir . '/sub');
+        (new ReflectionProperty(SourceCommandBase::class, 'cwd'))->setValue($this->command, $this->projectDir . '/sub');
+        $this->expectException(AcquiaCliException::class);
+        $this->expectExceptionMessage('Could not determine the Source site.');
+        $this->executeCommand();
+    }
+
     public function testSiteOptionWinsOverRecordedSite(): void
     {
         file_put_contents($this->projectDir . '/.acquia-cli.yml', "source_site_id: site-r\n");
