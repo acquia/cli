@@ -89,7 +89,7 @@ class ConfigPullCommandTest extends CommandTestBase
     public function testNoSiteThrows(): void
     {
         $this->expectException(AcquiaCliException::class);
-        $this->expectExceptionMessage('Could not determine the Source site. Pass --site=<sourceSiteId> or run acli source:link first.');
+        $this->expectExceptionMessage('Could not determine the Source site. Pass --site=<sourceSiteId> or run acli source:cms:link first.');
         $this->executeCommand();
     }
 
