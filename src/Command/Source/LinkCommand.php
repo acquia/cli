@@ -13,7 +13,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 #[RequireAuth]
-#[AsCommand(name: 'source:link', description: 'Associate your working copy with a Source site')]
+#[AsCommand(name: 'source:cms:link', description: 'Associate your working copy with a Source site')]
 final class LinkCommand extends SourceCommandBase
 {
     protected function configure(): void
@@ -33,7 +33,7 @@ final class LinkCommand extends SourceCommandBase
             $site = $client->request('get', "/source-sites/$siteId");
         } else {
             if ($linked = $datastore->get('source_site_id')) {
-                $output->writeln("This working copy is already linked to Source site <options=bold>$linked</>. Run <options=bold>acli source:link <sourceSiteId></> to link it to another site.");
+                $output->writeln("This working copy is already linked to Source site <options=bold>$linked</>. Run <options=bold>acli source:cms:link <sourceSiteId></> to link it to another site.");
                 return 1;
             }
             if (!$input->isInteractive()) {

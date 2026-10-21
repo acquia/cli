@@ -10,7 +10,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-#[AsCommand(name: 'source:unlink', description: "Remove the working copy's association with its Source site")]
+#[AsCommand(name: 'source:cms:unlink', description: "Remove the working copy's association with its Source site")]
 final class UnlinkCommand extends SourceCommandBase
 {
     protected function execute(InputInterface $input, OutputInterface $output): int

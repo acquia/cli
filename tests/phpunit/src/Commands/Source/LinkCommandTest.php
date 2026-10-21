@@ -71,7 +71,7 @@ class LinkCommandTest extends CommandTestBase
         file_put_contents($this->projectDir . '/.acquia-cli.yml', "source_site_id: site-a\n");
         $this->executeCommand();
         $this->assertSame(1, $this->getStatusCode());
-        $this->assertStringContainsString('already linked to Source site site-a. Run acli source:link <sourceSiteId> to link it to another site.', $this->getDisplay());
+        $this->assertStringContainsString('already linked to Source site site-a. Run acli source:cms:link <sourceSiteId> to link it to another site.', $this->getDisplay());
     }
 
     public function testNonInteractiveWithoutArgumentThrows(): void

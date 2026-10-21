@@ -16,7 +16,7 @@ abstract class ConfigCommandBase extends SourceCommandBase
     protected function configure(): void
     {
         $this
-            ->addOption('site', null, InputOption::VALUE_REQUIRED, 'The Source site ID (defaults to the one recorded by acli source:link)')
+            ->addOption('site', null, InputOption::VALUE_REQUIRED, 'The Source site ID (defaults to the one recorded by acli source:cms:link)')
             ->addOption('format', null, InputOption::VALUE_REQUIRED, 'The output format (txt or json)', 'txt');
     }
 
@@ -41,7 +41,7 @@ abstract class ConfigCommandBase extends SourceCommandBase
     {
         $siteId = $this->input->getOption('site') ?? $this->sourceDatastore($workingCopyDir)->get('source_site_id');
         if (!$siteId) {
-            throw new AcquiaCliException('Could not determine the Source site. Pass --site=<sourceSiteId> or run acli source:link first.');
+            throw new AcquiaCliException('Could not determine the Source site. Pass --site=<sourceSiteId> or run acli source:cms:link first.');
         }
         return $siteId;
     }
