@@ -540,6 +540,64 @@ abstract class PullCommandBase extends CommandBase
         $this->rsyncFiles($sourceDir, $destinationDir, $outputCallback);
     }
 
+    protected function pullFilesArchive(InputInterface $input, OutputInterface $output, EnvironmentResponse $sourceEnvironment): void
+    {
+        $this->checklist->addItem('Copying Drupal\'s public files from the Cloud Platform');
+        $site = $this->determineSite($sourceEnvironment, $input);
+        $this->downloadFilesArchiveFromCloud($sourceEnvironment, $this->getOutputCallback($output, $this->checklist), $site);
+        $this->checklist->completePreviousItem();
+    }
+
+    /**
+     * Download the environment's files directory as a gzipped tarball streamed
+     * over SSH and extract it into the local files directory.
+     *
+     * Unlike rsync, this requires no rsync binary on the local machine (only
+     * ssh and tar) and involves a single, fixed remote command.
+     *
+     * @throws \Acquia\Cli\Exception\AcquiaCliException
+     */
+    private function downloadFilesArchiveFromCloud(EnvironmentResponse $chosenEnvironment, Closure $outputCallback, string $site): void
+    {
+        $sourceDir = $this->getCloudFilesDir($chosenEnvironment, $site);
+        $destinationDir = $this->getLocalFilesDir($site);
+        $this->localMachineHelper->checkRequiredBinariesExist(['ssh', 'tar']);
+        $this->localMachineHelper->getFilesystem()->mkdir($destinationDir);
+
+        $tarballPath = tempnam(sys_get_temp_dir(), 'acli-files-');
+        if ($tarballPath === false) {
+            throw new AcquiaCliException('Unable to create a temporary file for the downloaded archive.');
+        }
+
+        // The remote tar streams the archive to stdout and the redirect writes
+        // it locally, so the process exit code is the remote command's.
+        $command = 'ssh -o StrictHostKeyChecking=accept-new "${:SSH_URL}" "${:REMOTE_COMMAND}" > "${:TARBALL_PATH}"';
+        $env = [
+            'REMOTE_COMMAND' => "tar -C $sourceDir -czf - .",
+            'SSH_URL' => $chosenEnvironment->sshUrl,
+            'TARBALL_PATH' => $tarballPath,
+        ];
+        try {
+            $process = $this->localMachineHelper->executeFromCmd($command, $outputCallback, null, false, null, $env);
+            if (!$process->isSuccessful()) {
+                throw new AcquiaCliException('Unable to download files. {message}', ['message' => $process->getErrorOutput()]);
+            }
+
+            $process = $this->localMachineHelper->execute([
+                'tar',
+                '-xzf',
+                $tarballPath,
+                '-C',
+                $destinationDir,
+            ], $outputCallback, null, false);
+            if (!$process->isSuccessful()) {
+                throw new AcquiaCliException('Unable to extract files. {message}', ['message' => $process->getErrorOutput()]);
+            }
+        } finally {
+            $this->localMachineHelper->getFilesystem()->remove($tarballPath);
+        }
+    }
+
     protected function determineCloneProject(OutputInterface $output): bool
     {
         $finder = $this->localMachineHelper->getFinder()
