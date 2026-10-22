@@ -337,16 +337,13 @@ class LocalMachineHelper
         if ($dir = self::findDirectoryContainingFiles($cwd, ['.acquia/config'])) {
             return $dir;
         }
-        $dir = $cwd;
-        while ($dir = self::findDirectoryContainingFiles($dir, ['.acquia-cli.yml'])) {
+        // Each pass finds the nearest .acquia-cli.yml; one without a source site
+        // ID is app:link's, for a Cloud application, so the next pass starts
+        // above it. The filesystem root, where dirname() stops climbing, ends it.
+        for ($dir = $cwd; ($dir = self::findDirectoryContainingFiles($dir, ['.acquia-cli.yml'])) && dirname($dir) !== $dir; $dir = dirname($dir)) {
             if (isset(Yaml::parseFile(Path::join($dir, '.acquia-cli.yml'))['source_site_id'])) {
                 return $dir;
             }
-            // app:link's file, for a Cloud application: keep looking above it.
-            if (dirname($dir) === $dir) {
-                break;
-            }
-            $dir = dirname($dir);
         }
         return $cwd;
     }
