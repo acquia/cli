@@ -8,10 +8,15 @@ use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Command\Source\ConfigPullCommand;
 use Acquia\Cli\Command\Source\SourceCommandBase;
 use Acquia\Cli\Exception\AcquiaCliException;
+use Acquia\Cli\Helpers\LocalMachineHelper;
 use Acquia\Cli\Tests\CommandTestBase;
 use org\bovigo\vfs\vfsStream;
 use ReflectionProperty;
+use Symfony\Component\Console\Input\ArrayInput;
+use Symfony\Component\Console\Logger\ConsoleLogger;
+use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Exception\IOException;
+use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * @property ConfigPullCommand $command
@@ -102,6 +107,30 @@ class ConfigPullCommandTest extends CommandTestBase
         $this->assertDirectoryDoesNotExist($this->projectDir . '/.acquia');
     }
 
+    public function testInvalidSiteOptionThrowsBeforeRequesting(): void
+    {
+        $this->expectException(AcquiaCliException::class);
+        $this->expectExceptionMessage('"a/../b" is not a valid Source site ID: only letters, digits and hyphens are allowed.');
+        $this->executeCommand(['--site' => 'a/../b']);
+    }
+
+    public function testTrailingNewlineInSiteOptionThrowsBeforeRequesting(): void
+    {
+        // Without the D modifier, $ also matches before a final newline.
+        $this->expectException(AcquiaCliException::class);
+        $this->expectExceptionMessage("\"site-a\n\" is not a valid Source site ID: only letters, digits and hyphens are allowed.");
+        $this->executeCommand(['--site' => "site-a\n"]);
+    }
+
+    public function testInvalidRecordedSiteThrowsBeforeRequesting(): void
+    {
+        // .acquia-cli.yml is hand-editable.
+        file_put_contents($this->projectDir . '/.acquia-cli.yml', "source_site_id: 'a/../b'\n");
+        $this->expectException(AcquiaCliException::class);
+        $this->expectExceptionMessage('"a/../b" is not a valid Source site ID: only letters, digits and hyphens are allowed.');
+        $this->executeCommand();
+    }
+
     public function testSiteOptionWinsOverRecordedSite(): void
     {
         file_put_contents($this->projectDir . '/.acquia-cli.yml', "source_site_id: site-r\n");
@@ -174,5 +203,52 @@ class ConfigPullCommandTest extends CommandTestBase
         vfsStream::setQuota(-1);
         $this->assertStringEqualsFile($this->configDir . '/system.site.yml', "name: Old\n");
         $this->assertDirectoryDoesNotExist($this->configDir . '.tmp');
+    }
+
+    public function testSwapFailureRestoresExistingConfig(): void
+    {
+        $this->fs->dumpFile($this->configDir . '/system.site.yml', "name: Old\n");
+        $this->mockConfig('site-a');
+        // The swap is two renames: .acquia/config → .old, then .tmp → config.
+        // Fail the second one, after the old directory has been moved aside.
+        // (dumpFile() renames too, per file, so key on the swap's target; and
+        // the rollback renames to the same target, so fail only once.)
+        $configDir = $this->configDir;
+        $filesystem = new class ($configDir) extends Filesystem {
+            private bool $failed = false;
+
+            public function __construct(private readonly string $configDir)
+            {
+            }
+
+            public function rename(string $origin, string $target, bool $overwrite = false): void
+            {
+                if ($target === $this->configDir && !$this->failed) {
+                    $this->failed = true;
+                    throw new IOException('Simulated rename failure');
+                }
+                parent::rename($origin, $target, $overwrite);
+            }
+        };
+        $this->command->localMachineHelper = new class ($this->input, $this->output, $this->logger, $filesystem) extends LocalMachineHelper {
+            public function __construct(ArrayInput $input, OutputInterface $output, ConsoleLogger $logger, private readonly Filesystem $filesystem)
+            {
+                parent::__construct($input, $output, $logger);
+            }
+
+            public function getFilesystem(): Filesystem
+            {
+                return $this->filesystem;
+            }
+        };
+        try {
+            $this->executeCommand(['--site' => 'site-a']);
+            $this->fail('Expected an exception');
+        } catch (IOException $e) {
+            $this->assertSame('Simulated rename failure', $e->getMessage());
+        }
+        $this->assertStringEqualsFile($this->configDir . '/system.site.yml', "name: Old\n");
+        $this->assertDirectoryDoesNotExist($this->configDir . '.tmp');
+        $this->assertDirectoryDoesNotExist($this->configDir . '.old');
     }
 }
