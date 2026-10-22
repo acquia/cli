@@ -204,21 +204,21 @@ jobs:
       GH_TOKEN: ${{ github.token }}
       GH_REPO: ${{ github.repository }}
     steps:
-      - name: Download PHAR artifact
+      - name: Download release artifacts
         uses: actions/download-artifact@v8
         with:
-          name: acli.phar
-          path: manifest
-      - name: Download Linux artifact
-        uses: actions/download-artifact@v8
-        with:
-          name: native-acli-linux-x86_64
-          path: manifest
-      - name: Download macOS artifact
-        uses: actions/download-artifact@v8
-        with:
-          name: native-acli-macos-aarch64
-          path: manifest
+          pattern: '{acli.phar,native-acli-*}'
+          path: artifacts
+      - name: Assert unique basenames and flatten
+        run: |
+          dupes=$(find artifacts -type f -printf '%f\n' | sort | uniq -d)
+          if [ -n "$dupes" ]; then
+            echo "::error::Artifact basename collision: $dupes"
+            exit 1
+          fi
+          # Flatten into a sibling directory; flattening in place collides on acli.phar/acli.phar.
+          mkdir manifest
+          find artifacts -type f -exec mv {} manifest/ \;
       - name: Generate SHA256SUMS
         run: |
           (cd manifest && sha256sum * > ../SHA256SUMS)
