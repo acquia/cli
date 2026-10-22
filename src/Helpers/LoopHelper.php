@@ -14,8 +14,10 @@ class LoopHelper
     /**
      * @param callable $statusCallback A TRUE return value will cause the loop
      *     to exit and call $doneCallback.
+     * @param float $timeout Seconds after which the loop gives up and calls
+     *     $doneCallback anyway.
      */
-    public static function getLoopy(OutputInterface $output, SymfonyStyle $io, string $spinnerMessage, callable $statusCallback, callable $doneCallback): void
+    public static function getLoopy(OutputInterface $output, SymfonyStyle $io, string $spinnerMessage, callable $statusCallback, callable $doneCallback, float $timeout = 45 * 60): void
     {
         $timers = [];
         $spinner = new Spinner($output, 4);
@@ -50,9 +52,9 @@ class LoopHelper
         $timers[] = Loop::addTimer(0.1, $periodicCallback);
 
         // Watchdog timer.
-        $timers[] = Loop::addTimer(45 * 60, static function () use ($io, $doneCallback, $cancelTimers): void {
+        $timers[] = Loop::addTimer($timeout, static function () use ($io, $doneCallback, $cancelTimers, $timeout): void {
             $cancelTimers();
-            $io->error("Timed out after 45 minutes!");
+            $io->error(sprintf('Timed out after %s minutes!', $timeout / 60));
             $doneCallback();
         });
 
