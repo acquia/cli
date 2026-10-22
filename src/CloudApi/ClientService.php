@@ -46,7 +46,7 @@ class ClientService
 
     public function getClient(): Client
     {
-        $client = Client::factory($this->connector);
+        $client = CloudApiClient::factory($this->connector);
         $this->configureClient($client);
 
         return $client;

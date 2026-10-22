@@ -4,16 +4,21 @@ declare(strict_types=1);
 
 namespace Acquia\Cli\AcsfApi;
 
-use AcquiaCloudApi\Connector\Client;
+use Acquia\Cli\CloudApi\CloudApiClient;
 use AcquiaCloudApi\Exception\ApiErrorException;
+use JsonException;
 use Psr\Http\Message\ResponseInterface;
 
-class AcsfClient extends Client
+class AcsfClient extends CloudApiClient
 {
     public function processResponse(ResponseInterface $response): mixed
     {
         $bodyJson = $response->getBody();
-        $body = json_decode((string) $bodyJson, false, 512, JSON_THROW_ON_ERROR);
+        try {
+            $body = json_decode((string) $bodyJson, false, 512, JSON_THROW_ON_ERROR);
+        } catch (JsonException) {
+            throw self::nonJsonResponseException($response);
+        }
 
         // ACSF sometimes returns an array rather than an object.
         if (is_array($body)) {
