@@ -69,6 +69,30 @@ class ConfigPullCommandTest extends CommandTestBase
         $this->assertFileExists($this->configDir . '/system.site.yml');
     }
 
+    public function testInvalidSiteOptionThrowsBeforeRequesting(): void
+    {
+        $this->expectException(AcquiaCliException::class);
+        $this->expectExceptionMessage('"a/../b" is not a valid Source site ID: only letters, digits and hyphens are allowed.');
+        $this->executeCommand(['--site' => 'a/../b']);
+    }
+
+    public function testTrailingNewlineInSiteOptionThrowsBeforeRequesting(): void
+    {
+        // Without the D modifier, $ also matches before a final newline.
+        $this->expectException(AcquiaCliException::class);
+        $this->expectExceptionMessage("\"site-a\n\" is not a valid Source site ID: only letters, digits and hyphens are allowed.");
+        $this->executeCommand(['--site' => "site-a\n"]);
+    }
+
+    public function testInvalidRecordedSiteThrowsBeforeRequesting(): void
+    {
+        // .acquia-cli.yml is hand-editable.
+        file_put_contents($this->projectDir . '/.acquia-cli.yml', "source_site_id: 'a/../b'\n");
+        $this->expectException(AcquiaCliException::class);
+        $this->expectExceptionMessage('"a/../b" is not a valid Source site ID: only letters, digits and hyphens are allowed.');
+        $this->executeCommand();
+    }
+
     public function testSiteOptionWinsOverRecordedSite(): void
     {
         file_put_contents($this->projectDir . '/.acquia-cli.yml', "source_site_id: site-r\n");

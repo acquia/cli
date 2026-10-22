@@ -43,6 +43,8 @@ abstract class ConfigCommandBase extends SourceCommandBase
         if (!$siteId) {
             throw new AcquiaCliException('Could not determine the Source site. Pass --site=<sourceSiteId> or run acli source:cms:link first.');
         }
+        // --site is unchecked input, and .acquia-cli.yml is hand-editable.
+        self::assertValidSiteId($siteId);
         return $siteId;
     }
 }
