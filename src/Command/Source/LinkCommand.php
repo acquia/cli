@@ -72,9 +72,11 @@ final class LinkCommand extends SourceCommandBase
             $options['query']['offset'] = count($sites);
             $response = $client->makeRequest('get', '/source-sites', $options);
             // processResponse() throws for an error response and returns the items otherwise.
-            $sites = [...$sites, ...$client->processResponse($response)];
-            $pagination = json_decode((string) $response->getBody(), flags: JSON_THROW_ON_ERROR)->pagination;
-        } while (count($sites) < $pagination->total && $pagination->limit > 0);
+            $page = $client->processResponse($response);
+            $sites = [...$sites, ...$page];
+            $total = json_decode((string) $response->getBody(), flags: JSON_THROW_ON_ERROR)->pagination->total;
+            // An empty page ends it even if the total claims otherwise.
+        } while ($page && count($sites) < $total);
         return $sites;
     }
 }

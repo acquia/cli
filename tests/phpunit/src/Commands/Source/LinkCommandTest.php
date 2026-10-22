@@ -89,10 +89,11 @@ class LinkCommandTest extends CommandTestBase
      * page, each with the pagination envelope that Client::request() drops.
      *
      * @param array<array<string>> $pages Site IDs per page.
+     * @param int|null $total What the service claims; by default, the truth.
      */
-    private function mockSitePages(array $pages): void
+    private function mockSitePages(array $pages, ?int $total = null): void
     {
-        $total = array_sum(array_map('count', $pages));
+        $total ??= array_sum(array_map('count', $pages));
         $limit = max(1, count($pages[0] ?? []));
         // What the real modifyOptions() returns: the headers acli configured.
         // Every page request must carry them, plus its own offset.
@@ -135,6 +136,14 @@ class LinkCommandTest extends CommandTestBase
             $this->assertStringContainsString("Site $id", $display);
         }
         $this->assertStringEqualsFile($this->projectDir . '/.acquia-cli.yml', "source_site_id: site-e\n");
+    }
+
+    public function testEmptyPageEndsPagingDespiteTotal(): void
+    {
+        // The service claims five sites but has one page of one and then nothing.
+        $this->mockSitePages([['site-a'], []], 5);
+        $this->executeCommand([], [0]);
+        $this->assertStringEqualsFile($this->projectDir . '/.acquia-cli.yml', "source_site_id: site-a\n");
     }
 
     public function testNoSitesThrows(): void
