@@ -65,8 +65,9 @@ final class LinkCommand extends SourceCommandBase
     {
         $sites = [];
         do {
-            // request() would call modifyOptions() itself; it adds the headers
-            // acli configured (User-Agent, X-Cloud-IDE-UUID).
+            // request() is bypassed (see above), so what it would have done
+            // first is done here: modifyOptions() adds the headers acli
+            // configured, such as User-Agent and X-Cloud-IDE-UUID.
             $options = $client->modifyOptions();
             $options['query']['offset'] = count($sites);
             $response = $client->makeRequest('get', '/source-sites', $options);
