@@ -8,6 +8,7 @@ use Acquia\Cli\DataStore\CloudDataStore;
 use GuzzleHttp\Client as GuzzleClient;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\GuzzleException;
+use GuzzleHttp\Exception\ServerException;
 use League\OAuth2\Client\Token\AccessToken;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Filesystem\Filesystem;
@@ -32,18 +33,19 @@ class DeviceTokenRefresher
     /**
      * Returns a valid device access token, refreshing silently if expired.
      *
-     * Returns null when no token is stored, the refresh token is missing, or the
-     * refresh request fails — callers should surface a re-login prompt.
+     * The result says whether a missing token means the session has ended or
+     * only that the authorization server couldn't be reached, so the caller can
+     * tell the developer which one happened.
      */
-    public function getValidAccessToken(): ?string
+    public function getValidAccessToken(): DeviceTokenRefreshResult
     {
         $stored = $this->datastore->get('device_token');
         if (!$stored || empty($stored['access_token'])) {
-            return null;
+            return DeviceTokenRefreshResult::sessionEnded();
         }
 
         if ($this->hasLifeLeft($stored)) {
-            return $stored['access_token'];
+            return DeviceTokenRefreshResult::token($stored['access_token']);
         }
 
         // Presenting a rotated refresh token invalidates the whole session, so only
@@ -62,16 +64,16 @@ class DeviceTokenRefresher
     /**
      * Performs the refresh, assuming the caller holds the lock.
      */
-    private function refresh(): ?string
+    private function refresh(): DeviceTokenRefreshResult
     {
         $config = $this->readConfigFromDisk();
         $stored = $config['device_token'] ?? null;
         if (!is_array($stored) || empty($stored['access_token'])) {
-            return null;
+            return DeviceTokenRefreshResult::sessionEnded();
         }
         if ($this->hasLifeLeft($stored)) {
             $this->datastore->syncInMemory('device_token', $stored);
-            return $stored['access_token'];
+            return DeviceTokenRefreshResult::token($stored['access_token']);
         }
 
         $refreshToken = $stored['refresh_token'] ?? null;
@@ -80,7 +82,7 @@ class DeviceTokenRefresher
         $authServer   = $this->authConfig->authServerId();
 
         if (!$refreshToken || !$clientId || !$domain || !$authServer) {
-            return null;
+            return DeviceTokenRefreshResult::sessionEnded();
         }
 
         try {
@@ -101,20 +103,30 @@ class DeviceTokenRefresher
             $body = json_decode((string) $e->getResponse()->getBody(), true);
             $error = is_array($body) ? ($body['error'] ?? '') : '';
 
+            // Rate limiting says nothing about the credentials; it is worth retrying.
+            if ($status === 429) {
+                $this->logger->warning('Device token refresh was rate limited (HTTP 429). The stored token is unchanged; try again.');
+                return DeviceTokenRefreshResult::serverUnreachable();
+            }
             if ($error === 'invalid_grant') {
                 $this->logger->warning('Device token refresh failed: the refresh token is expired or revoked. Run `acli auth:login` to re-authenticate.');
-                return null;
+                return DeviceTokenRefreshResult::sessionEnded();
             }
             if ($status === 400 || $status === 401) {
                 $this->logger->warning('Device token refresh failed (HTTP {status}). Run `acli auth:login` to re-authenticate.', ['status' => $status]);
             }
-            return null;
-        } catch (GuzzleException) {
-            return null;
+            return DeviceTokenRefreshResult::sessionEnded();
+        } catch (ServerException $e) {
+            $this->logger->warning('Device token refresh failed: the authorization server returned HTTP {status}. The stored token is unchanged; try again.', ['status' => $e->getResponse()->getStatusCode()]);
+            return DeviceTokenRefreshResult::serverUnreachable();
+        } catch (GuzzleException $e) {
+            $this->logger->warning('Device token refresh could not reach the authorization server: {message}. The stored token is unchanged; try again.', ['message' => $e->getMessage()]);
+            return DeviceTokenRefreshResult::serverUnreachable();
         }
 
         if (empty($new['access_token'])) {
-            return null;
+            $this->logger->warning('Device token refresh returned no access token. Run `acli auth:login` to re-authenticate.');
+            return DeviceTokenRefreshResult::sessionEnded();
         }
 
         $this->persistToken($config, [
@@ -124,7 +136,7 @@ class DeviceTokenRefresher
             'refresh_token' => $new['refresh_token'] ?? $refreshToken,
         ]);
 
-        return $new['access_token'];
+        return DeviceTokenRefreshResult::token($new['access_token']);
     }
 
     /**

@@ -8,6 +8,7 @@ use Acquia\Cli\CloudApi\AccessTokenConnector;
 use Acquia\Cli\CloudApi\ClientService;
 use Acquia\Cli\CloudApi\ConnectorFactory;
 use Acquia\Cli\CloudApi\DeviceTokenRefresher;
+use Acquia\Cli\CloudApi\DeviceTokenRefreshResult;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Helpers\DataStoreContract;
 use Acquia\Cli\Tests\Commands\Ide\IdeHelper;
@@ -193,7 +194,7 @@ class AccessTokenConnectorTest extends TestBase
     public function testDeviceTokenRefreshOnRequest(): void
     {
         $refresherProphecy = $this->prophet->prophesize(DeviceTokenRefresher::class);
-        $refresherProphecy->getValidAccessToken()->willReturn('fresh-device-token')->shouldBeCalled();
+        $refresherProphecy->getValidAccessToken()->willReturn(DeviceTokenRefreshResult::token('fresh-device-token'))->shouldBeCalled();
 
         $connector = new AccessTokenConnector([
             'access_token' => 'stale-token',
@@ -215,7 +216,7 @@ class AccessTokenConnectorTest extends TestBase
     public function testDeviceTokenExpiredThrowsOnRequest(): void
     {
         $refresherProphecy = $this->prophet->prophesize(DeviceTokenRefresher::class);
-        $refresherProphecy->getValidAccessToken()->willReturn(null);
+        $refresherProphecy->getValidAccessToken()->willReturn(DeviceTokenRefreshResult::sessionEnded());
 
         $connector = new AccessTokenConnector([
             'access_token' => 'stale-token',
@@ -229,6 +230,36 @@ class AccessTokenConnectorTest extends TestBase
         $this->expectException(AcquiaCliException::class);
         $this->expectExceptionMessage('Device token session expired');
         $connector->createRequest('get', 'api');
+    }
+
+    /**
+     * An unreachable server must not be reported as an expired session.
+     *
+     * The refresh token is still valid, so telling the developer to run
+     * auth:login again costs them a browser round trip for nothing.
+     */
+    public function testUnreachableServerDoesNotClaimTheSessionExpired(): void
+    {
+        $refresherProphecy = $this->prophet->prophesize(DeviceTokenRefresher::class);
+        $refresherProphecy->getValidAccessToken()->willReturn(DeviceTokenRefreshResult::serverUnreachable());
+
+        $connector = new AccessTokenConnector([
+            'access_token' => 'stale-token',
+            'key' => null,
+            'secret' => null,
+        ], null, null, $refresherProphecy->reveal());
+
+        $mockProvider = $this->prophet->prophesize(GenericProvider::class);
+        $connector->setProvider($mockProvider->reveal());
+
+        try {
+            $connector->createRequest('get', 'api');
+            $this->fail('Expected an exception for an unreachable authorization server.');
+        } catch (AcquiaCliException $e) {
+            $this->assertStringContainsString("Couldn't reach the authorization server", $e->getMessage());
+            $this->assertStringNotContainsString('session expired', $e->getMessage());
+            $this->assertStringNotContainsString('auth:login', $e->getMessage());
+        }
     }
 
     public function testIdeHeader(): void

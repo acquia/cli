@@ -19,6 +19,10 @@ use Zumba\Amplitude\Amplitude;
 
 class TelemetryHelper
 {
+    private static ?string $machineId = null;
+
+    private static bool $machineIdResolved = false;
+
     public function __construct(
         private readonly ClientService $cloudApiClientService,
         private readonly CloudDataStore $datastoreCloud,
@@ -169,7 +173,7 @@ class TelemetryHelper
             $amplitude->init($this->amplitudeKey);
             // Method chaining breaks Prophecy?
             // @see https://github.com/phpspec/prophecy/issues/25
-            $amplitude->setDeviceId(OsInfo::uuid());
+            $amplitude->setDeviceId(self::getMachineId());
             $amplitude->setUserProperties($this->getTelemetryUserData());
             $amplitude->setUserId($this->getUserId());
             $amplitude->logQueuedEvents();
@@ -181,6 +185,22 @@ class TelemetryHelper
     public function telemetryEnabled(): bool
     {
         return self::isTelemetryEnabled($this->datastoreCloud);
+    }
+
+    /**
+     * The machine's telemetry ID, resolved once per process.
+     *
+     * OsInfo::uuid() shells out — `ioreg` on macOS, a registry query on Windows
+     * — and both the User-Agent (rebuilt on every getClient() call) and
+     * Amplitude need the same value.
+     */
+    public static function getMachineId(): ?string
+    {
+        if (!self::$machineIdResolved) {
+            self::$machineId = OsInfo::uuid();
+            self::$machineIdResolved = true;
+        }
+        return self::$machineId;
     }
 
     /**

@@ -16,9 +16,11 @@ use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Promise\Create;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Filesystem\Path;
+use Throwable;
 
 /**
  * Uses a real on-disk CloudDataStore rather than a double.
@@ -109,7 +111,7 @@ class DeviceTokenRefresherTest extends TestBase
     {
         $this->writeCloudConfig([]);
 
-        $this->assertNull($this->createRefresher()->getValidAccessToken());
+        $this->assertNull($this->createRefresher()->getValidAccessToken()->accessToken);
     }
 
     public function testReturnsStoredTokenWhenNotExpired(): void
@@ -122,7 +124,7 @@ class DeviceTokenRefresherTest extends TestBase
         ],
         ]);
 
-        $this->assertSame('valid-token', $this->createRefresher()->getValidAccessToken());
+        $this->assertSame('valid-token', $this->createRefresher()->getValidAccessToken()->accessToken);
     }
 
     public function testReturnsNullWhenExpiredAndRefreshTokenMissing(): void
@@ -135,14 +137,14 @@ class DeviceTokenRefresherTest extends TestBase
         ],
         ]);
 
-        $this->assertNull($this->createRefresher()->getValidAccessToken());
+        $this->assertNull($this->createRefresher()->getValidAccessToken()->accessToken);
     }
 
     public function testReturnsNullWhenExpiredAndAuthConfigMissing(): void
     {
         $this->writeCloudConfig(['device_token' => $this->expiredToken()]);
 
-        $this->assertNull($this->createRefresher()->getValidAccessToken());
+        $this->assertNull($this->createRefresher()->getValidAccessToken()->accessToken);
     }
 
     public function testRefreshesExpiredTokenAndPersistsIt(): void
@@ -157,7 +159,7 @@ class DeviceTokenRefresherTest extends TestBase
             ])),
         ]);
 
-        $this->assertSame('new-access-token', $refresher->getValidAccessToken());
+        $this->assertSame('new-access-token', $refresher->getValidAccessToken()->accessToken);
 
         $stored = $this->readCloudConfig()['device_token'];
         $this->assertSame('new-access-token', $stored['access_token']);
@@ -249,7 +251,7 @@ class DeviceTokenRefresherTest extends TestBase
         $this->givenAuthIsConfigured();
         $this->writeCloudConfig(['device_token' => $this->expiredToken()]);
         $refresher = $this->createRefresher([
-            new Response(500, [], 'the refresher must not reach Okta'),
+            new Response(500, [], 'the refresher must not reach the authorization server'),
         ]);
 
         $this->writeCloudConfig(['device_token' => [
@@ -260,7 +262,7 @@ class DeviceTokenRefresherTest extends TestBase
         ],
         ]);
 
-        $this->assertSame('written-by-another-process', $refresher->getValidAccessToken());
+        $this->assertSame('written-by-another-process', $refresher->getValidAccessToken()->accessToken);
     }
 
     public function testDoesNotClobberAnotherProcessesRefreshWithALaterUnrelatedSet(): void
@@ -270,7 +272,7 @@ class DeviceTokenRefresherTest extends TestBase
         $datastore = new CloudDataStore($this->localMachineHelper, new CloudDataConfig(), $this->cloudConfigFilepath);
         $client = new GuzzleClient([
             'handler' => HandlerStack::create(new MockHandler([
-                new Response(500, [], 'the refresher must not reach Okta'),
+                new Response(500, [], 'the refresher must not reach the authorization server'),
             ])),
         ]);
         $refresher = new DeviceTokenRefresher($datastore, $this->logger, $client, new AuthConfig());
@@ -283,7 +285,7 @@ class DeviceTokenRefresherTest extends TestBase
         ],
         ]);
 
-        $this->assertSame('written-by-another-process', $refresher->getValidAccessToken());
+        $this->assertSame('written-by-another-process', $refresher->getValidAccessToken()->accessToken);
 
         $datastore->set('user', ['uuid' => 'test-uuid']);
 
@@ -322,7 +324,10 @@ class DeviceTokenRefresherTest extends TestBase
             new Response(400, [], json_encode(['error' => 'invalid_grant'])),
         ]);
 
-        $this->assertNull($refresher->getValidAccessToken());
+        $result = $refresher->getValidAccessToken();
+
+        $this->assertNull($result->accessToken);
+        $this->assertFalse($result->serverUnreachable, 'invalid_grant ends the session; it is not retryable.');
         $this->assertSame('expired-token', $this->readCloudConfig()['device_token']['access_token']);
     }
 
@@ -334,18 +339,36 @@ class DeviceTokenRefresherTest extends TestBase
             new Response(400, [], json_encode(['error' => 'invalid_client'])),
         ]);
 
-        $this->assertNull($refresher->getValidAccessToken());
+        $this->assertNull($refresher->getValidAccessToken()->accessToken);
     }
 
-    public function testReturnsNullOnATransportFailure(): void
+    /**
+     * @return array<string, array{0: Response|Throwable}>
+     */
+    public static function retryableRefreshFailures(): array
+    {
+        return [
+            'rate limited' => [new Response(429, [], json_encode(['error' => 'too_many_requests']))],
+            'server error' => [new Response(503, [], 'service unavailable')],
+            'transport failure' => [new ConnectException('cURL error 6: Could not resolve host', new Request('POST', 'https://example.acquia.com'))],
+        ];
+    }
+
+    /**
+     * None of these end the session, so none may be reported as one that has.
+     */
+    #[DataProvider('retryableRefreshFailures')]
+    public function testARetryableFailureLeavesTheStoredTokenAlone(Response|Throwable $queued): void
     {
         $this->givenAuthIsConfigured();
         $this->writeCloudConfig(['device_token' => $this->expiredToken()]);
-        $refresher = $this->createRefresher([
-            new ConnectException('cURL error 6: Could not resolve host', new Request('POST', 'https://example.acquia.com')),
-        ]);
+        $refresher = $this->createRefresher([$queued]);
 
-        $this->assertNull($refresher->getValidAccessToken());
+        $result = $refresher->getValidAccessToken();
+
+        $this->assertNull($result->accessToken);
+        $this->assertTrue($result->serverUnreachable);
+        $this->assertSame('expired-token', $this->readCloudConfig()['device_token']['access_token']);
     }
 
     public function testReturnsNullWhenRefreshResponseHasNoAccessToken(): void
@@ -356,7 +379,7 @@ class DeviceTokenRefresherTest extends TestBase
             new Response(200, [], json_encode(['token_type' => 'Bearer'])),
         ]);
 
-        $this->assertNull($refresher->getValidAccessToken());
+        $this->assertNull($refresher->getValidAccessToken()->accessToken);
     }
 
     public function testRefreshRequestCarriesAnExplicitTimeout(): void
@@ -397,7 +420,7 @@ class DeviceTokenRefresherTest extends TestBase
         ]);
         $refresher = new DeviceTokenRefresher($datastore, $this->logger, $client, new AuthConfig());
 
-        $this->assertSame('new-access-token', $refresher->getValidAccessToken());
+        $this->assertSame('new-access-token', $refresher->getValidAccessToken()->accessToken);
 
         $datastore->set('user', ['uuid' => 'test-uuid']);
 

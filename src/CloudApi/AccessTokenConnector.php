@@ -41,11 +41,14 @@ class AccessTokenConnector extends Connector
             }
             $this->accessToken = new AccessToken(['access_token' => trim(file_get_contents($file), "\"\n")]);
         } elseif ($this->deviceTokenRefresher !== null) {
-            $freshToken = $this->deviceTokenRefresher->getValidAccessToken();
-            if ($freshToken === null) {
+            $result = $this->deviceTokenRefresher->getValidAccessToken();
+            if ($result->accessToken === null) {
+                if ($result->serverUnreachable) {
+                    throw new AcquiaCliException("Couldn't reach the authorization server to refresh your session. Your credentials are unchanged — check your connection and try again.");
+                }
                 throw new AcquiaCliException('Device token session expired. Run <options=bold>acli auth:login</> to re-authenticate.');
             }
-            $this->accessToken = new AccessToken(['access_token' => $freshToken]);
+            $this->accessToken = new AccessToken(['access_token' => $result->accessToken]);
         }
         return $this->provider->getAuthenticatedRequest(
             $verb,

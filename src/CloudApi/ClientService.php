@@ -11,7 +11,6 @@ use Acquia\Cli\DataStore\CloudDataStore;
 use Acquia\Cli\Helpers\TelemetryHelper;
 use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Connector\ConnectorInterface;
-use loophp\phposinfo\OsInfo;
 
 /**
  * Factory producing Acquia Cloud Api clients.
@@ -67,7 +66,7 @@ class ClientService
             'Acquia CLI (%s, %s%s)',
             $this->application->getVersion(),
             TelemetryHelper::isTelemetryEnabled($this->datastore)
-                ? (OsInfo::uuid() ?: self::TELEMETRY_ID_NONE)
+                ? (TelemetryHelper::getMachineId() ?: self::TELEMETRY_ID_NONE)
                 : self::TELEMETRY_ID_NONE,
             $provider !== null ? ', ' . $provider : '',
         );

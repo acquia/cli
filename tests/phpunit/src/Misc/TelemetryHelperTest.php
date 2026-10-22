@@ -6,6 +6,7 @@ namespace Acquia\Cli\Tests\Misc;
 
 use Acquia\Cli\Helpers\TelemetryHelper;
 use Acquia\Cli\Tests\TestBase;
+use loophp\phposinfo\OsInfo;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 
@@ -84,6 +85,20 @@ class TelemetryHelperTest extends TestBase
         // CURSOR_AGENT marks an agent-run shell; CURSOR_TRACE_ID is also set in a
         // human's Cursor terminal, which the spec counts as the same harness.
         $this->assertSame(['CURSOR_AGENT', 'CURSOR_TRACE_ID'], $providers['cursor']);
+    }
+
+    /**
+     * The machine ID is resolved once and reused.
+     *
+     * OsInfo::uuid() shells out, and the User-Agent is rebuilt on every
+     * getClient() call, so repeated reads must not each spawn a subshell.
+     */
+    public function testMachineIdIsResolvedOnceAndMatchesTheMachine(): void
+    {
+        $first = TelemetryHelper::getMachineId();
+
+        $this->assertSame(OsInfo::uuid(), $first);
+        $this->assertSame($first, TelemetryHelper::getMachineId());
     }
 
     /**

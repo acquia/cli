@@ -24,12 +24,12 @@ use Prophecy\Argument;
 class AuthLoginRoutingTest extends CommandTestBase
 {
     /**
-     * Empty means any Okta request
-     * errors, which is what the legacy-routing cases rely on.
+     * Empty means any authorization-server request errors, which is what the
+     * legacy-routing cases rely on.
      *
      * @var array<mixed>
      */
-    private array $oktaResponses = [];
+    private array $authServerResponses = [];
 
     /**
      * Whether the stubbed AuthConfig reports device code as configured.
@@ -60,7 +60,7 @@ class AuthLoginRoutingTest extends CommandTestBase
             $this->sshDir,
             $this->logger,
             $this->selfUpdateManager,
-            new GuzzleClient(['handler' => HandlerStack::create(new MockHandler($this->oktaResponses))]),
+            new GuzzleClient(['handler' => HandlerStack::create(new MockHandler($this->authServerResponses))]),
             $authConfig->reveal(),
         );
     }

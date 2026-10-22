@@ -219,7 +219,9 @@ class AuthLoginCommandTest extends CommandTestBase
         $this->executeCommand([], ['no']);
         $output = $this->getDisplay();
 
-        $this->assertStringContainsString('Google sign-in failed', $output);
+        $this->assertStringContainsString('an Acquia ID may already exist for this email address', $output);
+        $this->assertStringContainsString('sign in with your email address and password', $output);
+        $this->assertStringNotContainsString('Google', $output);
         $this->assertStringNotContainsString('Unexpected error', $output);
     }
 
@@ -235,6 +237,56 @@ class AuthLoginCommandTest extends CommandTestBase
         $output = $this->getDisplay();
 
         $this->assertStringContainsString('Failed to initiate device code flow', $output);
+    }
+
+    /**
+     * --environment is inert on the device code route, so say so.
+     *
+     * Signing in against the bundled org and then using the prod API for every
+     * later command, with no notice, is the "I thought I was on staging" trap.
+     */
+    public function testDeviceCodeFlowSaysEnvironmentIsIgnored(): void
+    {
+        $this->enableDeviceCodeConfig();
+        $this->givenFreshCloudConfigWithTelemetryDisabled();
+        $this->command = $this->createDeviceCodeCommand([
+            new Response(400, [], json_encode(['error' => 'invalid_client'])),
+        ]);
+
+        $this->executeCommand(['--environment' => 'staging'], ['no']);
+        $output = $this->getDisplay();
+
+        $this->assertStringContainsString('does not apply to device code sign-in', $output);
+        $this->assertStringContainsString('ACLI_AUTH_DOMAIN', $output);
+    }
+
+    /**
+     * The supplied value is echoed back, so it must not be read as markup.
+     */
+    public function testEnvironmentNoticeEscapesTheSuppliedValue(): void
+    {
+        $this->enableDeviceCodeConfig();
+        $this->givenFreshCloudConfigWithTelemetryDisabled();
+        $this->command = $this->createDeviceCodeCommand([
+            new Response(400, [], json_encode(['error' => 'invalid_client'])),
+        ]);
+
+        $this->executeCommand(['--environment' => '<fg=red>staging'], ['no']);
+
+        $this->assertStringContainsString('<fg=red>staging', $this->getDisplay());
+    }
+
+    public function testDeviceCodeFlowDoesNotMentionEnvironmentOnProd(): void
+    {
+        $this->enableDeviceCodeConfig();
+        $this->givenFreshCloudConfigWithTelemetryDisabled();
+        $this->command = $this->createDeviceCodeCommand([
+            new Response(400, [], json_encode(['error' => 'invalid_client'])),
+        ]);
+
+        $this->executeCommand([], ['no']);
+
+        $this->assertStringNotContainsString('does not apply to device code sign-in', $this->getDisplay());
     }
 
     public function testDeviceCodeFlowFallsBackToLegacyOnFailure(): void

@@ -24,6 +24,7 @@ use Psr\Log\LoggerInterface;
 use SelfUpdate\SelfUpdateManager;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Formatter\OutputFormatter;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -58,7 +59,27 @@ final class AuthLoginCommand extends CommandBase
             ->addOption('secret', 's', InputOption::VALUE_REQUIRED, 'Your Cloud Platform API secret')
             ->addOption('use-legacy-auth', null, InputOption::VALUE_NONE, 'Force API key/secret authentication instead of device code flow')
             ->addOption('environment', null, InputOption::VALUE_REQUIRED, 'Cloud Platform API environment', 'prod')
-            ->setHelp('Authenticates ACLI with Acquia Cloud Platform. Uses API key/secret when credentials are already stored or passed via --key/--secret. Otherwise uses device code flow (no API key required).');
+            ->setHelp(<<<'EOD'
+Authenticates ACLI with Acquia Cloud Platform.
+
+Acquia CLI can store multiple sets of credentials in case you have multiple
+Cloud Platform accounts. However, only a single account can be active at a
+time. This command allows you to activate a new or existing set of
+credentials.
+
+Which sign-in it uses depends on what is already stored:
+
+* --use-legacy-auth, or --key/--secret on the command line, always uses the
+  API key and secret.
+* An active API key: ACLI reports it and offers device code sign-in instead.
+  Declining keeps the existing key chooser.
+* An active device code session: ACLI offers to re-authenticate by device
+  code.
+* Nothing stored: device code sign-in, which needs no API key.
+
+Device code sign-in prints a URL and a short code. Open the URL in a browser
+on any device, sign in to Acquia, and confirm the code to finish signing in.
+EOD);
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -104,6 +125,7 @@ final class AuthLoginCommand extends CommandBase
 
     private function executeDeviceCodeFlowWithFallback(InputInterface $input, OutputInterface $output): int
     {
+        $this->warnEnvironmentIsIgnored($input, $output);
         $result = $this->executeDeviceCodeFlow($output);
         if (
             $result !== Command::SUCCESS
@@ -115,7 +137,22 @@ final class AuthLoginCommand extends CommandBase
         return $result;
     }
 
+    /**
+     * Says so when --environment is set on a route that ignores it.
+     *
+     * --environment picks the URIs stored beside an API key; a device token
+     * carries none, so the option is inert here.
+     */
+    private function warnEnvironmentIsIgnored(InputInterface $input, OutputInterface $output): void
+    {
+        $environment = strtolower(trim((string) $input->getOption('environment')));
+        if ($environment === '' || $environment === 'prod') {
+            return;
+        }
 
+        $environment = OutputFormatter::escape($environment);
+        $output->writeln("<comment>--environment=$environment does not apply to device code sign-in; it selects the URIs stored with an API key. To sign in against another environment, set ACLI_AUTH_DOMAIN, ACLI_DEVICE_CLIENT_ID and ACLI_AUTH_SERVER_ID, and point later commands at it with ACLI_CLOUD_API_BASE_URI and ACLI_CLOUD_API_ACCOUNTS_URI.</comment>");
+    }
 
     private function executeDeviceCodeFlow(OutputInterface $output): int
     {
@@ -215,7 +252,7 @@ final class AuthLoginCommand extends CommandBase
                     break;
 
                 case 'slow_down':
-                    // Okta asked us to back off.
+                    // The authorization server asked us to back off.
                     $interval += 5;
                     break;
 
@@ -228,9 +265,7 @@ final class AuthLoginCommand extends CommandBase
                     return Command::FAILURE;
 
                 case 'jit_failure':
-                    // Okta couldn't create the user from the Google sign-in, e.g. because
-                    // the email already has a password Acquia ID.
-                    $output->writeln('<error>Google sign-in failed: an Acquia ID may already exist for this email. Run acli auth:login again and sign in with your email address and password.</error>');
+                    $output->writeln('<error>Sign-in failed: an Acquia ID may already exist for this email address. Run acli auth:login again and sign in with your email address and password.</error>');
                     return Command::FAILURE;
 
                 default:
