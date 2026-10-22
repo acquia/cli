@@ -125,6 +125,9 @@ services:
   Acquia\Cli\Command\Source\LinkCommand:
     arguments:
       $cloudApiClientService: '@Acquia\Cli\CloudApi\V3ClientService'
+  Acquia\Cli\Command\Source\LegacyLinkCommand:
+    arguments:
+      $cloudApiClientService: '@Acquia\Cli\CloudApi\V3ClientService'
   Acquia\Cli\Command\Source\ConfigPullCommand:
     arguments:
       $cloudApiClientService: '@Acquia\Cli\CloudApi\V3ClientService'
