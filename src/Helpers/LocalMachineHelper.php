@@ -322,12 +322,10 @@ class LocalMachineHelper
      * Gets the root of the Source working copy that contains $cwd.
      *
      * That is the nearest directory at or above $cwd containing
-     * .acquia/config; else, before the first pull, the nearest one whose
-     * .acquia-cli.yml records a Source site (source:cms:link wrote it; a
-     * .acquia-cli.yml without source_site_id is app:link's, for a Cloud
-     * application, and says nothing about a working copy); else $cwd itself.
+     * .acquia/config; or, before the first pull, the nearest one whose
+     * .acquia-cli.yml has a source site ID. Failing that, $cwd itself.
      * Nothing else marks a working copy: it need not be a git repository.
-     *
+    *
      * Neither of the two existing directory lookups fits: getProjectDir()
      * finds a Drupal project by its docroot, which a Source working copy does
      * not have, and getConfigDir() is the user's own acli configuration
