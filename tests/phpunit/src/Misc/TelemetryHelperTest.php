@@ -9,6 +9,7 @@ use Acquia\Cli\Tests\TestBase;
 use loophp\phposinfo\OsInfo;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
+use ReflectionProperty;
 
 class TelemetryHelperTest extends TestBase
 {
@@ -98,7 +99,14 @@ class TelemetryHelperTest extends TestBase
         $first = TelemetryHelper::getMachineId();
 
         $this->assertSame(OsInfo::uuid(), $first);
-        $this->assertSame($first, TelemetryHelper::getMachineId());
+
+        $machineId = new ReflectionProperty(TelemetryHelper::class, 'machineId');
+        try {
+            $machineId->setValue(null, 'sentinel-not-read-from-this-machine');
+            $this->assertSame('sentinel-not-read-from-this-machine', TelemetryHelper::getMachineId());
+        } finally {
+            $machineId->setValue(null, $first);
+        }
     }
 
     /**

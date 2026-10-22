@@ -124,7 +124,11 @@ class DeviceTokenRefresherTest extends TestBase
         ],
         ]);
 
-        $this->assertSame('valid-token', $this->createRefresher()->getValidAccessToken()->accessToken);
+        $result = $this->createRefresher()->getValidAccessToken();
+
+        $this->assertSame('valid-token', $result->accessToken);
+        // A token in hand says nothing went wrong with the server.
+        $this->assertFalse($result->serverUnreachable);
     }
 
     public function testReturnsNullWhenExpiredAndRefreshTokenMissing(): void
@@ -159,7 +163,10 @@ class DeviceTokenRefresherTest extends TestBase
             ])),
         ]);
 
-        $this->assertSame('new-access-token', $refresher->getValidAccessToken()->accessToken);
+        $result = $refresher->getValidAccessToken();
+
+        $this->assertSame('new-access-token', $result->accessToken);
+        $this->assertFalse($result->serverUnreachable);
 
         $stored = $this->readCloudConfig()['device_token'];
         $this->assertSame('new-access-token', $stored['access_token']);
