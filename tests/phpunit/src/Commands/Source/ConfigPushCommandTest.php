@@ -319,6 +319,13 @@ class ConfigPushCommandTest extends CommandTestBase
         $this->executeCommand(['--site' => 'site-a', '--yes' => true]);
     }
 
+    public function testInvalidSiteOptionThrowsBeforeRequesting(): void
+    {
+        $this->expectException(AcquiaCliException::class);
+        $this->expectExceptionMessage('"a/../b" is not a valid Source site ID: only letters, digits and hyphens are allowed.');
+        $this->executeCommand(['--site' => 'a/../b', '--yes' => true]);
+    }
+
     public function testNonInteractiveWithoutForceThrows(): void
     {
         $this->expectException(AcquiaCliException::class);

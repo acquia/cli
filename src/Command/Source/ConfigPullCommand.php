@@ -10,6 +10,7 @@ use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Filesystem\Exception\IOException;
 
 #[RequireAuth]
 #[AsCommand(name: 'source:cms:config:pull', description: "Export a Source site's configuration to .acquia/config")]
@@ -27,19 +28,31 @@ final class ConfigPullCommand extends ConfigCommandBase
         $files = SourceConfigDocument::toFiles($response->configuration);
 
         // Write everything into a sibling directory first, so that a failure
-        // halfway leaves the existing .acquia/config untouched.
+        // halfway leaves the existing .acquia/config untouched. Then swap by
+        // renaming rather than removing: .acquia/config is what marks the
+        // working copy, so it must not be absent for longer than two renames.
         $configDir = "$root/.acquia/config";
         $tmpDir = "$configDir.tmp";
+        $oldDir = "$configDir.old";
         $filesystem = $this->localMachineHelper->getFilesystem();
-        $filesystem->remove($tmpDir);
+        $filesystem->remove([$tmpDir, $oldDir]);
         try {
             foreach ($files as $path => $contents) {
                 $filesystem->dumpFile("$tmpDir/$path", $contents);
             }
-            $filesystem->remove($configDir);
-            $filesystem->rename($tmpDir, $configDir);
+            if (is_dir($configDir)) {
+                $filesystem->rename($configDir, $oldDir);
+            }
+            try {
+                $filesystem->rename($tmpDir, $configDir);
+            } catch (IOException $e) {
+                if (is_dir($oldDir)) {
+                    $filesystem->rename($oldDir, $configDir);
+                }
+                throw $e;
+            }
         } finally {
-            $filesystem->remove($tmpDir);
+            $filesystem->remove([$tmpDir, $oldDir]);
         }
         if ($json) {
             $output->writeln(json_encode(['directory' => $configDir, 'files' => array_keys($files)], JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT));
