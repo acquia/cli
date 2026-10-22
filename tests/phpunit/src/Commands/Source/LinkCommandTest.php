@@ -96,7 +96,7 @@ class LinkCommandTest extends CommandTestBase
         $total ??= array_sum(array_map('count', $pages));
         $limit = max(1, count($pages[0] ?? []));
         // What the real modifyOptions() returns: the headers acli configured.
-        // Every page request must carry them, plus its own offset.
+        // Every page request must carry them, plus the page size and its own offset.
         $prepared = ['headers' => ['User-Agent' => 'acli/test', 'X-Cloud-IDE-UUID' => 'ide-1'], 'query' => []];
         $this->clientProphecy->modifyOptions()->willReturn($prepared);
         $offset = 0;
@@ -104,11 +104,13 @@ class LinkCommandTest extends CommandTestBase
             $items = array_map(static fn (string $id): array => ['id' => $id, 'label' => "Site $id"], $ids);
             $body = json_encode([
                 'count' => count($ids),
-                'pagination' => ['limit' => $limit, 'offset' => $offset, 'total' => $total],
+                // No pagination.total: the command must read the top-level
+                // total, which has the same value.
+                'pagination' => ['limit' => $limit, 'offset' => $offset],
                 'total' => $total,
                 '_embedded' => ['items' => $items],
             ], JSON_THROW_ON_ERROR);
-            $this->clientProphecy->makeRequest('get', '/source-sites', ['headers' => $prepared['headers'], 'query' => ['offset' => $offset]])
+            $this->clientProphecy->makeRequest('get', '/source-sites', ['headers' => $prepared['headers'], 'query' => ['limit' => 100, 'offset' => $offset]])
                 ->willReturn(new Response(200, ['Content-Type' => 'application/hal+json'], $body))
                 ->shouldBeCalledOnce();
             $offset += count($ids);

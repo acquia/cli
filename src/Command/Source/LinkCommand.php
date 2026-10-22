@@ -56,8 +56,8 @@ final class LinkCommand extends SourceCommandBase
      * Every Source site the caller can see, across all pages.
      *
      * Client::request() unwraps _embedded.items and drops the pagination
-     * envelope, so the raw response is read for `pagination` and the next
-     * page is fetched by offset until the total is reached.
+     * envelope, so the raw response is read for `total` and the next page is
+     * fetched by offset until it is reached.
      *
      * @return array<object>
      */
@@ -69,12 +69,14 @@ final class LinkCommand extends SourceCommandBase
             // first is done here: modifyOptions() adds the headers acli
             // configured, such as User-Agent and X-Cloud-IDE-UUID.
             $options = $client->modifyOptions();
+            // Big enough that nearly everyone needs only one request.
+            $options['query']['limit'] = 100;
             $options['query']['offset'] = count($sites);
             $response = $client->makeRequest('get', '/source-sites', $options);
             // processResponse() throws for an error response and returns the items otherwise.
             $page = $client->processResponse($response);
             $sites = [...$sites, ...$page];
-            $total = json_decode((string) $response->getBody(), flags: JSON_THROW_ON_ERROR)->pagination->total;
+            $total = json_decode((string) $response->getBody(), flags: JSON_THROW_ON_ERROR)->total;
             // An empty page ends it even if the total claims otherwise.
         } while ($page && count($sites) < $total);
         return $sites;
