@@ -36,9 +36,9 @@ abstract class SourceCommandBase extends CommandBase
     /**
      * Rejects an ID the API would not accept, before it becomes a URL path segment.
      *
-     * The pattern is the Source Platform API spec's `sourceSiteId` parameter.
-     * The server validates too; this only turns a confusing 404 for some other
-     * path into a clear message.
+     * The pattern is a valid source site ID, per the Source Platform API spec.
+     * The server validates too, but that surfaces as a confusing 404 so it's
+     * better to validate the site ID before contacting the server.
      *
      * @throws \Acquia\Cli\Exception\AcquiaCliException
      */
