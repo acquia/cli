@@ -18,6 +18,7 @@ use GuzzleHttp\Client as GuzzleClient;
 use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
+use GuzzleHttp\Promise\Create;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -39,7 +40,9 @@ class AuthLoginCommandTest extends CommandTestBase
     protected function setUp(): void
     {
         parent::setUp();
-        foreach (['ACLI_DEVICE_CLIENT_ID', 'ACLI_AUTH_DOMAIN', 'ACLI_AUTH_SERVER_ID'] as $var) {
+        // AH_ORGANIZATION_UUID included: a developer on federated auth has it
+        // exported, which would otherwise decide what these tests assert.
+        foreach (['ACLI_DEVICE_CLIENT_ID', 'ACLI_AUTH_DOMAIN', 'ACLI_AUTH_SERVER_ID', 'AH_ORGANIZATION_UUID'] as $var) {
             $this->savedDeviceCodeEnvVars[$var] = getenv($var);
             putenv($var);
         }
@@ -68,10 +71,9 @@ class AuthLoginCommandTest extends CommandTestBase
     /**
      * @param array<\GuzzleHttp\Psr7\Response> $responses
      */
-    private function createDeviceCodeCommand(array $responses, ?ObjectProphecy $localMachineHelperProphecy = null): AuthLoginCommand
+    private function createDeviceCodeCommand(array $responses, ?ObjectProphecy $localMachineHelperProphecy = null, ?callable $handler = null): AuthLoginCommand
     {
-        $mock = new MockHandler($responses);
-        $client = new GuzzleClient(['handler' => HandlerStack::create($mock)]);
+        $client = new GuzzleClient(['handler' => $handler ?? HandlerStack::create(new MockHandler($responses))]);
         if ($localMachineHelperProphecy === null) {
             $localMachineHelperProphecy = $this->prophet->prophesize(LocalMachineHelper::class);
             $localMachineHelperProphecy->isBrowserAvailable()->willReturn(false);
@@ -274,6 +276,60 @@ class AuthLoginCommandTest extends CommandTestBase
         $this->executeCommand(['--environment' => '<fg=red>staging'], ['no']);
 
         $this->assertStringContainsString('<fg=red>staging', $this->getDisplay());
+    }
+
+    /**
+     * Federated-auth sign-in needs the organization scope asked for up front.
+     *
+     * Scope is bound when the device authorization is issued, so this is the
+     * only request that can carry it; the poll and later refreshes inherit it.
+     */
+    public function testDeviceAuthorizeCarriesTheOrganizationScopeForFedAuth(): void
+    {
+        // setUp() clears it; tearDown() restores whatever the shell had.
+        putenv('AH_ORGANIZATION_UUID=17feaf34-5d04-4d0b-9f0b-aaaaaaaaaaaa');
+
+        $scope = $this->captureAuthorizeScope();
+
+        $this->assertStringContainsString('organization:17feaf34-5d04-4d0b-9f0b-aaaaaaaaaaaa', $scope);
+        // The standard scopes must survive alongside it.
+        $this->assertStringContainsString('openid profile email offline_access', $scope);
+    }
+
+    /**
+     * A developer who is not on federated auth must be unaffected.
+     */
+    public function testDeviceAuthorizeOmitsTheOrganizationScopeWithoutTheVariable(): void
+    {
+        // setUp() already cleared it, whatever the shell had.
+        $this->assertSame('openid profile email offline_access', $this->captureAuthorizeScope());
+    }
+
+    /**
+     * Runs the device code flow and returns the scope the authorize call sent.
+     */
+    private function captureAuthorizeScope(): string
+    {
+        $this->enableDeviceCodeConfig();
+        $this->givenFreshCloudConfigWithTelemetryDisabled();
+        $responses = [
+            $this->deviceAuthorizeResponse(),
+            new Response(400, [], json_encode(['error' => 'access_denied'])),
+        ];
+        $requests = [];
+        $this->command = $this->createDeviceCodeCommand([], null, function ($request, array $options) use (&$requests, &$responses) {
+            $requests[] = $request;
+            return Create::promiseFor(array_shift($responses));
+        });
+
+        $this->executeCommand([], ['no']);
+
+        $this->assertNotEmpty($requests);
+        $this->assertStringContainsString('/device/authorize', (string) $requests[0]->getUri());
+        $form = [];
+        parse_str((string) $requests[0]->getBody(), $form);
+
+        return $form['scope'] ?? '';
     }
 
     public function testDeviceCodeFlowDoesNotMentionEnvironmentOnProd(): void

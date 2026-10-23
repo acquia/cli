@@ -162,12 +162,19 @@ EOD);
 
         $baseUrl = sprintf('https://%s/oauth2/%s/v1', $domain, $authServer);
 
+        $orgUuid = trim((string) getenv('AH_ORGANIZATION_UUID'));
+        $orgScope = AuthConfig::organizationScope($orgUuid);
+        if ($orgScope === '' && $orgUuid !== '') {
+            $output->writeln('<comment>Ignoring AH_ORGANIZATION_UUID: it is not a UUID. Sign-in will continue without an organization scope.</comment>');
+        }
+        $scope = 'openid profile email offline_access' . ($orgScope === '' ? '' : ' ' . $orgScope);
+
         // Step 1 — initiate: get device_code + user_code.
         try {
             $response = $this->httpClient->post("$baseUrl/device/authorize", [
                 'form_params' => [
                     'client_id' => $clientId,
-                    'scope'     => 'openid profile email offline_access',
+                    'scope'     => $scope,
                 ],
                 'timeout'     => self::REQUEST_TIMEOUT_SECONDS,
             ]);
