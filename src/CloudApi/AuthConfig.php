@@ -48,9 +48,6 @@ class AuthConfig
     public static function organizationScope(string|false $orgUuid): string
     {
         $orgUuid = trim((string) $orgUuid);
-        if ($orgUuid === '') {
-            return '';
-        }
 
         // The value lands in a space-delimited scope string, so anything that is
         // not a bare UUID could smuggle in scopes of its own. A malformed value

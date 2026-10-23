@@ -48,7 +48,8 @@ class AuthConfigOrganizationScopeTest extends TestCase
             'empty' => [''],
             'not a uuid' => ['my-organization'],
             // Space-delimited, so a value carrying its own scope must not pass.
-            'scope injection' => ['17feaf34-5d04-4d0b-9f0b-aaaaaaaaaaaa admin:all'],
+            'scope injection after' => ['17feaf34-5d04-4d0b-9f0b-aaaaaaaaaaaa admin:all'],
+            'scope injection before' => ['admin:all 17feaf34-5d04-4d0b-9f0b-aaaaaaaaaaaa'],
             'unset' => [false],
             'uuid with a trailing segment' => ['17feaf34-5d04-4d0b-9f0b-aaaaaaaaaaaa-extra'],
             'whitespace only' => ['   '],
