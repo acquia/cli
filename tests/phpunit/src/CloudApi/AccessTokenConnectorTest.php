@@ -11,6 +11,7 @@ use Acquia\Cli\CloudApi\DeviceTokenRefresher;
 use Acquia\Cli\CloudApi\DeviceTokenRefreshResult;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Helpers\DataStoreContract;
+use Acquia\Cli\Helpers\TelemetryHelper;
 use Acquia\Cli\Tests\Commands\Ide\IdeHelper;
 use Acquia\Cli\Tests\TestBase;
 use AcquiaCloudApi\Connector\Connector;
@@ -21,6 +22,7 @@ use loophp\phposinfo\OsInfo;
 use org\bovigo\vfs\vfsStream;
 use Prophecy\Argument;
 use Psr\Http\Message\RequestInterface;
+use ReflectionProperty;
 use Symfony\Component\Filesystem\Path;
 
 class AccessTokenConnectorTest extends TestBase
@@ -189,6 +191,29 @@ class AccessTokenConnectorTest extends TestBase
         );
 
         $this->prophet->checkPredictions();
+    }
+
+    /**
+     * The machine ID is resolved once and reused.
+     *
+     * OsInfo::uuid() shells out, and the User-Agent above is rebuilt on every
+     * getClient() call, so repeated reads must not each spawn a subshell. The
+     * assertions above cannot show this: they compare against OsInfo::uuid(),
+     * which is the same value whether it was memoised or resolved again.
+     */
+    public function testTheMachineIdIsResolvedOnlyOnce(): void
+    {
+        $first = TelemetryHelper::getMachineId();
+        $this->assertSame(OsInfo::uuid(), $first);
+
+        $machineId = new ReflectionProperty(TelemetryHelper::class, 'machineId');
+        try {
+            $machineId->setValue(null, 'sentinel-not-read-from-this-machine');
+            $this->assertSame('sentinel-not-read-from-this-machine', TelemetryHelper::getMachineId());
+        } finally {
+            // Restored, because the User-Agent assertions expect the real one.
+            $machineId->setValue(null, $first);
+        }
     }
 
     public function testDeviceTokenRefreshOnRequest(): void

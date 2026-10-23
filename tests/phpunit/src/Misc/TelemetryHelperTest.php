@@ -6,10 +6,8 @@ namespace Acquia\Cli\Tests\Misc;
 
 use Acquia\Cli\Helpers\TelemetryHelper;
 use Acquia\Cli\Tests\TestBase;
-use loophp\phposinfo\OsInfo;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
-use ReflectionProperty;
 
 class TelemetryHelperTest extends TestBase
 {
@@ -88,26 +86,6 @@ class TelemetryHelperTest extends TestBase
         $this->assertSame(['CURSOR_AGENT', 'CURSOR_TRACE_ID'], $providers['cursor']);
     }
 
-    /**
-     * The machine ID is resolved once and reused.
-     *
-     * OsInfo::uuid() shells out, and the User-Agent is rebuilt on every
-     * getClient() call, so repeated reads must not each spawn a subshell.
-     */
-    public function testMachineIdIsResolvedOnceAndMatchesTheMachine(): void
-    {
-        $first = TelemetryHelper::getMachineId();
-
-        $this->assertSame(OsInfo::uuid(), $first);
-
-        $machineId = new ReflectionProperty(TelemetryHelper::class, 'machineId');
-        try {
-            $machineId->setValue(null, 'sentinel-not-read-from-this-machine');
-            $this->assertSame('sentinel-not-read-from-this-machine', TelemetryHelper::getMachineId());
-        } finally {
-            $machineId->setValue(null, $first);
-        }
-    }
 
     /**
      * Test the getEnvironmentProvider method when no environment provider is
