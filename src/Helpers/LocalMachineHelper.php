@@ -17,6 +17,7 @@ use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Process\Process;
+use Symfony\Component\Yaml\Yaml;
 
 use function safe\file_get_contents;
 
@@ -315,6 +316,36 @@ class LocalMachineHelper
         }
 
         return null;
+    }
+
+    /**
+     * Gets the root of the Source working copy that contains $cwd.
+     *
+     * That is the nearest directory at or above $cwd containing
+     * .acquia/config; or, before the first pull, the nearest one whose
+     * .acquia-cli.yml has a source site ID. Failing that, $cwd itself.
+     * Nothing else marks a working copy: it need not be a git repository.
+    *
+     * Neither of the two existing directory lookups fits: getProjectDir()
+     * finds a Drupal project by its docroot, which a Source working copy does
+     * not have, and getConfigDir() is the user's own acli configuration
+     * directory (~/.acquia), which holds cloud_api.conf and is never a working
+     * copy.
+     */
+    public static function getSourceWorkingCopyDir(string $cwd): string
+    {
+        if ($dir = self::findDirectoryContainingFiles($cwd, ['.acquia/config'])) {
+            return $dir;
+        }
+        // Each pass finds the nearest .acquia-cli.yml; one without a source site
+        // ID is app:link's, for a Cloud application, so the next pass starts
+        // above it. The filesystem root, where dirname() stops climbing, ends it.
+        for ($dir = $cwd; ($dir = self::findDirectoryContainingFiles($dir, ['.acquia-cli.yml'])) && dirname($dir) !== $dir; $dir = dirname($dir)) {
+            if (isset(Yaml::parseFile(Path::join($dir, '.acquia-cli.yml'))['source_site_id'])) {
+                return $dir;
+            }
+        }
+        return $cwd;
     }
 
     /**

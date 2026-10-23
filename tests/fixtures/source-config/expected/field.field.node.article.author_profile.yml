@@ -1,0 +1,31 @@
+uuid: fc92655c-12ab-4ff9-89a3-249f3a301ca5
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.author_profile
+    - node.type.article
+    - node.type.person
+_core:
+  default_config_hash: Ty2qU2W4G9orxERW-YGWOFpG99QRetfhcW0Nz_zyA6g
+id: node.article.author_profile
+field_name: author_profile
+entity_type: node
+bundle: article
+label: 'Author profile'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:node'
+  handler_settings:
+    target_bundles:
+      person: person
+    sort:
+      field: _none
+      direction: ASC
+    auto_create: false
+    auto_create_bundle: ''
+field_type: entity_reference
