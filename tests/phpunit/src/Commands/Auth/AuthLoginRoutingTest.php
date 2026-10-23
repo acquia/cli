@@ -14,7 +14,11 @@ use GuzzleHttp\Client as GuzzleClient;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\RequiresPhpExtension;
 use Prophecy\Argument;
+use ReflectionClass;
+use ReflectionProperty;
+use Symfony\Component\Console\Output\BufferedOutput;
 
 /**
  * Routing tests that stub AuthConfig rather than exporting its variables.
@@ -114,5 +118,50 @@ class AuthLoginRoutingTest extends CommandTestBase
         $this->executeCommand([], ['no', self::$key, self::$secret]);
 
         $this->assertStringContainsString('Device code sign-in is not configured', $this->getDisplay());
+    }
+
+    /**
+     * Cancelling a sign-in must not look like a completed one.
+     *
+     * Symfony dispatches SIGINT through `ConsoleSignalEvent` and exits with the
+     * event's code, which defaults to 0 when no command claims the signal, so
+     * an agent that kills `auth:login` mid-poll would read an abandoned
+     * sign-in as an authenticated session.
+     */
+    #[RequiresPhpExtension('pcntl')]
+    public function testItClaimsTheSignalsThatWouldOtherwiseExitZero(): void
+    {
+        $this->assertSame([SIGINT, SIGTERM], $this->command->getSubscribedSignals());
+    }
+
+    #[RequiresPhpExtension('pcntl')]
+    public function testCancellingASignInExitsOneHundredAndThirty(): void
+    {
+        $output = new BufferedOutput();
+        (new ReflectionProperty($this->command, 'output'))->setValue($this->command, $output);
+
+        // 128 + SIGINT, the shell's convention for a signalled command.
+        $this->assertSame(130, $this->command->handleSignal(SIGINT));
+        $this->assertStringContainsString('Sign-in cancelled', $output->fetch());
+    }
+
+    #[RequiresPhpExtension('pcntl')]
+    public function testSigtermAlsoExitsNonZero(): void
+    {
+        (new ReflectionProperty($this->command, 'output'))->setValue($this->command, new BufferedOutput());
+
+        $this->assertSame(128 + SIGTERM, $this->command->handleSignal(SIGTERM));
+    }
+
+    /**
+     * Symfony registers the handler before the command runs, so a signal can
+     * arrive while the output is still uninitialised.
+     */
+    #[RequiresPhpExtension('pcntl')]
+    public function testASignalBeforeTheCommandStartsDoesNotFatal(): void
+    {
+        $command = (new ReflectionClass(AuthLoginCommand::class))->newInstanceWithoutConstructor();
+
+        $this->assertSame(130, $command->handleSignal(SIGINT));
     }
 }

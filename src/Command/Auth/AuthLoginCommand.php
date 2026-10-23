@@ -24,13 +24,14 @@ use Psr\Log\LoggerInterface;
 use SelfUpdate\SelfUpdateManager;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Command\SignalableCommandInterface;
 use Symfony\Component\Console\Formatter\OutputFormatter;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 #[AsCommand(name: 'auth:login', description: 'Register Cloud Platform API credentials', aliases: ['login'])]
-final class AuthLoginCommand extends CommandBase
+final class AuthLoginCommand extends CommandBase implements SignalableCommandInterface
 {
     private const REQUEST_TIMEOUT_SECONDS = 30;
 
@@ -389,5 +390,42 @@ EOD);
         $keys[$apiKey] = $keyData;
         $this->datastoreCloud->set('keys', $keys);
         $this->datastoreCloud->set('acli_key', $apiKey);
+    }
+
+    /**
+     * @return array<int>
+     */
+    public function getSubscribedSignals(): array
+    {
+        // Symfony asks before it checks whether signals are supported, and the
+        // constants come from ext-pcntl, which Windows does not have.
+        if (!extension_loaded('pcntl')) {
+            return [];
+        }
+
+        // SIGTERM exits 0 by the same route SIGINT does.
+        return [SIGINT, SIGTERM];
+    }
+
+    /**
+     * Cancelling a sign-in must not look like a completed one.
+     *
+     * Symfony dispatches SIGINT through `ConsoleSignalEvent` and exits with the
+     * event's code, which defaults to 0 when no command claims the signal. An
+     * agent that kills `auth:login` mid-poll would read that as an
+     * authenticated session. Nothing is written to the datastore on this path:
+     * the token is stored only after a successful token response.
+     */
+    public function handleSignal(int $signal, int|false $previousExitCode = 0): int|false
+    {
+        // The handler is registered before the command runs, so a signal
+        // arriving in that window would reach an uninitialised $output.
+        if (isset($this->output)) {
+            $this->output->writeln('');
+            $this->output->writeln('<comment>Sign-in cancelled. No credentials were stored.</comment>');
+        }
+
+        // 128 + signal number, the shell's convention for a signalled command.
+        return 128 + $signal;
     }
 }
