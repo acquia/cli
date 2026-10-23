@@ -14,8 +14,12 @@ class ConnectorFactory implements ConnectorFactoryInterface
     /**
      * @param array<string> $config
      */
-    public function __construct(protected array $config, protected ?string $baseUri = null, protected ?string $accountsUri = null)
-    {
+    public function __construct(
+        protected array $config,
+        protected ?string $baseUri = null,
+        protected ?string $accountsUri = null,
+        private ?DeviceTokenRefresher $deviceTokenRefresher = null,
+    ) {
     }
 
     public function createConnector(): ConnectorInterface
@@ -38,6 +42,15 @@ class ConnectorFactory implements ConnectorFactoryInterface
         // A defined key & secret takes priority.
         if ($this->config['key'] && $this->config['secret']) {
             return new Connector($this->config, $this->baseUri, $this->accountsUri);
+        }
+
+        // Device code token path.
+        if (!empty($this->config['deviceAccessToken'])) {
+            return new AccessTokenConnector([
+                'access_token' => $this->config['deviceAccessToken'],
+                'key' => null,
+                'secret' => null,
+            ], $this->baseUri, $this->accountsUri, $this->deviceTokenRefresher);
         }
 
         // Fall back to a valid access token.

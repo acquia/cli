@@ -24,16 +24,18 @@ class TelemetryHelperTest extends TestBase
         TestBase::unsetEnvVars($envVars);
     }
 
-    public function unsetGitHubEnvVars(): void
+    /**
+     * Clears every provider's variables so detection starts from nothing.
+     */
+    public function unsetAllProviderEnvVars(): void
     {
-        $providers = TelemetryHelper::getProviders();
-
-        // Since we actually run our own tests on GitHub, getEnvironmentProvider() will return 'github' unless we unset it.
-        $github_env_vars = [];
-        foreach ($providers['github'] as $var) {
-            $github_env_vars[$var] = self::ENV_VAR_DEFAULT_VALUE;
+        $envVars = [];
+        foreach (TelemetryHelper::getProviders() as $vars) {
+            foreach ($vars as $var) {
+                $envVars[$var] = self::ENV_VAR_DEFAULT_VALUE;
+            }
         }
-        TestBase::unsetEnvVars($github_env_vars);
+        TestBase::unsetEnvVars($envVars);
     }
 
     /**
@@ -58,10 +60,32 @@ class TelemetryHelperTest extends TestBase
     #[Group('serial')]
     public function testEnvironmentProvider(string $provider, array $envVars): void
     {
-        $this->unsetGitHubEnvVars();
+        $this->unsetAllProviderEnvVars();
         TestBase::setEnvVars($envVars);
         $this->assertEquals($provider, TelemetryHelper::getEnvironmentProvider());
     }
+
+    /**
+     * Pins the agent harnesses' own variable names.
+     *
+     * testEnvironmentProvider() reads the names out of getProviders(), so it
+     * passes whatever they say — a typo there detects nothing and still goes
+     * green. These are asserted literally so a rename has to be deliberate.
+     */
+    public function testAgentHarnessEnvVarNames(): void
+    {
+        $providers = TelemetryHelper::getProviders();
+
+        // Claude Code exports CLAUDECODE (no underscore) into every shell it spawns.
+        $this->assertSame(
+            ['CLAUDECODE', 'CLAUDE_CODE_ENTRYPOINT', 'CLAUDE_CODE_SESSION_ID'],
+            $providers['claude-code']
+        );
+        // CURSOR_AGENT marks an agent-run shell; CURSOR_TRACE_ID is also set in a
+        // human's Cursor terminal, which the spec counts as the same harness.
+        $this->assertSame(['CURSOR_AGENT', 'CURSOR_TRACE_ID'], $providers['cursor']);
+    }
+
 
     /**
      * Test the getEnvironmentProvider method when no environment provider is
@@ -70,7 +94,7 @@ class TelemetryHelperTest extends TestBase
     #[Group('serial')]
     public function testGetEnvironmentProviderWithoutAnyEnvSet(): void
     {
-        $this->unsetGitHubEnvVars();
+        $this->unsetAllProviderEnvVars();
 
         // Expect null since no provider environment variables are set.
         $this->assertNull(TelemetryHelper::getEnvironmentProvider());

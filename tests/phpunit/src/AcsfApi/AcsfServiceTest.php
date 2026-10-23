@@ -56,4 +56,26 @@ class AcsfServiceTest extends TestBase
         $this->assertEquals($isAuthenticated, $clientService->isMachineAuthenticated());
         self::unsetEnvVars($envVars);
     }
+
+    public function testACloudPlatformDeviceTokenDoesNotAuthenticateAcsf(): void
+    {
+        $this->removeMockCloudConfigFile();
+        $this->fs->dumpFile($this->cloudConfigFilepath, json_encode([
+            'device_token' => [
+                'access_token' => 'cloud-platform-token',
+                'client_id' => 'client-123',
+                'expiry' => time() + 300,
+                'refresh_token' => 'cloud-platform-refresh-token',
+            ],
+            'send_telemetry' => false,
+        ]));
+        $this->createDataStores();
+        $clientService = new AcsfClientService(new AcsfConnectorFactory([
+            'key' => null,
+            'secret' => null,
+        ]), $this->prophet->prophesize(Application::class)
+            ->reveal(), new AcsfCredentials($this->datastoreCloud));
+
+        $this->assertFalse($clientService->isMachineAuthenticated());
+    }
 }
