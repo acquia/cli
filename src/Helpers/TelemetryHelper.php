@@ -376,7 +376,6 @@ class TelemetryHelper
             'travis' => ['TRAVIS'],
             'claude-code' => ['CLAUDECODE', 'CLAUDE_CODE_ENTRYPOINT', 'CLAUDE_CODE_SESSION_ID'],
             'cursor' => ['CURSOR_AGENT', 'CURSOR_TRACE_ID'],
-            'copilot' => ['GITHUB_COPILOT_LANGUAGE_SERVER_VERSION'],
         ];
     }
 }
