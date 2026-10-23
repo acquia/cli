@@ -416,13 +416,12 @@ EOD);
      * authenticated session. Nothing is written to the datastore on this path:
      * the token is stored only after a successful token response.
      */
-    public function handleSignal(int $signal, int|false $previousExitCode = 0): int|false
+    public function handleSignal(int $signal): int
     {
         // The handler is registered before the command runs, so a signal
         // arriving in that window would reach an uninitialised $output.
         if (isset($this->output)) {
-            $this->output->writeln('');
-            $this->output->writeln('<comment>Sign-in cancelled. No credentials were stored.</comment>');
+            $this->output->writeln(PHP_EOL . '<comment>Sign-in cancelled. No credentials were stored.</comment>');
         }
 
         // 128 + signal number, the shell's convention for a signalled command.

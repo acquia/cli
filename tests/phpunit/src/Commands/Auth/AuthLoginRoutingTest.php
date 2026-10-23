@@ -142,7 +142,7 @@ class AuthLoginRoutingTest extends CommandTestBase
 
         // 128 + SIGINT, the shell's convention for a signalled command.
         $this->assertSame(130, $this->command->handleSignal(SIGINT));
-        $this->assertStringContainsString('Sign-in cancelled', $output->fetch());
+        $this->assertSame(PHP_EOL . 'Sign-in cancelled. No credentials were stored.' . PHP_EOL, $output->fetch());
     }
 
     #[RequiresPhpExtension('pcntl')]
