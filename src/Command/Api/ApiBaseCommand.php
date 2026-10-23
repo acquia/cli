@@ -163,6 +163,12 @@ class ApiBaseCommand extends CommandBase
             $this->output->writeln($contents);
             return $exitCode;
         }
+        if (in_array($this->getName(), ['api:trials:create', 'api:trials:retry'], true) && !isset($response->_links->notification->href)) {
+            // Trial requests are accepted without a task to track.
+            $this->output->writeln(json_encode($response, JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT));
+            $this->io->warning('Your trial request was accepted, but there is no task to wait for. Run `acli api:account:find-trial` to check its progress.');
+            return Command::SUCCESS;
+        }
         $notificationUuid = CommandBase::getNotificationUuidFromResponse($response);
         $success = $this->waitForNotificationToComplete($this->cloudApiClientService->getClient(), $notificationUuid, "Waiting for task $notificationUuid to complete");
         return $success ? Command::SUCCESS : Command::FAILURE;
@@ -490,6 +496,20 @@ class ApiBaseCommand extends CommandBase
 
     private function askFreeFormQuestion(InputArgument $argument, array $params): mixed
     {
+        if ($this->getName() === 'api:trials:create') {
+            if ($argument->getName() === 'site_template_id') {
+                $choice = $this->promptChooseTrialOption('/trials-templates', "Select a value for {$argument->getName()}");
+                if ($choice !== null) {
+                    return $choice;
+                }
+            } elseif ($argument->getName() === 'region') {
+                $choice = $this->promptChooseTrialOption('/trials-regions', "Select a value for {$argument->getName()}");
+                if ($choice !== null) {
+                    return $choice;
+                }
+            }
+        }
+
         // Default value may be an empty array, which causes Question to choke.
         $default = $argument->getDefault() ?: null;
         $question = new Question("Enter a value for {$argument->getName()}", $default);
@@ -517,6 +537,33 @@ class ApiBaseCommand extends CommandBase
         // Allow unlimited attempts.
         $question->setMaxAttempts(null);
         return $this->io->askQuestion($question);
+    }
+
+    /**
+     * Prompts the user to choose a trial template or region id from a
+     * sibling listing endpoint, since the /trials spec declares these
+     * arguments as plain strings with no enum of valid values.
+     */
+    private function promptChooseTrialOption(string $path, string $questionText): ?string
+    {
+        $acquiaCloudClient = $this->cloudApiClientService->getClient();
+        // Request the same content type as execute() negotiates for every
+        // generated command, and a high limit so pagination can't hide valid
+        // choices from this listing.
+        $acquiaCloudClient->addOption('headers', [
+            'Accept' => 'application/hal+json, version=2',
+        ]);
+        $acquiaCloudClient->addQuery('limit', 100);
+        $items = $acquiaCloudClient->request('get', $path);
+        if (!$items) {
+            return null;
+        }
+        $choice = $this->promptChooseFromObjectsOrArrays($items, 'id', 'name', $questionText);
+        // In single-select mode, promptChooseFromObjectsOrArrays() always matches
+        // the chosen label back to an item from the same $items list, so $choice
+        // cannot actually be null here.
+        // @infection-ignore-all
+        return $choice?->id;
     }
 
     /**
