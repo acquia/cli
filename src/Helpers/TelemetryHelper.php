@@ -19,6 +19,10 @@ use Zumba\Amplitude\Amplitude;
 
 class TelemetryHelper
 {
+    private static ?string $machineId = null;
+
+    private static bool $machineIdResolved = false;
+
     public function __construct(
         private readonly ClientService $cloudApiClientService,
         private readonly CloudDataStore $datastoreCloud,
@@ -169,7 +173,7 @@ class TelemetryHelper
             $amplitude->init($this->amplitudeKey);
             // Method chaining breaks Prophecy?
             // @see https://github.com/phpspec/prophecy/issues/25
-            $amplitude->setDeviceId(OsInfo::uuid());
+            $amplitude->setDeviceId(self::getMachineId());
             $amplitude->setUserProperties($this->getTelemetryUserData());
             $amplitude->setUserId($this->getUserId());
             $amplitude->logQueuedEvents();
@@ -180,7 +184,39 @@ class TelemetryHelper
 
     public function telemetryEnabled(): bool
     {
-        return (bool) $this->datastoreCloud->get(DataStoreContract::SEND_TELEMETRY);
+        return self::isTelemetryEnabled($this->datastoreCloud);
+    }
+
+    /**
+     * The machine's telemetry ID, resolved once per process.
+     *
+     * OsInfo::uuid() shells out — `ioreg` on macOS, a registry query on Windows
+     * — and both the User-Agent (rebuilt on every getClient() call) and
+     * Amplitude need the same value.
+     */
+    public static function getMachineId(): ?string
+    {
+        if (!self::$machineIdResolved) {
+            self::$machineId = OsInfo::uuid();
+            self::$machineIdResolved = true;
+        }
+        return self::$machineId;
+    }
+
+    /**
+     * The single definition of "telemetry is on".
+     *
+     * Static because ClientService needs it for the User-Agent's telemetry ID and
+     * cannot hold a TelemetryHelper — this class depends on ClientService, so
+     * injecting it would be circular. A null datastore means consent is unknown,
+     * which counts as no.
+     */
+    public static function isTelemetryEnabled(?CloudDataStore $datastore): bool
+    {
+        if (getenv('ACLI_NO_TELEMETRY') === 'true') {
+            return false;
+        }
+        return (bool) $datastore?->get(DataStoreContract::SEND_TELEMETRY);
     }
 
     /**
@@ -338,6 +374,8 @@ class TelemetryHelper
             'platformsh' => ['PLATFORM_ENVIRONMENT'],
             'teamcity' => ['TEAMCITY_VERSION'],
             'travis' => ['TRAVIS'],
+            'claude-code' => ['CLAUDECODE', 'CLAUDE_CODE_ENTRYPOINT', 'CLAUDE_CODE_SESSION_ID'],
+            'cursor' => ['CURSOR_AGENT', 'CURSOR_TRACE_ID'],
         ];
     }
 }

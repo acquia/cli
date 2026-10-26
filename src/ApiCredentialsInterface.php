@@ -11,4 +11,6 @@ interface ApiCredentialsInterface
     public function getCloudKey(): ?string;
 
     public function getCloudSecret(): ?string;
+
+    public function getCloudDeviceAccessToken(): ?string;
 }
