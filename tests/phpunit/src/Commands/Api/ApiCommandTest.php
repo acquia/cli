@@ -38,24 +38,30 @@ class ApiCommandTest extends CommandTestBase
         $environmentId = '24-a47ac10b-58cc-4372-a567-0e02b2c3d470';
         $this->clientProphecy->addOption('headers', ['Accept' => 'application/hal+json, version=2'])
             ->shouldBeCalled();
-        $mockBody = self::getMockResponseFromSpec(
-            '/environments/{environmentId}/trusted-proxies',
-            'get',
-            '200'
-        );
+        $mockBody = (object) [
+            'associated_cdns' => (object) [
+                'cloudflare' => (object) [
+                    'is_enabled' => true,
+                    'label' => 'Cloudflare',
+                ],
+            ],
+            'cidrs_ipv4' => ['203.0.113.0/24'],
+            'cidrs_ipv6' => ['2001:db8::/32'],
+        ];
         $this->clientProphecy->request('get', '/environments/' . $environmentId . '/trusted-proxies')
             ->willReturn($mockBody)
             ->shouldBeCalled();
 
-        $this->command = $this->getApiCommandByName('api:environments:trusted-proxies');
+        $this->command = $this->getApiCommandByName('api:environments:find-trusted-proxies');
         $this->executeCommand(['environmentId' => $environmentId]);
 
         $output = $this->getDisplay();
         $this->assertJson($output);
         $decoded = json_decode($output, true);
-        $this->assertArrayHasKey('is_enabled', $decoded);
-        $this->assertTrue($decoded['is_enabled']);
-        $this->assertArrayHasKey('addresses', $decoded);
+        $this->assertArrayHasKey('cidrs_ipv4', $decoded);
+        $this->assertArrayHasKey('cidrs_ipv6', $decoded);
+        $this->assertArrayHasKey('associated_cdns', $decoded);
+        $this->assertTrue($decoded['associated_cdns']['cloudflare']['is_enabled']);
         $this->assertEquals(0, $this->getStatusCode());
     }
 
@@ -184,6 +190,113 @@ EOD;
         $this->assertStringContainsString('An ID that uniquely identifies a log type.', $output);
         $this->assertStringContainsString('apache-access', $output);
         $this->assertStringContainsString('Select a value for logType', $output);
+    }
+
+    public function testTrialCreateArgumentsInteractionPromptsTemplateAndRegionChoices(): void
+    {
+        // Once for execute() plus once for each of the two choice listing requests.
+        $this->clientProphecy->addOption('headers', ['Accept' => 'application/hal+json, version=2'])
+            ->shouldBeCalledTimes(3);
+        $this->clientProphecy->addQuery('limit', 100)
+            ->shouldBeCalledTimes(2);
+        $this->mockRequest('listTrialTemplates', null, null, 'Templates list');
+        $this->mockRequest('listTrialRegions', null, null, 'Regions list');
+        $this->clientProphecy->addOption('json', ['site_name' => 'mytrialsite'])
+            ->shouldBeCalled();
+        $this->clientProphecy->addOption('json', ['site_template_id' => 'impact'])
+            ->shouldBeCalled();
+        $this->clientProphecy->addOption('json', ['region' => 'us-west-2'])
+            ->shouldBeCalled();
+        $mockResponseBody = self::getMockResponseFromSpec('/trials', 'post', '202');
+        $this->clientProphecy->request('post', '/trials')
+            ->willReturn($mockResponseBody->{'Trial created'}->value)
+            ->shouldBeCalled();
+        $this->command = $this->getApiCommandByName('api:trials:create');
+        $this->executeCommand([], [
+            'mytrialsite',
+            // Select a value for site_template_id: (Impact is index 1)
+            1,
+            // Select a value for region: (US West (Oregon) is index 1)
+            1,
+        ]);
+        $output = $this->getDisplay();
+        $this->assertStringContainsString('Enter a value for site_name', $output);
+        $this->assertStringContainsString('Select a value for site_template_id', $output);
+        $this->assertStringContainsString('Impact', $output);
+        $this->assertStringContainsString('Select a value for region', $output);
+        $this->assertStringContainsString('US West (Oregon)', $output);
+        $this->assertEquals(0, $this->getStatusCode());
+    }
+
+    public function testTrialCreateTaskWaitWithoutNotificationLink(): void
+    {
+        $this->clientProphecy->addOption('headers', ['Accept' => 'application/hal+json, version=2'])
+            ->shouldBeCalled();
+        $this->clientProphecy->addOption('json', ['site_name' => 'mytrialsite'])
+            ->shouldBeCalled();
+        $this->clientProphecy->addOption('json', ['site_template_id' => 'impact'])
+            ->shouldBeCalled();
+        $this->clientProphecy->addOption('json', ['region' => 'us-west-2'])
+            ->shouldBeCalled();
+        $mockResponseBody = self::getMockResponseFromSpec('/trials', 'post', '202');
+        $this->clientProphecy->request('post', '/trials')
+            ->willReturn($mockResponseBody->{'Trial created'}->value)
+            ->shouldBeCalled();
+        $this->command = $this->getApiCommandByName('api:trials:create');
+        $this->executeCommand([
+            '--task-wait' => true,
+            'region' => 'us-west-2',
+            'site_name' => 'mytrialsite',
+            'site_template_id' => 'impact',
+        ]);
+        $output = $this->getDisplay();
+        $this->assertStringNotContainsString('_links.notification.href', $output);
+        $this->assertStringContainsStringIgnoringLineEndings("{\n    \"message\": \"Trial account created. Provisioning is in progress.\"", $output);
+        $this->assertStringContainsString('Your trial request was accepted', $output);
+        $this->assertStringContainsString('acli api:account:find-trial', $output);
+        $this->assertEquals(0, $this->getStatusCode());
+    }
+
+    public function testTrialRetryTaskWaitWithoutNotificationLink(): void
+    {
+        $trialId = 'a1b2c3d4-e5f6-7890-abcd-ef1234567890';
+        $this->clientProphecy->addOption('headers', ['Accept' => 'application/hal+json, version=2'])
+            ->shouldBeCalled();
+        $this->clientProphecy->addOption('json', new \stdClass())
+            ->shouldBeCalled();
+        $mockResponseBody = self::getMockResponseFromSpec('/trials/{trialId}/actions/retry', 'post', '202');
+        $this->clientProphecy->request('post', "/trials/$trialId/actions/retry")
+            ->willReturn($mockResponseBody->{'Trial retry initiated'}->value)
+            ->shouldBeCalled();
+        $this->command = $this->getApiCommandByName('api:trials:retry');
+        $this->executeCommand([
+            '--task-wait' => true,
+            'trialId' => $trialId,
+        ]);
+        $output = $this->getDisplay();
+        $this->assertStringNotContainsString('_links.notification.href', $output);
+        $this->assertStringContainsStringIgnoringLineEndings("{\n    \"message\": \"Trial retry initiated. Provisioning is in progress.\"", $output);
+        $this->assertStringContainsString('acli api:account:find-trial', $output);
+        $this->assertEquals(0, $this->getStatusCode());
+    }
+
+    public function testTaskWaitStillFailsForOtherCommandsWithoutNotificationLink(): void
+    {
+        $environmentId = '24-a47ac10b-58cc-4372-a567-0e02b2c3d470';
+        $this->clientProphecy->addOption('json', ['branch' => 'my-feature-branch'])->shouldBeCalled();
+        $this->clientProphecy->addOption('headers', ['Accept' => 'application/hal+json, version=2'])
+            ->shouldBeCalled();
+        $this->clientProphecy->request('post', "/environments/$environmentId/code/actions/switch")
+            ->willReturn((object) ['message' => 'Switching code', '_links' => (object) []])
+            ->shouldBeCalled();
+        $this->command = $this->getApiCommandByName('api:environments:code-switch');
+        $this->expectException(AcquiaCliException::class);
+        $this->expectExceptionMessage('JSON object must contain the _links.notification.href property');
+        $this->executeCommand([
+            '--task-wait' => true,
+            'branch' => 'my-feature-branch',
+            'environmentId' => $environmentId,
+        ]);
     }
 
     /**
