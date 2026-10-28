@@ -186,7 +186,7 @@ class AccessTokenConnectorTest extends TestBase
         $client = $clientService->getClient();
         $options = $client->getOptions();
         $this->assertStringStartsWith(
-            sprintf('Acquia CLI (UNKNOWN, %s', OsInfo::uuid()),
+            sprintf('Acquia CLI (UNKNOWN, %s', TelemetryHelper::getMachineId()),
             $options['headers']['User-Agent'][0],
         );
 
@@ -198,13 +198,13 @@ class AccessTokenConnectorTest extends TestBase
      *
      * OsInfo::uuid() shells out, and the User-Agent above is rebuilt on every
      * getClient() call, so repeated reads must not each spawn a subshell. The
-     * assertions above cannot show this: they compare against OsInfo::uuid(),
-     * which is the same value whether it was memoised or resolved again.
+     * assertions above cannot show this: they compare against the same value,
+     * which is unchanged whether it was memoised or resolved again.
      */
     public function testTheMachineIdIsResolvedOnlyOnce(): void
     {
         $first = TelemetryHelper::getMachineId();
-        $this->assertSame(OsInfo::uuid(), $first);
+        $this->assertSame(TelemetryHelper::sanitizeMachineId(OsInfo::uuid()), $first);
 
         $machineId = new ReflectionProperty(TelemetryHelper::class, 'machineId');
         try {
@@ -304,7 +304,7 @@ class AccessTokenConnectorTest extends TestBase
         $client = $clientService->getClient();
         $options = $client->getOptions();
         $this->assertEquals([
-            'User-Agent' => [0 => sprintf('Acquia CLI (UNKNOWN, %s, acquia)', OsInfo::uuid())],
+            'User-Agent' => [0 => sprintf('Acquia CLI (UNKNOWN, %s, acquia)', TelemetryHelper::getMachineId())],
             'X-Cloud-IDE-UUID' => IdeHelper::$remoteIdeUuid,
         ], $options['headers']);
 

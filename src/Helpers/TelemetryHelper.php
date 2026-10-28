@@ -197,10 +197,47 @@ class TelemetryHelper
     public static function getMachineId(): ?string
     {
         if (!self::$machineIdResolved) {
-            self::$machineId = OsInfo::uuid();
+            self::$machineId = self::sanitizeMachineId(OsInfo::uuid());
             self::$machineIdResolved = true;
         }
         return self::$machineId;
+    }
+
+    /**
+     * Reduces OsInfo::uuid()'s raw command output to a usable identifier.
+     *
+     * OsInfo::uuid() returns whatever its command printed, and macOS is the
+     * only platform it parses: Linux and BSD keep the trailing newline, and
+     * Windows gets back the entire `reg query` block. The value goes into a
+     * User-Agent header, where a single control character makes every Cloud
+     * API request throw, so anything that is not a bare token is dropped
+     * rather than sent.
+     *
+     * Takes the value rather than reading it so the parsing can be tested
+     * outside the serial group.
+     */
+    public static function sanitizeMachineId(?string $raw): ?string
+    {
+        if ($raw === null) {
+            return null;
+        }
+
+        if (preg_match('/MachineGuid\s+REG_\w+\s+(\S+)/i', $raw, $matches) === 1) {
+            $raw = $matches[1];
+        }
+
+        // Some sources wrap a GUID in braces or quotes.
+        $raw = trim($raw, " \t\n\r\0\x0B\"'{}");
+
+        // The ceiling only has to reject output no branch above parsed.
+        if ($raw === '' || strlen($raw) > 64) {
+            return null;
+        }
+
+        // Dots and hyphens because Linux can fall back to the hostname. Asking
+        // what must not be there avoids an anchored pattern, whose `$` would
+        // tolerate a trailing newline.
+        return preg_match('/[^A-Za-z0-9._-]/', $raw) === 1 ? null : $raw;
     }
 
     /**
