@@ -10,10 +10,12 @@ use Acquia\Cli\CloudApi\ConnectorFactory;
 use Acquia\Cli\CloudApi\V3ClientService;
 use Acquia\Cli\DataStore\CloudDataStore;
 use Acquia\Cli\Helpers\DataStoreContract;
+use Acquia\Cli\Helpers\TelemetryHelper;
 use Acquia\Cli\Tests\TestBase;
 use loophp\phposinfo\OsInfo;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
+use ReflectionProperty;
 
 class ClientServiceTest extends TestBase
 {
@@ -50,7 +52,7 @@ class ClientServiceTest extends TestBase
 
             $this->assertSame(
                 $expectId
-                    ? sprintf('Acquia CLI (UNKNOWN, %s, lando)', OsInfo::uuid())
+                    ? sprintf('Acquia CLI (UNKNOWN, %s, lando)', trim((string) OsInfo::uuid()))
                     : 'Acquia CLI (UNKNOWN, null, lando)',
                 $this->userAgentClientService()->getClient()->getOptions()['headers']['User-Agent'][0],
             );
@@ -78,6 +80,30 @@ class ClientServiceTest extends TestBase
         } finally {
             putenv('LANDO');
             putenv('ACLI_NO_TELEMETRY');
+        }
+    }
+
+    /**
+     * On Linux OsInfo::uuid() returns the machine ID with a trailing newline,
+     * which is not a valid header value and made every API request throw.
+     */
+    #[Group('serial')]
+    public function testUserAgentIsValidWhenMachineIdHasTrailingNewline(): void
+    {
+        putenv('LANDO=1');
+        $machineId = new ReflectionProperty(TelemetryHelper::class, 'machineId');
+        $original = TelemetryHelper::getMachineId();
+        try {
+            $machineId->setValue(null, "0123456789abcdef\n");
+            $this->datastoreCloud->set(DataStoreContract::SEND_TELEMETRY, true);
+
+            $this->assertSame(
+                'Acquia CLI (UNKNOWN, 0123456789abcdef, lando)',
+                $this->userAgentClientService()->getClient()->getOptions()['headers']['User-Agent'][0],
+            );
+        } finally {
+            $machineId->setValue(null, $original);
+            putenv('LANDO');
         }
     }
 

@@ -186,7 +186,7 @@ class AccessTokenConnectorTest extends TestBase
         $client = $clientService->getClient();
         $options = $client->getOptions();
         $this->assertStringStartsWith(
-            sprintf('Acquia CLI (UNKNOWN, %s', OsInfo::uuid()),
+            sprintf('Acquia CLI (UNKNOWN, %s', trim((string) OsInfo::uuid())),
             $options['headers']['User-Agent'][0],
         );
 
@@ -304,7 +304,7 @@ class AccessTokenConnectorTest extends TestBase
         $client = $clientService->getClient();
         $options = $client->getOptions();
         $this->assertEquals([
-            'User-Agent' => [0 => sprintf('Acquia CLI (UNKNOWN, %s, acquia)', OsInfo::uuid())],
+            'User-Agent' => [0 => sprintf('Acquia CLI (UNKNOWN, %s, acquia)', trim((string) OsInfo::uuid()))],
             'X-Cloud-IDE-UUID' => IdeHelper::$remoteIdeUuid,
         ], $options['headers']);
 

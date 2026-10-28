@@ -62,11 +62,13 @@ class ClientService
     protected function configureClient(Client $client): void
     {
         $provider = TelemetryHelper::getEnvironmentProvider();
+        // OsInfo::uuid() returns "machine-id\n" on Linux; a newline makes the
+        // User-Agent an invalid header value and every API request fails.
         $userAgent = sprintf(
             'Acquia CLI (%s, %s%s)',
             $this->application->getVersion(),
             TelemetryHelper::isTelemetryEnabled($this->datastore)
-                ? (TelemetryHelper::getMachineId() ?: self::TELEMETRY_ID_NONE)
+                ? (trim((string) TelemetryHelper::getMachineId()) ?: self::TELEMETRY_ID_NONE)
                 : self::TELEMETRY_ID_NONE,
             $provider !== null ? ', ' . $provider : '',
         );
