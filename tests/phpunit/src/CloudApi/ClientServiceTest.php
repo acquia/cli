@@ -51,7 +51,9 @@ class ClientServiceTest extends TestBase
 
             $this->assertSame(
                 $expectId
-                    ? sprintf('Acquia CLI (UNKNOWN, %s, lando)', TelemetryHelper::getMachineId())
+                    // Mirrors the client's fallback: a machine whose ID is
+                    // rejected sends the literal 'null', not an empty slot.
+                    ? sprintf('Acquia CLI (UNKNOWN, %s, lando)', TelemetryHelper::getMachineId() ?: 'null')
                     : 'Acquia CLI (UNKNOWN, null, lando)',
                 $this->userAgentClientService()->getClient()->getOptions()['headers']['User-Agent'][0],
             );
