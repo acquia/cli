@@ -10,8 +10,9 @@ use Acquia\Cli\CloudApi\ConnectorFactory;
 use Acquia\Cli\CloudApi\V3ClientService;
 use Acquia\Cli\DataStore\CloudDataStore;
 use Acquia\Cli\Helpers\DataStoreContract;
+use Acquia\Cli\Helpers\TelemetryHelper;
 use Acquia\Cli\Tests\TestBase;
-use loophp\phposinfo\OsInfo;
+use GuzzleHttp\Psr7\Request;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 
@@ -50,7 +51,9 @@ class ClientServiceTest extends TestBase
 
             $this->assertSame(
                 $expectId
-                    ? sprintf('Acquia CLI (UNKNOWN, %s, lando)', OsInfo::uuid())
+                    // Mirrors the client's fallback: a machine whose ID is
+                    // rejected sends the literal 'null', not an empty slot.
+                    ? sprintf('Acquia CLI (UNKNOWN, %s, lando)', TelemetryHelper::getMachineId() ?: 'null')
                     : 'Acquia CLI (UNKNOWN, null, lando)',
                 $this->userAgentClientService()->getClient()->getOptions()['headers']['User-Agent'][0],
             );
@@ -78,6 +81,26 @@ class ClientServiceTest extends TestBase
         } finally {
             putenv('LANDO');
             putenv('ACLI_NO_TELEMETRY');
+        }
+    }
+
+    /**
+     * Asserting the header is constructible, rather than comparing it to a
+     * string built from the same source, is what catches an unsanitised
+     * machine ID: Guzzle rejects a value containing a control character.
+     */
+    #[Group('serial')]
+    public function testUserAgentIsAlwaysAValidHeaderValue(): void
+    {
+        putenv('LANDO=1');
+        try {
+            $this->datastoreCloud->set(DataStoreContract::SEND_TELEMETRY, true);
+            $userAgent = $this->userAgentClientService()->getClient()->getOptions()['headers']['User-Agent'][0];
+
+            $request = new Request('GET', 'https://cloud.acquia.com/api/account', ['User-Agent' => $userAgent]);
+            $this->assertSame($userAgent, $request->getHeaderLine('User-Agent'));
+        } finally {
+            putenv('LANDO');
         }
     }
 
