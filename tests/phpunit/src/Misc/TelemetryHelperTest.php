@@ -24,16 +24,18 @@ class TelemetryHelperTest extends TestBase
         TestBase::unsetEnvVars($envVars);
     }
 
-    public function unsetGitHubEnvVars(): void
+    /**
+     * Clears every provider's variables so detection starts from nothing.
+     */
+    public function unsetAllProviderEnvVars(): void
     {
-        $providers = TelemetryHelper::getProviders();
-
-        // Since we actually run our own tests on GitHub, getEnvironmentProvider() will return 'github' unless we unset it.
-        $github_env_vars = [];
-        foreach ($providers['github'] as $var) {
-            $github_env_vars[$var] = self::ENV_VAR_DEFAULT_VALUE;
+        $envVars = [];
+        foreach (TelemetryHelper::getProviders() as $vars) {
+            foreach ($vars as $var) {
+                $envVars[$var] = self::ENV_VAR_DEFAULT_VALUE;
+            }
         }
-        TestBase::unsetEnvVars($github_env_vars);
+        TestBase::unsetEnvVars($envVars);
     }
 
     /**
@@ -58,10 +60,32 @@ class TelemetryHelperTest extends TestBase
     #[Group('serial')]
     public function testEnvironmentProvider(string $provider, array $envVars): void
     {
-        $this->unsetGitHubEnvVars();
+        $this->unsetAllProviderEnvVars();
         TestBase::setEnvVars($envVars);
         $this->assertEquals($provider, TelemetryHelper::getEnvironmentProvider());
     }
+
+    /**
+     * Pins the agent harnesses' own variable names.
+     *
+     * testEnvironmentProvider() reads the names out of getProviders(), so it
+     * passes whatever they say — a typo there detects nothing and still goes
+     * green. These are asserted literally so a rename has to be deliberate.
+     */
+    public function testAgentHarnessEnvVarNames(): void
+    {
+        $providers = TelemetryHelper::getProviders();
+
+        // Claude Code exports CLAUDECODE (no underscore) into every shell it spawns.
+        $this->assertSame(
+            ['CLAUDECODE', 'CLAUDE_CODE_ENTRYPOINT', 'CLAUDE_CODE_SESSION_ID'],
+            $providers['claude-code']
+        );
+        // CURSOR_AGENT marks an agent-run shell; CURSOR_TRACE_ID is also set in a
+        // human's Cursor terminal, which the spec counts as the same harness.
+        $this->assertSame(['CURSOR_AGENT', 'CURSOR_TRACE_ID'], $providers['cursor']);
+    }
+
 
     /**
      * Test the getEnvironmentProvider method when no environment provider is
@@ -70,7 +94,7 @@ class TelemetryHelperTest extends TestBase
     #[Group('serial')]
     public function testGetEnvironmentProviderWithoutAnyEnvSet(): void
     {
-        $this->unsetGitHubEnvVars();
+        $this->unsetAllProviderEnvVars();
 
         // Expect null since no provider environment variables are set.
         $this->assertNull(TelemetryHelper::getEnvironmentProvider());
@@ -163,6 +187,62 @@ class TelemetryHelperTest extends TestBase
     public function testRedactSensitiveContext(string $context, string $expected): void
     {
         $this->assertSame($expected, TelemetryHelper::redactSensitiveContext($context));
+    }
+
+    /**
+     * Each row is the raw output one platform's machine ID command produces.
+     *
+     * @return array<string, array{?string, ?string}>
+     */
+    public static function providerTestSanitizeMachineId(): array
+    {
+        return [
+            'bsd kenv' => ["00000000-1111-2222-3333-444444444444\n", '00000000-1111-2222-3333-444444444444'],
+            'command failed' => [null, null],
+            'command printed nothing' => ["   \n", null],
+            'interior newline' => ["abc\ndef", null],
+            'interior space' => ["not an id\n", null],
+            // A boundary probe, not a realistic pair of IDs: the ceiling only
+            // has to reject output that no branch above managed to parse.
+            'length ceiling, at' => [str_repeat('a', 64), str_repeat('a', 64)],
+            'length ceiling, past' => [str_repeat('a', 65), null],
+            // Without a machine-id file the command falls back to `hostname`,
+            // which is shorter than an ID and may be qualified.
+            'linux hostname (container)' => ["0123456789ab\n", '0123456789ab'],
+            'linux hostname (fqdn)' => ["runner-07.ci.example.com\n", 'runner-07.ci.example.com'],
+            'linux hostname (short)' => ["build-runner-07\n", 'build-runner-07'],
+            // `( cat ...machine-id || hostname ) | head -n 1` keeps the newline.
+            'linux machine-id' => ["0123456789abcdef0123456789abcdef\n", '0123456789abcdef0123456789abcdef'],
+            // macOS is the only platform phposinfo parses for us.
+            'macos already parsed' => ['aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee', 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee'],
+            'windows braced guid' => ["{00000000-1111-2222-3333-444444444444}\n", '00000000-1111-2222-3333-444444444444'],
+            // A locked-down box answers with a message, not a value.
+            'windows error output' => [
+                "\r\nERROR: The system was unable to find the specified registry key or value.\r\n",
+                null,
+            ],
+            // Matched case-insensitively, so alternate tooling still parses.
+            'windows lowercase key' => [
+                "\r\n    machineguid    reg_sz    00000000-1111-2222-3333-444444444444\r\n",
+                '00000000-1111-2222-3333-444444444444',
+            ],
+            'windows reg query' => [
+                "\r\nHKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Cryptography\r\n    MachineGuid    REG_SZ    00000000-1111-2222-3333-444444444444\r\n\r\n",
+                '00000000-1111-2222-3333-444444444444',
+            ],
+            // A 32-bit process reads the redirected key. The value line is
+            // matched, not the key path, so the redirection does not matter.
+            'windows wow6432node' => [
+                "\r\nHKEY_LOCAL_MACHINE\\SOFTWARE\\Wow6432Node\\Microsoft\\Cryptography\r\n    MachineGuid    REG_SZ    00000000-1111-2222-3333-444444444444\r\n\r\n",
+                '00000000-1111-2222-3333-444444444444',
+            ],
+        ];
+    }
+
+    #[DataProvider('providerTestSanitizeMachineId')]
+    public function testSanitizeMachineId(?string $raw, ?string $expected): void
+    {
+        $this->assertSame($expected, TelemetryHelper::sanitizeMachineId($raw));
     }
 
     public function testIsBuildDateOlderThanMonthsNullDate(): void

@@ -29,6 +29,13 @@ final class ConfigPushCommand extends ConfigCommandBase
      */
     private const EXIT_STILL_RUNNING = 2;
 
+    private const OUTCOME_UNKNOWN = 'The import was accepted but its outcome is unknown ({reason}). Run acli source:cms:config:push --status to see the site\'s latest import before pushing again. The import may still finish, and the status it reports may then be that of a later import.';
+
+    /**
+     * Seconds to wait for the import; tests lower it.
+     */
+    private float $importTimeout = 45 * 60;
+
     protected function configure(): void
     {
         parent::configure();
@@ -63,6 +70,10 @@ final class ConfigPushCommand extends ConfigCommandBase
             }
         }
 
+        // GET .../config/import is always the site's *latest* import, and the
+        // service may not have created this push's record by the first poll.
+        // Remember the previous one so that the polls can skip past it.
+        $previousImportId = $this->latestImportId($client, $siteId);
         try {
             $client->request('put', "/source-sites/$siteId/config", ['json' => ['source' => 'request', 'configuration' => $document]]);
         } catch (ApiErrorException $e) {
@@ -78,7 +89,7 @@ final class ConfigPushCommand extends ConfigCommandBase
             $this->output = new NullOutput();
             $this->io = new SymfonyStyle($input, $this->output);
         }
-        $import = $this->waitForImport($client, $siteId);
+        $import = $this->waitForImport($client, $siteId, $previousImportId);
         return $this->reportResult($input, $output, $json, $import, fn (object $import): int => $this->reportImport($siteId, $import));
     }
 
@@ -101,28 +112,54 @@ final class ConfigPushCommand extends ConfigCommandBase
     }
 
     /**
-     * Polls the site's latest import until it is no longer running.
+     * The ID of the site's latest import, or NULL if it has never imported.
      */
-    private function waitForImport(Client $client, string $siteId): object
+    private function latestImportId(Client $client, string $siteId): ?string
+    {
+        try {
+            return $client->request('get', "/source-sites/$siteId/config/import")->id;
+        } catch (ApiErrorException $e) {
+            if ($e->getResponseBody()->error === 'not_found') {
+                return null;
+            }
+            throw $e;
+        }
+    }
+
+    /**
+     * Polls the site's latest import until a new one exists and is no longer running.
+     */
+    private function waitForImport(Client $client, string $siteId, ?string $previousImportId): object
     {
         $import = null;
         $error = null;
-        $poll = static function () use ($client, $siteId, &$import, &$error): bool {
+        $poll = static function () use ($client, $siteId, $previousImportId, &$import, &$error): bool {
             try {
-                $import = $client->request('get', "/source-sites/$siteId/config/import");
-                return $import->status !== 'running';
+                $latest = $client->request('get', "/source-sites/$siteId/config/import");
             } catch (Throwable $e) {
+                // A site's first import may not have a record yet: keep polling.
+                if ($e instanceof ApiErrorException && $e->getResponseBody()->error === 'not_found') {
+                    return false;
+                }
                 // An exception escaping the loop would leave its timers behind.
                 $error = $e;
                 return true;
             }
+            if ($latest->id === $previousImportId) {
+                return false;
+            }
+            $import = $latest;
+            return $import->status !== 'running';
         };
         // getLoopy() requires a done callback; the outcome is read from $import
         // and $error above once it returns, so there is nothing to do here.
         LoopHelper::getLoopy($this->output, $this->io, 'Importing configuration', $poll, static function (): void {
-        });
+        }, $this->importTimeout);
         if ($error !== null) {
-            throw new AcquiaCliException('The import was accepted but its outcome is unknown ({reason}). Check the site before pushing again. The import may still finish, and the status it reports may then be that of a later import.', ['reason' => $error->getMessage()]);
+            throw new AcquiaCliException(self::OUTCOME_UNKNOWN, ['reason' => $error->getMessage()]);
+        }
+        if ($import === null) {
+            throw new AcquiaCliException(self::OUTCOME_UNKNOWN, ['reason' => 'the site reported no new import before the timeout']);
         }
         return $import;
     }
@@ -167,7 +204,7 @@ final class ConfigPushCommand extends ConfigCommandBase
                 $this->io->error("The import into Source site $siteId failed; the site was rolled back to its previous configuration.");
                 return Command::FAILURE;
         }
-        // Only the 45-minute watchdog in LoopHelper can leave the status at "running".
-        throw new AcquiaCliException('The import was accepted but its outcome is unknown (status {status}). Check the site before pushing again. The import may still finish, and the status it reports may then be that of a later import.', ['status' => $import->status]);
+        // Only the timeout in LoopHelper can leave the status at "running".
+        throw new AcquiaCliException(self::OUTCOME_UNKNOWN, ['reason' => "status $import->status"]);
     }
 }
