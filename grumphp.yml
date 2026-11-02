@@ -1,6 +1,8 @@
 grumphp:
     tasks:
         phpcs: ~
+        phpstan:
+            memory_limit: 1G
     fixer:
         fix_by_default: true
     ascii:
