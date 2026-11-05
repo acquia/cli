@@ -90,9 +90,6 @@
         "bin/acli"
     ],
     "config": {
-        "platform": {
-            "php": "8.2.29"
-        },
         "process-timeout": 3600,
         "optimize-autoloader": true,
         "preferred-install": "dist",

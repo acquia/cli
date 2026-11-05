@@ -1,0 +1,92 @@
+name: Build php-micro
+# One-off workflow to build and upload php-micro runtimes to S3.
+# @see CONTRIBUTING.md "Building native binaries"
+on:
+  workflow_dispatch:
+    inputs:
+      php-version:
+        description: PHP version to compile
+        required: true
+        default: '8.5'
+        type: choice
+        options:
+          - '8.5'
+          - '8.4'
+      extensions:
+        description: Extensions to build (comma separated)
+        required: true
+        # The minimal set Acquia CLI requires. Matches the extension list of
+        # previously published php-micro builds, plus what ACLI's dependencies
+        # need (mbstring, tokenizer, dom, etc.).
+        default: 'curl,openssl,mbstring,phar,json,tokenizer,ctype,xml,dom,simplexml,xmlwriter,xmlreader,zip,zlib,filter,posix,sockets,sqlite3,pdo_sqlite,iconv'
+        type: string
+      upload:
+        description: Upload artifacts to s3://acquia-cli/static-php-cli/
+        required: true
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
+
+jobs:
+  build-php-micro:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-24.04
+            platform: linux-x86_64
+          - os: macos-15
+            platform: macos-aarch64
+    steps:
+      - name: "Download SPC"
+        run: |
+          curl -fsSL "https://github.com/crazywhalecc/static-php-cli/releases/download/2.8.5/spc-${{ matrix.platform }}.tar.gz" -o spc.tar.gz
+          tar -xzf spc.tar.gz
+          chmod +x spc
+
+      - name: "Install build dependencies (Linux)"
+        if: matrix.platform == 'linux-x86_64'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential autoconf automake libtool pkg-config bison re2c cmake git
+
+      - name: "Download sources"
+        run: ./spc download --with-php=${{ inputs.php-version }} --for-extensions "${{ inputs.extensions }}"
+
+      - name: "Build php-micro"
+        run: ./spc build --build-micro "${{ inputs.extensions }}"
+
+      - name: "Verify artifact"
+        run: |
+          test -f buildroot/bin/micro.sfx
+          cat > verify.php <<'EOF'
+          <?php echo PHP_VERSION . "\n";
+          EOF
+          cat buildroot/bin/micro.sfx verify.php > verify && chmod +x verify
+          ./verify
+
+      - name: "Package artifact"
+        run: |
+          mkdir package
+          cp buildroot/bin/micro.sfx package/
+          tar -czvf php-micro-${{ inputs.php-version }}-${{ matrix.platform }}.tar.gz -C package micro.sfx
+          shasum -a 256 php-micro-${{ inputs.php-version }}-${{ matrix.platform }}.tar.gz
+
+      - name: "Upload artifact to Actions"
+        uses: actions/upload-artifact@v7
+        with:
+          name: php-micro-${{ inputs.php-version }}-${{ matrix.platform }}
+          path: php-micro-${{ inputs.php-version }}-${{ matrix.platform }}.tar.gz
+
+      - name: "Upload artifact to S3"
+        if: inputs.upload
+        run: |
+          aws s3 cp php-micro-${{ inputs.php-version }}-${{ matrix.platform }}.tar.gz \
+            "s3://acquia-cli/static-php-cli/php-micro-${{ inputs.php-version }}-${{ matrix.platform }}.tar.gz"
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: us-east-1
