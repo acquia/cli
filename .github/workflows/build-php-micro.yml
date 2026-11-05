@@ -25,9 +25,19 @@ on:
         required: true
         default: false
         type: boolean
+  # Test the workflow itself on PRs that modify it. PR runs always skip the
+  # S3 upload (guarded by inputs.upload, which is only set on dispatch).
+  pull_request:
+    paths:
+      - .github/workflows/build-php-micro.yml
 
 permissions:
   contents: read
+
+env:
+  # On pull_request, inputs are empty; fall back to the dispatch defaults.
+  PHP_VERSION: ${{ inputs.php-version || '8.5' }}
+  EXTENSIONS: ${{ inputs.extensions || 'curl,openssl,mbstring,phar,json,tokenizer,ctype,xml,dom,simplexml,xmlwriter,xmlreader,zip,zlib,filter,posix,sockets,sqlite3,pdo_sqlite,iconv' }}
 
 jobs:
   build-php-micro:
@@ -54,10 +64,10 @@ jobs:
           sudo apt-get install -y build-essential autoconf automake libtool pkg-config bison re2c cmake git
 
       - name: "Download sources"
-        run: ./spc download --with-php=${{ inputs.php-version }} --for-extensions "${{ inputs.extensions }}"
+        run: ./spc download --with-php=$PHP_VERSION --for-extensions "$EXTENSIONS"
 
       - name: "Build php-micro"
-        run: ./spc build --build-micro "${{ inputs.extensions }}"
+        run: ./spc build --build-micro "$EXTENSIONS"
 
       - name: "Verify artifact"
         run: |
@@ -72,20 +82,20 @@ jobs:
         run: |
           mkdir package
           cp buildroot/bin/micro.sfx package/
-          tar -czvf php-micro-${{ inputs.php-version }}-${{ matrix.platform }}.tar.gz -C package micro.sfx
-          shasum -a 256 php-micro-${{ inputs.php-version }}-${{ matrix.platform }}.tar.gz
+          tar -czvf php-micro-$PHP_VERSION-${{ matrix.platform }}.tar.gz -C package micro.sfx
+          shasum -a 256 php-micro-$PHP_VERSION-${{ matrix.platform }}.tar.gz
 
       - name: "Upload artifact to Actions"
         uses: actions/upload-artifact@v7
         with:
-          name: php-micro-${{ inputs.php-version }}-${{ matrix.platform }}
-          path: php-micro-${{ inputs.php-version }}-${{ matrix.platform }}.tar.gz
+          name: php-micro-${{ env.PHP_VERSION }}-${{ matrix.platform }}
+          path: php-micro-${{ env.PHP_VERSION }}-${{ matrix.platform }}.tar.gz
 
       - name: "Upload artifact to S3"
         if: inputs.upload
         run: |
-          aws s3 cp php-micro-${{ inputs.php-version }}-${{ matrix.platform }}.tar.gz \
-            "s3://acquia-cli/static-php-cli/php-micro-${{ inputs.php-version }}-${{ matrix.platform }}.tar.gz"
+          aws s3 cp php-micro-$PHP_VERSION-${{ matrix.platform }}.tar.gz \
+            "s3://acquia-cli/static-php-cli/php-micro-$PHP_VERSION-${{ matrix.platform }}.tar.gz"
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
