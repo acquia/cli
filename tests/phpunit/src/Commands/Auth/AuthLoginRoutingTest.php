@@ -171,6 +171,7 @@ class AuthLoginRoutingTest extends CommandTestBase
 
         $this->assertStringContainsString('session has expired', $output);
         $this->assertStringContainsString('Authenticated successfully', $output);
+        $this->assertStringNotContainsString('Fall back to API key authentication?', $output);
     }
 
     /** The flipped default must not become "always sign in". */

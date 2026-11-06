@@ -68,6 +68,30 @@ class TelemetryHelperTest extends TestBase
         $this->prophet->checkPredictions();
     }
 
+    /**
+     * The authentication check itself can throw, so it is inside the try.
+     *
+     * `isMachineAuthenticated()` reads `ACLI_ACCESS_TOKEN_FILE` and raises
+     * `AcquiaCliException` when that file is missing, which no outer catch
+     * names.
+     */
+    public function testAFailingAuthenticationCheckDoesNotEscape(): void
+    {
+        $clientServiceProphecy = $this->prophet->prophesize(ClientService::class);
+        $clientServiceProphecy->isMachineAuthenticated()
+            ->willThrow(new AcquiaCliException('Access token file not found at {file}', ['file' => '/nope']));
+        $telemetryHelper = new TelemetryHelper(
+            $clientServiceProphecy->reveal(),
+            $this->datastoreCloud,
+            $this->prophet->prophesize(Application::class)->reveal(),
+        );
+
+        $data = $telemetryHelper->getTelemetryUserData();
+
+        $this->assertArrayNotHasKey('is_acquian', $data);
+        $this->assertNull($telemetryHelper->getUserId());
+    }
+
     public function tearDown(): void
     {
         parent::tearDown();

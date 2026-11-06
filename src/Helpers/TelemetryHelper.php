@@ -348,13 +348,16 @@ class TelemetryHelper
     private function getUserData(): ?array
     {
         $user = $this->datastoreCloud->get(DataStoreContract::USER);
-        if (!$user && !$this->userDataUnavailable && $this->cloudApiClientService->isMachineAuthenticated()) {
+        if (!$user && !$this->userDataUnavailable) {
             // One attempt per run: this makes a live request, and three callers
-            // ask. Catching here also covers the Bugsnag report callback, which
-            // has no try/catch of its own.
+            // ask. The auth check is inside the try because it throws when
+            // ACLI_ACCESS_TOKEN_FILE names a missing file. Catching here also
+            // covers the Bugsnag callback, which has no try/catch of its own.
             try {
-                $this->setDefaultUserData();
-                $user = $this->datastoreCloud->get(DataStoreContract::USER);
+                if ($this->cloudApiClientService->isMachineAuthenticated()) {
+                    $this->setDefaultUserData();
+                    $user = $this->datastoreCloud->get(DataStoreContract::USER);
+                }
             } catch (Throwable) {
                 $this->userDataUnavailable = true;
             }
