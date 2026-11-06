@@ -52,12 +52,15 @@ jobs:
         include:
           - os: ubuntu-24.04
             platform: linux-x86_64
+            artifact_dir: static-php-cli
           - os: macos-15
             platform: macos-aarch64
+            artifact_dir: spc-work
     steps:
-      - name: "Check out static-php-cli"
+      - name: "Check out static-php-cli (Linux)"
         # The Docker wrapper scripts (bin/spc-alpine-docker) live in the repo;
         # the standalone spc binary cannot run them.
+        if: matrix.platform == 'linux-x86_64'
         uses: actions/checkout@v7
         with:
           repository: crazywhalecc/static-php-cli
@@ -66,15 +69,15 @@ jobs:
 
       - name: "Install spc (macOS)"
         if: matrix.platform == 'macos-aarch64'
-        working-directory: static-php-cli
-        # On macOS we run the standalone spc binary directly. On Linux the
-        # Docker wrapper builds spc inside the image from repo source.
+        # Run in a dedicated empty working directory: spc picks up
+        # config/env.ini from the CWD, and the v3 branch's env.ini is
+        # incompatible with the standalone 2.8.5 binary (renamed settings).
         run: |
+          mkdir spc-work && cd spc-work
           curl -fsSL "https://github.com/crazywhalecc/static-php-cli/releases/download/2.8.5/spc-${{ matrix.platform }}.tar.gz" -o spc.tar.gz
           tar -xzf spc.tar.gz
           chmod +x spc
-          mv spc bin/spc-standalone
-          ./bin/spc-standalone doctor --auto-fix
+          ./spc doctor --auto-fix
 
       - name: "Download sources (Linux)"
         if: matrix.platform == 'linux-x86_64'
@@ -85,8 +88,8 @@ jobs:
 
       - name: "Download sources (macOS)"
         if: matrix.platform == 'macos-aarch64'
-        working-directory: static-php-cli
-        run: ./bin/spc-standalone download --with-php=$PHP_VERSION --for-extensions "$EXTENSIONS"
+        working-directory: spc-work
+        run: ./spc download --with-php=$PHP_VERSION --for-extensions "$EXTENSIONS"
 
       - name: "Build php-micro (Linux)"
         if: matrix.platform == 'linux-x86_64'
@@ -95,10 +98,11 @@ jobs:
 
       - name: "Build php-micro (macOS)"
         if: matrix.platform == 'macos-aarch64'
-        working-directory: static-php-cli
-        run: ./bin/spc-standalone build --build-micro "$EXTENSIONS"
+        working-directory: spc-work
+        run: ./spc build --build-micro "$EXTENSIONS"
 
-      - name: "Verify artifact"
+      - name: "Verify artifact (Linux)"
+        if: matrix.platform == 'linux-x86_64'
         working-directory: static-php-cli
         run: |
           test -f buildroot/bin/micro.sfx
@@ -109,8 +113,30 @@ jobs:
           cat buildroot/bin/micro.sfx verify.php > verify && chmod +x verify
           ./verify
 
-      - name: "Package artifact"
+      - name: "Verify artifact (macOS)"
+        if: matrix.platform == 'macos-aarch64'
+        working-directory: spc-work
+        run: |
+          test -f buildroot/bin/micro.sfx
+          file buildroot/bin/micro.sfx
+          cat > verify.php <<'EOF'
+          <?php echo PHP_VERSION . "\n";
+          EOF
+          cat buildroot/bin/micro.sfx verify.php > verify && chmod +x verify
+          ./verify
+
+      - name: "Package artifact (Linux)"
+        if: matrix.platform == 'linux-x86_64'
         working-directory: static-php-cli
+        run: |
+          mkdir package
+          cp buildroot/bin/micro.sfx package/
+          tar -czvf php-micro-$PHP_VERSION-${{ matrix.platform }}.tar.gz -C package micro.sfx
+          shasum -a 256 php-micro-$PHP_VERSION-${{ matrix.platform }}.tar.gz
+
+      - name: "Package artifact (macOS)"
+        if: matrix.platform == 'macos-aarch64'
+        working-directory: spc-work
         run: |
           mkdir package
           cp buildroot/bin/micro.sfx package/
@@ -121,11 +147,11 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: php-micro-${{ env.PHP_VERSION }}-${{ matrix.platform }}
-          path: static-php-cli/php-micro-${{ env.PHP_VERSION }}-${{ matrix.platform }}.tar.gz
+          path: ${{ matrix.artifact_dir }}/php-micro-${{ env.PHP_VERSION }}-${{ matrix.platform }}.tar.gz
 
       - name: "Upload artifact to S3"
         if: inputs.upload
-        working-directory: static-php-cli
+        working-directory: ${{ matrix.artifact_dir }}
         run: |
           aws s3 cp php-micro-$PHP_VERSION-${{ matrix.platform }}.tar.gz \
             "s3://acquia-cli/static-php-cli/php-micro-$PHP_VERSION-${{ matrix.platform }}.tar.gz"
