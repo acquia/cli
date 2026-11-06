@@ -46,7 +46,7 @@ class AccessTokenConnector extends Connector
                 if ($result->serverUnreachable) {
                     throw new AcquiaCliException("Couldn't reach the authorization server to refresh your session. Your credentials are unchanged — check your connection and try again.");
                 }
-                throw new AcquiaCliException('Device token session expired. Run <options=bold>acli auth:login</> to re-authenticate.');
+                throw new AcquiaCliException('Device token session expired. Run acli auth:login to re-authenticate.');
             }
             $this->accessToken = new AccessToken(['access_token' => $result->accessToken]);
         }

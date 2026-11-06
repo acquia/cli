@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Acquia\Cli\Tests\Commands\Auth;
 
+use Acquia\Cli\CloudApi\AuthConfig;
 use Acquia\Cli\CloudApi\CloudCredentials;
 use Acquia\Cli\Command\Auth\AuthLoginCommand;
 use Acquia\Cli\Command\CommandBase;
@@ -93,6 +94,7 @@ class AuthLoginCommandTest extends CommandTestBase
             $this->logger,
             $this->selfUpdateManager,
             $client,
+            new AuthConfig(),
         );
     }
 
@@ -431,6 +433,20 @@ class AuthLoginCommandTest extends CommandTestBase
         } finally {
             putenv($savedSsh === false ? 'SSH_CONNECTION' : 'SSH_CONNECTION=' . $savedSsh);
         }
+    }
+
+    /**
+     * Pinning both figures makes a policy change fail here rather than rot
+     * quietly in the help text. 90 minutes is the idle window, 12 hours the
+     * absolute ceiling.
+     */
+    public function testHelpNamesBothBoundsAndTheNonExpiringAlternative(): void
+    {
+        $help = $this->createCommand()->getHelp();
+
+        $this->assertStringContainsString('90 minutes', $help);
+        $this->assertStringContainsString('12 hours', $help);
+        $this->assertStringContainsString('--use-legacy-auth', $help);
     }
 
     public function testSmartRoutingDeviceTokenReauthDeclined(): void
