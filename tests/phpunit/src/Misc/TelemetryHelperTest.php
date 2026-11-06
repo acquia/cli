@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Acquia\Cli\Tests\Misc;
 
+use Acquia\Cli\Application;
+use Acquia\Cli\CloudApi\ClientService;
+use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Helpers\TelemetryHelper;
 use Acquia\Cli\Tests\TestBase;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -12,6 +15,58 @@ use PHPUnit\Framework\Attributes\Group;
 class TelemetryHelperTest extends TestBase
 {
     protected const ENV_VAR_DEFAULT_VALUE = 'test';
+
+    /**
+     * Telemetry must never be load-bearing.
+     *
+     * `getUserData()` makes a live request, and `CommandBase::initialize()`
+     * calls it before `execute()` -- so anything escaping here kills the
+     * command, including `auth:login` on an ended session.
+     */
+    public function testAFailingAccountLookupDoesNotEscape(): void
+    {
+        $clientServiceProphecy = $this->prophet->prophesize(ClientService::class);
+        $clientServiceProphecy->isMachineAuthenticated()->willReturn(true);
+        $clientServiceProphecy->getClient()
+            ->willThrow(new AcquiaCliException('Device token session expired. Run acli auth:login to re-authenticate.'));
+        $telemetryHelper = new TelemetryHelper(
+            $clientServiceProphecy->reveal(),
+            $this->datastoreCloud,
+            $this->prophet->prophesize(Application::class)->reveal(),
+        );
+
+        $data = $telemetryHelper->getTelemetryUserData();
+
+        // It degrades rather than throwing: the optional field is simply absent.
+        $this->assertArrayNotHasKey('is_acquian', $data);
+        $this->assertArrayHasKey('php_version', $data);
+    }
+
+    /**
+     * The account lookup is attempted once per run, however many callers ask.
+     *
+     * Three callers ask, and each attempt costs a live request.
+     */
+    public function testTheAccountLookupIsAttemptedOncePerRun(): void
+    {
+        $clientServiceProphecy = $this->prophet->prophesize(ClientService::class);
+        $clientServiceProphecy->isMachineAuthenticated()->willReturn(true);
+        $clientServiceProphecy->getClient()
+            ->willThrow(new AcquiaCliException('Device token session expired. Run acli auth:login to re-authenticate.'))
+            ->shouldBeCalledOnce();
+        $telemetryHelper = new TelemetryHelper(
+            $clientServiceProphecy->reveal(),
+            $this->datastoreCloud,
+            $this->prophet->prophesize(Application::class)->reveal(),
+        );
+
+        $telemetryHelper->getTelemetryUserData();
+        $userId = $telemetryHelper->getUserId();
+
+        // Second caller: answered from the remembered failure, not a new request.
+        $this->assertNull($userId);
+        $this->prophet->checkPredictions();
+    }
 
     public function tearDown(): void
     {

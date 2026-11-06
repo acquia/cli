@@ -59,6 +59,13 @@ class ExceptionListenerTest extends TestBase
                 'Run <bg=blue;fg=white;options=bold>acli auth:login</> to reset your API credentials.',
             ],
             [
+                // The case key is the raw message AccessTokenConnector throws.
+                // If the two drift apart the help block silently stops firing,
+                // so this entry pins the exact string, not a prefix.
+                new AcquiaCliException('Device token session expired. Run acli auth:login to re-authenticate.'),
+                'Run <bg=blue;fg=white;options=bold>acli auth:login</> to re-authenticate.',
+            ],
+            [
                 new RuntimeException('Not enough arguments (missing: "environmentId").'),
                 self::$siteAliasHelp,
             ],

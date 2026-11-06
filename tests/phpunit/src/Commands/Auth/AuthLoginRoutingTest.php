@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Acquia\Cli\Tests\Commands\Auth;
 
 use Acquia\Cli\CloudApi\AuthConfig;
+use Acquia\Cli\CloudApi\DeviceTokenRefresher;
+use Acquia\Cli\CloudApi\DeviceTokenRefreshResult;
 use Acquia\Cli\Command\Auth\AuthLoginCommand;
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Helpers\LocalMachineHelper;
@@ -13,12 +15,14 @@ use AcquiaCloudApi\Connector\Connector;
 use GuzzleHttp\Client as GuzzleClient;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
+use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\RequiresPhpExtension;
 use Prophecy\Argument;
 use ReflectionClass;
 use ReflectionProperty;
 use Symfony\Component\Console\Output\BufferedOutput;
+use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * Routing tests that stub AuthConfig rather than exporting its variables.
@@ -39,6 +43,11 @@ class AuthLoginRoutingTest extends CommandTestBase
      * Whether the stubbed AuthConfig reports device code as configured.
      */
     private bool $authConfigured = true;
+
+    /**
+     * Null lets the command build its own, which the routing cases rely on.
+     */
+    private ?DeviceTokenRefresher $deviceTokenRefresher = null;
 
     protected function createCommand(): CommandBase
     {
@@ -66,7 +75,192 @@ class AuthLoginRoutingTest extends CommandTestBase
             $this->selfUpdateManager,
             new GuzzleClient(['handler' => HandlerStack::create(new MockHandler($this->authServerResponses))]),
             $authConfig->reveal(),
+            $this->deviceTokenRefresher,
         );
+    }
+
+    private function deviceAuthorizeResponse(): Response
+    {
+        return new Response(200, [], json_encode([
+            'device_code' => 'test-device-code',
+            'expires_in' => 600,
+            'interval' => 0,
+            'user_code' => 'ABCD1234',
+            'verification_uri' => 'https://example.acquia.com/activate',
+        ]));
+    }
+
+    /** A refresher that answers with the given state and makes no request. */
+    private function refresherAnswering(DeviceTokenRefreshResult $result): DeviceTokenRefresher
+    {
+        $prophecy = $this->prophet->prophesize(DeviceTokenRefresher::class);
+        $prophecy->getValidAccessToken()->willReturn($result);
+
+        return $prophecy->reveal();
+    }
+
+    /** The access token's `expiry` is stale on purpose: it must not be read. */
+    private function givenAStoredDeviceToken(): void
+    {
+        $this->removeMockCloudConfigFile();
+        $this->fs->dumpFile($this->cloudConfigFilepath, json_encode([
+            'device_token' => [
+                'access_token' => 'existing-token',
+                'client_id' => 'test-client-id',
+                'expiry' => time() - 1,
+                'refresh_token' => 'existing-refresh-token',
+            ],
+            'send_telemetry' => false,
+        ]));
+        $this->createDataStores();
+    }
+
+
+    /**
+     * The defect: on `main` the same keystroke exits 0 without authenticating,
+     * and every later command then fails with "Failed to authenticate".
+     */
+    public function testAnEndedSessionReportsExpiryAndSigningInIsTheDefault(): void
+    {
+        $this->givenAStoredDeviceToken();
+        $this->authServerResponses = [
+            $this->deviceAuthorizeResponse(),
+            new Response(200, [], json_encode([
+                'access_token' => 'new-access-token',
+                'expires_in' => 300,
+                'refresh_token' => 'new-refresh-token',
+            ])),
+        ];
+        $this->deviceTokenRefresher = $this->refresherAnswering(DeviceTokenRefreshResult::sessionEnded());
+        $this->command = $this->createCommand();
+
+        // A bare Enter -- `['']`, not `[]`: on EOF `QuestionHelper::ask()`
+        // also switches interactivity off, which tests a different path.
+        $this->executeCommand([], ['']);
+        $output = $this->getDisplay();
+
+        $this->assertStringContainsString('session has expired', $output);
+        $this->assertStringContainsString('Sign in again?', $output);
+        $this->assertStringContainsString('Authenticated successfully', $output);
+        $this->assertStringNotContainsString('Already authenticated', $output);
+    }
+
+    /**
+     * A caller with no terminal and no `-n` is still treated as interactive:
+     * Symfony switches on the flag, not the TTY. It reaches the question and
+     * EOF answers it with the new default.
+     */
+    public function testACallerWithNoTerminalGetsTheDefaultAnswer(): void
+    {
+        $this->givenAStoredDeviceToken();
+        $this->authServerResponses = [
+            $this->deviceAuthorizeResponse(),
+            new Response(200, [], json_encode([
+                'access_token' => 'new-access-token',
+                'expires_in' => 300,
+                'refresh_token' => 'new-refresh-token',
+            ])),
+        ];
+        $this->deviceTokenRefresher = $this->refresherAnswering(DeviceTokenRefreshResult::sessionEnded());
+        $this->command = $this->createCommand();
+
+        // `[]`, not `['']`: an empty stream is EOF, which is what a script with
+        // closed stdin gives. On `main` the default was no and this exited 0.
+        $this->executeCommand([], []);
+        $output = $this->getDisplay();
+
+        $this->assertStringContainsString('session has expired', $output);
+        $this->assertStringContainsString('Authenticated successfully', $output);
+    }
+
+    /** The flipped default must not become "always sign in". */
+    public function testDecliningAnEndedSessionChangesNothing(): void
+    {
+        $this->givenAStoredDeviceToken();
+        // No responses queued: reaching the flow would error.
+        $this->deviceTokenRefresher = $this->refresherAnswering(DeviceTokenRefreshResult::sessionEnded());
+        $this->command = $this->createCommand();
+
+        $this->executeCommand([], ['no']);
+        $output = $this->getDisplay();
+
+        $this->assertStringContainsString('session has expired', $output);
+        $this->assertStringNotContainsString('Authenticated successfully', $output);
+        $stored = json_decode(file_get_contents($this->cloudConfigFilepath), true);
+        $this->assertSame('existing-refresh-token', $stored['device_token']['refresh_token']);
+    }
+
+    /** Guards against the flipped default leaking into the live branch. */
+    public function testALiveSessionStillDefaultsToDeclining(): void
+    {
+        $this->givenAStoredDeviceToken();
+        $this->deviceTokenRefresher = $this->refresherAnswering(DeviceTokenRefreshResult::token('still-good'));
+        $this->command = $this->createCommand();
+
+        $this->executeCommand([], ['']);
+        $output = $this->getDisplay();
+
+        $this->assertStringContainsString('Already authenticated via', $output);
+        $this->assertStringContainsString('Re-authenticate?', $output);
+        $this->assertStringNotContainsString('session has expired', $output);
+        $this->assertStringNotContainsString('Authenticated successfully', $output);
+    }
+
+    /**
+     * An unreachable server is not a verdict on the credential: reporting it
+     * as ended would sign a developer out because their connection faltered.
+     */
+    public function testAnUnreachableServerIsReportedAndDestroysNothing(): void
+    {
+        $this->givenAStoredDeviceToken();
+        $this->deviceTokenRefresher = $this->refresherAnswering(DeviceTokenRefreshResult::serverUnreachable());
+        $this->command = $this->createCommand();
+
+        $this->executeCommand([], ['']);
+        $output = $this->getDisplay();
+
+        $this->assertStringContainsString("couldn't be reached", $output);
+        $this->assertStringContainsString('Re-authenticate?', $output);
+        $this->assertStringNotContainsString('session has expired', $output);
+        // ACLI could not check, so it must not claim the session is live.
+        $this->assertStringNotContainsString('Already authenticated', $output);
+        $stored = json_decode(file_get_contents($this->cloudConfigFilepath), true);
+        $this->assertSame('existing-refresh-token', $stored['device_token']['refresh_token']);
+    }
+
+    /**
+     * Asserting the call is never made, rather than that no prompt appeared,
+     * is the point: the latter passes even with the guard removed.
+     */
+    public function testNoInteractionNeverAsksTheAuthorizationServer(): void
+    {
+        $this->givenAStoredDeviceToken();
+        $refresherProphecy = $this->prophet->prophesize(DeviceTokenRefresher::class);
+        // willReturn too: the result class is final, so without a promise
+        // Prophecy fails doubling the return type instead of reporting.
+        $refresherProphecy->getValidAccessToken()
+            ->willReturn(DeviceTokenRefreshResult::sessionEnded())
+            ->shouldNotBeCalled();
+        $this->authServerResponses = [
+            $this->deviceAuthorizeResponse(),
+            new Response(200, [], json_encode([
+                'access_token' => 'new-access-token',
+                'expires_in' => 300,
+                'refresh_token' => 'new-refresh-token',
+            ])),
+        ];
+        $this->deviceTokenRefresher = $refresherProphecy->reveal();
+        $this->command = $this->createCommand();
+
+        // The fourth argument is $interactive.
+        $this->executeCommand([], [], OutputInterface::VERBOSITY_NORMAL, false);
+        $output = $this->getDisplay();
+
+        $this->assertStringContainsString('Signing in again via', $output);
+        // Nothing checked the session, so it must not be claimed live.
+        $this->assertStringNotContainsString('Already authenticated', $output);
+        $this->assertStringNotContainsString('Re-authenticate?', $output);
+        $this->assertStringContainsString('Authenticated successfully', $output);
     }
 
     /**
