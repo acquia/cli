@@ -173,7 +173,7 @@ jobs:
           name: acli.phar
       - name: "Download SPC and phpmicro"
         run: |
-          # php-micro 8.5 must be built and uploaded to S3 per CONTRIBUTING.md
+          # php-micro 8.5 must be built and uploaded to S3 as per CONTRIBUTING.md
           # before this workflow will succeed.
           curl -fsSL "https://acquia-cli.s3.us-east-1.amazonaws.com/static-php-cli/php-micro-8.5-${{ matrix.platform }}.tar.gz" -o tmp.tar.gz
           tar -xzf tmp.tar.gz
