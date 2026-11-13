@@ -13,6 +13,7 @@ use Acquia\Cli\Tests\CommandTestBase;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
+use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Process\Process;
@@ -71,7 +72,10 @@ class PushDatabaseCommandTest extends CommandTestBase
             ->shouldBeCalled();
         $this->mockGetAcsfSitesLMH($localMachineHelper);
 
-        // Database.
+        // Database. An unrestricted environment with the local binaries present
+        // keeps the upload transport, so the probe must report the shell as
+        // permitted and the legacy assertions below must still hold.
+        $this->mockRemoteShellProbe($localMachineHelper, true);
         $this->mockExecutePvExists($localMachineHelper, $pv);
         $this->mockCreateMySqlDumpOnLocal($localMachineHelper, $printOutput, $pv);
         $this->mockUploadDatabaseDump($localMachineHelper, $process, $printOutput);
@@ -235,6 +239,7 @@ class PushDatabaseCommandTest extends CommandTestBase
             ->shouldBeCalled();
         $this->mockGetAcsfSitesLMH($localMachineHelper);
 
+        $this->mockRemoteShellProbe($localMachineHelper, true);
         $this->mockExecutePvExists($localMachineHelper, true);
         $this->mockCreateMySqlDumpOnLocal($localMachineHelper, true, true);
         $this->mockUploadDatabaseDump($localMachineHelper, $process, true);
@@ -276,5 +281,231 @@ class PushDatabaseCommandTest extends CommandTestBase
         $localMachineHelper->execute($cmd, Argument::type('callable'), null, $printOutput, null, null)
             ->willReturn($process->reveal())
             ->shouldBeCalled();
+    }
+
+    /**
+     * Set up the streamed transport's local halves and capture the ssh call.
+     *
+     * @return \stdClass holds ->ssh (the captured argument list) and ->dump
+     */
+    private function mockStreamedImport(ObjectProphecy $localMachineHelper, bool $dumpSucceeds = true, bool $importSucceeds = true): \stdClass
+    {
+        $capture = new \stdClass();
+        $capture->ssh = [];
+
+        $localMachineHelper->checkRequiredBinariesExist(['mysqldump'])->shouldBeCalled();
+
+        $help = $this->mockProcess();
+        $help->getOutput()->willReturn('--set-gtid-purged[=name]  --skip-masking-policies');
+        $localMachineHelper->execute(['mysqldump', '--help'], null, null, false)
+            ->willReturn($help->reveal())
+            ->shouldBeCalled();
+
+        $dump = $this->prophet->prophesize(Process::class);
+        $dump->setTimeout(null)->willReturn($dump->reveal());
+        $dump->start()->willReturn(null);
+        $dump->isSuccessful()->willReturn($dumpSucceeds);
+        $dump->getIterator(Argument::any())->will(static function (): \Generator {
+            // Two chunks either side of a megabyte, so the throttled report fires.
+            yield str_repeat('x', 600 * 1024);
+            yield str_repeat('y', 600 * 1024);
+        });
+        $dump->getErrorOutput()->willReturn($dumpSucceeds ? '' : 'mysqldump: Error 1045: Access denied');
+        $capture->dump = $dump;
+        $localMachineHelper->createProcess(Argument::that(static fn ($cmd): bool => $cmd[0] === 'mysqldump'), Argument::that(static fn ($env): bool => isset($env['MYSQL_PWD'])))
+            ->willReturn($dump->reveal())
+            ->shouldBeCalled();
+
+        $import = $this->mockProcess($importSucceeds);
+        $import->getErrorOutput()->willReturn($importSucceeds ? '' : 'ERROR 1064 (42000) at line 3');
+        $localMachineHelper->execute(
+            Argument::that(static fn ($cmd): bool => is_array($cmd) && in_array('drush', $cmd, true)),
+            Argument::any(),
+            null,
+            Argument::any(),
+            null,
+            null,
+            false,
+            Argument::any()
+        )
+            ->will(function (array $args) use ($capture, $import) {
+                $capture->ssh = $args[0];
+                $capture->importArgs = $args;
+                return $import->reveal();
+            })
+            ->shouldBeCalled();
+
+        return $capture;
+    }
+
+    /**
+     * @return array<mixed>
+     */
+    private function setUpRestrictedEnvironment(bool $multisite = false): array
+    {
+        $applications = $this->mockRequest('getApplications');
+        $application = $this->mockRequest('getApplicationByUuid', $applications[self::$INPUT_DEFAULT_CHOICE]->uuid);
+        $tamper = function ($responses): void {
+            foreach ($responses as $response) {
+                $response->ssh_url = 'profserv2.01dev@profserv201dev.ssh.enterprise-g1.acquia-sites.com';
+                $response->domains = ["profserv201dev.enterprise-g1.acquia-sites.com"];
+            }
+        };
+        $environments = $this->mockRequest('getApplicationEnvironments', $application->uuid, null, null, $tamper);
+        $this->createMockGitConfigFile();
+        if ($multisite) {
+            $this->mockAcsfDatabasesResponse($environments[self::$INPUT_DEFAULT_CHOICE]);
+        } else {
+            $this->mockSingleDatabaseResponse($environments[self::$INPUT_DEFAULT_CHOICE]);
+        }
+
+        $localMachineHelper = $this->mockLocalMachineHelper();
+        $localMachineHelper->checkRequiredBinariesExist(['ssh'])->shouldBeCalled();
+        if ($multisite) {
+            // Site discovery only runs when there is more than one database to
+            // choose between.
+            $this->mockGetAcsfSitesLMH($localMachineHelper);
+        }
+
+        return [$localMachineHelper, $environments];
+    }
+
+    /**
+     * @return array<int, int|string>
+     */
+    private static function pushInputs(): array
+    {
+        return [
+            // Search for a Cloud application matching the local git config?
+            'n',
+            // Select a Cloud Platform application.
+            0,
+            // Link the project?
+            'n',
+            // Choose a Cloud Platform environment.
+            0,
+            // Overwrite the database? (a single-database environment is not
+            // prompted for which database to use)
+            'y',
+        ];
+    }
+
+    /**
+     * @return array<int, int|string>
+     */
+    private static function multisitePushInputs(): array
+    {
+        return ['n', 0, 'n', 0, 0, 'y'];
+    }
+
+    public function testRestrictedEnvironmentStreamsTheImport(): void
+    {
+        [$localMachineHelper] = $this->setUpRestrictedEnvironment();
+        $this->mockRemoteShellProbe($localMachineHelper, false);
+        $capture = $this->mockStreamedImport($localMachineHelper);
+
+        $this->command->sshHelper = new SshHelper($this->output, $localMachineHelper->reveal(), $this->logger);
+        $this->executeCommand([], self::pushInputs());
+        $this->prophet->checkPredictions();
+
+        $remote = implode(' ', $capture->ssh);
+        $this->assertStringContainsString('sql:cli', $remote, 'The streamed import must use drush sql:cli.');
+        $this->assertStringContainsString('cd /var/www/html/', $remote);
+        $this->assertNotContains('-t', $capture->ssh, 'The streamed import must not allocate a pty.');
+        $this->assertStringNotContainsString('rsync', $remote);
+        $this->assertStringNotContainsString('gunzip', $remote);
+        $this->assertStringNotContainsString('MYSQL_PWD', $remote, 'No remote credentials may appear in the command.');
+        $this->assertLessThan(
+            strpos($remote, 'sql:cli'),
+            strpos($remote, '--uri='),
+            '--uri must precede sql:cli; the policy denies it afterwards.'
+        );
+
+        // Without a pty this is the import's only channel, so a policy refusal
+        // or a SQL error has to be allowed through regardless of verbosity.
+        // Asserted on the callback, not on execute()'s $printOutput: the
+        // non-TTY path deliberately passes false there to keep setTty() away,
+        // and steers output through the callback instead.
+        $this->assertInstanceOf(BufferedOutput::class, $this->output);
+        ($capture->importArgs[1])(Process::ERR, 'remote-import-diagnostic');
+        $this->assertStringContainsString(
+            'remote-import-diagnostic',
+            $this->output->fetch(),
+            'The streamed import must surface its own output; suppressing it hides refusals and SQL errors.'
+        );
+
+        // Progress comes from the stream, not from `pv`, which does not exist
+        // on Windows. The input handed to ssh must therefore be a wrapper over
+        // the dump rather than the dump itself.
+        $this->assertInstanceOf(\Iterator::class, $capture->importArgs[7], 'The dump must be wrapped so bytes can be counted.');
+        iterator_to_array($capture->importArgs[7]);
+        // Progress goes through the checklist's output callback, so it lands in
+        // the command display rather than in the SshHelper's own buffer.
+        $this->assertStringContainsString('MB', $this->getDisplay(), 'Streaming must report progress derived from the stream.');
+    }
+
+    /**
+     * A machine without the upload transport's binaries — Windows, typically —
+     * takes the streamed path without spending a round trip on a permission it
+     * could not use.
+     */
+    public function testMissingLocalBinarySkipsTheProbeAndStreams(): void
+    {
+        [$localMachineHelper] = $this->setUpRestrictedEnvironment();
+        $this->mockRemoteShellProbe($localMachineHelper, true, 'rsync');
+        $this->mockStreamedImport($localMachineHelper);
+
+        $this->command->sshHelper = new SshHelper($this->output, $localMachineHelper->reveal(), $this->logger);
+        $this->executeCommand([], self::pushInputs());
+        $this->prophet->checkPredictions();
+    }
+
+    /**
+     * A dump dying mid-stream leaves the import exiting 0 on the truncated
+     * input it did read, so the two statuses are checked independently and the
+     * message must name the dump.
+     */
+    public function testDumpFailureMidStreamIsAttributedToTheDump(): void
+    {
+        [$localMachineHelper] = $this->setUpRestrictedEnvironment();
+        $this->mockRemoteShellProbe($localMachineHelper, false);
+        $this->mockStreamedImport($localMachineHelper, false, true);
+
+        $this->command->sshHelper = new SshHelper($this->output, $localMachineHelper->reveal(), $this->logger);
+        $this->expectException(AcquiaCliException::class);
+        // The remote is not left alone: `sql:cli` has already applied the DROP
+        // and CREATE statements it received before the dump died, and saw a
+        // clean EOF when mysqldump closed stdout. The user has to be told.
+        $this->expectExceptionMessage('partially overwritten');
+        $this->executeCommand([], self::pushInputs());
+    }
+
+    public function testImportFailureIsAttributedToTheImport(): void
+    {
+        [$localMachineHelper] = $this->setUpRestrictedEnvironment();
+        $this->mockRemoteShellProbe($localMachineHelper, false);
+        $this->mockStreamedImport($localMachineHelper, true, false);
+
+        $this->command->sshHelper = new SshHelper($this->output, $localMachineHelper->reveal(), $this->logger);
+        $this->expectException(AcquiaCliException::class);
+        $this->expectExceptionMessage('Unable to import the database on the remote machine');
+        $this->executeCommand([], self::pushInputs());
+    }
+
+    /**
+     * The confirmation prompt names a database resolved from the Cloud API,
+     * while the streamed import lets Drush resolve the connection from the site
+     * URI. On a multisite environment those can disagree, so approving one
+     * database could overwrite another. Refuse rather than guess.
+     */
+    public function testMultisiteEnvironmentRefusesTheStreamedImport(): void
+    {
+        [$localMachineHelper] = $this->setUpRestrictedEnvironment(true);
+        $this->mockRemoteShellProbe($localMachineHelper, false);
+
+        $this->command->sshHelper = new SshHelper($this->output, $localMachineHelper->reveal(), $this->logger);
+        $this->expectException(AcquiaCliException::class);
+        $this->expectExceptionMessage('multisite environment');
+        $this->executeCommand([], self::multisitePushInputs());
     }
 }

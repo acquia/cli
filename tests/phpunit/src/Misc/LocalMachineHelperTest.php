@@ -289,4 +289,37 @@ class LocalMachineHelperTest extends TestBase
         // If the default is false (mutated), no callback should be set and output should be empty.
         $this->assertNotEmpty($writtenOutput, 'Callback should have been set when printOutput defaults to true');
     }
+
+    /**
+     * The streamed database push pipes mysqldump into ssh. Symfony supports a
+     * Process as another Process's input, but LocalMachineHelper had no way to
+     * pass one, and its own STDIN wiring would otherwise take precedence.
+     */
+    public function testExecuteStreamsInputFromAnotherProcess(): void
+    {
+        $producer = new Process(['printf', 'INSERT INTO node VALUES (1);']);
+        $producer->start();
+
+        $process = $this->localMachineHelper->execute(['cat'], null, null, false, null, null, false, $producer);
+
+        $this->assertTrue($process->isSuccessful());
+        $this->assertSame('INSERT INTO node VALUES (1);', $process->getOutput());
+        $this->assertSame(0, $producer->getExitCode());
+    }
+
+    /**
+     * A producer that dies mid-stream must remain detectable: the consumer can
+     * exit 0 having read the truncated input, so the two statuses have to be
+     * checked independently rather than collapsed into one.
+     */
+    public function testExecuteReportsProducerAndConsumerStatusSeparately(): void
+    {
+        $producer = new Process(['sh', '-c', 'printf "INSERT INTO node VALUES (1);"; exit 3']);
+        $producer->start();
+
+        $process = $this->localMachineHelper->execute(['cat'], null, null, false, null, null, false, $producer);
+
+        $this->assertSame(0, $process->getExitCode(), 'The consumer exits cleanly on truncated input.');
+        $this->assertSame(3, $producer->getExitCode(), 'The producer failure must still be visible.');
+    }
 }

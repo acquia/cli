@@ -368,6 +368,26 @@ abstract class CommandTestBase extends TestBase
         return $databasesResponse;
     }
 
+    /**
+     * Mock an environment with exactly one database.
+     *
+     * A single-database environment is unambiguous, so the streamed transport
+     * can target it; a multisite one cannot yet, because the site URI may
+     * resolve to a different database than the one chosen here.
+     *
+     * @return array<DatabaseResponse>
+     */
+    protected function mockSingleDatabaseResponse(object $environmentsResponse): array
+    {
+        $databasesResponseJson = json_decode(file_get_contents(Path::join($this->realFixtureDir, '/acsf_db_response.json')), false, 512, JSON_THROW_ON_ERROR);
+        $databasesResponse = [new DatabaseResponse($databasesResponseJson[0])];
+        $this->clientProphecy->request('get', "/environments/$environmentsResponse->id/databases")
+            ->willReturn($databasesResponse)
+            ->shouldBeCalledOnce();
+
+        return $databasesResponse;
+    }
+
     protected function mockDatabaseBackupsResponse(
         object $environmentsResponse,
         string $dbName,
@@ -436,9 +456,45 @@ abstract class CommandTestBase extends TestBase
         });
     }
 
+    /**
+     * Mock the remote-shell capability probe that selects the push:db transport.
+     *
+     * A policy denial arrives as an accepted exec that writes to stderr and
+     * returns a non-zero exit status, so a completed non-zero exec means the
+     * environment is restricted. SSH's own failures surface as 255 instead.
+     */
+    protected function mockRemoteShellProbe(ObjectProphecy $localMachineHelper, bool $permitted, ?string $missingBinary = null): void
+    {
+        foreach (['rsync', 'gzip', 'bash'] as $binary) {
+            $localMachineHelper->commandExists($binary)->willReturn($binary !== $missingBinary);
+        }
+        if ($missingBinary !== null) {
+            // The local check rules the upload transport out, so no round trip
+            // is spent asking the environment for a permission it cannot use.
+            return;
+        }
+        $probe = $this->prophet->prophesize(Process::class);
+        $probe->isSuccessful()->willReturn($permitted);
+        $probe->getExitCode()->willReturn($permitted ? 0 : 1);
+        $probe->getOutput()->willReturn('');
+        $probe->getErrorOutput()->willReturn($permitted ? '' : 'Trial subscriptions allow only Drupal (Drush) commands.');
+        $localMachineHelper->execute(
+            Argument::that(static fn ($command): bool => in_array('bash', $command, true) && !in_array('-t', $command, true)),
+            Argument::type('callable'),
+            null,
+            false,
+            null,
+            null,
+            false,
+            null
+        )
+            ->willReturn($probe->reveal())
+            ->shouldBeCalled();
+    }
+
     protected function mockCreateMySqlDumpOnLocal(ObjectProphecy $localMachineHelper, bool $printOutput = true, bool $pv = true): void
     {
-        $localMachineHelper->checkRequiredBinariesExist(["mysqldump", "gzip"])
+        $localMachineHelper->checkRequiredBinariesExist(["mysqldump", "gzip", "bash"])
             ->shouldBeCalled();
         $process = $this->mockProcess();
         $process->getOutput()->willReturn('');
