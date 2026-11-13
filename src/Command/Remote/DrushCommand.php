@@ -37,19 +37,12 @@ final class DrushCommand extends SshBaseCommand
     protected function execute(InputInterface $input, OutputInterface $output): ?int
     {
         $environment = $this->determineEnvironment($input, $output, true);
-        $alias = self::getEnvironmentAlias($environment);
         $acliArguments = $input->getArguments();
-        $drushArguments = (array) $acliArguments['drush_command'];
-        // When available, provide the default domain to drush.
-        if (!empty($environment->default_domain)) {
-            // Insert at the beginning so a user-supplied --uri arg will override.
-            array_unshift($drushArguments, "--uri=http://$environment->default_domain");
-        }
-        $drushCommandArguments = [
-            "cd /var/www/html/$alias/docroot; ",
-            'drush',
-            implode(' ', $drushArguments),
-        ];
+        $drushCommandArguments = self::buildRemoteDrushCommand(
+            self::getEnvironmentAlias($environment),
+            $environment->default_domain,
+            (array) $acliArguments['drush_command'],
+        );
 
         return $this->sshHelper->executeCommand($environment->sshUrl, $drushCommandArguments)
             ->getExitCode();

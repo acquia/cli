@@ -114,6 +114,9 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
 
     protected string $localDbHost = 'localhost';
 
+    /** @var array<string, DatabasesResponse> */
+    private array $environmentDatabases = [];
+
     protected bool $drushHasActiveDatabaseConnection;
 
     public function __construct(
@@ -600,8 +603,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
                 }
             }
         }
-        $databasesRequest = new Databases($acquiaCloudClient);
-        $databases = $databasesRequest->getAll($chosenEnvironment->uuid);
+        $databases = $this->getEnvironmentDatabases($acquiaCloudClient, $chosenEnvironment->uuid);
 
         if (count($databases) === 1) {
             $this->logger->debug('Only a single database detected on Cloud');
@@ -1870,10 +1872,115 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
         return reset($sshUrlParts);
     }
 
+    /**
+     * Fetch an environment's databases once per invocation.
+     */
+    protected function getEnvironmentDatabases(Client $acquiaCloudClient, string $environmentUuid): DatabasesResponse
+    {
+        return $this->environmentDatabases[$environmentUuid] ??= (new Databases($acquiaCloudClient))->getAll($environmentUuid);
+    }
+
     public static function getEnvironmentAlias(EnvironmentResponse $environment): string
     {
         $sshUrlParts = explode('@', $environment->sshUrl);
         return reset($sshUrlParts);
+    }
+
+    /**
+     * Build the remote command that runs Drush in an environment's docroot.
+     *
+     * @param array<string> $drushArguments
+     * @return array<string>
+     */
+    public static function buildRemoteDrushCommand(string $alias, ?string $defaultDomain, array $drushArguments): array
+    {
+        // Unshifted, so a user-supplied --uri overrides and the option still
+        // precedes the subcommand: the restricted SSH policy denies it after.
+        if (!empty($defaultDomain)) {
+            array_unshift($drushArguments, "--uri=http://$defaultDomain");
+        }
+
+        return [
+            "cd /var/www/html/$alias/docroot; ",
+            'drush',
+            implode(' ', $drushArguments),
+        ];
+    }
+
+    /**
+     * Reject a value a remote shell would not read literally.
+     *
+     * `ssh` joins its arguments and the far side parses the result, so argument
+     * vectors do not protect the remote end. Allowlisted, not escaped: \z
+     * rather than $, which also matches before a trailing newline.
+     *
+     * @throws \Acquia\Cli\Exception\AcquiaCliException
+     */
+    private static function assertRemoteIdentifierIsSafe(string $value, string $description, string $pattern): void
+    {
+        if (preg_match($pattern, $value) !== 1) {
+            throw new AcquiaCliException('The {description} "{value}" contains characters that are not safe to send in a remote command.', [
+                'description' => $description,
+                'value' => $value,
+            ]);
+        }
+    }
+
+    /**
+     * Build the mysqldump argument vector for a streamed push.
+     *
+     * Plain SQL to stdout; the password goes in the process environment as
+     * MYSQL_PWD, not argv. Conditional flags are probed because passing one the
+     * client lacks is a hard error. Triggers are deliberately not skipped.
+     *
+     * @param string $mysqlDumpHelp Output of `mysqldump --help` for the local client.
+     * @return array<string>
+     */
+    public static function buildStreamingMySqlDumpCommand(string $dbHost, string $dbUser, string $dbName, string $mysqlDumpHelp): array
+    {
+        $command = [
+            'mysqldump',
+            "--host=$dbHost",
+            "--user=$dbUser",
+            '--single-transaction',
+            '--no-tablespaces',
+            '--default-character-set=utf8mb4',
+            '--hex-blob',
+        ];
+
+        if (str_contains($mysqlDumpHelp, '--set-gtid-purged')) {
+            $command[] = '--set-gtid-purged=OFF';
+        }
+        if (str_contains($mysqlDumpHelp, '--skip-masking-policies')) {
+            $command[] = '--skip-masking-policies';
+        }
+
+        // End of options: the database is a trailing positional argument, and
+        // mysqldump would otherwise parse one beginning with a hyphen as one.
+        $command[] = '--';
+        $command[] = $dbName;
+
+        return $command;
+    }
+
+    /**
+     * Build the remote command for the streamed database import.
+     *
+     * Separate from buildRemoteDrushCommand() because these constraints belong
+     * to this path alone: `remote:drush` also runs against unrestricted
+     * environments, where `drush sql:cli --database=x` is legitimate.
+     *
+     * @return array<string>
+     * @throws \Acquia\Cli\Exception\AcquiaCliException
+     */
+    public static function buildStreamedSqlCliCommand(string $alias, ?string $defaultDomain): array
+    {
+        self::assertRemoteIdentifierIsSafe($alias, 'environment alias', '/^[A-Za-z0-9._-]+\z/');
+        if (!empty($defaultDomain)) {
+            self::assertRemoteIdentifierIsSafe($defaultDomain, 'default domain', '/^[A-Za-z0-9.:-]+\z/');
+        }
+
+        return self::buildRemoteDrushCommand($alias, $defaultDomain, ['sql:cli']);
     }
 
     protected function isAcsfEnv(mixed $cloudEnvironment): bool
@@ -2191,18 +2298,16 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
      */
     protected function createMySqlDumpOnLocal(string $dbHost, string $dbUser, string $dbName, string $dbPassword, ?Closure $outputCallback = null): string
     {
+        // `bash` runs the pipeline below and is absent on Windows.
         $this->localMachineHelper->checkRequiredBinariesExist([
             'mysqldump',
             'gzip',
+            'bash',
         ]);
         $filename = "acli-mysql-dump-$dbName.sql.gz";
         $localTempDir = sys_get_temp_dir();
         $localFilepath = $localTempDir . '/' . $filename;
         $this->logger->debug("Dumping MySQL database to $localFilepath on this machine");
-        $this->localMachineHelper->checkRequiredBinariesExist([
-            'mysqldump',
-            'gzip',
-        ]);
         if ($outputCallback) {
             $outputCallback('out', "Dumping MySQL database to $localFilepath on this machine");
         }
