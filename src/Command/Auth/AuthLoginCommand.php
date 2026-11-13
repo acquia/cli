@@ -7,6 +7,7 @@ namespace Acquia\Cli\Command\Auth;
 use Acquia\Cli\ApiCredentialsInterface;
 use Acquia\Cli\CloudApi\AuthConfig;
 use Acquia\Cli\CloudApi\ClientService;
+use Acquia\Cli\CloudApi\DeviceTokenRefresher;
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\DataStore\AcquiaCliDatastore;
 use Acquia\Cli\DataStore\CloudDataStore;
@@ -35,6 +36,9 @@ final class AuthLoginCommand extends CommandBase implements SignalableCommandInt
 {
     private const REQUEST_TIMEOUT_SECONDS = 30;
 
+    /** Never null; a missing argument is defaulted in the constructor. */
+    private readonly DeviceTokenRefresher $deviceTokenRefresher;
+
     public function __construct(
         public LocalMachineHelper $localMachineHelper,
         protected CloudDataStore $datastoreCloud,
@@ -49,8 +53,12 @@ final class AuthLoginCommand extends CommandBase implements SignalableCommandInt
         public SelfUpdateManager $selfUpdateManager,
         private GuzzleClient $httpClient = new GuzzleClient(),
         private AuthConfig $authConfig = new AuthConfig(),
+        // Optional for manual construction; defaulted below, never left null.
+        ?DeviceTokenRefresher $deviceTokenRefresher = null,
     ) {
         parent::__construct($this->localMachineHelper, $this->datastoreCloud, $this->datastoreAcli, $this->cloudCredentials, $this->telemetryHelper, $this->projectDir, $this->cloudApiClientService, $this->sshHelper, $this->sshDir, $logger, $this->selfUpdateManager);
+        $this->deviceTokenRefresher = $deviceTokenRefresher
+            ?? new DeviceTokenRefresher($this->datastoreCloud, $logger, $this->httpClient, $this->authConfig);
     }
 
     protected function configure(): void
@@ -80,6 +88,13 @@ Which sign-in it uses depends on what is already stored:
 
 Device code sign-in prints a URL and a short code. Open the URL in a browser
 on any device, sign in to Acquia, and confirm the code to finish signing in.
+
+A device code session does not last indefinitely. It ends after 90 minutes
+of inactivity, and cannot outlive 12 hours however actively it is used. If
+you need a credential that stays valid -- for CI, an agent, or any script
+that runs unattended -- sign in with an API key and secret instead:
+
+  acli auth:login --use-legacy-auth
 EOD);
     }
 
@@ -110,13 +125,32 @@ EOD);
         }
 
         if ($deviceToken) {
-            $output->writeln('Already authenticated via <options=bold>device code</>');
+            // `-n` always reaches the flow, so checking would change nothing.
+            // It must not claim the session is live without having checked.
+            if (!$input->isInteractive()) {
+                $output->writeln('Signing in again via <options=bold>device code</>');
+                return $this->executeDeviceCodeFlowWithFallback($input, $output);
+            }
 
-            if ($input->isInteractive()) {
-                $reauth = $this->io->confirm('Re-authenticate?', false);
-                if (!$reauth) {
+            $result = $this->deviceTokenRefresher->getValidAccessToken();
+
+            if ($result->accessToken === null && !$result->serverUnreachable) {
+                $output->writeln('Your <options=bold>device code</> session has expired');
+
+                // Default yes: the action the developer ran the command for.
+                if (!$this->io->confirm('Sign in again?')) {
                     return Command::SUCCESS;
                 }
+                return $this->executeDeviceCodeFlowWithFallback($input, $output);
+            }
+
+            // Unreachable reports what is stored, not what is true.
+            $output->writeln($result->serverUnreachable
+                ? "A <options=bold>device code</> session is stored, but the authorization server couldn't be reached to check it"
+                : 'Already authenticated via <options=bold>device code</>');
+
+            if (!$this->io->confirm('Re-authenticate?', false)) {
+                return Command::SUCCESS;
             }
             return $this->executeDeviceCodeFlowWithFallback($input, $output);
         }

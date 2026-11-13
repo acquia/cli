@@ -253,8 +253,34 @@ class AccessTokenConnectorTest extends TestBase
         $connector->setProvider($mockProvider->reveal());
 
         $this->expectException(AcquiaCliException::class);
-        $this->expectExceptionMessage('Device token session expired');
+        $this->expectExceptionMessage('Device token session expired. Run acli auth:login to re-authenticate.');
         $connector->createRequest('get', 'api');
+    }
+
+    /**
+     * Symfony escapes exception messages (`Application.php:926`), so console
+     * markup here has never rendered -- it prints as literal tags. The styled
+     * copy belongs in the help block, which is rendered with escaping off.
+     */
+    public function testTheExpiredSessionMessageCarriesNoConsoleMarkup(): void
+    {
+        $refresherProphecy = $this->prophet->prophesize(DeviceTokenRefresher::class);
+        $refresherProphecy->getValidAccessToken()
+            ->willReturn(DeviceTokenRefreshResult::sessionEnded());
+        $connector = new AccessTokenConnector([
+            'access_token' => 'stale',
+            'key' => null,
+            'secret' => null,
+        ], null, null, $refresherProphecy->reveal());
+        $connector->setProvider($this->prophet->prophesize(GenericProvider::class)->reveal());
+
+        try {
+            $connector->createRequest('get', 'api');
+            $this->fail('Expected an expired session to throw.');
+        } catch (AcquiaCliException $e) {
+            $this->assertStringNotContainsString('<options=', $e->getMessage());
+            $this->assertStringContainsString('Run acli auth:login to re-authenticate.', $e->getMessage());
+        }
     }
 
     /**
