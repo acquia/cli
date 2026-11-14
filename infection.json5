@@ -17,7 +17,14 @@
             "\\$this->logger.*",
             // Cache TTLs only affect expiry timing, which is not observable in a
             // unit test without manipulating the clock.
-            ".*->expiresAfter\\(.*"
+            ".*->expiresAfter\\(.*",
+            // Console output and progress-checklist calls are interface text,
+            // not observable behavior — same class of noise as logger calls.
+            "\\$this->io->writeln.*",
+            "\\$this->io->success.*",
+            "\\$this->io->warning.*",
+            "\\$this->io->note.*",
+            "\\$this->checklist->.*"
         ]
     },
     "timeout": 30,
