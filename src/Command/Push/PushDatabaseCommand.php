@@ -9,12 +9,14 @@ use Acquia\Cli\Attribute\RequireLocalDb;
 use Acquia\Cli\Attribute\RequireRemoteDb;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Output\Checklist;
+use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Response\DatabaseResponse;
 use AcquiaCloudApi\Response\EnvironmentResponse;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Process\Process;
 
 #[RequireAuth]
 #[RequireLocalDb]
@@ -22,6 +24,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 #[AsCommand(name: 'push:database', description: 'Push a database from your local environment to a Cloud Platform environment', aliases: ['push:db'])]
 final class PushDatabaseCommand extends PushCommandBase
 {
+    private const STREAM_PROGRESS_INTERVAL_BYTES = 1048576;
+
     protected function configure(): void
     {
         $this
@@ -53,19 +57,145 @@ final class PushDatabaseCommand extends PushCommandBase
         $this->checklist = new Checklist($output);
         $outputCallback = $this->getOutputCallback($output, $this->checklist);
 
-        $this->checklist->addItem('Creating local database dump');
-        $localDumpFilepath = $this->createMySqlDumpOnLocal($this->getLocalDbHost(), $this->getLocalDbUser(), $this->getLocalDbName(), $this->getLocalDbPassword(), $outputCallback);
-        $this->checklist->completePreviousItem();
+        if ($this->canUseUploadTransport($destinationEnvironment)) {
+            $this->checklist->addItem('Creating local database dump');
+            $localDumpFilepath = $this->createMySqlDumpOnLocal($this->getLocalDbHost(), $this->getLocalDbUser(), $this->getLocalDbName(), $this->getLocalDbPassword(), $outputCallback);
+            $this->checklist->completePreviousItem();
 
-        $this->checklist->addItem('Uploading database dump to remote machine');
-        $remoteDumpFilepath = $this->uploadDatabaseDump($destinationEnvironment, $localDumpFilepath, $outputCallback);
-        $this->checklist->completePreviousItem();
+            $this->checklist->addItem('Uploading database dump to remote machine');
+            $remoteDumpFilepath = $this->uploadDatabaseDump($destinationEnvironment, $localDumpFilepath, $outputCallback);
+            $this->checklist->completePreviousItem();
 
-        $this->checklist->addItem('Importing database dump into MySQL on remote machine');
-        $this->importDatabaseDumpOnRemote($destinationEnvironment, $remoteDumpFilepath, $database);
-        $this->checklist->completePreviousItem();
+            $this->checklist->addItem('Importing database dump into MySQL on remote machine');
+            $this->importDatabaseDumpOnRemote($destinationEnvironment, $remoteDumpFilepath, $database);
+            $this->checklist->completePreviousItem();
+
+            return Command::SUCCESS;
+        }
+
+        $this->assertStreamedTransportCanTargetDatabase($acquiaCloudClient, $destinationEnvironment);
+        $this->streamDatabaseToRemote($destinationEnvironment, $outputCallback);
 
         return Command::SUCCESS;
+    }
+
+    /**
+     * Decide whether the upload-and-import transport can be used at all.
+     *
+     * Capability only; the local half first, to avoid a wasted round trip.
+     */
+    private function canUseUploadTransport(EnvironmentResponse $environment): bool
+    {
+        foreach (['rsync', 'gzip', 'bash'] as $binary) {
+            if (!$this->localMachineHelper->commandExists($binary)) {
+                $this->logger->debug("Streaming the import: the local `$binary` binary is missing");
+                return false;
+            }
+        }
+
+        // A policy denial is a completed exec with a non-zero status. SSH's own
+        // failures are 255, which SshHelper raises rather than downgrading on.
+        $probe = $this->sshHelper->executeCommandWithoutTty($environment->sshUrl, ['bash', '-c', 'true'], false);
+        if (!$probe->isSuccessful()) {
+            $this->logger->debug('Streaming the import: the environment does not permit a shell command');
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Refuse the streamed transport where it could overwrite the wrong database:
+     * Drush resolves from the site URI, the prompt from the Cloud API.
+     */
+    private function assertStreamedTransportCanTargetDatabase(Client $acquiaCloudClient, EnvironmentResponse $environment): void
+    {
+        $databases = $this->getEnvironmentDatabases($acquiaCloudClient, $environment->uuid);
+        if (count($databases) > 1) {
+            throw new AcquiaCliException('Cannot push a database to a multisite environment that does not permit shell commands. The streamed import resolves the target site from its URI, which may not be the database you selected.');
+        }
+    }
+
+    /**
+     * Stream a plain-SQL dump into `drush sql:cli` on the remote environment.
+     *
+     * Two processes joined in PHP: no local shell, independent exit statuses.
+     */
+    private function streamDatabaseToRemote(EnvironmentResponse $environment, callable $outputCallback): void
+    {
+        $this->localMachineHelper->checkRequiredBinariesExist(['mysqldump']);
+        $this->checklist->addItem('Streaming local database dump into the remote database');
+
+        $dumpCommand = self::buildStreamingMySqlDumpCommand(
+            $this->getLocalDbHost(),
+            $this->getLocalDbUser(),
+            $this->getLocalDbName(),
+            $this->getMySqlDumpHelp()
+        );
+        $dump = $this->localMachineHelper->createProcess($dumpCommand, ['MYSQL_PWD' => $this->getLocalDbPassword()]);
+        // A large dump takes far longer than the default 60s.
+        $dump->setTimeout(null);
+        $dump->start();
+
+        $remoteCommand = self::buildStreamedSqlCliCommand(
+            self::getEnvironmentAlias($environment),
+            $environment->default_domain
+        );
+        $import = $this->sshHelper->executeCommandWithoutTty(
+            $environment->sshUrl,
+            $remoteCommand,
+            // Not gated on verbosity: without a pty this is its only channel.
+            true,
+            null,
+            null,
+            $this->streamWithProgress($dump, $outputCallback)
+        );
+        $this->checklist->completePreviousItem();
+
+        // A running process reports isSuccessful() === false, so checking the
+        // dump first would blame it for an import that exited early.
+        if (!$import->isSuccessful() && $dump->isRunning()) {
+            $dump->stop();
+            throw new AcquiaCliException('Unable to import the database on the remote machine. {message}', ['message' => $import->getErrorOutput()]);
+        }
+        if (!$dump->isSuccessful()) {
+            // `sql:cli` has already applied the statements that did arrive.
+            throw new AcquiaCliException('Unable to create a dump of the local database, and the remote database may have been partially overwritten before the dump failed. {message}', ['message' => $dump->getErrorOutput()]);
+        }
+        if (!$import->isSuccessful()) {
+            throw new AcquiaCliException('Unable to import the database on the remote machine. {message}', ['message' => $import->getErrorOutput()]);
+        }
+    }
+
+    /**
+     * Yield the dump's output, counting bytes; `pv` does not exist on Windows.
+     *
+     * @return \Generator<string>
+     */
+    private function streamWithProgress(Process $dump, callable $outputCallback): \Generator
+    {
+        $sent = 0;
+        $nextReport = self::STREAM_PROGRESS_INTERVAL_BYTES;
+
+        foreach ($dump->getIterator(Process::ITER_SKIP_ERR) as $chunk) {
+            $sent += strlen($chunk);
+            if ($sent >= $nextReport) {
+                $outputCallback('out', sprintf('Streamed %d MB so far', intdiv($sent, self::STREAM_PROGRESS_INTERVAL_BYTES)));
+                $nextReport = $sent + self::STREAM_PROGRESS_INTERVAL_BYTES;
+            }
+
+            yield $chunk;
+        }
+
+        $outputCallback('out', sprintf('Streamed %d MB in total', intdiv($sent, self::STREAM_PROGRESS_INTERVAL_BYTES)));
+    }
+
+    /**
+     * Read the local client's advertised options, for flag selection.
+     */
+    private function getMySqlDumpHelp(): string
+    {
+        return $this->localMachineHelper->execute(['mysqldump', '--help'], null, null, false)->getOutput();
     }
 
     private function uploadDatabaseDump(

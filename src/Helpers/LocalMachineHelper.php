@@ -79,12 +79,26 @@ class LocalMachineHelper
 
     /**
      * Executes a buffered command.
+     *
+     * @param mixed $input Explicit stdin — a string, stream or Process, taking
+     *   precedence over acli's own STDIN.
      */
-    public function execute(array $cmd, ?callable $callback = null, ?string $cwd = null, ?bool $printOutput = true, ?float $timeout = null, ?array $env = null, bool $stdin = true): Process
+    public function execute(array $cmd, ?callable $callback = null, ?string $cwd = null, ?bool $printOutput = true, ?float $timeout = null, ?array $env = null, bool $stdin = true, mixed $input = null): Process
     {
         $process = new Process($cmd);
-        $process = $this->configureProcess($process, $cwd, $printOutput, $timeout, $env, $stdin);
+        $process = $this->configureProcess($process, $cwd, $printOutput, $timeout, $env, $stdin, $input);
         return $this->executeProcess($process, $callback, $printOutput, $env);
+    }
+
+    /**
+     * Create a process without running it, for use as another's input.
+     *
+     * @param array<string> $cmd
+     * @param array<string, string>|null $env
+     */
+    public function createProcess(array $cmd, ?array $env = null): Process
+    {
+        return new Process($cmd, null, $env);
     }
 
     /**
@@ -109,9 +123,12 @@ class LocalMachineHelper
     /**
      * @param array|null $env
      */
-    private function configureProcess(Process $process, ?string $cwd = null, ?bool $printOutput = true, ?float $timeout = null, ?array $env = null, bool $stdin = true): Process
+    private function configureProcess(Process $process, ?string $cwd = null, ?bool $printOutput = true, ?float $timeout = null, ?array $env = null, bool $stdin = true, mixed $input = null): Process
     {
-        if (function_exists('posix_isatty') && $stdin && !$this->isTtyStream(STDIN)) {
+        // An explicit input wins; falling through would use acli's own STDIN.
+        if ($input !== null) {
+            $process->setInput($input);
+        } elseif (function_exists('posix_isatty') && $stdin && !$this->isTtyStream(STDIN)) {
             $process->setInput(STDIN);
         }
         if ($cwd) {

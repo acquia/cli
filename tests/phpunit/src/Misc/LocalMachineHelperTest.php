@@ -289,4 +289,80 @@ class LocalMachineHelperTest extends TestBase
         // If the default is false (mutated), no callback should be set and output should be empty.
         $this->assertNotEmpty($writtenOutput, 'Callback should have been set when printOutput defaults to true');
     }
+
+    /**
+     * The streamed database push pipes mysqldump into ssh. Symfony supports a
+     * Process as another Process's input, but LocalMachineHelper had no way to
+     * pass one, and its own STDIN wiring would otherwise take precedence.
+     */
+    public function testExecuteStreamsInputFromAnotherProcess(): void
+    {
+        $producer = new Process(['printf', 'INSERT INTO node VALUES (1);']);
+        $producer->start();
+
+        $process = $this->localMachineHelper->execute(['cat'], null, null, false, null, null, false, $producer);
+
+        $this->assertTrue($process->isSuccessful());
+        $this->assertSame('INSERT INTO node VALUES (1);', $process->getOutput());
+        $this->assertSame(0, $producer->getExitCode());
+    }
+
+    /**
+     * A producer that dies mid-stream must remain detectable: the consumer can
+     * exit 0 having read the truncated input, so the two statuses have to be
+     * checked independently rather than collapsed into one.
+     */
+    public function testExecuteReportsProducerAndConsumerStatusSeparately(): void
+    {
+        $producer = new Process(['sh', '-c', 'printf "INSERT INTO node VALUES (1);"; exit 3']);
+        $producer->start();
+
+        $process = $this->localMachineHelper->execute(['cat'], null, null, false, null, null, false, $producer);
+
+        $this->assertSame(0, $process->getExitCode(), 'The consumer exits cleanly on truncated input.');
+        $this->assertSame(3, $producer->getExitCode(), 'The producer failure must still be visible.');
+    }
+
+    /**
+     * Mocked everywhere it is used, so its body needs a test of its own.
+     */
+    public function testCreateProcessReturnsAnUnstartedProcess(): void
+    {
+        $process = $this->localMachineHelper->createProcess(['printf', 'x'], ['MYSQL_PWD' => 'secret']);
+
+        // Unstarted on purpose: the caller starts it, then hands it to another
+        // process as input.
+        $this->assertFalse($process->isStarted());
+        $this->assertStringContainsString('printf', $process->getCommandLine());
+        // Credentials belong here rather than in argv.
+        $this->assertSame(['MYSQL_PWD' => 'secret'], $process->getEnv());
+        $this->assertStringNotContainsString('secret', $process->getCommandLine());
+    }
+
+    /**
+     * The state combination that makes failure attribution subtle, asserted
+     * against real processes because no mock would have revealed it.
+     *
+     * When the consumer exits before reading the whole stream, the producer is
+     * still running and has no exit code, so isSuccessful() is false even
+     * though nothing is wrong with it. Anything deciding which side failed has
+     * to separate "still running" from "finished badly".
+     */
+    public function testAConsumerExitingEarlyLeavesTheProducerRunning(): void
+    {
+        $producer = new Process(['php', '-r', 'for ($i = 0; $i < 200000; $i++) { echo str_repeat("x", 100), "\n"; }']);
+        $producer->setTimeout(null);
+        $consumer = new Process(['php', '-r', 'fgets(STDIN); exit(1);']);
+        $consumer->setInput($producer);
+
+        $producer->start();
+        $consumer->run();
+
+        $this->assertSame(1, $consumer->getExitCode());
+        $this->assertTrue($producer->isRunning(), 'The producer has not finished, so it cannot be the cause.');
+        $this->assertNull($producer->getExitCode());
+        $this->assertFalse($producer->isSuccessful(), 'A running process reports failure; that is the trap.');
+
+        $producer->stop();
+    }
 }
