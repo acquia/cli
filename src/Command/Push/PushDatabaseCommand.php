@@ -82,8 +82,7 @@ final class PushDatabaseCommand extends PushCommandBase
     /**
      * Decide whether the upload-and-import transport can be used at all.
      *
-     * Capability only; no subscription type or operating system is consulted.
-     * The local half is checked first to avoid a wasted round trip.
+     * Capability only; the local half first, to avoid a wasted round trip.
      */
     private function canUseUploadTransport(EnvironmentResponse $environment): bool
     {
@@ -106,10 +105,8 @@ final class PushDatabaseCommand extends PushCommandBase
     }
 
     /**
-     * Refuse the streamed transport where it could overwrite the wrong database.
-     *
-     * Drush resolves the connection from the site URI while the prompt names a
-     * database from the Cloud API; on a multisite those can disagree.
+     * Refuse the streamed transport where it could overwrite the wrong database:
+     * Drush resolves from the site URI, the prompt from the Cloud API.
      */
     private function assertStreamedTransportCanTargetDatabase(Client $acquiaCloudClient, EnvironmentResponse $environment): void
     {
@@ -122,8 +119,7 @@ final class PushDatabaseCommand extends PushCommandBase
     /**
      * Stream a plain-SQL dump into `drush sql:cli` on the remote environment.
      *
-     * Two processes joined in PHP, so there is no local shell and the two exit
-     * statuses stay independent.
+     * Two processes joined in PHP: no local shell, independent exit statuses.
      */
     private function streamDatabaseToRemote(EnvironmentResponse $environment, callable $outputCallback): void
     {
@@ -148,8 +144,7 @@ final class PushDatabaseCommand extends PushCommandBase
         $import = $this->sshHelper->executeCommandWithoutTty(
             $environment->sshUrl,
             $remoteCommand,
-            // Not gated on verbosity: without a pty this is the import's only
-            // channel, and a success prints nothing.
+            // Not gated on verbosity: without a pty this is its only channel.
             true,
             null,
             null,
@@ -157,11 +152,14 @@ final class PushDatabaseCommand extends PushCommandBase
         );
         $this->checklist->completePreviousItem();
 
-        // The dump is checked first: it can fail mid-stream while the import
-        // exits 0 on the truncated input it received.
+        // A running process reports isSuccessful() === false, so checking the
+        // dump first would blame it for an import that exited early.
+        if (!$import->isSuccessful() && $dump->isRunning()) {
+            $dump->stop();
+            throw new AcquiaCliException('Unable to import the database on the remote machine. {message}', ['message' => $import->getErrorOutput()]);
+        }
         if (!$dump->isSuccessful()) {
-            // `sql:cli` already ran the statements it received, so the remote
-            // is half-written even though the import exited zero.
+            // `sql:cli` has already applied the statements that did arrive.
             throw new AcquiaCliException('Unable to create a dump of the local database, and the remote database may have been partially overwritten before the dump failed. {message}', ['message' => $dump->getErrorOutput()]);
         }
         if (!$import->isSuccessful()) {
@@ -170,9 +168,7 @@ final class PushDatabaseCommand extends PushCommandBase
     }
 
     /**
-     * Yield the dump's output, reporting how much has been sent.
-     *
-     * Counted here rather than with `pv`, which does not exist on Windows.
+     * Yield the dump's output, counting bytes; `pv` does not exist on Windows.
      *
      * @return \Generator<string>
      */
@@ -196,8 +192,6 @@ final class PushDatabaseCommand extends PushCommandBase
 
     /**
      * Read the local client's advertised options, for flag selection.
-     *
-     * An unreadable `--help` yields no conditional flags, which is not fatal.
      */
     private function getMySqlDumpHelp(): string
     {

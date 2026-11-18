@@ -322,4 +322,47 @@ class LocalMachineHelperTest extends TestBase
         $this->assertSame(0, $process->getExitCode(), 'The consumer exits cleanly on truncated input.');
         $this->assertSame(3, $producer->getExitCode(), 'The producer failure must still be visible.');
     }
+
+    /**
+     * Mocked everywhere it is used, so its body needs a test of its own.
+     */
+    public function testCreateProcessReturnsAnUnstartedProcess(): void
+    {
+        $process = $this->localMachineHelper->createProcess(['printf', 'x'], ['MYSQL_PWD' => 'secret']);
+
+        // Unstarted on purpose: the caller starts it, then hands it to another
+        // process as input.
+        $this->assertFalse($process->isStarted());
+        $this->assertStringContainsString('printf', $process->getCommandLine());
+        // Credentials belong here rather than in argv.
+        $this->assertSame(['MYSQL_PWD' => 'secret'], $process->getEnv());
+        $this->assertStringNotContainsString('secret', $process->getCommandLine());
+    }
+
+    /**
+     * The state combination that makes failure attribution subtle, asserted
+     * against real processes because no mock would have revealed it.
+     *
+     * When the consumer exits before reading the whole stream, the producer is
+     * still running and has no exit code, so isSuccessful() is false even
+     * though nothing is wrong with it. Anything deciding which side failed has
+     * to separate "still running" from "finished badly".
+     */
+    public function testAConsumerExitingEarlyLeavesTheProducerRunning(): void
+    {
+        $producer = new Process(['php', '-r', 'for ($i = 0; $i < 200000; $i++) { echo str_repeat("x", 100), "\n"; }']);
+        $producer->setTimeout(null);
+        $consumer = new Process(['php', '-r', 'fgets(STDIN); exit(1);']);
+        $consumer->setInput($producer);
+
+        $producer->start();
+        $consumer->run();
+
+        $this->assertSame(1, $consumer->getExitCode());
+        $this->assertTrue($producer->isRunning(), 'The producer has not finished, so it cannot be the cause.');
+        $this->assertNull($producer->getExitCode());
+        $this->assertFalse($producer->isSuccessful(), 'A running process reports failure; that is the trap.');
+
+        $producer->stop();
+    }
 }

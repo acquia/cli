@@ -463,15 +463,17 @@ abstract class CommandTestBase extends TestBase
      * returns a non-zero exit status, so a completed non-zero exec means the
      * environment is restricted. SSH's own failures surface as 255 instead.
      */
-    protected function mockRemoteShellProbe(ObjectProphecy $localMachineHelper, bool $permitted, ?string $missingBinary = null): void
+    protected function mockRemoteShellProbe(ObjectProphecy $localMachineHelper, bool $permitted, ?string $missingBinary = null): \stdClass
     {
+        $capture = new \stdClass();
+        $capture->args = [];
         foreach (['rsync', 'gzip', 'bash'] as $binary) {
             $localMachineHelper->commandExists($binary)->willReturn($binary !== $missingBinary);
         }
         if ($missingBinary !== null) {
             // The local check rules the upload transport out, so no round trip
             // is spent asking the environment for a permission it cannot use.
-            return;
+            return $capture;
         }
         $probe = $this->prophet->prophesize(Process::class);
         $probe->isSuccessful()->willReturn($permitted);
@@ -488,8 +490,13 @@ abstract class CommandTestBase extends TestBase
             false,
             null
         )
-            ->willReturn($probe->reveal())
+            ->will(function (array $args) use ($capture, $probe) {
+                $capture->args = $args;
+                return $probe->reveal();
+            })
             ->shouldBeCalled();
+
+        return $capture;
     }
 
     protected function mockCreateMySqlDumpOnLocal(ObjectProphecy $localMachineHelper, bool $printOutput = true, bool $pv = true): void

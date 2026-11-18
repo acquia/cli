@@ -65,17 +65,17 @@ class SshHelper implements LoggerAwareInterface
         return $process;
     }
 
-    private function sendCommand(string $url, array $command, bool $printOutput, ?int $timeout = null, ?array $env = null, bool $tty = true, mixed $input = null): Process
+    private function sendCommand(string $url, array $command, bool $printOutput, ?int $timeout, ?array $env, bool $tty, mixed $input): Process
     {
+        // @infection-ignore-all — array_values() normalises string keys that
+        // array_merge would otherwise preserve.
         $command = array_values($this->getSshCommand($url, $command, $tty));
         $this->localMachineHelper->checkRequiredBinariesExist(['ssh']);
 
-        // Dropping -t is not enough: configureProcess() sets TTY mode when
-        // $printOutput is true and wires acli's STDIN otherwise, and either
-        // would silently replace a caller's streamed input.
+        // Dropping -t is not enough: configureProcess() would set TTY mode or
+        // wire acli's STDIN, either of which replaces a caller's input.
         if ($tty) {
-            // Unchanged, argument count included, so the tests covering this
-            // path stay valid regression guards.
+            // Unchanged, argument count included, so existing tests still guard it.
             return $this->localMachineHelper->execute($command, $this->getOutputCallback(), null, $printOutput, $timeout, $env);
         }
 
@@ -100,10 +100,8 @@ class SshHelper implements LoggerAwareInterface
     }
 
     /**
-     * Choose how a remote command's output is surfaced.
-     *
-     * Without a pty, output arrives through pipes and must be written
-     * explicitly — but a caller that asked not to print is still obeyed.
+     * Choose how a remote command's output is surfaced: without a pty it
+     * arrives through pipes and must be written explicitly.
      */
     private function getOutputCallback(bool $tty = true, bool $printOutput = true): callable
     {
@@ -139,15 +137,14 @@ class SshHelper implements LoggerAwareInterface
     /**
      * @return array<mixed>
      */
-    private function getConnectionArgs(string $url, bool $tty = true): array
+    private function getConnectionArgs(string $url, bool $tty): array
     {
         $args = ['ssh', $url];
         if ($tty) {
             $args[] = '-t';
         }
 
-        // The non-TTY list must differ by the pty flag alone, never by weaker
-        // host-key checking.
+        // The non-TTY list must differ by the pty flag alone.
         return array_merge($args, [
             '-o StrictHostKeyChecking=accept-new',
             '-o AddressFamily inet',
@@ -158,7 +155,7 @@ class SshHelper implements LoggerAwareInterface
     /**
      * @return array<mixed>
      */
-    private function getSshCommand(string $url, array $command, bool $tty = true): array
+    private function getSshCommand(string $url, array $command, bool $tty): array
     {
         return array_merge($this->getConnectionArgs($url, $tty), $command);
     }

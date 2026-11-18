@@ -79,9 +79,8 @@ class LocalMachineHelper
 
     /**
      * Executes a buffered command.
-     */
-    /**
-     * @param mixed $input Explicit stdin — a string, stream or Process. Takes
+     *
+     * @param mixed $input Explicit stdin — a string, stream or Process, taking
      *   precedence over acli's own STDIN.
      */
     public function execute(array $cmd, ?callable $callback = null, ?string $cwd = null, ?bool $printOutput = true, ?float $timeout = null, ?array $env = null, bool $stdin = true, mixed $input = null): Process
@@ -126,8 +125,7 @@ class LocalMachineHelper
      */
     private function configureProcess(Process $process, ?string $cwd = null, ?bool $printOutput = true, ?float $timeout = null, ?array $env = null, bool $stdin = true, mixed $input = null): Process
     {
-        // An explicit input always wins; falling through would replace it with
-        // acli's own STDIN.
+        // An explicit input wins; falling through would use acli's own STDIN.
         if ($input !== null) {
             $process->setInput($input);
         } elseif (function_exists('posix_isatty') && $stdin && !$this->isTtyStream(STDIN)) {

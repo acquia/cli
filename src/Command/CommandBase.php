@@ -1910,9 +1910,8 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
     /**
      * Reject a value a remote shell would not read literally.
      *
-     * `ssh` joins its arguments and the far side parses the result, so argument
-     * vectors do not protect the remote end. Allowlisted, not escaped: \z
-     * rather than $, which also matches before a trailing newline.
+     * `ssh` joins its arguments and the far side parses the result. Allowlisted,
+     * and anchored with \z, since $ also matches before a trailing newline.
      *
      * @throws \Acquia\Cli\Exception\AcquiaCliException
      */
@@ -1929,11 +1928,10 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
     /**
      * Build the mysqldump argument vector for a streamed push.
      *
-     * Plain SQL to stdout; the password goes in the process environment as
-     * MYSQL_PWD, not argv. Conditional flags are probed because passing one the
-     * client lacks is a hard error. Triggers are deliberately not skipped.
+     * Plain SQL to stdout, password in the environment not argv, conditional
+     * flags probed because passing one the client lacks is fatal. Triggers kept.
      *
-     * @param string $mysqlDumpHelp Output of `mysqldump --help` for the local client.
+     * @param string $mysqlDumpHelp Output of `mysqldump --help`.
      * @return array<string>
      */
     public static function buildStreamingMySqlDumpCommand(string $dbHost, string $dbUser, string $dbName, string $mysqlDumpHelp): array
@@ -1955,8 +1953,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
             $command[] = '--skip-masking-policies';
         }
 
-        // End of options: the database is a trailing positional argument, and
-        // mysqldump would otherwise parse one beginning with a hyphen as one.
+        // End of options, so a leading-hyphen database name is not an option.
         $command[] = '--';
         $command[] = $dbName;
 
@@ -1966,9 +1963,8 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
     /**
      * Build the remote command for the streamed database import.
      *
-     * Separate from buildRemoteDrushCommand() because these constraints belong
-     * to this path alone: `remote:drush` also runs against unrestricted
-     * environments, where `drush sql:cli --database=x` is legitimate.
+     * Separate from buildRemoteDrushCommand(), which `remote:drush` shares and
+     * which runs where `drush sql:cli --database=x` is legitimate.
      *
      * @return array<string>
      * @throws \Acquia\Cli\Exception\AcquiaCliException

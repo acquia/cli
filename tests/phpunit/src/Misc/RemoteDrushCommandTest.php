@@ -173,6 +173,8 @@ class RemoteDrushCommandTest extends TestCase
     public function testRejectsUnsafeAlias(string $alias): void
     {
         $this->expectException(AcquiaCliException::class);
+        // The message must name which value was rejected, and quote it.
+        $this->expectExceptionMessage('environment alias');
         CommandBase::buildStreamedSqlCliCommand($alias, self::DOMAIN);
     }
 
@@ -193,6 +195,7 @@ class RemoteDrushCommandTest extends TestCase
     public function testRejectsUnsafeDefaultDomain(string $domain): void
     {
         $this->expectException(AcquiaCliException::class);
+        $this->expectExceptionMessage('default domain');
         CommandBase::buildStreamedSqlCliCommand(self::ALIAS, $domain);
     }
 

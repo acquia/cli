@@ -288,7 +288,7 @@ class PushDatabaseCommandTest extends CommandTestBase
      *
      * @return \stdClass holds ->ssh (the captured argument list) and ->dump
      */
-    private function mockStreamedImport(ObjectProphecy $localMachineHelper, bool $dumpSucceeds = true, bool $importSucceeds = true): \stdClass
+    private function mockStreamedImport(ObjectProphecy $localMachineHelper, bool $dumpSucceeds = true, bool $importSucceeds = true, bool $dumpStillRunning = false): \stdClass
     {
         $capture = new \stdClass();
         $capture->ssh = [];
@@ -302,13 +302,23 @@ class PushDatabaseCommandTest extends CommandTestBase
             ->shouldBeCalled();
 
         $dump = $this->prophet->prophesize(Process::class);
-        $dump->setTimeout(null)->willReturn($dump->reveal());
-        $dump->start()->willReturn(null);
+        $dump->setTimeout(null)->willReturn($dump->reveal())->shouldBeCalled();
+        $dump->start()->willReturn(null)->shouldBeCalled();
+        // A process that has not exited yet reports isSuccessful() === false,
+        // because its exit code is still null. The two must be distinguishable.
         $dump->isSuccessful()->willReturn($dumpSucceeds);
+        $dump->isRunning()->willReturn($dumpStillRunning);
+        if ($dumpStillRunning) {
+            // Left running, it would keep writing into a closed pipe.
+            $dump->stop()->willReturn(0)->shouldBeCalled();
+        }
         $dump->getIterator(Argument::any())->will(static function (): \Generator {
-            // Two chunks either side of a megabyte, so the throttled report fires.
-            yield str_repeat('x', 600 * 1024);
-            yield str_repeat('y', 600 * 1024);
+            // Eight quarter-megabyte chunks: the fourth lands exactly on the
+            // reporting boundary and the eighth on the next, so both the
+            // threshold comparison and the throttling are observable.
+            for ($i = 0; $i < 8; $i++) {
+                yield str_repeat('x', 262144);
+            }
         });
         $dump->getErrorOutput()->willReturn($dumpSucceeds ? '' : 'mysqldump: Error 1045: Access denied');
         $capture->dump = $dump;
@@ -401,7 +411,7 @@ class PushDatabaseCommandTest extends CommandTestBase
     public function testRestrictedEnvironmentStreamsTheImport(): void
     {
         [$localMachineHelper] = $this->setUpRestrictedEnvironment();
-        $this->mockRemoteShellProbe($localMachineHelper, false);
+        $probe = $this->mockRemoteShellProbe($localMachineHelper, false);
         $capture = $this->mockStreamedImport($localMachineHelper);
 
         $this->command->sshHelper = new SshHelper($this->output, $localMachineHelper->reveal(), $this->logger);
@@ -438,10 +448,27 @@ class PushDatabaseCommandTest extends CommandTestBase
         // on Windows. The input handed to ssh must therefore be a wrapper over
         // the dump rather than the dump itself.
         $this->assertInstanceOf(\Iterator::class, $capture->importArgs[7], 'The dump must be wrapped so bytes can be counted.');
-        iterator_to_array($capture->importArgs[7]);
-        // Progress goes through the checklist's output callback, so it lands in
-        // the command display rather than in the SshHelper's own buffer.
-        $this->assertStringContainsString('MB', $this->getDisplay(), 'Streaming must report progress derived from the stream.');
+        $streamed = iterator_to_array($capture->importArgs[7], false);
+
+        // The wrapper counts bytes; it must not alter or drop them.
+        $this->assertCount(8, $streamed);
+        $this->assertSame(str_repeat('x', 8 * 262144), implode('', $streamed));
+
+        // Exactly two reports: at 1 MB and at 2 MB. The count is the assertion
+        // that matters — it fails if the threshold, the counter or the interval
+        // advance is wrong, each of which otherwise still prints "1 MB".
+        $display = $this->getDisplay();
+        $this->assertSame(2, substr_count($display, 'so far'));
+        $this->assertStringContainsString('Streamed 1 MB so far', $display);
+        $this->assertStringContainsString('Streamed 2 MB so far', $display);
+        $this->assertStringContainsString('Streamed 2 MB in total', $display);
+
+        // The probe expects to be refused, so that refusal is its answer rather
+        // than something to print at the user.
+        $this->assertInstanceOf(BufferedOutput::class, $this->output);
+        $this->output->fetch();
+        ($probe->args[1])(Process::ERR, 'Trial subscriptions allow only Drupal (Drush) commands.');
+        $this->assertSame('', $this->output->fetch(), 'The transport probe must not surface the refusal.');
     }
 
     /**
@@ -477,6 +504,7 @@ class PushDatabaseCommandTest extends CommandTestBase
         // and CREATE statements it received before the dump died, and saw a
         // clean EOF when mysqldump closed stdout. The user has to be told.
         $this->expectExceptionMessage('partially overwritten');
+        $this->expectExceptionMessage('mysqldump: Error 1045: Access denied');
         $this->executeCommand([], self::pushInputs());
     }
 
@@ -488,7 +516,7 @@ class PushDatabaseCommandTest extends CommandTestBase
 
         $this->command->sshHelper = new SshHelper($this->output, $localMachineHelper->reveal(), $this->logger);
         $this->expectException(AcquiaCliException::class);
-        $this->expectExceptionMessage('Unable to import the database on the remote machine');
+        $this->expectExceptionMessage('ERROR 1064 (42000) at line 3');
         $this->executeCommand([], self::pushInputs());
     }
 
@@ -507,5 +535,47 @@ class PushDatabaseCommandTest extends CommandTestBase
         $this->expectException(AcquiaCliException::class);
         $this->expectExceptionMessage('multisite environment');
         $this->executeCommand([], self::multisitePushInputs());
+    }
+
+    /**
+     * When the remote exits early — a refused command, or `sql:cli` stopping at
+     * the first SQL error — `mysqldump` is still running and has no exit code,
+     * so it reports isSuccessful() === false. Blaming the dump there tells the
+     * user their database may be half-overwritten when nothing was written at
+     * all, and hides the real cause.
+     */
+    public function testImportFailureWhileTheDumpIsStillRunningIsAttributedToTheImport(): void
+    {
+        [$localMachineHelper] = $this->setUpRestrictedEnvironment();
+        $this->mockRemoteShellProbe($localMachineHelper, false);
+        $this->mockStreamedImport($localMachineHelper, false, false, true);
+
+        $this->command->sshHelper = new SshHelper($this->output, $localMachineHelper->reveal(), $this->logger);
+
+        try {
+            $this->executeCommand([], self::pushInputs());
+            $this->fail('Expected the import failure to be reported.');
+        } catch (AcquiaCliException $e) {
+            $this->assertStringContainsString('Unable to import the database on the remote machine', $e->getMessage());
+            $this->assertStringContainsString('ERROR 1064 (42000) at line 3', $e->getMessage(), 'The remote diagnostic must reach the user.');
+            $this->assertStringNotContainsString('partially overwritten', $e->getMessage(), 'Nothing was written, so it must not claim otherwise.');
+        }
+    }
+
+    /**
+     * When both stages fail, the dump is the root cause: it stopped first and
+     * the import then choked on the truncated SQL it had received. The remote
+     * really is half-written in that case, so it must be reported as the dump.
+     */
+    public function testBothStagesFailingIsAttributedToTheDump(): void
+    {
+        [$localMachineHelper] = $this->setUpRestrictedEnvironment();
+        $this->mockRemoteShellProbe($localMachineHelper, false);
+        $this->mockStreamedImport($localMachineHelper, false, false, false);
+
+        $this->command->sshHelper = new SshHelper($this->output, $localMachineHelper->reveal(), $this->logger);
+        $this->expectException(AcquiaCliException::class);
+        $this->expectExceptionMessage('partially overwritten');
+        $this->executeCommand([], self::pushInputs());
     }
 }
