@@ -13,8 +13,10 @@ use Acquia\Cli\Helpers\LocalMachineHelper;
 use Acquia\Cli\Tests\CommandTestBase;
 use AcquiaCloudApi\Connector\Connector;
 use GuzzleHttp\Client as GuzzleClient;
+use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
+use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\RequiresPhpExtension;
@@ -262,6 +264,43 @@ class AuthLoginRoutingTest extends CommandTestBase
         $this->assertStringNotContainsString('Already authenticated', $output);
         $this->assertStringNotContainsString('Re-authenticate?', $output);
         $this->assertStringContainsString('Authenticated successfully', $output);
+    }
+
+    /**
+     * Behind a TLS-inspecting proxy the first request fails verification;
+     * the bare cURL error tells nobody what to do about it.
+     */
+    public function testACertificateFailureExplainsTlsInspection(): void
+    {
+        $this->givenAStoredDeviceToken();
+        $request = new Request('POST', 'https://example.acquia.com/oauth2/ausTest/v1/device/authorize');
+        $this->authServerResponses = [
+            new ConnectException('cURL error 60: SSL certificate OpenSSL verify result: unable to get local issuer certificate (20)', $request),
+        ];
+        $this->command = $this->createCommand();
+
+        $this->executeCommand([], [], OutputInterface::VERBOSITY_NORMAL, false);
+        $output = $this->getDisplay();
+
+        $this->assertStringContainsString('Failed to initiate device code flow: cURL error 60', $output);
+        $this->assertStringContainsString('inspecting TLS', $output);
+        $this->assertStringContainsString('SSL_CERT_FILE', $output);
+    }
+
+    public function testOtherConnectionFailuresGetNoTlsHint(): void
+    {
+        $this->givenAStoredDeviceToken();
+        $request = new Request('POST', 'https://example.acquia.com/oauth2/ausTest/v1/device/authorize');
+        $this->authServerResponses = [
+            new ConnectException('cURL error 6: Could not resolve host: example.acquia.com', $request),
+        ];
+        $this->command = $this->createCommand();
+
+        $this->executeCommand([], [], OutputInterface::VERBOSITY_NORMAL, false);
+        $output = $this->getDisplay();
+
+        $this->assertStringContainsString('Failed to initiate device code flow', $output);
+        $this->assertStringNotContainsString('SSL_CERT_FILE', $output);
     }
 
     /**

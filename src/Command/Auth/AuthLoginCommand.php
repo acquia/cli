@@ -14,6 +14,7 @@ use Acquia\Cli\DataStore\CloudDataStore;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Helpers\LocalMachineHelper;
 use Acquia\Cli\Helpers\SshHelper;
+use Acquia\Cli\Helpers\SystemTrustStore;
 use Acquia\Cli\Helpers\TelemetryHelper;
 use AcquiaCloudApi\Endpoints\Account;
 use GuzzleHttp\Client as GuzzleClient;
@@ -215,6 +216,9 @@ EOD);
             ]);
         } catch (GuzzleException $e) {
             $output->writeln('<error>Failed to initiate device code flow: ' . $e->getMessage() . '</error>');
+            if ($hint = SystemTrustStore::tlsHint($e->getMessage())) {
+                $output->writeln("<comment>$hint</comment>");
+            }
             return Command::FAILURE;
         }
 

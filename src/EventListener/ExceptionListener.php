@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Acquia\Cli\EventListener;
 
 use Acquia\Cli\Exception\AcquiaCliException;
+use Acquia\Cli\Helpers\SystemTrustStore;
 use AcquiaCloudApi\Exception\ApiErrorException;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use Symfony\Component\Console\Event\ConsoleErrorEvent;
@@ -37,6 +38,10 @@ class ExceptionListener
         if ($error instanceof IdentityProviderException && $error->getMessage() === 'invalid_client') {
             $newErrorMessage = 'Your Cloud Platform API credentials are invalid.';
             $this->helpMessages[] = "Run <bg=$this->messagesBgColor;fg=$this->messagesFgColor;options=bold>acli auth:login</> to reset your API credentials.";
+        }
+
+        if ($hint = SystemTrustStore::tlsHint($errorMessage)) {
+            $this->helpMessages[] = $hint;
         }
 
         if ($error instanceof RuntimeException) {

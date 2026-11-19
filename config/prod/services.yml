@@ -34,6 +34,8 @@ services:
       - ../../src/DataStore/JsonDataStore.php
       - ../../src/CloudApi/AccessTokenConnector.php
       - ../../src/Command/App/From/**
+      # Runs in bin/acli before the container exists.
+      - ../../src/Helpers/SystemTrustStore.php
     public: true
     resource: ../../src
 
