@@ -107,10 +107,12 @@ class TelemetryHelperTest extends TestBase
 
     /**
      * Clears every provider's variables so detection starts from nothing.
+     *
+     * Includes ACLI_AGENT, which would otherwise win over detection.
      */
     public function unsetAllProviderEnvVars(): void
     {
-        $envVars = [];
+        $envVars = [TelemetryHelper::AGENT_ENV_VAR => self::ENV_VAR_DEFAULT_VALUE];
         foreach (TelemetryHelper::getProviders() as $vars) {
             foreach ($vars as $var) {
                 $envVars[$var] = self::ENV_VAR_DEFAULT_VALUE;
