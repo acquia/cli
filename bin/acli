@@ -23,6 +23,7 @@ use Acquia\Cli\Command\Api\ApiV3CommandFactory;
 use Acquia\Cli\Command\Api\ApiV3CommandHelper;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Helpers\LocalMachineHelper;
+use Acquia\Cli\Helpers\SystemTrustStore;
 use Dotenv\Dotenv;
 use SelfUpdate\SelfUpdateCommand;
 use SelfUpdate\SelfUpdateManager;
@@ -67,6 +68,9 @@ if (!getenv('HOME')) {
 if (!getenv('ACLI_HOME')) {
   putenv('ACLI_HOME=' . LocalMachineHelper::getConfigDir());
 }
+// The native macOS build's OpenSSL cannot see the keychain; give it a bundle
+// that includes what the keychain trusts, before any HTTP client exists.
+SystemTrustStore::configure(LocalMachineHelper::getConfigDir() . '/system-ca-bundle.pem');
 $kernel = new Kernel('prod', false);
 
 // Handle a clear-kernel-cache pseudo command. This isn't implemented as a true console

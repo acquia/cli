@@ -7,8 +7,11 @@ namespace Acquia\Cli\Tests\Misc;
 use Acquia\Cli\Application;
 use Acquia\Cli\EventListener\ExceptionListener;
 use Acquia\Cli\Exception\AcquiaCliException;
+use Acquia\Cli\Helpers\SystemTrustStore;
 use Acquia\Cli\Tests\TestBase;
 use AcquiaCloudApi\Exception\ApiErrorException;
+use GuzzleHttp\Exception\ConnectException;
+use GuzzleHttp\Psr7\Request;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Component\Console\Command\Command;
@@ -64,6 +67,11 @@ class ExceptionListenerTest extends TestBase
                 // so this entry pins the exact string, not a prefix.
                 new AcquiaCliException('Device token session expired. Run acli auth:login to re-authenticate.'),
                 'Run <bg=blue;fg=white;options=bold>acli auth:login</> to re-authenticate.',
+            ],
+            [
+                // Any command can be first to hit a TLS-inspecting proxy.
+                new ConnectException('cURL error 60: SSL certificate OpenSSL verify result: unable to get local issuer certificate (20) for https://cloud.acquia.com/api/account', new Request('GET', 'https://cloud.acquia.com/api/account')),
+                SystemTrustStore::tlsHint('cURL error 60'),
             ],
             [
                 new RuntimeException('Not enough arguments (missing: "environmentId").'),

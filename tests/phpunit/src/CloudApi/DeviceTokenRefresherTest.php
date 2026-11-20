@@ -378,6 +378,37 @@ class DeviceTokenRefresherTest extends TestBase
         $this->assertSame('expired-token', $this->readCloudConfig()['device_token']['access_token']);
     }
 
+    /**
+     * The refresh is often the first request a command makes, so it is where a
+     * TLS-inspecting proxy shows up first.
+     */
+    public function testACertificateFailureExplainsTlsInspection(): void
+    {
+        $this->givenAuthIsConfigured();
+        $this->writeCloudConfig(['device_token' => $this->expiredToken()]);
+        $refresher = $this->createRefresher([
+            new ConnectException('cURL error 60: SSL certificate OpenSSL verify result: unable to get local issuer certificate (20)', new Request('POST', 'https://example.acquia.com')),
+        ]);
+
+        $this->assertTrue($refresher->getValidAccessToken()->serverUnreachable);
+        $logged = $this->output->fetch();
+        $this->assertStringContainsString('cURL error 60', $logged);
+        $this->assertStringContainsString('SSL_CERT_FILE', $logged);
+    }
+
+    public function testOtherTransportFailuresGetNoTlsHint(): void
+    {
+        $this->givenAuthIsConfigured();
+        $this->writeCloudConfig(['device_token' => $this->expiredToken()]);
+        $refresher = $this->createRefresher([
+            new ConnectException('cURL error 6: Could not resolve host', new Request('POST', 'https://example.acquia.com')),
+        ]);
+
+        $refresher->getValidAccessToken();
+
+        $this->assertStringNotContainsString('SSL_CERT_FILE', $this->output->fetch());
+    }
+
     public function testReturnsNullWhenRefreshResponseHasNoAccessToken(): void
     {
         $this->givenAuthIsConfigured();
