@@ -10,6 +10,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\RequiresOperatingSystem;
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
 use Symfony\Component\Filesystem\Filesystem;
 
 class SystemTrustStoreTest extends TestCase
@@ -226,15 +227,30 @@ class SystemTrustStoreTest extends TestCase
         $this->assertNotSame([], $this->commands);
     }
 
-    public function testAKeychainThatCannotBeReadIsSkipped(): void
+    public function testAFailedKeychainReadLeavesTheCacheUnchanged(): void
     {
-        $second = $this->dir . '/Second.keychain';
-        touch($second, self::NOW - 1000);
-        $runner = $this->runner([$this->keychain => null, $second => [$this->trustedCa]], [$this->trustedCa]);
+        $this->givenACacheBuiltAt(self::NOW - SystemTrustStore::MAX_AGE_SECONDS - 1);
+        $before = file_get_contents($this->cacheFile);
 
-        $path = (new SystemTrustStore($this->cacheFile, $this->systemBundle, [$this->keychain, $second], $runner, static fn (): int => self::NOW))->bundlePath();
+        try {
+            $this->store(null, [])->bundlePath();
+            $this->fail('A failed read must not be taken for an empty keychain');
+        } catch (RuntimeException) {
+        }
 
-        $this->assertSame($this->publicRoot . "\n" . $this->trustedCa . "\n", $this->bundleBody((string) $path));
+        $this->assertSame($before, file_get_contents($this->cacheFile), 'A transient failure must not be cached');
+    }
+
+    public function testAFailedKeychainReadWritesNoMarker(): void
+    {
+        try {
+            $this->store(null, [])->bundlePath();
+            $this->fail('A failed read must not be taken for an empty keychain');
+        } catch (RuntimeException $e) {
+            $this->assertSame('Cannot read ' . $this->keychain, $e->getMessage());
+        }
+
+        $this->assertFileDoesNotExist($this->cacheFile);
     }
 
     public function testAMissingKeychainIsSkipped(): void
@@ -487,12 +503,12 @@ class SystemTrustStoreTest extends TestCase
     }
 
     /**
-     * @param string[] $keychainCerts
-     *   What `security find-certificate` returns.
+     * @param string[]|null $keychainCerts
+     *   What `security find-certificate` returns; null means it fails.
      * @param string[] $trusted
      *   Which certificates `security verify-cert` accepts.
      */
-    private function store(array $keychainCerts, array $trusted): SystemTrustStore
+    private function store(?array $keychainCerts, array $trusted): SystemTrustStore
     {
         return new SystemTrustStore($this->cacheFile, $this->systemBundle, [$this->keychain], $this->runner([$this->keychain => $keychainCerts], $trusted), static fn (): int => self::NOW);
     }

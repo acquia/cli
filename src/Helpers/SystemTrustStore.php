@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Acquia\Cli\Helpers;
 
 use Closure;
+use RuntimeException;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Process\Process;
 use Throwable;
@@ -56,7 +57,8 @@ class SystemTrustStore
     /**
      * @param string[] $keychains
      * @param (\Closure(string[]): ?string)|null $runner
-     *   Runs a command and returns its stdout, or null on a non-zero exit.
+     *   Runs a command and returns its stdout, or null when it exits 1, which
+     *   is `security`'s negative answer. Throws on any other failure.
      * @param (\Closure(): int)|null $clock
      */
     public function __construct(
@@ -70,7 +72,11 @@ class SystemTrustStore
             $process = new Process($command);
             $process->setTimeout(30);
             $process->run();
-            return $process->isSuccessful() ? $process->getOutput() : null;
+            return match ($process->getExitCode()) {
+                0 => $process->getOutput(),
+                1 => null,
+                default => throw new RuntimeException($process->getCommandLine() . ' failed: ' . $process->getErrorOutput()),
+            };
         };
         $this->clock = $clock ?? time(...);
     }
@@ -202,6 +208,8 @@ class SystemTrustStore
      *
      * Whether to trust each one is left entirely to `security verify-cert`,
      * which applies the keychain's trust settings, validity dates included.
+     * Its exit 1 is the verdict "not trusted"; any other failure throws, so
+     * nothing is cached from it.
      *
      * @return string[]
      */
@@ -216,10 +224,10 @@ class SystemTrustStore
                 if (!is_file($keychain)) {
                     continue;
                 }
-                $pems = ($this->runner)(['/usr/bin/security', 'find-certificate', '-a', '-p', $keychain]);
-                if ($pems === null) {
-                    continue;
-                }
+                // A keychain that exists but cannot be read is a failure, not an
+                // empty answer: caching it would drop every root until the next rebuild.
+                $pems = ($this->runner)(['/usr/bin/security', 'find-certificate', '-a', '-p', $keychain])
+                    ?? throw new RuntimeException('Cannot read ' . $keychain);
                 preg_match_all(self::PEM_PATTERN, $pems, $matches);
                 foreach ($matches[0] as $pem) {
                     if (!self::isCa($pem)) {
