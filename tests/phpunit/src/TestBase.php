@@ -160,6 +160,9 @@ abstract class TestBase extends TestCase
             'COLUMNS' => '85',
             'HOME' => '/home/test',
         ]);
+        // An ACLI_AGENT inherited from the developer's shell would replace the
+        // provider every User-Agent and detection assertion expects.
+        putenv(TelemetryHelper::AGENT_ENV_VAR);
         $this->output = new BufferedOutput();
         $this->input = new ArrayInput([]);
 
