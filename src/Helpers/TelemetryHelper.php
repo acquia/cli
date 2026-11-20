@@ -462,7 +462,7 @@ class TelemetryHelper
             'claude-code' => ['CLAUDECODE', 'CLAUDE_CODE_ENTRYPOINT', 'CLAUDE_CODE_SESSION_ID'],
             'cursor' => ['CURSOR_AGENT', 'CURSOR_TRACE_ID'],
             'cline' => ['CLINE_ACTIVE'],
-            'opencode' => ['OPENCODE_CLIENT'],
+            'opencode' => ['OPENCODE', 'OPENCODE_CLIENT'],
         ];
     }
 }

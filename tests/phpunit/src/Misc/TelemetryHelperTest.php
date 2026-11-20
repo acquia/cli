@@ -169,8 +169,9 @@ class TelemetryHelperTest extends TestBase
         $this->assertSame(['CURSOR_AGENT', 'CURSOR_TRACE_ID'], $providers['cursor']);
         // Cline sets CLINE_ACTIVE=true on the terminals it runs commands in.
         $this->assertSame(['CLINE_ACTIVE'], $providers['cline']);
-        // OpenCode sets OPENCODE_CLIENT (cli, desktop, acp) for its shell tools.
-        $this->assertSame(['OPENCODE_CLIENT'], $providers['opencode']);
+        // OpenCode's shell tool exports OPENCODE=1 on every command. Only the
+        // desktop app and ACP mode export OPENCODE_CLIENT.
+        $this->assertSame(['OPENCODE', 'OPENCODE_CLIENT'], $providers['opencode']);
     }
 
 
