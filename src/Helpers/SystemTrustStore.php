@@ -37,6 +37,12 @@ class SystemTrustStore
     private const PEM_PATTERN = '/-----BEGIN CERTIFICATE-----.+?-----END CERTIFICATE-----/s';
 
     /**
+     * First line of the bundle: a digest of the trust settings it was built
+     * under. OpenSSL ignores text outside PEM blocks.
+     */
+    private const TRUST_SETTINGS_HEADER = '# acli-trust-settings: ';
+
+    /**
      * @var \Closure(string[]): ?string
      */
     private Closure $runner;
@@ -89,13 +95,13 @@ class SystemTrustStore
      * Points OpenSSL at the combined bundle when it applies. Never throws:
      * failing here would turn a possible TLS problem into a certain crash.
      */
-    public static function configure(string $cacheFile): void
+    public static function configure(string $cacheFile, string $sapi = PHP_SAPI, string $os = PHP_OS_FAMILY, ?self $store = null): void
     {
         try {
-            if (!self::shouldApply(PHP_SAPI, PHP_OS_FAMILY, static fn (string $name): string|false => getenv($name))) {
+            if (!self::shouldApply($sapi, $os, static fn (string $name): string|false => getenv($name))) {
                 return;
             }
-            $path = (new self($cacheFile))->bundlePath();
+            $path = ($store ?? new self($cacheFile))->bundlePath();
             if ($path !== null) {
                 putenv('SSL_CERT_FILE=' . $path);
             }
@@ -105,13 +111,16 @@ class SystemTrustStore
     }
 
     /**
-     * The guidance for a certificate verification failure, or null when the
-     * message is not one.
+     * The guidance for a certificate failure, or null when the message is not one.
      */
     public static function tlsHint(string $message): ?string
     {
-        if (preg_match('/cURL error (60|77)\b/', $message) !== 1) {
+        if (preg_match('/cURL error (60|77)\b/', $message, $matches) !== 1) {
             return null;
+        }
+        if ($matches[1] === '77') {
+            // The local CA bundle could not be loaded; the server is not involved.
+            return 'Acquia CLI could not load its CA certificate bundle. If SSL_CERT_FILE or SSL_CERT_DIR is set, check that it points to a readable PEM file or directory, then try again.';
         }
 
         return 'Acquia CLI could not verify the server\'s TLS certificate. This usually means a proxy or security tool on your network is inspecting TLS and re-signing certificates with your organization\'s root certificate. Set SSL_CERT_FILE to a PEM bundle that includes that root, then try again.';
@@ -126,7 +135,8 @@ class SystemTrustStore
         if (!is_file($this->systemBundle)) {
             return null;
         }
-        if ($this->cacheIsFresh()) {
+        $trustSettings = $this->trustSettingsDigest();
+        if ($this->cacheIsFresh($trustSettings)) {
             return $this->cacheFile;
         }
 
@@ -138,16 +148,21 @@ class SystemTrustStore
             return null;
         }
 
-        $bundle = file_get_contents($this->systemBundle) . "\n" . implode("\n", $extra) . "\n";
+        $bundle = self::TRUST_SETTINGS_HEADER . $trustSettings . "\n" . file_get_contents($this->systemBundle) . "\n" . implode("\n", $extra) . "\n";
         $fileSystem->dumpFile($this->cacheFile, $bundle);
         $fileSystem->chmod($this->cacheFile, 0600);
 
         return $this->cacheFile;
     }
 
-    private function cacheIsFresh(): bool
+    private function cacheIsFresh(string $trustSettings): bool
     {
         if (!is_file($this->cacheFile)) {
+            return false;
+        }
+        // Trust settings live apart from the keychains, so distrusting a root
+        // changes no watched mtime; compare what they say instead.
+        if (!str_starts_with((string) file_get_contents($this->cacheFile), self::TRUST_SETTINGS_HEADER . $trustSettings)) {
             return false;
         }
         $built = filemtime($this->cacheFile);
@@ -161,6 +176,19 @@ class SystemTrustStore
         }
 
         return true;
+    }
+
+    /**
+     * A digest of the user and admin trust settings: what `verify-cert` decides
+     * from, besides the certificates themselves. A domain with no settings
+     * makes `security` exit non-zero, which counts as empty.
+     */
+    private function trustSettingsDigest(): string
+    {
+        $user = ($this->runner)(['/usr/bin/security', 'dump-trust-settings']) ?? '';
+        $admin = ($this->runner)(['/usr/bin/security', 'dump-trust-settings', '-d']) ?? '';
+
+        return hash('sha256', $user . "\0" . $admin);
     }
 
     /**
