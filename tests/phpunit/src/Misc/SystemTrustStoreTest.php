@@ -125,7 +125,7 @@ class SystemTrustStoreTest extends TestCase
         $this->trustSettings[$domain] = 'Cert 0: Trusted Root\n   Result Type : kSecTrustSettingsResultDeny';
 
         $this->assertNull($this->store([$this->trustedCa], [])->bundlePath(), 'A root distrusted since the build must not stay trusted');
-        $this->assertFileDoesNotExist($this->cacheFile);
+        $this->assertStringNotContainsString('BEGIN CERTIFICATE', (string) file_get_contents($this->cacheFile));
     }
 
     public function testASettingMovingBetweenDomainsRebuildsTheCache(): void
@@ -250,7 +250,33 @@ class SystemTrustStoreTest extends TestCase
     public function testNoBundleWhenTheKeychainAddsNothing(): void
     {
         $this->assertNull($this->store([$this->distrustedCa], [])->bundlePath(), 'Without extra roots the default trust store is already right');
-        $this->assertFileDoesNotExist($this->cacheFile);
+        $this->assertSame('# acli-trust-settings: ' . hash('sha256', "\0") . "\n", file_get_contents($this->cacheFile), 'Only a marker, which is not a bundle');
+    }
+
+    public function testAFreshMarkerIsReusedWithoutReadingTheKeychain(): void
+    {
+        $this->store([$this->distrustedCa], [])->bundlePath();
+        touch($this->cacheFile, self::NOW - 10);
+        $this->commands = [];
+
+        $this->assertNull($this->store([$this->trustedCa], [$this->trustedCa])->bundlePath());
+        $this->assertSame([], $this->commands);
+    }
+
+    public function testAStaleMarkerIsRebuilt(): void
+    {
+        $this->store([], [])->bundlePath();
+        touch($this->cacheFile, self::NOW - SystemTrustStore::MAX_AGE_SECONDS - 1);
+
+        $this->assertSame($this->cacheFile, $this->store([$this->trustedCa], [$this->trustedCa])->bundlePath());
+    }
+
+    #[RequiresOperatingSystem('linux|darwin')]
+    public function testTheMarkerIsReadableOnlyByItsOwner(): void
+    {
+        $this->store([], [])->bundlePath();
+
+        $this->assertSame(0600, fileperms($this->cacheFile) & 0777);
     }
 
     public function testNoBundleWhenTheSystemBundleIsMissing(): void
@@ -277,12 +303,12 @@ class SystemTrustStoreTest extends TestCase
         $this->assertSame([], $this->commands);
     }
 
-    public function testAStaleCacheWhoseRootIsGoneIsRemoved(): void
+    public function testAStaleCacheWhoseRootIsGoneIsReplacedByAMarker(): void
     {
         $this->givenACacheBuiltAt(self::NOW - SystemTrustStore::MAX_AGE_SECONDS - 1);
 
         $this->assertNull($this->store([], [])->bundlePath());
-        $this->assertFileDoesNotExist($this->cacheFile, 'A root removed from the keychain must stop being trusted');
+        $this->assertStringNotContainsString('BEGIN CERTIFICATE', (string) file_get_contents($this->cacheFile), 'A root removed from the keychain must stop being trusted');
     }
 
     /**
@@ -402,7 +428,10 @@ class SystemTrustStoreTest extends TestCase
     {
         $this->withCleanCertEnv(function (): void {
             SystemTrustStore::configure($this->cacheFile, 'micro', 'Darwin', $this->store([], []));
+            $this->assertFalse(getenv('SSL_CERT_FILE'));
 
+            // Nor from the cached marker.
+            SystemTrustStore::configure($this->cacheFile, 'micro', 'Darwin', $this->store([], []));
             $this->assertFalse(getenv('SSL_CERT_FILE'));
         });
     }

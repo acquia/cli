@@ -37,8 +37,9 @@ class SystemTrustStore
     private const PEM_PATTERN = '/-----BEGIN CERTIFICATE-----.+?-----END CERTIFICATE-----/s';
 
     /**
-     * First line of the bundle: a digest of the trust settings it was built
-     * under. OpenSSL ignores text outside PEM blocks.
+     * First line of the cache file: a digest of the trust settings it was
+     * built under. OpenSSL ignores text outside PEM blocks. A file holding only
+     * this line is a marker that the keychain adds nothing, not a bundle.
      */
     private const TRUST_SETTINGS_HEADER = '# acli-trust-settings: ';
 
@@ -136,46 +137,51 @@ class SystemTrustStore
             return null;
         }
         $trustSettings = $this->trustSettingsDigest();
-        if ($this->cacheIsFresh($trustSettings)) {
-            return $this->cacheFile;
+        $header = self::TRUST_SETTINGS_HEADER . $trustSettings . "\n";
+        $cached = $this->freshCache($header);
+        if ($cached !== null) {
+            return $cached === $header ? null : $this->cacheFile;
         }
 
-        $fileSystem = new Filesystem();
         $extra = $this->trustedKeychainCas();
-        if ($extra === []) {
-            // A bundle left from before would go on trusting a root that is gone.
-            $fileSystem->remove($this->cacheFile);
-            return null;
-        }
-
-        $bundle = self::TRUST_SETTINGS_HEADER . $trustSettings . "\n" . file_get_contents($this->systemBundle) . "\n" . implode("\n", $extra) . "\n";
-        $fileSystem->dumpFile($this->cacheFile, $bundle);
+        // With nothing to add, write the header alone: it caches that answer,
+        // and replaces any bundle that would go on trusting a root that is gone.
+        $contents = $extra === [] ? $header : $header . file_get_contents($this->systemBundle) . "\n" . implode("\n", $extra) . "\n";
+        $fileSystem = new Filesystem();
+        $fileSystem->dumpFile($this->cacheFile, $contents);
         $fileSystem->chmod($this->cacheFile, 0600);
 
-        return $this->cacheFile;
+        return $extra === [] ? null : $this->cacheFile;
     }
 
-    private function cacheIsFresh(string $trustSettings): bool
+    /**
+     * The cache file's contents if it is fresh, otherwise null.
+     */
+    private function freshCache(string $header): ?string
     {
         if (!is_file($this->cacheFile)) {
-            return false;
+            return null;
+        }
+        $contents = file_get_contents($this->cacheFile);
+        if ($contents === false) {
+            return null;
         }
         // Trust settings live apart from the keychains, so distrusting a root
         // changes no watched mtime; compare what they say instead.
-        if (!str_starts_with((string) file_get_contents($this->cacheFile), self::TRUST_SETTINGS_HEADER . $trustSettings)) {
-            return false;
+        if (!str_starts_with($contents, $header)) {
+            return null;
         }
         $built = filemtime($this->cacheFile);
         if (($this->clock)() - $built > self::MAX_AGE_SECONDS) {
-            return false;
+            return null;
         }
         foreach ([$this->systemBundle, ...$this->keychains] as $source) {
             if (is_file($source) && filemtime($source) > $built) {
-                return false;
+                return null;
             }
         }
 
-        return true;
+        return $contents;
     }
 
     /**
