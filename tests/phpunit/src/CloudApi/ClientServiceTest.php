@@ -85,6 +85,28 @@ class ClientServiceTest extends TestBase
     }
 
     /**
+     * An agent that names itself through ACLI_AGENT lands in the provider
+     * slot, which trials-service records as the trial's UTM source.
+     */
+    #[Group('serial')]
+    public function testUserAgentCarriesSelfReportedAgent(): void
+    {
+        putenv('LANDO=1');
+        putenv('ACLI_AGENT=Windsurf');
+        try {
+            $this->datastoreCloud->set(DataStoreContract::SEND_TELEMETRY, false);
+
+            $this->assertSame(
+                'Acquia CLI (UNKNOWN, null, windsurf)',
+                $this->userAgentClientService()->getClient()->getOptions()['headers']['User-Agent'][0],
+            );
+        } finally {
+            putenv('LANDO');
+            putenv('ACLI_AGENT');
+        }
+    }
+
+    /**
      * Asserting the header is constructible, rather than comparing it to a
      * string built from the same source, is what catches an unsanitised
      * machine ID: Guzzle rejects a value containing a control character.
