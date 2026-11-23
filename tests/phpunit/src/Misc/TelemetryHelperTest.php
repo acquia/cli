@@ -100,15 +100,19 @@ class TelemetryHelperTest extends TestBase
             $envVars = array_merge($envVars, $args[1]);
         }
 
+        $envVars[TelemetryHelper::AGENT_ENV_VAR] = self::ENV_VAR_DEFAULT_VALUE;
+
         TestBase::unsetEnvVars($envVars);
     }
 
     /**
      * Clears every provider's variables so detection starts from nothing.
+     *
+     * Includes ACLI_AGENT, which would otherwise win over detection.
      */
     public function unsetAllProviderEnvVars(): void
     {
-        $envVars = [];
+        $envVars = [TelemetryHelper::AGENT_ENV_VAR => self::ENV_VAR_DEFAULT_VALUE];
         foreach (TelemetryHelper::getProviders() as $vars) {
             foreach ($vars as $var) {
                 $envVars[$var] = self::ENV_VAR_DEFAULT_VALUE;
@@ -163,6 +167,11 @@ class TelemetryHelperTest extends TestBase
         // CURSOR_AGENT marks an agent-run shell; CURSOR_TRACE_ID is also set in a
         // human's Cursor terminal, which the spec counts as the same harness.
         $this->assertSame(['CURSOR_AGENT', 'CURSOR_TRACE_ID'], $providers['cursor']);
+        // Cline sets CLINE_ACTIVE=true on the terminals it runs commands in.
+        $this->assertSame(['CLINE_ACTIVE'], $providers['cline']);
+        // OpenCode's shell tool exports OPENCODE=1 on every command. Only the
+        // desktop app and ACP mode export OPENCODE_CLIENT.
+        $this->assertSame(['OPENCODE', 'OPENCODE_CLIENT'], $providers['opencode']);
     }
 
 
@@ -177,6 +186,104 @@ class TelemetryHelperTest extends TestBase
 
         // Expect null since no provider environment variables are set.
         $this->assertNull(TelemetryHelper::getEnvironmentProvider());
+    }
+
+    /**
+     * An agent that names itself is recorded, even one detection can't see.
+     */
+    #[Group('serial')]
+    public function testAgentEnvVarNamesAnUndetectedAgent(): void
+    {
+        $this->unsetAllProviderEnvVars();
+        TestBase::setEnvVars([TelemetryHelper::AGENT_ENV_VAR => 'cline']);
+
+        $this->assertSame('cline', TelemetryHelper::getEnvironmentProvider());
+    }
+
+    /**
+     * The agent knows itself better than a guess from its environment does.
+     */
+    #[Group('serial')]
+    public function testAgentEnvVarWinsOverDetection(): void
+    {
+        $this->unsetAllProviderEnvVars();
+        TestBase::setEnvVars(['CLAUDECODE' => '1', TelemetryHelper::AGENT_ENV_VAR => 'cline']);
+
+        $this->assertSame('cline', TelemetryHelper::getEnvironmentProvider());
+    }
+
+    /**
+     * @return array<string, array{string, string}>
+     */
+    public static function providerAgentEnvVarNormalization(): array
+    {
+        return [
+            'dashes and digits' => ['gemini-cli-2', 'gemini-cli-2'],
+            'maximum length' => [str_repeat('a', 32), str_repeat('a', 32)],
+            'mixed case' => ['Cline', 'cline'],
+            'surrounding whitespace' => ['  windsurf ', 'windsurf'],
+        ];
+    }
+
+    #[DataProvider('providerAgentEnvVarNormalization')]
+    #[Group('serial')]
+    public function testAgentEnvVarIsNormalized(string $value, string $expected): void
+    {
+        $this->unsetAllProviderEnvVars();
+        TestBase::setEnvVars([TelemetryHelper::AGENT_ENV_VAR => $value]);
+
+        $this->assertSame($expected, TelemetryHelper::getEnvironmentProvider());
+    }
+
+    /**
+     * The value lands in the User-Agent, which trials-service splits on
+     * commas and parentheses, so anything outside [a-z0-9-] is refused
+     * rather than repaired. Refusing falls back to detection.
+     *
+     * @return array<string, array{string}>
+     */
+    public static function providerInvalidAgentEnvVar(): array
+    {
+        return [
+            'comma' => ['cline, claude'],
+            'empty' => [''],
+            'leading dash' => ['-cline'],
+            'non-ascii' => ['clïne'],
+            'parenthesis' => ['cline)'],
+            'space inside' => ['claude desktop'],
+            'too long' => [str_repeat('a', 33)],
+            'underscore' => ['claude_desktop'],
+            'whitespace only' => ['   '],
+        ];
+    }
+
+    #[DataProvider('providerInvalidAgentEnvVar')]
+    #[Group('serial')]
+    public function testInvalidAgentEnvVarFallsBackToDetection(string $value): void
+    {
+        $this->unsetAllProviderEnvVars();
+        TestBase::setEnvVars([TelemetryHelper::AGENT_ENV_VAR => $value, 'CURSOR_AGENT' => '1']);
+
+        $this->assertSame('cursor', TelemetryHelper::getEnvironmentProvider());
+    }
+
+    #[DataProvider('providerInvalidAgentEnvVar')]
+    #[Group('serial')]
+    public function testInvalidAgentEnvVarWithNothingDetectedIsNull(string $value): void
+    {
+        $this->unsetAllProviderEnvVars();
+        TestBase::setEnvVars([TelemetryHelper::AGENT_ENV_VAR => $value]);
+
+        $this->assertNull(TelemetryHelper::getEnvironmentProvider());
+    }
+
+    /**
+     * Pins the variable name: the agent trial runbook on dev.acquia.com tells
+     * agents to set it, so a rename breaks every agent following it.
+     */
+    public function testAgentEnvVarName(): void
+    {
+        $this->assertSame('ACLI_AGENT', TelemetryHelper::AGENT_ENV_VAR);
     }
 
     /**

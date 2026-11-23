@@ -20,6 +20,20 @@ use Zumba\Amplitude\Amplitude;
 
 class TelemetryHelper
 {
+    /**
+     * Lets an agent name itself when detection can't see it.
+     *
+     * Wins over detection: the agent knows what it is, while a detected
+     * variable may only be inherited from the terminal it runs in.
+     */
+    public const AGENT_ENV_VAR = 'ACLI_AGENT';
+
+    /**
+     * The value ends up in the User-Agent comment, where commas and
+     * parentheses are delimiters, so only a short slug is accepted.
+     */
+    private const AGENT_NAME_PATTERN = '/^[a-z0-9][a-z0-9-]{0,31}$/';
+
     private static ?string $machineId = null;
 
     private static bool $machineIdResolved = false;
@@ -316,6 +330,11 @@ class TelemetryHelper
 
     public static function getEnvironmentProvider(): ?string
     {
+        $agent = self::getAgentFromEnv();
+        if ($agent !== null) {
+            return $agent;
+        }
+
         $providers = self::getProviders();
 
         // Check for environment variables.
@@ -328,6 +347,21 @@ class TelemetryHelper
         }
 
         return null;
+    }
+
+    /**
+     * An invalid value is ignored rather than repaired, so detection still
+     * runs and a typo never reaches the header.
+     */
+    private static function getAgentFromEnv(): ?string
+    {
+        $value = getenv(self::AGENT_ENV_VAR);
+        if ($value === false) {
+            return null;
+        }
+        $agent = strtolower(trim($value));
+
+        return preg_match(self::AGENT_NAME_PATTERN, $agent) === 1 ? $agent : null;
     }
 
     public function getUserId(): ?string
@@ -427,6 +461,8 @@ class TelemetryHelper
             'travis' => ['TRAVIS'],
             'claude-code' => ['CLAUDECODE', 'CLAUDE_CODE_ENTRYPOINT', 'CLAUDE_CODE_SESSION_ID'],
             'cursor' => ['CURSOR_AGENT', 'CURSOR_TRACE_ID'],
+            'cline' => ['CLINE_ACTIVE'],
+            'opencode' => ['OPENCODE', 'OPENCODE_CLIENT'],
         ];
     }
 }
