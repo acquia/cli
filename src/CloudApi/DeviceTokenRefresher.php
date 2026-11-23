@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Acquia\Cli\CloudApi;
 
 use Acquia\Cli\DataStore\CloudDataStore;
+use Acquia\Cli\Helpers\SystemTrustStore;
 use GuzzleHttp\Client as GuzzleClient;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\GuzzleException;
@@ -121,6 +122,9 @@ class DeviceTokenRefresher
             return DeviceTokenRefreshResult::serverUnreachable();
         } catch (GuzzleException $e) {
             $this->logger->warning('Device token refresh could not reach the authorization server: {message}. The stored token is unchanged; try again.', ['message' => $e->getMessage()]);
+            if ($hint = SystemTrustStore::tlsHint($e->getMessage())) {
+                $this->logger->warning($hint);
+            }
             return DeviceTokenRefreshResult::serverUnreachable();
         }
 

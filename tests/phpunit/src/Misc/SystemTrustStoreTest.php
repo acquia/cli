@@ -1,0 +1,547 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Acquia\Cli\Tests\Misc;
+
+use Acquia\Cli\Helpers\SystemTrustStore;
+use LogicException;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\RequiresOperatingSystem;
+use PHPUnit\Framework\TestCase;
+use RuntimeException;
+use Symfony\Component\Filesystem\Filesystem;
+
+class SystemTrustStoreTest extends TestCase
+{
+    private const NOW = 2000000000;
+
+    private const VERIFY_HINT = "Acquia CLI could not verify the server's TLS certificate. This usually means a proxy or security tool on your network is inspecting TLS and re-signing certificates with your organization's root certificate. Set SSL_CERT_FILE to a PEM bundle that includes that root, then try again.";
+
+    private const BUNDLE_HINT = 'Acquia CLI could not load its CA certificate bundle. If SSL_CERT_FILE or SSL_CERT_DIR is set, check that it points to a readable PEM file or directory, then try again.';
+
+    private string $dir;
+
+    private string $systemBundle;
+
+    private string $keychain;
+
+    private string $cacheFile;
+
+    private string $publicRoot;
+
+    private string $trustedCa;
+
+    private string $distrustedCa;
+
+    private string $leaf;
+
+    /**
+     * Every command the store ran, in order.
+     *
+     * @var array<string[]>
+     */
+    private array $commands = [];
+
+    /**
+     * What `security dump-trust-settings` prints for the user and admin
+     * domains; null means it exits non-zero (no settings in that domain).
+     *
+     * @var array{user: ?string, admin: ?string}
+     */
+    private array $trustSettings = ['admin' => null, 'user' => null];
+
+    /**
+     * Every `security dump-trust-settings` the store ran, kept apart from
+     * $commands, which covers keychain reads only.
+     *
+     * @var array<string[]>
+     */
+    private array $trustDumps = [];
+
+    protected function setUp(): void
+    {
+        $this->dir = sys_get_temp_dir() . '/acli-trust-' . bin2hex(random_bytes(6));
+        mkdir($this->dir);
+        $this->systemBundle = $this->dir . '/cert.pem';
+        $this->keychain = $this->dir . '/System.keychain';
+        $this->cacheFile = $this->dir . '/cache/system-ca-bundle.pem';
+
+        $this->publicRoot = self::fixture('public-root');
+        $this->trustedCa = self::fixture('trusted-root');
+        $this->distrustedCa = self::fixture('distrusted-root');
+        $this->leaf = self::fixture('leaf');
+
+        file_put_contents($this->systemBundle, $this->publicRoot);
+        touch($this->systemBundle, self::NOW - 1000);
+        touch($this->keychain, self::NOW - 1000);
+    }
+
+    protected function tearDown(): void
+    {
+        (new Filesystem())->remove($this->dir);
+    }
+
+    public function testBundleIsTheSystemBundleFollowedByTrustedKeychainCas(): void
+    {
+        $other = self::fixture('replacement-root');
+        $store = $this->store([$this->trustedCa, $this->distrustedCa, $this->leaf, $other], [$this->trustedCa, $this->leaf, $other]);
+
+        $this->assertSame($this->cacheFile, $store->bundlePath());
+        // Exact: distrusted roots and trusted leaves are out, order is kept, and
+        // every certificate starts on a line of its own.
+        $this->assertSame($this->publicRoot . "\n" . $this->trustedCa . "\n" . $other . "\n", $this->bundleBody($this->cacheFile));
+    }
+
+    #[RequiresOperatingSystem('linux|darwin')]
+    public function testTheBundleIsReadableOnlyByItsOwner(): void
+    {
+        $this->store([$this->trustedCa], [$this->trustedCa])->bundlePath();
+
+        $this->assertSame(0600, fileperms($this->cacheFile) & 0777);
+    }
+
+    /**
+     * @return array<string, array{'user'|'admin'}>
+     */
+    public static function providerTrustDomains(): array
+    {
+        return [
+            'admin' => ['admin'],
+            'user' => ['user'],
+        ];
+    }
+
+    /**
+     * Distrusting a root rewrites trust settings, not the keychain, so no
+     * watched mtime moves.
+     *
+     * @param 'user'|'admin' $domain
+     */
+    #[DataProvider('providerTrustDomains')]
+    public function testATrustSettingsChangeRebuildsAFreshCache(string $domain): void
+    {
+        $this->givenACacheBuiltAt(self::NOW - 10);
+        $this->trustSettings[$domain] = 'Cert 0: Trusted Root\n   Result Type : kSecTrustSettingsResultDeny';
+
+        $this->assertNull($this->store([$this->trustedCa], [])->bundlePath(), 'A root distrusted since the build must not stay trusted');
+        $this->assertStringNotContainsString('BEGIN CERTIFICATE', (string) file_get_contents($this->cacheFile));
+    }
+
+    public function testASettingMovingBetweenDomainsRebuildsTheCache(): void
+    {
+        $this->trustSettings['user'] = 'Cert 0: Trusted Root';
+        $this->givenACacheBuiltAt(self::NOW - 10);
+        $this->trustSettings = ['admin' => 'Cert 0: Trusted Root', 'user' => null];
+
+        $this->store([$this->trustedCa], [$this->trustedCa])->bundlePath();
+
+        $this->assertNotSame([], $this->commands);
+    }
+
+    public function testBothTrustDomainsAreRead(): void
+    {
+        $this->store([], [])->bundlePath();
+
+        $this->assertSame([
+            ['/usr/bin/security', 'dump-trust-settings'],
+            ['/usr/bin/security', 'dump-trust-settings', '-d'],
+        ], $this->trustDumps);
+    }
+
+    public function testTheBundleRecordsTheTrustSettingsItWasBuiltUnder(): void
+    {
+        $this->store([$this->trustedCa], [$this->trustedCa])->bundlePath();
+
+        $this->assertStringStartsWith('# acli-trust-settings: ' . hash('sha256', "\0") . "\n-----BEGIN CERTIFICATE-----", (string) file_get_contents($this->cacheFile));
+    }
+
+    public function testEachCandidateIsJudgedByVerifyCertAgainstSslPolicy(): void
+    {
+        $this->store([$this->trustedCa], [$this->trustedCa])->bundlePath();
+
+        $this->assertSame(['/usr/bin/security', 'find-certificate', '-a', '-p', $this->keychain], $this->commands[0]);
+        $verify = $this->commands[1];
+        $candidate = $verify[3];
+        $this->assertSame(['/usr/bin/security', 'verify-cert', '-c', $candidate, '-p', 'ssl', '-L', '-l', '-R', 'offline', '-q'], $verify);
+        $this->assertCount(2, $this->commands, 'A trusted leaf or non-CA must not even be evaluated');
+        $this->assertFileDoesNotExist($candidate, 'The scratch file must be removed');
+    }
+
+    public function testLeafCertificatesAreNotEvaluated(): void
+    {
+        $this->store([$this->leaf], [$this->leaf])->bundlePath();
+
+        $this->assertCount(1, $this->commands);
+    }
+
+    public function testEveryKeychainIsRead(): void
+    {
+        $second = $this->dir . '/Second.keychain';
+        touch($second, self::NOW - 1000);
+        $other = self::fixture('replacement-root');
+        $runner = $this->runner([$this->keychain => [$this->distrustedCa], $second => [$other]], [$other]);
+
+        $path = (new SystemTrustStore($this->cacheFile, $this->systemBundle, [$this->keychain, $second], $runner, static fn (): int => self::NOW))->bundlePath();
+
+        $this->assertSame($this->publicRoot . "\n" . $other . "\n", $this->bundleBody((string) $path));
+    }
+
+    public function testTheScratchFileIsRemovedEvenWhenEvaluationFails(): void
+    {
+        $candidate = null;
+        $runner = function (array $command) use (&$candidate): ?string {
+            if ($command[1] === 'dump-trust-settings') {
+                return null;
+            }
+            if ($command[1] === 'find-certificate') {
+                return $this->trustedCa;
+            }
+            $candidate = $command[3];
+            throw new LogicException('security crashed');
+        };
+
+        try {
+            (new SystemTrustStore($this->cacheFile, $this->systemBundle, [$this->keychain], $runner, static fn (): int => self::NOW))->bundlePath();
+            $this->fail('The failure must propagate to configure(), which swallows it');
+        } catch (LogicException) {
+        }
+
+        $this->assertNotNull($candidate);
+        $this->assertFileDoesNotExist($candidate);
+    }
+
+    public function testAChangeToAnyKeychainRebuildsTheCache(): void
+    {
+        $second = $this->dir . '/Second.keychain';
+        touch($second, self::NOW - 1000);
+        $build = fn (): ?string => (new SystemTrustStore($this->cacheFile, $this->systemBundle, [$this->keychain, $second], $this->runner([$this->keychain => [], $second => [$this->trustedCa]], [$this->trustedCa]), static fn (): int => self::NOW))->bundlePath();
+        $build();
+        touch($this->cacheFile, self::NOW - 100);
+        touch($second, self::NOW - 99);
+        $this->commands = [];
+
+        $build();
+
+        $this->assertNotSame([], $this->commands);
+    }
+
+    public function testAFailedKeychainReadLeavesTheCacheUnchanged(): void
+    {
+        $this->givenACacheBuiltAt(self::NOW - SystemTrustStore::MAX_AGE_SECONDS - 1);
+        $before = file_get_contents($this->cacheFile);
+
+        try {
+            $this->store(null, [])->bundlePath();
+            $this->fail('A failed read must not be taken for an empty keychain');
+        } catch (RuntimeException) {
+        }
+
+        $this->assertSame($before, file_get_contents($this->cacheFile), 'A transient failure must not be cached');
+    }
+
+    public function testAFailedKeychainReadWritesNoMarker(): void
+    {
+        try {
+            $this->store(null, [])->bundlePath();
+            $this->fail('A failed read must not be taken for an empty keychain');
+        } catch (RuntimeException $e) {
+            $this->assertSame('Cannot read ' . $this->keychain, $e->getMessage());
+        }
+
+        $this->assertFileDoesNotExist($this->cacheFile);
+    }
+
+    public function testAMissingKeychainIsSkipped(): void
+    {
+        $runner = $this->runner([$this->keychain => [$this->trustedCa]], [$this->trustedCa]);
+
+        $path = (new SystemTrustStore($this->cacheFile, $this->systemBundle, [$this->dir . '/missing.keychain', $this->keychain], $runner, static fn (): int => self::NOW))->bundlePath();
+
+        $this->assertSame($this->cacheFile, $path);
+        $this->assertNotContains($this->dir . '/missing.keychain', array_merge(...$this->commands));
+    }
+
+    public function testNoBundleWhenTheKeychainAddsNothing(): void
+    {
+        $this->assertNull($this->store([$this->distrustedCa], [])->bundlePath(), 'Without extra roots the default trust store is already right');
+        $this->assertSame('# acli-trust-settings: ' . hash('sha256', "\0") . "\n", file_get_contents($this->cacheFile), 'Only a marker, which is not a bundle');
+    }
+
+    public function testAFreshMarkerIsReusedWithoutReadingTheKeychain(): void
+    {
+        $this->store([$this->distrustedCa], [])->bundlePath();
+        touch($this->cacheFile, self::NOW - 10);
+        $this->commands = [];
+
+        $this->assertNull($this->store([$this->trustedCa], [$this->trustedCa])->bundlePath());
+        $this->assertSame([], $this->commands);
+    }
+
+    public function testAStaleMarkerIsRebuilt(): void
+    {
+        $this->store([], [])->bundlePath();
+        touch($this->cacheFile, self::NOW - SystemTrustStore::MAX_AGE_SECONDS - 1);
+
+        $this->assertSame($this->cacheFile, $this->store([$this->trustedCa], [$this->trustedCa])->bundlePath());
+    }
+
+    #[RequiresOperatingSystem('linux|darwin')]
+    public function testTheMarkerIsReadableOnlyByItsOwner(): void
+    {
+        $this->store([], [])->bundlePath();
+
+        $this->assertSame(0600, fileperms($this->cacheFile) & 0777);
+    }
+
+    public function testNoBundleWhenTheSystemBundleIsMissing(): void
+    {
+        unlink($this->systemBundle);
+
+        $this->assertNull($this->store([$this->trustedCa], [$this->trustedCa])->bundlePath());
+        $this->assertSame([], $this->commands);
+    }
+
+    public function testAFreshCacheIsReusedWithoutReadingTheKeychain(): void
+    {
+        $this->givenACacheBuiltAt(self::NOW - 10);
+
+        $this->assertSame($this->cacheFile, $this->store([], [])->bundlePath());
+        $this->assertSame([], $this->commands);
+    }
+
+    public function testACacheExactlyAtMaxAgeIsStillFresh(): void
+    {
+        $this->givenACacheBuiltAt(self::NOW - SystemTrustStore::MAX_AGE_SECONDS);
+
+        $this->assertSame($this->cacheFile, $this->store([], [])->bundlePath());
+        $this->assertSame([], $this->commands);
+    }
+
+    public function testAStaleCacheWhoseRootIsGoneIsReplacedByAMarker(): void
+    {
+        $this->givenACacheBuiltAt(self::NOW - SystemTrustStore::MAX_AGE_SECONDS - 1);
+
+        $this->assertNull($this->store([], [])->bundlePath());
+        $this->assertStringNotContainsString('BEGIN CERTIFICATE', (string) file_get_contents($this->cacheFile), 'A root removed from the keychain must stop being trusted');
+    }
+
+    /**
+     * @return array<string, array{string}>
+     */
+    public static function providerSources(): array
+    {
+        return [
+            'keychain' => ['keychain'],
+            'system bundle' => ['systemBundle'],
+        ];
+    }
+
+    #[DataProvider('providerSources')]
+    public function testTheCacheIsRebuiltWhenASourceChanges(string $source): void
+    {
+        $this->givenACacheBuiltAt(self::NOW - 100);
+        touch($this->{$source}, self::NOW - 99);
+        $other = self::fixture('replacement-root');
+
+        $this->store([$other], [$other])->bundlePath();
+
+        $this->assertSame($this->publicRoot . "\n" . $other . "\n", $this->bundleBody($this->cacheFile));
+    }
+
+    #[DataProvider('providerSources')]
+    public function testASourceTouchedInTheSameSecondAsTheBuildKeepsTheCache(string $source): void
+    {
+        $this->givenACacheBuiltAt(self::NOW - 100);
+        touch($this->{$source}, self::NOW - 100);
+
+        $this->store([], [])->bundlePath();
+
+        $this->assertSame([], $this->commands);
+    }
+
+    /**
+     * @return array<string, array{array<string, string|false>, string, string, bool}>
+     */
+    public static function providerShouldApply(): array
+    {
+        return [
+            'native Linux' => [[], 'micro', 'Linux', false],
+            'native macOS, nothing set' => [[], 'micro', 'Darwin', true],
+            'PHAR on system PHP' => [[], 'cli', 'Darwin', false],
+            'SSL_CERT_DIR already set' => [['SSL_CERT_DIR' => '/certs'], 'micro', 'Darwin', false],
+            'SSL_CERT_FILE already set' => [['SSL_CERT_FILE' => '/x.pem'], 'micro', 'Darwin', false],
+        ];
+    }
+
+    /**
+     * @param array<string, string|false> $env
+     */
+    #[DataProvider('providerShouldApply')]
+    public function testShouldApply(array $env, string $sapi, string $os, bool $expected): void
+    {
+        $getenv = static fn (string $name): string|false => $env[$name] ?? false;
+        $this->assertSame($expected, SystemTrustStore::shouldApply($sapi, $os, $getenv));
+    }
+
+    /**
+     * @return array<string, array{string, bool}>
+     */
+    public static function providerTlsHint(): array
+    {
+        return [
+            'bad CA file' => ['cURL error 77: error setting certificate file: /nope.pem', self::BUNDLE_HINT],
+            'dns' => ['cURL error 6: Could not resolve host: id.acquia.com', null],
+            'error 600 is not error 60' => ['cURL error 600: something else', null],
+            'error 770 is not error 77' => ['cURL error 770: something else', null],
+            'timeout' => ['cURL error 28: Operation timed out after 15000 milliseconds', null],
+            'untrusted issuer' => ['cURL error 60: SSL certificate OpenSSL verify result: unable to get local issuer certificate (20)', self::VERIFY_HINT],
+        ];
+    }
+
+    #[DataProvider('providerTlsHint')]
+    public function testTlsHint(string $message, ?string $expected): void
+    {
+        $this->assertSame($expected, SystemTrustStore::tlsHint($message));
+    }
+
+    #[Group('serial')]
+    public function testConfigurePointsOpensslAtTheBundle(): void
+    {
+        $this->withCleanCertEnv(function (): void {
+            SystemTrustStore::configure($this->cacheFile, 'micro', 'Darwin', $this->store([$this->trustedCa], [$this->trustedCa]));
+
+            $this->assertSame($this->cacheFile, getenv('SSL_CERT_FILE'));
+        });
+    }
+
+    /**
+     * @return array<string, array{string, string}>
+     */
+    public static function providerNotApplicable(): array
+    {
+        return [
+            'native Linux' => ['micro', 'Linux'],
+            'PHAR' => ['cli', 'Darwin'],
+        ];
+    }
+
+    #[Group('serial')]
+    #[DataProvider('providerNotApplicable')]
+    public function testConfigureDoesNothingWhereItDoesNotApply(string $sapi, string $os): void
+    {
+        $this->withCleanCertEnv(function () use ($sapi, $os): void {
+            SystemTrustStore::configure($this->cacheFile, $sapi, $os, $this->store([$this->trustedCa], [$this->trustedCa]));
+
+            $this->assertFalse(getenv('SSL_CERT_FILE'));
+            $this->assertSame([], $this->commands);
+        });
+    }
+
+    #[Group('serial')]
+    public function testConfigureLeavesTheEnvironmentAloneWhenTheKeychainAddsNothing(): void
+    {
+        $this->withCleanCertEnv(function (): void {
+            SystemTrustStore::configure($this->cacheFile, 'micro', 'Darwin', $this->store([], []));
+            $this->assertFalse(getenv('SSL_CERT_FILE'));
+
+            // Nor from the cached marker.
+            SystemTrustStore::configure($this->cacheFile, 'micro', 'Darwin', $this->store([], []));
+            $this->assertFalse(getenv('SSL_CERT_FILE'));
+        });
+    }
+
+    #[Group('serial')]
+    public function testConfigureSwallowsFailures(): void
+    {
+        $this->withCleanCertEnv(function (): void {
+            $runner = static fn (array $command): ?string => throw new LogicException('security crashed');
+            $store = new SystemTrustStore($this->cacheFile, $this->systemBundle, [$this->keychain], $runner, static fn (): int => self::NOW);
+
+            SystemTrustStore::configure($this->cacheFile, 'micro', 'Darwin', $store);
+
+            $this->assertFalse(getenv('SSL_CERT_FILE'), 'OpenSSL must stay on its defaults');
+        });
+    }
+
+    /**
+     * Runs $test with SSL_CERT_FILE and SSL_CERT_DIR unset, restoring them after.
+     */
+    private function withCleanCertEnv(\Closure $test): void
+    {
+        $saved = ['SSL_CERT_DIR' => getenv('SSL_CERT_DIR'), 'SSL_CERT_FILE' => getenv('SSL_CERT_FILE')];
+        putenv('SSL_CERT_FILE');
+        putenv('SSL_CERT_DIR');
+        try {
+            $test();
+        } finally {
+            foreach ($saved as $name => $value) {
+                putenv($value === false ? $name : $name . '=' . $value);
+            }
+        }
+    }
+
+    /**
+     * The bundle without its trust-settings header line.
+     */
+    private function bundleBody(string $path): string
+    {
+        $contents = (string) file_get_contents($path);
+
+        return substr($contents, strpos($contents, "\n") + 1);
+    }
+
+    private function givenACacheBuiltAt(int $time): void
+    {
+        $this->store([$this->trustedCa], [$this->trustedCa])->bundlePath();
+        touch($this->cacheFile, $time);
+        touch($this->keychain, $time - 1);
+        touch($this->systemBundle, $time - 1);
+        $this->commands = [];
+        $this->trustDumps = [];
+    }
+
+    /**
+     * @param string[]|null $keychainCerts
+     *   What `security find-certificate` returns; null means it fails.
+     * @param string[] $trusted
+     *   Which certificates `security verify-cert` accepts.
+     */
+    private function store(?array $keychainCerts, array $trusted): SystemTrustStore
+    {
+        return new SystemTrustStore($this->cacheFile, $this->systemBundle, [$this->keychain], $this->runner([$this->keychain => $keychainCerts], $trusted), static fn (): int => self::NOW);
+    }
+
+    /**
+     * @param array<string, string[]|null> $keychains
+     *   Certificates per keychain; null means reading it fails.
+     * @param string[] $trusted
+     */
+    private function runner(array $keychains, array $trusted): \Closure
+    {
+        return function (array $command) use ($keychains, $trusted): ?string {
+            if ($command[1] === 'dump-trust-settings') {
+                $this->trustDumps[] = $command;
+                return $this->trustSettings[in_array('-d', $command, true) ? 'admin' : 'user'];
+            }
+            $this->commands[] = $command;
+            if ($command[1] === 'find-certificate') {
+                if (!array_key_exists($command[4], $keychains)) {
+                    throw new LogicException('Unexpected keychain ' . $command[4]);
+                }
+                return $keychains[$command[4]] === null ? null : implode("\n", $keychains[$command[4]]);
+            }
+            if ($command[1] === 'verify-cert') {
+                return in_array(file_get_contents($command[3]), $trusted, true) ? '' : null;
+            }
+            throw new LogicException('Unexpected command ' . implode(' ', $command));
+        };
+    }
+
+    private static function fixture(string $name): string
+    {
+        // Trimmed, as `security find-certificate` output is split into bare PEM blocks.
+        return trim((string) file_get_contents(dirname(__DIR__, 3) . '/fixtures/trust-store/' . $name . '.pem'));
+    }
+}
